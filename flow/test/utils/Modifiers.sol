@@ -86,6 +86,10 @@ abstract contract Modifiers {
         _;
     }
 
+    modifier whenAssetValidDecimals() {
+        _;
+    }
+
     modifier whenRecipientIsNotZeroAddress() {
         _;
     }

@@ -49,11 +49,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         uint128 beforeRemainingAmount = flow.getRemainingAmount(defaultStreamId);
 
         vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({
-            from: address(flow),
-            to: users.recipient,
-            value: normalizeAmountWithStreamId(defaultStreamId, ONE_MONTH_STREAMED_AMOUNT)
-        });
+        emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: ONE_MONTH_STREAMED_AMOUNT });
 
         vm.expectEmit({ emitter: address(flow) });
         emit WithdrawFromFlowStream({

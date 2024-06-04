@@ -14,17 +14,17 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCalled() external {
-        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
         expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        bytes memory callData = abi.encodeCall(flow.depositAndPause, (nullStreamId, DEPOSIT_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (nullStreamId, TRANSFER_AMOUNT));
         expectRevert_Null(callData);
     }
 
     function test_RevertGiven_Paused() external whenNotDelegateCalled givenNotNull {
-        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
         expectRevert_Paused(callData);
     }
 
@@ -35,7 +35,7 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
         givenNotPaused
         whenCallerIsNotSender
     {
-        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
         expectRevert_CallerRecipient(callData);
     }
 
@@ -46,29 +46,25 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
         givenNotPaused
         whenCallerIsNotSender
     {
-        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
     function test_WhenCallerIsSender() external whenNotDelegateCalled givenNotNull givenNotPaused {
-        uint128 depositAmount = flow.streamDebtOf(defaultStreamId);
+        uint128 transferAmount = flow.streamDebtOf(defaultStreamId);
         uint128 previousStreamBalance = flow.getBalance(defaultStreamId);
         uint128 previousAmountOwed = flow.amountOwedOf(defaultStreamId);
 
         // It should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events
         vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({
-            from: users.sender,
-            to: address(flow),
-            value: normalizeAmountWithStreamId(defaultStreamId, depositAmount)
-        });
+        emit IERC20.Transfer({ from: users.sender, to: address(flow), value: transferAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit DepositFlowStream({
             streamId: defaultStreamId,
             funder: users.sender,
             asset: dai,
-            depositAmount: depositAmount
+            depositAmount: transferAmount
         });
 
         vm.expectEmit({ emitter: address(flow) });
@@ -84,18 +80,13 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
         // It should perform the ERC20 transfer
-        expectCallToTransferFrom({
-            asset: dai,
-            from: users.sender,
-            to: address(flow),
-            amount: normalizeAmountWithStreamId(defaultStreamId, depositAmount)
-        });
+        expectCallToTransferFrom({ asset: dai, from: users.sender, to: address(flow), amount: transferAmount });
 
-        flow.depositAndPause(defaultStreamId, depositAmount);
+        flow.depositAndPause(defaultStreamId, transferAmount);
 
         // It should update the stream balance
         uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
-        uint128 expectedStreamBalance = previousStreamBalance + depositAmount;
+        uint128 expectedStreamBalance = previousStreamBalance + transferAmount;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
         // It should pause the stream

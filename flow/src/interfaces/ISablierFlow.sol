@@ -169,7 +169,8 @@ interface ISablierFlow is
     /// - `recipient` must not be the zero address.
     /// - `sender` must not be the zero address.
     /// - `ratePerSecond` must be greater than zero.
-    /// - `asset` must have implemented `decimals` function and should not return a number greater than 255.
+    /// - `asset` must implement `decimals` function and should not return a number greater than 255.
+    /// - Asset decimals must not be greater than 18.
     ///
     /// @param recipient The address receiving the assets.
     /// @param sender The address streaming the assets, with the ability to adjust and pause the stream. It doesn't
@@ -202,7 +203,7 @@ interface ISablierFlow is
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
-    /// @param amount The amount deposited in the stream.
+    /// @param transferAmount The transfer amount, denoted in units of the asset's decimals.
     /// @return streamId The ID of the newly created stream.
     function createAndDeposit(
         address recipient,
@@ -210,7 +211,7 @@ interface ISablierFlow is
         uint128 ratePerSecond,
         IERC20 asset,
         bool isTransferable,
-        uint128 amount
+        uint128 transferAmount
     )
         external
         returns (uint256 streamId);
@@ -229,8 +230,8 @@ interface ISablierFlow is
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
-    /// @param totalAmount The total amount, including the stream deposit and broker fee amount, both denoted in 18
-    /// decimals.
+    /// @param totalTransferAmount The total transfer amount, including the stream transfer amount and broker fee
+    /// amount, denoted in units of the asset's decimals.
     /// @param broker The broker's address and fee.
     /// @return streamId The ID of the newly created stream.
     function createAndDepositViaBroker(
@@ -239,7 +240,7 @@ interface ISablierFlow is
         uint128 ratePerSecond,
         IERC20 asset,
         bool isTransferable,
-        uint128 totalAmount,
+        uint128 totalTransferAmount,
         Broker calldata broker
     )
         external
@@ -249,14 +250,17 @@ interface ISablierFlow is
     ///
     /// @dev Emits a {Transfer} and {DepositFlowStream} event.
     ///
+    /// Notes:
+    /// - If the asset has less than 18 decimals, the amount deposited will normalized to 18 decimals.
+    ///
     /// Requirements:
     /// - Must not be delegate called.
     /// - `streamId` must not reference a null stream.
-    /// - `amount` must be greater than zero.
+    /// - `transferAmount` must be greater than zero.
     ///
     /// @param streamId The ID of the stream to deposit on.
-    /// @param amount The amount deposited in the stream, denoted in 18 decimals.
-    function deposit(uint256 streamId, uint128 amount) external;
+    /// @param transferAmount The transfer amount, denoted in units of the asset's decimals.
+    function deposit(uint256 streamId, uint128 transferAmount) external;
 
     /// @notice Deposits assets in a stream and pauses it.
     ///
@@ -266,8 +270,8 @@ interface ISablierFlow is
     /// - Refer to the requirements in {deposit} and {pause}.
     ///
     /// @param streamId The ID of the stream to deposit on and then pause.
-    /// @param amount The amount deposited in the stream, denoted in 18 decimals.
-    function depositAndPause(uint256 streamId, uint128 amount) external;
+    /// @param transferAmount The transfer amount, denoted in units of the asset's decimals.
+    function depositAndPause(uint256 streamId, uint128 transferAmount) external;
 
     /// @notice Deposits assets in a stream.
     ///
@@ -276,15 +280,15 @@ interface ISablierFlow is
     /// Requirements:
     /// - Must not be delegate called.
     /// - `streamId` must not reference a null stream.
-    /// - `totalAmount` must be greater than zero. Otherwise it will revert inside {deposit}.
+    /// - `totalTransferAmount` must be greater than zero. Otherwise it will revert inside {deposit}.
     /// - `broker.account` must not be 0 address.
     /// - `broker.fee` must not be greater than `MAX_BROKER_FEE`. It can be zero.
     ///
     /// @param streamId The ID of the stream to deposit on.
-    /// @param totalAmount The total amount, including the stream deposit and broker fee amount, both denoted in 18
-    /// decimals.
+    /// @param totalTransferAmount The total transfer amount, including the stream transfer amount and broker fee
+    /// amount, denoted in units of the  asset's decimals.
     /// @param broker The broker's address and fee.
-    function depositViaBroker(uint256 streamId, uint128 totalAmount, Broker calldata broker) external;
+    function depositViaBroker(uint256 streamId, uint128 totalTransferAmount, Broker calldata broker) external;
 
     /// @notice Pauses the stream.
     ///
@@ -339,19 +343,18 @@ interface ISablierFlow is
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     function restart(uint256 streamId, uint128 ratePerSecond) external;
 
-    /// @notice Restarts the stream with the provided rate per second, and deposits `amount` in the stream
-    /// balance.
+    /// @notice Restarts the stream with the provided rate per second, and deposits in the stream.
     ///
     /// @dev Emits a {RestartFlowStream}, {Transfer} and {DepositFlowStream} event.
     ///
     /// Requirements:
-    /// - `amount` must be greater than zero.
+    /// - `transferAmount` must be greater than zero.
     /// - Refer to the requirements in {restart}.
     ///
     /// @param streamId The ID of the stream to restart.
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    /// @param amount The amount deposited in the stream.
-    function restartAndDeposit(uint256 streamId, uint128 ratePerSecond, uint128 amount) external;
+    /// @param transferAmount The transfer amount, denoted in units of the asset's decimals.
+    function restartAndDeposit(uint256 streamId, uint128 ratePerSecond, uint128 transferAmount) external;
 
     /// @notice Withdraws the amount of assets calculated based on time reference and the remaining amount, from the
     /// stream to the provided `to` address.

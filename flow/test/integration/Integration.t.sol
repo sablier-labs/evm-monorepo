@@ -45,7 +45,7 @@ abstract contract Integration_Test is Base_Test {
     }
 
     function depositToDefaultStream() internal {
-        flow.deposit(defaultStreamId, DEPOSIT_AMOUNT);
+        flow.deposit(defaultStreamId, TRANSFER_AMOUNT);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

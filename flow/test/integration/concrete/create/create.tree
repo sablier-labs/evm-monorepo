@@ -14,8 +14,11 @@ create.t.sol
             ├── when the asset is not a contract
             │  └── it should revert due to no decimals function
             └── when the asset is a contract
-               ├── it should create the stream
-               ├── it should bump the next stream id
-               ├── it should mint the NFT
-               ├── it should emit a {MetadataUpdate} event
-               └── it should emit a {CreateFlowStream} event
+               ├── when the asset has more than 18 decimals
+               │  └── it should revert 
+               └── when the asset does not have more than 18 decimals
+                  ├── it should create the stream
+                  ├── it should bump the next stream id
+                  ├── it should mint the NFT
+                  ├── it should emit a {MetadataUpdate} event
+                  └── it should emit a {CreateFlowStream} event

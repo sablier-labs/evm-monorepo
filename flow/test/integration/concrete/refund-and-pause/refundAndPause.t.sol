@@ -56,11 +56,7 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
 
         // It should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events
         vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({
-            from: address(flow),
-            to: users.sender,
-            value: normalizeAmountWithStreamId(defaultStreamId, REFUND_AMOUNT)
-        });
+        emit IERC20.Transfer({ from: address(flow), to: users.sender, value: REFUND_AMOUNT });
 
         vm.expectEmit({ emitter: address(flow) });
         emit RefundFromFlowStream({
@@ -80,11 +76,7 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
         });
 
         // It should perform the ERC20 transfer
-        expectCallToTransfer({
-            asset: dai,
-            to: users.sender,
-            amount: normalizeAmountWithStreamId(defaultStreamId, REFUND_AMOUNT)
-        });
+        expectCallToTransfer({ asset: dai, to: users.sender, amount: REFUND_AMOUNT });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });

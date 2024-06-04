@@ -4,6 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
+import { Helpers } from "src/libraries/Helpers.sol";
 
 import { FlowStore } from "../stores/FlowStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
@@ -132,7 +133,7 @@ contract FlowHandler is BaseHandler {
     function deposit(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        uint128 depositAmount
+        uint128 transferAmount
     )
         external
         instrument("deposit")
@@ -142,20 +143,23 @@ contract FlowHandler is BaseHandler {
         updateFlowStates
     {
         // Bound the deposit amount.
-        depositAmount = uint128(_bound(depositAmount, 100e18, 1_000_000_000e18));
+        transferAmount = uint128(_bound(transferAmount, 100, 1_000_000_000e18));
 
         // Mint enough assets to the Sender.
         address sender = flowStore.senders(currentStreamId);
-        deal({ token: address(asset), to: sender, give: asset.balanceOf(sender) + depositAmount });
+        deal({ token: address(asset), to: sender, give: asset.balanceOf(sender) + transferAmount });
 
         // Approve {SablierFlow} to spend the assets.
-        asset.approve({ spender: address(flow), value: depositAmount });
+        asset.approve({ spender: address(flow), value: transferAmount });
 
         // Deposit into the stream.
-        flow.deposit({ streamId: currentStreamId, amount: depositAmount });
+        flow.deposit({ streamId: currentStreamId, transferAmount: transferAmount });
+
+        uint128 normalizedAmount =
+            Helpers.calculateNormalizedAmount(transferAmount, flow.getAssetDecimals(currentStreamId));
 
         // Update the deposited amount.
-        flowStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);
+        flowStore.updateStreamDepositedAmountsSum(currentStreamId, normalizedAmount);
     }
 
     function refund(

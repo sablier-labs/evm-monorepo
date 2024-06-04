@@ -14,12 +14,12 @@ contract RestartAndDeposit_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
-            abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT));
+            abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, TRANSFER_AMOUNT));
         expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        bytes memory callData = abi.encodeCall(flow.restartAndDeposit, (nullStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.restartAndDeposit, (nullStreamId, RATE_PER_SECOND, TRANSFER_AMOUNT));
         expectRevert_Null(callData);
     }
 
@@ -31,7 +31,7 @@ contract RestartAndDeposit_Integration_Concrete_Test is Integration_Test {
         whenCallerIsNotSender
     {
         bytes memory callData =
-            abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT));
+            abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, TRANSFER_AMOUNT));
         expectRevert_CallerRecipient(callData);
     }
 
@@ -43,7 +43,7 @@ contract RestartAndDeposit_Integration_Concrete_Test is Integration_Test {
         whenCallerIsNotSender
     {
         bytes memory callData =
-            abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT));
+            abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, TRANSFER_AMOUNT));
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
@@ -64,11 +64,7 @@ contract RestartAndDeposit_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({
-            from: users.sender,
-            to: address(flow),
-            value: normalizeAmountWithStreamId(defaultStreamId, DEPOSIT_AMOUNT)
-        });
+        emit IERC20.Transfer({ from: users.sender, to: address(flow), value: TRANSFER_AMOUNT });
 
         vm.expectEmit({ emitter: address(flow) });
         emit DepositFlowStream({
@@ -81,7 +77,11 @@ contract RestartAndDeposit_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
-        flow.restartAndDeposit({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND, amount: DEPOSIT_AMOUNT });
+        flow.restartAndDeposit({
+            streamId: defaultStreamId,
+            ratePerSecond: RATE_PER_SECOND,
+            transferAmount: TRANSFER_AMOUNT
+        });
 
         bool isPaused = flow.isPaused(defaultStreamId);
         assertFalse(isPaused);

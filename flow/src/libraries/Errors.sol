@@ -28,7 +28,7 @@ library Errors {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when trying to create a stream with a broker fee more than the allowed.
-    error SablierFlow_BrokerFeeTooHigh(uint256 streamId, UD60x18 fee, UD60x18 maxFee);
+    error SablierFlow_BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxBrokerFee);
 
     /// @notice Thrown when trying to create a stream with a broker recipient address as zero.
     error SablierFlow_BrokerAddressZero();

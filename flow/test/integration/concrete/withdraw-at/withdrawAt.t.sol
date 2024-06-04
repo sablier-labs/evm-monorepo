@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
+import { Helpers } from "src/libraries/Helpers.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -293,10 +294,10 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         // Set the timestamp to 1 month ago to create the stream with the same `lastTimeUpdate` as `defaultStreamId`.
         vm.warp({ newTimestamp: WARP_ONE_MONTH - ONE_MONTH });
         uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdt)));
-        flow.deposit(streamId, DEPOSIT_AMOUNT);
+        flow.deposit(streamId, TRANSFER_AMOUNT_6D);
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
-        _test_Withdraw(streamId, IERC20(address(usdt)));
+        _test_Withdraw(streamId, IERC20(address(usdt)), 6);
     }
 
     function test_Withdraw()
@@ -311,22 +312,20 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         whenCallerRecipient
         givenNoDebt
     {
-        _test_Withdraw(defaultStreamId, dai);
+        _test_Withdraw(defaultStreamId, dai, 18);
     }
 
-    function _test_Withdraw(uint256 streamId, IERC20 asset) internal {
+    function _test_Withdraw(uint256 streamId, IERC20 asset, uint8 assetDecimals) internal {
         resetPrank({ msgSender: users.recipient });
 
         uint40 actualLastTimeUpdate = flow.getLastTimeUpdate(streamId);
         uint40 expectedLastTimeUpdate = uint40(block.timestamp - ONE_MONTH);
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
 
+        uint128 transferAmount = Helpers.calculateTransferAmount(WITHDRAW_AMOUNT, assetDecimals);
+
         vm.expectEmit({ emitter: address(asset) });
-        emit IERC20.Transfer({
-            from: address(flow),
-            to: users.recipient,
-            value: normalizeAmountWithStreamId(streamId, WITHDRAW_AMOUNT)
-        });
+        emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: transferAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit WithdrawFromFlowStream({
@@ -336,11 +335,7 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
             withdrawnAmount: WITHDRAW_AMOUNT
         });
 
-        expectCallToTransfer({
-            asset: asset,
-            to: users.recipient,
-            amount: normalizeAmountWithStreamId(streamId, WITHDRAW_AMOUNT)
-        });
+        expectCallToTransfer({ asset: asset, to: users.recipient, amount: transferAmount });
         flow.withdrawAt({ streamId: streamId, to: users.recipient, time: WITHDRAW_TIME });
 
         actualLastTimeUpdate = flow.getLastTimeUpdate(streamId);

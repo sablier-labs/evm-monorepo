@@ -8,6 +8,7 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Flow } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
+import { ERC20Mock } from "../../../mocks/ERC20Mock.sol";
 
 contract Create_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
@@ -76,6 +77,28 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         });
     }
 
+    function test_RevertWhen_AssetMoreDecimals()
+        external
+        whenNotDelegateCalled
+        whenSenderIsNotZeroAddress
+        whenRecipientIsNotZeroAddress
+        whenRatePerSecondIsNotZero
+        whenAssetContract
+    {
+        IERC20 assetWith24Decimals = new ERC20Mock("Asset with more decimals", "AWMD", 24);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierFlow_InvalidAssetDecimals.selector, address(assetWith24Decimals))
+        );
+
+        flow.create({
+            sender: users.sender,
+            recipient: users.recipient,
+            ratePerSecond: RATE_PER_SECOND,
+            asset: assetWith24Decimals,
+            isTransferable: IS_TRANFERABLE
+        });
+    }
+
     function test_Create()
         external
         whenNotDelegateCalled
@@ -83,6 +106,7 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         whenRecipientIsNotZeroAddress
         whenRatePerSecondIsNotZero
         whenAssetContract
+        whenAssetValidDecimals
     {
         uint256 expectedStreamId = flow.nextStreamId();
 

@@ -98,40 +98,8 @@ abstract contract Base_Test is Assertions, Constants, Events, Modifiers, Test, U
     function labelContracts() internal {
         vm.label(address(dai), "DAI");
         vm.label(address(flow), "Flow");
+        vm.label(address(usdc), "USDC");
         vm.label(address(usdt), "USDT");
-    }
-
-    /// @dev Normalizes `amount` to `decimals`.
-    function normalizeAmountToDecimal(
-        uint128 amount,
-        uint8 decimals
-    )
-        internal
-        pure
-        returns (uint128 normalizedAmount)
-    {
-        // Return the original amount if it's already in the standard 18-decimal format.
-        if (decimals == 18) {
-            return amount;
-        }
-
-        bool isGreaterThan18 = decimals > 18;
-
-        uint8 normalizingFactor = isGreaterThan18 ? decimals - 18 : 18 - decimals;
-
-        normalizedAmount = isGreaterThan18
-            ? (amount * (10 ** normalizingFactor)).toUint128()
-            : (amount / (10 ** normalizingFactor)).toUint128();
-    }
-
-    /// @dev Normalizes `amount` to the decimal of `streamId` asset.
-    function normalizeAmountWithStreamId(uint256 streamId, uint128 amount) internal view returns (uint256) {
-        return normalizeAmountToDecimal(amount, flow.getAssetDecimals(streamId));
-    }
-
-    /// @dev Normalizes stream balance to the decimal of `streamId` asset.
-    function normalizeStreamBalance(uint256 streamId) internal view returns (uint256) {
-        return normalizeAmountToDecimal(flow.getBalance(streamId), flow.getAssetDecimals(streamId));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

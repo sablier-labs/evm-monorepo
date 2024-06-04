@@ -117,7 +117,7 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_AdjustRatePerSecond() external whenNotDelegateCalled givenNotNull givenNotPaused whenCallerIsSender {
-        flow.deposit(defaultStreamId, DEPOSIT_AMOUNT);
+        flow.deposit(defaultStreamId, TRANSFER_AMOUNT);
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
         uint128 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);

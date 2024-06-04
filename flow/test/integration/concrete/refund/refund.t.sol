@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
+import { Helpers } from "src/libraries/Helpers.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -86,10 +87,10 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         // Set the timestamp to 1 month ago to create the stream with the same `lastTimeUpdate` as `defaultStreamId`.
         vm.warp({ newTimestamp: WARP_ONE_MONTH - ONE_MONTH });
         uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdt)));
-        flow.deposit(streamId, DEPOSIT_AMOUNT);
+        flow.deposit(streamId, TRANSFER_AMOUNT_6D);
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
-        test_Refund(streamId, IERC20(address(usdt)));
+        test_Refund(streamId, IERC20(address(usdt)), 6);
     }
 
     function test_Refund()
@@ -100,25 +101,19 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         whenRefundAmountNotZero
         whenNoOverrefund
     {
-        test_Refund(defaultStreamId, dai);
+        test_Refund(defaultStreamId, dai, 18);
     }
 
-    function test_Refund(uint256 streamId, IERC20 asset) internal {
+    function test_Refund(uint256 streamId, IERC20 asset, uint8 assetDecimals) internal {
+        uint128 transferAmount = Helpers.calculateTransferAmount(REFUND_AMOUNT, assetDecimals);
+
         vm.expectEmit({ emitter: address(asset) });
-        emit IERC20.Transfer({
-            from: address(flow),
-            to: users.sender,
-            value: normalizeAmountWithStreamId(streamId, REFUND_AMOUNT)
-        });
+        emit IERC20.Transfer({ from: address(flow), to: users.sender, value: transferAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit RefundFromFlowStream({ streamId: streamId, sender: users.sender, asset: asset, refundAmount: REFUND_AMOUNT });
 
-        expectCallToTransfer({
-            asset: asset,
-            to: users.sender,
-            amount: normalizeAmountWithStreamId(streamId, REFUND_AMOUNT)
-        });
+        expectCallToTransfer({ asset: asset, to: users.sender, amount: transferAmount });
         flow.refund({ streamId: streamId, amount: REFUND_AMOUNT });
 
         uint128 actualStreamBalance = flow.getBalance(streamId);
