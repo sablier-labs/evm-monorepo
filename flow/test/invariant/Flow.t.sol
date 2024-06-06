@@ -1,19 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import { Helpers } from "src/libraries/Helpers.sol";
 
-import { Invariant_Test } from "./Invariant.t.sol";
+import { Base_Test } from "../Base.t.sol";
 import { FlowCreateHandler } from "./handlers/FlowCreateHandler.sol";
 import { FlowHandler } from "./handlers/FlowHandler.sol";
 import { FlowStore } from "./stores/FlowStore.sol";
 
 /// @notice Common invariant test logic needed across contracts that inherit from {SablierFlow}.
-contract Flow_Invariant_Test is Invariant_Test {
+contract Flow_Invariant_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    IERC20[] internal assets;
     FlowCreateHandler internal flowCreateHandler;
     FlowHandler internal flowHandler;
     FlowStore internal flowStore;
@@ -23,14 +26,20 @@ contract Flow_Invariant_Test is Invariant_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        Invariant_Test.setUp();
+        Base_Test.setUp();
+
+        // Declare the default assets.
+        assets.push(assetWithoutDecimals);
+        assets.push(dai);
+        assets.push(usdc);
+        assets.push(IERC20(address(usdt)));
 
         // Deploy and the FlowStore contract.
         flowStore = new FlowStore();
 
         // Deploy the handlers.
-        flowHandler = new FlowHandler({ asset_: dai, flowStore_: flowStore, flow_: flow });
-        flowCreateHandler = new FlowCreateHandler({ asset_: dai, flowStore_: flowStore, flow_: flow });
+        flowHandler = new FlowHandler({ flowStore_: flowStore, flow_: flow });
+        flowCreateHandler = new FlowCreateHandler({ flowStore_: flowStore, flow_: flow, assets_: assets });
 
         // Label the contracts.
         vm.label({ account: address(flowStore), newLabel: "flowStore" });
@@ -42,6 +51,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         targetContract(address(flowCreateHandler));
 
         // Prevent these contracts from being fuzzed as `msg.sender`.
+        excludeSender(address(flow));
         excludeSender(address(flowStore));
         excludeSender(address(flowHandler));
         excludeSender(address(flowCreateHandler));
@@ -67,14 +77,24 @@ contract Flow_Invariant_Test is Invariant_Test {
     /// @dev For a given asset, the sum of all stream balances normalized to the asset's decimal should never exceed
     /// the asset balance of the flow contract.
     function invariant_ContractBalanceGeStreamBalances() external view {
-        uint256 contractBalance = dai.balanceOf(address(flow));
+        // Check the invariant for each asset.
+        for (uint256 i = 0; i < assets.length; ++i) {
+            contractBalanceGeStreamBalances(assets[i]);
+        }
+    }
+
+    function contractBalanceGeStreamBalances(IERC20 asset) internal view {
+        uint256 contractBalance = asset.balanceOf(address(flow));
+        uint128 streamBalancesSumNormalized;
 
         uint256 lastStreamId = flowStore.lastStreamId();
-        uint128 streamBalancesSumNormalized;
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
-            streamBalancesSumNormalized +=
-                Helpers.calculateTransferAmount(flow.getBalance(streamId), flow.getAssetDecimals(streamId));
+
+            if (flow.getAsset(streamId) == asset) {
+                streamBalancesSumNormalized +=
+                    Helpers.calculateTransferAmount(flow.getBalance(streamId), flow.getAssetDecimals(streamId));
+            }
         }
 
         assertGe(

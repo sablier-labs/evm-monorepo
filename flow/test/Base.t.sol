@@ -96,6 +96,7 @@ abstract contract Base_Test is Assertions, Constants, Events, Modifiers, Test, U
     }
 
     function labelContracts() internal {
+        vm.label(address(assetWithoutDecimals), "AWD");
         vm.label(address(dai), "DAI");
         vm.label(address(flow), "Flow");
         vm.label(address(usdc), "USDC");

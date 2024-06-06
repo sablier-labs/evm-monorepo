@@ -1,24 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
+
+import { FlowStore } from "../stores/FlowStore.sol";
 import { Constants } from "../../utils/Constants.sol";
 import { Utils } from "../../utils/Utils.sol";
 
 /// @notice Base contract with common logic needed by all handler contracts.
 abstract contract BaseHandler is Constants, StdCheats, Utils {
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
+                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Maximum number of streams that can be created during an invariant campaign.
     uint256 internal constant MAX_STREAM_COUNT = 100;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     VARIABLES
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Maps function names to the number of times they have been called.
     mapping(string func => uint256 calls) public calls;
@@ -30,15 +28,16 @@ abstract contract BaseHandler is Constants, StdCheats, Utils {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Default ERC20 asset used for testing.
-    IERC20 public asset;
+    ISablierFlow public flow;
+    FlowStore public flowStore;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_) {
-        asset = asset_;
+    constructor(FlowStore flowStore_, ISablierFlow flow_) {
+        flowStore = flowStore_;
+        flow = flow_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -53,21 +52,6 @@ abstract contract BaseHandler is Constants, StdCheats, Utils {
         _;
     }
 
-    /// @dev Checks user assumptions.
-    modifier checkUsers(address sender, address recipient) {
-        // The protocol doesn't allow the sender or recipient to be the zero address.
-        if (sender == address(0) || recipient == address(0)) {
-            return;
-        }
-
-        // Prevent the contract itself from playing the role of any user.
-        if (sender == address(this) || recipient == address(this)) {
-            return;
-        }
-
-        _;
-    }
-
     /// @dev Records a function call for instrumentation purposes.
     modifier instrument(string memory functionName) {
         calls[functionName]++;
@@ -75,9 +59,18 @@ abstract contract BaseHandler is Constants, StdCheats, Utils {
         _;
     }
 
-    /// @dev Makes the provided sender the caller.
-    modifier useNewSender(address sender) {
-        resetPrank(sender);
-        _;
+    /*//////////////////////////////////////////////////////////////////////////
+                                       HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Helper function to calculate the upper bound, based on the asset decimals, for the transfer amount.
+    function getTransferAmountUpperBound(uint8 assetDecimals) internal pure returns (uint128 upperBound) {
+        if (assetDecimals == 0) {
+            upperBound = 1_000_000;
+        } else if (assetDecimals == 6) {
+            upperBound = 1_000_000e6;
+        } else {
+            upperBound = 1_000_000e18;
+        }
     }
 }

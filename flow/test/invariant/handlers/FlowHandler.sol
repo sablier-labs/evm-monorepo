@@ -11,13 +11,6 @@ import { BaseHandler } from "./BaseHandler.sol";
 
 contract FlowHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
-                                   TEST CONTRACTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    ISablierFlow public flow;
-    FlowStore public flowStore;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -34,10 +27,7 @@ contract FlowHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, FlowStore flowStore_, ISablierFlow flow_) BaseHandler(asset_) {
-        flowStore = flowStore_;
-        flow = flow_;
-    }
+    constructor(FlowStore flowStore_, ISablierFlow flow_) BaseHandler(flowStore_, flow_) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -64,14 +54,12 @@ contract FlowHandler is BaseHandler {
     }
 
     modifier useFuzzedStreamRecipient() {
-        uint256 lastStreamId = flowStore.lastStreamId();
         currentRecipient = flowStore.recipients(currentStreamId);
         resetPrank(currentRecipient);
         _;
     }
 
     modifier useFuzzedStreamSender() {
-        uint256 lastStreamId = flowStore.lastStreamId();
         currentSender = flowStore.senders(currentStreamId);
         resetPrank(currentSender);
         _;
@@ -94,9 +82,7 @@ contract FlowHandler is BaseHandler {
         updateFlowStates
     {
         // Only non paused streams can have their rate per second adjusted.
-        if (flow.isPaused(currentStreamId)) {
-            return;
-        }
+        vm.assume(!flow.isPaused(currentStreamId));
 
         // Bound the rate per second.
         newRatePerSecond = uint128(_bound(newRatePerSecond, 0.0001e18, 1e18));
@@ -122,9 +108,7 @@ contract FlowHandler is BaseHandler {
         updateFlowStates
     {
         // Paused streams cannot be paused again.
-        if (flow.isPaused(currentStreamId)) {
-            return;
-        }
+        vm.assume(!flow.isPaused(currentStreamId));
 
         // Pause the stream.
         flow.pause(currentStreamId);
@@ -142,12 +126,16 @@ contract FlowHandler is BaseHandler {
         useFuzzedStreamSender
         updateFlowStates
     {
-        // Bound the transfer amount.
-        transferAmount = uint128(_bound(transferAmount, 100, 1_000_000_000e18));
+        // Calculate the upper bound, based on the asset decimals, for the transfer amount.
+        uint128 upperBound = getTransferAmountUpperBound(flow.getAssetDecimals(currentStreamId));
+
+        // Bound the deposit amount.
+        transferAmount = uint128(_bound(transferAmount, 100, upperBound));
+
+        IERC20 asset = flow.getAsset(currentStreamId);
 
         // Mint enough assets to the Sender.
-        address sender = flowStore.senders(currentStreamId);
-        deal({ token: address(asset), to: sender, give: asset.balanceOf(sender) + transferAmount });
+        deal({ token: address(asset), to: currentSender, give: asset.balanceOf(currentSender) + transferAmount });
 
         // Approve {SablierFlow} to spend the assets.
         asset.approve({ spender: address(flow), value: transferAmount });
@@ -177,9 +165,7 @@ contract FlowHandler is BaseHandler {
         uint128 refundableAmount = flow.refundableAmountOf(currentStreamId);
 
         // The protocol doesn't allow zero refund amount.
-        if (refundableAmount == 0) {
-            return;
-        }
+        vm.assume(refundableAmount > 0);
 
         // Bound the refund amount so that it does not exceed the `refundableAmount`.
         refundAmount = uint128(_bound(refundAmount, 1, refundableAmount));
@@ -204,9 +190,7 @@ contract FlowHandler is BaseHandler {
         updateFlowStates
     {
         // Only paused streams can be restarted.
-        if (!flow.isPaused(currentStreamId)) {
-            return;
-        }
+        vm.assume(flow.isPaused(currentStreamId));
 
         // Bound the stream parameter.
         ratePerSecond = uint128(_bound(ratePerSecond, 0.0001e18, 1e18));
@@ -229,14 +213,10 @@ contract FlowHandler is BaseHandler {
         updateFlowStates
     {
         // The protocol doesn't allow the withdrawal address to be the zero address.
-        if (to == address(0)) {
-            return;
-        }
+        vm.assume(to != address(0));
 
-        // If the balance is zero, there is nothing to withdraw.
-        if (flow.getBalance(currentStreamId) == 0) {
-            return;
-        }
+        // Check if there is anything to withdraw.
+        vm.assume(flow.withdrawableAmountOf(currentStreamId) > 0);
 
         // Bound the time so that it is between last time update and current time.
         time = uint40(_bound(time, flow.getLastTimeUpdate(currentStreamId), getBlockTimestamp()));
