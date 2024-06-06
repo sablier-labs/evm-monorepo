@@ -162,7 +162,7 @@ contract SablierFlow is
         uint128 ratePerSecond,
         IERC20 asset,
         bool isTransferable,
-        uint128 amount
+        uint128 transferAmount
     )
         external
         override
@@ -173,7 +173,7 @@ contract SablierFlow is
         streamId = _create(sender, recipient, ratePerSecond, asset, isTransferable);
 
         // Checks, Effects and Interactions: deposit on stream.
-        _deposit(streamId, amount);
+        _deposit(streamId, transferAmount);
     }
 
     /// @inheritdoc ISablierFlow
