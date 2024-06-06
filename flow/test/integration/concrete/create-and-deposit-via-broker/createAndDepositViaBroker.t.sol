@@ -24,7 +24,7 @@ contract CreateAndDepositViaBroker_Integration_Concrete_Test is Integration_Test
         expectRevert_DelegateCall(callData);
     }
 
-    function test_WhenNotDelegateCalled() external {
+    function test_WhenNoDelegateCall() external {
         uint256 expectedStreamId = flow.nextStreamId();
 
         // It should emit events: 1 {MetadataUpdate}, 1 {CreateFlowStream}, 2 {Transfer}, 1
@@ -39,7 +39,7 @@ contract CreateAndDepositViaBroker_Integration_Concrete_Test is Integration_Test
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
             asset: dai,
-            lastTimeUpdate: uint40(block.timestamp)
+            lastTimeUpdate: getBlockTimestamp()
         });
 
         vm.expectEmit({ emitter: address(dai) });
@@ -77,7 +77,7 @@ contract CreateAndDepositViaBroker_Integration_Concrete_Test is Integration_Test
             asset: dai,
             assetDecimals: 18,
             balance: DEPOSIT_AMOUNT,
-            lastTimeUpdate: uint40(block.timestamp),
+            lastTimeUpdate: getBlockTimestamp(),
             isPaused: false,
             isStream: true,
             isTransferable: IS_TRANFERABLE,

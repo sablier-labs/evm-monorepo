@@ -33,8 +33,8 @@ library Errors {
     /// @notice Thrown when trying to create a stream with a broker recipient address as zero.
     error SablierFlow_BrokerAddressZero();
 
-    /// @notice Thrown when trying to create a stream with a zero deposit amount.
-    error SablierFlow_DepositAmountZero();
+    /// @notice Thrown when trying to create a stream with a zero transfer amount.
+    error SablierFlow_TransferAmountZero();
 
     /// @notice Thrown when trying to create a stream with an asset with no decimals.
     error SablierFlow_InvalidAssetDecimals(address asset);

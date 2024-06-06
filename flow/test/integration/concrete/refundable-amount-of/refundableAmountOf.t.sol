@@ -6,6 +6,9 @@ import { Integration_Test } from "../../Integration.t.sol";
 contract RefundableAmountOf_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
+
+        // Simulate the passage of time.
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
     }
 
     function test_RevertGiven_Null() external {
@@ -13,35 +16,38 @@ contract RefundableAmountOf_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(callData);
     }
 
-    function test_RefundableAmountOf_BalanceZero() external view givenNotNull givenNotPaused {
+    function test_GivenBalanceZero() external view givenNotNull {
+        // It should return zero.
         uint128 refundableAmount = flow.refundableAmountOf(defaultStreamId);
         assertEq(refundableAmount, 0, "refundable amount");
     }
 
-    function test_RefundableAmountOf_Paused() external givenNotNull {
+    modifier givenBalanceNotZero() override {
+        // Deposit into the stream.
         depositToDefaultStream();
-        flow.refundableAmountOf(defaultStreamId);
+        _;
+    }
 
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+    function test_GivenPaused() external givenNotNull givenBalanceNotZero {
+        // Pause the stream.
         flow.pause(defaultStreamId);
 
+        // It should return correct refundable amount.
         uint128 refundableAmount = flow.refundableAmountOf(defaultStreamId);
         assertEq(refundableAmount, ONE_MONTH_REFUNDABLE_AMOUNT, "refundable amount");
     }
 
-    function test_RefundableAmountOf_BalanceLessThanOrEqualStreamedAmount() external givenNotNull givenNotPaused {
-        uint128 depositAmount = 1e18;
-        flow.deposit(defaultStreamId, depositAmount);
+    function test_WhenAmountOwedExceedsBalance() external givenNotNull givenBalanceNotZero givenNotPaused {
+        // Simulate the passage of time until debt begins.
+        vm.warp({ newTimestamp: getBlockTimestamp() + SOLVENCY_PERIOD });
 
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+        // It should return zero.
         uint128 refundableAmount = flow.refundableAmountOf(defaultStreamId);
         assertEq(refundableAmount, 0, "refundable amount");
     }
 
-    function test_RefundableAmountOf() external givenNotNull givenNotPaused {
-        depositToDefaultStream();
-
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+    function test_WhenAmountOwedDoesNotExceedBalance() external givenNotNull givenBalanceNotZero givenNotPaused {
+        // It should return correct refundable amount.
         uint128 refundableAmount = flow.refundableAmountOf(defaultStreamId);
         assertEq(refundableAmount, ONE_MONTH_REFUNDABLE_AMOUNT, "refundable amount");
     }

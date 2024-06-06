@@ -1,27 +1,23 @@
-restart.t.sol
-├── when delegate called
+Restart_Integration_Concrete_Test
+├── when delegate call
 │  └── it should revert
-└── when not delegate called
-   ├── given the id references a null stream
+└── when no delegate call
+   ├── given null
    │  └── it should revert
-   └── given the id does not reference a null stream
-      ├── when the caller is not the sender
-      │  ├── when the caller is the sender
+   └── given not null
+      ├── when caller not sender
+      │  ├── when caller recipient
       │  │  └── it should revert
-      │  └── when the caller is a malicious third party
+      │  └── when caller malicious third party
       │     └── it should revert
-      └── when the caller is the sender
-         ├── given the id does not references a paused stream
+      └── when caller sender
+         ├── given not paused
          │  └── it should revert
-         └── given the id reference a paused stream
-            ├── when the provided rate per second is zero
+         └── given paused
+            ├── when new rate per second zero
             │  └── it should revert
-            └── when the provided rate per second is not zero
-               ├── when the provided rate per second is zero
-               │  └── it should revert
-               └── when the provided rate per second is not zero
-                  ├── it should restart the stream
-                  ├── it should update the rate per second
-                  ├── it should update the time
-                  ├── it should emit a {RestartFlowStream} event
-                  └── it should emit a {MetadataUpdate} event
+            └── when new rate per second not zero
+               ├── it should restart the stream
+               ├── it should update rate per second
+               ├── it should update lastTimeUpdate
+               └── it should emit 1 {RestartFlowStream}, 1 {MetadataUpdate} event

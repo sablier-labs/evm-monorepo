@@ -142,7 +142,7 @@ contract FlowHandler is BaseHandler {
         useFuzzedStreamSender
         updateFlowStates
     {
-        // Bound the deposit amount.
+        // Bound the transfer amount.
         transferAmount = uint128(_bound(transferAmount, 100, 1_000_000_000e18));
 
         // Mint enough assets to the Sender.
@@ -239,7 +239,7 @@ contract FlowHandler is BaseHandler {
         }
 
         // Bound the time so that it is between last time update and current time.
-        time = uint40(_bound(time, flow.getLastTimeUpdate(currentStreamId), block.timestamp));
+        time = uint40(_bound(time, flow.getLastTimeUpdate(currentStreamId), getBlockTimestamp()));
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
         // address must be set to the recipient.

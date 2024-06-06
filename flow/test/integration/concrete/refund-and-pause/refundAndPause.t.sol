@@ -19,22 +19,22 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
         expectRevert_DelegateCall(callData);
     }
 
-    function test_RevertGiven_Null() external whenNotDelegateCalled {
+    function test_RevertGiven_Null() external whenNoDelegateCall {
         bytes memory callData = abi.encodeCall(flow.refundAndPause, (nullStreamId, REFUND_AMOUNT));
         expectRevert_Null(callData);
     }
 
-    function test_RevertGiven_Paused() external whenNotDelegateCalled givenNotNull {
+    function test_RevertGiven_Paused() external whenNoDelegateCall givenNotNull {
         bytes memory callData = abi.encodeCall(flow.refundAndPause, (defaultStreamId, REFUND_AMOUNT));
         expectRevert_Paused(callData);
     }
 
     function test_RevertWhen_CallerRecipient()
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
         givenNotPaused
-        whenCallerIsNotSender
+        whenCallerNotSender
     {
         bytes memory callData = abi.encodeCall(flow.refundAndPause, (defaultStreamId, REFUND_AMOUNT));
         expectRevert_CallerRecipient(callData);
@@ -42,16 +42,16 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertWhen_CallerMaliciousThirdParty()
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
         givenNotPaused
-        whenCallerIsNotSender
+        whenCallerNotSender
     {
         bytes memory callData = abi.encodeCall(flow.refundAndPause, (defaultStreamId, REFUND_AMOUNT));
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
-    function test_WhenCallerIsSender() external whenNotDelegateCalled givenNotNull givenNotPaused {
+    function test_WhenCallerSender() external whenNoDelegateCall givenNotNull givenNotPaused {
         uint128 previousAmountOwed = flow.amountOwedOf(defaultStreamId);
 
         // It should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events
@@ -75,11 +75,11 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
             asset: dai
         });
 
-        // It should perform the ERC20 transfer
-        expectCallToTransfer({ asset: dai, to: users.sender, amount: REFUND_AMOUNT });
-
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
+
+        // It should perform the ERC20 transfer
+        expectCallToTransfer({ asset: dai, to: users.sender, amount: REFUND_AMOUNT });
 
         flow.refundAndPause(defaultStreamId, REFUND_AMOUNT);
 

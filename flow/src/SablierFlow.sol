@@ -531,9 +531,9 @@ contract SablierFlow is
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _deposit(uint256 streamId, uint128 transferAmount) internal {
-        // Check: the deposit amount is not zero.
+        // Check: the transfer amount is not zero.
         if (transferAmount == 0) {
-            revert Errors.SablierFlow_DepositAmountZero();
+            revert Errors.SablierFlow_TransferAmountZero();
         }
 
         // Retrieve the ERC-20 asset from storage.

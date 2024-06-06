@@ -1,7 +1,6 @@
-transferFrom.t.sol
-├── given the stream is not transferable
+TransferFrom_Integration_Concrete_Test
+├── given stream not transferable
 │  └── it should revert
-└── given the stream is transferable
+└── given stream transferable
    ├── it should transfer the NFT
-   ├── it should emit a {Transfer} event
-   └── it should emit a {MetadataUpdate} event
+   └── it should emit 1 {Transfer} and 1 {MetadataUpdate} event

@@ -1,32 +1,41 @@
-refund.t.sol
-├── when delegate called
-│  └── it should revert
-└── when not delegate called
-   ├── given the id references a null stream
-   │  └── it should revert
-   └── given the id does not reference a null stream
-      ├── when the caller is not the sender
-      │  ├── when the caller is the recipient
-      │  │  └── it should revert
-      │  └── when the caller is a malicious third party
-      │     └── it should revert
-      └── when the caller is the sender
-         ├── when the refund amount is zero
-         │  └── it should revert
-         └── when the refund amount is not zero
-            ├── when the refund amount overrefund
-            │  └── it should revert
-            └── when the refund amount does not overrefund
-               ├── given the id references a paused stream
-               │  └── it should refund from stream
-               └── given the id does not reference a paused stream
-                  ├── given the asset does not have 18 decimals
-                  │  ├── it should make the refund
-                  │  ├── it should update the stream balance
-                  │  ├── it should perform the ERC-20 transfer
-                  │  └── it should emit a {Transfer} and {RefundFromFlowStream} event
-                  └── given the asset has 18 decimals
-                     ├── it should make the refund   
-                     ├── it should update the stream balance
-                     ├── it should perform the ERC-20 transfer
-                     └── it should emit a {Transfer} and {RefundFromFlowStream} event
+Refund_Integration_Concrete_Test
+├── when delegate call
+│   └── it should revert
+└── when no delegate call
+    ├── given null
+    │   └── it should revert
+    └── given not null
+        ├── when caller not sender
+        │   ├── when caller recipient
+        │   │   └── it should revert
+        │   └── when caller malicious third party
+        │       └── it should revert
+        └── when caller sender
+            ├── when refund amount zero
+            │   └── it should revert
+            └── when refund amount not zero
+                ├── when over refund
+                │   └── it should revert
+                └── when no over refund
+                    ├── given paused
+                    │   ├── it should make the refund
+                    │   ├── it should update the stream balance
+                    │   ├── it should perform the ERC20 transfer
+                    │   └── it should emit a {Transfer} and {RefundFromFlowStream} event
+                    └── given not paused
+                        ├── when asset misses ERC20 return
+                        │   ├── it should make the refund
+                        │   ├── it should update the stream balance
+                        │   ├── it should perform the ERC20 transfer
+                        │   └── it should emit a {Transfer} and {RefundFromFlowStream} event
+                        └── when asset does not miss ERC20 return
+                            ├── given asset does not have 18 decimals
+                            │   ├── it should make the refund
+                            │   ├── it should update the stream balance
+                            │   ├── it should perform the ERC20 transfer
+                            │   └── it should emit a {Transfer} and {RefundFromFlowStream} event
+                            └── given asset has 18 decimals
+                                ├── it should make the refund
+                                ├── it should update the stream balance
+                                ├── it should perform the ERC20 transfer
+                                └── it should emit a {Transfer} and {RefundFromFlowStream} event

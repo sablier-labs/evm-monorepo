@@ -6,6 +6,9 @@ import { Integration_Test } from "../../Integration.t.sol";
 contract RecentAmountOf_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
+
+        // Simulate one month of streaming.
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
     }
 
     function test_RevertGiven_Null() external {
@@ -13,19 +16,25 @@ contract RecentAmountOf_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(callData);
     }
 
-    function test_RecentAmountOf_Paused() external givenNotNull {
+    function test_GivenPaused() external givenNotNull {
         flow.pause(defaultStreamId);
+
+        // It should return zero.
         uint128 recentAmount = flow.recentAmountOf(defaultStreamId);
         assertEq(recentAmount, 0, "recent amount");
     }
 
-    function test_RecentAmountOf_LastTimeUpdateInThePresent() external view givenNotNull givenNotPaused {
+    function test_WhenLastTimeUpdateInPresent() external givenNotNull givenNotPaused {
+        // Update the last time to the current block timestamp.
+        updateLastTimeToBlockTimestamp(defaultStreamId);
+
+        // It should return zero.
         uint128 recentAmount = flow.recentAmountOf(defaultStreamId);
         assertEq(recentAmount, 0, "recent amount");
     }
 
-    function test_RecentAmountOf() external givenNotNull givenNotPaused {
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+    function test_WhenLastTimeUpdateInPast() external view givenNotNull givenNotPaused {
+        // It should return the correct recent amount.
         uint128 recentAmount = flow.recentAmountOf(defaultStreamId);
         assertEq(recentAmount, ONE_MONTH_STREAMED_AMOUNT, "recent amount");
     }

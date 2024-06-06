@@ -57,7 +57,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
             assertGe(
-                uint40(block.timestamp),
+                getBlockTimestamp(),
                 flow.getLastTimeUpdate(streamId),
                 "Invariant violation: block timestamp < last time update"
             );

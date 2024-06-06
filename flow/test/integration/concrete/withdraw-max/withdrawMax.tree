@@ -1,14 +1,19 @@
-withdrawMax.t.sol
-├── when delegate called
-│  └── it should revert
-└── when not delegate called
-   ├── given the stream is paused
-   │  └── it should withdraw the remaining amount
-   └── given the end time is not paused
-      ├── it should make the max withdrawal
-      ├── it should update the time
-      ├── it should set the remaining amount to zero
-      ├── it should update the stream balance
-      ├── it should perform the ERC-20 transfer
-      ├── it should emit a {Transfer} and {WithdrawFromFlowStream} event
-      └── it should emit a {MetadataUpdated} event
+WithdrawMax_Integration_Concrete_Test
+├── when delegate call
+│   └── it should revert
+└── when no delegate call
+    ├── given null
+    │   └── it should revert
+    └── given not null
+        ├── given paused
+        │   ├── it should update lastTimeUpdate
+        │   ├── it should set the remaining amount to zero
+        │   ├── it should update the stream balance
+        │   ├── it should perform the ERC20 transfer
+        │   └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+        └── given not paused
+            ├── it should update lastTimeUpdate
+            ├── it should decrease the remaining amount by the withdrawable amount
+            ├── it should update the stream balance
+            ├── it should perform the ERC20 transfer
+            └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events

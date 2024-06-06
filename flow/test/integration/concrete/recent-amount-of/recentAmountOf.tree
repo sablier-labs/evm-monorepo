@@ -1,11 +1,11 @@
-recentAmountOf.t.sol
-├── given the id references a null stream
+RecentAmountOf_Integration_Concrete_Test
+├── given null
 │  └── it should revert
-└── given the id does not reference a null stream
-   ├── given the id references a paused stream
-   │  └── it return zero
-   └── given the id does not reference a paused stream
-      ├── given the last time update is in the present
+└── given not null
+   ├── given paused
+   │  └── it should return zero
+   └── given not paused
+      ├── when last time update in present
       │  └── it should return zero
-      └── given the last time update is in the past
+      └── when last time update in past
          └── it should return the correct recent amount

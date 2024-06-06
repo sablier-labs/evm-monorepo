@@ -1,7 +1,7 @@
 CreateAndDepositViaBroker_Integration_Concrete_Test
 ├── when delegate call
 │   └── it should revert
-└── when not delegate call
+└── when no delegate call
     ├── it should create the stream
     ├── it should bump the next stream id
     ├── it should mint the NFT

@@ -11,17 +11,13 @@ import { Integration_Test } from "../../Integration.t.sol";
 import { ERC20Mock } from "../../../mocks/ERC20Mock.sol";
 
 contract Create_Integration_Concrete_Test is Integration_Test {
-    function setUp() public override {
-        Integration_Test.setUp();
-    }
-
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
             abi.encodeCall(flow.create, (users.sender, users.recipient, RATE_PER_SECOND, dai, IS_TRANFERABLE));
         expectRevert_DelegateCall(callData);
     }
 
-    function test_RevertWhen_SenderZeroAddress() external whenNotDelegateCalled {
+    function test_RevertWhen_SenderAddressZero() external whenNoDelegateCall {
         vm.expectRevert(Errors.SablierFlow_SenderZeroAddress.selector);
         flow.create({
             sender: address(0),
@@ -32,23 +28,7 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled whenSenderIsNotZeroAddress {
-        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, address(0)));
-        flow.create({
-            sender: users.sender,
-            recipient: address(0),
-            ratePerSecond: RATE_PER_SECOND,
-            asset: dai,
-            isTransferable: IS_TRANFERABLE
-        });
-    }
-
-    function test_RevertWhen_RatePerSecondZero()
-        external
-        whenNotDelegateCalled
-        whenSenderIsNotZeroAddress
-        whenRecipientIsNotZeroAddress
-    {
+    function test_RevertWhen_RatePerSecondZero() external whenNoDelegateCall whenSenderNotAddressZero {
         vm.expectRevert(Errors.SablierFlow_RatePerSecondZero.selector);
         flow.create({
             sender: users.sender,
@@ -59,33 +39,32 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_AssetNotContract()
+    function test_RevertWhen_AssetDoesNotImplementDecimals()
         external
-        whenNotDelegateCalled
-        whenSenderIsNotZeroAddress
-        whenRecipientIsNotZeroAddress
-        whenRatePerSecondIsNotZero
+        whenNoDelegateCall
+        whenSenderNotAddressZero
+        whenRatePerSecondNotZero
     {
-        address nonContract = address(8128);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_InvalidAssetDecimals.selector, nonContract));
+        address invalidAsset = address(8128);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_InvalidAssetDecimals.selector, invalidAsset));
         flow.create({
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
-            asset: IERC20(nonContract),
+            asset: IERC20(invalidAsset),
             isTransferable: IS_TRANFERABLE
         });
     }
 
-    function test_RevertWhen_AssetMoreDecimals()
+    function test_RevertWhen_AssetDecimalsExceeds18()
         external
-        whenNotDelegateCalled
-        whenSenderIsNotZeroAddress
-        whenRecipientIsNotZeroAddress
-        whenRatePerSecondIsNotZero
-        whenAssetContract
+        whenNoDelegateCall
+        whenSenderNotAddressZero
+        whenRatePerSecondNotZero
+        whenAssetImplementsDecimals
     {
         IERC20 assetWith24Decimals = new ERC20Mock("Asset with more decimals", "AWMD", 24);
+
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFlow_InvalidAssetDecimals.selector, address(assetWith24Decimals))
         );
@@ -99,19 +78,41 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_Create()
+    function test_RevertWhen_RecipientAddressZero()
         external
-        whenNotDelegateCalled
-        whenSenderIsNotZeroAddress
-        whenRecipientIsNotZeroAddress
-        whenRatePerSecondIsNotZero
-        whenAssetContract
-        whenAssetValidDecimals
+        whenNoDelegateCall
+        whenSenderNotAddressZero
+        whenRatePerSecondNotZero
+        whenAssetImplementsDecimals
+        whenAssetDecimalsDoesNotExceed18
+    {
+        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, address(0)));
+        flow.create({
+            sender: users.sender,
+            recipient: address(0),
+            ratePerSecond: RATE_PER_SECOND,
+            asset: dai,
+            isTransferable: IS_TRANFERABLE
+        });
+    }
+
+    function test_WhenRecipientNotAddressZero()
+        external
+        whenNoDelegateCall
+        whenSenderNotAddressZero
+        whenRatePerSecondNotZero
+        whenAssetImplementsDecimals
+        whenAssetDecimalsDoesNotExceed18
     {
         uint256 expectedStreamId = flow.nextStreamId();
 
+        // It should emit 1 {MetadataUpdate}, 1 {CreateFlowStream} and 1 {Transfer} events.
+        vm.expectEmit({ emitter: address(flow) });
+        emit Transfer({ from: address(0), to: users.recipient, tokenId: expectedStreamId });
+
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: expectedStreamId });
+
         vm.expectEmit({ emitter: address(flow) });
         emit CreateFlowStream({
             streamId: expectedStreamId,
@@ -119,9 +120,10 @@ contract Create_Integration_Concrete_Test is Integration_Test {
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
             asset: dai,
-            lastTimeUpdate: uint40(block.timestamp)
+            lastTimeUpdate: getBlockTimestamp()
         });
 
+        // Create the stream.
         uint256 actualStreamId = flow.create({
             sender: users.sender,
             recipient: users.recipient,
@@ -136,7 +138,7 @@ contract Create_Integration_Concrete_Test is Integration_Test {
             asset: dai,
             assetDecimals: 18,
             balance: 0,
-            lastTimeUpdate: uint40(block.timestamp),
+            lastTimeUpdate: getBlockTimestamp(),
             isPaused: false,
             isStream: true,
             isTransferable: IS_TRANFERABLE,
@@ -144,9 +146,14 @@ contract Create_Integration_Concrete_Test is Integration_Test {
             sender: users.sender
         });
 
+        // It should create the stream.
         assertEq(actualStreamId, expectedStreamId, "stream id");
         assertEq(actualStream, expectedStream);
 
+        // It should bump the next stream id.
+        assertEq(flow.nextStreamId(), actualStreamId + 1, "next stream id");
+
+        // It should mint the NFT.
         address actualNFTOwner = flow.ownerOf({ tokenId: actualStreamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");

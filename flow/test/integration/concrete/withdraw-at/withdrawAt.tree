@@ -1,55 +1,48 @@
-withdrawAt.t.sol
-├── when delegate called
-│  └── it should revert
-└── when not delegate called
-   ├── when the withdrawal time is less than last time update
-   │  └── it should revert
-   └── when the withdrawal time is not less than last time update
-      ├── when the withdrawal time is in the future
-      │  └── it should revert
-      └── when the withdrawal time is not in the future
-         ├── given the id references a null stream
-         │  └── it should revert
-         └── given the id does not reference a null stream
-            ├── when the withdrawal address is zero
-            │  └── it should revert
-            └── when the withdrawal address is not zero
-               ├── when the withdrawal address is not the stream recipient
-               │  ├── when the caller is the sender
-               │  │  └── it should revert
-               │  └── when the caller is unknown
-               │     └── it should revert
-               └── when the withdrawal address is the stream recipient
-                     ├── given the balance is zero
-                     │  ├── given the remaining amount is zero
-                     │  │  └── it should revert
-                     │  └── given the remaining amount is not zero
-                     │     └── it should make the withdrawal
-                     └──  given the balance is not zero
-                        ├── when the caller is not the recipient
-                        │  ├── when the caller is the sender
-                        │  │  └── it should make the withdrawal
-                        │  └── when the caller is unknown
-                        │     └── it should make the withdrawal
-                        └── when the caller is the recipient
-                           ├── when the stream is paused
-                           │  └── it should make the withdrawal
-                           └── when the stream is not paused
-                              ├── when the stream has debt
-                              │  ├── it should make the withdrawal
-                              │  └── it should update the remaining amount by subtracting the balance
-                              └── when the stream does not have debt
-                                 ├── given the asset does not have 18 decimals
-                                 │  ├── it should make the withdrawal
-                                 │  ├── it should update the time
-                                 │  ├── it should set the remaining amount to zero
-                                 │  ├── it should update the stream balance
-                                 │  ├── it should perform the ERC-20 transfer
-                                 │  └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdate} event
-                                 └── given the asset has 18 decimals
-                                    ├── it should make the withdrawal
-                                    ├── it should set the remaining amount to zero
-                                    ├── it should update the time
-                                    ├── it should update the stream balance
-                                    ├── it should perform the ERC-20 transfer
-                                    └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdate} event
+WithdrawAt_Integration_Concrete_Test
+├── when delegate call
+│   └── it should revert
+└── when no delegate call
+    ├── given null
+    │   └── it should revert
+    └── given not null
+        ├── when time less than last time update
+        │   └── it should revert
+        ├── when time greater than current time
+        │   └── it should revert
+        └── when time between last time update and current time
+            ├── when withdrawal address zero
+            │   └── it should revert
+            └── when withdrawal address not zero
+                ├── when withdrawal address not owner
+                │   ├── when caller sender
+                │   │   └── it should revert
+                │   ├── when caller unknown
+                │   │   └── it should revert
+                │   └── when caller recipient
+                │       └── it should withdraw
+                └── when withdrawal address owner
+                    ├── given balance zero
+                    │   └── it should revert
+                    └── given balance not zero
+                        ├── when amount owed exceeds balance
+                        │   ├── it should withdraw the balance
+                        │   ├── it should update lastTimeUpdate
+                        │   ├── it should decrease the full amount owed by balance
+                        │   ├── it should update the stream balance to 0
+                        │   ├── it should perform the ERC20 transfer
+                        │   └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+                        └── when amount owed does not exceed balance
+                            ├── given asset does not have 18 decimals
+                            │   ├── it should withdraw the amount owed
+                            │   ├── it should update lastTimeUpdate
+                            │   ├── it should decrease the full amount owed by withdrawn value
+                            │   ├── it should reduce the stream balance by the withdrawn amount
+                            │   ├── it should perform the ERC20 transfer
+                            │   └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+                            └── given asset has 18 decimals
+                                ├── it should withdraw the amount owed
+                                ├── it should update lastTimeUpdate
+                                ├── it should decrease the full amount owed by withdrawn value
+                                ├── it should reduce the stream balance by the withdrawn amount
+                                ├── it should perform the ERC20 transfer
+                                └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events

@@ -1,14 +1,14 @@
-refundableAmountOf.t.sol
-├── given the id references a null stream
+RefundableAmountOf_Integration_Concrete_Test
+├── given null
 │  └── it should revert
-└── given the id does not reference a null stream
-   ├── given the stream balance is zero
+└── given not null
+   ├── given balance zero
    │  └── it should return zero
-   └── given the stream balance is not zero
-      ├── given the id references a paused stream
-      │  └── it should return the correct refundable amount
-      └── given the id does not reference a paused stream
-         ├── given the stream balance is less than or equal to the amount owed
+   └── given balance not zero
+      ├── given paused
+      │  └── it should return correct refundable amount
+      └── given not paused
+         ├── when amount owed exceeds balance
          │  └── it should return zero
-         └── given the stream balance is greater than the amount owed
-            └── it should return the correct refundable amount
+         └── when amount owed does not exceed balance
+            └── it should return correct refundable amount

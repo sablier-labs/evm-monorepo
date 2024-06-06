@@ -5,9 +5,9 @@ DepletionTimeOf_Integration_Concrete_Test
     ├── given paused
     │   └── it should revert
     └── given not paused
-        ├── when balance is zero
+        ├── given balance zero
         │   └── it should return 0
-        └── when balance is not zero
+        └── given balance not zero
             ├── when stream has debt
             │   └── it should return 0
             └── when stream has no debt

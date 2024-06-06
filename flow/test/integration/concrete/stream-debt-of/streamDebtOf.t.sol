@@ -6,6 +6,12 @@ import { Integration_Test } from "../../Integration.t.sol";
 contract StreamDebtOf_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
+
+        // Deposit into the stream.
+        depositToDefaultStream();
+
+        // Simulate one month of streaming.
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
     }
 
     function test_RevertGiven_Null() external {
@@ -13,45 +19,21 @@ contract StreamDebtOf_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(callData);
     }
 
-    function test_RevertGiven_BalanceNotLessThanRemainingAmount() external givenNotNull givenPaused {
-        depositToDefaultStream();
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
-
-        flow.pause(defaultStreamId);
-
+    function test_WhenAmountOwedDoesNotExceedBalance() external view givenNotNull {
+        // It should return zero.
         uint128 actualDebt = flow.streamDebtOf(defaultStreamId);
         assertEq(actualDebt, 0, "stream debt");
     }
 
-    function test_RevertGiven_BalanceLessThanRemainingAmount() external givenNotNull givenPaused {
-        uint128 depositAmount = ONE_MONTH_STREAMED_AMOUNT / 2;
-        flow.deposit(defaultStreamId, depositAmount);
+    function test_WhenAmountOwedExceedsBalance() external givenNotNull {
+        // Simulate the passage of time beyond solvency period.
+        vm.warp({ newTimestamp: getBlockTimestamp() + SOLVENCY_PERIOD });
 
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+        uint128 totalStreamed = RATE_PER_SECOND * (SOLVENCY_PERIOD + ONE_MONTH);
 
-        flow.pause(defaultStreamId);
-
+        // It should return non-zero value.
         uint128 actualDebt = flow.streamDebtOf(defaultStreamId);
-        uint128 expectedDebt = ONE_MONTH_STREAMED_AMOUNT - depositAmount;
-        assertEq(actualDebt, expectedDebt, "stream debt");
-    }
-
-    function test_StreamDebtOf_BalanceNotLessThanAmountOwed() external givenNotNull givenNotPaused {
-        depositToDefaultStream();
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
-
-        uint128 actualDebt = flow.streamDebtOf(defaultStreamId);
-        assertEq(actualDebt, 0, "stream debt");
-    }
-
-    function test_StreamDebtOf() external givenNotNull givenNotPaused {
-        uint128 depositAmount = ONE_MONTH_STREAMED_AMOUNT / 2;
-        flow.deposit(defaultStreamId, depositAmount);
-
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
-
-        uint128 actualDebt = flow.streamDebtOf(defaultStreamId);
-        uint128 expectedDebt = ONE_MONTH_STREAMED_AMOUNT - depositAmount;
+        uint128 expectedDebt = totalStreamed - DEPOSIT_AMOUNT;
         assertEq(actualDebt, expectedDebt, "stream debt");
     }
 }

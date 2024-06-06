@@ -1,19 +1,19 @@
 DepositViaBroker_Integration_Concrete_Test
 ├── when delegate call
 │   └── it should revert
-└── when not delegate call
+└── when no delegate call
     ├── given null
     │   └── it should revert
     └── given not null
         ├── when broker fee greater than max fee
         │   └── it should revert
         └── when broker fee not greater than max fee
-            ├── when broke address is zero
+            ├── when broke address zero
             │   └── it should revert
-            └── when broker address is not zero
-                ├── when total amount is zero
+            └── when broker address not zero
+                ├── when total amount zero
                 │   └── it should revert
-                └── when total amount is not zero
+                └── when total amount not zero
                     ├── when asset misses ERC20 return
                     │   └── it should make the deposit
                     └── when asset does not miss ERC20 return

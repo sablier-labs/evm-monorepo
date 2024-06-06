@@ -6,11 +6,7 @@ abstract contract Modifiers {
                                        COMMON
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenBalanceNotZero() {
-        _;
-    }
-
-    modifier givenBalanceZero() {
+    modifier givenBalanceNotZero() virtual {
         _;
     }
 
@@ -22,51 +18,19 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier givenRemainingAmountNotZero() {
-        _;
-    }
-
-    modifier givenRemainingAmountZero() {
-        _;
-    }
-
     modifier whenAssetDoesNotMissERC20Return() {
         _;
     }
 
-    modifier whenBrokerAddressIsNotZero() {
+    modifier whenCallerNotSender() {
         _;
     }
 
-    modifier whenBrokerFeeNotGreaterThanMaxFee() {
+    modifier whenCallerSender() {
         _;
     }
 
-    modifier whenCallerIsNotSender() {
-        _;
-    }
-
-    modifier whenCallerIsSender() {
-        _;
-    }
-
-    modifier whenNotDelegateCalled() {
-        _;
-    }
-
-    modifier whenRatePerSecondIsNotZero() {
-        _;
-    }
-
-    modifier whenSenderIsNotZeroAddress() {
-        _;
-    }
-
-    modifier whenTokenDecimalIsNotZero() {
-        _;
-    }
-
-    modifier whenTotalAmountIsNotZero() {
+    modifier whenNoDelegateCall() {
         _;
     }
 
@@ -74,7 +38,7 @@ abstract contract Modifiers {
                               ADJUST-AMOUNT-PER-SECOND
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenRatePerSecondNotDifferent() {
+    modifier whenNewRatePerSecondNotZero() {
         _;
     }
 
@@ -82,15 +46,19 @@ abstract contract Modifiers {
                                        CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenAssetContract() {
+    modifier whenAssetDecimalsDoesNotExceed18() {
         _;
     }
 
-    modifier whenAssetValidDecimals() {
+    modifier whenAssetImplementsDecimals() {
         _;
     }
 
-    modifier whenRecipientIsNotZeroAddress() {
+    modifier whenRatePerSecondNotZero() {
+        _;
+    }
+
+    modifier whenSenderNotAddressZero() {
         _;
     }
 
@@ -98,15 +66,19 @@ abstract contract Modifiers {
                                       DEPOSIT
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenDepositAmountNonZero() {
+    modifier whenBrokerAddressNotZero() {
         _;
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                       PAUSE
-    //////////////////////////////////////////////////////////////////////////*/
+    modifier whenBrokerFeeNotGreaterThanMaxFee() {
+        _;
+    }
 
-    modifier givenStreamHasNoDebt() {
+    modifier whenTransferAmountNotZero() {
+        _;
+    }
+
+    modifier whenTotalAmountNotZero() {
         _;
     }
 
@@ -114,7 +86,7 @@ abstract contract Modifiers {
                                        REFUND
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenNoOverrefund() {
+    modifier whenNoOverRefund() {
         _;
     }
 
@@ -134,27 +106,15 @@ abstract contract Modifiers {
                                     WITHDRAW-AT
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenCallerRecipient() {
+    modifier whenWithdrawalAddressNotOwner() {
         _;
     }
 
-    modifier whenToNonZeroAddress() {
+    modifier whenWithdrawalAddressNotZero() {
         _;
     }
 
-    modifier whenWithdrawalAddressIsRecipient() {
-        _;
-    }
-
-    modifier whenWithdrawalAddressNotRecipient() {
-        _;
-    }
-
-    modifier whenWithdrawalTimeNotInTheFuture() {
-        _;
-    }
-
-    modifier whenWithdrawalTimeNotLessThanLastTime() {
+    modifier whenWithdrawalAddressIsOwner() {
         _;
     }
 }

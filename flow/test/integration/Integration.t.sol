@@ -31,10 +31,10 @@ abstract contract Integration_Test is Base_Test {
     }
 
     function createDefaultStream() internal returns (uint256) {
-        return createDefaultStreamWithAsset(dai);
+        return createStreamWithAsset(dai);
     }
 
-    function createDefaultStreamWithAsset(IERC20 asset_) internal returns (uint256) {
+    function createStreamWithAsset(IERC20 asset_) internal returns (uint256) {
         return flow.create({
             sender: users.sender,
             recipient: users.recipient,
@@ -46,6 +46,22 @@ abstract contract Integration_Test is Base_Test {
 
     function depositToDefaultStream() internal {
         flow.deposit(defaultStreamId, TRANSFER_AMOUNT);
+    }
+
+    function depositToStreamId(uint256 streamId, uint128 amount) internal {
+        flow.deposit(streamId, amount);
+    }
+
+    /// @dev Update the `lastTimeUpdate` of a stream to the current block timestamp.
+    function updateLastTimeToBlockTimestamp(uint256 streamId) internal {
+        resetPrank(users.sender);
+        uint128 ratePerSecond = flow.getRatePerSecond(streamId);
+
+        // Updates the last time update via `adjustRatePerSecond`.
+        flow.adjustRatePerSecond(streamId, 1);
+
+        // Restores the rate per second.
+        flow.adjustRatePerSecond(streamId, ratePerSecond);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -1,17 +1,11 @@
-withdrawableAmountOf.t.sol
-├── given the id references a null stream
-│  └── it should revert
-└── given the id does not reference a null stream
-   ├── given the stream balance is zero
-   │  └── it should return zero
-   └── given the stream balance is not zero
-      ├── given the stream balance is less than the remaining amount
-      │  └── it should return the balance
-      └── given the stream balance is not less than the remaining amount
-         ├── given the id references a paused stream
-         │  └── it should return the remaining amount
-         └── given the id does not reference a paused stream
-            ├── given the amount owed is less than the balance
-            │  └── it should return the balance
-            └── given the amount owed is not less than the balance
-               └── it should return the correct withdrawable amount
+WithdrawableAmountOf_Integration_Concrete_Test
+├── given null
+│   └── it should revert
+└── given not null
+    ├── given balance zero
+    │   └── it should return zero
+    └── given balance not zero
+        ├── when amount owed exceeds balance
+        │   └── it should return the stream balance
+        └── when amount owed does not exceed balance
+            └── it should return the correct withdraw amount

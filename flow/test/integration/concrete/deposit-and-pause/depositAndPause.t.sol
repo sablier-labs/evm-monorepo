@@ -10,30 +10,30 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Advance the time past the solvency period so that there is debt.
-        vm.warp({ newTimestamp: block.timestamp + SOLVENCY_PERIOD + 1 days });
+        vm.warp({ newTimestamp: getBlockTimestamp() + SOLVENCY_PERIOD + 1 days });
     }
 
-    function test_RevertWhen_DelegateCalled() external {
+    function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
         expectRevert_DelegateCall(callData);
     }
 
-    function test_RevertGiven_Null() external whenNotDelegateCalled {
+    function test_RevertGiven_Null() external whenNoDelegateCall {
         bytes memory callData = abi.encodeCall(flow.depositAndPause, (nullStreamId, TRANSFER_AMOUNT));
         expectRevert_Null(callData);
     }
 
-    function test_RevertGiven_Paused() external whenNotDelegateCalled givenNotNull {
+    function test_RevertGiven_Paused() external whenNoDelegateCall givenNotNull {
         bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
         expectRevert_Paused(callData);
     }
 
     function test_RevertWhen_CallerRecipient()
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
         givenNotPaused
-        whenCallerIsNotSender
+        whenCallerNotSender
     {
         bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
         expectRevert_CallerRecipient(callData);
@@ -41,16 +41,16 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertWhen_CallerMaliciousThirdParty()
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
         givenNotPaused
-        whenCallerIsNotSender
+        whenCallerNotSender
     {
         bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
-    function test_WhenCallerIsSender() external whenNotDelegateCalled givenNotNull givenNotPaused {
+    function test_WhenCallerSender() external whenNoDelegateCall givenNotNull givenNotPaused {
         uint128 transferAmount = flow.streamDebtOf(defaultStreamId);
         uint128 previousStreamBalance = flow.getBalance(defaultStreamId);
         uint128 previousAmountOwed = flow.amountOwedOf(defaultStreamId);
@@ -64,7 +64,7 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
             streamId: defaultStreamId,
             funder: users.sender,
             asset: dai,
-            depositAmount: transferAmount
+            depositAmount: getNormalizedValue(transferAmount, 18)
         });
 
         vm.expectEmit({ emitter: address(flow) });

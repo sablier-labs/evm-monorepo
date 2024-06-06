@@ -5,8 +5,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Helpers } from "src/libraries/Helpers.sol";
-import { Broker } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -18,13 +16,13 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         expectRevert_DelegateCall(callData);
     }
 
-    function test_RevertGiven_Null() external whenNotDelegateCalled {
+    function test_RevertGiven_Null() external whenNoDelegateCall {
         bytes memory callData =
             abi.encodeCall(flow.depositViaBroker, (nullStreamId, TOTAL_TRANSFER_AMOUNT_WITH_BROKER_FEE, defaultBroker));
         expectRevert_Null(callData);
     }
 
-    function test_RevertWhen_BrokerFeeGreaterThanMaxFee() external whenNotDelegateCalled givenNotNull {
+    function test_RevertWhen_BrokerFeeGreaterThanMaxFee() external whenNoDelegateCall givenNotNull {
         defaultBroker.fee = MAX_BROKER_FEE.add(ud(1));
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFlow_BrokerFeeTooHigh.selector, defaultBroker.fee, MAX_BROKER_FEE)
@@ -32,9 +30,9 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         flow.depositViaBroker(defaultStreamId, TOTAL_TRANSFER_AMOUNT_WITH_BROKER_FEE, defaultBroker);
     }
 
-    function test_RevertWhen_BrokeAddressIsZero()
+    function test_RevertWhen_BrokeAddressZero()
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
         whenBrokerFeeNotGreaterThanMaxFee
     {
@@ -43,27 +41,27 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         flow.depositViaBroker(defaultStreamId, TOTAL_TRANSFER_AMOUNT_WITH_BROKER_FEE, defaultBroker);
     }
 
-    function test_RevertWhen_TotalAmountIsZero()
+    function test_RevertWhen_TotalAmountZero()
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
         whenBrokerFeeNotGreaterThanMaxFee
-        whenBrokerAddressIsNotZero
+        whenBrokerAddressNotZero
     {
-        vm.expectRevert(Errors.SablierFlow_DepositAmountZero.selector);
+        vm.expectRevert(Errors.SablierFlow_TransferAmountZero.selector);
         flow.depositViaBroker(defaultStreamId, 0, defaultBroker);
     }
 
     function test_WhenAssetMissesERC20Return()
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
         whenBrokerFeeNotGreaterThanMaxFee
-        whenBrokerAddressIsNotZero
-        whenTotalAmountIsNotZero
+        whenBrokerAddressNotZero
+        whenTotalAmountNotZero
     {
         // It should make the deposit
-        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdt)));
+        uint256 streamId = createStreamWithAsset(IERC20(address(usdt)));
         _test_DepositViaBroker(
             streamId,
             IERC20(address(usdt)),
@@ -76,14 +74,14 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
 
     function test_GivenAssetDoesNotHave18Decimals()
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
         whenBrokerFeeNotGreaterThanMaxFee
-        whenBrokerAddressIsNotZero
-        whenTotalAmountIsNotZero
+        whenBrokerAddressNotZero
+        whenTotalAmountNotZero
         whenAssetDoesNotMissERC20Return
     {
-        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdc)));
+        uint256 streamId = createStreamWithAsset(IERC20(address(usdc)));
         _test_DepositViaBroker(
             streamId,
             IERC20(address(usdc)),
@@ -96,14 +94,14 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
 
     function test_GivenAssetHas18Decimals()
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
         whenBrokerFeeNotGreaterThanMaxFee
-        whenBrokerAddressIsNotZero
-        whenTotalAmountIsNotZero
+        whenBrokerAddressNotZero
+        whenTotalAmountNotZero
         whenAssetDoesNotMissERC20Return
     {
-        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(dai)));
+        uint256 streamId = createStreamWithAsset(IERC20(address(dai)));
         _test_DepositViaBroker(
             streamId, dai, TOTAL_TRANSFER_AMOUNT_WITH_BROKER_FEE, TRANSFER_AMOUNT, BROKER_FEE_AMOUNT, 18
         );
@@ -123,7 +121,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(asset) });
         emit IERC20.Transfer({ from: users.sender, to: address(flow), value: transferAmount });
 
-        uint128 normalizedAmount = Helpers.calculateNormalizedAmount(transferAmount, assetDecimals);
+        uint128 normalizedAmount = getNormalizedValue(transferAmount, assetDecimals);
 
         vm.expectEmit({ emitter: address(flow) });
         emit DepositFlowStream({

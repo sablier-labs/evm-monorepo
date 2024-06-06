@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-/// @notice An implementation of ERC-20 that does not return a boolean in {transfer} and {transferFrom}.
+/// @notice An implementation of ERC20 that does not return a boolean in {transfer} and {transferFrom}.
 /// @dev See https://medium.com/coinmonks/missing-return-value-bug-at-least-130-tokens-affected-d67bf08521ca/.
 contract ERC20MissingReturn {
     uint8 public decimals;
@@ -52,12 +52,12 @@ contract ERC20MissingReturn {
         emit Approval(owner, spender, value);
     }
 
-    /// @dev This function does not return a value, although the ERC-20 standard mandates that it should.
+    /// @dev This function does not return a value, although the ERC20 standard mandates that it should.
     function transfer(address to, uint256 amount) public {
         _transfer(msg.sender, to, amount);
     }
 
-    /// @dev This function does not return a value, although the ERC-20 standard mandates that it should.
+    /// @dev This function does not return a value, although the ERC20 standard mandates that it should.
     function transferFrom(address from, address to, uint256 amount) public {
         _transfer(from, to, amount);
         _approve(from, msg.sender, _allowances[from][msg.sender] - amount);

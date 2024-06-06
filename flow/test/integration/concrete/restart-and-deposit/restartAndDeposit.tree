@@ -1,19 +1,19 @@
-restartAndDeposit.t.sol
-├── when delegate called
+RestartAndDeposit_Integration_Concrete_Test
+├── when delegate call
 │  └── it should revert
-└── when not delegate called
-   ├── given the id references a null stream
+└── when no delegate call
+   ├── given null
    │  └── it should revert
-   └── given the id does not reference a null stream
-      ├── when the caller is not the sender
-      │  ├── when the caller is the recipient
+   └── given not null
+      ├── when caller not sender
+      │  ├── when caller recipient
       │  │  └── it should revert
-      │  └── when the caller is a malicious third party
+      │  └── when caller malicious third party
       │     └── it should revert
-      └── when the caller is the sender
+      └── when caller sender
          ├── it should restart the stream
-         ├── it should update the time
          ├── it should update the rate per second
-         ├── it should update the balance
-         ├── it should perform the ERC-20 transfer
-         └── it should emit events: 1 {RestartFlowStream}, 1 {Transfer}, 1 {DepositFlowStream} and 1 {MetadataUpdate}
+         ├── it should update lastTimeUpdate
+         ├── it should update the stream balance
+         ├── it should perform the ERC20 transfer
+         └── it should emit 1 {RestartFlowStream}, 1 {Transfer}, 1 {DepositFlowStream} and 1 {MetadataUpdate} events

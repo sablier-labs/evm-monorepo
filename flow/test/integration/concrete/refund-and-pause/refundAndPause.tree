@@ -1,7 +1,7 @@
 RefundAndPause_Integration_Concrete_Test
 ├── when delegate call
 │   └── it should revert
-└── when not delegate call
+└── when no delegate call
     ├── given null
     │   └── it should revert
     └── given not null
@@ -15,7 +15,7 @@ RefundAndPause_Integration_Concrete_Test
             │       └── it should revert
             └── when caller sender
                 ├── it should update the stream balance
-                ├── it should perform the ERC-20 transfer
+                ├── it should perform the ERC20 transfer
                 ├── it should pause the stream
                 ├── it should set rate per second to 0
                 ├── it should update the remaining amount
