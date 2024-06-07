@@ -12,7 +12,7 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Deposit to the default stream.
-        depositToDefaultStream();
+        depositDefaultAmountToDefaultStream();
 
         // Simulate the one month of streaming.
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
@@ -159,7 +159,7 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
 
         // Create a new stream with very less deposit.
         uint256 streamId = createDefaultStream();
-        depositToStreamId(streamId, chickenfeed);
+        depositAmountToStream(streamId, chickenfeed);
 
         // Simulate the one month of streaming.
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
@@ -209,9 +209,9 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: MAY_1_2024 });
 
         resetPrank({ msgSender: users.sender });
-        uint256 streamId = createStreamWithAsset(IERC20(address(usdc)));
+        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdc)));
         // Deposit to the stream.
-        depositToStreamId(streamId, TRANSFER_AMOUNT_6D);
+        depositDefaultAmountToStream(streamId);
 
         // Simulate the one month of streaming.
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
@@ -288,7 +288,7 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         private
     {
         IERC20 asset = flow.getAsset(streamId);
-        uint128 transferAmount = getTransferValue(expectedWithdrawAmount, assetDecimals);
+        uint128 transferAmount = getTransferAmount(expectedWithdrawAmount, assetDecimals);
 
         // It should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdated} events.
         vm.expectEmit({ emitter: address(asset) });

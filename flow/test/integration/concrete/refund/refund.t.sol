@@ -12,7 +12,7 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Deposit to the default stream.
-        depositToDefaultStream();
+        depositDefaultAmountToDefaultStream();
 
         // Simulate one month of streaming.
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
@@ -84,8 +84,8 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         whenNoOverRefund
         givenNotPaused
     {
-        uint256 streamId = createStreamWithAsset(IERC20(address(usdt)));
-        depositToStreamId(streamId, TRANSFER_AMOUNT_6D);
+        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdt)));
+        depositDefaultAmountToStream(streamId);
 
         // It should make the refund.
         _test_Refund(streamId, IERC20(address(usdt)), 6);
@@ -101,8 +101,8 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         givenNotPaused
         whenAssetDoesNotMissERC20Return
     {
-        uint256 streamId = createStreamWithAsset(IERC20(address(usdc)));
-        depositToStreamId(streamId, TRANSFER_AMOUNT_6D);
+        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdc)));
+        depositDefaultAmountToStream(streamId);
 
         // It should make the refund.
         _test_Refund(streamId, IERC20(address(usdc)), 6);
@@ -123,7 +123,7 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
     }
 
     function _test_Refund(uint256 streamId, IERC20 asset, uint8 assetDecimals) private {
-        uint128 transferAmount = getTransferValue(REFUND_AMOUNT, assetDecimals);
+        uint128 transferAmount = getTransferAmount(REFUND_AMOUNT, assetDecimals);
 
         // It should emit a {Transfer} and {RefundFromFlowStream} event.
         vm.expectEmit({ emitter: address(asset) });

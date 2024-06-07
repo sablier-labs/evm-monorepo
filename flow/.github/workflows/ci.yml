@@ -41,4 +41,4 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-coverage.yml@main"
     with:
-      match-path: "test/{integration,unit}/**/*.sol"
+      match-path: "test/{integration}/**/*.sol"

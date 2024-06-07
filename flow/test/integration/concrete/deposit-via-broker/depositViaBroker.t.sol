@@ -61,7 +61,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         whenTotalAmountNotZero
     {
         // It should make the deposit
-        uint256 streamId = createStreamWithAsset(IERC20(address(usdt)));
+        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdt)));
         _test_DepositViaBroker(
             streamId,
             IERC20(address(usdt)),
@@ -81,7 +81,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         whenTotalAmountNotZero
         whenAssetDoesNotMissERC20Return
     {
-        uint256 streamId = createStreamWithAsset(IERC20(address(usdc)));
+        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdc)));
         _test_DepositViaBroker(
             streamId,
             IERC20(address(usdc)),
@@ -101,7 +101,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         whenTotalAmountNotZero
         whenAssetDoesNotMissERC20Return
     {
-        uint256 streamId = createStreamWithAsset(IERC20(address(dai)));
+        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(dai)));
         _test_DepositViaBroker(
             streamId, dai, TOTAL_TRANSFER_AMOUNT_WITH_BROKER_FEE, TRANSFER_AMOUNT, BROKER_FEE_AMOUNT, 18
         );
@@ -121,7 +121,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(asset) });
         emit IERC20.Transfer({ from: users.sender, to: address(flow), value: transferAmount });
 
-        uint128 normalizedAmount = getNormalizedValue(transferAmount, assetDecimals);
+        uint128 normalizedAmount = getNormalizedAmount(transferAmount, assetDecimals);
 
         vm.expectEmit({ emitter: address(flow) });
         emit DepositFlowStream({

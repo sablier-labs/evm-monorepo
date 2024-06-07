@@ -57,7 +57,7 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
         // Make deposit to clear debt.
-        depositToDefaultStream();
+        depositDefaultAmountToDefaultStream();
 
         // Check that debt is zero.
         assertEq(flow.streamDebtOf(defaultStreamId), 0, "stream debt");

@@ -8,7 +8,7 @@ contract StreamDebtOf_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Deposit into the stream.
-        depositToDefaultStream();
+        depositDefaultAmountToDefaultStream();
 
         // Simulate one month of streaming.
         vm.warp({ newTimestamp: WARP_ONE_MONTH });

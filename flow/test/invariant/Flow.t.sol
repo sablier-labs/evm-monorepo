@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.22 <0.9.0;
+pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import { Helpers } from "src/libraries/Helpers.sol";
 
 import { Base_Test } from "../Base.t.sol";
 import { FlowCreateHandler } from "./handlers/FlowCreateHandler.sol";
@@ -93,7 +91,7 @@ contract Flow_Invariant_Test is Base_Test {
 
             if (flow.getAsset(streamId) == asset) {
                 streamBalancesSumNormalized +=
-                    Helpers.calculateTransferAmount(flow.getBalance(streamId), flow.getAssetDecimals(streamId));
+                    getTransferAmount(flow.getBalance(streamId), flow.getAssetDecimals(streamId));
             }
         }
 

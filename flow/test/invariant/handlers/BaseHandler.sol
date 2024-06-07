@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.22 <0.9.0;
+pragma solidity >=0.8.22;
 
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
 import { FlowStore } from "../stores/FlowStore.sol";
-import { Constants } from "../../utils/Constants.sol";
 import { Utils } from "../../utils/Utils.sol";
 
 /// @notice Base contract with common logic needed by all handler contracts.
-abstract contract BaseHandler is Constants, StdCheats, Utils {
+abstract contract BaseHandler is StdCheats, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -57,20 +56,5 @@ abstract contract BaseHandler is Constants, StdCheats, Utils {
         calls[functionName]++;
         totalCalls++;
         _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                       HELPERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Helper function to calculate the upper bound, based on the asset decimals, for the transfer amount.
-    function getTransferAmountUpperBound(uint8 assetDecimals) internal pure returns (uint128 upperBound) {
-        if (assetDecimals == 0) {
-            upperBound = 1_000_000;
-        } else if (assetDecimals == 6) {
-            upperBound = 1_000_000e6;
-        } else {
-            upperBound = 1_000_000e18;
-        }
     }
 }

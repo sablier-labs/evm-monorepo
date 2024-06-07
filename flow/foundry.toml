@@ -11,13 +11,14 @@
   optimizer_runs = 1000
   out = "out"
   script = "script"
+  sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
   solc = "0.8.23"
   src = "src"
   test = "test"
 
 [profile.default.fuzz]
   max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
-  runs = 50
+  runs = 256
 
 [profile.default.invariant]
   call_override = false # Override unsafe external calls to perform reentrancy checks

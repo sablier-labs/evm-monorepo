@@ -10,9 +10,17 @@ import { Base_Test } from "../Base.t.sol";
 
 /// @notice Common logic needed by all integration tests, both concrete and fuzz tests.
 abstract contract Integration_Test is Base_Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                     VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
     Broker internal defaultBroker;
     uint256 internal defaultStreamId;
     uint256 internal nullStreamId = 420;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                        SET-UP
+    //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
         Base_Test.setUp();
@@ -31,25 +39,51 @@ abstract contract Integration_Test is Base_Test {
     }
 
     function createDefaultStream() internal returns (uint256) {
-        return createStreamWithAsset(dai);
+        return createDefaultStreamWithAsset(dai);
     }
 
-    function createStreamWithAsset(IERC20 asset_) internal returns (uint256) {
+    function createDefaultStreamWithAsset(IERC20 asset_) internal returns (uint256) {
+        return createDefaultStreamWithRatePerSecondAndAsset(RATE_PER_SECOND, asset_);
+    }
+
+    function createDefaultStreamWithRatePerSecondAndAsset(
+        uint128 ratePerSecond,
+        IERC20 asset_
+    )
+        internal
+        returns (uint256)
+    {
         return flow.create({
             sender: users.sender,
             recipient: users.recipient,
-            ratePerSecond: RATE_PER_SECOND,
+            ratePerSecond: ratePerSecond,
             asset: asset_,
             isTransferable: IS_TRANFERABLE
         });
     }
 
-    function depositToDefaultStream() internal {
-        flow.deposit(defaultStreamId, TRANSFER_AMOUNT);
+    function depositAmountToStream(uint256 streamId, uint128 transferAmount) internal {
+        IERC20 asset = flow.getAsset(streamId);
+
+        deal({ token: address(asset), to: users.sender, give: transferAmount });
+        asset.approve(address(flow), transferAmount);
+
+        flow.deposit(streamId, transferAmount);
     }
 
-    function depositToStreamId(uint256 streamId, uint128 amount) internal {
-        flow.deposit(streamId, amount);
+    function depositDefaultAmountToDefaultStream() internal {
+        depositAmountToStream(defaultStreamId, TRANSFER_AMOUNT);
+    }
+
+    function depositDefaultAmountToStream(uint256 streamId) internal {
+        IERC20 asset = flow.getAsset(streamId);
+        uint8 decimals = flow.getAssetDecimals(streamId);
+        uint128 transferAmount = getDefaultTransferAmount(decimals);
+
+        deal({ token: address(asset), to: users.sender, give: transferAmount });
+        asset.approve(address(flow), transferAmount);
+
+        flow.deposit(streamId, transferAmount);
     }
 
     /// @dev Update the `lastTimeUpdate` of a stream to the current block timestamp.

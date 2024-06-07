@@ -10,7 +10,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Deposit to the default stream.
-        depositToDefaultStream();
+        depositDefaultAmountToDefaultStream();
 
         // Simulate one month of streaming.
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
@@ -56,7 +56,11 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
         // It should perform the ERC20 transfer
-        expectCallToTransfer({ asset: dai, to: users.recipient, amount: getTransferValue(ONE_MONTH_STREAMED_AMOUNT, 18) });
+        expectCallToTransfer({
+            asset: dai,
+            to: users.recipient,
+            amount: getTransferAmount(ONE_MONTH_STREAMED_AMOUNT, 18)
+        });
 
         flow.withdrawMax(defaultStreamId, users.recipient);
 

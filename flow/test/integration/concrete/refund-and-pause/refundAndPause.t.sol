@@ -9,7 +9,7 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
 
-        depositToDefaultStream();
+        depositDefaultAmountToDefaultStream();
 
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
     }
