@@ -7,19 +7,11 @@ import { Flow } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
-contract CreateAndDepositViaBroker_Integration_Concrete_Test is Integration_Test {
+contract CreateAndDeposit_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(
-            flow.createAndDepositViaBroker,
-            (
-                users.sender,
-                users.recipient,
-                RATE_PER_SECOND,
-                dai,
-                IS_TRANFERABLE,
-                TOTAL_TRANSFER_AMOUNT_WITH_BROKER_FEE,
-                defaultBroker
-            )
+            flow.createAndDeposit,
+            (users.sender, users.recipient, RATE_PER_SECOND, dai, IS_TRANFERABLE, TRANSFER_AMOUNT)
         );
         expectRevert_DelegateCall(callData);
     }
@@ -27,7 +19,7 @@ contract CreateAndDepositViaBroker_Integration_Concrete_Test is Integration_Test
     function test_WhenNoDelegateCall() external {
         uint256 expectedStreamId = flow.nextStreamId();
 
-        // It should emit events: 1 {MetadataUpdate}, 1 {CreateFlowStream}, 2 {Transfer}, 1
+        // It should emit events: 1 {MetadataUpdate}, 1 {CreateFlowStream}, 1 {Transfer}, 1
         // {DepositFlowStream}
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: expectedStreamId });
@@ -53,22 +45,16 @@ contract CreateAndDepositViaBroker_Integration_Concrete_Test is Integration_Test
             depositAmount: DEPOSIT_AMOUNT
         });
 
-        vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({ from: users.sender, to: users.broker, value: BROKER_FEE_AMOUNT });
-
         // It should perform the ERC20 transfers
         expectCallToTransferFrom({ asset: dai, from: users.sender, to: address(flow), amount: TRANSFER_AMOUNT });
 
-        expectCallToTransferFrom({ asset: dai, from: users.sender, to: users.broker, amount: BROKER_FEE_AMOUNT });
-
-        uint256 actualStreamId = flow.createAndDepositViaBroker({
+        uint256 actualStreamId = flow.createAndDeposit({
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
             asset: dai,
             isTransferable: IS_TRANFERABLE,
-            totalTransferAmount: TOTAL_TRANSFER_AMOUNT_WITH_BROKER_FEE,
-            broker: defaultBroker
+            transferAmount: TRANSFER_AMOUNT
         });
 
         Flow.Stream memory actualStream = flow.getStream(actualStreamId);

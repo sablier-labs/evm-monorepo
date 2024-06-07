@@ -151,7 +151,7 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         assertEq(actualStream, expectedStream);
 
         // It should bump the next stream id.
-        assertEq(flow.nextStreamId(), actualStreamId + 1, "next stream id");
+        assertEq(flow.nextStreamId(), expectedStreamId + 1, "next stream id");
 
         // It should mint the NFT.
         address actualNFTOwner = flow.ownerOf({ tokenId: actualStreamId });
