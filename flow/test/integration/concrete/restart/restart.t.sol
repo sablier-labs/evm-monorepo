@@ -54,12 +54,7 @@ contract Restart_Integration_Concrete_Test is Integration_Test {
     function test_WhenNewRatePerSecondNotZero() external whenNoDelegateCall givenNotNull whenCallerSender givenPaused {
         // It should emit 1 {RestartFlowStream}, 1 {MetadataUpdate} event.
         vm.expectEmit({ emitter: address(flow) });
-        emit RestartFlowStream({
-            streamId: defaultStreamId,
-            sender: users.sender,
-            asset: dai,
-            ratePerSecond: RATE_PER_SECOND
-        });
+        emit RestartFlowStream({ streamId: defaultStreamId, sender: users.sender, ratePerSecond: RATE_PER_SECOND });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });

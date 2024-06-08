@@ -17,77 +17,61 @@ interface ISablierFlow is
 
     /// @notice Emitted when the sender changes the rate per second.
     /// @param streamId The ID of the stream.
-    /// @param oldRatePerSecond The rate per second to change.
-    /// @param newRatePerSecond The newly changed rate per second.
-    /// @param amountOwed The amount of assets owed by the sender to the recipient, including debt,
-    /// denoted in 18 decimals.
+    /// @param amountOwed The amount of assets owed by the sender to the recipient, including debt, denoted in 18
+    /// decimals.
+    /// @param newRatePerSecond The newly changed rate per second, denoted in 18 decimals.
+    /// @param oldRatePerSecond The rate per second to change, denoted in 18 decimals.
     event AdjustFlowStream(
-        uint256 indexed streamId, uint128 oldRatePerSecond, uint128 newRatePerSecond, uint128 amountOwed
+        uint256 indexed streamId, uint128 amountOwed, uint128 newRatePerSecond, uint128 oldRatePerSecond
     );
 
     /// @notice Emitted when a Flow stream is created.
     /// @param streamId The ID of the newly created stream.
-    /// @param sender The address from which to stream the assets, which has the ability to
-    /// adjust and pause the stream.
-    /// @param recipient The address toward which to stream the assets.
-    /// @param ratePerSecond The amount of assets that is increasing by every second.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param sender The address from which to stream the assets, which has the ability to adjust and pause the stream.
+    /// @param recipient The address toward which to stream the assets.
     /// @param lastTimeUpdate The Unix timestamp for the recent amount calculation.
+    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     event CreateFlowStream(
-        uint256 streamId,
+        uint256 indexed streamId,
+        IERC20 indexed asset,
         address indexed sender,
-        address indexed recipient,
-        uint128 ratePerSecond,
-        IERC20 asset,
-        uint40 lastTimeUpdate
+        address recipient,
+        uint40 lastTimeUpdate,
+        uint128 ratePerSecond
     );
 
     /// @notice Emitted when a Flow stream is funded.
     /// @param streamId The ID of the Flow stream.
     /// @param funder The address which funded the stream.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param depositAmount The amount of assets deposited into the stream, denoted in 18 decimals.
-    event DepositFlowStream(
-        uint256 indexed streamId, address indexed funder, IERC20 indexed asset, uint128 depositAmount
-    );
+    event DepositFlowStream(uint256 indexed streamId, address indexed funder, uint128 depositAmount);
 
     /// @notice Emitted when a Flow stream is paused.
-    /// @param streamId The ID of the stream.
-    /// @param sender The address of the stream's sender.
+    /// @param streamId The ID of the Flow stream.
     /// @param recipient The address of the stream's recipient.
-    /// @param amountOwed The amount of assets owed by the sender to the recipient, including debt,
-    /// denoted in 18 decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
-    event PauseFlowStream(
-        uint256 streamId, address indexed sender, address indexed recipient, uint128 amountOwed, IERC20 indexed asset
-    );
+    /// @param sender The address of the stream's sender.
+    /// @param amountOwed The amount of assets owed by the sender to the recipient, including debt, denoted in 18
+    /// decimals.
+    event PauseFlowStream(uint256 indexed streamId, address recipient, address sender, uint128 amountOwed);
 
     /// @notice Emitted when assets are refunded from a Flow stream.
     /// @param streamId The ID of the Flow stream.
     /// @param sender The address of the stream's sender.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param refundAmount The amount of assets refunded to the sender, denoted in 18 decimals.
-    event RefundFromFlowStream(
-        uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 refundAmount
-    );
+    event RefundFromFlowStream(uint256 indexed streamId, address indexed sender, uint128 refundAmount);
 
     /// @notice Emitted when a Flow stream is re-started.
     /// @param streamId The ID of the Flow stream.
     /// @param sender The address of the stream's sender.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    event RestartFlowStream(
-        uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 ratePerSecond
-    );
+    event RestartFlowStream(uint256 indexed streamId, address sender, uint128 ratePerSecond);
 
     /// @notice Emitted when assets are withdrawn from a Flow stream.
-    /// @param streamId The ID of the stream.
+    /// @param streamId The ID of the Flow stream.
     /// @param to The address that has received the withdrawn assets.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param withdrawnAmount The amount of assets withdrawn, denoted in 18 decimals.
-    event WithdrawFromFlowStream(
-        uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 withdrawnAmount
-    );
+    event WithdrawFromFlowStream(uint256 indexed streamId, address indexed to, uint128 withdrawnAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS

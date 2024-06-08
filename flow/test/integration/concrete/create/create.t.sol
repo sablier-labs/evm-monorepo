@@ -116,11 +116,11 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit CreateFlowStream({
             streamId: expectedStreamId,
+            asset: dai,
             sender: users.sender,
             recipient: users.recipient,
-            ratePerSecond: RATE_PER_SECOND,
-            asset: dai,
-            lastTimeUpdate: getBlockTimestamp()
+            lastTimeUpdate: getBlockTimestamp(),
+            ratePerSecond: RATE_PER_SECOND
         });
 
         // Create the stream.

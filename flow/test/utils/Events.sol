@@ -33,35 +33,25 @@ abstract contract Events {
     //////////////////////////////////////////////////////////////////////////*/
 
     event AdjustFlowStream(
-        uint256 indexed streamId, uint128 oldRatePerSecond, uint128 newRatePerSecond, uint128 amountOwed
+        uint256 indexed streamId, uint128 amountOwed, uint128 newRatePerSecond, uint128 oldRatePerSecond
     );
 
     event CreateFlowStream(
-        uint256 streamId,
+        uint256 indexed streamId,
+        IERC20 indexed asset,
         address indexed sender,
-        address indexed recipient,
-        uint128 ratePerSecond,
-        IERC20 asset,
-        uint40 lastTimeUpdate
+        address recipient,
+        uint40 lastTimeUpdate,
+        uint128 ratePerSecond
     );
 
-    event DepositFlowStream(
-        uint256 indexed streamId, address indexed funder, IERC20 indexed asset, uint128 depositAmount
-    );
+    event DepositFlowStream(uint256 indexed streamId, address indexed funder, uint128 depositAmount);
 
-    event PauseFlowStream(
-        uint256 streamId, address indexed sender, address indexed recipient, uint128 amountOwed, IERC20 indexed asset
-    );
+    event PauseFlowStream(uint256 indexed streamId, address recipient, address sender, uint128 amountOwed);
 
-    event RefundFromFlowStream(
-        uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 refundAmount
-    );
+    event RefundFromFlowStream(uint256 indexed streamId, address indexed sender, uint128 refundAmount);
 
-    event RestartFlowStream(
-        uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 ratePerSecond
-    );
+    event RestartFlowStream(uint256 indexed streamId, address sender, uint128 ratePerSecond);
 
-    event WithdrawFromFlowStream(
-        uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 withdrawnAmount
-    );
+    event WithdrawFromFlowStream(uint256 indexed streamId, address indexed to, uint128 withdrawnAmount);
 }

@@ -40,23 +40,13 @@ contract RestartAndDeposit_Integration_Concrete_Test is Integration_Test {
         // It should perfor the ERC20 transfer.
         // It should emit 1 {RestartFlowStream}, 1 {Transfer}, 1 {DepositFlowStream} and 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
-        emit RestartFlowStream({
-            streamId: defaultStreamId,
-            sender: users.sender,
-            asset: dai,
-            ratePerSecond: RATE_PER_SECOND
-        });
+        emit RestartFlowStream({ streamId: defaultStreamId, sender: users.sender, ratePerSecond: RATE_PER_SECOND });
 
         vm.expectEmit({ emitter: address(dai) });
         emit IERC20.Transfer({ from: users.sender, to: address(flow), value: TRANSFER_AMOUNT });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit DepositFlowStream({
-            streamId: defaultStreamId,
-            funder: users.sender,
-            asset: dai,
-            depositAmount: DEPOSIT_AMOUNT
-        });
+        emit DepositFlowStream({ streamId: defaultStreamId, funder: users.sender, depositAmount: DEPOSIT_AMOUNT });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });

@@ -95,9 +95,9 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit AdjustFlowStream({
             streamId: defaultStreamId,
-            oldRatePerSecond: RATE_PER_SECOND,
+            amountOwed: ONE_MONTH_STREAMED_AMOUNT,
             newRatePerSecond: newRatePerSecond,
-            amountOwed: ONE_MONTH_STREAMED_AMOUNT
+            oldRatePerSecond: RATE_PER_SECOND
         });
 
         vm.expectEmit({ emitter: address(flow) });

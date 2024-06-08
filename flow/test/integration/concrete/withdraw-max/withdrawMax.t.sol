@@ -48,7 +48,6 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         emit WithdrawFromFlowStream({
             streamId: defaultStreamId,
             to: users.recipient,
-            asset: dai,
             withdrawnAmount: ONE_MONTH_STREAMED_AMOUNT
         });
 

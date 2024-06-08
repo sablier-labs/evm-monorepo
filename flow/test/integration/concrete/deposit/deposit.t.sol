@@ -61,12 +61,7 @@ contract Deposit_Integration_Concrete_Test is Integration_Test {
         emit IERC20.Transfer({ from: users.sender, to: address(flow), value: transferAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit DepositFlowStream({
-            streamId: streamId,
-            funder: users.sender,
-            asset: asset,
-            depositAmount: normalizedAmount
-        });
+        emit DepositFlowStream({ streamId: streamId, funder: users.sender, depositAmount: normalizedAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: streamId });

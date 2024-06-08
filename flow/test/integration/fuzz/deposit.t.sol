@@ -72,7 +72,7 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint128 normalizedAmount = getNormalizedAmount(transferAmount, decimals);
 
         vm.expectEmit({ emitter: address(flow) });
-        emit DepositFlowStream({ streamId: streamId, funder: funder, asset: asset, depositAmount: normalizedAmount });
+        emit DepositFlowStream({ streamId: streamId, funder: funder, depositAmount: normalizedAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: streamId });

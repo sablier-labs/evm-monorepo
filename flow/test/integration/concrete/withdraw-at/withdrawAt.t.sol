@@ -295,7 +295,7 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         emit IERC20.Transfer({ from: address(flow), to: to, value: transferAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit WithdrawFromFlowStream({ streamId: streamId, to: to, asset: asset, withdrawnAmount: expectedWithdrawAmount });
+        emit WithdrawFromFlowStream({ streamId: streamId, to: to, withdrawnAmount: expectedWithdrawAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: streamId });

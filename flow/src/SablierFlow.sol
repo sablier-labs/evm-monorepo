@@ -467,7 +467,7 @@ contract SablierFlow is
 
         // Log the adjustment.
         emit ISablierFlow.AdjustFlowStream(
-            streamId, oldRatePerSecond, newRatePerSecond, _streams[streamId].remainingAmount
+            streamId, _streams[streamId].remainingAmount, newRatePerSecond, oldRatePerSecond
         );
     }
 
@@ -526,7 +526,7 @@ contract SablierFlow is
         _mint({ to: recipient, tokenId: streamId });
 
         // Log the newly created stream.
-        emit ISablierFlow.CreateFlowStream(streamId, sender, recipient, ratePerSecond, asset, uint40(block.timestamp));
+        emit ISablierFlow.CreateFlowStream(streamId, asset, sender, recipient, uint40(block.timestamp), ratePerSecond);
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
@@ -549,7 +549,7 @@ contract SablierFlow is
         asset.safeTransferFrom(msg.sender, address(this), transferAmount);
 
         // Log the deposit.
-        emit ISablierFlow.DepositFlowStream(streamId, msg.sender, asset, normalizedAmount);
+        emit ISablierFlow.DepositFlowStream(streamId, msg.sender, normalizedAmount);
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
@@ -591,9 +591,8 @@ contract SablierFlow is
         // Log the pause.
         emit ISablierFlow.PauseFlowStream({
             streamId: streamId,
-            sender: _streams[streamId].sender,
             recipient: _ownerOf(streamId),
-            asset: _streams[streamId].asset,
+            sender: _streams[streamId].sender,
             amountOwed: _streams[streamId].remainingAmount
         });
     }
@@ -625,7 +624,7 @@ contract SablierFlow is
         _extractFromStream(streamId, sender, amount);
 
         // Log the refund.
-        emit ISablierFlow.RefundFromFlowStream(streamId, sender, _streams[streamId].asset, amount);
+        emit ISablierFlow.RefundFromFlowStream(streamId, sender, amount);
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
@@ -650,7 +649,7 @@ contract SablierFlow is
         _streams[streamId].isPaused = false;
 
         // Log the restart.
-        emit ISablierFlow.RestartFlowStream(streamId, msg.sender, _streams[streamId].asset, ratePerSecond);
+        emit ISablierFlow.RestartFlowStream(streamId, msg.sender, ratePerSecond);
     }
 
     /// @dev Update the remaining amount by adding the recent amount streamed since last time update.
@@ -713,6 +712,6 @@ contract SablierFlow is
         _extractFromStream(streamId, to, withdrawAmount);
 
         // Log the withdrawal.
-        emit ISablierFlow.WithdrawFromFlowStream(streamId, to, _streams[streamId].asset, withdrawAmount);
+        emit ISablierFlow.WithdrawFromFlowStream(streamId, to, withdrawAmount);
     }
 }
