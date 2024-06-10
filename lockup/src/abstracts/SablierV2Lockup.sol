@@ -69,12 +69,6 @@ abstract contract SablierV2Lockup is
         _;
     }
 
-    /// @dev Emits an ERC-4906 event to trigger an update of the NFT metadata.
-    modifier updateMetadata(uint256 streamId) {
-        _;
-        emit MetadataUpdate({ _tokenId: streamId });
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -281,7 +275,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) updateMetadata(streamId) {
+    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) {
         // Check: the stream is not cold.
         Lockup.Status status = _statusOf(streamId);
         if (status == Lockup.Status.DEPLETED) {
@@ -302,6 +296,9 @@ abstract contract SablierV2Lockup is
 
         // Log the renouncement.
         emit ISablierV2Lockup.RenounceLockupStream(streamId);
+
+        // Emit an ERC-4906 event to trigger an update of the NFT metadata.
+        emit MetadataUpdate({ _tokenId: streamId });
 
         // Interaction: if the recipient is a contract, try to invoke the renounce hook on the recipient without
         // reverting if the hook is not implemented, and also without bubbling up any potential revert.
@@ -329,17 +326,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function withdraw(
-        uint256 streamId,
-        address to,
-        uint128 amount
-    )
-        public
-        override
-        noDelegateCall
-        notNull(streamId)
-        updateMetadata(streamId)
-    {
+    function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall notNull(streamId) {
         // Check: the stream is not depleted.
         if (_streams[streamId].isDepleted) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
@@ -375,6 +362,9 @@ abstract contract SablierV2Lockup is
 
         // Effects and Interactions: make the withdrawal.
         _withdraw(streamId, to, amount);
+
+        // Emit an ERC-4906 event to trigger an update of the NFT metadata.
+        emit MetadataUpdate({ _tokenId: streamId });
 
         // Interaction: if `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up
@@ -572,7 +562,7 @@ abstract contract SablierV2Lockup is
         // Log the cancellation.
         emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, asset, senderAmount, recipientAmount);
 
-        // Emits an ERC-4906 event to trigger an update of the NFT metadata.
+        // Emit an ERC-4906 event to trigger an update of the NFT metadata.
         emit MetadataUpdate({ _tokenId: streamId });
 
         // Interaction: if the recipient is a contract, try to invoke the cancel hook on the recipient without
@@ -608,21 +598,15 @@ abstract contract SablierV2Lockup is
     /// @param auth Optional parameter. If the value is not zero, the overridden implementation will check that
     /// `auth` is either the recipient of the stream, or an approved third party.
     /// @return The original recipient of the `streamId` before the update.
-    function _update(
-        address to,
-        uint256 streamId,
-        address auth
-    )
-        internal
-        override
-        updateMetadata(streamId)
-        returns (address)
-    {
+    function _update(address to, uint256 streamId, address auth) internal override returns (address) {
         address from = _ownerOf(streamId);
 
         if (from != address(0) && to != address(0) && !_streams[streamId].isTransferable) {
             revert Errors.SablierV2Lockup_NotTransferable(streamId);
         }
+
+        // Emit an ERC-4906 event to trigger an update of the NFT metadata.
+        emit MetadataUpdate({ _tokenId: streamId });
 
         return super._update(to, streamId, auth);
     }

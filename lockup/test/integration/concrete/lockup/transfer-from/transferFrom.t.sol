@@ -29,9 +29,9 @@ abstract contract TransferFrom_Integration_Concrete_Test is Integration_Test, Lo
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit Transfer({ from: users.recipient, to: users.alice, tokenId: streamId });
-        vm.expectEmit({ emitter: address(lockup) });
         emit MetadataUpdate({ _tokenId: streamId });
+        vm.expectEmit({ emitter: address(lockup) });
+        emit Transfer({ from: users.recipient, to: users.alice, tokenId: streamId });
 
         // Transfer the NFT.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: streamId });

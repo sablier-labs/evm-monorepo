@@ -107,9 +107,9 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
             asset: dai
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
-        vm.expectEmit({ emitter: address(lockup) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
+        vm.expectEmit({ emitter: address(lockup) });
+        emit Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
 
         // Make the max withdrawal and transfer the NFT.
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
