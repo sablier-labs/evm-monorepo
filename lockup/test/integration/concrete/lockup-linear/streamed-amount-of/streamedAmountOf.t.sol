@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { LockupLinear } from "src/types/DataTypes.sol";
+
 import { LockupLinear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
 import { StreamedAmountOf_Integration_Concrete_Test } from "../../lockup/streamed-amount-of/streamedAmountOf.t.sol";
 
@@ -17,7 +19,28 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
         StreamedAmountOf_Integration_Concrete_Test.setUp();
     }
 
-    function test_StreamedAmountOf_CliffTimeInThePast()
+    modifier givenStatusPendind() {
+        _;
+    }
+
+    function test_StreamedAmountOf_CliffTimeZero()
+        external
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusPendind
+    {
+        vm.warp({ newTimestamp: defaults.START_TIME() - 1 });
+
+        LockupLinear.Timestamps memory timestamps = defaults.lockupLinearTimestamps();
+        timestamps.cliff = 0;
+        uint256 streamId = createDefaultStreamWithTimestamps(timestamps);
+
+        uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(streamId);
+        uint128 expectedStreamedAmount = 0;
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
+    }
+
+    function test_StreamedAmountOf_CliffTimeInTheFuture()
         external
         view
         givenNotNull
@@ -41,7 +64,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    function test_StreamedAmountOf_CliffTimeInTheFuture()
+    function test_StreamedAmountOf_CliffTimeInThePast()
         external
         givenNotNull
         givenStreamHasNotBeenCanceled
