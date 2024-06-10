@@ -9,9 +9,6 @@ contract StreamDebtOf_Integration_Concrete_Test is Integration_Test {
 
         // Deposit into the stream.
         depositDefaultAmountToDefaultStream();
-
-        // Simulate one month of streaming.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
     }
 
     function test_RevertGiven_Null() external {
@@ -26,8 +23,8 @@ contract StreamDebtOf_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenAmountOwedExceedsBalance() external givenNotNull {
-        // Simulate the passage of time beyond solvency period.
-        vm.warp({ newTimestamp: getBlockTimestamp() + SOLVENCY_PERIOD });
+        // Simulate the passage of time to accumulate debt for one month.
+        vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD + ONE_MONTH });
 
         uint128 totalStreamed = RATE_PER_SECOND * (SOLVENCY_PERIOD + ONE_MONTH);
 

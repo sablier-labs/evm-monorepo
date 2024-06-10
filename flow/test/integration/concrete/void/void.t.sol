@@ -12,9 +12,6 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         // Deposit to the default stream.
         depositDefaultAmountToDefaultStream();
 
-        // Simulate one month of streaming.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
-
         // Make the recipient the caller in this tests.
         resetPrank({ msgSender: users.recipient });
     }
@@ -36,7 +33,7 @@ contract Void_Integration_Concrete_Test is Integration_Test {
 
     modifier givenStreamHasDebt() {
         // Simulate the passage of time to accumulate debt for one month.
-        vm.warp({ newTimestamp: block.timestamp + SOLVENCY_PERIOD + ONE_MONTH });
+        vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD + ONE_MONTH });
 
         _;
     }

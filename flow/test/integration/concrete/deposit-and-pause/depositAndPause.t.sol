@@ -10,7 +10,7 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Advance the time past the solvency period so that there is debt.
-        vm.warp({ newTimestamp: getBlockTimestamp() + SOLVENCY_PERIOD + 1 days });
+        vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD + 1 days });
     }
 
     function test_RevertWhen_DelegateCall() external {

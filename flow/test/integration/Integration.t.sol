@@ -28,6 +28,9 @@ abstract contract Integration_Test is Base_Test {
         defaultBroker = broker();
 
         defaultStreamId = createDefaultStream();
+
+        // Simulate one month of streaming.
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

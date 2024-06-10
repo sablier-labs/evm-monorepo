@@ -26,10 +26,11 @@ abstract contract Constants {
 
     // Time
     uint40 internal constant MAY_1_2024 = 1_714_518_000;
-    uint40 internal immutable ONE_MONTH = 30 days; // "30/360" convention
-    uint128 internal constant SOLVENCY_PERIOD = DEPOSIT_AMOUNT / RATE_PER_SECOND; // 578 days
-    uint40 internal immutable WARP_ONE_MONTH = MAY_1_2024 + ONE_MONTH;
-    uint40 internal immutable WITHDRAW_TIME = MAY_1_2024 + 2_500_000;
+    uint40 internal constant ONE_MONTH = 30 days; // "30/360" convention
+    uint40 internal constant SOLVENCY_PERIOD = uint40(DEPOSIT_AMOUNT / RATE_PER_SECOND); // 578 days
+    uint40 internal constant WARP_ONE_MONTH = MAY_1_2024 + ONE_MONTH;
+    uint40 internal constant WARP_SOLVENCY_PERIOD = MAY_1_2024 + SOLVENCY_PERIOD;
+    uint40 internal constant WITHDRAW_TIME = MAY_1_2024 + 2_500_000;
 
     // Streaming amounts
     uint128 internal constant ONE_MONTH_STREAMED_AMOUNT = 2592e18; // 86.4 * 30

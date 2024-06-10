@@ -42,9 +42,6 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GivenStreamHasDebt() external whenNoDelegateCall givenNotNull givenNotPaused whenCallerSender {
-        // Simulate the passage of time to create debt.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
-
         // Check that debt is positive.
         assertGt(flow.streamDebtOf(defaultStreamId), 0, "stream debt");
 
@@ -53,9 +50,6 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GivenStreamHasNoDebt() external whenNoDelegateCall givenNotNull givenNotPaused whenCallerSender {
-        // Simulate the passage of time to create debt.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
-
         // Make deposit to clear debt.
         depositDefaultAmountToDefaultStream();
 

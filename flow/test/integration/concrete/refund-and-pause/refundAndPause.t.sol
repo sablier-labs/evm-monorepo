@@ -10,8 +10,6 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         depositDefaultAmountToDefaultStream();
-
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
     }
 
     function test_RevertWhen_DelegateCall() external {

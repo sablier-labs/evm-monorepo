@@ -14,9 +14,6 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         // Deposit to the default stream.
         depositDefaultAmountToDefaultStream();
 
-        // Simulate the one month of streaming.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
-
         // Set recipient as the caller for this test.
         resetPrank({ msgSender: users.recipient });
     }

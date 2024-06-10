@@ -4,13 +4,6 @@ pragma solidity >=0.8.22;
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract RefundableAmountOf_Integration_Concrete_Test is Integration_Test {
-    function setUp() public override {
-        Integration_Test.setUp();
-
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
-    }
-
     function test_RevertGiven_Null() external {
         bytes memory callData = abi.encodeCall(flow.refundableAmountOf, nullStreamId);
         expectRevert_Null(callData);
@@ -39,7 +32,7 @@ contract RefundableAmountOf_Integration_Concrete_Test is Integration_Test {
 
     function test_WhenAmountOwedExceedsBalance() external givenNotNull givenBalanceNotZero givenNotPaused {
         // Simulate the passage of time until debt begins.
-        vm.warp({ newTimestamp: getBlockTimestamp() + SOLVENCY_PERIOD });
+        vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD });
 
         // It should return zero.
         uint128 refundableAmount = flow.refundableAmountOf(defaultStreamId);

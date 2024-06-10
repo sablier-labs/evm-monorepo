@@ -13,9 +13,6 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
 
         // Deposit to the default stream.
         depositDefaultAmountToDefaultStream();
-
-        // Simulate one month of streaming.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
     }
 
     function test_RevertWhen_DelegateCall() external {

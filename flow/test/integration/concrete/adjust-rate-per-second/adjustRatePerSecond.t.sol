@@ -75,7 +75,6 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
         whenNewRatePerSecondNotZero
     {
         flow.deposit(defaultStreamId, TRANSFER_AMOUNT);
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
         uint128 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         uint128 expectedRatePerSecond = RATE_PER_SECOND;

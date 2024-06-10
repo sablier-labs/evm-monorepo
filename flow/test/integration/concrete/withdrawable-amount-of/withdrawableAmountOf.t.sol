@@ -4,10 +4,6 @@ pragma solidity >=0.8.22;
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract WithdrawableAmountOf_Integration_Concrete_Test is Integration_Test {
-    function setUp() public override {
-        Integration_Test.setUp();
-    }
-
     function test_RevertGiven_Null() external {
         bytes memory callData = abi.encodeCall(flow.withdrawableAmountOf, nullStreamId);
         expectRevert_Null(callData);
@@ -25,15 +21,12 @@ contract WithdrawableAmountOf_Integration_Concrete_Test is Integration_Test {
     modifier givenBalanceNotZero() override {
         // Deposit into stream.
         depositDefaultAmountToDefaultStream();
-
-        // Simulate one month of streaming.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
         _;
     }
 
     function test_WhenAmountOwedExceedsBalance() external givenNotNull givenBalanceNotZero {
         // Simulate the passage of time until debt begins.
-        vm.warp({ newTimestamp: getBlockTimestamp() + SOLVENCY_PERIOD });
+        vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD });
 
         uint128 balance = flow.getBalance(defaultStreamId);
 
