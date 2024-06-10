@@ -8,6 +8,8 @@ struct Users {
     address payable broker;
     // Malicious user.
     address payable eve;
+    // Default NFT operator.
+    address payable operator;
     // Default stream recipient.
     address payable recipient;
     // Default stream sender.

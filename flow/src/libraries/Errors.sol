@@ -33,8 +33,8 @@ library Errors {
     /// @notice Thrown when trying to create a stream with a broker recipient address as zero.
     error SablierFlow_BrokerAddressZero();
 
-    /// @notice Thrown when trying to create a stream with a zero transfer amount.
-    error SablierFlow_TransferAmountZero();
+    /// @notice Thrown when voiding a stream with zero debt.
+    error SablierFlow_DebtZero(uint256 streamId);
 
     /// @notice Thrown when trying to create a stream with an asset with no decimals.
     error SablierFlow_InvalidAssetDecimals(address asset);
@@ -69,6 +69,9 @@ library Errors {
 
     /// @notice Thrown when trying to restart a stream that is not paused.
     error SablierFlow_StreamNotPaused(uint256 streamId);
+
+    /// @notice Thrown when trying to create a stream with a zero transfer amount.
+    error SablierFlow_TransferAmountZero();
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierFlow_Unauthorized(uint256 streamId, address caller);

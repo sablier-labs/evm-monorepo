@@ -67,6 +67,16 @@ interface ISablierFlow is
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     event RestartFlowStream(uint256 indexed streamId, address sender, uint128 ratePerSecond);
 
+    /// @notice Emitted when a Flow stream is voided by the recipient.
+    /// @param streamId The ID of the stream.
+    /// @param recipient The address of the stream's recipient.
+    /// @param sender The address of the stream's sender.
+    /// @param newAmountOwed The updated amount of assets owed by the sender to the recipient, denoted in 18  decimals.
+    /// @param writenoffDebt The debt amount written-off by the recipient.
+    event VoidFlowStream(
+        uint256 indexed streamId, address recipient, address sender, uint128 newAmountOwed, uint128 writenoffDebt
+    );
+
     /// @notice Emitted when assets are withdrawn from a Flow stream.
     /// @param streamId The ID of the Flow stream.
     /// @param to The address that has received the withdrawn assets.
@@ -339,6 +349,22 @@ interface ISablierFlow is
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param transferAmount The transfer amount, denoted in units of the asset's decimals.
     function restartAndDeposit(uint256 streamId, uint128 ratePerSecond, uint128 transferAmount) external;
+
+    /// @notice Voids the stream debt and pauses it.
+    ///
+    /// @dev Emits a {VoidFlowStream} event.
+    ///
+    /// Requirements:
+    /// - Must not be delegate called.
+    /// - `streamId` must not reference a null stream.
+    /// - `msg.sender` must either be the stream's recipient or an approved third party.
+    /// - stream debt must be greater than zero.
+    ///
+    /// Notes:
+    /// - A paused stream can also be voided if its debt is not zero.
+    ///
+    /// @param streamId The ID of the stream to void.
+    function void(uint256 streamId) external;
 
     /// @notice Withdraws the amount of assets calculated based on time reference and the remaining amount, from the
     /// stream to the provided `to` address.

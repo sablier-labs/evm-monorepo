@@ -53,5 +53,9 @@ abstract contract Events {
 
     event RestartFlowStream(uint256 indexed streamId, address sender, uint128 ratePerSecond);
 
+    event VoidFlowStream(
+        uint256 indexed streamId, address recipient, address sender, uint128 newAmountOwed, uint128 writenoffDebt
+    );
+
     event WithdrawFromFlowStream(uint256 indexed streamId, address indexed to, uint128 withdrawnAmount);
 }

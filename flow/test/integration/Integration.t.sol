@@ -102,6 +102,39 @@ abstract contract Integration_Test is Base_Test {
                                 COMMON-REVERT-TESTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function expectRevert_CallerMaliciousThirdParty(bytes memory callData) internal {
+        resetPrank({ msgSender: users.eve });
+        (bool success, bytes memory returnData) = address(flow).call(callData);
+        assertFalse(success, "malicious call success");
+        assertEq(
+            returnData,
+            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve),
+            "malicious call return data"
+        );
+    }
+
+    function expectRevert_CallerRecipient(bytes memory callData) internal {
+        resetPrank({ msgSender: users.recipient });
+        (bool success, bytes memory returnData) = address(flow).call(callData);
+        assertFalse(success, "recipient call success");
+        assertEq(
+            returnData,
+            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient),
+            "recipient call return data"
+        );
+    }
+
+    function expectRevert_CallerSender(bytes memory callData) internal {
+        resetPrank({ msgSender: users.sender });
+        (bool success, bytes memory returnData) = address(flow).call(callData);
+        assertFalse(success, "sender call success");
+        assertEq(
+            returnData,
+            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.sender),
+            "sender call return data"
+        );
+    }
+
     function expectRevert_DelegateCall(bytes memory callData) internal {
         (bool success, bytes memory returnData) = address(flow).delegatecall(callData);
         assertFalse(success, "delegatecall success");
@@ -124,28 +157,6 @@ abstract contract Integration_Test is Base_Test {
             returnData,
             abi.encodeWithSelector(Errors.SablierFlow_StreamPaused.selector, defaultStreamId),
             "paused call return data"
-        );
-    }
-
-    function expectRevert_CallerRecipient(bytes memory callData) internal {
-        resetPrank({ msgSender: users.recipient });
-        (bool success, bytes memory returnData) = address(flow).call(callData);
-        assertFalse(success, "recipient call success");
-        assertEq(
-            returnData,
-            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient),
-            "recipient call return data"
-        );
-    }
-
-    function expectRevert_CallerMaliciousThirdParty(bytes memory callData) internal {
-        resetPrank({ msgSender: users.eve });
-        (bool success, bytes memory returnData) = address(flow).call(callData);
-        assertFalse(success, "malicious call success");
-        assertEq(
-            returnData,
-            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve),
-            "malicious call return data"
         );
     }
 }

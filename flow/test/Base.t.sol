@@ -50,6 +50,7 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
 
         users.broker = createUser("broker");
         users.eve = createUser("eve");
+        users.operator = createUser("operator");
         users.recipient = createUser("recipient");
         users.sender = createUser("sender");
 

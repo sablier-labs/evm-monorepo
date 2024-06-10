@@ -197,6 +197,24 @@ contract FlowHandler is BaseHandler {
         flow.restart(currentStreamId, ratePerSecond);
     }
 
+    function void(
+        uint256 timeJumpSeed,
+        uint256 streamIndexSeed
+    )
+        external
+        instrument("void")
+        adjustTimestamp(timeJumpSeed)
+        useFuzzedStream(streamIndexSeed)
+        useFuzzedStreamRecipient
+        updateFlowStates
+    {
+        // Check if the debt is not zero.
+        vm.assume(flow.streamDebtOf(currentStreamId) > 0);
+
+        // Void the stream.
+        flow.void(currentStreamId);
+    }
+
     function withdrawAt(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
