@@ -150,6 +150,7 @@ interface ISablierV2Lockup is
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
 
     /// @notice Retrieves the stream's status.
+    /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function statusOf(uint256 streamId) external view returns (Lockup.Status status);
 
