@@ -15,6 +15,10 @@ jobs:
   lint:
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-lint.yml@main"
 
+  bulloak:
+    needs: ["lint"]
+    uses: "./.github/workflows/bulloak.yml"
+
   build:
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@main"
 

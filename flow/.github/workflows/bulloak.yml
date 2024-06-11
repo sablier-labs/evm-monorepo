@@ -1,0 +1,41 @@
+name: "Verify the specs of concrete tests using bulloak"
+
+on: "workflow_call"
+
+jobs:
+  bulloak-check:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v4"
+
+      - name: "Install Rust"
+        uses: "actions-rs/toolchain@v1"
+        with:
+          toolchain: "stable"
+
+      - name: "Cache cargo"
+        id: cache-cargo
+        uses: "actions/cache@v4"
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          save-always: true
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: "Install bulloak or use the cached version"
+        if: steps.cache-cargo.outputs.cache-hit != 'true'
+        run: "cargo install bulloak"
+
+      - name: "Verify the concrete tests"
+        run: "bulloak check test/integration/concrete/**/**.tree --skip-modifiers"
+
+      - name: "Bulloak summary"
+        run: |
+          echo "## Bulloak result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
