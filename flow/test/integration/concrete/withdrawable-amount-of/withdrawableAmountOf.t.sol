@@ -11,7 +11,7 @@ contract WithdrawableAmountOf_Integration_Concrete_Test is Integration_Test {
 
     function test_GivenBalanceZero() external givenNotNull {
         // Create a new stream with zero balance.
-        uint256 streamId = createDefaultStreamWithAsset(dai);
+        uint256 streamId = createDefaultStream(dai);
 
         // It should return zero.
         uint128 withdrawableAmount = flow.withdrawableAmountOf(streamId);
@@ -20,7 +20,10 @@ contract WithdrawableAmountOf_Integration_Concrete_Test is Integration_Test {
 
     modifier givenBalanceNotZero() override {
         // Deposit into stream.
-        depositDefaultAmountToDefaultStream();
+        depositToDefaultStream();
+
+        // Simulate one month of streaming.
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
         _;
     }
 

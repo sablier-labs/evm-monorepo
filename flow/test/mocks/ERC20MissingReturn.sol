@@ -36,18 +36,23 @@ contract ERC20MissingReturn {
     }
 
     function burn(address holder, uint256 amount) public {
+        require(holder != address(0), "ERC20: burn from the zero address");
+        require(_balances[holder] >= amount, "ERC20: burn amount exceeds balance");
         _balances[holder] -= amount;
         totalSupply -= amount;
         emit Transfer(holder, address(0), amount);
     }
 
     function mint(address beneficiary, uint256 amount) public {
+        require(beneficiary != address(0), "ERC20: mint to the zero address");
         _balances[beneficiary] += amount;
         totalSupply += amount;
         emit Transfer(address(0), beneficiary, amount);
     }
 
     function _approve(address owner, address spender, uint256 value) internal virtual {
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
         _allowances[owner][spender] = value;
         emit Approval(owner, spender, value);
     }
@@ -59,11 +64,15 @@ contract ERC20MissingReturn {
 
     /// @dev This function does not return a value, although the ERC20 standard mandates that it should.
     function transferFrom(address from, address to, uint256 amount) public {
+        require(_allowances[from][msg.sender] >= amount, "ERC20: insufficient allowance");
         _transfer(from, to, amount);
         _approve(from, msg.sender, _allowances[from][msg.sender] - amount);
     }
 
     function _transfer(address from, address to, uint256 amount) internal virtual {
+        require(from != address(0), "ERC20: transfer from the zero address");
+        require(to != address(0), "ERC20: transfer to the zero address");
+        require(_balances[from] >= amount); // no revert message, because we need to test this case in {Batch}
         _balances[from] = _balances[from] - amount;
         _balances[to] = _balances[to] + amount;
         emit Transfer(from, to, amount);

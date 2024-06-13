@@ -10,6 +10,9 @@ library Errors {
                                       GENERICS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when an unexpected error occurs during a batch call.
+    error BatchError(bytes errorData);
+
     /// @notice Thrown when `msg.sender` is not the admin.
     error CallerNotAdmin(address admin, address caller);
 

@@ -9,7 +9,7 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
 
-        depositDefaultAmountToDefaultStream();
+        depositToDefaultStream();
     }
 
     function test_RevertWhen_DelegateCall() external {

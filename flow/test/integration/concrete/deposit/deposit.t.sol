@@ -24,7 +24,7 @@ contract Deposit_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenAssetMissesERC20Return() external whenNoDelegateCall givenNotNull whenTransferAmountNotZero {
-        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdt)));
+        uint256 streamId = createDefaultStream(IERC20(address(usdt)));
 
         // It should make the deposit
         _test_Deposit(streamId, IERC20(address(usdt)), TRANSFER_AMOUNT_6D, 6);
@@ -38,7 +38,7 @@ contract Deposit_Integration_Concrete_Test is Integration_Test {
         whenAssetDoesNotMissERC20Return
     {
         // It should make the deposit.
-        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdc)));
+        uint256 streamId = createDefaultStream(IERC20(address(usdc)));
         _test_Deposit(streamId, usdc, TRANSFER_AMOUNT_6D, 6);
     }
 

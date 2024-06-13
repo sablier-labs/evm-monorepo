@@ -51,7 +51,7 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
 
     function test_GivenStreamHasNoDebt() external whenNoDelegateCall givenNotNull givenNotPaused whenCallerSender {
         // Make deposit to clear debt.
-        depositDefaultAmountToDefaultStream();
+        depositToDefaultStream();
 
         // Check that debt is zero.
         assertEq(flow.streamDebtOf(defaultStreamId), 0, "stream debt");

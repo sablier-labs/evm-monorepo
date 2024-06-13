@@ -21,7 +21,7 @@ contract DepletionTimeOf_Integration_Concrete_Test is Integration_Test {
     }
 
     modifier givenBalanceNotZero() override {
-        depositDefaultAmountToDefaultStream();
+        depositToDefaultStream();
         _;
     }
 

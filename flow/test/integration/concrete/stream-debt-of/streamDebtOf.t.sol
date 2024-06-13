@@ -8,7 +8,7 @@ contract StreamDebtOf_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Deposit into the stream.
-        depositDefaultAmountToDefaultStream();
+        depositToDefaultStream();
     }
 
     function test_RevertGiven_Null() external {

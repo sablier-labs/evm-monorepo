@@ -10,7 +10,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Deposit to the default stream.
-        depositDefaultAmountToDefaultStream();
+        depositToDefaultStream();
     }
 
     function test_RevertWhen_DelegateCall() external {

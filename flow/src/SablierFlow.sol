@@ -5,6 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
+import { Batch } from "./abstracts/Batch.sol";
 import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
 import { SablierFlowState } from "./abstracts/SablierFlowState.sol";
 import { ISablierFlow } from "./interfaces/ISablierFlow.sol";
@@ -16,6 +17,7 @@ import { Broker, Flow } from "./types/DataTypes.sol";
 /// @title SablierFlow
 /// @notice See the documentation in {ISablierFlow}.
 contract SablierFlow is
+    Batch, // 0 inherited components
     NoDelegateCall, // 0 inherited components
     ISablierFlow, // 4 inherited components
     SablierFlowState // 8 inherited components

@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Broker } from "src/types/DataTypes.sol";
+import { Broker, Flow } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
@@ -42,20 +42,14 @@ abstract contract Integration_Test is Base_Test {
     }
 
     function createDefaultStream() internal returns (uint256) {
-        return createDefaultStreamWithAsset(dai);
+        return createDefaultStream(dai);
     }
 
-    function createDefaultStreamWithAsset(IERC20 asset_) internal returns (uint256) {
-        return createDefaultStreamWithRatePerSecondAndAsset(RATE_PER_SECOND, asset_);
+    function createDefaultStream(IERC20 asset_) internal returns (uint256) {
+        return createDefaultStream(RATE_PER_SECOND, asset_);
     }
 
-    function createDefaultStreamWithRatePerSecondAndAsset(
-        uint128 ratePerSecond,
-        IERC20 asset_
-    )
-        internal
-        returns (uint256)
-    {
+    function createDefaultStream(uint128 ratePerSecond, IERC20 asset_) internal returns (uint256) {
         return flow.create({
             sender: users.sender,
             recipient: users.recipient,
@@ -65,7 +59,27 @@ abstract contract Integration_Test is Base_Test {
         });
     }
 
-    function depositAmountToStream(uint256 streamId, uint128 transferAmount) internal {
+    function defaultStream() internal view returns (Flow.Stream memory) {
+        return Flow.Stream({
+            ratePerSecond: RATE_PER_SECOND,
+            asset: dai,
+            assetDecimals: 18,
+            balance: 0,
+            lastTimeUpdate: getBlockTimestamp(),
+            isPaused: false,
+            isStream: true,
+            isTransferable: IS_TRANFERABLE,
+            remainingAmount: 0,
+            sender: users.sender
+        });
+    }
+
+    function defaultStreamWithDeposit() internal view returns (Flow.Stream memory stream) {
+        stream = defaultStream();
+        stream.balance = DEPOSIT_AMOUNT;
+    }
+
+    function depositAmount(uint256 streamId, uint128 transferAmount) internal {
         IERC20 asset = flow.getAsset(streamId);
 
         deal({ token: address(asset), to: users.sender, give: transferAmount });
@@ -74,11 +88,7 @@ abstract contract Integration_Test is Base_Test {
         flow.deposit(streamId, transferAmount);
     }
 
-    function depositDefaultAmountToDefaultStream() internal {
-        depositAmountToStream(defaultStreamId, TRANSFER_AMOUNT);
-    }
-
-    function depositDefaultAmountToStream(uint256 streamId) internal {
+    function depositDefaultAmount(uint256 streamId) internal {
         IERC20 asset = flow.getAsset(streamId);
         uint8 decimals = flow.getAssetDecimals(streamId);
         uint128 transferAmount = getDefaultTransferAmount(decimals);
@@ -87,6 +97,10 @@ abstract contract Integration_Test is Base_Test {
         asset.approve(address(flow), transferAmount);
 
         flow.deposit(streamId, transferAmount);
+    }
+
+    function depositToDefaultStream() internal {
+        depositAmount(defaultStreamId, TRANSFER_AMOUNT);
     }
 
     /// @dev Update the `lastTimeUpdate` of a stream to the current block timestamp.

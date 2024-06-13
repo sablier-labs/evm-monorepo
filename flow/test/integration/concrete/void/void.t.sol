@@ -10,7 +10,7 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Deposit to the default stream.
-        depositDefaultAmountToDefaultStream();
+        depositToDefaultStream();
 
         // Make the recipient the caller in this tests.
         resetPrank({ msgSender: users.recipient });

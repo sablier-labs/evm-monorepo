@@ -17,7 +17,7 @@ contract RefundableAmountOf_Integration_Concrete_Test is Integration_Test {
 
     modifier givenBalanceNotZero() override {
         // Deposit into the stream.
-        depositDefaultAmountToDefaultStream();
+        depositToDefaultStream();
         _;
     }
 

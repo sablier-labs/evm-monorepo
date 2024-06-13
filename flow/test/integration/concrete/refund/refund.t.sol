@@ -12,7 +12,7 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Deposit to the default stream.
-        depositDefaultAmountToDefaultStream();
+        depositToDefaultStream();
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -81,8 +81,8 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         whenNoOverRefund
         givenNotPaused
     {
-        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdt)));
-        depositDefaultAmountToStream(streamId);
+        uint256 streamId = createDefaultStream(IERC20(address(usdt)));
+        depositDefaultAmount(streamId);
 
         // It should make the refund.
         _test_Refund(streamId, IERC20(address(usdt)), 6);
@@ -98,8 +98,8 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         givenNotPaused
         whenAssetDoesNotMissERC20Return
     {
-        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdc)));
-        depositDefaultAmountToStream(streamId);
+        uint256 streamId = createDefaultStream(IERC20(address(usdc)));
+        depositDefaultAmount(streamId);
 
         // It should make the refund.
         _test_Refund(streamId, IERC20(address(usdc)), 6);

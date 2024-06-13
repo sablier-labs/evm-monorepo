@@ -12,7 +12,7 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Deposit to the default stream.
-        depositDefaultAmountToDefaultStream();
+        depositToDefaultStream();
 
         // Set recipient as the caller for this test.
         resetPrank({ msgSender: users.recipient });
@@ -156,7 +156,7 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
 
         // Create a new stream with very less deposit.
         uint256 streamId = createDefaultStream();
-        depositAmountToStream(streamId, chickenfeed);
+        depositAmount(streamId, chickenfeed);
 
         // Simulate the one month of streaming.
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
@@ -206,9 +206,9 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: MAY_1_2024 });
 
         resetPrank({ msgSender: users.sender });
-        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdc)));
+        uint256 streamId = createDefaultStream(IERC20(address(usdc)));
         // Deposit to the stream.
-        depositDefaultAmountToStream(streamId);
+        depositDefaultAmount(streamId);
 
         // Simulate the one month of streaming.
         vm.warp({ newTimestamp: WARP_ONE_MONTH });

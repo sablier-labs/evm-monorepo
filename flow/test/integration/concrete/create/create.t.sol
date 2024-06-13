@@ -133,18 +133,7 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         });
 
         Flow.Stream memory actualStream = flow.getStream(actualStreamId);
-        Flow.Stream memory expectedStream = Flow.Stream({
-            ratePerSecond: RATE_PER_SECOND,
-            asset: dai,
-            assetDecimals: 18,
-            balance: 0,
-            lastTimeUpdate: getBlockTimestamp(),
-            isPaused: false,
-            isStream: true,
-            isTransferable: IS_TRANFERABLE,
-            remainingAmount: 0,
-            sender: users.sender
-        });
+        Flow.Stream memory expectedStream = defaultStream();
 
         // It should create the stream.
         assertEq(actualStreamId, expectedStreamId, "stream id");
