@@ -62,7 +62,11 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
         whenCallerSender
         whenNewRatePerSecondNotZero
     {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_RatePerSecondNotDifferent.selector, RATE_PER_SECOND));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierFlow_RatePerSecondNotDifferent.selector, defaultStreamId, RATE_PER_SECOND
+            )
+        );
         flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 

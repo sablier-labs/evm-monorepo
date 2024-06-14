@@ -47,7 +47,7 @@ library Errors {
 
     /// @notice Thrown when trying to withdraw assets with a withdrawal time not greater than or equal to
     /// `lastTimeUpdate`.
-    error SablierFlow_LastUpdateNotLessThanWithdrawalTime(uint40 lastUpdate, uint40 time);
+    error SablierFlow_LastUpdateNotLessThanWithdrawalTime(uint256 streamId, uint40 lastUpdate, uint40 time);
 
     /// @notice Thrown when the ID references a null stream.
     error SablierFlow_Null(uint256 streamId);
@@ -56,13 +56,13 @@ library Errors {
     error SablierFlow_Overrefund(uint256 streamId, uint128 refundAmount, uint128 refundableAmount);
 
     /// @notice Thrown when trying to change the rate per second with the same rate per second.
-    error SablierFlow_RatePerSecondNotDifferent(uint128 ratePerSecond);
+    error SablierFlow_RatePerSecondNotDifferent(uint256 streamId, uint128 ratePerSecond);
 
     /// @notice Thrown when trying to set the rate per second of a stream to zero.
     error SablierFlow_RatePerSecondZero();
 
     /// @notice Thrown when trying to refund zero assets from a stream.
-    error SablierFlow_RefundAmountZero();
+    error SablierFlow_RefundAmountZero(uint256 streamId);
 
     /// @notice Thrown when trying to create a stream with the sender as the zero address.
     error SablierFlow_SenderZeroAddress();
@@ -74,7 +74,7 @@ library Errors {
     error SablierFlow_StreamNotPaused(uint256 streamId);
 
     /// @notice Thrown when trying to create a stream with a zero transfer amount.
-    error SablierFlow_TransferAmountZero();
+    error SablierFlow_TransferAmountZero(uint256 streamId);
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierFlow_Unauthorized(uint256 streamId, address caller);
@@ -86,8 +86,8 @@ library Errors {
     error SablierFlow_WithdrawNoFundsAvailable(uint256 streamId);
 
     /// @notice Thrown when trying to withdraw assets with a withdrawal time in the future.
-    error SablierFlow_WithdrawalTimeInTheFuture(uint40 time, uint256 currentTime);
+    error SablierFlow_WithdrawalTimeInTheFuture(uint256 streamId, uint40 time, uint256 currentTime);
 
     /// @notice Thrown when trying to withdraw to the zero address.
-    error SablierFlow_WithdrawToZeroAddress();
+    error SablierFlow_WithdrawToZeroAddress(uint256 streamId);
 }

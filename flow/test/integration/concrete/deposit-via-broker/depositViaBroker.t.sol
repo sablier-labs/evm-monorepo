@@ -48,7 +48,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressNotZero
     {
-        vm.expectRevert(Errors.SablierFlow_TransferAmountZero.selector);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_TransferAmountZero.selector, defaultStreamId));
         flow.depositViaBroker(defaultStreamId, 0, defaultBroker);
     }
 

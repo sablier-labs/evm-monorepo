@@ -36,7 +36,10 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierFlow_LastUpdateNotLessThanWithdrawalTime.selector, lastTimeUpdate, WITHDRAW_TIME
+                Errors.SablierFlow_LastUpdateNotLessThanWithdrawalTime.selector,
+                defaultStreamId,
+                lastTimeUpdate,
+                WITHDRAW_TIME
             )
         );
         flow.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: WITHDRAW_TIME });
@@ -45,7 +48,10 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_TimeGreaterThanCurrentTime() external whenNoDelegateCall givenNotNull {
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierFlow_WithdrawalTimeInTheFuture.selector, getBlockTimestamp() + 1, getBlockTimestamp()
+                Errors.SablierFlow_WithdrawalTimeInTheFuture.selector,
+                defaultStreamId,
+                getBlockTimestamp() + 1,
+                getBlockTimestamp()
             )
         );
         flow.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: getBlockTimestamp() + 1 });
@@ -61,7 +67,7 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         givenNotNull
         whenTimeBetweenLastTimeUpdateAndCurrentTime
     {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_WithdrawToZeroAddress.selector));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_WithdrawToZeroAddress.selector, defaultStreamId));
         flow.withdrawAt({ streamId: defaultStreamId, to: address(0), time: WITHDRAW_TIME });
     }
 

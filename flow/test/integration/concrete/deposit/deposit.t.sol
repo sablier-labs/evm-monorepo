@@ -19,7 +19,7 @@ contract Deposit_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertWhen_TransferAmountZero() external whenNoDelegateCall givenNotNull {
-        vm.expectRevert(Errors.SablierFlow_TransferAmountZero.selector);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_TransferAmountZero.selector, defaultStreamId));
         flow.deposit(defaultStreamId, 0);
     }
 

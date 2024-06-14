@@ -36,7 +36,7 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertWhen_RefundAmountZero() external whenNoDelegateCall givenNotNull whenCallerSender {
-        vm.expectRevert(Errors.SablierFlow_RefundAmountZero.selector);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_RefundAmountZero.selector, defaultStreamId));
         flow.refund({ streamId: defaultStreamId, amount: 0 });
     }
 

@@ -351,12 +351,12 @@ contract SablierFlow is
 
         // Check: the time reference is greater than `lastTimeUpdate`.
         if (time < lastTimeUpdate) {
-            revert Errors.SablierFlow_LastUpdateNotLessThanWithdrawalTime(lastTimeUpdate, time);
+            revert Errors.SablierFlow_LastUpdateNotLessThanWithdrawalTime(streamId, lastTimeUpdate, time);
         }
 
         // Check: the withdrawal time is not in the future.
         if (time > uint40(block.timestamp)) {
-            revert Errors.SablierFlow_WithdrawalTimeInTheFuture(time, block.timestamp);
+            revert Errors.SablierFlow_WithdrawalTimeInTheFuture(streamId, time, block.timestamp);
         }
 
         // Checks, Effects and Interactions: make the withdrawal.
@@ -466,7 +466,7 @@ contract SablierFlow is
 
         // Check: the new rate per second is not equal to the actual rate per second.
         if (newRatePerSecond == oldRatePerSecond) {
-            revert Errors.SablierFlow_RatePerSecondNotDifferent(newRatePerSecond);
+            revert Errors.SablierFlow_RatePerSecondNotDifferent(streamId, newRatePerSecond);
         }
 
         // Effect: update the remaining amount.
@@ -546,7 +546,7 @@ contract SablierFlow is
     function _deposit(uint256 streamId, uint128 transferAmount) internal {
         // Check: the transfer amount is not zero.
         if (transferAmount == 0) {
-            revert Errors.SablierFlow_TransferAmountZero();
+            revert Errors.SablierFlow_TransferAmountZero(streamId);
         }
 
         // Retrieve the ERC-20 asset from storage.
@@ -614,7 +614,7 @@ contract SablierFlow is
     function _refund(uint256 streamId, uint128 amount) internal {
         // Check: the amount is not zero.
         if (amount == 0) {
-            revert Errors.SablierFlow_RefundAmountZero();
+            revert Errors.SablierFlow_RefundAmountZero(streamId);
         }
 
         // Calculate the refundable amount.
@@ -712,7 +712,7 @@ contract SablierFlow is
     function _withdrawAt(uint256 streamId, address to, uint40 time) internal {
         // Check: the withdrawal address is not zero.
         if (to == address(0)) {
-            revert Errors.SablierFlow_WithdrawToZeroAddress();
+            revert Errors.SablierFlow_WithdrawToZeroAddress(streamId);
         }
 
         // Check: if `msg.sender` is neither the stream's recipient nor an approved third party, the withdrawal address
