@@ -3,8 +3,6 @@ pragma solidity >=0.8.22;
 
 import { Errors } from "../libraries/Errors.sol";
 
-import { Batch } from "./Batch.sol";
-
 /// @title Batch
 /// @notice This contract implements logic to batch call any function.
 /// @dev Forked from: https://github.com/boringcrypto/BoringSolidity/blob/master/contracts/BoringBatchable.sol

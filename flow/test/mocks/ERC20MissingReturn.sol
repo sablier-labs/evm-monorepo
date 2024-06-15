@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
+// solhint-disable reason-string
 pragma solidity >=0.8.22;
 
 /// @notice An implementation of ERC20 that does not return a boolean in {transfer} and {transferFrom}.

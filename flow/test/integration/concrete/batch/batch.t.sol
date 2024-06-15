@@ -4,7 +4,6 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Flow } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
