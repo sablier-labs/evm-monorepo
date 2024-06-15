@@ -202,4 +202,5 @@ them inexpensive to store.
 | Restart             |           ✅           |    ❌     |     ❌      |           ❌           |
 | Pause               |           ✅           |    ❌     |     ❌      |           ❌           |
 | Transfer NFT        |           ❌           |    ✅     |     ✅      |           ❌           |
+| Void                |           ❌           |    ✅     |     ✅      |           ❌           |
 | Withdraw            | ✅ (only to Recipient) |    ✅     |     ✅      | ✅ (only to Recipient) |
