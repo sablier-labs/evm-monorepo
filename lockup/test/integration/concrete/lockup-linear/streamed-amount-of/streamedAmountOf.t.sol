@@ -19,7 +19,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
         StreamedAmountOf_Integration_Concrete_Test.setUp();
     }
 
-    modifier givenStatusPendind() {
+    modifier givenStatusPending() {
         _;
     }
 
@@ -27,7 +27,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
         external
         givenNotNull
         givenStreamHasNotBeenCanceled
-        givenStatusPendind
+        givenStatusPending
     {
         vm.warp({ newTimestamp: defaults.START_TIME() - 1 });
 
