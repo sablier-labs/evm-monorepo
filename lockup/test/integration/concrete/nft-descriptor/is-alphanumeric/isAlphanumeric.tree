@@ -1,0 +1,8 @@
+isAlphanumeric.t.sol
+├── when the symbol is an empty string
+│  └── it should return true
+└── when the symbol is not an empty string
+   ├── given the symbol does not contain only alphanumeric characters
+   │  └── it should return false
+   └── given the symbol contains only alphanumeric characters
+      └── it should return true

@@ -78,6 +78,10 @@ contract NFTDescriptorMock is SablierV2NFTDescriptor {
         return SVGElements.hourglass(status);
     }
 
+    function isAlphanumeric_(string memory symbol) external pure returns (bool) {
+        return isAlphanumeric(symbol);
+    }
+
     function mapSymbol_(IERC721Metadata nft) external view returns (string memory) {
         return mapSymbol(nft);
     }

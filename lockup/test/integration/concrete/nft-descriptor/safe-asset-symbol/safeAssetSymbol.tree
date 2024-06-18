@@ -8,4 +8,7 @@ safeAssetSymbol.t.sol
       ├── given the symbol is longer than 30 characters
       │  └── it should return a hard-coded values
       └── given the symbol is not longer than 30 characters
-         └── it should return the correct symbol value
+         ├── given the symbol contains non-alphanumeric characters
+         │  └── it should return a hard-coded value
+         └── given the symbol contains only alphanumeric characters
+            └── it should return the correct symbol value

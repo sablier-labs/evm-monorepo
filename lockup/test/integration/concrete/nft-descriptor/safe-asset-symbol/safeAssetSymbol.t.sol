@@ -3,9 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ERC20Mock } from "../../../../mocks/erc20/ERC20Mock.sol";
 import { ERC20Bytes32 } from "../../../../mocks/erc20/ERC20Bytes32.sol";
-import { NFTDescriptor_Integration_Concrete_Test } from "../NFTDescriptor.t.sol";
+import { NFTDescriptor_Integration_Shared_Test } from "../../../shared/nft-descriptor/NFTDescriptor.t.sol";
 
-contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_Concrete_Test {
+contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_Shared_Test {
     function test_SafeAssetSymbol_EOA() external view {
         address eoa = vm.addr({ privateKey: 1 });
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(eoa));
@@ -48,7 +48,25 @@ contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_
         _;
     }
 
-    function test_SafeAssetSymbol() external view whenERC20Contract givenSymbolString givenSymbolNotLong {
+    function test_SafeAssetSymbol_NonAlphanumeric() external whenERC20Contract givenSymbolString givenSymbolNotLong {
+        ERC20Mock asset = new ERC20Mock({ name: "Token", symbol: "<svg/onload=alert(\"xss\")>" });
+        string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(asset));
+        string memory expectedSymbol = "Non-Alphanumeric Symbol";
+        assertEq(actualSymbol, expectedSymbol, "symbol");
+    }
+
+    modifier givenSymbolAlphanumeric() {
+        _;
+    }
+
+    function test_SafeAssetSymbol()
+        external
+        view
+        whenERC20Contract
+        givenSymbolString
+        givenSymbolNotLong
+        givenSymbolAlphanumeric
+    {
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(dai));
         string memory expectedSymbol = dai.symbol();
         assertEq(actualSymbol, expectedSymbol, "symbol");

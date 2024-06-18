@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { NFTDescriptor_Integration_Concrete_Test } from "../NFTDescriptor.t.sol";
+import { NFTDescriptor_Integration_Shared_Test } from "../../../shared/nft-descriptor/NFTDescriptor.t.sol";
 
-contract SafeAssetDecimals_Integration_Concrete_Test is NFTDescriptor_Integration_Concrete_Test {
+contract SafeAssetDecimals_Integration_Concrete_Test is NFTDescriptor_Integration_Shared_Test {
     function test_SafeAssetDecimals_EOA() external view {
         address eoa = vm.addr({ privateKey: 1 });
         uint8 actualDecimals = nftDescriptorMock.safeAssetDecimals_(address(eoa));
