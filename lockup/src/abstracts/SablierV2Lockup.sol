@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -23,8 +22,7 @@ import { NoDelegateCall } from "./NoDelegateCall.sol";
 abstract contract SablierV2Lockup is
     NoDelegateCall, // 0 inherited components
     Adminable, // 1 inherited components
-    IERC4906, // 2 inherited components
-    ISablierV2Lockup, // 4 inherited components
+    ISablierV2Lockup, // 7 inherited components
     ERC721 // 6 inherited components
 {
     using SafeERC20 for IERC20;
@@ -201,7 +199,8 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ERC721
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, IERC165) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(IERC165, ERC721) returns (bool) {
+        // 0x49064906 is the ERC-165 interface ID required by ERC-4906
         return interfaceId == 0x49064906 || super.supportsInterface(interfaceId);
     }
 

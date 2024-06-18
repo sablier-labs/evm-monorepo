@@ -38,7 +38,7 @@ contract Constructor_LockupDynamic_Integration_Concrete_Test is LockupDynamic_In
         assertEq(actualNFTDescriptor, expectedNFTDescriptor, "nftDescriptor");
 
         // {SablierV2Lockup.supportsInterface}
-        assertTrue(constructedLockupDynamic.supportsInterface(0x49064906), "eip4906 interface");
+        assertTrue(constructedLockupDynamic.supportsInterface(0x49064906), "ERC-4906 interface ID");
 
         // {SablierV2LockupDynamic.constructor}
         uint256 actualMaxSegmentCount = constructedLockupDynamic.MAX_SEGMENT_COUNT();

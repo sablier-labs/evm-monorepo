@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
@@ -13,6 +14,7 @@ import { ISablierV2NFTDescriptor } from "./ISablierV2NFTDescriptor.sol";
 /// @notice Common logic between all Sablier V2 Lockup contracts.
 interface ISablierV2Lockup is
     IAdminable, // 0 inherited components
+    IERC4906, // 2 inherited components
     IERC721Metadata // 2 inherited components
 {
     /*//////////////////////////////////////////////////////////////////////////
