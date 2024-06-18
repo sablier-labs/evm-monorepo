@@ -33,5 +33,8 @@ contract Constructor_LockupLinear_Integration_Concrete_Test is LockupLinear_Inte
         address actualNFTDescriptor = address(constructedLockupLinear.nftDescriptor());
         address expectedNFTDescriptor = address(nftDescriptor);
         assertEq(actualNFTDescriptor, expectedNFTDescriptor, "nftDescriptor");
+
+        // {SablierV2Lockup.supportsInterface}
+        assertTrue(constructedLockupLinear.supportsInterface(0x49064906), "eip4906 interface");
     }
 }

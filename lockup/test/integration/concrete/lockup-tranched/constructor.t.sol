@@ -37,6 +37,9 @@ contract Constructor_LockupTranched_Integration_Concrete_Test is LockupTranched_
         address expectedNFTDescriptor = address(nftDescriptor);
         assertEq(actualNFTDescriptor, expectedNFTDescriptor, "nftDescriptor");
 
+        // {SablierV2Lockup.supportsInterface}
+        assertTrue(constructedLockupTranched.supportsInterface(0x49064906), "eip4906 interface");
+
         // {SablierV2lockupTranched.constructor}
         uint256 actualMaxTrancheCount = constructedLockupTranched.MAX_TRANCHE_COUNT();
         uint256 expectedMaxTrancheCount = defaults.MAX_TRANCHE_COUNT();
