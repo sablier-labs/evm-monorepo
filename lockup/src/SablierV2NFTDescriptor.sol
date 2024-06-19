@@ -303,8 +303,8 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
     }
 
     /// @notice Checks whether the provided string contains only alphanumeric characters and spaces.
-    /// @dev Note that this returns true for empty strings, but it is not a security concern.
-    function isAlphanumeric(string memory str) internal pure returns (bool) {
+    /// @dev Note that this returns true for empty strings.
+    function isAlphanumericWithSpaces(string memory str) internal pure returns (bool) {
         // Convert the string to bytes to iterate over its characters.
         bytes memory b = bytes(str);
 
@@ -368,8 +368,8 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
         if (bytes(symbol).length > 30) {
             return "Long Symbol";
         } else {
-            if (!isAlphanumeric(symbol)) {
-                return "Non-Alphanumeric Symbol";
+            if (!isAlphanumericWithSpaces(symbol)) {
+                return "Unsupported Symbol";
             }
             return symbol;
         }
