@@ -5,6 +5,7 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 
 import { LockupLinear_Integration_Shared_Test } from "../../shared/lockup-linear/LockupLinear.t.sol";
 import { Integration_Test } from "../../Integration.t.sol";
+import { AllowToHook_Integration_Concrete_Test } from "../lockup/allow-to-hook/allowToHook.t.sol";
 import { Burn_Integration_Concrete_Test } from "../lockup/burn/burn.t.sol";
 import { Cancel_Integration_Concrete_Test } from "../lockup/cancel/cancel.t.sol";
 import { CancelMultiple_Integration_Concrete_Test } from "../lockup/cancel-multiple/cancelMultiple.t.sol";
@@ -16,6 +17,7 @@ import { GetRecipient_Integration_Concrete_Test } from "../lockup/get-recipient/
 import { GetSender_Integration_Concrete_Test } from "../lockup/get-sender/getSender.t.sol";
 import { GetStartTime_Integration_Concrete_Test } from "../lockup/get-start-time/getStartTime.t.sol";
 import { GetWithdrawnAmount_Integration_Concrete_Test } from "../lockup/get-withdrawn-amount/getWithdrawnAmount.t.sol";
+import { IsAllowedToHook_Integration_Concrete_Test } from "../lockup/is-allowed-to-hook/isAllowedToHook.t.sol";
 import { IsCancelable_Integration_Concrete_Test } from "../lockup/is-cancelable/isCancelable.t.sol";
 import { IsCold_Integration_Concrete_Test } from "../lockup/is-cold/isCold.t.sol";
 import { IsDepleted_Integration_Concrete_Test } from "../lockup/is-depleted/isDepleted.t.sol";
@@ -47,7 +49,7 @@ abstract contract LockupLinear_Integration_Concrete_Test is Integration_Test, Lo
         Integration_Test.setUp();
         LockupLinear_Integration_Shared_Test.setUp();
 
-        // Cast the LockupLinear contract as {ISablierV2Lockup}.
+        // Cast the {LockupLinear} contract as {ISablierV2Lockup}.
         lockup = ISablierV2Lockup(lockupLinear);
     }
 }
@@ -55,6 +57,20 @@ abstract contract LockupLinear_Integration_Concrete_Test is Integration_Test, Lo
 /*//////////////////////////////////////////////////////////////////////////
                                 SHARED TESTS
 //////////////////////////////////////////////////////////////////////////*/
+
+contract AllowToHook_LockupLinear_Integration_Concrete_Test is
+    LockupLinear_Integration_Concrete_Test,
+    AllowToHook_Integration_Concrete_Test
+{
+    function setUp()
+        public
+        virtual
+        override(LockupLinear_Integration_Concrete_Test, AllowToHook_Integration_Concrete_Test)
+    {
+        LockupLinear_Integration_Concrete_Test.setUp();
+        AllowToHook_Integration_Concrete_Test.setUp();
+    }
+}
 
 contract Burn_LockupLinear_Integration_Concrete_Test is
     LockupLinear_Integration_Concrete_Test,
@@ -203,6 +219,20 @@ contract GetWithdrawnAmount_LockupLinear_Integration_Concrete_Test is
     {
         LockupLinear_Integration_Concrete_Test.setUp();
         GetWithdrawnAmount_Integration_Concrete_Test.setUp();
+    }
+}
+
+contract IsAllowedToHook_LockupLinear_Integration_Concrete_Test is
+    LockupLinear_Integration_Concrete_Test,
+    IsAllowedToHook_Integration_Concrete_Test
+{
+    function setUp()
+        public
+        virtual
+        override(LockupLinear_Integration_Concrete_Test, IsAllowedToHook_Integration_Concrete_Test)
+    {
+        LockupLinear_Integration_Concrete_Test.setUp();
+        IsAllowedToHook_Integration_Concrete_Test.setUp();
     }
 }
 

@@ -7,7 +7,6 @@ import { SablierV2LockupLinear } from "../src/SablierV2LockupLinear.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployLockupLinear is BaseScript {
-    /// @dev Deploy via Forge.
     function run(
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor

@@ -219,7 +219,7 @@ contract SablierV2LockupLinear is
             UD60x18 streamedAmount = elapsedTimePercentage.mul(depositedAmount);
 
             // Although the streamed amount should never exceed the deposited amount, this condition is checked
-            // without asserting to avoid locking funds in case of a bug. If this situation occurs, the withdrawn
+            // without asserting to avoid locking assets in case of a bug. If this situation occurs, the withdrawn
             // amount is considered to be the streamed amount, and the stream is effectively frozen.
             if (streamedAmount.gt(depositedAmount)) {
                 return _streams[streamId].amounts.withdrawn;

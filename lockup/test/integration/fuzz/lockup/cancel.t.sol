@@ -52,15 +52,20 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         whenCallerAuthorized
         givenStreamCancelable
         givenStatusStreaming
-        givenRecipientContract
-        givenRecipientImplementsHook
-        whenRecipientDoesNotRevert
-        whenNoRecipientReentrancy
+        givenRecipientAllowedToHook
+        whenRecipientNotReverting
+        whenRecipientReturnsSelector
+        whenRecipientNotReentrant
     {
-        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
+        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
+
+        // Allow the recipient to hook.
+        resetPrank({ msgSender: users.admin });
+        lockup.allowToHook(address(recipientGood));
+        resetPrank({ msgSender: users.sender });
 
         // Create the stream.
-        uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
+        uint256 streamId = createDefaultStreamWithRecipient(address(recipientGood));
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
@@ -71,7 +76,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
 
         // Make the withdrawal only if the amount is greater than zero.
         if (withdrawAmount > 0) {
-            lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
+            lockup.withdraw({ streamId: streamId, to: address(recipientGood), amount: withdrawAmount });
         }
 
         // Expect the assets to be refunded to the Sender.
@@ -81,7 +86,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         // Expect the relevant events to be emitted.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectEmit({ emitter: address(lockup) });
-        emit CancelLockupStream(streamId, users.sender, address(goodRecipient), dai, senderAmount, recipientAmount);
+        emit CancelLockupStream(streamId, users.sender, address(recipientGood), dai, senderAmount, recipientAmount);
         vm.expectEmit({ emitter: address(lockup) });
         emit MetadataUpdate({ _tokenId: streamId });
 
@@ -99,7 +104,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
 
         // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = address(goodRecipient);
+        address expectedNFTOwner = address(recipientGood);
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

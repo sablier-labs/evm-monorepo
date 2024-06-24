@@ -8,8 +8,7 @@ import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierV2Recipient } from "../interfaces/hooks/ISablierV2Recipient.sol";
-import { ISablierV2Sender } from "../interfaces/hooks/ISablierV2Sender.sol";
+import { ISablierLockupRecipient } from "../interfaces/ISablierLockupRecipient.sol";
 import { ISablierV2Lockup } from "../interfaces/ISablierV2Lockup.sol";
 import { ISablierV2NFTDescriptor } from "../interfaces/ISablierV2NFTDescriptor.sol";
 import { Errors } from "../libraries/Errors.sol";
@@ -39,6 +38,9 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     ISablierV2NFTDescriptor public override nftDescriptor;
+
+    /// @dev Mapping of contracts allowed to hook to Sablier when a stream is canceled or when assets are withdrawn.
+    mapping(address recipient => bool allowed) internal _allowedToHook;
 
     /// @dev Sablier V2 Lockup streams mapped by unsigned integers.
     mapping(uint256 id => Lockup.Stream stream) internal _streams;
@@ -129,6 +131,11 @@ abstract contract SablierV2Lockup is
         returns (uint128 withdrawnAmount)
     {
         withdrawnAmount = _streams[streamId].amounts.withdrawn;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function isAllowedToHook(address recipient) external view returns (bool result) {
+        result = _allowedToHook[recipient];
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -234,6 +241,26 @@ abstract contract SablierV2Lockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
+    function allowToHook(address recipient) external override onlyAdmin {
+        // Check: non-zero code size.
+        if (recipient.code.length == 0) {
+            revert Errors.SablierV2Lockup_AllowToHookZeroCodeSize(recipient);
+        }
+
+        // Check: recipients implements the ERC-165 interface ID required by {ISablierLockupRecipient}.
+        bytes4 interfaceId = type(ISablierLockupRecipient).interfaceId;
+        if (!ISablierLockupRecipient(recipient).supportsInterface(interfaceId)) {
+            revert Errors.SablierV2Lockup_AllowToHookUnsupportedInterface(recipient);
+        }
+
+        // Effect: put the recipient on the allowlist.
+        _allowedToHook[recipient] = true;
+
+        // Log the allowlist addition.
+        emit ISablierV2Lockup.AllowToHook({ admin: msg.sender, recipient: recipient });
+    }
+
+    /// @inheritdoc ISablierV2Lockup
     function burn(uint256 streamId) external override noDelegateCall notNull(streamId) {
         // Check: only depleted streams can be burned.
         if (!_streams[streamId].isDepleted) {
@@ -304,13 +331,6 @@ abstract contract SablierV2Lockup is
 
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
         emit MetadataUpdate({ _tokenId: streamId });
-
-        // Interaction: if the recipient is a contract, try to invoke the renounce hook on the recipient without
-        // reverting if the hook is not implemented, and also without bubbling up any potential revert.
-        address recipient = _ownerOf(streamId);
-        if (recipient.code.length > 0) {
-            try ISablierV2Recipient(recipient).onLockupStreamRenounced(streamId) { } catch { }
-        }
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -362,37 +382,25 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_Overdraw(streamId, amount, withdrawableAmount);
         }
 
-        // Retrieve the sender from storage.
-        address sender = _streams[streamId].sender;
-
         // Effects and Interactions: make the withdrawal.
         _withdraw(streamId, to, amount);
 
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
         emit MetadataUpdate({ _tokenId: streamId });
 
-        // Interaction: if `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
-        // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up
-        // any potential revert.
-        if (msg.sender != recipient && recipient.code.length > 0) {
-            try ISablierV2Recipient(recipient).onLockupStreamWithdrawn({
+        // Interaction: if `msg.sender` is not the recipient and the recipient is on the allowlist, run the hook.
+        if (msg.sender != recipient && _allowedToHook[recipient]) {
+            bytes4 selector = ISablierLockupRecipient(recipient).onSablierLockupWithdraw({
                 streamId: streamId,
                 caller: msg.sender,
                 to: to,
                 amount: amount
-            }) { } catch { }
-        }
+            });
 
-        // Interaction: if `msg.sender` is not the sender, the sender is a contract and is different from the
-        // recipient, try to invoke the withdraw hook on it without reverting if the hook is not implemented, and also
-        // without bubbling up any potential revert.
-        if (msg.sender != sender && sender.code.length > 0 && sender != recipient) {
-            try ISablierV2Sender(sender).onLockupStreamWithdrawn({
-                streamId: streamId,
-                caller: msg.sender,
-                to: to,
-                amount: amount
-            }) { } catch { }
+            // Check: the recipient's hook returned the correct selector.
+            if (selector != ISablierLockupRecipient.onSablierLockupWithdraw.selector) {
+                revert Errors.SablierV2Lockup_InvalidHookSelector(recipient);
+            }
         }
     }
 
@@ -570,15 +578,19 @@ abstract contract SablierV2Lockup is
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
         emit MetadataUpdate({ _tokenId: streamId });
 
-        // Interaction: if the recipient is a contract, try to invoke the cancel hook on the recipient without
-        // reverting if the hook is not implemented, and without bubbling up any potential revert.
-        if (recipient.code.length > 0) {
-            try ISablierV2Recipient(recipient).onLockupStreamCanceled({
+        // Interaction: if the recipient is on the allowlist, run the hook.
+        if (_allowedToHook[recipient]) {
+            bytes4 selector = ISablierLockupRecipient(recipient).onSablierLockupCancel({
                 streamId: streamId,
                 sender: sender,
                 senderAmount: senderAmount,
                 recipientAmount: recipientAmount
-            }) { } catch { }
+            });
+
+            // Check: the recipient's hook returned the correct selector.
+            if (selector != ISablierLockupRecipient.onSablierLockupCancel.selector) {
+                revert Errors.SablierV2Lockup_InvalidHookSelector(recipient);
+            }
         }
     }
 

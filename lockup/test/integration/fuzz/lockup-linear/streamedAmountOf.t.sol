@@ -91,7 +91,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
         whenCliffTimeNotInTheFuture
     {
         vm.assume(depositAmount != 0);
-        timeWarp0 = boundUint40(timeWarp0, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
+        timeWarp0 = boundUint40(timeWarp0, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
         timeWarp1 = boundUint40(timeWarp1, timeWarp0, defaults.TOTAL_DURATION());
 
         // Mint enough assets to the Sender.

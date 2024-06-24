@@ -9,7 +9,6 @@ import { BaseScript } from "./Base.s.sol";
 /// @dev Deploys {SablierV2LockupTranched} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
 contract DeployDeterministicLockupTranched is BaseScript {
-    /// @dev Deploy via Forge.
     function run(
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor

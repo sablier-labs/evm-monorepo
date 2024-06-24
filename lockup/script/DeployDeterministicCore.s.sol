@@ -8,16 +8,9 @@ import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
-/// @notice Deploys all V2 Core contracts at deterministic addresses across chains, in the following order:
-///
-/// 1. {SablierV2NFTDescriptor}
-/// 2. {SablierV2LockupDynamic}
-/// 3. {SablierV2LockupLinear}
-/// 4. {SablierV2LockupTranched}
-///
+/// @notice Deploys all V2 Core contracts at deterministic addresses across chains.
 /// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicCore is BaseScript {
-    /// @dev Deploy via Forge.
     function run(address initialAdmin)
         public
         virtual

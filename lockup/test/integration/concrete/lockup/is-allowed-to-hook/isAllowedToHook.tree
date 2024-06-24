@@ -1,0 +1,5 @@
+isAllowedToHook.tree
+├── given the provided address is not allowed to hook
+│  └── it should return false
+└── given the provided address is allowed to hook
+   └── it should return true

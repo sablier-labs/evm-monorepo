@@ -21,6 +21,11 @@ interface ISablierV2Lockup is
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when the admin allows a new recipient contract to hook to Sablier.
+    /// @param admin The address of the current contract admin.
+    /// @param recipient The address of the recipient contract put on the allowlist.
+    event AllowToHook(address admin, address recipient);
+
     /// @notice Emitted when a stream is canceled.
     /// @param streamId The ID of the stream.
     /// @param sender The address of the stream's sender.
@@ -103,6 +108,11 @@ interface ISablierV2Lockup is
     /// @param streamId The stream ID for the query.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
+    /// @notice Retrieves a flag indicating whether the provided address is a contract allowed to hook to Sablier
+    /// when a stream is canceled or when assets are withdrawn.
+    /// @dev See {ISablierLockupRecipient} for more information.
+    function isAllowedToHook(address recipient) external view returns (bool result);
+
     /// @notice Retrieves a flag indicating whether the stream can be canceled. When the stream is cold, this
     /// flag is always `false`.
     /// @dev Reverts if `streamId` references a null stream.
@@ -182,6 +192,23 @@ interface ISablierV2Lockup is
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Allows a recipient contract to hook to Sablier when a stream is canceled or when assets are withdrawn.
+    /// Useful for implementing contracts that hold streams on behalf of users, such as vaults or staking contracts.
+    ///
+    /// @dev Emits an {AllowToHook} event.
+    ///
+    /// Notes:
+    /// - Does not revert if the contract is already on the allowlist.
+    /// - This is an irreversible operation. The contract cannot be removed from the allowlist.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the contract admin.
+    /// - `recipient` must have a non-zero code size.
+    /// - `recipient` must implement {ISablierLockupRecipient}.
+    ///
+    /// @param recipient The address of the contract to allow for hooks.
+    function allowToHook(address recipient) external;
+
     /// @notice Burns the NFT associated with the stream.
     ///
     /// @dev Emits a {Transfer} event.
@@ -231,7 +258,6 @@ interface ISablierV2Lockup is
     ///
     /// Notes:
     /// - This is an irreversible operation.
-    /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -261,7 +287,6 @@ interface ISablierV2Lockup is
     ///
     /// Notes:
     /// - This function attempts to call a hook on the recipient of the stream, unless `msg.sender` is the recipient.
-    /// - This function attempts to call a hook on the sender of the stream, unless `msg.sender` is the sender.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -313,7 +338,6 @@ interface ISablierV2Lockup is
     ///
     /// Notes:
     /// - This function attempts to call a hook on the recipient of each stream, unless `msg.sender` is the recipient.
-    /// - This function attempts to call a hook on the sender of each stream, unless `msg.sender` is the sender.
     ///
     /// Requirements:
     /// - Must not be delegate called.

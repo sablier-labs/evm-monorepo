@@ -8,13 +8,7 @@ import { SablierV2LockupTranched } from "../src/SablierV2LockupTranched.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
-/// @notice Deploys these contracts in the following order:
-///
-/// 1. {SablierV2LockupDynamic}
-/// 2. {SablierV2LockupLinear}
-/// 3. {SablierV2LockupTranched}
 contract DeployCore2 is BaseScript {
-    /// @dev Deploy via Forge.
     function run(
         address initialAdmin,
         ISablierV2NFTDescriptor nftDescriptor

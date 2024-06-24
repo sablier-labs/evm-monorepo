@@ -7,7 +7,6 @@ import { SablierV2LockupDynamic } from "../src/SablierV2LockupDynamic.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployLockupDynamic is BaseScript {
-    /// @dev Deploy via Forge.
     function run(
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor

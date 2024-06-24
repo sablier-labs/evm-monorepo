@@ -2,30 +2,30 @@
 
 | Implementation                                             | Gas Usage |
 | ---------------------------------------------------------- | --------- |
-| `burn`                                                     | 15713     |
-| `cancel`                                                   | 61537     |
-| `renounce`                                                 | 28738     |
-| `createWithDurations` (2 tranches) (Broker fee set)        | 198066    |
-| `createWithDurations` (2 tranches) (Broker fee not set)    | 182587    |
-| `createWithTimestamps` (2 tranches) (Broker fee set)       | 187974    |
-| `createWithTimestamps` (2 tranches) (Broker fee not set)   | 182597    |
-| `withdraw` (2 tranches) (After End Time) (by Recipient)    | 20204     |
-| `withdraw` (2 tranches) (Before End Time) (by Recipient)   | 15009     |
-| `withdraw` (2 tranches) (After End Time) (by Anyone)       | 15108     |
-| `withdraw` (2 tranches) (Before End Time) (by Anyone)      | 14712     |
-| `createWithDurations` (10 tranches) (Broker fee set)       | 385207    |
-| `createWithDurations` (10 tranches) (Broker fee not set)   | 380536    |
-| `createWithTimestamps` (10 tranches) (Broker fee set)      | 393650    |
-| `createWithTimestamps` (10 tranches) (Broker fee not set)  | 388386    |
-| `withdraw` (10 tranches) (After End Time) (by Recipient)   | 17959     |
-| `withdraw` (10 tranches) (Before End Time) (by Recipient)  | 19892     |
-| `withdraw` (10 tranches) (After End Time) (by Anyone)      | 17669     |
-| `withdraw` (10 tranches) (Before End Time) (by Anyone)     | 19595     |
-| `createWithDurations` (100 tranches) (Broker fee set)      | 2645968   |
-| `createWithDurations` (100 tranches) (Broker fee not set)  | 2641781   |
-| `createWithTimestamps` (100 tranches) (Broker fee set)     | 2712165   |
-| `createWithTimestamps` (100 tranches) (Broker fee not set) | 2708591   |
-| `withdraw` (100 tranches) (After End Time) (by Recipient)  | 46850     |
-| `withdraw` (100 tranches) (Before End Time) (by Recipient) | 74985     |
-| `withdraw` (100 tranches) (After End Time) (by Anyone)     | 46553     |
-| `withdraw` (100 tranches) (Before End Time) (by Anyone)    | 74688     |
+| `burn`                                                     | 15738     |
+| `cancel`                                                   | 63994     |
+| `renounce`                                                 | 26501     |
+| `createWithDurations` (2 tranches) (Broker fee set)        | 199536    |
+| `createWithDurations` (2 tranches) (Broker fee not set)    | 183969    |
+| `createWithTimestamps` (2 tranches) (Broker fee set)       | 189410    |
+| `createWithTimestamps` (2 tranches) (Broker fee not set)   | 183945    |
+| `withdraw` (2 tranches) (After End Time) (by Recipient)    | 20100     |
+| `withdraw` (2 tranches) (Before End Time) (by Recipient)   | 14797     |
+| `withdraw` (2 tranches) (After End Time) (by Anyone)       | 15199     |
+| `withdraw` (2 tranches) (Before End Time) (by Anyone)      | 14695     |
+| `createWithDurations` (10 tranches) (Broker fee set)       | 388757    |
+| `createWithDurations` (10 tranches) (Broker fee not set)   | 383998    |
+| `createWithTimestamps` (10 tranches) (Broker fee set)      | 397102    |
+| `createWithTimestamps` (10 tranches) (Broker fee not set)  | 391750    |
+| `withdraw` (10 tranches) (After End Time) (by Recipient)   | 17855     |
+| `withdraw` (10 tranches) (Before End Time) (by Recipient)  | 19616     |
+| `withdraw` (10 tranches) (After End Time) (by Anyone)      | 17760     |
+| `withdraw` (10 tranches) (Before End Time) (by Anyone)     | 19514     |
+| `createWithDurations` (100 tranches) (Broker fee set)      | 2672918   |
+| `createWithDurations` (100 tranches) (Broker fee not set)  | 2668643   |
+| `createWithTimestamps` (100 tranches) (Broker fee set)     | 2738297   |
+| `createWithTimestamps` (100 tranches) (Broker fee not set) | 2734635   |
+| `withdraw` (100 tranches) (After End Time) (by Recipient)  | 46746     |
+| `withdraw` (100 tranches) (Before End Time) (by Recipient) | 73989     |
+| `withdraw` (100 tranches) (After End Time) (by Anyone)     | 46644     |
+| `withdraw` (100 tranches) (Before End Time) (by Anyone)    | 73887     |

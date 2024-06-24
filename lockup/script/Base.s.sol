@@ -87,48 +87,48 @@ contract BaseScript is Script {
         // forgefmt: disable-start
 
         // Arbitrum chain ID
-        segmentCountMap[42161] = 1170;
-        trancheCountMap[42161] = 1210;
+        segmentCountMap[42161] = 1160;
+        trancheCountMap[42161] = 1200;
 
         // Avalanche chain ID.
-        segmentCountMap[43114] = 530;
+        segmentCountMap[43114] = 520;
         trancheCountMap[43114] = 540;
 
         // Base chain ID.
-        segmentCountMap[8453] = 2200;
-        trancheCountMap[8453] = 2290;
+        segmentCountMap[8453] = 2170;
+        trancheCountMap[8453] = 2270;
 
         // Blast chain ID.
-        segmentCountMap[238] = 1100;
-        trancheCountMap[238] = 1130;
+        segmentCountMap[238] = 1080;
+        trancheCountMap[238] = 1120;
 
         // BNB chain ID.
-        segmentCountMap[56] = 4870;
-        trancheCountMap[56] = 5180;
+        segmentCountMap[56] = 4820;
+        trancheCountMap[56] = 5130;
 
         // Ethereum chain ID.
-        segmentCountMap[1] = 1100;
-        trancheCountMap[1] = 1130;
+        segmentCountMap[1] = 1080;
+        trancheCountMap[1] = 1120;
 
         // Gnosis chain ID.
-        segmentCountMap[100] = 610;
+        segmentCountMap[100] = 600;
         trancheCountMap[100] = 620;
 
         // Optimism chain ID.
-        segmentCountMap[10] = 1100;
-        trancheCountMap[10] = 1130;
+        segmentCountMap[10] = 1080;
+        trancheCountMap[10] = 1120;
 
         // Polygon chain ID.
-        segmentCountMap[137] = 1100;
-        trancheCountMap[137] = 1130;
+        segmentCountMap[137] = 1080;
+        trancheCountMap[137] = 1120;
 
         // Scroll chain ID.
-        segmentCountMap[534352] = 340;
-        trancheCountMap[534352] = 350;
+        segmentCountMap[534352] = 330;
+        trancheCountMap[534352] = 340;
 
         // Sepolia chain ID.
-        segmentCountMap[11155111] = 1100;
-        trancheCountMap[11155111] = 1130;
+        segmentCountMap[11155111] = 1080;
+        trancheCountMap[11155111] = 1120;
 
         // forgefmt: disable-end
     }

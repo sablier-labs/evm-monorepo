@@ -262,7 +262,7 @@ contract SablierV2LockupDynamic is
             SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
 
             // Although the segment streamed amount should never exceed the total segment amount, this condition is
-            // checked without asserting to avoid locking funds in case of a bug. If this situation occurs, the
+            // checked without asserting to avoid locking assets in case of a bug. If this situation occurs, the
             // amount streamed in the segment is considered zero (except for past withdrawals), and the segment is
             // effectively voided.
             if (segmentStreamedAmount.gt(currentSegmentAmount)) {
@@ -297,7 +297,7 @@ contract SablierV2LockupDynamic is
             SD59x18 streamedAmount = multiplier.mul(depositedAmount);
 
             // Although the streamed amount should never exceed the deposited amount, this condition is checked
-            // without asserting to avoid locking funds in case of a bug. If this situation occurs, the withdrawn
+            // without asserting to avoid locking assets in case of a bug. If this situation occurs, the withdrawn
             // amount is considered to be the streamed amount, and the stream is effectively frozen.
             if (streamedAmount.gt(depositedAmount)) {
                 return _streams[streamId].amounts.withdrawn;

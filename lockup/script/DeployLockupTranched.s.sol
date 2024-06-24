@@ -7,7 +7,6 @@ import { SablierV2LockupTranched } from "../src/SablierV2LockupTranched.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployLockupTranched is BaseScript {
-    /// @dev Deploy via Forge.
     function run(
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor

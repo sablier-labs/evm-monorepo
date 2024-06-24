@@ -6,7 +6,6 @@ import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployNFTDescriptor is BaseScript {
-    /// @dev Deploy via Forge.
     function run() public virtual broadcast returns (SablierV2NFTDescriptor nftDescriptor) {
         nftDescriptor = new SablierV2NFTDescriptor();
     }
