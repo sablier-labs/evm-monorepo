@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
 contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
@@ -10,14 +8,10 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// - It should create the stream.
     /// - It should bump the next stream ID.
     /// - It should mint the NFT.
-    /// - It should emit the following events:
-    ///   - {Transfer}
-    ///   - {MetadataUpdate}
-    ///   - {CreateFlowStream}
+    /// - It should emit the following events: {Transfer}, {MetadataUpdate}, {CreateFlowStream}
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
-    /// - Multiple non-zero values for the sender and recipient.
-    /// - Multiple non-zero values for ratePerSecond.
+    /// - Multiple non-zero values for the sender, recipient and ratePerSecond.
     /// - Multiple values for asset decimals less than or equal to 18.
     /// - Both transferable and non-transferable streams.
     function testFuzz_Create(
@@ -38,7 +32,7 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         decimals = boundUint8(decimals, 0, 18);
 
         // Create a new asset.
-        IERC20 asset = createAsset(decimals);
+        asset = createAsset(decimals);
 
         uint256 expectedStreamId = flow.nextStreamId();
 
@@ -60,13 +54,25 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         });
 
         // Create the stream.
-        flow.create({
+        uint256 actualStreamId = flow.create({
             sender: sender,
             recipient: recipient,
             ratePerSecond: ratePerSecond,
             asset: asset,
             isTransferable: isTransferable
         });
+
+        // Assert stream's initial states. This is the only place testing for state's getter functions.
+        assertEq(flow.getAsset(actualStreamId), asset);
+        assertEq(flow.getAssetDecimals(actualStreamId), decimals);
+        assertEq(flow.getBalance(actualStreamId), 0);
+        assertEq(flow.getLastTimeUpdate(actualStreamId), getBlockTimestamp());
+        assertEq(flow.getRatePerSecond(actualStreamId), ratePerSecond);
+        assertEq(flow.getRecipient(actualStreamId), recipient);
+        assertEq(flow.getRemainingAmount(actualStreamId), 0);
+        assertEq(flow.getSender(actualStreamId), sender);
+        assertEq(flow.isPaused(actualStreamId), false);
+        assertEq(flow.isStream(actualStreamId), true);
 
         // Assert that the next stream ID has been bumped.
         uint256 actualNextStreamId = flow.nextStreamId();

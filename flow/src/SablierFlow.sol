@@ -267,6 +267,7 @@ contract SablierFlow is
         noDelegateCall
         notNull(streamId)
         onlySender(streamId)
+        updateMetadata(streamId)
     {
         // Checks, Effects and Interactions: make the refund.
         _refund(streamId, amount);

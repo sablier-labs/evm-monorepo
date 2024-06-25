@@ -65,7 +65,7 @@
     "prettier:write": "prettier --write \"**/*.{json,md,svg,yml}\"",
     "test": "forge test",
     "test:coverage": "forge coverage",
-    "test:coverage:report": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage",
+    "test:coverage:report": "forge coverage --report lcov && genhtml lcov.info --ignore-errors inconsistent --branch-coverage --output-dir coverage",
     "test:lite": "FOUNDRY_PROFILE=lite forge test",
     "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   }

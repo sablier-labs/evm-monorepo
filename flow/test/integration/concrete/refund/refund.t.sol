@@ -122,12 +122,15 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
     function _test_Refund(uint256 streamId, IERC20 asset, uint8 assetDecimals) private {
         uint128 transferAmount = getTransferAmount(REFUND_AMOUNT, assetDecimals);
 
-        // It should emit a {Transfer} and {RefundFromFlowStream} event.
+        // it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(asset) });
         emit IERC20.Transfer({ from: address(flow), to: users.sender, value: transferAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit RefundFromFlowStream({ streamId: streamId, sender: users.sender, refundAmount: REFUND_AMOUNT });
+
+        vm.expectEmit({ emitter: address(flow) });
+        emit MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC20 transfer.
         expectCallToTransfer({ asset: asset, to: users.sender, amount: transferAmount });
