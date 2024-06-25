@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISablierFlowState } from "./ISablierFlowState.sol";
-import { Broker } from "../types/DataTypes.sol";
+import { Broker, Flow } from "../types/DataTypes.sol";
 
 /// @title ISablierFlow
 /// @notice Creates and manages Flow streams with linear streaming functions.
@@ -117,6 +117,11 @@ interface ISablierFlow is
     /// @param streamId The stream ID for the query.
     /// @return refundableAmount The amount that the sender can refund.
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
+
+    /// @notice Returns the stream's status.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    function statusOf(uint256 streamId) external view returns (Flow.Status status);
 
     /// @notice Calculates the amount that the sender owes on the stream, i.e. if more assets have been streamed than
     /// its balance, denoted in 18 decimals. If there is no debt, it will return zero.

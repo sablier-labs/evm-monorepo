@@ -8,7 +8,7 @@ DepletionTimeOf_Integration_Concrete_Test
         ├── given balance zero
         │   └── it should return 0
         └── given balance not zero
-            ├── when stream has debt
+            ├── given stream has debt
             │   └── it should return 0
-            └── when stream has no debt
+            └── given stream has no debt
                 └── it should return the time at which the stream depletes its balance

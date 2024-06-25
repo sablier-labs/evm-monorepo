@@ -191,16 +191,3 @@ them inexpensive to store.
 10. $bal = rfa + wa$
 
 11. if $isPaused = true \implies rps = 0$
-
-## Access Control
-
-| Action              |         Sender         | Recipient | Operator(s) |      Unknown User      |
-| ------------------- | :--------------------: | :-------: | :---------: | :--------------------: |
-| AdjustRatePerSecond |           ✅           |    ❌     |     ❌      |           ❌           |
-| Deposit             |           ✅           |    ✅     |     ✅      |           ✅           |
-| Refund              |           ✅           |    ❌     |     ❌      |           ❌           |
-| Restart             |           ✅           |    ❌     |     ❌      |           ❌           |
-| Pause               |           ✅           |    ❌     |     ❌      |           ❌           |
-| Transfer NFT        |           ❌           |    ✅     |     ✅      |           ❌           |
-| Void                |           ❌           |    ✅     |     ✅      |           ❌           |
-| Withdraw            | ✅ (only to Recipient) |    ✅     |     ✅      | ✅ (only to Recipient) |
