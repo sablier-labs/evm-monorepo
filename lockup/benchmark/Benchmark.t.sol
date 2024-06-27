@@ -22,6 +22,7 @@ abstract contract Benchmark_Test is Base_Test {
     /// @dev The path to the file where the benchmark results are stored.
     string internal benchmarkResultsFile;
 
+    /// @dev A variable used to store the content to append to the results file.
     string internal contentToAppend;
 
     ISablierV2Lockup internal lockup;
@@ -52,10 +53,9 @@ abstract contract Benchmark_Test is Base_Test {
 
         lockup.withdrawMax(streamIds[0], users.recipient);
 
-        uint256 beforeGas = gasleft();
+        uint256 initialGas = gasleft();
         lockup.burn(streamIds[0]);
-
-        string memory gasUsed = vm.toString(beforeGas - gasleft());
+        string memory gasUsed = vm.toString(initialGas - gasleft());
 
         contentToAppend = string.concat("| `burn` | ", gasUsed, " |");
 
@@ -67,10 +67,9 @@ abstract contract Benchmark_Test is Base_Test {
         // Set the caller to the Sender for the next calls and change timestamp to before end time
         resetPrank({ msgSender: users.sender });
 
-        uint256 beforeGas = gasleft();
+        uint256 initialGas = gasleft();
         lockup.cancel(streamIds[1]);
-
-        string memory gasUsed = vm.toString(beforeGas - gasleft());
+        string memory gasUsed = vm.toString(initialGas - gasleft());
 
         contentToAppend = string.concat("| `cancel` | ", gasUsed, " |");
 
@@ -82,10 +81,9 @@ abstract contract Benchmark_Test is Base_Test {
         // Set the caller to the Sender for the next calls and change timestamp to before end time.
         resetPrank({ msgSender: users.sender });
 
-        uint256 beforeGas = gasleft();
+        uint256 initialGas = gasleft();
         lockup.renounce(streamIds[2]);
-
-        string memory gasUsed = vm.toString(beforeGas - gasleft());
+        string memory gasUsed = vm.toString(initialGas - gasleft());
 
         contentToAppend = string.concat("| `renounce` | ", gasUsed, " |");
 
@@ -98,10 +96,9 @@ abstract contract Benchmark_Test is Base_Test {
 
         uint128 withdrawAmount = lockup.withdrawableAmountOf(streamId);
 
-        uint256 beforeGas = gasleft();
+        uint256 initialGas = gasleft();
         lockup.withdraw(streamId, to, withdrawAmount);
-
-        string memory gasUsed = vm.toString(beforeGas - gasleft());
+        string memory gasUsed = vm.toString(initialGas - gasleft());
 
         // Check if caller is recipient or not.
         bool isCallerRecipient = caller == users.recipient;

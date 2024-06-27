@@ -21,10 +21,10 @@ library Errors {
                                  SABLIER-V2-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when trying to allow for hook a contract that doesn't implement the interface correctly.
+    /// @notice Thrown when trying to allow to hook a contract that doesn't implement the interface correctly.
     error SablierV2Lockup_AllowToHookUnsupportedInterface(address recipient);
 
-    /// @notice Thrown when trying to allow for hook an address with no code.
+    /// @notice Thrown when trying to allow to hook an address with no code.
     error SablierV2Lockup_AllowToHookZeroCodeSize(address recipient);
 
     /// @notice Thrown when the broker fee exceeds the maximum allowed fee.
