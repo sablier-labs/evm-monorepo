@@ -192,7 +192,7 @@ contract SablierV2LockupLinear is
         uint256 blockTimestamp = block.timestamp;
 
         // If the cliff time or the start time is in the future, return zero.
-        if (cliffTime > blockTimestamp || startTime > blockTimestamp) {
+        if (cliffTime > blockTimestamp || startTime >= blockTimestamp) {
             return 0;
         }
 
