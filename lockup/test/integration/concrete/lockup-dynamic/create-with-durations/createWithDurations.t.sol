@@ -33,17 +33,13 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_LoopCalculationOverflowsBlockGasLimit() external whenNotDelegateCalled {
-        LockupDynamic.SegmentWithDuration[] memory segments = new LockupDynamic.SegmentWithDuration[](250_000);
-        vm.expectRevert(bytes(""));
+    function test_RevertWhen_SegmentCountTooHigh() external whenNotDelegateCalled {
+        LockupDynamic.SegmentWithDuration[] memory segments = new LockupDynamic.SegmentWithDuration[](25_000);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, 25_000));
         createDefaultStreamWithDurations(segments);
     }
 
-    function test_RevertWhen_DurationsZero()
-        external
-        whenNotDelegateCalled
-        whenLoopCalculationsDoNotOverflowBlockGasLimit
-    {
+    function test_RevertWhen_DurationsZero() external whenNotDelegateCalled whenSegmentCountNotTooHigh {
         uint40 startTime = getBlockTimestamp();
         LockupDynamic.SegmentWithDuration[] memory segments = defaults.createWithDurationsLD().segments;
         segments[1].duration = 0;
@@ -62,7 +58,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_TimestampsCalculationsOverflows_StartTimeNotLessThanFirstSegmentTimestamp()
         external
         whenNotDelegateCalled
-        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenSegmentCountNotTooHigh
         whenDurationsNotZero
     {
         unchecked {
@@ -83,7 +79,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_TimestampsCalculationsOverflows_SegmentTimestampsNotOrdered()
         external
         whenNotDelegateCalled
-        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenSegmentCountNotTooHigh
         whenDurationsNotZero
     {
         unchecked {
@@ -118,7 +114,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
     function test_CreateWithDurations()
         external
         whenNotDelegateCalled
-        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenSegmentCountNotTooHigh
         whenDurationsNotZero
         whenTimestampsCalculationsDoNotOverflow
     {

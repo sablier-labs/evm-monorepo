@@ -37,7 +37,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
     function testFuzz_CreateWithDurations(LockupDynamic.SegmentWithDuration[] memory segments)
         external
         whenNotDelegateCalled
-        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenSegmentCountNotTooHigh
         whenDurationsNotZero
         whenTimestampsCalculationsDoNotOverflow
     {

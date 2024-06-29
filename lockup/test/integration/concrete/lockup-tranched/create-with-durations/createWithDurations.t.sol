@@ -31,17 +31,13 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_LoopCalculationOverflowsBlockGasLimit() external whenNotDelegateCalled {
+    function test_RevertWhen_TrancheCountTooHigh() external whenNotDelegateCalled {
         LockupTranched.TrancheWithDuration[] memory tranches = new LockupTranched.TrancheWithDuration[](25_000);
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2LockupTranched_TrancheCountTooHigh.selector, 25_000));
         createDefaultStreamWithDurations(tranches);
     }
 
-    function test_RevertWhen_DurationsZero()
-        external
-        whenNotDelegateCalled
-        whenLoopCalculationsDoNotOverflowBlockGasLimit
-    {
+    function test_RevertWhen_DurationsZero() external whenNotDelegateCalled whenTrancheCountNotTooHigh {
         uint40 startTime = getBlockTimestamp();
         LockupTranched.TrancheWithDuration[] memory tranches = defaults.createWithDurationsLT().tranches;
         tranches[2].duration = 0;
@@ -60,7 +56,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
     function test_RevertWhen_TimestampsCalculationsOverflows_StartTimeNotLessThanFirstTrancheTimestamp()
         external
         whenNotDelegateCalled
-        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenTrancheCountNotTooHigh
         whenDurationsNotZero
     {
         unchecked {
@@ -81,7 +77,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
     function test_RevertWhen_TimestampsCalculationsOverflows_TrancheTimestampsNotOrdered()
         external
         whenNotDelegateCalled
-        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenTrancheCountNotTooHigh
         whenDurationsNotZero
     {
         unchecked {
@@ -112,7 +108,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
     function test_CreateWithDurations()
         external
         whenNotDelegateCalled
-        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenTrancheCountNotTooHigh
         whenDurationsNotZero
         whenTimestampsCalculationsDoNotOverflow
     {

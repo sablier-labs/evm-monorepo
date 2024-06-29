@@ -31,7 +31,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         whenSegmentCountNotZero
     {
         uint256 defaultMax = defaults.MAX_SEGMENT_COUNT();
-        segmentCount = _bound(segmentCount, defaultMax + 1, defaultMax * 10);
+        segmentCount = _bound(segmentCount, defaultMax + 1, defaultMax * 2);
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, segmentCount)

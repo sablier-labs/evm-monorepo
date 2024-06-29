@@ -37,7 +37,7 @@ contract CreateWithDurations_LockupTranched_Integration_Fuzz_Test is
     function testFuzz_CreateWithDurations(LockupTranched.TrancheWithDuration[] memory tranches)
         external
         whenNotDelegateCalled
-        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenTrancheCountNotTooHigh
         whenDurationsNotZero
         whenTimestampsCalculationsDoNotOverflow
     {

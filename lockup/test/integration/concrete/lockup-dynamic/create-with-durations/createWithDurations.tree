@@ -2,9 +2,9 @@ createWithDurations.t.sol
 ├── when delegate called
 │  └── it should revert
 └── when not delegate called
-   ├── when the loop calculations overflow the block gas limit
+   ├── when the segment count is too high
    │  └── it should revert
-   └── when the loop calculations do not overflow the block gas limit
+   └── when the segment count is not too high
        ├── when at least one of the durations at index one or greater is zero
        │  └── it should revert
        └── when none of the durations is zero

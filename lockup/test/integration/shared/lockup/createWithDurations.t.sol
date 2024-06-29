@@ -18,11 +18,11 @@ abstract contract CreateWithDurations_Integration_Shared_Test is Lockup_Integrat
         _;
     }
 
-    modifier whenLoopCalculationsDoNotOverflowBlockGasLimit() {
+    modifier whenNotDelegateCalled() {
         _;
     }
 
-    modifier whenNotDelegateCalled() {
+    modifier whenSegmentCountNotTooHigh() {
         _;
     }
 
@@ -31,6 +31,10 @@ abstract contract CreateWithDurations_Integration_Shared_Test is Lockup_Integrat
     }
 
     modifier whenTotalDurationCalculationDoesNotOverflow() {
+        _;
+    }
+
+    modifier whenTrancheCountNotTooHigh() {
         _;
     }
 }
