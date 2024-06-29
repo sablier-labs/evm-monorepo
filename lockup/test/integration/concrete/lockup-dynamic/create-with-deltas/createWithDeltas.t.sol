@@ -33,8 +33,8 @@ contract CreateWithDeltas_LockupDynamic_Integration_Concrete_Test is
 
     /// @dev it should revert.
     function test_RevertWhen_LoopCalculationOverflowsBlockGasLimit() external whenNotDelegateCalled {
-        LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](250_000);
-        vm.expectRevert(bytes(""));
+        LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](25_000);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, 25_000));
         createDefaultStreamWithDeltas(segments);
     }
 
