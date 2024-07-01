@@ -312,7 +312,8 @@ interface ISablierV2Lockup is
     ///
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn assets.
-    function withdrawMax(uint256 streamId, address to) external;
+    /// @return withdrawnAmount The amount withdrawn, denoted in units of the asset's decimals.
+    function withdrawMax(uint256 streamId, address to) external returns (uint128 withdrawnAmount);
 
     /// @notice Withdraws the maximum withdrawable amount from the stream to the current recipient, and transfers the
     /// NFT to `newRecipient`.
@@ -330,7 +331,13 @@ interface ISablierV2Lockup is
     ///
     /// @param streamId The ID of the stream NFT to transfer.
     /// @param newRecipient The address of the new owner of the stream NFT.
-    function withdrawMaxAndTransfer(uint256 streamId, address newRecipient) external;
+    /// @return withdrawnAmount The amount withdrawn, denoted in units of the asset's decimals.
+    function withdrawMaxAndTransfer(
+        uint256 streamId,
+        address newRecipient
+    )
+        external
+        returns (uint128 withdrawnAmount);
 
     /// @notice Withdraws assets from streams to the recipient of each stream.
     ///

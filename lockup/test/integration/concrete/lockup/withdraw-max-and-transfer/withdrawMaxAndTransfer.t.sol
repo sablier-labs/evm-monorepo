@@ -93,17 +93,17 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Get the withdraw amount.
-        uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
+        uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
         // Expect the assets to be transferred to the Recipient.
-        expectCallToTransfer({ to: users.recipient, value: withdrawAmount });
+        expectCallToTransfer({ to: users.recipient, value: expectedWithdrawnAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: defaultStreamId,
             to: users.recipient,
-            amount: withdrawAmount,
+            amount: expectedWithdrawnAmount,
             asset: dai
         });
         vm.expectEmit({ emitter: address(lockup) });
@@ -112,11 +112,10 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         emit Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
 
         // Make the max withdrawal and transfer the NFT.
-        lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
+        uint128 actualWithdrawnAmount =
+            lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
 
         // Assert that the withdrawn amount has been updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
-        uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that Alice is the new stream recipient (and NFT owner).

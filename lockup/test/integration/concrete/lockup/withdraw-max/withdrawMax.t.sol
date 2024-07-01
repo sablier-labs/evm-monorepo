@@ -55,31 +55,29 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Get the withdraw amount.
-        uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
+        uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
         // Expect the assets to be transferred to the Recipient.
-        expectCallToTransfer({ to: users.recipient, value: withdrawAmount });
+        expectCallToTransfer({ to: users.recipient, value: expectedWithdrawnAmount });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: defaultStreamId,
             to: users.recipient,
-            amount: withdrawAmount,
+            amount: expectedWithdrawnAmount,
             asset: dai
         });
 
         // Make the max withdrawal.
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        uint128 actualWithdrawnAmount = lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+
+        // Assert that the withdrawn amount has been updated.
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
-
-        // Assert that the withdrawn amount has been updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
-        uint128 expectedWithdrawnAmount = withdrawAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 }
