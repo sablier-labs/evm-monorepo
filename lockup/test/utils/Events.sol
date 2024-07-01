@@ -32,7 +32,7 @@ abstract contract Events {
                                  SABLIER-V2-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    event AllowToHook(address admin, address recipient);
+    event AllowToHook(address indexed admin, address recipient);
 
     event CancelLockupStream(
         uint256 streamId,

@@ -24,7 +24,7 @@ interface ISablierV2Lockup is
     /// @notice Emitted when the admin allows a new recipient contract to hook to Sablier.
     /// @param admin The address of the current contract admin.
     /// @param recipient The address of the recipient contract put on the allowlist.
-    event AllowToHook(address admin, address recipient);
+    event AllowToHook(address indexed admin, address recipient);
 
     /// @notice Emitted when a stream is canceled.
     /// @param streamId The ID of the stream.

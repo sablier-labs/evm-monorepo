@@ -3,8 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { NFTDescriptor_Integration_Shared_Test } from "../../shared/nft-descriptor/NFTDescriptor.t.sol";
 
-contract IsAlphanumericWithSpaces_Integration_Fuzz_Test is NFTDescriptor_Integration_Shared_Test {
+contract IsAllowedCharacter_Integration_Fuzz_Test is NFTDescriptor_Integration_Shared_Test {
     bytes1 internal constant SPACE = 0x20; // ASCII 32
+    bytes1 internal constant DASH = 0x2D; // ASCII 45
     bytes1 internal constant ZERO = 0x30; // ASCII 48
     bytes1 internal constant NINE = 0x39; // ASCII 57
     bytes1 internal constant A = 0x41; // ASCII 65
@@ -21,7 +22,7 @@ contract IsAlphanumericWithSpaces_Integration_Fuzz_Test is NFTDescriptor_Integra
     /// - String with only alphanumerical characters
     /// - String with only non-alphanumerical characters
     /// - String with both alphanumerical and non-alphanumerical characters
-    function testFuzz_IsAlphanumericWithSpaces(string memory symbol) external view whenNotEmptyString {
+    function testFuzz_IsAllowedCharacter(string memory symbol) external view whenNotEmptyString {
         bytes memory b = bytes(symbol);
         uint256 length = b.length;
         bool expectedResult = true;
@@ -32,15 +33,16 @@ contract IsAlphanumericWithSpaces_Integration_Fuzz_Test is NFTDescriptor_Integra
                 break;
             }
         }
-        bool actualResult = nftDescriptorMock.isAlphanumericWithSpaces_(symbol);
-        assertEq(actualResult, expectedResult, "isAlphanumericWithSpaces");
+        bool actualResult = nftDescriptorMock.isAllowedCharacter_(symbol);
+        assertEq(actualResult, expectedResult, "isAllowedCharacter");
     }
 
     function isAlphanumericOrSpaceChar(bytes1 char) internal pure returns (bool) {
         bool isSpace = char == SPACE;
+        bool isDash = char == DASH;
         bool isDigit = char >= ZERO && char <= NINE;
         bool isUppercaseLetter = char >= A && char <= Z;
         bool isLowercaseLetter = char >= a && char <= z;
-        return isSpace || isDigit || isUppercaseLetter || isLowercaseLetter;
+        return isSpace || isDash || isDigit || isUppercaseLetter || isLowercaseLetter;
     }
 }
