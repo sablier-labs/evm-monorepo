@@ -263,7 +263,7 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
 
         uint256 assetBalanceBefore = asset.balanceOf(address(flow));
 
-        flow.withdrawAt({ streamId: streamId, to: to, time: WITHDRAW_TIME });
+        uint128 actualTransferAmount = flow.withdrawAt({ streamId: streamId, to: to, time: WITHDRAW_TIME });
 
         // It should update lastTimeUpdate.
         uint128 actualLastTimeUpdate = flow.getLastTimeUpdate(streamId);
@@ -283,5 +283,8 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         uint256 actualAssetBalance = asset.balanceOf(address(flow));
         uint256 expectedAssetBalance = assetBalanceBefore - transferAmount;
         assertEq(actualAssetBalance, expectedAssetBalance, "asset balance");
+
+        // Assert that the returned value equals the transfer value.
+        assertEq(actualTransferAmount, transferAmount);
     }
 }

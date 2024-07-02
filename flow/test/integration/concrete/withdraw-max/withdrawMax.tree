@@ -10,10 +10,12 @@ WithdrawMax_Integration_Concrete_Test
         │   ├── it should set the remaining amount to zero
         │   ├── it should update the stream balance
         │   ├── it should perform the ERC20 transfer
-        │   └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+        │   ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+        │   └── it should return the transfer amount
         └── given not paused
             ├── it should update lastTimeUpdate
             ├── it should decrease the remaining amount by the withdrawable amount
             ├── it should update the stream balance
             ├── it should perform the ERC20 transfer
-            └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+            ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+            └── it should return the transfer amount

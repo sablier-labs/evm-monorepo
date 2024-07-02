@@ -73,7 +73,7 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
         // It should perform the ERC20 transfer
         expectCallToTransfer({ asset: dai, to: users.sender, amount: REFUND_AMOUNT });
 
-        flow.refundAndPause(defaultStreamId, REFUND_AMOUNT);
+        uint128 actualTransferAmount = flow.refundAndPause(defaultStreamId, REFUND_AMOUNT);
 
         // It should update the stream balance
         uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
@@ -90,5 +90,8 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
         // It should update the remaining amount
         uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
         assertEq(actualRemainingAmount, previousAmountOwed, "remaining amount");
+
+        // Assert that the returned value equals the transfer value.
+        assertEq(actualTransferAmount, REFUND_AMOUNT);
     }
 }

@@ -7,9 +7,12 @@ import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions
 /// @notice This contract generates the URI describing the Sablier Flow stream NFTs.
 interface ISablierFlowNFTDescriptor {
     /// @notice Produces the URI describing a particular stream NFT.
+    ///
     /// @dev This is a data URI with the JSON contents directly inlined.
+    ///
     /// @param sablierFlow The address of the Sablier Flow the stream was created in.
     /// @param streamId The ID of the stream for which to produce a description.
+    ///
     /// @return uri The URI of the ERC721-compliant metadata.
     function tokenURI(IERC721Metadata sablierFlow, uint256 streamId) external view returns (string memory uri);
 }

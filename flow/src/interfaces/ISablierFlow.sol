@@ -145,8 +145,8 @@ interface ISablierFlow is
     /// @dev Emits a {Transfer} and {AdjustFlowStream} event.
     ///
     /// Notes:
-    /// - The streamed assets, until the adjustment moment, will be summed up to the remaining amount.
-    /// - This function updates stream's `lastTimeUpdate` to the current block timestamp.
+    /// - It updates `lastTimeUpdate` to the current block timestamp.
+    /// - It updates the remaining amount by adding up recent amount.
     ///
     /// Requiremenets:
     /// - Must not be delegate called.
@@ -169,7 +169,7 @@ interface ISablierFlow is
     /// - `sender` must not be the zero address.
     /// - `ratePerSecond` must be greater than zero.
     /// - `asset` must implement `decimals` function and should not return a number greater than 255.
-    /// - Asset decimals must not be greater than 18.
+    /// - `asset` decimals must not be greater than 18.
     ///
     /// @param recipient The address receiving the assets.
     /// @param sender The address streaming the assets, with the ability to adjust and pause the stream. It doesn't
@@ -178,6 +178,7 @@ interface ISablierFlow is
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
+    ///
     /// @return streamId The ID of the newly created stream.
     function create(
         address recipient,
@@ -194,6 +195,9 @@ interface ISablierFlow is
     ///
     /// @dev Emits a {CreateFlowStream}, {Transfer} and {DepositFlowStream} events.
     ///
+    /// Notes:
+    /// - Refer to the notes in {deposit}.
+    ///
     /// Requirements:
     /// - Refer to the requirements in {create} and {deposit}.
     ///
@@ -203,6 +207,7 @@ interface ISablierFlow is
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
     /// @param transferAmount The transfer amount, denoted in units of the asset's decimals.
+    ///
     /// @return streamId The ID of the newly created stream.
     function createAndDeposit(
         address recipient,
@@ -221,6 +226,9 @@ interface ISablierFlow is
     ///
     /// @dev Emits a {CreateFlowStream}, {Transfer} and {DepositFlowStream} events.
     ///
+    /// Notes:
+    /// - Refer to the notes in {depositViaBroker}.
+    ///
     /// Requirements:
     /// - Refer to the requirements in {create} and {depositViaBroker}.
     ///
@@ -232,6 +240,7 @@ interface ISablierFlow is
     /// @param totalTransferAmount The total transfer amount, including the stream transfer amount and broker fee
     /// amount, denoted in units of the asset's decimals.
     /// @param broker The broker's address and fee.
+    ///
     /// @return streamId The ID of the newly created stream.
     function createAndDepositViaBroker(
         address recipient,
@@ -250,7 +259,8 @@ interface ISablierFlow is
     /// @dev Emits a {Transfer} and {DepositFlowStream} event.
     ///
     /// Notes:
-    /// - If the asset has less than 18 decimals, the amount deposited will normalized to 18 decimals.
+    /// - If the asset has less than 18 decimals, the amount deposited will be normalized to 18 decimals before adding
+    /// it to the stream balance.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -265,6 +275,9 @@ interface ISablierFlow is
     ///
     /// @dev Emits a {Transfer}, {DepositFlowStream} and {PauseFlowStream} event.
     ///
+    /// Notes:
+    /// - Refer to the notes in {deposit} and {pause}.
+    ///
     /// Requirements:
     /// - Refer to the requirements in {deposit} and {pause}.
     ///
@@ -275,6 +288,9 @@ interface ISablierFlow is
     /// @notice Deposits assets in a stream.
     ///
     /// @dev Emits a {Transfer} and {DepositFlowStream} event.
+    ///
+    /// Notes:
+    /// - Refer to the notes in {deposit}.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -292,6 +308,11 @@ interface ISablierFlow is
     /// @notice Pauses the stream.
     ///
     /// @dev Emits a {PauseFlowStream} event.
+    ///
+    /// Notes:
+    /// - It does not update `lastTimeUpdate` to the current block timestamp.
+    /// - It updates the remaining amount by adding up recent amount.
+    /// - It sets rate per second to zero.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -313,23 +334,33 @@ interface ISablierFlow is
     ///
     /// @param streamId The ID of the stream to refund from.
     /// @param amount The amount to refund, denoted in 18 decimals.
-    function refund(uint256 streamId, uint128 amount) external;
+    ///
+    /// @return transferAmount The amount transferred to the sender, denoted in asset's decimals.
+    function refund(uint256 streamId, uint128 amount) external returns (uint128 transferAmount);
 
     /// @notice Refunds the provided amount of assets from the stream to the sender's address.
     ///
     /// @dev Emits a {Transfer}, {RefundFromFlowStream} and {PauseFlowStream} event.
+    ///
+    /// Notes:
+    /// - Refer to the notes in {pause}.
     ///
     /// Requirements:
     /// - Refer to the requirements in {refund} and {pause}.
     ///
     /// @param streamId The ID of the stream to refund from and then pause.
     /// @param amount The amount to refund, denoted in 18 decimals.
-    function refundAndPause(uint256 streamId, uint128 amount) external;
+    ///
+    /// @return transferAmount The amount transferred to the sender, denoted in asset's decimals.
+    function refundAndPause(uint256 streamId, uint128 amount) external returns (uint128 transferAmount);
 
     /// @notice Restarts the stream with the provided rate per second.
     ///
     /// @dev Emits a {RestartFlowStream} event.
     ///   - This function updates stream's `lastTimeUpdate` to the current block timestamp.
+    ///
+    /// Notes:
+    /// - It sets `lastTimeUpdate` to the current block timestamp.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -346,6 +377,9 @@ interface ISablierFlow is
     ///
     /// @dev Emits a {RestartFlowStream}, {Transfer} and {DepositFlowStream} event.
     ///
+    /// Notes:
+    /// - Refer to the notes in {restart} and {deposit}.
+    ///
     /// Requirements:
     /// - `transferAmount` must be greater than zero.
     /// - Refer to the requirements in {restart}.
@@ -358,6 +392,10 @@ interface ISablierFlow is
     /// @notice Voids the stream debt and pauses it.
     ///
     /// @dev Emits a {VoidFlowStream} event.
+    ///
+    /// Notes:
+    /// - It sets the remaining amount to stream balance so that the stream debt becomes zero.
+    /// - It sets rate per second to zero.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -376,6 +414,15 @@ interface ISablierFlow is
     ///
     /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
     ///
+    /// Notes:
+    /// - It sets `lastTimeUpdate` to the `time` specified.
+    /// - If stream balance is less than the amount owed at `time`:
+    ///   - It withdraws the full balance.
+    ///   - It sets the remaining amount to the amount owed minus the stream balance.
+    /// - If stream balance is greater than the amount owed at `time`:
+    ///   - It withdraws the amount owed at `time`.
+    ///   - It sets the remaining amount to zero.
+    ///
     /// Requirements:
     /// - Must not be delegate called.
     /// - `streamId` must not reference a null stream.
@@ -387,16 +434,24 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn assets.
     /// @param time The Unix timestamp to calculate the recent streamed amount since last time update.
-    function withdrawAt(uint256 streamId, address to, uint40 time) external;
+    ///
+    /// @return transferAmount The amount transferred to the recipient, denoted in asset's decimals.
+    function withdrawAt(uint256 streamId, address to, uint40 time) external returns (uint128 transferAmount);
 
     /// @notice Withdraws the maximum withdrawable amount from the stream to the provided address `to`.
     ///
     /// @dev Emits a {Transfer}, {WithdrawFromFlowStream} event.
+    ///
+    /// Notes:
+    /// - It calls {withdrawAt} with the current block timestamp.
+    /// - Refer to the notes in {withdrawAt}.
     ///
     /// Requirements:
     /// - Refer to the requirements in {withdrawAt}.
     ///
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn assets.
-    function withdrawMax(uint256 streamId, address to) external;
+    ///
+    /// @return transferAmount The amount transferred to the recipient, denoted in asset's decimals.
+    function withdrawMax(uint256 streamId, address to) external returns (uint128 transferAmount);
 }

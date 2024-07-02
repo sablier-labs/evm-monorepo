@@ -35,8 +35,10 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev An internal function to fuzz the stream id and decimals based on whether the stream ID exists or not.
+    ///
     /// @param streamId The stream ID to fuzz.
     /// @param decimals The decimals to fuzz.
+    ///
     /// @return uint256 The fuzzed stream ID of either a stream picked from the fixture or a new stream.
     /// @return uint8 The fuzzed decimals.
     /// @return uint128 The fuzzed deposit amount.

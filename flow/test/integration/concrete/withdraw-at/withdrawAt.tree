@@ -30,7 +30,8 @@ WithdrawAt_Integration_Concrete_Test
                         │   ├── it should decrease the full amount owed by balance
                         │   ├── it should update the stream balance to 0
                         │   ├── it should perform the ERC20 transfer
-                        │   └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+                        │   ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+                        │   └── it should return the transfer amount
                         └── when amount owed does not exceed balance
                             ├── given asset does not have 18 decimals
                             │   ├── it should withdraw the amount owed
@@ -39,10 +40,12 @@ WithdrawAt_Integration_Concrete_Test
                             │   ├── it should reduce the stream balance by the withdrawn amount
                             │   ├── it should perform the ERC20 transfer
                             │   └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+                            │   └── it should return the transfer amount
                             └── given asset has 18 decimals
                                 ├── it should withdraw the amount owed
                                 ├── it should update lastTimeUpdate
                                 ├── it should decrease the full amount owed by withdrawn value
                                 ├── it should reduce the stream balance by the withdrawn amount
                                 ├── it should perform the ERC20 transfer
-                                └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+                                ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+                                └── it should return the transfer amount

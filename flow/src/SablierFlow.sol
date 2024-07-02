@@ -292,9 +292,10 @@ contract SablierFlow is
         notNull(streamId)
         onlySender(streamId)
         updateMetadata(streamId)
+        returns (uint128 transferAmount)
     {
         // Checks, Effects and Interactions: make the refund.
-        _refund(streamId, amount);
+        transferAmount = _refund(streamId, amount);
     }
 
     /// @inheritdoc ISablierFlow
@@ -309,9 +310,10 @@ contract SablierFlow is
         notPaused(streamId)
         onlySender(streamId)
         updateMetadata(streamId)
+        returns (uint128 transferAmount)
     {
         // Checks, Effects and Interactions: make the refund.
-        _refund(streamId, amount);
+        transferAmount = _refund(streamId, amount);
 
         // Checks, Effects and Interactions: pause the stream.
         _pause(streamId);
@@ -370,6 +372,7 @@ contract SablierFlow is
         noDelegateCall
         notNull(streamId)
         updateMetadata(streamId)
+        returns (uint128 transferAmount)
     {
         // Retrieve the last time update from storage.
         uint40 lastTimeUpdate = _streams[streamId].lastTimeUpdate;
@@ -385,7 +388,7 @@ contract SablierFlow is
         }
 
         // Checks, Effects and Interactions: make the withdrawal.
-        _withdrawAt(streamId, to, time);
+        transferAmount = _withdrawAt(streamId, to, time);
     }
 
     /// @inheritdoc ISablierFlow
@@ -398,9 +401,10 @@ contract SablierFlow is
         noDelegateCall
         notNull(streamId)
         updateMetadata(streamId)
+        returns (uint128 transferAmount)
     {
         // Checks, Effects and Interactions: make the withdrawal.
-        _withdrawAt(streamId, to, uint40(block.timestamp));
+        transferAmount = _withdrawAt(streamId, to, uint40(block.timestamp));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -604,9 +608,21 @@ contract SablierFlow is
     }
 
     /// @dev Helper function to calculate the transfer amount and perform the ERC-20 transfer.
-    function _extractFromStream(uint256 streamId, address to, uint128 amount) internal {
+    ///
+    /// @param streamId The ID of the stream.
+    /// @param to The address to receive amount from the stream.
+    ///
+    /// @return transferAmount The amount transferred out of the stream, denoted in the asset's decimals.
+    function _extractFromStream(
+        uint256 streamId,
+        address to,
+        uint128 amount
+    )
+        internal
+        returns (uint128 transferAmount)
+    {
         // Calculate the transfer amount.
-        uint128 transferAmount = Helpers.calculateTransferAmount(amount, _streams[streamId].assetDecimals);
+        transferAmount = Helpers.calculateTransferAmount(amount, _streams[streamId].assetDecimals);
 
         // Effect: update the stream balance.
         _streams[streamId].balance -= amount;
@@ -636,7 +652,7 @@ contract SablierFlow is
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _refund(uint256 streamId, uint128 amount) internal {
+    function _refund(uint256 streamId, uint128 amount) internal returns (uint128 transferAmount) {
         // Check: the amount is not zero.
         if (amount == 0) {
             revert Errors.SablierFlow_RefundAmountZero(streamId);
@@ -659,7 +675,7 @@ contract SablierFlow is
         address sender = _streams[streamId].sender;
 
         // Effect and Interaction: update the balance and perform the ERC-20 transfer to the sender.
-        _extractFromStream(streamId, sender, amount);
+        transferAmount = _extractFromStream(streamId, sender, amount);
 
         // Log the refund.
         emit ISablierFlow.RefundFromFlowStream(streamId, sender, amount);
@@ -734,7 +750,7 @@ contract SablierFlow is
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdrawAt(uint256 streamId, address to, uint40 time) internal {
+    function _withdrawAt(uint256 streamId, address to, uint40 time) internal returns (uint128 transferAmount) {
         // Check: the withdrawal address is not zero.
         if (to == address(0)) {
             revert Errors.SablierFlow_WithdrawToZeroAddress(streamId);
@@ -779,7 +795,7 @@ contract SablierFlow is
         _updateTime(streamId, time);
 
         // Effect and Interaction: update the balance and perform the ERC-20 transfer to the recipient.
-        _extractFromStream(streamId, to, withdrawAmount);
+        transferAmount = _extractFromStream(streamId, to, withdrawAmount);
 
         // Log the withdrawal.
         emit ISablierFlow.WithdrawFromFlowStream(streamId, to, withdrawAmount);

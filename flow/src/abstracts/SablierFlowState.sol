@@ -215,6 +215,7 @@ abstract contract SablierFlowState is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Overrides the {ERC-721._update} function to check that the stream is transferable.
+    ///
     /// @dev The transferable flag is ignored if the current owner is 0, as the update in this case is a mint and
     /// is allowed. Transfers to the zero address are not allowed, preventing accidental burns.
     ///
@@ -222,6 +223,7 @@ abstract contract SablierFlowState is
     /// @param streamId ID of the stream to update.
     /// @param auth Optional parameter. If the value is not zero, the overridden implementation will check that
     /// `auth` is either the recipient of the stream, or an approved third party.
+    ///
     /// @return The original recipient of the `streamId` before the update.
     function _update(
         address to,
