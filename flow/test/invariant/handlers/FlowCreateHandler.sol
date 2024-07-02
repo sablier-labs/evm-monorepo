@@ -70,9 +70,9 @@ contract FlowCreateHandler is BaseHandler {
     function create(CreateParams memory params)
         public
         instrument("create")
-        adjustTimestamp(params.timeJumpSeed)
         checkUsers(params)
         useFuzzedAsset(params.assetIndexSeed)
+        adjustTimestamp(params.timeJumpSeed)
     {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
@@ -93,9 +93,9 @@ contract FlowCreateHandler is BaseHandler {
     )
         public
         instrument("createAndDeposit")
-        adjustTimestamp(params.timeJumpSeed)
         checkUsers(params)
         useFuzzedAsset(params.assetIndexSeed)
+        adjustTimestamp(params.timeJumpSeed)
     {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 

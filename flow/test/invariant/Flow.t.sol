@@ -202,6 +202,21 @@ contract Flow_Invariant_Test is Base_Test {
         }
     }
 
+    /// @dev If rps > 0, no withdraw is made, amount owed (i.e. streamed amount) should never decrease.
+    function invariant_RpsGt0_AmountOwedAlwaysIncrease() external view {
+        uint256 lastStreamId = flowStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = flowStore.streamIds(i);
+            if (flow.getRatePerSecond(streamId) != 0 && flowHandler.calls("withdrawAt") == 0) {
+                assertGe(
+                    flow.amountOwedOf(streamId),
+                    flowHandler.previousAmountOwedOf(streamId),
+                    "Invariant violation: amount owed should be monotonically increasing"
+                );
+            }
+        }
+    }
+
     /// @dev The stream balance should be equal to the sum of the withdrawable amount and the refundable amount.
     function invariant_StreamBalanceEqWithdrawableAmountPlusRefundableAmount() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
