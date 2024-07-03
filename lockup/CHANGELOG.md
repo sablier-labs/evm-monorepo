@@ -4,12 +4,49 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+[1.2.0]: https://github.com/sablier-labs/v2-core/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/sablier-labs/v2-core/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/sablier-labs/v2-core/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/sablier-labs/v2-core/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/sablier-labs/v2-core/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/sablier-labs/v2-core/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/sablier-labs/v2-core/releases/tag/v1.0.0
+
+## [1.2.0] - 2024-07-03
+
+### Changed
+
+- **Breaking:** move common logic into `Lockup` contract ([#784](https://github.com/sablier-labs/v2-core/pull/784),
+  [#813](https://github.com/sablier-labs/v2-core/pull/813), [#850](https://github.com/sablier-labs/v2-core/pull/850),
+  [#941](https://github.com/sablier-labs/v2-core/pull/941))
+- **Breaking:** use a new hook system ([#951](https://github.com/sablier-labs/v2-core/pull/951))
+  - Replace `ISablierV2Recipient` with `ISablierLockupRecipient` hook interface
+  - Remove `try..catch` block from hook calls
+- Allow only supported characters in NFT Descriptor asset symbols
+  ([#945](https://github.com/sablier-labs/v2-core/pull/945), [#960](https://github.com/sablier-labs/v2-core/pull/960),
+  [#949](https://github.com/sablier-labs/v2-core/pull/949))
+- Bump build dependencies ([#806](https://github.com/sablier-labs/v2-core/pull/806),
+  [#942](https://github.com/sablier-labs/v2-core/pull/942), [#944](https://github.com/sablier-labs/v2-core/pull/944))
+- Change permissions of `withdraw` function to public ([#785](https://github.com/sablier-labs/v2-core/pull/785))
+- Disallow zero `startTime` ([#813](https://github.com/sablier-labs/v2-core/pull/813),
+  [#852](https://github.com/sablier-labs/v2-core/pull/852))
+- Rename create functions `createWithTimestamps` and `createWithDurations` across all lockup contracts
+  ([#798](https://github.com/sablier-labs/v2-core/pull/798))
+- Switch to Bun ([#775](https://github.com/sablier-labs/v2-core/pull/775))
+- Use Solidity v0.8.26 ([#944](https://github.com/sablier-labs/v2-core/pull/944))
+
+### Added
+
+- Add Lockup Tranched contract ([#817](https://github.com/sablier-labs/v2-core/pull/817))
+- Add `precompiles` in the NPM release ([#841](https://github.com/sablier-labs/v2-core/pull/841))
+- Add return value in `withdrawMax` and `withdrawMaxAndTransfer`
+  ([#961](https://github.com/sablier-labs/v2-core/pull/961))
+
+### Removed
+
+- **Breaking:** remove protocol fee ([#839](https://github.com/sablier-labs/v2-core/pull/839))
+- Remove flash loan abstract contract ([#779](https://github.com/sablier-labs/v2-core/pull/779))
+- Remove `to` from `withdrawMultiple` function ([#785](https://github.com/sablier-labs/v2-core/pull/785))
 
 ## [1.1.2] - 2023-12-19
 

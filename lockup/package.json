@@ -2,7 +2,7 @@
   "name": "@sablier/v2-core",
   "description": "Core smart contracts of the Sablier V2 token distribution protocol",
   "license": "BUSL-1.1",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
