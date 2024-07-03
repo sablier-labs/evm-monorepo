@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup } from "src/types/DataTypes.sol";
 
@@ -21,12 +21,12 @@ contract LockupStore {
     //////////////////////////////////////////////////////////////////////////*/
 
     function pushStreamId(uint256 streamId, address sender, address recipient) external {
-        // Store the stream ids, the senders, and the recipients.
+        // Store the stream IDs, the senders, and the recipients.
         streamIds.push(streamId);
         senders[streamId] = sender;
         recipients[streamId] = recipient;
 
-        // Update the last stream id.
+        // Update the last stream ID.
         lastStreamId = streamId;
     }
 

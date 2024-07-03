@@ -2,9 +2,9 @@ withdrawMaxAndTransfer.t.sol
 ├── when delegate called
 │  └── it should revert
 └── when not delegate called
-   ├── given the id references a null stream
+   ├── given the ID references a null stream
    │  └── it should revert
-   └── given the id does not reference a null stream
+   └── given the ID does not reference a null stream
       ├── given the stream is not transferable
       │  └── it should revert
       └── given the stream is transferable
@@ -22,4 +22,5 @@ withdrawMaxAndTransfer.t.sol
                   ├── it should transfer the NFT
                   ├── it should emit a {WithdrawFromLockupStream} event
                   ├── it should emit a {Transfer} event
-                  └── it should emit a {MetadataUpdate} event
+                  ├── it should emit a {MetadataUpdate} event
+                  └── it should return the withdrawable amount

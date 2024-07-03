@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2Base } from "src/interfaces/ISablierV2Base.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 
 import { LockupLinear_Integration_Shared_Test } from "../../shared/lockup-linear/LockupLinear.t.sol";
 import { Integration_Test } from "../../Integration.t.sol";
+import { AllowToHook_Integration_Concrete_Test } from "../lockup/allow-to-hook/allowToHook.t.sol";
 import { Burn_Integration_Concrete_Test } from "../lockup/burn/burn.t.sol";
 import { Cancel_Integration_Concrete_Test } from "../lockup/cancel/cancel.t.sol";
 import { CancelMultiple_Integration_Concrete_Test } from "../lockup/cancel-multiple/cancelMultiple.t.sol";
-import { ClaimProtocolRevenues_Integration_Concrete_Test } from
-    "../lockup/claim-protocol-revenues/claimProtocolRevenues.t.sol";
 import { GetAsset_Integration_Concrete_Test } from "../lockup/get-asset/getAsset.t.sol";
 import { GetDepositedAmount_Integration_Concrete_Test } from "../lockup/get-deposited-amount/getDepositedAmount.t.sol";
 import { GetEndTime_Integration_Concrete_Test } from "../lockup/get-end-time/getEndTime.t.sol";
@@ -19,21 +17,21 @@ import { GetRecipient_Integration_Concrete_Test } from "../lockup/get-recipient/
 import { GetSender_Integration_Concrete_Test } from "../lockup/get-sender/getSender.t.sol";
 import { GetStartTime_Integration_Concrete_Test } from "../lockup/get-start-time/getStartTime.t.sol";
 import { GetWithdrawnAmount_Integration_Concrete_Test } from "../lockup/get-withdrawn-amount/getWithdrawnAmount.t.sol";
+import { IsAllowedToHook_Integration_Concrete_Test } from "../lockup/is-allowed-to-hook/isAllowedToHook.t.sol";
 import { IsCancelable_Integration_Concrete_Test } from "../lockup/is-cancelable/isCancelable.t.sol";
 import { IsCold_Integration_Concrete_Test } from "../lockup/is-cold/isCold.t.sol";
 import { IsDepleted_Integration_Concrete_Test } from "../lockup/is-depleted/isDepleted.t.sol";
 import { IsStream_Integration_Concrete_Test } from "../lockup/is-stream/isStream.t.sol";
 import { IsTransferable_Integration_Concrete_Test } from "../lockup/is-transferable/isTransferable.t.sol";
 import { IsWarm_Integration_Concrete_Test } from "../lockup/is-warm/isWarm.t.sol";
-import { ProtocolRevenues_Integration_Concrete_Test } from "../lockup/protocol-revenues/protocolRevenues.t.sol";
 import { RefundableAmountOf_Integration_Concrete_Test } from "../lockup/refundable-amount-of/refundableAmountOf.t.sol";
 import { Renounce_Integration_Concrete_Test } from "../lockup/renounce/renounce.t.sol";
-import { SetComptroller_Integration_Concrete_Test } from "../lockup/set-comptroller/setComptroller.t.sol";
 import { SetNFTDescriptor_Integration_Concrete_Test } from "../lockup/set-nft-descriptor/setNFTDescriptor.t.sol";
 import { StatusOf_Integration_Concrete_Test } from "../lockup/status-of/statusOf.t.sol";
 import { TransferFrom_Integration_Concrete_Test } from "../lockup/transfer-from/transferFrom.t.sol";
 import { WasCanceled_Integration_Concrete_Test } from "../lockup/was-canceled/wasCanceled.t.sol";
 import { Withdraw_Integration_Concrete_Test } from "../lockup/withdraw/withdraw.t.sol";
+import { WithdrawHooks_Integration_Concrete_Test } from "../lockup/withdraw-hooks/withdrawHooks.t.sol";
 import { WithdrawMax_Integration_Concrete_Test } from "../lockup/withdraw-max/withdrawMax.t.sol";
 import { WithdrawMaxAndTransfer_Integration_Concrete_Test } from
     "../lockup/withdraw-max-and-transfer/withdrawMaxAndTransfer.t.sol";
@@ -51,8 +49,7 @@ abstract contract LockupLinear_Integration_Concrete_Test is Integration_Test, Lo
         Integration_Test.setUp();
         LockupLinear_Integration_Shared_Test.setUp();
 
-        // Cast the LockupLinear contract as {ISablierV2Base} and {ISablierV2Lockup}.
-        base = ISablierV2Base(lockupLinear);
+        // Cast the {LockupLinear} contract as {ISablierV2Lockup}.
         lockup = ISablierV2Lockup(lockupLinear);
     }
 }
@@ -60,6 +57,20 @@ abstract contract LockupLinear_Integration_Concrete_Test is Integration_Test, Lo
 /*//////////////////////////////////////////////////////////////////////////
                                 SHARED TESTS
 //////////////////////////////////////////////////////////////////////////*/
+
+contract AllowToHook_LockupLinear_Integration_Concrete_Test is
+    LockupLinear_Integration_Concrete_Test,
+    AllowToHook_Integration_Concrete_Test
+{
+    function setUp()
+        public
+        virtual
+        override(LockupLinear_Integration_Concrete_Test, AllowToHook_Integration_Concrete_Test)
+    {
+        LockupLinear_Integration_Concrete_Test.setUp();
+        AllowToHook_Integration_Concrete_Test.setUp();
+    }
+}
 
 contract Burn_LockupLinear_Integration_Concrete_Test is
     LockupLinear_Integration_Concrete_Test,
@@ -96,20 +107,6 @@ contract CancelMultiple_LockupLinear_Integration_Concrete_Test is
     {
         LockupLinear_Integration_Concrete_Test.setUp();
         CancelMultiple_Integration_Concrete_Test.setUp();
-    }
-}
-
-contract ClaimProtocolRevenues_LockupLinear_Integration_Concrete_Test is
-    LockupLinear_Integration_Concrete_Test,
-    ClaimProtocolRevenues_Integration_Concrete_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupLinear_Integration_Concrete_Test, ClaimProtocolRevenues_Integration_Concrete_Test)
-    {
-        LockupLinear_Integration_Concrete_Test.setUp();
-        ClaimProtocolRevenues_Integration_Concrete_Test.setUp();
     }
 }
 
@@ -225,6 +222,20 @@ contract GetWithdrawnAmount_LockupLinear_Integration_Concrete_Test is
     }
 }
 
+contract IsAllowedToHook_LockupLinear_Integration_Concrete_Test is
+    LockupLinear_Integration_Concrete_Test,
+    IsAllowedToHook_Integration_Concrete_Test
+{
+    function setUp()
+        public
+        virtual
+        override(LockupLinear_Integration_Concrete_Test, IsAllowedToHook_Integration_Concrete_Test)
+    {
+        LockupLinear_Integration_Concrete_Test.setUp();
+        IsAllowedToHook_Integration_Concrete_Test.setUp();
+    }
+}
+
 contract IsCancelable_LockupLinear_Integration_Concrete_Test is
     LockupLinear_Integration_Concrete_Test,
     IsCancelable_Integration_Concrete_Test
@@ -309,20 +320,6 @@ contract IsWarm_LockupLinear_Integration_Concrete_Test is
     }
 }
 
-contract ProtocolRevenues_LockupLinear_Integration_Concrete_Test is
-    LockupLinear_Integration_Concrete_Test,
-    ProtocolRevenues_Integration_Concrete_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupLinear_Integration_Concrete_Test, ProtocolRevenues_Integration_Concrete_Test)
-    {
-        LockupLinear_Integration_Concrete_Test.setUp();
-        ProtocolRevenues_Integration_Concrete_Test.setUp();
-    }
-}
-
 contract Renounce_LockupLinear_Integration_Concrete_Test is
     LockupLinear_Integration_Concrete_Test,
     Renounce_Integration_Concrete_Test
@@ -348,20 +345,6 @@ contract RefundableAmountOf_LockupLinear_Integration_Concrete_Test is
     {
         LockupLinear_Integration_Concrete_Test.setUp();
         RefundableAmountOf_Integration_Concrete_Test.setUp();
-    }
-}
-
-contract SetComptroller_LockupLinear_Integration_Concrete_Test is
-    LockupLinear_Integration_Concrete_Test,
-    SetComptroller_Integration_Concrete_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupLinear_Integration_Concrete_Test, SetComptroller_Integration_Concrete_Test)
-    {
-        LockupLinear_Integration_Concrete_Test.setUp();
-        SetComptroller_Integration_Concrete_Test.setUp();
     }
 }
 
@@ -432,6 +415,20 @@ contract Withdraw_LockupLinear_Integration_Concrete_Test is
     {
         LockupLinear_Integration_Concrete_Test.setUp();
         Withdraw_Integration_Concrete_Test.setUp();
+    }
+}
+
+contract WithdrawHooks_LockupLinear_Integration_Concrete_Test is
+    LockupLinear_Integration_Concrete_Test,
+    WithdrawHooks_Integration_Concrete_Test
+{
+    function setUp()
+        public
+        virtual
+        override(LockupLinear_Integration_Concrete_Test, WithdrawHooks_Integration_Concrete_Test)
+    {
+        LockupLinear_Integration_Concrete_Test.setUp();
+        WithdrawHooks_Integration_Concrete_Test.setUp();
     }
 }
 

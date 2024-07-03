@@ -1,19 +1,23 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.8.19 <0.9.0;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { PRBTest } from "@prb/test/src/PRBTest.sol";
+import { StdAssertions } from "forge-std/src/StdAssertions.sol";
 
 import { BaseScript } from "script/Base.s.sol";
 
-contract BaseScript_Test is PRBTest {
+contract BaseScript_Test is StdAssertions {
     using Strings for uint256;
 
-    BaseScript internal baseScript = new BaseScript();
+    BaseScript internal baseScript;
 
-    function test_ConstructCreate2Salt() public {
+    function setUp() public {
+        baseScript = new BaseScript();
+    }
+
+    function test_ConstructCreate2Salt() public view {
         string memory chainId = block.chainid.toString();
-        string memory version = "1.1.2";
+        string memory version = "1.2.0";
         string memory salt = string.concat("ChainID ", chainId, ", Version ", version);
 
         bytes32 actualSalt = baseScript.constructCreate2Salt();

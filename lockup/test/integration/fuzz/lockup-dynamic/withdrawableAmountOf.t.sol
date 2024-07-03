@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { ZERO } from "@prb/math/src/UD60x18.sol";
 
@@ -20,10 +20,7 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is
         LockupDynamic_Integration_Fuzz_Test.setUp();
         WithdrawableAmountOf_Integration_Shared_Test.setUp();
 
-        // Disable the protocol fee so that it doesn't interfere with the calculations.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
     }
 
     modifier whenStartTimeInThePast() {
@@ -42,19 +39,19 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
-        LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
+        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsLD();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = defaults.DEPOSIT_AMOUNT();
-        uint256 streamId = lockupDynamic.createWithMilestones(params);
+        uint256 streamId = lockupDynamic.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = defaults.START_TIME() + timeJump;
-        vm.warp({ timestamp: currentTime });
+        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
+        vm.warp({ newTimestamp: blockTimestamp });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount =
-            calculateStreamedAmountForMultipleSegments(currentTime, defaults.segments(), defaults.DEPOSIT_AMOUNT());
+            calculateStreamedAmountForMultipleSegments(blockTimestamp, defaults.segments(), defaults.DEPOSIT_AMOUNT());
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -82,23 +79,23 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is
     {
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
-        // Define the current time.
-        uint40 currentTime = defaults.START_TIME() + timeJump;
+        // Define the block timestamp.
+        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
 
         // Bound the withdraw amount.
         uint128 streamedAmount =
-            calculateStreamedAmountForMultipleSegments(currentTime, defaults.segments(), defaults.DEPOSIT_AMOUNT());
+            calculateStreamedAmountForMultipleSegments(blockTimestamp, defaults.segments(), defaults.DEPOSIT_AMOUNT());
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
-        LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
+        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsLD();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = defaults.DEPOSIT_AMOUNT();
-        uint256 streamId = lockupDynamic.createWithMilestones(params);
+        uint256 streamId = lockupDynamic.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: currentTime });
+        vm.warp({ newTimestamp: blockTimestamp });
 
         // Make the withdrawal.
         lockupDynamic.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });

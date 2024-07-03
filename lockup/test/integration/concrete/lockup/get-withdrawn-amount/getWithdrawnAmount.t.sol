@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
@@ -22,7 +22,7 @@ abstract contract GetWithdrawnAmount_Integration_Concrete_Test is
 
     function test_GetWithdrawnAmount_NoPreviousWithdrawals() external givenNotNull {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
@@ -32,7 +32,7 @@ abstract contract GetWithdrawnAmount_Integration_Concrete_Test is
 
     function test_GetWithdrawnAmount() external givenNotNull givenPreviousWithdrawals {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Set the withdraw amount to the streamed amount.
         uint128 withdrawAmount = lockup.streamedAmountOf(defaultStreamId);

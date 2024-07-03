@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // solhint-disable max-line-length,quotes
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.22;
 
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
@@ -14,6 +14,24 @@ import { Lockup } from "./types/DataTypes.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { NFTSVG } from "./libraries/NFTSVG.sol";
 import { SVGElements } from "./libraries/SVGElements.sol";
+
+/*
+
+███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ██╗   ██╗██████╗
+██╔════╝██╔══██╗██╔══██╗██║     ██║██╔════╝██╔══██╗    ██║   ██║╚════██╗
+███████╗███████║██████╔╝██║     ██║█████╗  ██████╔╝    ██║   ██║ █████╔╝
+╚════██║██╔══██║██╔══██╗██║     ██║██╔══╝  ██╔══██╗    ╚██╗ ██╔╝██╔═══╝
+███████║██║  ██║██████╔╝███████╗██║███████╗██║  ██║     ╚████╔╝ ███████╗
+╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝      ╚═══╝  ╚══════╝
+
+███╗   ██╗███████╗████████╗    ██████╗ ███████╗███████╗ ██████╗██████╗ ██╗██████╗ ████████╗ ██████╗ ██████╗
+████╗  ██║██╔════╝╚══██╔══╝    ██╔══██╗██╔════╝██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗
+██╔██╗ ██║█████╗     ██║       ██║  ██║█████╗  ███████╗██║     ██████╔╝██║██████╔╝   ██║   ██║   ██║██████╔╝
+██║╚██╗██║██╔══╝     ██║       ██║  ██║██╔══╝  ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ██║   ██║██╔══██╗
+██║ ╚████║██║        ██║       ██████╔╝███████╗███████║╚██████╗██║  ██║██║██║        ██║   ╚██████╔╝██║  ██║
+╚═╝  ╚═══╝╚═╝        ╚═╝       ╚═════╝ ╚══════╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝    ╚═════╝ ╚═╝  ╚═╝
+
+*/
 
 /// @title SablierV2NFTDescriptor
 /// @notice See the documentation in {ISablierV2NFTDescriptor}.
@@ -31,13 +49,16 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
         address asset;
         string assetSymbol;
         uint128 depositedAmount;
+        bool isTransferable;
         string json;
+        bytes returnData;
         ISablierV2Lockup sablier;
-        string sablierAddress;
+        string sablierModel;
+        string sablierStringified;
         string status;
         string svg;
         uint256 streamedPercentage;
-        string streamingModel;
+        bool success;
     }
 
     /// @inheritdoc ISablierV2NFTDescriptor
@@ -46,7 +67,8 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
         // Load the contracts.
         vars.sablier = ISablierV2Lockup(address(sablier));
-        vars.sablierAddress = address(sablier).toHexString();
+        vars.sablierModel = mapSymbol(sablier);
+        vars.sablierStringified = address(sablier).toHexString();
         vars.asset = address(vars.sablier.getAsset(streamId));
         vars.assetSymbol = safeAssetSymbol(vars.asset);
         vars.depositedAmount = vars.sablier.getDepositedAmount(streamId);
@@ -57,7 +79,6 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             streamedAmount: vars.sablier.streamedAmountOf(streamId),
             depositedAmount: vars.depositedAmount
         });
-        vars.streamingModel = mapSymbol(sablier);
 
         // Generate the SVG.
         vars.svg = NFTSVG.generateSVG(
@@ -70,13 +91,20 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
                     startTime: vars.sablier.getStartTime(streamId),
                     endTime: vars.sablier.getEndTime(streamId)
                 }),
-                sablierAddress: vars.sablierAddress,
+                sablierAddress: vars.sablierStringified,
                 progress: stringifyPercentage(vars.streamedPercentage),
                 progressNumerical: vars.streamedPercentage,
                 status: vars.status,
-                streamingModel: vars.streamingModel
+                sablierModel: vars.sablierModel
             })
         );
+
+        // Performs a low-level call to handle older deployments that miss the `isTransferable` function.
+        (vars.success, vars.returnData) =
+            address(vars.sablier).staticcall(abi.encodeCall(ISablierV2Lockup.isTransferable, (streamId)));
+
+        // When the call has failed, the stream NFT is assumed to be transferable.
+        vars.isTransferable = vars.success ? abi.decode(vars.returnData, (bool)) : true;
 
         // Generate the JSON metadata.
         vars.json = string.concat(
@@ -88,14 +116,15 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             }),
             ',"description":"',
             generateDescription({
-                streamingModel: vars.streamingModel,
+                sablierModel: vars.sablierModel,
                 assetSymbol: vars.assetSymbol,
+                sablierStringified: vars.sablierStringified,
+                assetAddress: vars.asset.toHexString(),
                 streamId: streamId.toString(),
-                sablierAddress: vars.sablierAddress,
-                assetAddress: vars.asset.toHexString()
+                isTransferable: vars.isTransferable
             }),
             '","external_url":"https://sablier.com","name":"',
-            generateName({ streamingModel: vars.streamingModel, streamId: streamId.toString() }),
+            generateName({ sablierModel: vars.sablierModel, streamId: streamId.toString() }),
             '","image":"data:image/svg+xml;base64,',
             Base64.encode(bytes(vars.svg)),
             '"}'
@@ -193,7 +222,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
     /// @notice Generates a pseudo-random HSL color by hashing together the `chainid`, the `sablier` address,
     /// and the `streamId`. This will be used as the accent color for the SVG.
     function generateAccentColor(address sablier, uint256 streamId) internal view returns (string memory) {
-        // The chain id is part of the hash so that the generated color is different across chains.
+        // The chain ID is part of the hash so that the generated color is different across chains.
         uint256 chainId = block.chainid;
 
         // Hash the parameters to generate a pseudo-random bit field, which will be used as entropy.
@@ -248,43 +277,73 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
     /// @notice Generates a string with the NFT's JSON metadata description, which provides a high-level overview.
     function generateDescription(
-        string memory streamingModel,
+        string memory sablierModel,
         string memory assetSymbol,
+        string memory sablierStringified,
+        string memory assetAddress,
         string memory streamId,
-        string memory sablierAddress,
-        string memory assetAddress
+        bool isTransferable
     )
         internal
         pure
         returns (string memory)
     {
+        // Depending on the transferability of the NFT, declare the relevant information.
+        string memory info = isTransferable
+            ?
+            unicode"⚠️ WARNING: Transferring the NFT makes the new owner the recipient of the stream. The funds are not automatically withdrawn for the previous recipient."
+            : unicode"❕INFO: This NFT is non-transferable. It cannot be sold or transferred to another account.";
+
         return string.concat(
             "This NFT represents a payment stream in a Sablier V2 ",
-            streamingModel,
+            sablierModel,
             " contract. The owner of this NFT can withdraw the streamed assets, which are denominated in ",
             assetSymbol,
             ".\\n\\n- Stream ID: ",
             streamId,
             "\\n- ",
-            streamingModel,
+            sablierModel,
             " Address: ",
-            sablierAddress,
+            sablierStringified,
             "\\n- ",
             assetSymbol,
             " Address: ",
             assetAddress,
             "\\n\\n",
-            unicode"⚠️ WARNING: Transferring the NFT makes the new owner the recipient of the stream. The funds are not automatically withdrawn for the previous recipient."
+            info
         );
     }
 
     /// @notice Generates a string with the NFT's JSON metadata name, which is unique for each stream.
     /// @dev The `streamId` is equivalent to the ERC-721 `tokenId`.
-    function generateName(string memory streamingModel, string memory streamId) internal pure returns (string memory) {
-        return string.concat("Sablier V2 ", streamingModel, " #", streamId);
+    function generateName(string memory sablierModel, string memory streamId) internal pure returns (string memory) {
+        return string.concat("Sablier V2 ", sablierModel, " #", streamId);
     }
 
-    /// @notice Maps ERC-721 symbols to human-readable streaming models.
+    /// @notice Checks whether the provided string contains only alphanumeric characters, spaces, and dashes.
+    /// @dev Note that this returns true for empty strings.
+    function isAllowedCharacter(string memory str) internal pure returns (bool) {
+        // Convert the string to bytes to iterate over its characters.
+        bytes memory b = bytes(str);
+
+        uint256 length = b.length;
+        for (uint256 i = 0; i < length; ++i) {
+            bytes1 char = b[i];
+
+            // Check if it's a space, dash, or an alphanumeric character.
+            bool isSpace = char == 0x20; // space
+            bool isDash = char == 0x2D; // dash
+            bool isDigit = char >= 0x30 && char <= 0x39; // 0-9
+            bool isUppercaseLetter = char >= 0x41 && char <= 0x5A; // A-Z
+            bool isLowercaseLetter = char >= 0x61 && char <= 0x7A; // a-z
+            if (!(isSpace || isDash || isDigit || isUppercaseLetter || isLowercaseLetter)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// @notice Maps ERC-721 symbols to human-readable model names.
     /// @dev Reverts if the symbol is unknown.
     function mapSymbol(IERC721Metadata sablier) internal view returns (string memory) {
         string memory symbol = sablier.symbol();
@@ -292,6 +351,8 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             return "Lockup Linear";
         } else if (symbol.equal("SAB-V2-LOCKUP-DYN")) {
             return "Lockup Dynamic";
+        } else if (symbol.equal("SAB-V2-LOCKUP-TRA")) {
+            return "Lockup Tranched";
         } else {
             revert Errors.SablierV2NFTDescriptor_UnknownNFT(sablier, symbol);
         }
@@ -321,11 +382,14 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
         string memory symbol = abi.decode(returnData, (string));
 
-        // The length check is a precautionary measure to help mitigate potential security threats from malicious assets
-        // injecting scripts in the symbol string.
+        // Check if the symbol is too long or contains disallowed characters. This measure helps mitigate potential
+        // security threats from malicious assets injecting scripts in the symbol string.
         if (bytes(symbol).length > 30) {
             return "Long Symbol";
         } else {
+            if (!isAllowedCharacter(symbol)) {
+                return "Unsupported Symbol";
+            }
             return symbol;
         }
     }

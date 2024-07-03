@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupDynamic_Integration_Concrete_Test } from "../LockupDynamic.t.sol";
 import { WithdrawableAmountOf_Integration_Concrete_Test } from
@@ -24,7 +24,7 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Concrete_Test is
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
     {
-        vm.warp({ timestamp: defaults.START_TIME() });
+        vm.warp({ newTimestamp: defaults.START_TIME() });
         uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
@@ -42,7 +42,7 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Concrete_Test is
         givenStartTimeInThePast
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 3750 seconds });
+        vm.warp({ newTimestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 3750 seconds });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(defaultStreamId);
@@ -64,7 +64,7 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Concrete_Test is
         whenWithWithdrawals
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 3750 seconds });
+        vm.warp({ newTimestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 3750 seconds });
 
         // Make the withdrawal.
         lockupDynamic.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });

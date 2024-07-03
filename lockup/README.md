@@ -51,13 +51,13 @@ This installation method is not recommended, but it is available for those who p
 First, install the submodule using Forge:
 
 ```shell
-forge install sablier-labs/v2-core
+forge install --no-commit sablier-labs/v2-core
 ```
 
 Second, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v4.9.2 PaulRBerg/prb-math@v4
+forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.0.3
 ```
 
 Finally, add these to your `remappings.txt` file:
@@ -87,9 +87,9 @@ contract MyContract {
 
 ## Architecture
 
-V2 Core uses a singleton-style architecture, where all streams are managed in the `LockupLinear` and `LockupDynamic`
-contracts. That is, Sablier does not deploy a new contract for each stream. It bundles all streams into a single
-contract, which is more gas-efficient and easier to maintain.
+V2 Core uses a singleton-style architecture, where all streams are managed in the `LockupLinear`, `LockupDynamic` and
+`LockupTranched` contracts. That is, Sablier does not deploy a new contract for each stream. It bundles all streams into
+a single contract, which is more gas-efficient and easier to maintain.
 
 For more information, see the [Technical Overview](https://docs.sablier.com/contracts/v2/reference/overview) in our
 docs, as well as these [diagrams](https://docs.sablier.com/contracts/v2/reference/diagrams).
@@ -103,10 +103,6 @@ it is explained in depth [here](https://github.com/sablier-labs/v2-core/wiki/Tes
 
 The list of all deployment addresses can be found [here](https://docs.sablier.com). For guidance on the deploy scripts,
 see the [Deployments wiki](https://github.com/sablier-labs/v2-core/wiki/Deployments).
-
-It is worth noting that not every file in this repository is included in the current deployments. For instance, the
-`SablierV2FlashLoan` abstract is not inherited by any contract on the `main` branch, but we have kept it in version
-control because we may decide to use it in the future.
 
 ## Security
 

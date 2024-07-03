@@ -6,11 +6,10 @@ createWithDurations.t.sol
    │  └── it should revert due to the start time being greater than the cliff time
    └── when the cliff duration calculation does not overflow uint256
       ├── when the total duration calculation overflows uint256
-      │   └── it should revert
+      │  └── it should revert
       └── when the total duration calculation does not overflow uint256
-          ├── it should create the stream
-          ├── it should bump the next stream id
-          ├── it should record the protocol fee
-          ├── it should mint the NFT
-          ├── it should perform the ERC-20 transfers
-          └── it should emit a {CreateLockupLinearStream} event
+         ├── it should create the stream
+         ├── it should bump the next stream ID
+         ├── it should mint the NFT
+         ├── it should perform the ERC-20 transfers
+         └── it should emit a {CreateLockupLinearStream} event

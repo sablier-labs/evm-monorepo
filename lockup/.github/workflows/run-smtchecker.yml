@@ -16,7 +16,7 @@ jobs:
         run: "FOUNDRY_PROFILE=smt forge build > smtchecker-report.txt"
 
       - name: "Store the report as an artifact"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
           name: smtchecker-report
           path: "smtchecker-report.txt"

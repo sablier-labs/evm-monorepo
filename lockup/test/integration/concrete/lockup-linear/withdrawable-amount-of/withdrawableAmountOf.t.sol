@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupLinear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
 import { WithdrawableAmountOf_Integration_Concrete_Test } from
@@ -30,7 +30,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Concrete_Test is
     }
 
     modifier givenCliffTimeNotInTheFuture() {
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         _;
     }
 

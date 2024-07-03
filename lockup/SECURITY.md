@@ -31,8 +31,8 @@ The Program does NOT cover the following:
 
 Vulnerabilities contingent upon the occurrence of any of the following also are outside the scope of this Program:
 
-- Front-end bugs
-- DDOS attacks
+- Front-end bugs (clickjacking etc.)
+- DDoS attacks
 - Spamming
 - Phishing
 - Social engineering attacks
@@ -45,14 +45,18 @@ Vulnerabilities contingent upon the occurrence of any of the following also are 
 Sablier V2 Core has been developed with a number of technical assumptions in mind. For a disclosure to qualify as a
 vulnerability, it must adhere to these assumptions as well:
 
-- The immutable variable `MAX_SEGMENT_COUNT` has a low value that cannot lead to an overflow of the block gas limit.
-- The total supply of any ERC-20 token remains below 2<sup>128</sup> - 1, i.e. `type(uint128).max`.
+- The immutable variables `MAX_SEGMENT_COUNT` and `MAX_TRANCHE_COUNT` have values that cannot lead to an overflow of the
+  block gas limit.
+- The total supply of any ERC-20 token remains below 2<sup>128</sup> - 1, i.e., `type(uint128).max`.
 - The `transfer` and `transferFrom` methods of any ERC-20 token strictly reduce the sender's balance by the transfer
   amount and increase the recipient's balance by the same amount. In other words, tokens that charge fees on transfers
   are not supported.
 - An address' ERC-20 balance can only change as a result of a `transfer` call by the sender or a `transferFrom` call by
   an approved address. This excludes rebase tokens and interest-bearing tokens.
 - The token contract does not allow callbacks (e.g. ERC-777 is not supported).
+- There is no need for exponents greater than ~18.44 in `LockupDynamic` segments.
+- Recipient contracts on the hook allowlist have gone through due diligence and are assumed to expose no risk to the
+  Sablier protocol.
 
 ### Rewards
 

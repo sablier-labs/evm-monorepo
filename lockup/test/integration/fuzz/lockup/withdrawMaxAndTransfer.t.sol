@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { WithdrawMaxAndTransfer_Integration_Shared_Test } from "../../shared/lockup/withdrawMaxAndTransfer.t.sol";
 import { Integration_Test } from "../../Integration.t.sol";
@@ -31,14 +31,14 @@ abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
         timeJump = _bound(timeJump, 0, defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
         if (withdrawAmount > 0) {
             // Expect the assets to be transferred to the fuzzed recipient.
-            expectCallToTransfer({ to: users.recipient, amount: withdrawAmount });
+            expectCallToTransfer({ to: users.recipient, value: withdrawAmount });
 
             // Expect the relevant event to be emitted.
             vm.expectEmit({ emitter: address(lockup) });

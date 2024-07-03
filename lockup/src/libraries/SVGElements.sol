@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // solhint-disable max-line-length,quotes
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.22;
 
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
@@ -239,12 +239,11 @@ library SVGElements {
         unchecked {
             uint256 charWidth = largeFont ? 16 : 13;
             uint256 semicolonIndex;
-            for (uint256 i = 0; i < length;) {
+            for (uint256 i = 0; i < length; ++i) {
                 if (bytes(text)[i] == ";") {
                     semicolonIndex = i;
                 }
                 width += charWidth;
-                i += 1;
             }
 
             // Account for escaped characters (such as &#8805;).

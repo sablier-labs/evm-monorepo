@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
 
@@ -8,7 +8,7 @@ contract StringifyPercentage_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_T
         return nftDescriptorMock.stringifyPercentage_(percentage);
     }
 
-    function test_StringifyPercentage_NoFractionalPart() external {
+    function test_StringifyPercentage_NoFractionalPart() external view {
         assertEq(sp(0), "0%", "percentage mismatch");
         assertEq(sp(100), "1%", "percentage mismatch");
         assertEq(sp(300), "3%", "percentage mismatch");
@@ -17,7 +17,7 @@ contract StringifyPercentage_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_T
         assertEq(sp(10_000), "100%", "percentage mismatch");
     }
 
-    function test_StringifyPercentage_FractionalPart() external {
+    function test_StringifyPercentage_FractionalPart() external view {
         assertEq(sp(1), "0.01%", "percentage mismatch");
         assertEq(sp(42), "0.42%", "percentage mismatch");
         assertEq(sp(314), "3.14%", "percentage mismatch");

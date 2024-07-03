@@ -1,55 +1,61 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.22;
 
-import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
+import { ISablierLockupRecipient } from "../interfaces/ISablierLockupRecipient.sol";
 import { ISablierV2Lockup } from "../interfaces/ISablierV2Lockup.sol";
 import { ISablierV2NFTDescriptor } from "../interfaces/ISablierV2NFTDescriptor.sol";
-import { ISablierV2LockupRecipient } from "../interfaces/hooks/ISablierV2LockupRecipient.sol";
 import { Errors } from "../libraries/Errors.sol";
 import { Lockup } from "../types/DataTypes.sol";
-import { SablierV2Base } from "./SablierV2Base.sol";
+import { Adminable } from "./Adminable.sol";
+import { NoDelegateCall } from "./NoDelegateCall.sol";
 
 /// @title SablierV2Lockup
 /// @notice See the documentation in {ISablierV2Lockup}.
 abstract contract SablierV2Lockup is
-    IERC4906, // 2 inherited components
-    SablierV2Base, // 4 inherited components
-    ISablierV2Lockup, // 4 inherited components
+    NoDelegateCall, // 0 inherited components
+    Adminable, // 1 inherited components
+    ISablierV2Lockup, // 7 inherited components
     ERC721 // 6 inherited components
 {
+    using SafeERC20 for IERC20;
+
     /*//////////////////////////////////////////////////////////////////////////
-                                USER-FACING STORAGE
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierV2Lockup
+    UD60x18 public constant override MAX_BROKER_FEE = UD60x18.wrap(0.1e18);
 
     /// @inheritdoc ISablierV2Lockup
     uint256 public override nextStreamId;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                  INTERNAL STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
+    /// @inheritdoc ISablierV2Lockup
+    ISablierV2NFTDescriptor public override nftDescriptor;
 
-    /// @dev Contract that generates the non-fungible token URI.
-    ISablierV2NFTDescriptor internal _nftDescriptor;
+    /// @dev Mapping of contracts allowed to hook to Sablier when a stream is canceled or when assets are withdrawn.
+    mapping(address recipient => bool allowed) internal _allowedToHook;
+
+    /// @dev Sablier V2 Lockup streams mapped by unsigned integers.
+    mapping(uint256 id => Lockup.Stream stream) internal _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Emits a {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
-    /// @param initialComptroller The address of the initial comptroller.
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
-    constructor(
-        address initialAdmin,
-        ISablierV2Comptroller initialComptroller,
-        ISablierV2NFTDescriptor initialNFTDescriptor
-    )
-        SablierV2Base(initialAdmin, initialComptroller)
-    {
-        _nftDescriptor = initialNFTDescriptor;
+    constructor(address initialAdmin, ISablierV2NFTDescriptor initialNFTDescriptor) {
+        admin = initialAdmin;
+        nftDescriptor = initialNFTDescriptor;
+        emit TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -58,16 +64,10 @@ abstract contract SablierV2Lockup is
 
     /// @dev Checks that `streamId` does not reference a null stream.
     modifier notNull(uint256 streamId) {
-        if (!isStream(streamId)) {
+        if (!_streams[streamId].isStream) {
             revert Errors.SablierV2Lockup_Null(streamId);
         }
         _;
-    }
-
-    /// @dev Emits an ERC-4906 event to trigger an update of the NFT metadata.
-    modifier updateMetadata(uint256 streamId) {
-        _;
-        emit MetadataUpdate({ _tokenId: streamId });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -75,12 +75,74 @@ abstract contract SablierV2Lockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
-    function getRecipient(uint256 streamId) external view override returns (address recipient) {
-        // Checks: the stream NFT exists.
-        _requireMinted({ tokenId: streamId });
+    function getAsset(uint256 streamId) external view override notNull(streamId) returns (IERC20 asset) {
+        asset = _streams[streamId].asset;
+    }
 
-        // The NFT owner is the stream's recipient.
-        recipient = _ownerOf(streamId);
+    /// @inheritdoc ISablierV2Lockup
+    function getDepositedAmount(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        returns (uint128 depositedAmount)
+    {
+        depositedAmount = _streams[streamId].amounts.deposited;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function getEndTime(uint256 streamId) external view override notNull(streamId) returns (uint40 endTime) {
+        endTime = _streams[streamId].endTime;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function getRecipient(uint256 streamId) external view override returns (address recipient) {
+        // Check the stream NFT exists and return the owner, which is the stream's recipient.
+        recipient = _requireOwned({ tokenId: streamId });
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function getRefundedAmount(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        returns (uint128 refundedAmount)
+    {
+        refundedAmount = _streams[streamId].amounts.refunded;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function getSender(uint256 streamId) external view override notNull(streamId) returns (address sender) {
+        sender = _streams[streamId].sender;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function getStartTime(uint256 streamId) external view override notNull(streamId) returns (uint40 startTime) {
+        startTime = _streams[streamId].startTime;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function getWithdrawnAmount(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        returns (uint128 withdrawnAmount)
+    {
+        withdrawnAmount = _streams[streamId].amounts.withdrawn;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function isAllowedToHook(address recipient) external view returns (bool result) {
+        result = _allowedToHook[recipient];
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function isCancelable(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        if (_statusOf(streamId) != Lockup.Status.SETTLED) {
+            result = _streams[streamId].isCancelable;
+        }
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -90,10 +152,19 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isDepleted(uint256 streamId) public view virtual override returns (bool result);
+    function isDepleted(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        result = _streams[streamId].isDepleted;
+    }
 
     /// @inheritdoc ISablierV2Lockup
-    function isStream(uint256 streamId) public view virtual override returns (bool result);
+    function isStream(uint256 streamId) external view override returns (bool result) {
+        result = _streams[streamId].isStream;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function isTransferable(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        result = _streams[streamId].isTransferable;
+    }
 
     /// @inheritdoc ISablierV2Lockup
     function isWarm(uint256 streamId) external view override notNull(streamId) returns (bool result) {
@@ -101,17 +172,58 @@ abstract contract SablierV2Lockup is
         result = status == Lockup.Status.PENDING || status == Lockup.Status.STREAMING;
     }
 
-    /// @inheritdoc ERC721
-    function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
-        // Checks: the stream NFT exists.
-        _requireMinted({ tokenId: streamId });
-
-        // Generate the URI describing the stream NFT.
-        uri = _nftDescriptor.tokenURI({ sablier: this, streamId: streamId });
+    /// @inheritdoc ISablierV2Lockup
+    function refundableAmountOf(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        returns (uint128 refundableAmount)
+    {
+        // These checks are needed because {_calculateStreamedAmount} does not look up the stream's status. Note that
+        // checking for `isCancelable` also checks if the stream `wasCanceled` thanks to the protocol invariant that
+        // canceled streams are not cancelable anymore.
+        if (_streams[streamId].isCancelable && !_streams[streamId].isDepleted) {
+            refundableAmount = _streams[streamId].amounts.deposited - _calculateStreamedAmount(streamId);
+        }
+        // Otherwise, the result is implicitly zero.
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function wasCanceled(uint256 streamId) public view virtual override returns (bool result);
+    function statusOf(uint256 streamId) external view override notNull(streamId) returns (Lockup.Status status) {
+        status = _statusOf(streamId);
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function streamedAmountOf(uint256 streamId)
+        public
+        view
+        override
+        notNull(streamId)
+        returns (uint128 streamedAmount)
+    {
+        streamedAmount = _streamedAmountOf(streamId);
+    }
+
+    /// @inheritdoc ERC721
+    function supportsInterface(bytes4 interfaceId) public view override(IERC165, ERC721) returns (bool) {
+        // 0x49064906 is the ERC-165 interface ID required by ERC-4906
+        return interfaceId == 0x49064906 || super.supportsInterface(interfaceId);
+    }
+
+    /// @inheritdoc ERC721
+    function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
+        // Check: the stream NFT exists.
+        _requireOwned({ tokenId: streamId });
+
+        // Generate the URI describing the stream NFT.
+        uri = nftDescriptor.tokenURI({ sablier: this, streamId: streamId });
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function wasCanceled(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        result = _streams[streamId].wasCanceled;
+    }
 
     /// @inheritdoc ISablierV2Lockup
     function withdrawableAmountOf(uint256 streamId)
@@ -124,41 +236,58 @@ abstract contract SablierV2Lockup is
         withdrawableAmount = _withdrawableAmountOf(streamId);
     }
 
-    /// @inheritdoc ISablierV2Lockup
-    function isTransferable(uint256 streamId) public view virtual returns (bool);
-
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
-    function burn(uint256 streamId) external override noDelegateCall {
-        // Checks: only depleted streams can be burned. This also checks that the stream is not null.
-        if (!isDepleted(streamId)) {
+    function allowToHook(address recipient) external override onlyAdmin {
+        // Check: non-zero code size.
+        if (recipient.code.length == 0) {
+            revert Errors.SablierV2Lockup_AllowToHookZeroCodeSize(recipient);
+        }
+
+        // Check: recipients implements the ERC-165 interface ID required by {ISablierLockupRecipient}.
+        bytes4 interfaceId = type(ISablierLockupRecipient).interfaceId;
+        if (!ISablierLockupRecipient(recipient).supportsInterface(interfaceId)) {
+            revert Errors.SablierV2Lockup_AllowToHookUnsupportedInterface(recipient);
+        }
+
+        // Effect: put the recipient on the allowlist.
+        _allowedToHook[recipient] = true;
+
+        // Log the allowlist addition.
+        emit ISablierV2Lockup.AllowToHook({ admin: msg.sender, recipient: recipient });
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function burn(uint256 streamId) external override noDelegateCall notNull(streamId) {
+        // Check: only depleted streams can be burned.
+        if (!_streams[streamId].isDepleted) {
             revert Errors.SablierV2Lockup_StreamNotDepleted(streamId);
         }
 
-        // Checks:
+        // Check:
         // 1. NFT exists (see {IERC721.getApproved}).
         // 2. `msg.sender` is either the owner of the NFT or an approved third party.
         if (!_isCallerStreamRecipientOrApproved(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
 
-        // Effects: burn the NFT.
+        // Effect: burn the NFT.
         _burn({ tokenId: streamId });
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function cancel(uint256 streamId) public override noDelegateCall {
-        // Checks: the stream is neither depleted nor canceled. This also checks that the stream is not null.
-        if (isDepleted(streamId)) {
+    function cancel(uint256 streamId) public override noDelegateCall notNull(streamId) {
+        // Check: the stream is neither depleted nor canceled.
+        if (_streams[streamId].isDepleted) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
-        } else if (wasCanceled(streamId)) {
+        } else if (_streams[streamId].wasCanceled) {
             revert Errors.SablierV2Lockup_StreamCanceled(streamId);
         }
 
-        // Checks: `msg.sender` is the stream's sender.
+        // Check: `msg.sender` is the stream's sender.
         if (!_isCallerStreamSender(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
@@ -169,22 +298,17 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function cancelMultiple(uint256[] calldata streamIds) external override noDelegateCall {
-        // Iterate over the provided array of stream ids and cancel each stream.
+        // Iterate over the provided array of stream IDs and cancel each stream.
         uint256 count = streamIds.length;
-        for (uint256 i = 0; i < count;) {
+        for (uint256 i = 0; i < count; ++i) {
             // Effects and Interactions: cancel the stream.
             cancel(streamIds[i]);
-
-            // Increment the loop iterator.
-            unchecked {
-                i += 1;
-            }
         }
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) updateMetadata(streamId) {
-        // Checks: the stream is not cold.
+    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) {
+        // Check: the stream is not cold.
         Lockup.Status status = _statusOf(streamId);
         if (status == Lockup.Status.DEPLETED) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
@@ -194,7 +318,7 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_StreamSettled(streamId);
         }
 
-        // Checks: `msg.sender` is the stream's sender.
+        // Check: `msg.sender` is the stream's sender.
         if (!_isCallerStreamSender(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
@@ -205,19 +329,15 @@ abstract contract SablierV2Lockup is
         // Log the renouncement.
         emit ISablierV2Lockup.RenounceLockupStream(streamId);
 
-        // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
-        // reverting if the hook is not implemented, and also without bubbling up any potential revert.
-        address recipient = _ownerOf(streamId);
-        if (recipient.code.length > 0) {
-            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) { } catch { }
-        }
+        // Emit an ERC-4906 event to trigger an update of the NFT metadata.
+        emit MetadataUpdate({ _tokenId: streamId });
     }
 
     /// @inheritdoc ISablierV2Lockup
     function setNFTDescriptor(ISablierV2NFTDescriptor newNFTDescriptor) external override onlyAdmin {
-        // Effects: set the NFT descriptor.
-        ISablierV2NFTDescriptor oldNftDescriptor = _nftDescriptor;
-        _nftDescriptor = newNFTDescriptor;
+        // Effect: set the NFT descriptor.
+        ISablierV2NFTDescriptor oldNftDescriptor = nftDescriptor;
+        nftDescriptor = newNFTDescriptor;
 
         // Log the change of the NFT descriptor.
         emit ISablierV2Lockup.SetNFTDescriptor({
@@ -231,47 +351,32 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function withdraw(
-        uint256 streamId,
-        address to,
-        uint128 amount
-    )
-        public
-        override
-        noDelegateCall
-        updateMetadata(streamId)
-    {
-        // Checks: the stream is not depleted. This also checks that the stream is not null.
-        if (isDepleted(streamId)) {
+    function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall notNull(streamId) {
+        // Check: the stream is not depleted.
+        if (_streams[streamId].isDepleted) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
         }
 
-        bool isCallerStreamSender = _isCallerStreamSender(streamId);
+        // Check: the withdrawal address is not zero.
+        if (to == address(0)) {
+            revert Errors.SablierV2Lockup_WithdrawToZeroAddress(streamId);
+        }
 
-        // Checks: `msg.sender` is the stream's sender, the stream's recipient, or an approved third party.
-        if (!isCallerStreamSender && !_isCallerStreamRecipientOrApproved(streamId)) {
-            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+        // Check: the withdraw amount is not zero.
+        if (amount == 0) {
+            revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
         }
 
         // Retrieve the recipient from storage.
         address recipient = _ownerOf(streamId);
 
-        // Checks: if `msg.sender` is the stream's sender, the withdrawal address must be the recipient.
-        if (isCallerStreamSender && to != recipient) {
-            revert Errors.SablierV2Lockup_InvalidSenderWithdrawal(streamId, msg.sender, to);
+        // Check: if `msg.sender` is neither the stream's recipient nor an approved third party, the withdrawal address
+        // must be the recipient.
+        if (to != recipient && !_isCallerStreamRecipientOrApproved(streamId)) {
+            revert Errors.SablierV2Lockup_WithdrawalAddressNotRecipient(streamId, msg.sender, to);
         }
 
-        // Checks: the withdrawal address is not zero.
-        if (to == address(0)) {
-            revert Errors.SablierV2Lockup_WithdrawToZeroAddress();
-        }
-
-        // Checks: the withdraw amount is not zero.
-        if (amount == 0) {
-            revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
-        }
-
-        // Checks: the withdraw amount is not greater than the withdrawable amount.
+        // Check: the withdraw amount is not greater than the withdrawable amount.
         uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
         if (amount > withdrawableAmount) {
             revert Errors.SablierV2Lockup_Overdraw(streamId, amount, withdrawableAmount);
@@ -280,22 +385,29 @@ abstract contract SablierV2Lockup is
         // Effects and Interactions: make the withdrawal.
         _withdraw(streamId, to, amount);
 
-        // Interactions: if `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
-        // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up
-        // any potential revert.
-        if (msg.sender != recipient && recipient.code.length > 0) {
-            try ISablierV2LockupRecipient(recipient).onStreamWithdrawn({
+        // Emit an ERC-4906 event to trigger an update of the NFT metadata.
+        emit MetadataUpdate({ _tokenId: streamId });
+
+        // Interaction: if `msg.sender` is not the recipient and the recipient is on the allowlist, run the hook.
+        if (msg.sender != recipient && _allowedToHook[recipient]) {
+            bytes4 selector = ISablierLockupRecipient(recipient).onSablierLockupWithdraw({
                 streamId: streamId,
                 caller: msg.sender,
                 to: to,
                 amount: amount
-            }) { } catch { }
+            });
+
+            // Check: the recipient's hook returned the correct selector.
+            if (selector != ISablierLockupRecipient.onSablierLockupWithdraw.selector) {
+                revert Errors.SablierV2Lockup_InvalidHookSelector(recipient);
+            }
         }
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function withdrawMax(uint256 streamId, address to) external override {
-        withdraw({ streamId: streamId, to: to, amount: _withdrawableAmountOf(streamId) });
+    function withdrawMax(uint256 streamId, address to) external override returns (uint128 withdrawnAmount) {
+        withdrawnAmount = _withdrawableAmountOf(streamId);
+        withdraw({ streamId: streamId, to: to, amount: withdrawnAmount });
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -307,17 +419,18 @@ abstract contract SablierV2Lockup is
         override
         noDelegateCall
         notNull(streamId)
+        returns (uint128 withdrawnAmount)
     {
-        // Checks: the caller is the current recipient. This also checks that the NFT was not burned.
+        // Check: the caller is the current recipient. This also checks that the NFT was not burned.
         address currentRecipient = _ownerOf(streamId);
         if (msg.sender != currentRecipient) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
 
         // Skip the withdrawal if the withdrawable amount is zero.
-        uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
-        if (withdrawableAmount > 0) {
-            withdraw({ streamId: streamId, to: currentRecipient, amount: withdrawableAmount });
+        withdrawnAmount = _withdrawableAmountOf(streamId);
+        if (withdrawnAmount > 0) {
+            withdraw({ streamId: streamId, to: currentRecipient, amount: withdrawnAmount });
         }
 
         // Checks and Effects: transfer the NFT.
@@ -327,29 +440,23 @@ abstract contract SablierV2Lockup is
     /// @inheritdoc ISablierV2Lockup
     function withdrawMultiple(
         uint256[] calldata streamIds,
-        address to,
         uint128[] calldata amounts
     )
         external
         override
         noDelegateCall
     {
-        // Checks: there is an equal number of `streamIds` and `amounts`.
+        // Check: there is an equal number of `streamIds` and `amounts`.
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
         if (streamIdsCount != amountsCount) {
             revert Errors.SablierV2Lockup_WithdrawArrayCountsNotEqual(streamIdsCount, amountsCount);
         }
 
-        // Iterate over the provided array of stream ids and withdraw from each stream.
-        for (uint256 i = 0; i < streamIdsCount;) {
+        // Iterate over the provided array of stream IDs, and withdraw from each stream to the recipient.
+        for (uint256 i = 0; i < streamIdsCount; ++i) {
             // Checks, Effects and Interactions: check the parameters and make the withdrawal.
-            withdraw(streamIds[i], to, amounts[i]);
-
-            // Increment the loop iterator.
-            unchecked {
-                i += 1;
-            }
+            withdraw({ streamId: streamIds[i], to: _ownerOf(streamIds[i]), amount: amounts[i] });
         }
     }
 
@@ -357,41 +464,12 @@ abstract contract SablierV2Lockup is
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Overrides the internal ERC-721 transfer function to emit an ERC-4906 event upon transfer. The goal is to
-    /// refresh the NFT metadata on external platforms.
-    /// @dev This event is also emitted when the NFT is minted or burned.
-    function _afterTokenTransfer(
-        address, /* from */
-        address, /* to */
-        uint256 streamId,
-        uint256 /* batchSize */
-    )
-        internal
-        override
-        updateMetadata(streamId)
-    { }
-
-    /// @notice Overrides the internal ERC-721 transfer function to check that the stream is transferable.
-    /// @dev There are two cases when the transferable flag is ignored:
-    /// - If `from` is 0, then the transfer is a mint and is allowed.
-    /// - If `to` is 0, then the transfer is a burn and is also allowed.
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 streamId,
-        uint256 /* batchSize */
-    )
-        internal
-        view
-        override
-    {
-        if (!isTransferable(streamId) && to != address(0) && from != address(0)) {
-            revert Errors.SablierV2Lockup_NotTransferable(streamId);
-        }
-    }
+    /// @notice Calculates the streamed amount of the stream without looking up the stream's status.
+    /// @dev This function is implemented by child contracts, so the logic varies depending on the model.
+    function _calculateStreamedAmount(uint256 streamId) internal view virtual returns (uint128);
 
     /// @notice Checks whether `msg.sender` is the stream's recipient or an approved third party.
-    /// @param streamId The stream id for the query.
+    /// @param streamId The stream ID for the query.
     function _isCallerStreamRecipientOrApproved(uint256 streamId) internal view returns (bool) {
         address recipient = _ownerOf(streamId);
         return msg.sender == recipient || isApprovedForAll({ owner: recipient, operator: msg.sender })
@@ -399,25 +477,184 @@ abstract contract SablierV2Lockup is
     }
 
     /// @notice Checks whether `msg.sender` is the stream's sender.
-    /// @param streamId The stream id for the query.
-    function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool);
+    /// @param streamId The stream ID for the query.
+    function _isCallerStreamSender(uint256 streamId) internal view returns (bool) {
+        return msg.sender == _streams[streamId].sender;
+    }
 
     /// @dev Retrieves the stream's status without performing a null check.
-    function _statusOf(uint256 streamId) internal view virtual returns (Lockup.Status);
+    function _statusOf(uint256 streamId) internal view returns (Lockup.Status) {
+        if (_streams[streamId].isDepleted) {
+            return Lockup.Status.DEPLETED;
+        } else if (_streams[streamId].wasCanceled) {
+            return Lockup.Status.CANCELED;
+        }
+
+        if (block.timestamp < _streams[streamId].startTime) {
+            return Lockup.Status.PENDING;
+        }
+
+        if (_calculateStreamedAmount(streamId) < _streams[streamId].amounts.deposited) {
+            return Lockup.Status.STREAMING;
+        } else {
+            return Lockup.Status.SETTLED;
+        }
+    }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdrawableAmountOf(uint256 streamId) internal view virtual returns (uint128);
+    function _streamedAmountOf(uint256 streamId) internal view returns (uint128) {
+        Lockup.Amounts memory amounts = _streams[streamId].amounts;
+
+        if (_streams[streamId].isDepleted) {
+            return amounts.withdrawn;
+        } else if (_streams[streamId].wasCanceled) {
+            return amounts.deposited - amounts.refunded;
+        }
+
+        return _calculateStreamedAmount(streamId);
+    }
+
+    /// @dev See the documentation for the user-facing functions that call this internal function.
+    function _withdrawableAmountOf(uint256 streamId) internal view returns (uint128) {
+        return _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _cancel(uint256 tokenId) internal virtual;
+    function _cancel(uint256 streamId) internal {
+        // Calculate the streamed amount.
+        uint128 streamedAmount = _calculateStreamedAmount(streamId);
+
+        // Retrieve the amounts from storage.
+        Lockup.Amounts memory amounts = _streams[streamId].amounts;
+
+        // Check: the stream is not settled.
+        if (streamedAmount >= amounts.deposited) {
+            revert Errors.SablierV2Lockup_StreamSettled(streamId);
+        }
+
+        // Check: the stream is cancelable.
+        if (!_streams[streamId].isCancelable) {
+            revert Errors.SablierV2Lockup_StreamNotCancelable(streamId);
+        }
+
+        // Calculate the sender's amount.
+        uint128 senderAmount;
+        unchecked {
+            senderAmount = amounts.deposited - streamedAmount;
+        }
+
+        // Calculate the recipient's amount.
+        uint128 recipientAmount = streamedAmount - amounts.withdrawn;
+
+        // Effect: mark the stream as canceled.
+        _streams[streamId].wasCanceled = true;
+
+        // Effect: make the stream not cancelable anymore, because a stream can only be canceled once.
+        _streams[streamId].isCancelable = false;
+
+        // Effect: if there are no assets left for the recipient to withdraw, mark the stream as depleted.
+        if (recipientAmount == 0) {
+            _streams[streamId].isDepleted = true;
+        }
+
+        // Effect: set the refunded amount.
+        _streams[streamId].amounts.refunded = senderAmount;
+
+        // Retrieve the sender and the recipient from storage.
+        address sender = _streams[streamId].sender;
+        address recipient = _ownerOf(streamId);
+
+        // Retrieve the ERC-20 asset from storage.
+        IERC20 asset = _streams[streamId].asset;
+
+        // Interaction: refund the sender.
+        asset.safeTransfer({ to: sender, value: senderAmount });
+
+        // Log the cancellation.
+        emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, asset, senderAmount, recipientAmount);
+
+        // Emit an ERC-4906 event to trigger an update of the NFT metadata.
+        emit MetadataUpdate({ _tokenId: streamId });
+
+        // Interaction: if the recipient is on the allowlist, run the hook.
+        if (_allowedToHook[recipient]) {
+            bytes4 selector = ISablierLockupRecipient(recipient).onSablierLockupCancel({
+                streamId: streamId,
+                sender: sender,
+                senderAmount: senderAmount,
+                recipientAmount: recipientAmount
+            });
+
+            // Check: the recipient's hook returned the correct selector.
+            if (selector != ISablierLockupRecipient.onSablierLockupCancel.selector) {
+                revert Errors.SablierV2Lockup_InvalidHookSelector(recipient);
+            }
+        }
+    }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _renounce(uint256 streamId) internal virtual;
+    function _renounce(uint256 streamId) internal {
+        // Check: the stream is cancelable.
+        if (!_streams[streamId].isCancelable) {
+            revert Errors.SablierV2Lockup_StreamNotCancelable(streamId);
+        }
+
+        // Effect: renounce the stream by making it not cancelable.
+        _streams[streamId].isCancelable = false;
+    }
+
+    /// @notice Overrides the {ERC-721._update} function to check that the stream is transferable, and emits an
+    /// ERC-4906 event.
+    /// @dev There are two cases when the transferable flag is ignored:
+    /// - If the current owner is 0, then the update is a mint and is allowed.
+    /// - If `to` is 0, then the update is a burn and is also allowed.
+    /// @param to The address of the new recipient of the stream.
+    /// @param streamId ID of the stream to update.
+    /// @param auth Optional parameter. If the value is not zero, the overridden implementation will check that
+    /// `auth` is either the recipient of the stream, or an approved third party.
+    /// @return The original recipient of the `streamId` before the update.
+    function _update(address to, uint256 streamId, address auth) internal override returns (address) {
+        address from = _ownerOf(streamId);
+
+        if (from != address(0) && to != address(0) && !_streams[streamId].isTransferable) {
+            revert Errors.SablierV2Lockup_NotTransferable(streamId);
+        }
+
+        // Emit an ERC-4906 event to trigger an update of the NFT metadata.
+        emit MetadataUpdate({ _tokenId: streamId });
+
+        return super._update(to, streamId, auth);
+    }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdraw(uint256 streamId, address to, uint128 amount) internal virtual;
+    function _withdraw(uint256 streamId, address to, uint128 amount) internal {
+        // Effect: update the withdrawn amount.
+        _streams[streamId].amounts.withdrawn = _streams[streamId].amounts.withdrawn + amount;
+
+        // Retrieve the amounts from storage.
+        Lockup.Amounts memory amounts = _streams[streamId].amounts;
+
+        // Using ">=" instead of "==" for additional safety reasons. In the event of an unforeseen increase in the
+        // withdrawn amount, the stream will still be marked as depleted.
+        if (amounts.withdrawn >= amounts.deposited - amounts.refunded) {
+            // Effect: mark the stream as depleted.
+            _streams[streamId].isDepleted = true;
+
+            // Effect: make the stream not cancelable anymore, because a depleted stream cannot be canceled.
+            _streams[streamId].isCancelable = false;
+        }
+
+        // Retrieve the ERC-20 asset from storage.
+        IERC20 asset = _streams[streamId].asset;
+
+        // Interaction: perform the ERC-20 transfer.
+        asset.safeTransfer({ to: to, value: amount });
+
+        // Log the withdrawal.
+        emit ISablierV2Lockup.WithdrawFromLockupStream(streamId, to, asset, amount);
+    }
 }

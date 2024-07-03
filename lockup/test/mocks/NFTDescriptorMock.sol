@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.22;
 
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
@@ -52,28 +52,22 @@ contract NFTDescriptorMock is SablierV2NFTDescriptor {
     }
 
     function generateDescription_(
-        string memory streamingModel,
+        string memory sablierModel,
         string memory assetSymbol,
-        string memory streamId,
         string memory sablierAddress,
-        string memory assetAddress
+        string memory assetAddress,
+        string memory streamId,
+        bool isTransferable
     )
         external
         pure
         returns (string memory)
     {
-        return generateDescription(streamingModel, assetSymbol, streamId, sablierAddress, assetAddress);
+        return generateDescription(sablierModel, assetSymbol, sablierAddress, assetAddress, streamId, isTransferable);
     }
 
-    function generateName_(
-        string memory streamingModel,
-        string memory streamId
-    )
-        external
-        pure
-        returns (string memory)
-    {
-        return generateName(streamingModel, streamId);
+    function generateName_(string memory sablierModel, string memory streamId) external pure returns (string memory) {
+        return generateName(sablierModel, streamId);
     }
 
     function generateSVG_(NFTSVG.SVGParams memory params) external pure returns (string memory) {
@@ -82,6 +76,10 @@ contract NFTDescriptorMock is SablierV2NFTDescriptor {
 
     function hourglass_(string memory status) external pure returns (string memory) {
         return SVGElements.hourglass(status);
+    }
+
+    function isAllowedCharacter_(string memory symbol) external pure returns (bool) {
+        return isAllowedCharacter(symbol);
     }
 
     function mapSymbol_(IERC721Metadata nft) external view returns (string memory) {

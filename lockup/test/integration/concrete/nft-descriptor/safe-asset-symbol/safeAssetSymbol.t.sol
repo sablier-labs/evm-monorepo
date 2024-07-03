@@ -1,20 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
+import { ERC20Mock } from "../../../../mocks/erc20/ERC20Mock.sol";
 import { ERC20Bytes32 } from "../../../../mocks/erc20/ERC20Bytes32.sol";
-import { NFTDescriptor_Integration_Concrete_Test } from "../NFTDescriptor.t.sol";
+import { NFTDescriptor_Integration_Shared_Test } from "../../../shared/nft-descriptor/NFTDescriptor.t.sol";
 
-contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_Concrete_Test {
-    function test_SafeAssetSymbol_EOA() external {
+contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_Shared_Test {
+    function test_SafeAssetSymbol_EOA() external view {
         address eoa = vm.addr({ privateKey: 1 });
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(eoa));
         string memory expectedSymbol = "ERC20";
         assertEq(actualSymbol, expectedSymbol, "symbol");
     }
 
-    function test_SafeAssetSymbol_SymbolNotImplemented() external {
+    function test_SafeAssetSymbol_SymbolNotImplemented() external view {
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(noop));
         string memory expectedSymbol = "ERC20";
         assertEq(actualSymbol, expectedSymbol, "symbol");
@@ -36,9 +35,9 @@ contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_
     }
 
     function test_SafeAssetSymbol_LongSymbol() external whenERC20Contract givenSymbolString {
-        ERC20 asset = new ERC20({
-            name_: "Token",
-            symbol_: "This symbol is has more than 30 characters and it should be ignored"
+        ERC20Mock asset = new ERC20Mock({
+            name: "Token",
+            symbol: "This symbol is has more than 30 characters and it should be ignored"
         });
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(asset));
         string memory expectedSymbol = "Long Symbol";
@@ -49,7 +48,25 @@ contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_
         _;
     }
 
-    function test_SafeAssetSymbol() external whenERC20Contract givenSymbolString givenSymbolNotLong {
+    function test_SafeAssetSymbol_NonAlphanumeric() external whenERC20Contract givenSymbolString givenSymbolNotLong {
+        ERC20Mock asset = new ERC20Mock({ name: "Token", symbol: "<svg/onload=alert(\"xss\")>" });
+        string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(asset));
+        string memory expectedSymbol = "Unsupported Symbol";
+        assertEq(actualSymbol, expectedSymbol, "symbol");
+    }
+
+    modifier givenSymbolAlphanumeric() {
+        _;
+    }
+
+    function test_SafeAssetSymbol()
+        external
+        view
+        whenERC20Contract
+        givenSymbolString
+        givenSymbolNotLong
+        givenSymbolAlphanumeric
+    {
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(dai));
         string memory expectedSymbol = dai.symbol();
         assertEq(actualSymbol, expectedSymbol, "symbol");

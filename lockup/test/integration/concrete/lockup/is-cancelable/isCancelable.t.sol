@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
@@ -23,7 +23,7 @@ abstract contract IsCancelable_Integration_Concrete_Test is Integration_Test, Lo
     }
 
     function test_IsCancelable_Cold() external givenNotNull {
-        vm.warp({ timestamp: defaults.END_TIME() }); // settled status
+        vm.warp({ newTimestamp: defaults.END_TIME() }); // settled status
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertFalse(isCancelable, "isCancelable");
     }

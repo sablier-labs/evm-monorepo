@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
@@ -25,7 +25,7 @@ abstract contract StreamedAmountOf_Integration_Concrete_Test is
         givenNotNull
         givenStreamHasBeenCanceled
     {
-        vm.warp({ timestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
         uint256 expectedStreamedAmount = defaults.CLIFF_AMOUNT();
@@ -38,31 +38,31 @@ abstract contract StreamedAmountOf_Integration_Concrete_Test is
         givenNotNull
         givenStreamHasBeenCanceled
     {
-        vm.warp({ timestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        vm.warp({ timestamp: defaults.CLIFF_TIME() + 10 seconds });
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() + 10 seconds });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = defaults.CLIFF_AMOUNT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     function test_StreamedAmountOf_StatusPending() external givenNotNull givenStreamHasNotBeenCanceled {
-        vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
+        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     function test_StreamedAmountOf_StatusSettled() external givenNotNull givenStreamHasNotBeenCanceled {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     function test_StreamedAmountOf_StatusDepleted() external givenNotNull givenStreamHasNotBeenCanceled {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = defaults.DEPOSIT_AMOUNT();

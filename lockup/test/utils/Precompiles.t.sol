@@ -1,19 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { LibString } from "solady/src/utils/LibString.sol";
 
-import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptroller.sol";
-import { ISablierV2LockupDynamic } from "../../src/interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupLinear } from "../../src/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
+import { Precompiles } from "precompiles/Precompiles.sol";
+import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
+import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierV2LockupTranched } from "src/interfaces/ISablierV2LockupTranched.sol";
+import { ISablierV2NFTDescriptor } from "src/interfaces/ISablierV2NFTDescriptor.sol";
 
 import { Base_Test } from "../Base.t.sol";
-import { Precompiles } from "./Precompiles.sol";
 
 contract Precompiles_Test is Base_Test {
     using LibString for address;
-    using LibString for string;
 
     Precompiles internal precompiles = new Precompiles();
 
@@ -23,29 +22,30 @@ contract Precompiles_Test is Base_Test {
         }
     }
 
-    function test_DeployComptroller() external onlyTestOptimizedProfile {
-        address actualComptroller = address(precompiles.deployComptroller(users.admin));
-        address expectedComptroller = address(deployOptimizedComptroller(users.admin));
-        assertEq(actualComptroller.code, expectedComptroller.code, "bytecodes mismatch");
-    }
-
     function test_DeployLockupDynamic() external onlyTestOptimizedProfile {
-        ISablierV2Comptroller comptroller = precompiles.deployComptroller(users.admin);
-        address actualLockupDynamic = address(precompiles.deployLockupDynamic(users.admin, comptroller, nftDescriptor));
+        address actualLockupDynamic = address(precompiles.deployLockupDynamic(users.admin, nftDescriptor));
         address expectedLockupDynamic =
-            address(deployOptimizedLockupDynamic(users.admin, comptroller, nftDescriptor, defaults.MAX_SEGMENT_COUNT()));
+            address(deployOptimizedLockupDynamic(users.admin, nftDescriptor, precompiles.MAX_SEGMENT_COUNT()));
         bytes memory expectedLockupDynamicCode =
             adjustBytecode(expectedLockupDynamic.code, expectedLockupDynamic, actualLockupDynamic);
         assertEq(actualLockupDynamic.code, expectedLockupDynamicCode, "bytecodes mismatch");
     }
 
     function test_DeployLockupLinear() external onlyTestOptimizedProfile {
-        ISablierV2Comptroller comptroller = precompiles.deployComptroller(users.admin);
-        address actualLockupLinear = address(precompiles.deployLockupLinear(users.admin, comptroller, nftDescriptor));
-        address expectedLockupLinear = address(deployOptimizedLockupLinear(users.admin, comptroller, nftDescriptor));
+        address actualLockupLinear = address(precompiles.deployLockupLinear(users.admin, nftDescriptor));
+        address expectedLockupLinear = address(deployOptimizedLockupLinear(users.admin, nftDescriptor));
         bytes memory expectedLockupLinearCode =
             adjustBytecode(expectedLockupLinear.code, expectedLockupLinear, actualLockupLinear);
         assertEq(actualLockupLinear.code, expectedLockupLinearCode, "bytecodes mismatch");
+    }
+
+    function test_DeployLockupTranched() external onlyTestOptimizedProfile {
+        address actualLockupTranched = address(precompiles.deployLockupTranched(users.admin, nftDescriptor));
+        address expectedLockupTranched =
+            address(deployOptimizedLockupTranched(users.admin, nftDescriptor, precompiles.MAX_TRANCHE_COUNT()));
+        bytes memory expectedLockupTranchedCode =
+            adjustBytecode(expectedLockupTranched.code, expectedLockupTranched, actualLockupTranched);
+        assertEq(actualLockupTranched.code, expectedLockupTranchedCode, "bytecodes mismatch");
     }
 
     function test_DeployNFTDescriptor() external onlyTestOptimizedProfile {
@@ -56,18 +56,18 @@ contract Precompiles_Test is Base_Test {
 
     function test_DeployCore() external onlyTestOptimizedProfile {
         (
-            ISablierV2Comptroller actualComptroller,
             ISablierV2LockupDynamic actualLockupDynamic,
             ISablierV2LockupLinear actualLockupLinear,
+            ISablierV2LockupTranched actualLockupTranched,
             ISablierV2NFTDescriptor actualNFTDescriptor
         ) = precompiles.deployCore(users.admin);
 
         (
-            ISablierV2Comptroller expectedComptroller,
             ISablierV2LockupDynamic expectedLockupDynamic,
             ISablierV2LockupLinear expectedLockupLinear,
+            ISablierV2LockupTranched expectedLockupTranched,
             ISablierV2NFTDescriptor expectedNFTDescriptor
-        ) = deployOptimizedCore(users.admin, defaults.MAX_SEGMENT_COUNT());
+        ) = deployOptimizedCore(users.admin, precompiles.MAX_SEGMENT_COUNT(), precompiles.MAX_TRANCHE_COUNT());
 
         bytes memory expectedLockupDynamicCode = adjustBytecode(
             address(expectedLockupDynamic).code, address(expectedLockupDynamic), address(actualLockupDynamic)
@@ -77,9 +77,13 @@ contract Precompiles_Test is Base_Test {
             address(expectedLockupLinear).code, address(expectedLockupLinear), address(actualLockupLinear)
         );
 
-        assertEq(address(actualComptroller).code, address(expectedComptroller).code, "bytecodes mismatch");
+        bytes memory expectedLockupTranchedCode = adjustBytecode(
+            address(expectedLockupTranched).code, address(expectedLockupTranched), address(actualLockupTranched)
+        );
+
         assertEq(address(actualLockupDynamic).code, expectedLockupDynamicCode, "bytecodes mismatch");
         assertEq(address(actualLockupLinear).code, expectedLockupLinearCode, "bytecodes mismatch");
+        assertEq(address(actualLockupTranched).code, expectedLockupTranchedCode, "bytecodes mismatch");
         assertEq(address(actualNFTDescriptor).code, address(expectedNFTDescriptor).code, "bytecodes mismatch");
     }
 
@@ -95,9 +99,10 @@ contract Precompiles_Test is Base_Test {
         returns (bytes memory)
     {
         return vm.parseBytes(
-            vm.toString(bytecode).replace({
-                search: expectedAddress.toHexStringNoPrefix(),
-                replacement: actualAddress.toHexStringNoPrefix()
+            vm.replace({
+                input: vm.toString(bytecode),
+                from: expectedAddress.toHexStringNoPrefix(),
+                to: actualAddress.toHexStringNoPrefix()
             })
         );
     }

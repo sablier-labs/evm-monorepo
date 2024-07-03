@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { SVGElements } from "src/libraries/SVGElements.sol";
 
@@ -14,7 +14,7 @@ contract AbbreviateAmount_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test
         return string.concat(SVGElements.SIGN_GE, " ", abbreviation);
     }
 
-    function test_AbbreviateAmount_Zero() external {
+    function test_AbbreviateAmount_Zero() external view {
         string memory expectedAbbreviation = "0";
         assertEq(aa({ amount: 0, decimals: 0 }), expectedAbbreviation, "abbreviation");
         assertEq(aa({ amount: 0, decimals: 1 }), expectedAbbreviation, "abbreviation");
@@ -22,7 +22,7 @@ contract AbbreviateAmount_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test
         assertEq(aa({ amount: 0, decimals: 18 }), expectedAbbreviation, "abbreviation");
     }
 
-    function test_AbbreviateAmount_Tiny() external {
+    function test_AbbreviateAmount_Tiny() external view {
         string memory expectedAbbreviation = string.concat(SVGElements.SIGN_LT, " 1");
         assertEq(aa({ amount: 5, decimals: 1 }), expectedAbbreviation, "abbreviation");
         assertEq(aa({ amount: 9, decimals: 1 }), expectedAbbreviation, "abbreviation");
@@ -32,7 +32,7 @@ contract AbbreviateAmount_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test
         assertEq(aa({ amount: 1e18 - 1, decimals: 18 }), expectedAbbreviation, "abbreviation");
     }
 
-    function test_AbbreviateAmount_Zillions() external {
+    function test_AbbreviateAmount_Zillions() external view {
         string memory expectedAbbreviation = string.concat(SVGElements.SIGN_GT, " 999.99T");
         assertEq(aa({ amount: 1e15, decimals: 0 }), expectedAbbreviation, "abbreviation");
         assertEq(aa({ amount: 1e16, decimals: 1 }), expectedAbbreviation, "abbreviation");
@@ -44,7 +44,7 @@ contract AbbreviateAmount_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test
         assertEq(aa({ amount: MAX_UINT128, decimals: 18 }), expectedAbbreviation, "abbreviation");
     }
 
-    function test_AbbreviateAmount_NoSuffix() external {
+    function test_AbbreviateAmount_NoSuffix() external view {
         assertEq(aa({ amount: 1, decimals: 0 }), ge("1"), "abbreviation");
         assertEq(aa({ amount: 5, decimals: 0 }), ge("5"), "abbreviation");
         assertEq(aa({ amount: 121, decimals: 1 }), ge("12"), "abbreviation");
@@ -53,7 +53,7 @@ contract AbbreviateAmount_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test
         assertEq(aa({ amount: 988e18, decimals: 18 }), ge("988"), "abbreviation");
     }
 
-    function test_AbbreviateAmount_Thousands() external {
+    function test_AbbreviateAmount_Thousands() external view {
         assertEq(aa({ amount: 1337, decimals: 0 }), ge("1.33K"), "abbreviation");
         assertEq(aa({ amount: 1080, decimals: 0 }), ge("1.08K"), "abbreviation");
         assertEq(aa({ amount: 1800, decimals: 0 }), ge("1.80K"), "abbreviation");
@@ -64,7 +64,7 @@ contract AbbreviateAmount_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test
         assertEq(aa({ amount: 201_287e18, decimals: 18 }), ge("201.28K"), "abbreviation");
     }
 
-    function test_AbbreviateAmount_Millions() external {
+    function test_AbbreviateAmount_Millions() external view {
         assertEq(aa({ amount: 1_337_081, decimals: 0 }), ge("1.33M"), "abbreviation");
         assertEq(aa({ amount: 2_194_000, decimals: 0 }), ge("2.19M"), "abbreviation");
         assertEq(aa({ amount: 30_448_842, decimals: 1 }), ge("3.04M"), "abbreviation");
@@ -74,7 +74,7 @@ contract AbbreviateAmount_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test
         assertEq(aa({ amount: 577_308_003e18, decimals: 18 }), ge("577.30M"), "abbreviation");
     }
 
-    function test_AbbreviateAmount_Billions() external {
+    function test_AbbreviateAmount_Billions() external view {
         assertEq(aa({ amount: 1_337_081_132, decimals: 0 }), ge("1.33B"), "abbreviation");
         assertEq(aa({ amount: 2_763_455_030, decimals: 0 }), ge("2.76B"), "abbreviation");
         assertEq(aa({ amount: 30_008_011_215, decimals: 1 }), ge("3B"), "abbreviation");
@@ -84,7 +84,7 @@ contract AbbreviateAmount_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test
         assertEq(aa({ amount: 699_881_672_021e18, decimals: 18 }), ge("699.88B"), "abbreviation");
     }
 
-    function test_AbbreviateAmount_Trillions() external {
+    function test_AbbreviateAmount_Trillions() external view {
         assertEq(aa({ amount: 2_578_924_152_034, decimals: 0 }), ge("2.57T"), "abbreviation");
         assertEq(aa({ amount: 3_931_548_209_201, decimals: 0 }), ge("3.93T"), "abbreviation");
         assertEq(aa({ amount: 60_008_233_054_613, decimals: 1 }), ge("6T"), "abbreviation");

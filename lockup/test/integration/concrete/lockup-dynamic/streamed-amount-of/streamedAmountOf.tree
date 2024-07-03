@@ -8,7 +8,7 @@ streamedAmountOf.t.sol
       ├── given there is one segment
       │  └── it should return the correct streamed amount
       └── given there are multiple segments
-         ├── given the current milestone is the 1st in the array
+         ├── given the current timestamp is the 1st in the array
          │  └── it should return the correct streamed amount
-         └── given the current milestone is not the 1st in the array
+         └── given the current timestamp is not the 1st in the array
             └── it should return the correct streamed amount

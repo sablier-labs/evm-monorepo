@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
@@ -7,7 +7,6 @@ import { ud60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Solarray } from "solarray/src/Solarray.sol";
 
-import { ISablierV2Comptroller } from "../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupDynamic } from "../src/interfaces/ISablierV2LockupDynamic.sol";
 import { ISablierV2LockupLinear } from "../src/interfaces/ISablierV2LockupLinear.sol";
 import { Broker, LockupDynamic, LockupLinear } from "../src/types/DataTypes.sol";
@@ -15,13 +14,12 @@ import { Broker, LockupDynamic, LockupLinear } from "../src/types/DataTypes.sol"
 import { BaseScript } from "./Base.s.sol";
 
 interface IERC20Mint {
-    function mint(address beneficiary, uint256 amount) external;
+    function mint(address beneficiary, uint256 value) external;
 }
 
-/// @notice Initializes the protocol by setting up the comptroller and creating some streams.
+/// @notice Initializes the protocol by creating some streams.
 contract Init is BaseScript {
     function run(
-        ISablierV2Comptroller comptroller,
         ISablierV2LockupLinear lockupLinear,
         ISablierV2LockupDynamic lockupDynamic,
         IERC20 asset
@@ -33,27 +31,15 @@ contract Init is BaseScript {
         address recipient = vm.addr(vm.deriveKey({ mnemonic: mnemonic, index: 1 }));
 
         /*//////////////////////////////////////////////////////////////////////////
-                                        COMPTROLLER
-        //////////////////////////////////////////////////////////////////////////*/
-
-        // Enable the ERC-20 asset for flash loaning.
-        if (!comptroller.isFlashAsset(asset)) {
-            comptroller.toggleFlashAsset(asset);
-        }
-
-        // Set the flash fee to 0.05%.
-        comptroller.setFlashFee({ newFlashFee: ud60x18(0.0005e18) });
-
-        /*//////////////////////////////////////////////////////////////////////////
                                        LOCKUP-LINEAR
         //////////////////////////////////////////////////////////////////////////*/
 
         // Mint enough assets to the sender.
-        IERC20Mint(address(asset)).mint({ beneficiary: sender, amount: 131_601.1e18 + 10_000e18 });
+        IERC20Mint(address(asset)).mint({ beneficiary: sender, value: 131_601.1e18 + 10_000e18 });
 
         // Approve the Sablier contracts to transfer the ERC-20 assets from the sender.
-        asset.approve({ spender: address(lockupLinear), amount: type(uint256).max });
-        asset.approve({ spender: address(lockupDynamic), amount: type(uint256).max });
+        asset.approve({ spender: address(lockupLinear), value: type(uint256).max });
+        asset.approve({ spender: address(lockupDynamic), value: type(uint256).max });
 
         // Create 7 Lockup Linear streams with various amounts and durations.
         //
@@ -92,19 +78,21 @@ contract Init is BaseScript {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Create the default lockupDynamic stream.
-        LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](2);
-        segments[0] = LockupDynamic.SegmentWithDelta({ amount: 2500e18, exponent: ud2x18(3.14e18), delta: 1 hours });
-        segments[1] = LockupDynamic.SegmentWithDelta({ amount: 7500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
-        lockupDynamic.createWithDeltas(
-            LockupDynamic.CreateWithDeltas({
+        LockupDynamic.SegmentWithDuration[] memory segments = new LockupDynamic.SegmentWithDuration[](2);
+        segments[0] =
+            LockupDynamic.SegmentWithDuration({ amount: 2500e18, exponent: ud2x18(3.14e18), duration: 1 hours });
+        segments[1] =
+            LockupDynamic.SegmentWithDuration({ amount: 7500e18, exponent: ud2x18(0.5e18), duration: 1 weeks });
+        lockupDynamic.createWithDurations(
+            LockupDynamic.CreateWithDurations({
+                sender: sender,
+                recipient: recipient,
+                totalAmount: 10_000e18,
                 asset: asset,
-                broker: Broker(address(0), ud60x18(0)),
                 cancelable: true,
                 transferable: true,
-                recipient: recipient,
-                sender: sender,
                 segments: segments,
-                totalAmount: 10_000e18
+                broker: Broker(address(0), ud60x18(0))
             })
         );
     }

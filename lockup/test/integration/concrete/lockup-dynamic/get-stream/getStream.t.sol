@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 import { LockupDynamic } from "src/types/DataTypes.sol";
@@ -25,9 +25,9 @@ contract GetStream_LockupDynamic_Integration_Concrete_Test is LockupDynamic_Inte
     }
 
     function test_GetStream_StatusSettled() external givenNotNull {
-        vm.warp({ timestamp: defaults.END_TIME() });
-        LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(defaultStreamId);
-        LockupDynamic.Stream memory expectedStream = defaults.lockupDynamicStream();
+        vm.warp({ newTimestamp: defaults.END_TIME() });
+        LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(defaultStreamId);
+        LockupDynamic.StreamLD memory expectedStream = defaults.lockupDynamicStream();
         expectedStream.isCancelable = false;
         assertEq(actualStream, expectedStream);
     }
@@ -38,8 +38,8 @@ contract GetStream_LockupDynamic_Integration_Concrete_Test is LockupDynamic_Inte
 
     function test_GetStream() external givenNotNull givenStatusNotSettled {
         uint256 streamId = createDefaultStream();
-        LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(streamId);
-        LockupDynamic.Stream memory expectedStream = defaults.lockupDynamicStream();
+        LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(streamId);
+        LockupDynamic.StreamLD memory expectedStream = defaults.lockupDynamicStream();
         assertEq(actualStream, expectedStream);
     }
 }

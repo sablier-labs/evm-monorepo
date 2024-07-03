@@ -60,25 +60,12 @@ deployments=./deployments
 rm -rf ${deployments}
 mkdir ${deployments}
 
-# Addresses taken from https://docs.sablier.com/contracts/v2/deployments
-ARBITRUM_COMPTROLLER="0x17Ec73692F0aDf7E7C554822FBEAACB4BE781762"
-ARBITRUM_SEPOLIA_COMPTROLLER="0xA6A0cfA3442053fbB516D55205A749Ef2D33aed9"
-AVALANCHE_COMPTROLLER="0x66F5431B0765D984f82A4fc4551b2c9ccF7eAC9C"
-BASE_COMPTROLLER="0x7Faaedd40B1385C118cA7432952D9DC6b5CbC49e"
-BSC_COMPTROLLER="0x33511f69A784Fd958E6713aCaC7c9dCF1A5578E8"
-GNOSIS_COMPTROLLER="0x73962c44c0fB4cC5e4545FB91732a5c5e87F55C2"
-MAINNET_COMPTROLLER="0xC3Be6BffAeab7B297c03383B4254aa3Af2b9a5BA"
-OPTIMISM_COMPTROLLER="0x1EECb6e6EaE6a1eD1CCB4323F3a146A7C5443A10"
-POLYGON_COMPTROLLER="0x9761692EDf10F5F2A69f0150e2fd50dcecf05F2E"
-SCROLL_COMPTROLLER="0x859708495E3B3c61Bbe19e6E3E1F41dE3A5C5C5b"
-SEPOLIA_COMPTROLLER="0x2006d43E65e66C5FF20254836E63947FA8bAaD68"
-
 # Addresses taken from https://docs.sablier.com/concepts/governance
 export ARBITRUM_ADMIN="0xF34E41a6f6Ce5A45559B1D3Ee92E141a3De96376"
 export ARBITRUM_SEPOLIA_ADMIN="0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F"
 export AVALANCHE_ADMIN="0x4735517616373c5137dE8bcCDc887637B8ac85Ce"
 export BASE_ADMIN="0x83A6fA8c04420B3F9C7A4CF1c040b63Fbbc89B66"
-export BSC_ADMIN="0x6666cA940D2f4B65883b454b7Bc7EEB039f64fa3"
+export BNB_ADMIN="0x6666cA940D2f4B65883b454b7Bc7EEB039f64fa3"
 export GNOSIS_ADMIN="0x72ACB57fa6a8fa768bE44Db453B1CDBa8B12A399"
 export MAINNET_ADMIN="0x79Fb3e81aAc012c08501f41296CCC145a1E15844"
 export OPTIMISM_ADMIN="0x43c76FE8Aec91F63EbEfb4f5d2a4ba88ef880350"
@@ -99,7 +86,7 @@ WITH_GAS_PRICE=false
 # Flag for all chains
 ON_ALL_CHAINS=false
 
-# Flag for displaying deployement command
+# Flag for displaying deployment command
 READ_ONLY=false
 
 # Flag to enter interactive mode in case .env.deployment not found or --interactive is provided
@@ -116,17 +103,17 @@ declare -A chains
 
 # define function to initialize all configurations
 function initialize {
-    chains["arbitrum"]="$ARBITRUM_RPC_URL $ARBISCAN_API_KEY $ARBITRUM_ADMIN $ARBITRUM_COMPTROLLER"
-    chains["arbitrum_sepolia"]="$ARBITRUM_SEPOLIA_RPC_URL $ARBISCAN_API_KEY $ARBITRUM_SEPOLIA_ADMIN $ARBITRUM_SEPOLIA_COMPTROLLER"
-    chains["avalanche"]="$AVALANCHE_RPC_URL $SNOWTRACE_API_KEY $AVALANCHE_ADMIN $AVALANCHE_COMPTROLLER"
-    chains["base"]="$BASE_RPC_URL $BASESCAN_API_KEY $BASE_ADMIN $BASE_COMPTROLLER"
-    chains["bnb_smart_chain"]="$BSC_RPC_URL $BSCSCAN_API_KEY $BSC_ADMIN $BSC_COMPTROLLER"
-    chains["gnosis"]="$GNOSIS_RPC_URL $GNOSISSCAN_API_KEY $GNOSIS_ADMIN $GNOSIS_COMPTROLLER"
-    chains["mainnet"]="$MAINNET_RPC_URL $ETHERSCAN_API_KEY $MAINNET_ADMIN $MAINNET_COMPTROLLER"
-    chains["optimism"]="$OPTIMISM_RPC_URL $OPTIMISTIC_API_KEY $OPTIMISM_ADMIN $OPTIMISM_COMPTROLLER"
-    chains["polygon"]="$POLYGON_RPC_URL $POLYGONSCAN_API_KEY $POLYGON_ADMIN $POLYGON_COMPTROLLER"
-    chains["sepolia"]="$SEPOLIA_RPC_URL $ETHERSCAN_API_KEY $SEPOLIA_ADMIN $SEPOLIA_COMPTROLLER"
-    chains["scroll"]="$SCROLL_RPC_URL $SCROLLSCAN_API_KEY $SCROLL_ADMIN $SCROLL_COMPTROLLER"
+    chains["arbitrum"]="$ARBITRUM_RPC_URL $ARBISCAN_API_KEY $ARBITRUM_ADMIN"
+    chains["arbitrum_sepolia"]="$ARBITRUM_SEPOLIA_RPC_URL $ARBISCAN_API_KEY $ARBITRUM_SEPOLIA_ADMIN"
+    chains["avalanche"]="$AVALANCHE_RPC_URL $SNOWTRACE_API_KEY $AVALANCHE_ADMIN"
+    chains["base"]="$BASE_RPC_URL $BASESCAN_API_KEY $BASE_ADMIN"
+    chains["bnb_smart_chain"]="$BNB_RPC_URL $BSCSCAN_API_KEY $BNB_ADMIN"
+    chains["gnosis"]="$GNOSIS_RPC_URL $GNOSISSCAN_API_KEY $GNOSIS_ADMIN"
+    chains["mainnet"]="$MAINNET_RPC_URL $ETHERSCAN_API_KEY $MAINNET_ADMIN"
+    chains["optimism"]="$OPTIMISM_RPC_URL $OPTIMISTIC_API_KEY $OPTIMISM_ADMIN"
+    chains["polygon"]="$POLYGON_RPC_URL $POLYGONSCAN_API_KEY $POLYGON_ADMIN"
+    chains["sepolia"]="$SEPOLIA_RPC_URL $ETHERSCAN_API_KEY $SEPOLIA_ADMIN"
+    chains["scroll"]="$SCROLL_RPC_URL $SCROLLSCAN_API_KEY $SCROLL_ADMIN"
 }
 
 # define function to initialize limited configurations
@@ -137,19 +124,6 @@ function initialize_interactive {
 
     echo -e "2. Enter Etherscan API key: \c"
     read api_key
-
-    # Comptroller only
-    chains["arbitrum"]="$ARBITRUM_COMPTROLLER"
-    chains["arbitrum_sepolia"]="$ARBITRUM_SEPOLIA_COMPTROLLER"
-    chains["avalanche"]="$AVALANCHE_COMPTROLLER"
-    chains["base"]="$BASE_COMPTROLLER"
-    chains["bnb_smart_chain"]="$BSC_COMPTROLLER"
-    chains["gnosis"]="$GNOSIS_COMPTROLLER"
-    chains["mainnet"]="$MAINNET_COMPTROLLER"
-    chains["optimism"]="$OPTIMISM_COMPTROLLER"
-    chains["polygon"]="$POLYGON_COMPTROLLER"
-    chains["sepolia"]="$SEPOLIA_COMPTROLLER"
-    chains["scroll"]="$SCROLL_COMPTROLLER"
 }
 
 if [ -f .env.deployment ]; then
@@ -165,7 +139,7 @@ else
     # load values from the terminal prompt
     echo -e "${WC}Missing '.env.deployment'. Provide details below: ${NC}\n"
 
-    # initialize chains with chain id and comptroller
+    # initialize chains
     initialize_interactive
 
 fi
@@ -199,12 +173,12 @@ for ((i=1; i<=$#; i++)); do
         # Sort the names
         sorted_names=($(printf "%s\n" "${names[@]}" | sort))
         # Print the header
-        printf "\nSupported chains: \n%-20s %-20s\n" "Chain Name" "Chain ID"
-        printf "%-20s %-20s\n" "-----------" "-----------"
+        printf "\nSupported chains: \n%-20s %-20s\n" "Chain Name"
+        printf "%-20s %-20s\n" "-----------"
 
-        # Print the chains and their Chain IDs
+        # Print the supported chains
         for chain in "${sorted_names[@]}"; do
-            IFS=' ' read -r rpc_url api_key admin comptroller <<< "${chains[$chain]}"
+            IFS=' ' read -r rpc_url api_key admin <<< "${chains[$chain]}"
 
             # Print the chain
             printf "%-20s %-20s\n" "${chain}"
@@ -217,7 +191,6 @@ for ((i=1; i<=$#; i++)); do
         INTERACTIVE=true
         echo -e "Interactive mode activated. Provide details below: \n"
 
-        # initialize only chain id and comptroller
         initialize_interactive
     fi
 
@@ -301,12 +274,9 @@ for chain in "${provided_chains[@]}"; do
         # load values from the terminal prompt
         echo -e "Enter RPC URL for ${chain}: \c"
         read rpc_url
-
-        # Get the values from the chains array
-        IFS=' ' read -r comptroller <<< "${chains[$chain]}"
     else
-        # Split the configuration into RPC, API key, admin, and comptroller
-        IFS=' ' read -r rpc_url api_key admin comptroller <<< "${chains[$chain]}"
+        # Split the configuration into RPC, API key, and admin
+        IFS=' ' read -r rpc_url api_key admin <<< "${chains[$chain]}"
     fi
 
     # Declare the deployment command
@@ -318,7 +288,7 @@ for chain in "${provided_chains[@]}"; do
     if [[ ${DETERMINISTIC_DEPLOYMENT} == true ]]; then
         echo -e "${SC}+${NC} Deterministic address"
         if [[ ${sol_script} == "" ]]; then
-            deployment_command+=("script" "script/DeployDeterministicCore3.s.sol" "--ffi")
+            deployment_command+=("script" "script/DeployDeterministicCore.s.sol" "--ffi")
         else
             deployment_command+=("script" "${sol_script}")
         fi
@@ -330,28 +300,27 @@ for chain in "${provided_chains[@]}"; do
         # echo removes single quotes
         ####################################################################
         if [[ ${READ_ONLY} == true ]]; then
-            deployment_command+=("--sig" "'run(address,address,uint256)'")
+            deployment_command+=("--sig" "'run(address)'")
         else
-            deployment_command+=("--sig" "run(address,address,uint256)")
+            deployment_command+=("--sig" "run(address)")
         fi
     else
         # Construct the command
         if [[ ${sol_script} == "" ]]; then
-            deployment_command+=("script" "script/DeployCore3.s.sol")
+            deployment_command+=("script" "script/DeployCore.s.sol")
         else
             deployment_command+=("script" "${sol_script}")
         fi
         deployment_command+=("--rpc-url" "${rpc_url}")
 
         if [[ ${READ_ONLY} == true ]]; then
-            deployment_command+=("--sig" "'run(address,address,uint256)'")
+            deployment_command+=("--sig" "'run(address)'")
         else
-            deployment_command+=("--sig" "run(address,address,uint256)")
+            deployment_command+=("--sig" "run(address)")
         fi
     fi
 
     deployment_command+=("${admin}")
-    deployment_command+=("${comptroller}")
     deployment_command+=("-vvv")
 
     # Append additional options if gas price is enabled
@@ -389,12 +358,14 @@ for chain in "${provided_chains[@]}"; do
         # Extract and save contract addresses
         lockupDynamic_address=$(echo "${output}" | awk '/lockupDynamic: contract/{print $NF}')
         lockupLinear_address=$(echo "${output}" | awk '/lockupLinear: contract/{print $NF}')
+        lockupTranched_address=$(echo "${output}" | awk '/lockupTranched: contract/{print $NF}')
         nftDescriptor_address=$(echo "${output}" | awk '/nftDescriptor: contract/{print $NF}')
 
         # Save to the chain file
         {
             echo "SablierV2LockupDynamic = ${lockupDynamic_address}"
             echo "SablierV2LockupLinear = ${lockupLinear_address}"
+            echo "SablierV2LockupTranched = ${lockupTranched_address}"
             echo "SablierV2NFTDescriptor = ${nftDescriptor_address}"
         } >> "$chain_file"
 

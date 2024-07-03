@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // solhint-disable max-line-length
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { NFTSVG } from "src/libraries/NFTSVG.sol";
 import { SVGElements } from "src/libraries/SVGElements.sol";
@@ -11,7 +11,7 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
     /// @dev If you need to update the hard-coded token URI:
     /// 1. Use "vm.writeFile" to log the strings to a file.
     /// 2. Remember to escape 'Courier New' with \'Courier New\'.
-    function test_GenerateSVG_Pending() external {
+    function test_GenerateSVG_Pending() external view {
         string memory actualSVG = nftDescriptorMock.generateSVG_(
             NFTSVG.SVGParams({
                 accentColor: "hsl(155,18%,30%)",
@@ -22,8 +22,8 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
                 progress: "0%",
                 progressNumerical: 0,
                 sablierAddress: "0xf3a045dc986015be9ae43bb3462ae5981b0816e0",
-                status: "Pending",
-                streamingModel: "Lockup Linear"
+                sablierModel: "Lockup Linear",
+                status: "Pending"
             })
         );
         string memory expectedSVG =
@@ -31,7 +31,7 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
         assertEq(actualSVG, expectedSVG, "SVG mismatch");
     }
 
-    function test_GenerateSVG_Streaming() external {
+    function test_GenerateSVG_Streaming() external view {
         string memory actualSVG = nftDescriptorMock.generateSVG_(
             NFTSVG.SVGParams({
                 accentColor: "hsl(114,3%,53%)",
@@ -42,8 +42,8 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
                 progress: "42.35%",
                 progressNumerical: 4235,
                 sablierAddress: "0xf3a045dc986015be9ae43bb3462ae5981b0816e0",
-                status: "Streaming",
-                streamingModel: "Lockup Linear"
+                sablierModel: "Lockup Linear",
+                status: "Streaming"
             })
         );
         string memory expectedSVG =
@@ -51,7 +51,7 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
         assertEq(actualSVG, expectedSVG, "SVG mismatch");
     }
 
-    function test_GenerateSVG_Depleted() external {
+    function test_GenerateSVG_Depleted() external view {
         string memory actualSVG = nftDescriptorMock.generateSVG_(
             NFTSVG.SVGParams({
                 accentColor: "hsl(123,25%,44%)",
@@ -62,8 +62,8 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
                 progress: "100%",
                 progressNumerical: 100,
                 sablierAddress: "0xf3a045dc986015be9ae43bb3462ae5981b0816e0",
-                status: "Depleted",
-                streamingModel: "Lockup Linear"
+                sablierModel: "Lockup Linear",
+                status: "Depleted"
             })
         );
         string memory expectedSVG =

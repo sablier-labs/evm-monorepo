@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -38,11 +38,11 @@ contract GenerateSVG is BaseScript, SablierV2NFTDescriptor {
                 assetAddress: DAI.toHexString(),
                 assetSymbol: "DAI",
                 duration: calculateDurationInDays({ startTime: 0, endTime: duration * 1 days }),
-                sablierAddress: LOCKUP_LINEAR.toHexString(),
                 progress: stringifyPercentage(progress),
                 progressNumerical: progress,
-                status: status,
-                streamingModel: "Lockup Linear"
+                sablierAddress: LOCKUP_LINEAR.toHexString(),
+                sablierModel: "Lockup Linear",
+                status: status
             })
         );
     }

@@ -1,0 +1,12 @@
+allowToHook.tree
+├── when the caller is not the admin
+│  └── it should revert
+└── when the caller is the admin
+   ├── when the provided address doesn't have any code
+   │  └── it should revert
+   └── when the provided address has code
+      ├── when the provided address does not support the recipient interface
+      │  └── it should revert
+      └── when the provided address supports the recipient interface
+         ├── it should put the address on the allowlist
+         └── it should emit a {AllowToHook} event

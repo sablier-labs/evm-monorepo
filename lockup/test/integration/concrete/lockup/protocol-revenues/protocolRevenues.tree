@@ -1,5 +1,0 @@
-protocolRevenues.t.sol
-├── given the protocol revenues are zero
-│  └── it should return zero
-└── given the protocol revenues are not zero
-   └── it should return the correct protocol revenues

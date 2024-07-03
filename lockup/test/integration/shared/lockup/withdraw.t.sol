@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup_Integration_Shared_Test } from "./Lockup.t.sol";
 
@@ -8,10 +8,12 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
 
     function setUp() public virtual override {
         defaultStreamId = createDefaultStream();
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
     }
 
-    modifier whenNotDelegateCalled() {
+    modifier givenEndTimeInTheFuture() {
+        // Simulate the passage of time.
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         _;
     }
 
@@ -19,28 +21,12 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
         _;
     }
 
+    modifier givenRecipientAllowedToHook() {
+        _;
+    }
+
     modifier givenStreamNotDepleted() {
-        vm.warp({ timestamp: defaults.START_TIME() });
-        _;
-    }
-
-    modifier whenCallerUnauthorized() {
-        _;
-    }
-
-    modifier whenCallerAuthorized() {
-        _;
-    }
-
-    modifier whenToNonZeroAddress() {
-        _;
-    }
-
-    modifier whenWithdrawAmountNotZero() {
-        _;
-    }
-
-    modifier whenWithdrawAmountNotGreaterThanWithdrawableAmount() {
+        vm.warp({ newTimestamp: defaults.START_TIME() });
         _;
     }
 
@@ -48,7 +34,48 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
         _;
     }
 
+    modifier whenCallerSender() {
+        resetPrank({ msgSender: users.sender });
+        _;
+    }
+
+    modifier whenNoOverdraw() {
+        _;
+    }
+
+    modifier whenNotDelegateCalled() {
+        _;
+    }
+
+    modifier whenRecipientNotReentrant() {
+        _;
+    }
+
+    modifier whenRecipientNotReverting() {
+        _;
+    }
+
+    modifier whenRecipientReturnsSelector() {
+        _;
+    }
+
     modifier whenStreamHasNotBeenCanceled() {
+        _;
+    }
+
+    modifier whenToNonZeroAddress() {
+        _;
+    }
+
+    modifier whenWithdrawalAddressIsRecipient() {
+        _;
+    }
+
+    modifier whenWithdrawalAddressNotRecipient() {
+        _;
+    }
+
+    modifier whenWithdrawAmountNotZero() {
         _;
     }
 }

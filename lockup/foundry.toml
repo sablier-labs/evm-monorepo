@@ -1,13 +1,17 @@
 [profile.default]
   auto_detect_solc = false
   bytecode_hash = "none"
-  emv_version = "paris"
-  ffi = true
-  fs_permissions = [{ access = "read", path = "out-optimized" }]
+  evm_version = "shanghai"
+  fs_permissions = [
+    { access = "read", path = "./out-optimized" },
+    { access = "read", path = "package.json" },
+    { access = "read-write", path = "./benchmark/results" },
+  ]
+  gas_limit = 9223372036854775807
   gas_reports = [
-    "SablierV2Comptroller",
     "SablierV2LockupDynamic",
     "SablierV2LockupLinear",
+    "SablierV2LockupTranched",
     "SablierV2NFTDescriptor",
   ]
   optimizer = true
@@ -15,7 +19,7 @@
   out = "out"
   script = "script"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
-  solc = "0.8.23"
+  solc = "0.8.26"
   src = "src"
   test = "test"
 
@@ -28,6 +32,10 @@
   depth = 20            # Number of calls executed in one run
   fail_on_revert = true
   runs = 20
+
+# Run only the code inside benchmark directory
+[profile.benchmark]
+  test = "benchmark"
 
 # Speed up compilation and tests during development
 [profile.lite]
@@ -68,11 +76,11 @@
 [profile.smt.model_checker.contracts]
   "src/SablierV2LockupDynamic.sol" = ["SablierV2LockupDynamic"]
   "src/SablierV2LockupLinear.sol" = ["SablierV2LockupLinear"]
+  "src/SablierV2LockupTranched.sol" = ["SablierV2LockupTranched"]
   "src/SablierV2NFTDescriptor.sol" = ["SablierV2NFTDescriptor"]
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
-  ffi = true
   src = "test"
 
 [doc]
@@ -93,9 +101,11 @@
 [rpc_endpoints]
   arbitrum = "https://arbitrum-mainnet.infura.io/v3/${API_KEY_INFURA}"
   avalanche = "https://avalanche-mainnet.infura.io/v3/${API_KEY_INFURA}"
-  bnb_smart_chain = "https://bsc-dataseed.binance.org"
-  gnosis_chain = "https://rpc.gnosischain.com"
+  base = "https://mainnet.base.org"
+  bnb = "https://bsc-dataseed.binance.org"
+  gnosis = "https://rpc.gnosischain.com"
   localhost = "http://localhost:8545"
+  ethereum = "${RPC_URL_MAINNET}"
   mainnet = "${RPC_URL_MAINNET}"
   optimism = "https://optimism-mainnet.infura.io/v3/${API_KEY_INFURA}"
   polygon = "https://polygon-mainnet.infura.io/v3/${API_KEY_INFURA}"

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 import { LockupLinear } from "src/types/DataTypes.sol";
@@ -25,9 +25,9 @@ contract GetStream_LockupLinear_Integration_Concrete_Test is LockupLinear_Integr
     }
 
     function test_GetStream_StatusSettled() external givenNotNull {
-        vm.warp({ timestamp: defaults.END_TIME() });
-        LockupLinear.Stream memory actualStream = lockupLinear.getStream(defaultStreamId);
-        LockupLinear.Stream memory expectedStream = defaults.lockupLinearStream();
+        vm.warp({ newTimestamp: defaults.END_TIME() });
+        LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(defaultStreamId);
+        LockupLinear.StreamLL memory expectedStream = defaults.lockupLinearStream();
         expectedStream.isCancelable = false;
         assertEq(actualStream, expectedStream);
     }
@@ -37,8 +37,8 @@ contract GetStream_LockupLinear_Integration_Concrete_Test is LockupLinear_Integr
     }
 
     function test_GetStream() external givenNotNull givenStatusNotSettled {
-        LockupLinear.Stream memory actualStream = lockupLinear.getStream(defaultStreamId);
-        LockupLinear.Stream memory expectedStream = defaults.lockupLinearStream();
+        LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(defaultStreamId);
+        LockupLinear.StreamLL memory expectedStream = defaults.lockupLinearStream();
         assertEq(actualStream, expectedStream);
     }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Base_Test } from "../../Base.t.sol";
 import { AdminableMock } from "../../mocks/AdminableMock.sol";
@@ -10,7 +10,7 @@ abstract contract Adminable_Unit_Shared_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
         deployConditionally();
-        vm.startPrank({ msgSender: users.admin });
+        resetPrank({ msgSender: users.admin });
     }
 
     /// @dev Conditionally deploys {AdminableMock} normally or from a source precompiled with `--via-ir`.

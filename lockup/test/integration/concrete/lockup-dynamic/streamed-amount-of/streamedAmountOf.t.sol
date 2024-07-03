@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupDynamic } from "src/types/DataTypes.sol";
 
@@ -25,7 +25,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
     {
-        vm.warp({ timestamp: 0 });
+        vm.warp({ newTimestamp: 0 });
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -37,7 +37,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
     {
-        vm.warp({ timestamp: defaults.START_TIME() });
+        vm.warp({ newTimestamp: defaults.START_TIME() });
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -51,14 +51,14 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         whenStartTimeInThePast
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + 2000 seconds });
+        vm.warp({ newTimestamp: defaults.START_TIME() + 2000 seconds });
 
         // Create an array with one segment.
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](1);
         segments[0] = LockupDynamic.Segment({
             amount: defaults.DEPOSIT_AMOUNT(),
             exponent: defaults.segments()[1].exponent,
-            milestone: defaults.END_TIME()
+            timestamp: defaults.END_TIME()
         });
 
         // Create the stream.
@@ -74,7 +74,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         _;
     }
 
-    function test_StreamedAmountOf_CurrentMilestone1st()
+    function test_StreamedAmountOf_CurrentTimestamp1st()
         external
         givenNotNull
         givenStreamHasNotBeenCanceled
@@ -83,7 +83,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         whenStartTimeInThePast
     {
         // Warp 1 second to the future.
-        vm.warp({ timestamp: defaults.START_TIME() + 1 seconds });
+        vm.warp({ newTimestamp: defaults.START_TIME() + 1 seconds });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
@@ -91,21 +91,21 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier givenCurrentMilestoneNot1st() {
+    modifier givenCurrentTimestampNot1st() {
         _;
     }
 
-    function test_StreamedAmountOf_CurrentMilestoneNot1st()
+    function test_StreamedAmountOf_CurrentTimestampNot1st()
         external
         givenNotNull
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
         whenStartTimeInThePast
         givenMultipleSegments
-        givenCurrentMilestoneNot1st
+        givenCurrentTimestampNot1st
     {
         // Simulate the passage of time. 750 seconds is ~10% of the way in the second segment.
-        vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 750 seconds });
+        vm.warp({ newTimestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 750 seconds });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup_Integration_Shared_Test } from "./Lockup.t.sol";
 
@@ -8,10 +8,10 @@ abstract contract WithdrawMaxAndTransfer_Integration_Shared_Test is Lockup_Integ
 
     function setUp() public virtual override {
         defaultStreamId = createDefaultStream();
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
     }
 
-    modifier whenNotDelegateCalled() {
+    modifier givenNFTNotBurned() {
         _;
     }
 
@@ -19,19 +19,19 @@ abstract contract WithdrawMaxAndTransfer_Integration_Shared_Test is Lockup_Integ
         _;
     }
 
-    modifier whenCallerCurrentRecipient() {
-        _;
-    }
-
     modifier givenStreamTransferable() {
         _;
     }
 
-    modifier givenNFTNotBurned() {
+    modifier givenWithdrawableAmountNotZero() {
         _;
     }
 
-    modifier givenWithdrawableAmountNotZero() {
+    modifier whenCallerCurrentRecipient() {
+        _;
+    }
+
+    modifier whenNotDelegateCalled() {
         _;
     }
 }

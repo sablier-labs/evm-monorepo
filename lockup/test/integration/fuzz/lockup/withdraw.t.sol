@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup } from "src/types/DataTypes.sol";
 
@@ -13,16 +13,48 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
+    /// - Multiple caller addresses.
+    function testFuzz_Withdraw_UnknownCaller(address caller)
+        external
+        whenNotDelegateCalled
+        givenNotNull
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenNoOverdraw
+    {
+        vm.assume(caller != users.sender && caller != users.recipient);
+
+        // Make the fuzzed address the caller in this test.
+        resetPrank({ msgSender: caller });
+
+        // Simulate the passage of time.
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
+
+        // Make the withdrawal.
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
+
+        // Assert that the stream's status is still "STREAMING".
+        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
+        assertEq(actualStatus, expectedStatus);
+
+        // Assert that the withdrawn amount has been updated.
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
+        uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+    }
+
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
+    ///
     /// - Multiple values for the withdrawal address.
     function testFuzz_Withdraw_CallerApprovedOperator(address to)
         external
         whenNotDelegateCalled
         givenNotNull
         givenStreamNotDepleted
-        whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
     {
         vm.assume(to != address(0));
 
@@ -30,10 +62,10 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         lockup.approve({ to: users.operator, tokenId: defaultStreamId });
 
         // Make the operator the caller in this test.
-        changePrank({ msgSender: users.operator });
+        resetPrank({ msgSender: users.operator });
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: defaults.WITHDRAW_AMOUNT() });
@@ -51,7 +83,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
-    /// - Multiple values for the current time.
+    /// - Multiple values for the block timestamp.
     /// - Multiple values for the withdrawal address.
     /// - Multiple withdraw amounts.
     function testFuzz_Withdraw_StreamHasBeenCanceled(
@@ -62,29 +94,28 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         external
         whenNotDelegateCalled
         givenNotNull
-        whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
         whenCallerRecipient
     {
         timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
         vm.assume(to != address(0));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Cancel the stream.
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
         lockup.cancel({ streamId: defaultStreamId });
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the assets to be transferred to the fuzzed `to` address.
-        expectCallToTransfer({ to: to, amount: withdrawAmount });
+        expectCallToTransfer({ to: to, value: withdrawAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
@@ -130,25 +161,23 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         external
         whenNotDelegateCalled
         givenNotNull
-        whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
-        whenCallerRecipient
+        whenNoOverdraw
         whenStreamHasNotBeenCanceled
     {
         timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
         vm.assume(to != address(0));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the assets to be transferred to the fuzzed `to` address.
-        expectCallToTransfer({ to: to, amount: withdrawAmount });
+        expectCallToTransfer({ to: to, value: withdrawAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

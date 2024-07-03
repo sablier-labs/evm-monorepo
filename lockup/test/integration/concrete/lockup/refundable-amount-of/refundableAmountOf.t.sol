@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
@@ -24,7 +24,7 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
 
     function test_RefundableAmountOf_StreamNotCancelable() external givenNotNull {
         uint256 streamId = createDefaultStreamNotCancelable();
-        vm.warp({ timestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(streamId);
         uint128 expectedRefundableAmount = 0;
         assertEq(actualRefundableAmount, expectedRefundableAmount, "refundableAmount");
@@ -44,7 +44,7 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
         givenStreamIsCancelable
         givenStreamHasBeenCanceled
     {
-        vm.warp({ timestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         uint128 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
         uint128 expectedRefundableAmount = 0;
@@ -58,10 +58,10 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
         givenStreamIsCancelable
         givenStreamHasBeenCanceled
     {
-        vm.warp({ timestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        vm.warp({ timestamp: defaults.CLIFF_TIME() + 10 seconds });
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() + 10 seconds });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
         uint128 expectedRefundableAmount = 0;
         assertEq(actualRefundableAmount, expectedRefundableAmount, "refundableAmount");
@@ -77,7 +77,7 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
         givenStreamIsCancelable
         givenStreamHasNotBeenCanceled
     {
-        vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
+        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
         uint128 expectedReturnableAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualRefundableAmount, expectedReturnableAmount, "refundableAmount");
@@ -89,7 +89,7 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
         givenStreamIsCancelable
         givenStreamHasNotBeenCanceled
     {
-        vm.warp({ timestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
         uint128 expectedReturnableAmount = defaults.REFUND_AMOUNT();
         assertEq(actualRefundableAmount, expectedReturnableAmount, "refundableAmount");
@@ -101,7 +101,7 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
         givenStreamIsCancelable
         givenStreamHasNotBeenCanceled
     {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
         uint128 expectedReturnableAmount = 0;
         assertEq(actualRefundableAmount, expectedReturnableAmount, "refundableAmount");
@@ -113,7 +113,7 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
         givenStreamIsCancelable
         givenStreamHasNotBeenCanceled
     {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
         uint128 expectedReturnableAmount = 0;

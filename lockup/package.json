@@ -2,7 +2,7 @@
   "name": "@sablier/v2-core",
   "description": "Core smart contracts of the Sablier V2 token distribution protocol",
   "license": "BUSL-1.1",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
@@ -11,19 +11,19 @@
     "url": "https://github.com/sablier-labs/v2-core/issues"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "4.9.2",
-    "@prb/math": "4.0.2"
+    "@openzeppelin/contracts": "5.0.2",
+    "@prb/math": "4.0.3"
   },
   "devDependencies": {
-    "@prb/test": "0.6.4",
-    "forge-std": "github:foundry-rs/forge-std#v1.5.6",
-    "prettier": "^2.8.8",
-    "solady": "0.0.129",
+    "forge-std": "github:foundry-rs/forge-std#v1.8.2",
+    "prettier": "^3.3.2",
+    "solady": "0.0.208",
     "solarray": "github:evmcheb/solarray#a547630",
-    "solhint": "^4.0.0"
+    "solhint": "^5.0.1"
   },
   "files": [
     "artifacts",
+    "precompiles",
     "src",
     "test/utils",
     "CHANGELOG.md",
@@ -58,15 +58,13 @@
   },
   "repository": "github.com/sablier-labs/v2-core",
   "scripts": {
+    "benchmark": "bun run build:optimized && FOUNDRY_PROFILE=benchmark forge test --mt testGas && bun run prettier:write",
     "build": "forge build",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
     "build:smt": "FOUNDRY_PROFILE=smt forge build",
     "clean": "rm -rf artifacts broadcast cache docs out out-optimized out-svg",
-    "gas:report": "forge test --gas-report --mp \"./test/integration/**/*.sol\" --nmt \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
-    "gas:snapshot": "forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
-    "gas:snapshot:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "lint": "bun run lint:sol && bun run prettier:check",
-    "lint:sol": "forge fmt --check && bun solhint \"{script,src,test}/**/*.sol\"",
+    "lint:sol": "forge fmt --check && bun solhint \"{precompiles,script,src,test}/**/*.sol\"",
     "prepack": "bun install && bash ./shell/prepare-artifacts.sh",
     "prettier:check": "prettier --check \"**/*.{json,md,svg,yml}\"",
     "prettier:write": "prettier --write \"**/*.{json,md,svg,yml}\"",

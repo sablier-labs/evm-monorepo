@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // solhint-disable quotes
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.22;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -20,8 +20,8 @@ library NFTSVG {
         string progress;
         uint256 progressNumerical;
         string sablierAddress;
+        string sablierModel;
         string status;
-        string streamingModel;
     }
 
     struct SVGVars {
@@ -89,7 +89,7 @@ library NFTSVG {
             '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">',
             SVGElements.BACKGROUND,
             generateDefs(params.accentColor, params.status, vars.cards),
-            generateFloatingText(params.sablierAddress, params.streamingModel, params.assetAddress, params.assetSymbol),
+            generateFloatingText(params.sablierAddress, params.sablierModel, params.assetAddress, params.assetSymbol),
             generateHrefs(vars.progressXPosition, vars.statusXPosition, vars.amountXPosition, vars.durationXPosition),
             "</svg>"
         );
@@ -119,7 +119,7 @@ library NFTSVG {
 
     function generateFloatingText(
         string memory sablierAddress,
-        string memory streamingModel,
+        string memory sablierModel,
         string memory assetAddress,
         string memory assetSymbol
     )
@@ -131,11 +131,11 @@ library NFTSVG {
             '<text text-rendering="optimizeSpeed">',
             SVGElements.floatingText({
                 offset: "-100%",
-                text: string.concat(sablierAddress, unicode" • ", "Sablier V2 ", streamingModel)
+                text: string.concat(sablierAddress, unicode" • ", "Sablier V2 ", sablierModel)
             }),
             SVGElements.floatingText({
                 offset: "0%",
-                text: string.concat(sablierAddress, unicode" • ", "Sablier V2 ", streamingModel)
+                text: string.concat(sablierAddress, unicode" • ", "Sablier V2 ", sablierModel)
             }),
             SVGElements.floatingText({ offset: "-50%", text: string.concat(assetAddress, unicode" • ", assetSymbol) }),
             SVGElements.floatingText({ offset: "50%", text: string.concat(assetAddress, unicode" • ", assetSymbol) }),

@@ -1,24 +1,29 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Base_Test } from "../Base.t.sol";
-import { FaultyFlashLoanReceiver } from "../mocks/flash-loan/FaultyFlashLoanReceiver.sol";
-import { ReentrantFlashLoanReceiver } from "../mocks/flash-loan/ReentrantFlashLoanReceiver.sol";
-import { ReentrantRecipient } from "../mocks/hooks/ReentrantRecipient.sol";
-import { RevertingRecipient } from "../mocks/hooks/RevertingRecipient.sol";
+import {
+    RecipientInterfaceIDIncorrect,
+    RecipientInterfaceIDMissing,
+    RecipientInvalidSelector,
+    RecipientReentrant,
+    RecipientReverting
+} from "../mocks/Hooks.sol";
 
 /// @notice Common logic needed by all integration tests, both concrete and fuzz tests.
+
 abstract contract Integration_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    FaultyFlashLoanReceiver internal faultyFlashLoanReceiver = new FaultyFlashLoanReceiver();
-    ReentrantFlashLoanReceiver internal reentrantFlashLoanReceiver = new ReentrantFlashLoanReceiver();
-    ReentrantRecipient internal reentrantRecipient = new ReentrantRecipient();
-    RevertingRecipient internal revertingRecipient = new RevertingRecipient();
+    RecipientInterfaceIDIncorrect internal recipientInterfaceIDIncorrect = new RecipientInterfaceIDIncorrect();
+    RecipientInterfaceIDMissing internal recipientInterfaceIDMissing = new RecipientInterfaceIDMissing();
+    RecipientInvalidSelector internal recipientInvalidSelector = new RecipientInvalidSelector();
+    RecipientReentrant internal recipientReentrant = new RecipientReentrant();
+    RecipientReverting internal recipientReverting = new RecipientReverting();
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -27,17 +32,11 @@ abstract contract Integration_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Deploy V2 Core.
-        deployCoreConditionally();
-
         // Label the contracts.
         labelContracts();
 
         // Make the Admin the default caller in this test suite.
-        vm.startPrank({ msgSender: users.admin });
-
-        // Approve V2 Core to spend assets from the users.
-        approveProtocol();
+        resetPrank({ msgSender: users.admin });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -46,10 +45,11 @@ abstract contract Integration_Test is Base_Test {
 
     /// @dev Labels the most relevant contracts.
     function labelContracts() internal {
-        vm.label({ account: address(faultyFlashLoanReceiver), newLabel: "Faulty Flash Loan Receiver" });
-        vm.label({ account: address(reentrantFlashLoanReceiver), newLabel: "Reentrant Flash Loan Receiver" });
-        vm.label({ account: address(reentrantRecipient), newLabel: "Reentrant Lockup Recipient" });
-        vm.label({ account: address(revertingRecipient), newLabel: "Reverting Lockup Recipient" });
+        vm.label({ account: address(recipientInterfaceIDIncorrect), newLabel: "Recipient Interface ID Incorrect" });
+        vm.label({ account: address(recipientInterfaceIDMissing), newLabel: "Recipient Interface ID Missing" });
+        vm.label({ account: address(recipientInvalidSelector), newLabel: "Recipient Invalid Selector" });
+        vm.label({ account: address(recipientReentrant), newLabel: "Recipient Reentrant" });
+        vm.label({ account: address(recipientReverting), newLabel: "Recipient Reverting" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ abstract contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Expects a delegate call error.
-    function expectRevertDueToDelegateCall(bool success, bytes memory returnData) internal {
+    function expectRevertDueToDelegateCall(bool success, bytes memory returnData) internal pure {
         assertFalse(success, "delegatecall success");
         assertEq(returnData, abi.encodeWithSelector(Errors.DelegateCall.selector), "delegatecall return data");
     }

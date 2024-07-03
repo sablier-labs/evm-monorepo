@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { SVGElements } from "src/libraries/SVGElements.sol";
 
 import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
 
 contract CalculateDurationInDays_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
-    function test_CalculateDurationInDays_Zero() external {
+    function test_CalculateDurationInDays_Zero() external view {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 1 days - 1 seconds;
         string memory actualDurationInDays = nftDescriptorMock.calculateDurationInDays_(startTime, endTime);
@@ -14,7 +14,7 @@ contract CalculateDurationInDays_Unit_Concrete_Test is NFTDescriptor_Unit_Concre
         assertEq(actualDurationInDays, expectedDurationInDays, "durationInDays");
     }
 
-    function test_CalculateDurationInDays_One() external {
+    function test_CalculateDurationInDays_One() external view {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 1 days;
         string memory actualDurationInDays = nftDescriptorMock.calculateDurationInDays_(startTime, endTime);
@@ -22,7 +22,7 @@ contract CalculateDurationInDays_Unit_Concrete_Test is NFTDescriptor_Unit_Concre
         assertEq(actualDurationInDays, expectedDurationInDays, "durationInDays");
     }
 
-    function test_CalculateDurationInDays_FortyTwo() external {
+    function test_CalculateDurationInDays_FortyTwo() external view {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 42 days;
         string memory actualDurationInDays = nftDescriptorMock.calculateDurationInDays_(startTime, endTime);
@@ -30,7 +30,7 @@ contract CalculateDurationInDays_Unit_Concrete_Test is NFTDescriptor_Unit_Concre
         assertEq(actualDurationInDays, expectedDurationInDays, "durationInDays");
     }
 
-    function test_CalculateDurationInDays_Leet() external {
+    function test_CalculateDurationInDays_Leet() external view {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 1337 days;
         string memory actualDurationInDays = nftDescriptorMock.calculateDurationInDays_(startTime, endTime);
@@ -38,7 +38,7 @@ contract CalculateDurationInDays_Unit_Concrete_Test is NFTDescriptor_Unit_Concre
         assertEq(actualDurationInDays, expectedDurationInDays, "durationInDays");
     }
 
-    function test_CalculateDurationInDays_TenThousand() external {
+    function test_CalculateDurationInDays_TenThousand() external view {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 10_000 days;
         string memory actualDurationInDays = nftDescriptorMock.calculateDurationInDays_(startTime, endTime);
@@ -46,7 +46,7 @@ contract CalculateDurationInDays_Unit_Concrete_Test is NFTDescriptor_Unit_Concre
         assertEq(actualDurationInDays, expectedDurationInDays, "durationInDays");
     }
 
-    function test_CalculateDurationInDays_Overflow() external {
+    function test_CalculateDurationInDays_Overflow() external view {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime - 1 seconds;
         string memory actualDurationInDays = nftDescriptorMock.calculateDurationInDays_(startTime, endTime);

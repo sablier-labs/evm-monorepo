@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup } from "src/types/DataTypes.sol";
 
@@ -22,7 +22,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         timeJump = _bound(timeJump, 1 seconds, 100 weeks);
 
         // Warp to the past.
-        vm.warp({ timestamp: getBlockTimestamp() - timeJump });
+        vm.warp({ newTimestamp: getBlockTimestamp() - timeJump });
 
         // Cancel the stream.
         lockup.cancel(defaultStreamId);
@@ -39,7 +39,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
-    /// - Multiple values for the current time
+    /// - Multiple values for the block timestamp
     /// - With and without withdrawals
     function testFuzz_Cancel(
         uint256 timeJump,
@@ -52,18 +52,23 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         whenCallerAuthorized
         givenStreamCancelable
         givenStatusStreaming
-        givenRecipientContract
-        givenRecipientImplementsHook
-        whenRecipientDoesNotRevert
-        whenNoRecipientReentrancy
+        givenRecipientAllowedToHook
+        whenRecipientNotReverting
+        whenRecipientReturnsSelector
+        whenRecipientNotReentrant
     {
-        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
+        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
+
+        // Allow the recipient to hook.
+        resetPrank({ msgSender: users.admin });
+        lockup.allowToHook(address(recipientGood));
+        resetPrank({ msgSender: users.sender });
 
         // Create the stream.
-        uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
+        uint256 streamId = createDefaultStreamWithRecipient(address(recipientGood));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
         uint128 streamedAmount = lockup.streamedAmountOf(streamId);
@@ -71,17 +76,17 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
 
         // Make the withdrawal only if the amount is greater than zero.
         if (withdrawAmount > 0) {
-            lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
+            lockup.withdraw({ streamId: streamId, to: address(recipientGood), amount: withdrawAmount });
         }
 
         // Expect the assets to be refunded to the Sender.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
-        expectCallToTransfer({ to: users.sender, amount: senderAmount });
+        expectCallToTransfer({ to: users.sender, value: senderAmount });
 
         // Expect the relevant events to be emitted.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectEmit({ emitter: address(lockup) });
-        emit CancelLockupStream(streamId, users.sender, address(goodRecipient), dai, senderAmount, recipientAmount);
+        emit CancelLockupStream(streamId, users.sender, address(recipientGood), dai, senderAmount, recipientAmount);
         vm.expectEmit({ emitter: address(lockup) });
         emit MetadataUpdate({ _tokenId: streamId });
 
@@ -99,7 +104,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
 
         // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = address(goodRecipient);
+        address expectedNFTOwner = address(recipientGood);
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

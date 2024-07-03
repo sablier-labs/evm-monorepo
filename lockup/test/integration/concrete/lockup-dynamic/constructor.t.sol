@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
 
 import { LockupDynamic_Integration_Concrete_Test } from "./LockupDynamic.t.sol";
@@ -14,24 +15,30 @@ contract Constructor_LockupDynamic_Integration_Concrete_Test is LockupDynamic_In
         // Construct the contract.
         SablierV2LockupDynamic constructedLockupDynamic = new SablierV2LockupDynamic({
             initialAdmin: users.admin,
-            initialComptroller: comptroller,
             initialNFTDescriptor: nftDescriptor,
             maxSegmentCount: defaults.MAX_SEGMENT_COUNT()
         });
 
-        // {SablierV2Base.constructor}
+        // {SablierV2Lockup.constant}
+        UD60x18 actualMaxBrokerFee = constructedLockupDynamic.MAX_BROKER_FEE();
+        UD60x18 expectedMaxBrokerFee = UD60x18.wrap(0.1e18);
+        assertEq(actualMaxBrokerFee, expectedMaxBrokerFee, "MAX_BROKER_FEE");
+
+        // {SablierV2Lockup.constructor}
         address actualAdmin = constructedLockupDynamic.admin();
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");
 
-        address actualComptroller = address(constructedLockupDynamic.comptroller());
-        address expectedComptroller = address(comptroller);
-        assertEq(actualComptroller, expectedComptroller, "comptroller");
-
-        // {SablierV2Lockup.constructor}
         uint256 actualStreamId = constructedLockupDynamic.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");
+
+        address actualNFTDescriptor = address(constructedLockupDynamic.nftDescriptor());
+        address expectedNFTDescriptor = address(nftDescriptor);
+        assertEq(actualNFTDescriptor, expectedNFTDescriptor, "nftDescriptor");
+
+        // {SablierV2Lockup.supportsInterface}
+        assertTrue(constructedLockupDynamic.supportsInterface(0x49064906), "ERC-4906 interface ID");
 
         // {SablierV2LockupDynamic.constructor}
         uint256 actualMaxSegmentCount = constructedLockupDynamic.MAX_SEGMENT_COUNT();

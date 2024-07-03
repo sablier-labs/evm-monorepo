@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.22;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
@@ -19,55 +18,38 @@ library Errors {
     error DelegateCall();
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  SABLIER-V2-BASE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when trying to claim protocol revenues for an asset with no accrued revenues.
-    error SablierV2Base_NoProtocolRevenues(IERC20 asset);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-V2-FLASH-LOAN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when trying to flash loan an unsupported asset.
-    error SablierV2FlashLoan_AssetNotFlashLoanable(IERC20 asset);
-
-    /// @notice Thrown when trying to flash loan an amount greater than or equal to 2^128.
-    error SablierV2FlashLoan_AmountTooHigh(uint256 amount);
-
-    /// @notice Thrown when the calculated fee during a flash loan is greater than or equal to 2^128.
-    error SablierV2FlashLoan_CalculatedFeeTooHigh(uint256 amount);
-
-    /// @notice Thrown when the callback to the flash borrower fails.
-    error SablierV2FlashLoan_FlashBorrowFail();
-
-    /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when trying to allow to hook a contract that doesn't implement the interface correctly.
+    error SablierV2Lockup_AllowToHookUnsupportedInterface(address recipient);
+
+    /// @notice Thrown when trying to allow to hook an address with no code.
+    error SablierV2Lockup_AllowToHookZeroCodeSize(address recipient);
+
     /// @notice Thrown when the broker fee exceeds the maximum allowed fee.
-    error SablierV2Lockup_BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxFee);
+    error SablierV2Lockup_BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxBrokerFee);
 
     /// @notice Thrown when trying to create a stream with a zero deposit amount.
     error SablierV2Lockup_DepositAmountZero();
 
     /// @notice Thrown when trying to create a stream with an end time not in the future.
-    error SablierV2Lockup_EndTimeNotInTheFuture(uint40 currentTime, uint40 endTime);
+    error SablierV2Lockup_EndTimeNotInTheFuture(uint40 blockTimestamp, uint40 endTime);
 
-    /// @notice Thrown when the stream's sender tries to withdraw to an address other than the recipient's.
-    error SablierV2Lockup_InvalidSenderWithdrawal(uint256 streamId, address sender, address to);
+    /// @notice Thrown when the hook does not return the correct selector.
+    error SablierV2Lockup_InvalidHookSelector(address recipient);
 
     /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
     error SablierV2Lockup_NotTransferable(uint256 tokenId);
 
-    /// @notice Thrown when the id references a null stream.
+    /// @notice Thrown when the ID references a null stream.
     error SablierV2Lockup_Null(uint256 streamId);
 
     /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
     error SablierV2Lockup_Overdraw(uint256 streamId, uint128 amount, uint128 withdrawableAmount);
 
-    /// @notice Thrown when the protocol fee exceeds the maximum allowed fee.
-    error SablierV2Lockup_ProtocolFeeTooHigh(UD60x18 protocolFee, UD60x18 maxFee);
+    /// @notice Thrown when trying to create a stream with a zero start time.
+    error SablierV2Lockup_StartTimeZero();
 
     /// @notice Thrown when trying to cancel or renounce a canceled stream.
     error SablierV2Lockup_StreamCanceled(uint256 streamId);
@@ -87,15 +69,18 @@ library Errors {
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierV2Lockup_Unauthorized(uint256 streamId, address caller);
 
+    /// @notice Thrown when trying to withdraw to an address other than the recipient's.
+    error SablierV2Lockup_WithdrawalAddressNotRecipient(uint256 streamId, address caller, address to);
+
     /// @notice Thrown when trying to withdraw zero assets from a stream.
     error SablierV2Lockup_WithdrawAmountZero(uint256 streamId);
 
-    /// @notice Thrown when trying to withdraw from multiple streams and the number of stream ids does
+    /// @notice Thrown when trying to withdraw from multiple streams and the number of stream IDs does
     /// not match the number of withdraw amounts.
     error SablierV2Lockup_WithdrawArrayCountsNotEqual(uint256 streamIdsCount, uint256 amountsCount);
 
     /// @notice Thrown when trying to withdraw to the zero address.
-    error SablierV2Lockup_WithdrawToZeroAddress();
+    error SablierV2Lockup_WithdrawToZeroAddress(uint256 streamId);
 
     /*//////////////////////////////////////////////////////////////////////////
                              SABLIER-V2-LOCKUP-DYNAMIC
@@ -113,15 +98,15 @@ library Errors {
     /// @notice Thrown when trying to create a stream with no segments.
     error SablierV2LockupDynamic_SegmentCountZero();
 
-    /// @notice Thrown when trying to create a stream with unordered segment milestones.
-    error SablierV2LockupDynamic_SegmentMilestonesNotOrdered(
-        uint256 index, uint40 previousMilestone, uint40 currentMilestone
+    /// @notice Thrown when trying to create a stream with unordered segment timestamps.
+    error SablierV2LockupDynamic_SegmentTimestampsNotOrdered(
+        uint256 index, uint40 previousTimestamp, uint40 currentTimestamp
     );
 
     /// @notice Thrown when trying to create a stream with a start time not strictly less than the first
-    /// segment milestone.
-    error SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone(
-        uint40 startTime, uint40 firstSegmentMilestone
+    /// segment timestamp.
+    error SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp(
+        uint40 startTime, uint40 firstSegmentTimestamp
     );
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -131,8 +116,12 @@ library Errors {
     /// @notice Thrown when trying to create a stream with a cliff time not strictly less than the end time.
     error SablierV2LockupLinear_CliffTimeNotLessThanEndTime(uint40 cliffTime, uint40 endTime);
 
-    /// @notice Thrown when trying to create a stream with a start time greater than the cliff time.
-    error SablierV2LockupLinear_StartTimeGreaterThanCliffTime(uint40 startTime, uint40 cliffTime);
+    /// @notice Thrown when trying to create a stream with a start time not strictly less than the cliff time, when the
+    /// cliff time does not have a zero value.
+    error SablierV2LockupLinear_StartTimeNotLessThanCliffTime(uint40 startTime, uint40 cliffTime);
+
+    /// @notice Thrown when trying to create a stream with a start time not strictly less than the end time.
+    error SablierV2LockupLinear_StartTimeNotLessThanEndTime(uint40 startTime, uint40 endTime);
 
     /*//////////////////////////////////////////////////////////////////////////
                              SABLIER-V2-NFT-DESCRIPTOR
@@ -140,4 +129,31 @@ library Errors {
 
     /// @notice Thrown when trying to generate the token URI for an unknown ERC-721 NFT contract.
     error SablierV2NFTDescriptor_UnknownNFT(IERC721Metadata nft, string symbol);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                             SABLIER-V2-LOCKUP-TRANCHE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to create a stream with a deposit amount not equal to the sum of the
+    /// tranche amounts.
+    error SablierV2LockupTranched_DepositAmountNotEqualToTrancheAmountsSum(
+        uint128 depositAmount, uint128 trancheAmountsSum
+    );
+
+    /// @notice Thrown when trying to create a stream with a start time not strictly less than the first
+    /// tranche timestamp.
+    error SablierV2LockupTranched_StartTimeNotLessThanFirstTrancheTimestamp(
+        uint40 startTime, uint40 firstTrancheTimestamp
+    );
+
+    /// @notice Thrown when trying to create a stream with more tranches than the maximum allowed.
+    error SablierV2LockupTranched_TrancheCountTooHigh(uint256 count);
+
+    /// @notice Thrown when trying to create a stream with no tranches.
+    error SablierV2LockupTranched_TrancheCountZero();
+
+    /// @notice Thrown when trying to create a stream with unordered tranche timestamps.
+    error SablierV2LockupTranched_TrancheTimestampsNotOrdered(
+        uint256 index, uint40 previousTimestamp, uint40 currentTimestamp
+    );
 }

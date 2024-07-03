@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -7,7 +7,6 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { LockupStore } from "../stores/LockupStore.sol";
-import { TimestampStore } from "../stores/TimestampStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 /// @dev Common handler logic between {LockupLinearHandler} and {LockupDynamicHandler}.
@@ -31,14 +30,7 @@ abstract contract LockupHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(
-        IERC20 asset_,
-        TimestampStore timestampStore_,
-        LockupStore lockupStore_,
-        ISablierV2Lockup lockup_
-    )
-        BaseHandler(asset_, timestampStore_)
-    {
+    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierV2Lockup lockup_) BaseHandler(asset_) {
         lockupStore = lockupStore_;
         lockup = lockup_;
     }
@@ -49,9 +41,8 @@ abstract contract LockupHandler is BaseHandler {
 
     modifier useAdmin() {
         address admin = lockup.admin();
-        vm.startPrank(admin);
+        resetPrank(admin);
         _;
-        vm.stopPrank();
     }
 
     /// @dev Picks a random stream from the store.
@@ -69,17 +60,15 @@ abstract contract LockupHandler is BaseHandler {
     modifier useFuzzedStreamRecipient() {
         uint256 lastStreamId = lockupStore.lastStreamId();
         currentRecipient = lockupStore.recipients(currentStreamId);
-        vm.startPrank(currentRecipient);
+        resetPrank(currentRecipient);
         _;
-        vm.stopPrank();
     }
 
     modifier useFuzzedStreamSender() {
         uint256 lastStreamId = lockupStore.lastStreamId();
         currentSender = lockupStore.senders(currentStreamId);
-        vm.startPrank(currentSender);
+        resetPrank(currentSender);
         _;
-        vm.stopPrank();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -136,22 +125,6 @@ abstract contract LockupHandler is BaseHandler {
 
         // Cancel the stream.
         lockup.cancel(currentStreamId);
-    }
-
-    function claimProtocolRevenues(uint256 timeJumpSeed)
-        external
-        instrument("claimProtocolRevenues")
-        adjustTimestamp(timeJumpSeed)
-        useAdmin
-    {
-        // Can claim revenues only if the protocol has revenues.
-        uint128 protocolRevenues = lockup.protocolRevenues(asset);
-        if (protocolRevenues == 0) {
-            return;
-        }
-
-        // Claim the protocol revenues.
-        lockup.claimProtocolRevenues(asset);
     }
 
     function renounce(
@@ -302,7 +275,7 @@ abstract contract LockupHandler is BaseHandler {
         // Make the max withdrawal and transfer the NFT.
         lockup.withdrawMaxAndTransfer({ streamId: currentStreamId, newRecipient: newRecipient });
 
-        // Update the recipient associated with this stream id.
+        // Update the recipient associated with this stream ID.
         lockupStore.updateRecipient(currentStreamId, newRecipient);
     }
 
@@ -339,7 +312,7 @@ abstract contract LockupHandler is BaseHandler {
         // Transfer the NFT to the new recipient.
         lockup.transferFrom({ from: currentRecipient, to: newRecipient, tokenId: currentStreamId });
 
-        // Update the recipient associated with this stream id.
+        // Update the recipient associated with this stream ID.
         lockupStore.updateRecipient(currentStreamId, newRecipient);
     }
 }

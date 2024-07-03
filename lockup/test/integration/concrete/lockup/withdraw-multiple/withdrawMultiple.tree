@@ -8,37 +8,23 @@ withdrawMultiple.t.sol
       ├── when the array counts are zero
       │  └── it should do nothing
       └── when the array counts are not zero
-         ├── given the stream ids array references only null streams
+         ├── given the stream IDs array references only null streams
          │  └── it should revert
-         ├── given the stream ids array references some null streams
+         ├── given the stream IDs array references some null streams
          │  └── it should revert
-         └── given the stream ids array references only non-null streams
+         └── given the stream IDs array references only non-null streams
             ├── given all streams' statuses are "DEPLETED"
             │  └── it should revert
             ├── given some streams' statuses are "DEPLETED"
             │  └── it should revert
             └── given no stream's status is "DEPLETED"
-               ├── when the caller is unauthorized for all streams
-               │  ├── when the caller is a malicious third party
-               │  │  └── it should revert
-               │  └── when the caller is a former recipient
-               │     └── it should revert
-               ├── when the caller is unauthorized for some streams
-               │  ├── when the caller is a malicious third party
-               │  │  └── it should revert
-               │  └── when the caller is a former recipient
-               │     └── it should revert
-               └── when the caller is authorized for all streams
-                  ├── when the provided address is zero
+               ├── when some amounts are zero
+               │  └── it should revert
+               └── when none of the amounts are zero
+                  ├── when some amounts overdraw
                   │  └── it should revert
-                  └── when the provided address is not zero
-                     ├── when some amounts are zero
-                     │  └── it should revert
-                     └── when none of the amounts are zero
-                        ├── when some amounts overdraw
-                        │  └── it should revert
-                        └── when no amount overdraws
-                           ├── it should make the withdrawals
-                           ├── it should update the statuses
-                           ├── it should update the withdrawn amounts
-                           └── it should emit multiple {WithdrawFromLockupStream} events
+                  └── when no amount overdraws
+                     ├── it should make the withdrawals
+                     ├── it should update the statuses
+                     ├── it should update the withdrawn amounts
+                     └── it should emit multiple {WithdrawFromLockupStream} events

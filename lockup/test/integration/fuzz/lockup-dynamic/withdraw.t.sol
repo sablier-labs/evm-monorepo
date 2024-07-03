@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
@@ -44,10 +44,9 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         external
         whenNotDelegateCalled
         givenNotNull
-        whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
     {
         vm.assume(params.segments.length != 0);
         vm.assume(params.to != address(0));
@@ -56,31 +55,31 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         Vars memory vars;
         vars.funder = users.sender;
 
-        // Fuzz the segment milestones.
-        fuzzSegmentMilestones(params.segments, defaults.START_TIME());
+        // Fuzz the segment timestamps.
+        fuzzSegmentTimestamps(params.segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
         (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(params.segments);
 
         // Bound the time jump.
-        vars.totalDuration = params.segments[params.segments.length - 1].milestone - defaults.START_TIME();
+        vars.totalDuration = params.segments[params.segments.length - 1].timestamp - defaults.START_TIME();
         params.timeJump = _bound(params.timeJump, 1 seconds, vars.totalDuration + 100 seconds);
 
         // Mint enough assets to the funder.
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
 
         // Make the Sender the caller.
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
 
         // Create the stream with the fuzzed segments.
-        LockupDynamic.CreateWithMilestones memory createParams = defaults.createWithMilestones();
+        LockupDynamic.CreateWithTimestamps memory createParams = defaults.createWithTimestampsLD();
         createParams.totalAmount = vars.totalAmount;
         createParams.segments = params.segments;
 
-        vars.streamId = lockupDynamic.createWithMilestones(createParams);
+        vars.streamId = lockupDynamic.createWithTimestamps(createParams);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + params.timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + params.timeJump });
 
         // Query the withdrawable amount.
         vars.withdrawableAmount = lockupDynamic.withdrawableAmountOf(vars.streamId);
@@ -94,7 +93,7 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
         // Expect the assets to be transferred to the fuzzed `to` address.
-        expectCallToTransfer({ to: params.to, amount: vars.withdrawAmount });
+        expectCallToTransfer({ to: params.to, value: vars.withdrawAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockupDynamic) });
@@ -103,7 +102,7 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         emit MetadataUpdate({ _tokenId: vars.streamId });
 
         // Make the Recipient the caller.
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
 
         // Make the withdrawal.
         lockupDynamic.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });

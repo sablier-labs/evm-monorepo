@@ -5,11 +5,11 @@ cancelMultiple.t.sol
    ├── when the array count is zero
    │  └── it should do nothing
    └── when the array count is not zero
-      ├── given the stream ids array references only null streams
+      ├── given the stream IDs array references only null streams
       │  └── it should revert
-      ├── given the stream ids array references some null streams
+      ├── given the stream IDs array references some null streams
       │  └── it should revert
-      └── given the stream ids array references only streams that are not null
+      └── given the stream IDs array references only streams that are not null
          ├── given all streams are cold
          │  └── it should revert
          ├── given some streams are cold

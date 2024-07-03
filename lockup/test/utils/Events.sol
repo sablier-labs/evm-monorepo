@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
-import { IERC3156FlashBorrower } from "../../src/interfaces/erc3156/IERC3156FlashBorrower.sol";
-import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
-import { Lockup, LockupDynamic, LockupLinear } from "../../src/types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
 
 /// @notice Abstract contract containing all the events emitted by the protocol.
 abstract contract Events {
@@ -32,41 +29,10 @@ abstract contract Events {
     event TransferAdmin(address indexed oldAdmin, address indexed newAdmin);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  SABLIER-V2-BASE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    event ClaimProtocolRevenues(address indexed admin, IERC20 indexed asset, uint128 protocolRevenues);
-
-    event SetComptroller(
-        address indexed admin, ISablierV2Comptroller oldComptroller, ISablierV2Comptroller newComptroller
-    );
-
-    /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-V2-COMPTROLLER
-    //////////////////////////////////////////////////////////////////////////*/
-
-    event SetFlashFee(address indexed admin, UD60x18 oldFlashFee, UD60x18 newFlashFee);
-
-    event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
-
-    event ToggleFlashAsset(address indexed admin, IERC20 indexed asset, bool newFlag);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-V2-FLASH-LOAN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    event FlashLoan(
-        address indexed initiator,
-        IERC3156FlashBorrower indexed receiver,
-        IERC20 indexed asset,
-        uint256 amount,
-        uint256 feeAmount,
-        bytes data
-    );
-
-    /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
+
+    event AllowToHook(address indexed admin, address recipient);
 
     event CancelLockupStream(
         uint256 streamId,
@@ -99,7 +65,7 @@ abstract contract Events {
         bool cancelable,
         bool transferable,
         LockupDynamic.Segment[] segments,
-        LockupDynamic.Range range,
+        LockupDynamic.Timestamps timestamps,
         address broker
     );
 
@@ -116,7 +82,25 @@ abstract contract Events {
         IERC20 indexed asset,
         bool cancelable,
         bool transferable,
-        LockupLinear.Range range,
+        LockupLinear.Timestamps timestamps,
+        address broker
+    );
+
+    /*//////////////////////////////////////////////////////////////////////////
+                             SABLIER-V2-LOCKUP-TRANCHED
+    //////////////////////////////////////////////////////////////////////////*/
+
+    event CreateLockupTranchedStream(
+        uint256 streamId,
+        address funder,
+        address indexed sender,
+        address indexed recipient,
+        Lockup.CreateAmounts amounts,
+        IERC20 indexed asset,
+        bool cancelable,
+        bool transferable,
+        LockupTranched.Tranche[] tranches,
+        LockupTranched.Timestamps timestamps,
         address broker
     );
 }

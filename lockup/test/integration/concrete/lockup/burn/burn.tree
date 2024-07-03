@@ -2,9 +2,9 @@ burn.t.sol
 ├── when delegate called
 │  └── it should revert
 └── when not delegate called
-   ├── given the id references a null stream
+   ├── given the ID references a null stream
    │  └── it should revert
-   └── given the id does not reference a null stream
+   └── given the ID does not reference a null stream
       ├── given the stream has not been depleted
       │  ├── given the stream's status is "PENDING"
       │  │  └── it should revert

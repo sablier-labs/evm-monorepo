@@ -1,21 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.22;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
+import { CommonBase } from "forge-std/src/Base.sol";
 
-import { Vm } from "@prb/test/src/PRBTest.sol";
-import { StdUtils } from "forge-std/src/StdUtils.sol";
+import { LockupDynamic, LockupTranched } from "../../src/types/DataTypes.sol";
 
-import { LockupDynamic } from "../../src/types/DataTypes.sol";
-
-abstract contract Utils is StdUtils, PRBMathUtils {
-    /// @dev The virtual address of the Foundry VM.
-    address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
-
-    /// @dev An instance of the Foundry VM, which contains cheatcodes for testing.
-    Vm private constant vm = Vm(VM_ADDRESS);
-
+abstract contract Utils is CommonBase, PRBMathUtils {
     /// @dev Bounds a `uint128` number.
     function boundUint128(uint128 x, uint128 min, uint128 max) internal pure returns (uint128) {
         return uint128(_bound(uint256(x), uint256(min), uint256(max)));
@@ -31,32 +23,77 @@ abstract contract Utils is StdUtils, PRBMathUtils {
         return uint40(block.timestamp);
     }
 
-    /// @dev Turns the segments with deltas into canonical segments, which have milestones.
-    function getSegmentsWithMilestones(LockupDynamic.SegmentWithDelta[] memory segments)
+    /// @dev Turns the segments with durations into canonical segments, which have timestamps.
+    function getSegmentsWithTimestamps(LockupDynamic.SegmentWithDuration[] memory segments)
         internal
         view
-        returns (LockupDynamic.Segment[] memory segmentsWithMilestones)
+        returns (LockupDynamic.Segment[] memory segmentsWithTimestamps)
     {
         unchecked {
-            segmentsWithMilestones = new LockupDynamic.Segment[](segments.length);
-            segmentsWithMilestones[0] = LockupDynamic.Segment({
+            segmentsWithTimestamps = new LockupDynamic.Segment[](segments.length);
+            segmentsWithTimestamps[0] = LockupDynamic.Segment({
                 amount: segments[0].amount,
                 exponent: segments[0].exponent,
-                milestone: getBlockTimestamp() + segments[0].delta
+                timestamp: getBlockTimestamp() + segments[0].duration
             });
             for (uint256 i = 1; i < segments.length; ++i) {
-                segmentsWithMilestones[i] = LockupDynamic.Segment({
+                segmentsWithTimestamps[i] = LockupDynamic.Segment({
                     amount: segments[i].amount,
                     exponent: segments[i].exponent,
-                    milestone: segmentsWithMilestones[i - 1].milestone + segments[i].delta
+                    timestamp: segmentsWithTimestamps[i - 1].timestamp + segments[i].duration
                 });
             }
         }
     }
 
+    /// @dev Turns the tranches with durations into canonical tranches, which have timestamps.
+    function getTranchesWithTimestamps(LockupTranched.TrancheWithDuration[] memory tranches)
+        internal
+        view
+        returns (LockupTranched.Tranche[] memory tranchesWithTimestamps)
+    {
+        unchecked {
+            tranchesWithTimestamps = new LockupTranched.Tranche[](tranches.length);
+            tranchesWithTimestamps[0] = LockupTranched.Tranche({
+                amount: tranches[0].amount,
+                timestamp: getBlockTimestamp() + tranches[0].duration
+            });
+            for (uint256 i = 1; i < tranches.length; ++i) {
+                tranchesWithTimestamps[i] = LockupTranched.Tranche({
+                    amount: tranches[i].amount,
+                    timestamp: tranchesWithTimestamps[i - 1].timestamp + tranches[i].duration
+                });
+            }
+        }
+    }
+
+    /// @dev Checks if the Foundry profile is "benchmark".
+    function isBenchmarkProfile() internal view returns (bool) {
+        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
+        return Strings.equal(profile, "benchmark");
+    }
+
     /// @dev Checks if the Foundry profile is "test-optimized".
-    function isTestOptimizedProfile() internal returns (bool) {
+    function isTestOptimizedProfile() internal view returns (bool) {
         string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
         return Strings.equal(profile, "test-optimized");
+    }
+
+    /// @dev Returns the largest of the provided `uint40` numbers.
+    function maxOfThree(uint40 a, uint40 b, uint40 c) internal pure returns (uint40) {
+        uint40 max = a;
+        if (b > max) {
+            max = b;
+        }
+        if (c > max) {
+            max = c;
+        }
+        return max;
+    }
+
+    /// @dev Stops the active prank and sets a new one.
+    function resetPrank(address msgSender) internal {
+        vm.stopPrank();
+        vm.startPrank(msgSender);
     }
 }

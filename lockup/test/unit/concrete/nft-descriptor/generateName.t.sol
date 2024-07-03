@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
 
 contract GenerateName_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
-    function gn(string memory streamingModel, string memory streamId) internal view returns (string memory) {
-        return nftDescriptorMock.generateName_(streamingModel, streamId);
+    function gn(string memory sablierModel, string memory streamId) internal view returns (string memory) {
+        return nftDescriptorMock.generateName_(sablierModel, streamId);
     }
 
     function dyn(string memory streamId) internal pure returns (string memory) {
@@ -16,13 +16,13 @@ contract GenerateName_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
         return string.concat("Sablier V2 Lockup Linear #", streamId);
     }
 
-    function test_GenerateName_Empty() external {
+    function test_GenerateName_Empty() external view {
         assertEq(gn("", ""), "Sablier V2  #", "metadata name");
         assertEq(gn("A", ""), "Sablier V2 A #", "metadata name");
         assertEq(gn("", "1"), "Sablier V2  #1", "metadata name");
     }
 
-    function test_GenerateName() external {
+    function test_GenerateName() external view {
         assertEq(gn("Lockup Dynamic", "1"), dyn("1"), "metadata name");
         assertEq(gn("Lockup Dynamic", "42"), dyn("42"), "metadata name");
         assertEq(gn("Lockup Dynamic", "1337"), dyn("1337"), "metadata name");

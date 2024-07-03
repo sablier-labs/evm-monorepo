@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { GetWithdrawnAmount_Integration_Shared_Test } from "../../shared/lockup/getWithdrawnAmount.t.sol";
 import { Integration_Test } from "../../Integration.t.sol";
@@ -16,7 +16,7 @@ abstract contract GetWithdrawnAmount_Integration_Fuzz_Test is
         timeJump = _bound(timeJump, 0 seconds, defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
@@ -35,7 +35,7 @@ abstract contract GetWithdrawnAmount_Integration_Fuzz_Test is
         timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
         uint128 streamedAmount = lockup.streamedAmountOf(defaultStreamId);

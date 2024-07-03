@@ -1,0 +1,12 @@
+withdrawHooks.t.sol
+├── given the recipient is the same as the sender
+│  └── it should not make Sablier run the user hook
+└── given the recipient is different than the sender
+   ├── when the caller is unknown
+   │  └── it should make Sablier run the recipient hook
+   ├── when the caller is an approved third party
+   │  └── it should make Sablier run the recipient hook
+   ├── when the caller is the sender
+   │  └── it should make Sablier run the recipient hook
+   └── when the caller is the recipient
+      └── it should not make Sablier run the recipient hook

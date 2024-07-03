@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierV2NFTDescriptor } from "src/interfaces/ISablierV2NFTDescriptor.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -17,7 +17,7 @@ abstract contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test
 
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        changePrank({ msgSender: users.eve });
+        resetPrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));
@@ -26,7 +26,7 @@ abstract contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test
 
     modifier whenCallerAdmin() {
         // Make the Admin the caller in the rest of this test suite.
-        changePrank({ msgSender: users.admin });
+        resetPrank({ msgSender: users.admin });
         _;
     }
 

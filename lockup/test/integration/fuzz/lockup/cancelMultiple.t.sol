@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Solarray } from "solarray/src/Solarray.sol";
 
@@ -31,16 +31,16 @@ abstract contract CancelMultiple_Integration_Fuzz_Test is Integration_Test, Canc
         uint256 streamId = createDefaultStreamWithEndTime(endTime);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
-        // Create the stream ids array.
+        // Create the stream IDs array.
         uint256[] memory streamIds = Solarray.uint256s(testStreamIds[0], streamId);
 
         // Expect the assets to be refunded to the Sender.
         uint128 senderAmount0 = lockup.refundableAmountOf(streamIds[0]);
-        expectCallToTransfer({ to: users.sender, amount: senderAmount0 });
+        expectCallToTransfer({ to: users.sender, value: senderAmount0 });
         uint128 senderAmount1 = lockup.refundableAmountOf(streamIds[1]);
-        expectCallToTransfer({ to: users.sender, amount: senderAmount1 });
+        expectCallToTransfer({ to: users.sender, value: senderAmount1 });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

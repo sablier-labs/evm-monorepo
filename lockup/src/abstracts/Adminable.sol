@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.22;
 
 import { IAdminable } from "../interfaces/IAdminable.sol";
 import { Errors } from "../libraries/Errors.sol";
@@ -8,7 +8,7 @@ import { Errors } from "../libraries/Errors.sol";
 /// @notice See the documentation in {IAdminable}.
 abstract contract Adminable is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
-                                       STORAGE
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IAdminable
@@ -32,7 +32,7 @@ abstract contract Adminable is IAdminable {
 
     /// @inheritdoc IAdminable
     function transferAdmin(address newAdmin) public virtual override onlyAdmin {
-        // Effects: update the admin.
+        // Effect: update the admin.
         admin = newAdmin;
 
         // Log the transfer of the admin.
