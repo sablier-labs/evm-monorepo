@@ -57,7 +57,7 @@ forge install --no-commit sablier-labs/v2-core
 Second, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.0 PaulRBerg/prb-math
+forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.0.3
 ```
 
 Finally, add these to your `remappings.txt` file:
