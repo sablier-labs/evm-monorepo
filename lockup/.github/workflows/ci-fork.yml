@@ -1,4 +1,4 @@
-name: "CI Fork tests"
+name: "CI Fork and Util tests"
 
 on:
     schedule:
@@ -22,3 +22,11 @@ jobs:
         fuzz-seed: true
         match-path: "test/fork/**/*.sol"
         name: "Fork tests"
+
+  test-utils:
+    needs: ["lint", "build"]
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-profile: "test-optimized"
+      match-path: "test/utils/**/*.sol"
+      name: "Utils tests"
