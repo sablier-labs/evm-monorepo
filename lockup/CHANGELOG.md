@@ -12,7 +12,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [1.0.1]: https://github.com/sablier-labs/v2-core/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/sablier-labs/v2-core/releases/tag/v1.0.0
 
-## [1.2.0] - 2024-07-03
+## [1.2.0] - 2024-07-04
 
 ### Changed
 
