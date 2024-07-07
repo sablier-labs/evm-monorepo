@@ -10,23 +10,23 @@ on:
   workflow_dispatch:
     inputs:
       unitFuzzRuns:
-        default: "50000"
+        default: '50000'
         description: "Unit: number of fuzz runs."
         required: false
       integrationFuzzRuns:
-        default: "50000"
+        default: '50000'
         description: "Integration: number of fuzz runs."
         required: false
       invariantRuns:
-        default: "100"
+        default: '100'
         description: "Invariant runs: number of sequences of function calls generated and run."
         required: false
       invariantDepth:
-        default: "100"
+        default: '100'
         description: "Invariant depth: number of function calls made in a given run."
         required: false
       forkFuzzRuns:
-        default: "1000"
+        default: '1000'
         description: "Fork: number of fuzz runs."
         required: false
 
@@ -41,7 +41,7 @@ jobs:
     needs: ["lint", "build"]
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
     with:
-      foundry-fuzz-runs: ${{ inputs.unitFuzzRuns || '50000' }}
+      foundry-fuzz-runs: ${{ inputs.unitFuzzRuns || 50000 }}
       foundry-profile: "test-optimized"
       match-path: "test/unit/**/*.sol"
       name: "Unit tests"
@@ -50,7 +50,7 @@ jobs:
     needs: ["lint", "build"]
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
     with:
-      foundry-fuzz-runs: ${{ inputs.integrationFuzzRuns || '50000' }}
+      foundry-fuzz-runs: ${{ inputs.integrationFuzzRuns || 50000 }}
       foundry-profile: "test-optimized"
       match-path: "test/integration/**/*.sol"
       name: "Integration tests"
@@ -59,8 +59,8 @@ jobs:
     needs: ["lint", "build"]
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
     with:
-      foundry-invariant-depth: ${{ inputs.invariantDepth || '100' }}
-      foundry-invariant-runs: ${{ inputs.invariantRuns || '100' }}
+      foundry-invariant-depth: ${{ inputs.invariantDepth || 100 }}
+      foundry-invariant-runs: ${{ inputs.invariantRuns || 100 }}
       foundry-profile: "test-optimized"
       match-path: "test/invariant/**/*.sol"
       name: "Invariant tests"
@@ -71,7 +71,7 @@ jobs:
       RPC_URL_MAINNET: ${{ secrets.RPC_URL_MAINNET }}
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
     with:
-      foundry-fuzz-runs: ${{ inputs.forkFuzzRuns || '1000' }}
+      foundry-fuzz-runs: ${{ inputs.forkFuzzRuns || 1000 }}
       foundry-profile: "test-optimized"
       match-path: "test/fork/**/*.sol"
       name: "Fork tests"
