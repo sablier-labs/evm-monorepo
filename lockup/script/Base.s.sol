@@ -99,8 +99,8 @@ contract BaseScript is Script {
         trancheCountMap[8453] = 2270;
 
         // Blast chain ID.
-        segmentCountMap[238] = 1080;
-        trancheCountMap[238] = 1120;
+        segmentCountMap[81457] = 1080;
+        trancheCountMap[81457] = 1120;
 
         // BNB chain ID.
         segmentCountMap[56] = 4820;
