@@ -62,7 +62,6 @@ mkdir ${deployments}
 
 # Addresses taken from https://docs.sablier.com/concepts/governance
 export ARBITRUM_ADMIN="0xF34E41a6f6Ce5A45559B1D3Ee92E141a3De96376"
-export ARBITRUM_SEPOLIA_ADMIN="0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F"
 export AVALANCHE_ADMIN="0x4735517616373c5137dE8bcCDc887637B8ac85Ce"
 export BASE_ADMIN="0x83A6fA8c04420B3F9C7A4CF1c040b63Fbbc89B66"
 export BNB_ADMIN="0x6666cA940D2f4B65883b454b7Bc7EEB039f64fa3"
@@ -71,7 +70,7 @@ export MAINNET_ADMIN="0x79Fb3e81aAc012c08501f41296CCC145a1E15844"
 export OPTIMISM_ADMIN="0x43c76FE8Aec91F63EbEfb4f5d2a4ba88ef880350"
 export POLYGON_ADMIN="0x40A518C5B9c1d3D6d62Ba789501CE4D526C9d9C6"
 export SCROLL_ADMIN="0x0F7Ad835235Ede685180A5c611111610813457a9"
-export SEPOLIA_ADMIN="0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F"
+export TESTNET_ADMIN="0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F"
 
 # Flag for broadcast deployment
 BROADCAST_DEPLOYMENT=false
@@ -103,17 +102,19 @@ declare -A chains
 
 # define function to initialize all configurations
 function initialize {
-    chains["arbitrum"]="$ARBITRUM_RPC_URL $ARBISCAN_API_KEY $ARBITRUM_ADMIN"
-    chains["arbitrum_sepolia"]="$ARBITRUM_SEPOLIA_RPC_URL $ARBISCAN_API_KEY $ARBITRUM_SEPOLIA_ADMIN"
-    chains["avalanche"]="$AVALANCHE_RPC_URL $SNOWTRACE_API_KEY $AVALANCHE_ADMIN"
-    chains["base"]="$BASE_RPC_URL $BASESCAN_API_KEY $BASE_ADMIN"
-    chains["bnb_smart_chain"]="$BNB_RPC_URL $BSCSCAN_API_KEY $BNB_ADMIN"
-    chains["gnosis"]="$GNOSIS_RPC_URL $GNOSISSCAN_API_KEY $GNOSIS_ADMIN"
-    chains["mainnet"]="$MAINNET_RPC_URL $ETHERSCAN_API_KEY $MAINNET_ADMIN"
-    chains["optimism"]="$OPTIMISM_RPC_URL $OPTIMISTIC_API_KEY $OPTIMISM_ADMIN"
-    chains["polygon"]="$POLYGON_RPC_URL $POLYGONSCAN_API_KEY $POLYGON_ADMIN"
-    chains["sepolia"]="$SEPOLIA_RPC_URL $ETHERSCAN_API_KEY $SEPOLIA_ADMIN"
-    chains["scroll"]="$SCROLL_RPC_URL $SCROLLSCAN_API_KEY $SCROLL_ADMIN"
+    chains["arbitrum"]="arbitrum $ARBISCAN_API_KEY $ARBITRUM_ADMIN"
+    chains["arbitrum_sepolia"]="arbitrum_sepolia $ARBISCAN_API_KEY $TESTNET_ADMIN"
+    chains["avalanche"]="avalanche $SNOWTRACE_API_KEY $AVALANCHE_ADMIN"
+    chains["base"]="base $BASESCAN_API_KEY $BASE_ADMIN"
+    chains["base_sepolia"]="base_sepolia $BASESCAN_API_KEY $TESTNET_ADMIN"
+    chains["bnb_smart_chain"]="bnb $BSCSCAN_API_KEY $BNB_ADMIN"
+    chains["gnosis"]="gnosis $GNOSISSCAN_API_KEY $GNOSIS_ADMIN"
+    chains["mainnet"]="mainnet $ETHERSCAN_API_KEY $MAINNET_ADMIN"
+    chains["optimism"]="optimism $OPTIMISTIC_API_KEY $OPTIMISM_ADMIN"
+    chains["optimism_sepolia"]="optimism_sepolia $OPTIMISTIC_API_KEY $TESTNET_ADMIN"
+    chains["polygon"]="polygon $POLYGONSCAN_API_KEY $POLYGON_ADMIN"
+    chains["scroll"]="scroll $SCROLLSCAN_API_KEY $SCROLL_ADMIN"
+    chains["sepolia"]="sepolia $ETHERSCAN_API_KEY $TESTNET_ADMIN"
 }
 
 # define function to initialize limited configurations
@@ -140,8 +141,7 @@ else
     echo -e "${WC}Missing '.env.deployment'. Provide details below: ${NC}\n"
 
     # initialize chains
-    initialize_interactive
-
+    initialize_interactive    
 fi
 
 # Check for arguments passed to the script
@@ -288,7 +288,7 @@ for chain in "${provided_chains[@]}"; do
     if [[ ${DETERMINISTIC_DEPLOYMENT} == true ]]; then
         echo -e "${SC}+${NC} Deterministic address"
         if [[ ${sol_script} == "" ]]; then
-            deployment_command+=("script" "script/DeployDeterministicCore.s.sol" "--ffi")
+            deployment_command+=("script" "script/DeployDeterministicCore.s.sol")
         else
             deployment_command+=("script" "${sol_script}")
         fi

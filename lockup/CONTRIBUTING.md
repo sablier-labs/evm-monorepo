@@ -67,10 +67,9 @@ populate it with the appropriate environment values. You need to provide your mn
 ### Deployment
 
 To make CI work in your pull request, ensure that the necessary environment variables are configured in your forked
-repository's secrets. Please add the following variables in your GitHub Secrets:
+repository's secrets. Please add the following variable in your GitHub Secrets:
 
-- API_KEY_INFURA
-- RPC_URL_MAINNET
+- MAINNET_RPC_URL
 
 ## Integration with VSCode:
 
