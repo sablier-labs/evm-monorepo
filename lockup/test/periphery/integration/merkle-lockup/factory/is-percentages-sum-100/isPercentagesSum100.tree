@@ -1,0 +1,11 @@
+isPercentagesSum100.t.sol
+├── when the sum of the percentages overflows
+│  └── it should revert
+└── when the sum of the percentages does not overflow
+   ├── when the sum of the percentages does not equal 100%
+   │  ├── when the sum of the percentages is less than 100%
+   │  │  └── it should return false
+   │  └── when the sum of the percentages is greater than 100%
+   │     └── it should return false
+   └── when the sum of the percentages equals 100%
+      └── it should return true
