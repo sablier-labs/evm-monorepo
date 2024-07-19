@@ -13,7 +13,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset, address holder) Fork_Test(asset, holder) { }
+    constructor(IERC20 forkAsset, address forkAssetHolder) Fork_Test(forkAsset, forkAssetHolder) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -24,7 +24,8 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
 
         // Approve {SablierV2LockupTranched} to transfer the holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
-        (bool success,) = address(ASSET).call(abi.encodeCall(IERC20.approve, (address(lockupTranched), MAX_UINT256)));
+        (bool success,) =
+            address(FORK_ASSET).call(abi.encodeCall(IERC20.approve, (address(lockupTranched), MAX_UINT256)));
         success;
     }
 
@@ -124,7 +125,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         });
 
         // Make the holder the caller.
-        resetPrank(HOLDER);
+        resetPrank(FORK_ASSET_HOLDER);
 
         /*//////////////////////////////////////////////////////////////////////////
                                             CREATE
@@ -132,7 +133,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
 
         // Load the pre-create asset balances.
         vars.balances =
-            getTokenBalances(address(ASSET), Solarray.addresses(address(lockupTranched), params.broker.account));
+            getTokenBalances(address(FORK_ASSET), Solarray.addresses(address(lockupTranched), params.broker.account));
         vars.initialLockupTranchedBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
@@ -148,11 +149,11 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(lockupTranched) });
         emit CreateLockupTranchedStream({
             streamId: vars.streamId,
-            funder: HOLDER,
+            funder: FORK_ASSET_HOLDER,
             sender: params.sender,
             recipient: params.recipient,
             amounts: vars.createAmounts,
-            asset: ASSET,
+            asset: FORK_ASSET,
             cancelable: true,
             transferable: true,
             tranches: params.tranches,
@@ -166,7 +167,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
                 sender: params.sender,
                 recipient: params.recipient,
                 totalAmount: vars.totalAmount,
-                asset: ASSET,
+                asset: FORK_ASSET,
                 cancelable: true,
                 transferable: true,
                 startTime: params.startTime,
@@ -183,7 +184,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         // Assert that the stream has been created.
         LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
-        assertEq(actualStream.asset, ASSET, "asset");
+        assertEq(actualStream.asset, FORK_ASSET, "asset");
         assertEq(actualStream.endTime, vars.timestamps.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
@@ -217,8 +218,9 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "post-create NFT owner");
 
         // Load the post-create asset balances.
-        vars.balances =
-            getTokenBalances(address(ASSET), Solarray.addresses(address(lockupTranched), HOLDER, params.broker.account));
+        vars.balances = getTokenBalances(
+            address(FORK_ASSET), Solarray.addresses(address(lockupTranched), FORK_ASSET_HOLDER, params.broker.account)
+        );
         vars.actualLockupTranchedBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];
@@ -261,14 +263,14 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         if (params.withdrawAmount > 0) {
             // Load the pre-withdraw asset balances.
             vars.initialLockupTranchedBalance = vars.actualLockupTranchedBalance;
-            vars.initialRecipientBalance = ASSET.balanceOf(params.recipient);
+            vars.initialRecipientBalance = FORK_ASSET.balanceOf(params.recipient);
 
             // Expect the relevant events to be emitted.
             vm.expectEmit({ emitter: address(lockupTranched) });
             emit WithdrawFromLockupStream({
                 streamId: vars.streamId,
                 to: params.recipient,
-                asset: ASSET,
+                asset: FORK_ASSET,
                 amount: params.withdrawAmount
             });
             vm.expectEmit({ emitter: address(lockupTranched) });
@@ -296,7 +298,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
 
             // Load the post-withdraw asset balances.
             vars.balances =
-                getTokenBalances(address(ASSET), Solarray.addresses(address(lockupTranched), params.recipient));
+                getTokenBalances(address(FORK_ASSET), Solarray.addresses(address(lockupTranched), params.recipient));
             vars.actualLockupTranchedBalance = vars.balances[0];
             vars.actualRecipientBalance = vars.balances[1];
 
@@ -321,7 +323,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         if (!vars.isDepleted && !vars.isSettled) {
             // Load the pre-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(ASSET), Solarray.addresses(address(lockupTranched), params.sender, params.recipient)
+                address(FORK_ASSET), Solarray.addresses(address(lockupTranched), params.sender, params.recipient)
             );
             vars.initialLockupTranchedBalance = vars.balances[0];
             vars.initialSenderBalance = vars.balances[1];
@@ -332,7 +334,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
             vars.senderAmount = lockupTranched.refundableAmountOf(vars.streamId);
             vars.recipientAmount = lockupTranched.withdrawableAmountOf(vars.streamId);
             emit CancelLockupStream(
-                vars.streamId, params.sender, params.recipient, ASSET, vars.senderAmount, vars.recipientAmount
+                vars.streamId, params.sender, params.recipient, FORK_ASSET, vars.senderAmount, vars.recipientAmount
             );
             vm.expectEmit({ emitter: address(lockupTranched) });
             emit MetadataUpdate({ _tokenId: vars.streamId });
@@ -348,7 +350,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
 
             // Load the post-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(ASSET), Solarray.addresses(address(lockupTranched), params.sender, params.recipient)
+                address(FORK_ASSET), Solarray.addresses(address(lockupTranched), params.sender, params.recipient)
             );
             vars.actualLockupTranchedBalance = vars.balances[0];
             vars.actualSenderBalance = vars.balances[1];

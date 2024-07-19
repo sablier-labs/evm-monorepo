@@ -12,17 +12,17 @@ abstract contract Fork_Test is Base_Test {
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 internal immutable ASSET;
-    address internal immutable HOLDER;
+    IERC20 internal immutable FORK_ASSET;
+    address internal immutable FORK_ASSET_HOLDER;
     uint256 internal initialHolderBalance;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset, address holder) {
-        ASSET = asset;
-        HOLDER = holder;
+    constructor(IERC20 forkAsset, address forkAssetHolder) {
+        FORK_ASSET = forkAsset;
+        FORK_ASSET_HOLDER = forkAssetHolder;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -39,11 +39,11 @@ abstract contract Fork_Test is Base_Test {
         // Label the contracts.
         labelContracts();
 
-        // Make the ASSET HOLDER the caller in this test suite.
-        resetPrank({ msgSender: HOLDER });
+        // Make the forked asset holder the caller in this test suite.
+        resetPrank({ msgSender: FORK_ASSET_HOLDER });
 
-        // Query the initial balance of the ASSET HOLDER.
-        initialHolderBalance = ASSET.balanceOf(HOLDER);
+        // Query the initial balance of the forked asset holder.
+        initialHolderBalance = FORK_ASSET.balanceOf(FORK_ASSET_HOLDER);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -55,20 +55,20 @@ abstract contract Fork_Test is Base_Test {
         // The protocol does not allow the zero address to interact with it.
         vm.assume(sender != address(0) && recipient != address(0) && broker != address(0));
 
-        // The goal is to not have overlapping users because the ASSET balance tests would fail otherwise.
+        // The goal is to not have overlapping users because the forked asset balance tests would fail otherwise.
         vm.assume(sender != recipient && sender != broker && recipient != broker);
-        vm.assume(sender != HOLDER && recipient != HOLDER && broker != HOLDER);
+        vm.assume(sender != FORK_ASSET_HOLDER && recipient != FORK_ASSET_HOLDER && broker != FORK_ASSET_HOLDER);
         vm.assume(sender != sablierContract && recipient != sablierContract && broker != sablierContract);
 
         // Avoid users blacklisted by USDC or USDT.
-        assumeNoBlacklisted(address(ASSET), sender);
-        assumeNoBlacklisted(address(ASSET), recipient);
-        assumeNoBlacklisted(address(ASSET), broker);
+        assumeNoBlacklisted(address(FORK_ASSET), sender);
+        assumeNoBlacklisted(address(FORK_ASSET), recipient);
+        assumeNoBlacklisted(address(FORK_ASSET), broker);
     }
 
     /// @dev Labels the most relevant contracts.
     function labelContracts() internal {
-        vm.label({ account: address(ASSET), newLabel: IERC20Metadata(address(ASSET)).symbol() });
-        vm.label({ account: HOLDER, newLabel: "HOLDER" });
+        vm.label({ account: address(FORK_ASSET), newLabel: IERC20Metadata(address(FORK_ASSET)).symbol() });
+        vm.label({ account: FORK_ASSET_HOLDER, newLabel: "FORK_ASSET_HOLDER" });
     }
 }
