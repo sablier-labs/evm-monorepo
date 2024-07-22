@@ -41,6 +41,17 @@ jobs:
       match-path: "test/invariant/**/*.sol"
       name: "Invariant tests"
 
+  test-fork:
+    needs: ["lint", "build"]
+    secrets:
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: 20
+      foundry-profile: "test-optimized"
+      match-path: "test/fork/**/*.sol"
+      name: "Fork tests"
+
   coverage:
     needs: ["lint", "build"]
     secrets:

@@ -92,9 +92,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
 
         // Hash the next stream ID and the decimal to generate a seed.
         uint256 ratePerSecondSeed = uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals)));
-
-        // Bound the rate per second between a realistic range.
-        uint128 ratePerSecond = uint128(_bound(ratePerSecondSeed, 0.001e18, 10e18));
+        uint128 ratePerSecond = boundRatePerSecond(uint128(ratePerSecondSeed));
 
         // Create stream.
         streamId = createDefaultStream(ratePerSecond, asset);

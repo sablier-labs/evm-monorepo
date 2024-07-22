@@ -77,7 +77,7 @@ contract FlowCreateHandler is BaseHandler {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
         // Bound the stream parameters.
-        params.ratePerSecond = uint128(_bound(params.ratePerSecond, 0.0001e18, 1e18));
+        params.ratePerSecond = boundRatePerSecond(params.ratePerSecond);
 
         // Create the stream.
         uint256 streamId =
@@ -105,7 +105,7 @@ contract FlowCreateHandler is BaseHandler {
         uint128 upperBound = getTransferAmount(1_000_000e18, decimals);
 
         // Bound the stream parameters.
-        params.ratePerSecond = uint128(_bound(params.ratePerSecond, 0.0001e18, 1e18));
+        params.ratePerSecond = boundRatePerSecond(params.ratePerSecond);
         transferAmount = uint128(_bound(transferAmount, 100, upperBound));
 
         // Mint enough assets to the Sender.

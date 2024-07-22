@@ -30,8 +30,12 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         (streamId, decimals,) = useFuzzedStreamOrCreate(streamId, decimals);
 
+        // Following variables are used during assertions.
+        uint256 prevAssetBalance = asset.balanceOf(address(flow));
+        uint128 prevStreamBalance = flow.getBalance(streamId);
+
         // Bound the transfer amount to avoid overflow.
-        transferAmount = boundTransferAmount(transferAmount, decimals);
+        transferAmount = boundTransferAmount(transferAmount, prevStreamBalance, decimals);
 
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
@@ -45,10 +49,6 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
-
-        // Following variables are used during assertions.
-        uint256 prevAssetBalance = asset.balanceOf(address(flow));
-        uint128 prevStreamBalance = flow.getBalance(streamId);
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(asset) });

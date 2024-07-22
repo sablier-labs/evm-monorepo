@@ -48,13 +48,18 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
             flow = deployOptimizedSablierFlow();
         }
 
+        // Label the flow contract.
+        vm.label(address(flow), "Flow");
+
+        // Create new assets and label them.
+        createAndLabelAssets();
+
+        // Create the users.
         users.broker = createUser("broker");
         users.eve = createUser("eve");
         users.operator = createUser("operator");
         users.recipient = createUser("recipient");
         users.sender = createUser("sender");
-
-        labelContracts();
 
         resetPrank(users.sender);
 
@@ -65,6 +70,21 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Create new assets and label them.
+    function createAndLabelAssets() internal {
+        // Deploy the assets.
+        assetWithoutDecimals = createAsset("Asset without decimals", "AWD", 0);
+        dai = createAsset("Dai stablecoin", "DAI", 18);
+        usdc = createAsset("USD Coin", "USDC", 6);
+        usdt = new ERC20MissingReturn("USDT stablecoin", "USDT", 6);
+
+        // Label the assets.
+        vm.label(address(assetWithoutDecimals), "AWD");
+        vm.label(address(dai), "DAI");
+        vm.label(address(usdc), "USDC");
+        vm.label(address(usdt), "USDT");
+    }
 
     /// @dev Creates a new ERC20 asset with `decimals`.
     function createAsset(uint8 decimals) internal returns (ERC20Mock) {
@@ -79,6 +99,7 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
+        deal({ token: address(assetWithoutDecimals), to: user, give: 1_000_000 });
         deal({ token: address(dai), to: user, give: 1_000_000e18 });
         deal({ token: address(usdc), to: user, give: 1_000_000e6 });
         deal({ token: address(usdt), to: user, give: 1_000_000e18 });
@@ -100,14 +121,6 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
                 "out-optimized/SablierFlow.sol/SablierFlow.json", abi.encode(users.admin, address(nftDescriptor))
             )
         );
-    }
-
-    function labelContracts() internal {
-        vm.label(address(assetWithoutDecimals), "AWD");
-        vm.label(address(dai), "DAI");
-        vm.label(address(flow), "Flow");
-        vm.label(address(usdc), "USDC");
-        vm.label(address(usdt), "USDT");
     }
 
     /*//////////////////////////////////////////////////////////////////////////

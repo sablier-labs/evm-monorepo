@@ -82,7 +82,7 @@ contract FlowHandler is BaseHandler {
         vm.assume(!flow.isPaused(currentStreamId));
 
         // Bound the rate per second.
-        newRatePerSecond = uint128(_bound(newRatePerSecond, 0.0001e18, 1e18));
+        newRatePerSecond = boundRatePerSecond(newRatePerSecond);
 
         // The rate per second must be different from the current rate per second.
         if (newRatePerSecond == flow.getRatePerSecond(currentStreamId)) {

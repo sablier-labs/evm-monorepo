@@ -26,7 +26,6 @@ abstract contract Integration_Test is Base_Test {
         Base_Test.setUp();
 
         defaultBroker = broker();
-
         defaultStreamId = createDefaultStream();
 
         // Simulate one month of streaming.
@@ -61,7 +60,6 @@ abstract contract Integration_Test is Base_Test {
 
     function defaultStream() internal view returns (Flow.Stream memory) {
         return Flow.Stream({
-            ratePerSecond: RATE_PER_SECOND,
             asset: dai,
             assetDecimals: 18,
             balance: 0,
@@ -69,6 +67,7 @@ abstract contract Integration_Test is Base_Test {
             isPaused: false,
             isStream: true,
             isTransferable: IS_TRANFERABLE,
+            ratePerSecond: RATE_PER_SECOND,
             remainingAmount: 0,
             sender: users.sender
         });

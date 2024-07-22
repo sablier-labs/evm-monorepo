@@ -73,7 +73,7 @@ contract ERC20MissingReturn {
     function _transfer(address from, address to, uint256 amount) internal virtual {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
-        require(_balances[from] >= amount); // no revert message, because we need to test this case in {Batch}
+        require(_balances[from] >= amount); // no revert message because this case is tested in {Batch}
         _balances[from] = _balances[from] - amount;
         _balances[to] = _balances[to] + amount;
         emit Transfer(from, to, amount);
