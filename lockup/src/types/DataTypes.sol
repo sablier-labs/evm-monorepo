@@ -28,7 +28,7 @@ struct Broker {
 
 /// @notice Namespace for the structs used in both {SablierV2LockupLinear} and {SablierV2LockupDynamic}.
 library Lockup {
-    /// @notice Struct encapsulating the deposit, withdrawn, and refunded amounts, both denoted in units of the asset's
+    /// @notice Struct encapsulating the deposit, withdrawn, and refunded amounts, all denoted in units of the asset's
     /// decimals.
     /// @dev Because the deposited and the withdrawn amount are often read together, declaring them in the same slot
     /// saves gas.
@@ -43,8 +43,8 @@ library Lockup {
         uint128 refunded;
     }
 
-    /// @notice Struct encapsulating the deposit amount and the broker fee amount, both denoted in units of the asset's
-    /// decimals.
+    /// @notice Struct encapsulating (i) the deposit amount and (ii) the broker fee amount, both denoted in units of the
+    /// asset's decimals.
     /// @param deposit The amount to deposit in the stream.
     /// @param brokerFee The broker fee amount.
     struct CreateAmounts {
@@ -77,7 +77,7 @@ library Lockup {
     /// @param isDepleted Boolean indicating if the stream is depleted.
     /// @param isStream Boolean indicating if the struct entity exists.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
-    /// @param amounts Struct containing the deposit, withdrawn, and refunded amounts, both denoted in units of the
+    /// @param amounts Struct encapsulating the deposit, withdrawn, and refunded amounts, all denoted in units of the
     /// asset's decimals.
     struct Stream {
         // slot 0
@@ -103,13 +103,13 @@ library LockupDynamic {
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
     /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, both denoted in units of the asset's decimals.
+    /// broker fee, denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param segments Segments with durations used to compose the dynamic distribution function. Timestamps are
     /// calculated by starting from `block.timestamp` and adding each duration to the previous timestamp.
-    /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
+    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithDurations {
         address sender;
@@ -127,13 +127,13 @@ library LockupDynamic {
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
     /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, both denoted in units of the asset's decimals.
+    /// broker fee, denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param startTime The Unix timestamp indicating the stream's start.
     /// @param segments Segments used to compose the dynamic distribution function.
-    /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
+    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithTimestamps {
         address sender;
@@ -201,12 +201,12 @@ library LockupLinear {
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
     /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, both denoted in units of the asset's decimals.
+    /// broker fee, denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
-    /// @param durations Struct containing (i) cliff period duration and (ii) total stream duration, both in seconds.
-    /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
+    /// @param durations Struct encapsulating (i) cliff period duration and (ii) total stream duration, both in seconds.
+    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithDurations {
         address sender;
@@ -224,13 +224,13 @@ library LockupLinear {
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
     /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, both denoted in units of the asset's decimals.
+    /// broker fee, denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
-    /// @param timestamps Struct containing (i) the stream's start time, (ii) cliff time, and (iii) end time, all as
+    /// @param timestamps Struct encapsulating (i) the stream's start time, (ii) cliff time, and (iii) end time, all as
     /// Unix timestamps.
-    /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
+    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithTimestamps {
         address sender;
@@ -286,13 +286,13 @@ library LockupTranched {
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
     /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, both denoted in units of the asset's decimals.
+    /// broker fee, denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param tranches Tranches with durations used to compose the tranched distribution function. Timestamps are
     /// calculated by starting from `block.timestamp` and adding each duration to the previous timestamp.
-    /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
+    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithDurations {
         address sender;
@@ -310,13 +310,13 @@ library LockupTranched {
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
     /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, both denoted in units of the asset's decimals.
+    /// broker fee, denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param startTime The Unix timestamp indicating the stream's start.
     /// @param tranches Tranches used to compose the tranched distribution function.
-    /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
+    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithTimestamps {
         address sender;

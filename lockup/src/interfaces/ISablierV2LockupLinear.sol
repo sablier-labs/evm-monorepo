@@ -18,12 +18,12 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @param funder The address which funded the stream.
     /// @param sender The address distributing the assets, which will have the ability to cancel the stream.
     /// @param recipient The address receiving the assets.
-    /// @param amounts Struct containing (i) the deposit amount, and (ii) the broker fee amount, both denoted
+    /// @param amounts Struct encapsulating (i) the deposit amount, and (ii) the broker fee amount, both denoted
     /// in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Boolean indicating whether the stream will be cancelable or not.
     /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
-    /// @param timestamps Struct containing (i) the stream's start time, (ii) cliff time, and (iii) end time, all as
+    /// @param timestamps Struct encapsulating (i) the stream's start time, (ii) cliff time, and (iii) end time, all as
     /// Unix timestamps.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateLockupLinearStream(
