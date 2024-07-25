@@ -7,11 +7,11 @@ import { ud60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Solarray } from "solarray/src/Solarray.sol";
 
-import { ISablierV2LockupDynamic } from "../src/core/interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupLinear } from "../src/core/interfaces/ISablierV2LockupLinear.sol";
-import { Broker, LockupDynamic, LockupLinear } from "../src/core/types/DataTypes.sol";
+import { ISablierV2LockupDynamic } from "../../src/core/interfaces/ISablierV2LockupDynamic.sol";
+import { ISablierV2LockupLinear } from "../../src/core/interfaces/ISablierV2LockupLinear.sol";
+import { Broker, LockupDynamic, LockupLinear } from "../../src/core/types/DataTypes.sol";
 
-import { BaseScript } from "./Base.s.sol";
+import { BaseScript } from "../Base.s.sol";
 
 interface IERC20Mint {
     function mint(address beneficiary, uint256 value) external;

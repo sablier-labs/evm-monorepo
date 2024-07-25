@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
-import { SablierV2NFTDescriptor } from "../src/core/SablierV2NFTDescriptor.sol";
+import { SablierV2NFTDescriptor } from "../../src/core/SablierV2NFTDescriptor.sol";
 
-import { BaseScript } from "./Base.s.sol";
+import { BaseScript } from "../Base.s.sol";
 
 /// @dev Deploys {SablierV2NFTDescriptor} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.

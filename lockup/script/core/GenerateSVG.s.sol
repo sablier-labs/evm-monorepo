@@ -3,11 +3,11 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
-import { NFTSVG } from "../src/core/libraries/NFTSVG.sol";
-import { SVGElements } from "../src/core/libraries/SVGElements.sol";
-import { SablierV2NFTDescriptor } from "../src/core/SablierV2NFTDescriptor.sol";
+import { NFTSVG } from "../../src/core/libraries/NFTSVG.sol";
+import { SVGElements } from "../../src/core/libraries/SVGElements.sol";
+import { SablierV2NFTDescriptor } from "../../src/core/SablierV2NFTDescriptor.sol";
 
-import { BaseScript } from "./Base.s.sol";
+import { BaseScript } from "../Base.s.sol";
 
 /// @notice Generates an NFT SVG using the user-provided parameters.
 contract GenerateSVG is BaseScript, SablierV2NFTDescriptor {
