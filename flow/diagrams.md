@@ -63,9 +63,10 @@ stateDiagram-v2
 
 **Notes:**
 
-1. The "update" comments refer only to the internal state
-2. `ltu` is always updated to `block.timestamp`
-3. Red lines refers to the function that are doing an ERC20 transfer
+1. The arrows point to the status on which the function can be called
+2. The "update" comments refer only to the internal state
+3. `ltu` is always updated to `block.timestamp`
+4. Red lines refers to the function that are doing an ERC20 transfer
 
 ```mermaid
 flowchart LR
