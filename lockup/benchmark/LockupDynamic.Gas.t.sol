@@ -4,7 +4,8 @@ pragma solidity >=0.8.22;
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { Broker, LockupDynamic } from "../src/types/DataTypes.sol";
+import { Broker, LockupDynamic } from "../src/core/types/DataTypes.sol";
+
 import { Benchmark_Test } from "./Benchmark.t.sol";
 
 /// @notice Tests used to benchmark LockupDynamic.
@@ -21,7 +22,7 @@ contract LockupDynamic_Gas_Test is Benchmark_Test {
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
     function setUp() public override {
-        super.setUp();
+        Benchmark_Test.setUp();
 
         lockup = lockupDynamic;
     }
@@ -170,7 +171,7 @@ contract LockupDynamic_Gas_Test is Benchmark_Test {
     )
         private
         view
-        returns (LockupDynamic.CreateWithDurations memory)
+        returns (LockupDynamic.CreateWithDurations memory params)
     {
         LockupDynamic.SegmentWithDuration[] memory segments_ = new LockupDynamic.SegmentWithDuration[](totalSegments);
 
@@ -187,16 +188,11 @@ contract LockupDynamic_Gas_Test is Benchmark_Test {
 
         uint128 depositAmount = AMOUNT_PER_SEGMENT * totalSegments;
 
-        return LockupDynamic.CreateWithDurations({
-            sender: users.sender,
-            recipient: users.recipient,
-            totalAmount: _calculateTotalAmount(depositAmount, brokerFee),
-            asset: dai,
-            cancelable: true,
-            transferable: true,
-            segments: segments_,
-            broker: Broker({ account: users.broker, fee: brokerFee })
-        });
+        params = defaults.createWithDurationsLD();
+        params.totalAmount = _calculateTotalAmount(depositAmount, brokerFee);
+        params.segments = segments_;
+        params.broker.fee = brokerFee;
+        return params;
     }
 
     function _createWithTimestampParams(
@@ -205,7 +201,7 @@ contract LockupDynamic_Gas_Test is Benchmark_Test {
     )
         private
         view
-        returns (LockupDynamic.CreateWithTimestamps memory)
+        returns (LockupDynamic.CreateWithTimestamps memory params)
     {
         LockupDynamic.Segment[] memory segments_ = new LockupDynamic.Segment[](totalSegments);
 
@@ -222,16 +218,11 @@ contract LockupDynamic_Gas_Test is Benchmark_Test {
 
         uint128 depositAmount = AMOUNT_PER_SEGMENT * totalSegments;
 
-        return LockupDynamic.CreateWithTimestamps({
-            sender: users.sender,
-            recipient: users.recipient,
-            totalAmount: _calculateTotalAmount(depositAmount, brokerFee),
-            asset: dai,
-            cancelable: true,
-            transferable: true,
-            startTime: getBlockTimestamp(),
-            segments: segments_,
-            broker: Broker({ account: users.broker, fee: brokerFee })
-        });
+        params = defaults.createWithTimestampsLD();
+        params.totalAmount = _calculateTotalAmount(depositAmount, brokerFee);
+        params.segments = segments_;
+        params.startTime = getBlockTimestamp();
+        params.broker.fee = brokerFee;
+        return params;
     }
 }

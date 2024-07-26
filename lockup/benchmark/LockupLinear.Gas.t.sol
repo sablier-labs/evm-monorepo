@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { ud } from "@prb/math/src/UD60x18.sol";
 
-import { LockupLinear } from "../src/types/DataTypes.sol";
+import { LockupLinear } from "../src/core/types/DataTypes.sol";
 
 import { Benchmark_Test } from "./Benchmark.t.sol";
 
@@ -15,7 +15,7 @@ contract LockupLinear_Gas_Test is Benchmark_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public override {
-        super.setUp();
+        Benchmark_Test.setUp();
 
         lockup = lockupLinear;
     }
