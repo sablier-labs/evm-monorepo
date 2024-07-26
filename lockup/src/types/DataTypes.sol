@@ -53,14 +53,19 @@ library Lockup {
     }
 
     /// @notice Enum representing the different statuses of a stream.
+    /// @dev The status can have a "temperature":
+    /// 1. Warm: Pending, Streaming. The passage of time alone can change the status.
+    /// 2. Cold: Settled, Canceled, Depleted. The passage of time alone cannot change the status.
     /// @custom:value0 PENDING Stream created but not started; assets are in a pending state.
     /// @custom:value1 STREAMING Active stream where assets are currently being streamed.
     /// @custom:value2 SETTLED All assets have been streamed; recipient is due to withdraw them.
     /// @custom:value3 CANCELED Canceled stream; remaining assets await recipient's withdrawal.
     /// @custom:value4 DEPLETED Depleted stream; all assets have been withdrawn and/or refunded.
     enum Status {
+        // Warm
         PENDING,
         STREAMING,
+        // Cold
         SETTLED,
         CANCELED,
         DEPLETED
