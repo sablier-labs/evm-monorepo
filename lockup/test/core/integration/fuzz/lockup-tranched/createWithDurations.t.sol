@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup, LockupTranched } from "core/types/DataTypes.sol";
+import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 
 import { CreateWithDurations_Integration_Shared_Test } from "../../shared/lockup/createWithDurations.t.sol";
 import { LockupTranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
@@ -48,7 +48,7 @@ contract CreateWithDurations_LockupTranched_Integration_Fuzz_Test is
         fuzzTrancheDurations(tranches);
 
         // Fuzz the tranche amounts and calculate the total and create amounts (deposit and broker fee).
-        (vars.totalAmount, vars.createAmounts) = fuzzTranchedStreamAmounts(tranches);
+        (vars.totalAmount, vars.createAmounts) = fuzzTranchedStreamAmounts(tranches, defaults.BROKER_FEE());
 
         // Make the Sender the stream's funder (recall that the Sender is the default caller).
         vars.funder = users.sender;
@@ -77,7 +77,7 @@ contract CreateWithDurations_LockupTranched_Integration_Fuzz_Test is
             streamId: streamId,
             funder: vars.funder,
             sender: users.sender,
-            recipient: users.recipient,
+            recipient: users.recipient0,
             amounts: vars.createAmounts,
             asset: dai,
             cancelable: true,
@@ -126,7 +126,7 @@ contract CreateWithDurations_LockupTranched_Integration_Fuzz_Test is
 
         // Assert that the NFT has been minted.
         vars.actualNFTOwner = lockupTranched.ownerOf({ tokenId: streamId });
-        vars.expectedNFTOwner = users.recipient;
+        vars.expectedNFTOwner = users.recipient0;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
     }
 }

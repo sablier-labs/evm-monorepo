@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup } from "core/types/DataTypes.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { Cancel_Integration_Shared_Test } from "../../shared/lockup/cancel.t.sol";
 import { Integration_Test } from "../../Integration.t.sol";

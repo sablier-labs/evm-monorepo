@@ -47,7 +47,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Concrete_Test is
     }
 
     modifier givenPreviousWithdrawals() {
-        lockupLinear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
+        lockupLinear.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: defaults.WITHDRAW_AMOUNT() });
         _;
     }
 

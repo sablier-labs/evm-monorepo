@@ -3,10 +3,10 @@ pragma solidity >=0.8.22;
 
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
-import { NFTSVG } from "../../../src/core/libraries/NFTSVG.sol";
-import { SVGElements } from "../../../src/core/libraries/SVGElements.sol";
-import { Lockup } from "../../../src/core/types/DataTypes.sol";
-import { SablierV2NFTDescriptor } from "../../../src/core/SablierV2NFTDescriptor.sol";
+import { NFTSVG } from "src/core/libraries/NFTSVG.sol";
+import { SVGElements } from "src/core/libraries/SVGElements.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
+import { SablierV2NFTDescriptor } from "src/core/SablierV2NFTDescriptor.sol";
 
 /// @dev This mock is needed for:
 /// - Running the tests against the `--via-ir` precompiles

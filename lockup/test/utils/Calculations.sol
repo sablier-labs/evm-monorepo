@@ -6,15 +6,11 @@ import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uin
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { LockupDynamic, LockupTranched } from "../../../src/core/types/DataTypes.sol";
-
-import { Defaults } from "./Defaults.sol";
+import { LockupDynamic, LockupTranched } from "../../src/core/types/DataTypes.sol";
 
 abstract contract Calculations {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
-
-    Defaults private defaults = new Defaults();
 
     /// @dev Calculates the deposit amount by calculating and subtracting the broker fee amount from the total amount.
     function calculateDepositAmount(uint128 totalAmount, UD60x18 brokerFee) internal pure returns (uint128) {
@@ -23,13 +19,22 @@ abstract contract Calculations {
     }
 
     /// @dev Helper function that replicates the logic of {SablierV2LockupLinear.streamedAmountOf}.
-    function calculateStreamedAmount(uint40 blockTimestamp, uint128 depositAmount) internal view returns (uint128) {
-        if (blockTimestamp > defaults.END_TIME()) {
+    function calculateStreamedAmount(
+        uint40 startTime,
+        uint40 endTime,
+        uint128 depositAmount
+    )
+        internal
+        view
+        returns (uint128)
+    {
+        uint40 blockTimestamp = uint40(block.timestamp);
+        if (blockTimestamp >= endTime) {
             return depositAmount;
         }
         unchecked {
-            UD60x18 elapsedTime = ud(blockTimestamp - defaults.START_TIME());
-            UD60x18 totalDuration = ud(defaults.TOTAL_DURATION());
+            UD60x18 elapsedTime = ud(blockTimestamp - startTime);
+            UD60x18 totalDuration = ud(endTime - startTime);
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalDuration);
             return elapsedTimePercentage.mul(ud(depositAmount)).intoUint128();
         }
@@ -37,14 +42,15 @@ abstract contract Calculations {
 
     /// @dev Replicates the logic of {SablierV2LockupDynamic._calculateStreamedAmountForMultipleSegments}.
     function calculateStreamedAmountForMultipleSegments(
-        uint40 blockTimestamp,
         LockupDynamic.Segment[] memory segments,
+        uint40 startTime,
         uint128 depositAmount
     )
         internal
         view
         returns (uint128)
     {
+        uint40 blockTimestamp = uint40(block.timestamp);
         if (blockTimestamp >= segments[segments.length - 1].timestamp) {
             return depositAmount;
         }
@@ -67,7 +73,7 @@ abstract contract Calculations {
             if (index > 0) {
                 previousTimestamp = segments[index - 1].timestamp;
             } else {
-                previousTimestamp = defaults.START_TIME();
+                previousTimestamp = startTime;
             }
 
             SD59x18 elapsedTime = (blockTimestamp - previousTimestamp).intoSD59x18();
@@ -82,19 +88,21 @@ abstract contract Calculations {
 
     /// @dev Replicates the logic of {SablierV2LockupDynamic._calculateStreamedAmountForOneSegment}.
     function calculateStreamedAmountForOneSegment(
-        uint40 blockTimestamp,
-        LockupDynamic.Segment memory segment
+        LockupDynamic.Segment memory segment,
+        uint40 startTime
     )
         internal
         view
         returns (uint128)
     {
+        uint40 blockTimestamp = uint40(block.timestamp);
+
         if (blockTimestamp >= segment.timestamp) {
             return segment.amount;
         }
         unchecked {
-            SD59x18 elapsedTime = (blockTimestamp - defaults.START_TIME()).intoSD59x18();
-            SD59x18 totalDuration = (segment.timestamp - defaults.START_TIME()).intoSD59x18();
+            SD59x18 elapsedTime = (blockTimestamp - startTime).intoSD59x18();
+            SD59x18 totalDuration = (segment.timestamp - startTime).intoSD59x18();
 
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalDuration);
             SD59x18 multiplier = elapsedTimePercentage.pow(segment.exponent.intoSD59x18());
@@ -105,14 +113,14 @@ abstract contract Calculations {
 
     /// @dev Helper function that replicates the logic of {SablierV2LockupTranched._calculateStreamedAmount}.
     function calculateStreamedAmountForTranches(
-        uint40 blockTimestamp,
         LockupTranched.Tranche[] memory tranches,
         uint128 depositAmount
     )
         internal
-        pure
+        view
         returns (uint128)
     {
+        uint40 blockTimestamp = uint40(block.timestamp);
         if (blockTimestamp >= tranches[tranches.length - 1].timestamp) {
             return depositAmount;
         }

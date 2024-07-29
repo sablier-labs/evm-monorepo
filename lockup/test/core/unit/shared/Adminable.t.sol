@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Base_Test } from "../../Base.t.sol";
-import { AdminableMock } from "../../mocks/AdminableMock.sol";
+import { Base_Test } from "../../../Base.t.sol";
+import { AdminableMock } from "../../../mocks/AdminableMock.sol";
 
 abstract contract Adminable_Unit_Shared_Test is Base_Test {
     AdminableMock internal adminableMock;

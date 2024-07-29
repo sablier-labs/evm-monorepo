@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup } from "core/types/DataTypes.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { WithdrawMax_Integration_Shared_Test } from "../../../shared/lockup/withdrawMax.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
@@ -16,19 +16,19 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
         vm.warp({ newTimestamp: defaults.END_TIME() + 1 seconds });
 
         // Expect the ERC-20 assets to be transferred to the Recipient.
-        expectCallToTransfer({ to: users.recipient, value: defaults.DEPOSIT_AMOUNT() });
+        expectCallToTransfer({ to: users.recipient0, value: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: defaultStreamId,
-            to: users.recipient,
+            to: users.recipient0,
             amount: defaults.DEPOSIT_AMOUNT(),
             asset: dai
         });
 
         // Make the max withdrawal.
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
@@ -46,7 +46,7 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
 
         // Assert that the NFT has not been burned.
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
-        address expectedNFTOwner = users.recipient;
+        address expectedNFTOwner = users.recipient0;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
@@ -58,19 +58,19 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
         uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
         // Expect the assets to be transferred to the Recipient.
-        expectCallToTransfer({ to: users.recipient, value: expectedWithdrawnAmount });
+        expectCallToTransfer({ to: users.recipient0, value: expectedWithdrawnAmount });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: defaultStreamId,
-            to: users.recipient,
+            to: users.recipient0,
             amount: expectedWithdrawnAmount,
             asset: dai
         });
 
         // Make the max withdrawal.
-        uint128 actualWithdrawnAmount = lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        uint128 actualWithdrawnAmount = lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
 
         // Assert that the withdrawn amount has been updated.
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");

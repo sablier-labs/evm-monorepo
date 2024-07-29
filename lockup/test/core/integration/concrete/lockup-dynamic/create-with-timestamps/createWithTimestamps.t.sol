@@ -4,12 +4,12 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { UD60x18, ud, ZERO } from "@prb/math/src/UD60x18.sol";
+import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { stdError } from "forge-std/src/StdError.sol";
 
-import { ISablierV2LockupDynamic } from "core/interfaces/ISablierV2LockupDynamic.sol";
-import { Errors } from "core/libraries/Errors.sol";
-import { Broker, Lockup, LockupDynamic } from "core/types/DataTypes.sol";
+import { ISablierV2LockupDynamic } from "src/core/interfaces/ISablierV2LockupDynamic.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
+import { Broker, Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
 
 import { CreateWithTimestamps_Integration_Shared_Test } from "../../../shared/lockup/createWithTimestamps.t.sol";
 import { LockupDynamic_Integration_Concrete_Test } from "../LockupDynamic.t.sol";
@@ -217,7 +217,6 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
     {
-        UD60x18 brokerFee = ZERO;
         resetPrank({ msgSender: users.sender });
 
         // Adjust the default deposit amount.
@@ -225,8 +224,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         uint128 depositAmount = defaultDepositAmount + 100;
 
         // Prepare the params.
-        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsLD();
-        params.broker = Broker({ account: address(0), fee: brokerFee });
+        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLD();
         params.totalAmount = depositAmount;
 
         // Expect the relevant error to be thrown.
@@ -355,7 +353,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
             streamId: streamId,
             funder: funder,
             sender: users.sender,
-            recipient: users.recipient,
+            recipient: users.recipient0,
             amounts: defaults.lockupCreateAmounts(),
             segments: defaults.segments(),
             asset: IERC20(asset),
@@ -386,7 +384,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = lockupDynamic.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = users.recipient;
+        address expectedNFTOwner = users.recipient0;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

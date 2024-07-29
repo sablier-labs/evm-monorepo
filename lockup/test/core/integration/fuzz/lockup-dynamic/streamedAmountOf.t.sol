@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ZERO } from "@prb/math/src/UD60x18.sol";
-import { Broker, LockupDynamic } from "core/types/DataTypes.sol";
+import { LockupDynamic } from "src/core/types/DataTypes.sol";
 
 import { StreamedAmountOf_Integration_Shared_Test } from "../../shared/lockup/streamedAmountOf.t.sol";
 import { LockupDynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
@@ -50,19 +50,17 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         deal({ token: address(dai), to: users.sender, give: segment.amount });
 
         // Create the stream with the fuzzed segment.
-        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsLD();
-        params.broker = Broker({ account: address(0), fee: ZERO });
+        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLD();
         params.segments = segments;
         params.totalAmount = segment.amount;
         uint256 streamId = lockupDynamic.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
-        vm.warp({ newTimestamp: blockTimestamp });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateStreamedAmountForOneSegment(blockTimestamp, segment);
+        uint128 expectedStreamedAmount = calculateStreamedAmountForOneSegment(segment, defaults.START_TIME());
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -111,20 +109,18 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         deal({ token: address(dai), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.
-        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsLD();
-        params.broker = Broker({ account: address(0), fee: ZERO });
+        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLD();
         params.segments = segments;
         params.totalAmount = totalAmount;
         uint256 streamId = lockupDynamic.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
-        vm.warp({ newTimestamp: blockTimestamp });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount =
-            calculateStreamedAmountForMultipleSegments(blockTimestamp, segments, totalAmount);
+            calculateStreamedAmountForMultipleSegments(segments, defaults.START_TIME(), totalAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -160,8 +156,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         deal({ token: address(dai), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.
-        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsLD();
-        params.broker = Broker({ account: address(0), fee: ZERO });
+        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLD();
         params.segments = segments;
         params.totalAmount = totalAmount;
         uint256 streamId = lockupDynamic.createWithTimestamps(params);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Errors } from "core/libraries/Errors.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
 
 import { Lockup_Integration_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
@@ -29,7 +29,7 @@ abstract contract IsDepleted_Integration_Concrete_Test is Integration_Test, Lock
 
     modifier givenStreamDepleted() {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
         _;
     }
 

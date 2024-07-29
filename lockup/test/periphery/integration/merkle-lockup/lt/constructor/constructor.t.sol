@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { SablierV2MerkleLT } from "periphery/SablierV2MerkleLT.sol";
-import { MerkleLT } from "periphery/types/DataTypes.sol";
+import { SablierV2MerkleLT } from "src/periphery/SablierV2MerkleLT.sol";
+import { MerkleLT } from "src/periphery/types/DataTypes.sol";
 
 import { MerkleLockup_Integration_Test } from "../../MerkleLockup.t.sol";
 

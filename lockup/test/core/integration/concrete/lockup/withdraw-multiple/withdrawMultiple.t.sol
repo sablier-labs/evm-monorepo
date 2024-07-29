@@ -3,9 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Solarray } from "solarray/src/Solarray.sol";
 
-import { ISablierV2Lockup } from "core/interfaces/ISablierV2Lockup.sol";
-import { Errors } from "core/libraries/Errors.sol";
-import { Lockup } from "core/types/DataTypes.sol";
+import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { WithdrawMultiple_Integration_Shared_Test } from "../../../shared/lockup/withdrawMultiple.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
@@ -97,7 +97,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.END_TIME() });
 
         // Deplete the first test stream.
-        lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient });
+        lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient0 });
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, testStreamIds[0]));
@@ -117,7 +117,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.END_TIME() });
 
         // Deplete the first test stream.
-        lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient });
+        lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient0 });
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, testStreamIds[0]));
@@ -190,29 +190,29 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         resetPrank({ msgSender: caller });
 
         // Expect the withdrawals to be made.
-        expectCallToTransfer({ to: users.recipient, value: testAmounts[0] });
-        expectCallToTransfer({ to: users.recipient, value: testAmounts[1] });
-        expectCallToTransfer({ to: users.recipient, value: testAmounts[2] });
+        expectCallToTransfer({ to: users.recipient0, value: testAmounts[0] });
+        expectCallToTransfer({ to: users.recipient0, value: testAmounts[1] });
+        expectCallToTransfer({ to: users.recipient0, value: testAmounts[2] });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: testStreamIds[0],
-            to: users.recipient,
+            to: users.recipient0,
             asset: dai,
             amount: testAmounts[0]
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: testStreamIds[1],
-            to: users.recipient,
+            to: users.recipient0,
             asset: dai,
             amount: testAmounts[1]
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: testStreamIds[2],
-            to: users.recipient,
+            to: users.recipient0,
             asset: dai,
             amount: testAmounts[2]
         });
@@ -231,8 +231,8 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         assertEq(lockup.getWithdrawnAmount(testStreamIds[2]), testAmounts[2], "withdrawnAmount2");
 
         // Assert that the stream NFTs have not been burned.
-        assertEq(lockup.getRecipient(testStreamIds[0]), users.recipient, "NFT owner0");
-        assertEq(lockup.getRecipient(testStreamIds[1]), users.recipient, "NFT owner1");
-        assertEq(lockup.getRecipient(testStreamIds[2]), users.recipient, "NFT owner2");
+        assertEq(lockup.getRecipient(testStreamIds[0]), users.recipient0, "NFT owner0");
+        assertEq(lockup.getRecipient(testStreamIds[1]), users.recipient0, "NFT owner1");
+        assertEq(lockup.getRecipient(testStreamIds[2]), users.recipient0, "NFT owner2");
     }
 }

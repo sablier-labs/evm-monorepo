@@ -3,8 +3,8 @@ pragma solidity >=0.8.22;
 
 import { IERC165, ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
-import { ISablierLockupRecipient } from "../../../src/core/interfaces/ISablierLockupRecipient.sol";
-import { ISablierV2Lockup } from "../../../src/core/interfaces/ISablierV2Lockup.sol";
+import { ISablierLockupRecipient } from "src/core/interfaces/ISablierLockupRecipient.sol";
+import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
 
 contract RecipientGood is ISablierLockupRecipient, ERC165 {
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {

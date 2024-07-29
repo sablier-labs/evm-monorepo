@@ -4,8 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 
-import { Constants } from "../../utils/Constants.sol";
-import { Fuzzers } from "../../utils/Fuzzers.sol";
+import { Constants } from "../../../utils/Constants.sol";
+import { Fuzzers } from "../../../utils/Fuzzers.sol";
 
 /// @notice Base contract with common logic needed by all handler contracts.
 abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
@@ -45,7 +45,7 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
     /// @param timeJumpSeed A fuzzed value needed for generating random time warps.
     modifier adjustTimestamp(uint256 timeJumpSeed) {
         uint256 timeJump = _bound(timeJumpSeed, 2 minutes, 40 days);
-        vm.warp(block.timestamp + timeJump);
+        vm.warp(getBlockTimestamp() + timeJump);
         _;
     }
 

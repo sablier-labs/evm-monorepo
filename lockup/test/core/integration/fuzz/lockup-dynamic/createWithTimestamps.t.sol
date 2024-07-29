@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/src/UD60x18.sol";
+import { MAX_UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { stdError } from "forge-std/src/StdError.sol";
 
-import { Errors } from "core/libraries/Errors.sol";
-import { Broker, Lockup, LockupDynamic } from "core/types/DataTypes.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
+import { Broker, Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
 
 import { CreateWithTimestamps_Integration_Shared_Test } from "../../shared/lockup/createWithTimestamps.t.sol";
 import { LockupDynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
@@ -101,7 +101,6 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
     {
         depositDiff = boundUint128(depositDiff, 100, defaults.TOTAL_AMOUNT());
 
-        UD60x18 brokerFee = ZERO;
         resetPrank({ msgSender: users.sender });
 
         // Adjust the default deposit amount.
@@ -109,8 +108,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         uint128 depositAmount = defaultDepositAmount + depositDiff;
 
         // Prepare the params.
-        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsLD();
-        params.broker = Broker({ account: address(0), fee: brokerFee });
+        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLD();
         params.totalAmount = depositAmount;
 
         // Expect the relevant error to be thrown.

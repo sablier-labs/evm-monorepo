@@ -7,7 +7,7 @@ abstract contract GetWithdrawnAmount_Integration_Shared_Test is Lockup_Integrati
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override {
-        resetPrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient0 });
     }
 
     modifier givenNotNull() {

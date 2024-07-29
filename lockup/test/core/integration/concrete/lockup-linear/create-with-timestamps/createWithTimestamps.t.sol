@@ -6,9 +6,9 @@ import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierV2LockupLinear } from "core/interfaces/ISablierV2LockupLinear.sol";
-import { Errors } from "core/libraries/Errors.sol";
-import { Broker, Lockup, LockupLinear } from "core/types/DataTypes.sol";
+import { ISablierV2LockupLinear } from "src/core/interfaces/ISablierV2LockupLinear.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
+import { Broker, Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
 
 import { CreateWithTimestamps_Integration_Shared_Test } from "../../../shared/lockup/createWithTimestamps.t.sol";
 import { LockupLinear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
@@ -103,7 +103,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = lockupLinear.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = users.recipient;
+        address expectedNFTOwner = users.recipient0;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 
@@ -260,7 +260,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
             streamId: streamId,
             funder: funder,
             sender: users.sender,
-            recipient: users.recipient,
+            recipient: users.recipient0,
             amounts: defaults.lockupCreateAmounts(),
             asset: IERC20(asset),
             cancelable: true,
@@ -290,7 +290,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = lockupLinear.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = users.recipient;
+        address expectedNFTOwner = users.recipient0;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

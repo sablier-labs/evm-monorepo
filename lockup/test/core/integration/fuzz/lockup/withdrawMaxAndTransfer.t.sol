@@ -38,13 +38,13 @@ abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
 
         if (withdrawAmount > 0) {
             // Expect the assets to be transferred to the fuzzed recipient.
-            expectCallToTransfer({ to: users.recipient, value: withdrawAmount });
+            expectCallToTransfer({ to: users.recipient0, value: withdrawAmount });
 
             // Expect the relevant event to be emitted.
             vm.expectEmit({ emitter: address(lockup) });
             emit WithdrawFromLockupStream({
                 streamId: defaultStreamId,
-                to: users.recipient,
+                to: users.recipient0,
                 asset: dai,
                 amount: withdrawAmount
             });
@@ -52,7 +52,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit Transfer({ from: users.recipient, to: newRecipient, tokenId: defaultStreamId });
+        emit Transfer({ from: users.recipient0, to: newRecipient, tokenId: defaultStreamId });
 
         // Make the max withdrawal and transfer the NFT.
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: newRecipient });

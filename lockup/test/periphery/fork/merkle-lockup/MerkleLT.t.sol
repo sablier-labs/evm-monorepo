@@ -3,12 +3,12 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Lockup, LockupTranched } from "core/types/DataTypes.sol";
 
-import { ISablierV2MerkleLT } from "periphery/interfaces/ISablierV2MerkleLT.sol";
-import { MerkleLockup } from "periphery/types/DataTypes.sol";
+import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
+import { ISablierV2MerkleLT } from "src/periphery/interfaces/ISablierV2MerkleLT.sol";
+import { MerkleLockup } from "src/periphery/types/DataTypes.sol";
 
-import { MerkleBuilder } from "../../utils/MerkleBuilder.sol";
+import { MerkleBuilder } from "../../../utils/MerkleBuilder.sol";
 import { Fork_Test } from "../Fork.t.sol";
 
 abstract contract MerkleLT_Fork_Test is Fork_Test {
@@ -96,7 +96,11 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         MerkleBuilder.sortLeaves(leaves);
         vars.merkleRoot = getRoot(leaves.toBytes32());
 
-        vars.expectedLT = computeMerkleLTAddress(params.admin, FORK_ASSET, vars.merkleRoot, params.expiration);
+        // Make the caller the admin.
+        resetPrank({ msgSender: params.admin });
+
+        vars.expectedLT =
+            computeMerkleLTAddress(params.admin, params.admin, FORK_ASSET, vars.merkleRoot, params.expiration);
 
         vars.baseParams = defaults.baseParams({
             admin: params.admin,
@@ -169,7 +173,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
             recipient: vars.recipients[params.posBeforeSort],
             sender: params.admin,
             startTime: getBlockTimestamp(),
-            tranches: defaults.tranches({ totalAmount: vars.amounts[params.posBeforeSort] }),
+            tranches: defaults.tranchesMerkleLockup({ totalAmount: vars.amounts[params.posBeforeSort] }),
             wasCanceled: false
         });
 
@@ -186,7 +190,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
             vm.warp({ newTimestamp: uint256(params.expiration) + 1 seconds });
 
             resetPrank({ msgSender: params.admin });
-            expectCallToTransfer({ asset_: address(FORK_ASSET), to: params.admin, amount: vars.clawbackAmount });
+            expectCallToTransfer({ asset: FORK_ASSET, to: params.admin, value: vars.clawbackAmount });
             vm.expectEmit({ emitter: address(vars.merkleLT) });
             emit Clawback({ to: params.admin, admin: params.admin, amount: vars.clawbackAmount });
             vars.merkleLT.clawback({ to: params.admin, amount: vars.clawbackAmount });

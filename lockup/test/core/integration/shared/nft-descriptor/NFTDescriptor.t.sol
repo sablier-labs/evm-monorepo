@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Integration_Test } from "../../Integration.t.sol";
-import { NFTDescriptorMock } from "../../../mocks/NFTDescriptorMock.sol";
+import { NFTDescriptorMock } from "test/mocks/NFTDescriptorMock.sol";
 
 abstract contract NFTDescriptor_Integration_Shared_Test is Integration_Test {
     NFTDescriptorMock internal nftDescriptorMock;

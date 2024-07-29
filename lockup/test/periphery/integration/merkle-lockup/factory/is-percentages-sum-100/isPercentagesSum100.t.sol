@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { MAX_UD2x18, ud2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { MerkleLT } from "periphery/types/DataTypes.sol";
+import { MerkleLT } from "src/periphery/types/DataTypes.sol";
 
 import { MerkleLockup_Integration_Test } from "../../MerkleLockup.t.sol";
 

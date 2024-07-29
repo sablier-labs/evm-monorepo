@@ -28,10 +28,10 @@ abstract contract GetRecipient_Integration_Concrete_Test is Integration_Test, Lo
         vm.warp({ newTimestamp: defaults.END_TIME() });
 
         // Make the Recipient the caller.
-        resetPrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient0 });
 
         // Deplete the stream.
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
 
         // Burn the NFT.
         lockup.burn(defaultStreamId);
@@ -47,7 +47,7 @@ abstract contract GetRecipient_Integration_Concrete_Test is Integration_Test, Lo
 
     function test_GetRecipient() external view givenNotNull givenNFTNotBurned {
         address actualRecipient = lockup.getRecipient(defaultStreamId);
-        address expectedRecipient = users.recipient;
+        address expectedRecipient = users.recipient0;
         assertEq(actualRecipient, expectedRecipient, "recipient");
     }
 }

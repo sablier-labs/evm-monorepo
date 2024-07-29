@@ -4,33 +4,36 @@ pragma solidity >=0.8.22;
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { UD60x18, ud, uUNIT } from "@prb/math/src/UD60x18.sol";
 
-import { Lockup, LockupDynamic, LockupTranched } from "../../../src/core/types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupTranched } from "../../src/core/types/DataTypes.sol";
 
 import { Constants } from "./Constants.sol";
-import { Defaults } from "./Defaults.sol";
 import { Utils } from "./Utils.sol";
 
 abstract contract Fuzzers is Constants, Utils {
     using CastingUint128 for uint128;
-
-    Defaults private defaults = new Defaults();
 
     /*//////////////////////////////////////////////////////////////////////////
                                    LOCKUP-DYNAMIC
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Just like {fuzzDynamicStreamAmounts} but with defaults.
-    function fuzzDynamicStreamAmounts(LockupDynamic.Segment[] memory segments)
+    function fuzzDynamicStreamAmounts(
+        LockupDynamic.Segment[] memory segments,
+        UD60x18 brokerFee
+    )
         internal
-        view
+        pure
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
         (totalAmount, createAmounts) =
-            fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments, brokerFee: defaults.BROKER_FEE() });
+            fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments, brokerFee: brokerFee });
     }
 
     /// @dev Just like {fuzzDynamicStreamAmounts} but with defaults.
-    function fuzzDynamicStreamAmounts(LockupDynamic.SegmentWithDuration[] memory segments)
+    function fuzzDynamicStreamAmounts(
+        LockupDynamic.SegmentWithDuration[] memory segments,
+        UD60x18 brokerFee
+    )
         internal
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
@@ -39,7 +42,7 @@ abstract contract Fuzzers is Constants, Utils {
         (totalAmount, createAmounts) = fuzzDynamicStreamAmounts({
             upperBound: MAX_UINT128,
             segments: segmentsWithTimestamps,
-            brokerFee: defaults.BROKER_FEE()
+            brokerFee: brokerFee
         });
         for (uint256 i = 0; i < segmentsWithTimestamps.length; ++i) {
             segments[i].amount = segmentsWithTimestamps[i].amount;
@@ -199,17 +202,23 @@ abstract contract Fuzzers is Constants, Utils {
     }
 
     /// @dev Just like {fuzzTranchedStreamAmounts} but with defaults.
-    function fuzzTranchedStreamAmounts(LockupTranched.Tranche[] memory tranches)
+    function fuzzTranchedStreamAmounts(
+        LockupTranched.Tranche[] memory tranches,
+        UD60x18 brokerFee
+    )
         internal
-        view
+        pure
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
         (totalAmount, createAmounts) =
-            fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches, brokerFee: defaults.BROKER_FEE() });
+            fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches, brokerFee: brokerFee });
     }
 
     /// @dev Just like {fuzzTranchedStreamAmounts} but with defaults.
-    function fuzzTranchedStreamAmounts(LockupTranched.TrancheWithDuration[] memory tranches)
+    function fuzzTranchedStreamAmounts(
+        LockupTranched.TrancheWithDuration[] memory tranches,
+        UD60x18 brokerFee
+    )
         internal
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
@@ -218,7 +227,7 @@ abstract contract Fuzzers is Constants, Utils {
         (totalAmount, createAmounts) = fuzzTranchedStreamAmounts({
             upperBound: MAX_UINT128,
             tranches: tranchesWithTimestamps,
-            brokerFee: defaults.BROKER_FEE()
+            brokerFee: brokerFee
         });
         for (uint256 i = 0; i < tranchesWithTimestamps.length; ++i) {
             tranches[i].amount = tranchesWithTimestamps[i].amount;

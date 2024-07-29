@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Solarray } from "solarray/src/Solarray.sol";
 
-import { Lockup } from "core/types/DataTypes.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { WithdrawMultiple_Integration_Shared_Test } from "../../shared/lockup/withdrawMultiple.t.sol";
 import { Integration_Test } from "../../Integration.t.sol";
@@ -52,21 +52,21 @@ abstract contract WithdrawMultiple_Integration_Fuzz_Test is
         ongoingWithdrawAmount = boundUint128(ongoingWithdrawAmount, 1, ongoingWithdrawableAmount);
 
         // Expect the withdrawals to be made.
-        expectCallToTransfer({ to: users.recipient, value: ongoingWithdrawAmount });
-        expectCallToTransfer({ to: users.recipient, value: settledWithdrawAmount });
+        expectCallToTransfer({ to: users.recipient0, value: ongoingWithdrawAmount });
+        expectCallToTransfer({ to: users.recipient0, value: settledWithdrawAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: ongoingStreamId,
-            to: users.recipient,
+            to: users.recipient0,
             asset: dai,
             amount: ongoingWithdrawAmount
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: settledStreamId,
-            to: users.recipient,
+            to: users.recipient0,
             asset: dai,
             amount: settledWithdrawAmount
         });
@@ -85,7 +85,7 @@ abstract contract WithdrawMultiple_Integration_Fuzz_Test is
         assertEq(lockup.getWithdrawnAmount(streamIds[1]), amounts[1], "withdrawnAmount1");
 
         // Assert that the stream NFTs have not been burned.
-        assertEq(lockup.getRecipient(streamIds[0]), users.recipient, "NFT owner0");
-        assertEq(lockup.getRecipient(streamIds[1]), users.recipient, "NFT owner1");
+        assertEq(lockup.getRecipient(streamIds[0]), users.recipient0, "NFT owner0");
+        assertEq(lockup.getRecipient(streamIds[1]), users.recipient0, "NFT owner1");
     }
 }

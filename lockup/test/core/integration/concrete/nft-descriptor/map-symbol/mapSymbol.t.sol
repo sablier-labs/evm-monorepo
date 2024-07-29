@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { MockERC721 } from "forge-std/src/mocks/MockERC721.sol";
 
-import { Errors } from "core/libraries/Errors.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
 
 import { NFTDescriptor_Integration_Shared_Test } from "../../../shared/nft-descriptor/NFTDescriptor.t.sol";
 

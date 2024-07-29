@@ -2,8 +2,8 @@
 // solhint-disable max-line-length
 pragma solidity >=0.8.22 <0.9.0;
 
-import { NFTSVG } from "core/libraries/NFTSVG.sol";
-import { SVGElements } from "core/libraries/SVGElements.sol";
+import { NFTSVG } from "src/core/libraries/NFTSVG.sol";
+import { SVGElements } from "src/core/libraries/SVGElements.sol";
 
 import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
 

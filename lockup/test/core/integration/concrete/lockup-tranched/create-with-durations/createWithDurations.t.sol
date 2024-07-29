@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2LockupTranched } from "core/interfaces/ISablierV2LockupTranched.sol";
-import { Errors } from "core/libraries/Errors.sol";
-import { Lockup, LockupTranched } from "core/types/DataTypes.sol";
+import { ISablierV2LockupTranched } from "src/core/interfaces/ISablierV2LockupTranched.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
+import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 
 import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup/createWithDurations.t.sol";
 import { LockupTranched_Integration_Concrete_Test } from "../LockupTranched.t.sol";
@@ -140,7 +140,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
             streamId: streamId,
             funder: funder,
             sender: users.sender,
-            recipient: users.recipient,
+            recipient: users.recipient0,
             amounts: defaults.lockupCreateAmounts(),
             asset: dai,
             cancelable: true,
@@ -173,7 +173,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = lockupTranched.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = users.recipient;
+        address expectedNFTOwner = users.recipient0;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

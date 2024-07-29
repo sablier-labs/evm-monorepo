@@ -66,7 +66,7 @@ contract WithdrawableAmountOf_LockupTranched_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() });
 
         // Make the withdrawal.
-        lockupTranched.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.CLIFF_AMOUNT() });
+        lockupTranched.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: defaults.CLIFF_AMOUNT() });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupTranched.withdrawableAmountOf(defaultStreamId);

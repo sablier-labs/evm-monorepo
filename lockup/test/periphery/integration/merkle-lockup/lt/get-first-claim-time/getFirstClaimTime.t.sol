@@ -21,6 +21,6 @@ contract GetFirstClaimTime_Integration_Test is MerkleLockup_Integration_Test {
 
     function test_GetFirstClaimTime() external afterFirstClaim {
         uint256 firstClaimTime = merkleLT.getFirstClaimTime();
-        assertEq(firstClaimTime, block.timestamp);
+        assertEq(firstClaimTime, getBlockTimestamp());
     }
 }

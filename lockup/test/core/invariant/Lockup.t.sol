@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2Lockup } from "core/interfaces/ISablierV2Lockup.sol";
-import { Lockup } from "core/types/DataTypes.sol";
+import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { Invariant_Test } from "./Invariant.t.sol";
 import { LockupHandler } from "./handlers/LockupHandler.sol";

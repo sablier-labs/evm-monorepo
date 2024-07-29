@@ -1,14 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { ISablierV2MerkleLL } from "periphery/interfaces/ISablierV2MerkleLL.sol";
-import { ISablierV2MerkleLT } from "periphery/interfaces/ISablierV2MerkleLT.sol";
+import { ISablierV2MerkleLL } from "src/periphery/interfaces/ISablierV2MerkleLL.sol";
+import { ISablierV2MerkleLT } from "src/periphery/interfaces/ISablierV2MerkleLT.sol";
 
-import { Integration_Test } from "../Integration.t.sol";
+import { Periphery_Test } from "../../Periphery.t.sol";
 
-abstract contract MerkleLockup_Integration_Test is Integration_Test {
+abstract contract MerkleLockup_Integration_Test is Periphery_Test {
     function setUp() public virtual override {
-        Integration_Test.setUp();
+        Periphery_Test.setUp();
+
+        // Make Alice the caller.
+        resetPrank(users.alice);
 
         // Create the default MerkleLockup contracts.
         merkleLL = createMerkleLL();
@@ -46,6 +49,18 @@ abstract contract MerkleLockup_Integration_Test is Integration_Test {
 
     function computeMerkleLLAddress(address admin, bytes32 merkleRoot) internal view returns (address) {
         return computeMerkleLLAddress(admin, merkleRoot, defaults.EXPIRATION());
+    }
+
+    function computeMerkleLLAddress(
+        address admin,
+        bytes32 merkleRoot,
+        uint40 expiration
+    )
+        internal
+        view
+        returns (address)
+    {
+        return computeMerkleLLAddress(users.alice, admin, dai, merkleRoot, expiration);
     }
 
     function createMerkleLL() internal returns (ISablierV2MerkleLL) {
@@ -97,6 +112,18 @@ abstract contract MerkleLockup_Integration_Test is Integration_Test {
 
     function computeMerkleLTAddress(address admin, bytes32 merkleRoot) internal view returns (address) {
         return computeMerkleLTAddress(admin, merkleRoot, defaults.EXPIRATION());
+    }
+
+    function computeMerkleLTAddress(
+        address admin,
+        bytes32 merkleRoot,
+        uint40 expiration
+    )
+        internal
+        view
+        returns (address)
+    {
+        return computeMerkleLTAddress(users.alice, admin, dai, merkleRoot, expiration);
     }
 
     function createMerkleLT() internal returns (ISablierV2MerkleLT) {

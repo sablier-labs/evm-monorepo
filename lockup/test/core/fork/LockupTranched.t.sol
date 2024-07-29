@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 
-import { Broker, Lockup, LockupTranched } from "core/types/DataTypes.sol";
+import { Broker, Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 
 import { Fork_Test } from "./Fork.t.sol";
 

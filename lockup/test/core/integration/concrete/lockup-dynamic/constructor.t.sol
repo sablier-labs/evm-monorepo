@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
-import { SablierV2LockupDynamic } from "core/SablierV2LockupDynamic.sol";
+import { SablierV2LockupDynamic } from "src/core/SablierV2LockupDynamic.sol";
 
 import { LockupDynamic_Integration_Concrete_Test } from "./LockupDynamic.t.sol";
 

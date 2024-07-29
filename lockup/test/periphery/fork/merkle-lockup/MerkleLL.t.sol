@@ -3,12 +3,12 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Lockup, LockupLinear } from "core/types/DataTypes.sol";
 
-import { ISablierV2MerkleLL } from "periphery/interfaces/ISablierV2MerkleLL.sol";
-import { MerkleLockup } from "periphery/types/DataTypes.sol";
+import { Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
+import { ISablierV2MerkleLL } from "src/periphery/interfaces/ISablierV2MerkleLL.sol";
+import { MerkleLockup } from "src/periphery/types/DataTypes.sol";
 
-import { MerkleBuilder } from "../../utils/MerkleBuilder.sol";
+import { MerkleBuilder } from "../../../utils/MerkleBuilder.sol";
 import { Fork_Test } from "../Fork.t.sol";
 
 abstract contract MerkleLL_Fork_Test is Fork_Test {
@@ -95,7 +95,11 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         MerkleBuilder.sortLeaves(leaves);
         vars.merkleRoot = getRoot(leaves.toBytes32());
 
-        vars.expectedLL = computeMerkleLLAddress(params.admin, FORK_ASSET, vars.merkleRoot, params.expiration);
+        // Make the caller the admin.
+        resetPrank({ msgSender: params.admin });
+
+        vars.expectedLL =
+            computeMerkleLLAddress(params.admin, params.admin, FORK_ASSET, vars.merkleRoot, params.expiration);
 
         vars.baseParams = defaults.baseParams({
             admin: params.admin,
@@ -183,8 +187,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             vars.clawbackAmount = uint128(FORK_ASSET.balanceOf(address(vars.merkleLL)));
             vm.warp({ newTimestamp: uint256(params.expiration) + 1 seconds });
 
-            resetPrank({ msgSender: params.admin });
-            expectCallToTransfer({ asset_: address(FORK_ASSET), to: params.admin, amount: vars.clawbackAmount });
+            expectCallToTransfer({ asset: FORK_ASSET, to: params.admin, value: vars.clawbackAmount });
             vm.expectEmit({ emitter: address(vars.merkleLL) });
             emit Clawback({ to: params.admin, admin: params.admin, amount: vars.clawbackAmount });
             vars.merkleLL.clawback({ to: params.admin, amount: vars.clawbackAmount });

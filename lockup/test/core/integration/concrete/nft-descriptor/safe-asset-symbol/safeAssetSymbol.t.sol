@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ERC20Mock } from "../../../../mocks/erc20/ERC20Mock.sol";
-import { ERC20Bytes32 } from "../../../../mocks/erc20/ERC20Bytes32.sol";
+import { ERC20Mock } from "test/mocks/erc20/ERC20Mock.sol";
+import { ERC20Bytes32 } from "test/mocks/erc20/ERC20Bytes32.sol";
 import { NFTDescriptor_Integration_Shared_Test } from "../../../shared/nft-descriptor/NFTDescriptor.t.sol";
 
 contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_Shared_Test {

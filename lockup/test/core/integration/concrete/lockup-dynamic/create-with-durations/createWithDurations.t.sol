@@ -3,9 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { ISablierV2LockupDynamic } from "core/interfaces/ISablierV2LockupDynamic.sol";
-import { Errors } from "core/libraries/Errors.sol";
-import { Lockup, LockupDynamic } from "core/types/DataTypes.sol";
+import { ISablierV2LockupDynamic } from "src/core/interfaces/ISablierV2LockupDynamic.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
+import { Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
 
 import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup/createWithDurations.t.sol";
 import { LockupDynamic_Integration_Concrete_Test } from "../LockupDynamic.t.sol";
@@ -146,7 +146,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
             streamId: streamId,
             funder: funder,
             sender: users.sender,
-            recipient: users.recipient,
+            recipient: users.recipient0,
             amounts: defaults.lockupCreateAmounts(),
             asset: dai,
             cancelable: true,
@@ -179,7 +179,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = lockupDynamic.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = users.recipient;
+        address expectedNFTOwner = users.recipient0;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

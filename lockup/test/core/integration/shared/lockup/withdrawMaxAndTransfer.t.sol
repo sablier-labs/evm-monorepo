@@ -8,7 +8,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Shared_Test is Lockup_Integ
 
     function setUp() public virtual override {
         defaultStreamId = createDefaultStream();
-        resetPrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient0 });
     }
 
     modifier givenNFTNotBurned() {

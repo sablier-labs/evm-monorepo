@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Errors } from "core/libraries/Errors.sol";
-import { Lockup } from "core/types/DataTypes.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { Lockup_Integration_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
@@ -25,7 +25,7 @@ abstract contract StatusOf_Integration_Concrete_Test is Integration_Test, Lockup
 
     function test_StatusOf_AssetsFullyWithdrawn() external givenNotNull {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);

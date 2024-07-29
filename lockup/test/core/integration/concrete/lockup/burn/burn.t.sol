@@ -3,8 +3,8 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
-import { ISablierV2Lockup } from "core/interfaces/ISablierV2Lockup.sol";
-import { Errors } from "core/libraries/Errors.sol";
+import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
 
 import { Lockup_Integration_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
@@ -18,7 +18,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         notTransferableStreamId = createDefaultStreamNotTransferable();
 
         // Make the Recipient (owner of the NFT) the caller in this test suite.
-        resetPrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient0 });
     }
 
     function test_RevertWhen_DelegateCalled() external {
@@ -87,14 +87,14 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         resetPrank({ msgSender: users.sender });
         lockup.cancel(streamId);
-        resetPrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient0 });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 
     modifier givenStreamHasBeenDepleted(uint256 streamId_) {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: streamId_, to: users.recipient });
+        lockup.withdrawMax({ streamId: streamId_, to: users.recipient0 });
         _;
     }
 

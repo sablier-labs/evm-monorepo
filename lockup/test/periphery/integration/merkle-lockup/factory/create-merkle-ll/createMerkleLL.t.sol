@@ -1,22 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupLinear } from "core/types/DataTypes.sol";
-
-import { Errors } from "periphery/libraries/Errors.sol";
-import { ISablierV2MerkleLL } from "periphery/interfaces/ISablierV2MerkleLL.sol";
-import { MerkleLockup } from "periphery/types/DataTypes.sol";
+import { LockupLinear } from "src/core/types/DataTypes.sol";
+import { Errors } from "src/periphery/libraries/Errors.sol";
+import { ISablierV2MerkleLL } from "src/periphery/interfaces/ISablierV2MerkleLL.sol";
+import { MerkleLockup } from "src/periphery/types/DataTypes.sol";
 
 import { MerkleLockup_Integration_Test } from "../../MerkleLockup.t.sol";
 
 contract CreateMerkleLL_Integration_Test is MerkleLockup_Integration_Test {
-    function setUp() public override {
-        MerkleLockup_Integration_Test.setUp();
-
-        // Make alice the caller of createMerkleLT.
-        resetPrank(users.alice);
-    }
-
     function test_RevertWhen_CampaignNameTooLong() external {
         MerkleLockup.ConstructorParams memory baseParams = defaults.baseParams();
         LockupLinear.Durations memory streamDurations = defaults.durations();

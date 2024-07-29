@@ -3,10 +3,10 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2Lockup } from "core/interfaces/ISablierV2Lockup.sol";
-import { Broker } from "core/types/DataTypes.sol";
+import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { Broker } from "src/core/types/DataTypes.sol";
 
-import { Base_Test } from "test/core/Base.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
 /// @dev This contracts avoids duplicating test logic for {SablierV2LockupLinear} and {SablierV2LockupDynamic};
 /// both of these contracts inherit from {SablierV2Lockup}.
@@ -24,8 +24,7 @@ abstract contract Lockup_Integration_Shared_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        // Make the Sender the default caller in this test suite.
-        resetPrank({ msgSender: users.sender });
+        Base_Test.setUp();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

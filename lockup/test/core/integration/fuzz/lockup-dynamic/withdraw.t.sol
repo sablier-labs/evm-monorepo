@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup, LockupDynamic } from "core/types/DataTypes.sol";
+import { Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
 
 import { Withdraw_Integration_Fuzz_Test } from "../lockup/withdraw.t.sol";
 import { LockupDynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
@@ -59,7 +59,7 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         fuzzSegmentTimestamps(params.segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
-        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(params.segments);
+        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(params.segments, defaults.BROKER_FEE());
 
         // Bound the time jump.
         vars.totalDuration = params.segments[params.segments.length - 1].timestamp - defaults.START_TIME();
@@ -102,7 +102,7 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         emit MetadataUpdate({ _tokenId: vars.streamId });
 
         // Make the Recipient the caller.
-        resetPrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient0 });
 
         // Make the withdrawal.
         lockupDynamic.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });

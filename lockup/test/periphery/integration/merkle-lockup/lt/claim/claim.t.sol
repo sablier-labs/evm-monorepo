@@ -3,14 +3,14 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
-import { Lockup, LockupTranched } from "core/types/DataTypes.sol";
 
-import { ISablierV2MerkleLT } from "periphery/interfaces/ISablierV2MerkleLT.sol";
-import { Errors } from "periphery/libraries/Errors.sol";
-import { MerkleLockup, MerkleLT } from "periphery/types/DataTypes.sol";
+import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
+import { ISablierV2MerkleLT } from "src/periphery/interfaces/ISablierV2MerkleLT.sol";
+import { Errors } from "src/periphery/libraries/Errors.sol";
+import { MerkleLockup, MerkleLT } from "src/periphery/types/DataTypes.sol";
 
-import { MerkleBuilder } from "../../../../utils/MerkleBuilder.sol";
-import { Merkle } from "../../../../utils/Murky.sol";
+import { MerkleBuilder } from "test/utils/MerkleBuilder.sol";
+import { Merkle } from "test/utils/Murky.sol";
 
 import { MerkleLockup_Integration_Test } from "../../MerkleLockup.t.sol";
 
@@ -232,7 +232,7 @@ contract Claim_Integration_Test is Merkle, MerkleLockup_Integration_Test {
             recipient: users.recipient1,
             sender: users.admin,
             startTime: getBlockTimestamp(),
-            tranches: defaults.tranches(claimAmount),
+            tranches: defaults.tranchesMerkleLockup(claimAmount),
             wasCanceled: false
         });
 
@@ -270,7 +270,7 @@ contract Claim_Integration_Test is Merkle, MerkleLockup_Integration_Test {
             recipient: users.recipient1,
             sender: users.admin,
             startTime: getBlockTimestamp(),
-            tranches: defaults.tranches(),
+            tranches: defaults.tranchesMerkleLockup(),
             wasCanceled: false
         });
 

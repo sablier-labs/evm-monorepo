@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Errors } from "core/libraries/Errors.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
 
 import { LockupLinear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
 

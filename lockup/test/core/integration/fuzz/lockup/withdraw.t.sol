@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup } from "core/types/DataTypes.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { Withdraw_Integration_Shared_Test } from "../../shared/lockup/withdraw.t.sol";
 import { Integration_Test } from "../../Integration.t.sol";
@@ -22,7 +22,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         whenWithdrawAmountNotZero
         whenNoOverdraw
     {
-        vm.assume(caller != users.sender && caller != users.recipient);
+        vm.assume(caller != users.sender && caller != users.recipient0);
 
         // Make the fuzzed address the caller in this test.
         resetPrank({ msgSender: caller });
@@ -31,7 +31,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: defaults.WITHDRAW_AMOUNT() });
 
         // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -108,7 +108,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         // Cancel the stream.
         resetPrank({ msgSender: users.sender });
         lockup.cancel({ streamId: defaultStreamId });
-        resetPrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient0 });
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
@@ -142,7 +142,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
 
         // Assert that the NFT has not been burned.
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
-        address expectedNFTOwner = users.recipient;
+        address expectedNFTOwner = users.recipient0;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
@@ -212,7 +212,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
 
         // Assert that the NFT has not been burned.
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
-        address expectedNFTOwner = users.recipient;
+        address expectedNFTOwner = users.recipient0;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 }

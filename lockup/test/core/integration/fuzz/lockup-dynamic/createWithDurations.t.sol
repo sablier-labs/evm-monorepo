@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup, LockupDynamic } from "core/types/DataTypes.sol";
+import { Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
 
 import { CreateWithDurations_Integration_Shared_Test } from "../../shared/lockup/createWithDurations.t.sol";
 import { LockupDynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
@@ -48,7 +48,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         fuzzSegmentDurations(segments);
 
         // Fuzz the segment amounts and calculate the total and create amounts (deposit and broker fee).
-        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(segments);
+        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(segments, defaults.BROKER_FEE());
 
         // Make the Sender the stream's funder (recall that the Sender is the default caller).
         vars.funder = users.sender;
@@ -77,7 +77,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
             streamId: streamId,
             funder: vars.funder,
             sender: users.sender,
-            recipient: users.recipient,
+            recipient: users.recipient0,
             amounts: vars.createAmounts,
             asset: dai,
             cancelable: true,
@@ -108,7 +108,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.isTransferable, true, "isTransferable");
-        assertEq(actualStream.recipient, users.recipient, "recipient");
+        assertEq(actualStream.recipient, users.recipient0, "recipient");
         assertEq(actualStream.segments, vars.segmentsWithTimestamps, "segments");
         assertEq(actualStream.sender, users.sender, "sender");
         assertEq(actualStream.startTime, timestamps.start, "startTime");
@@ -126,7 +126,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
 
         // Assert that the NFT has been minted.
         vars.actualNFTOwner = lockupDynamic.ownerOf({ tokenId: streamId });
-        vars.expectedNFTOwner = users.recipient;
+        vars.expectedNFTOwner = users.recipient0;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
     }
 }

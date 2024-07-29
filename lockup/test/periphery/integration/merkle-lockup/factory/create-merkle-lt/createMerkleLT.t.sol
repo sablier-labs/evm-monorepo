@@ -1,20 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Errors } from "periphery/libraries/Errors.sol";
-import { ISablierV2MerkleLT } from "periphery/interfaces/ISablierV2MerkleLT.sol";
-import { MerkleLockup, MerkleLT } from "periphery/types/DataTypes.sol";
+import { Errors } from "src/periphery/libraries/Errors.sol";
+import { ISablierV2MerkleLT } from "src/periphery/interfaces/ISablierV2MerkleLT.sol";
+import { MerkleLockup, MerkleLT } from "src/periphery/types/DataTypes.sol";
 
 import { MerkleLockup_Integration_Test } from "../../MerkleLockup.t.sol";
 
 contract CreateMerkleLT_Integration_Test is MerkleLockup_Integration_Test {
-    function setUp() public override {
-        MerkleLockup_Integration_Test.setUp();
-
-        // Make alice the caller of createMerkleLT.
-        resetPrank(users.alice);
-    }
-
     function test_RevertWhen_CampaignNameTooLong() external {
         MerkleLockup.ConstructorParams memory baseParams = defaults.baseParams();
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
-import { SablierV2LockupTranched } from "core/SablierV2LockupTranched.sol";
+import { SablierV2LockupTranched } from "src/core/SablierV2LockupTranched.sol";
 
 import { LockupTranched_Integration_Concrete_Test } from "./LockupTranched.t.sol";
 

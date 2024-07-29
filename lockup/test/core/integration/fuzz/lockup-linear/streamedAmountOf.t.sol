@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ZERO } from "@prb/math/src/UD60x18.sol";
-
-import { Broker, LockupLinear } from "core/types/DataTypes.sol";
+import { LockupLinear } from "src/core/types/DataTypes.sol";
 
 import { StreamedAmountOf_Integration_Shared_Test } from "../../shared/lockup/streamedAmountOf.t.sol";
 import { LockupLinear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
@@ -64,18 +62,17 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
-        LockupLinear.CreateWithTimestamps memory params = defaults.createWithTimestampsLL();
-        params.broker = Broker({ account: address(0), fee: ZERO });
+        LockupLinear.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLL();
         params.totalAmount = depositAmount;
         uint256 streamId = lockupLinear.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
-        vm.warp({ newTimestamp: blockTimestamp });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateStreamedAmount(blockTimestamp, depositAmount);
+        uint128 expectedStreamedAmount =
+            calculateStreamedAmount(defaults.START_TIME(), defaults.END_TIME(), depositAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -98,7 +95,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
-        LockupLinear.CreateWithTimestamps memory params = defaults.createWithTimestampsLL();
+        LockupLinear.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLL();
         params.totalAmount = depositAmount;
         uint256 streamId = lockupLinear.createWithTimestamps(params);
 

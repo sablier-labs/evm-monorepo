@@ -3,8 +3,13 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2NFTDescriptor } from "../../../src/core/interfaces/ISablierV2NFTDescriptor.sol";
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../../src/core/types/DataTypes.sol";
+import { ISablierV2LockupLinear } from "../../src/core/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierV2LockupTranched } from "../../src/core/interfaces/ISablierV2LockupTranched.sol";
+import { ISablierV2NFTDescriptor } from "../../src/core/interfaces/ISablierV2NFTDescriptor.sol";
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/core/types/DataTypes.sol";
+import { ISablierV2MerkleLL } from "../../src/periphery/interfaces/ISablierV2MerkleLL.sol";
+import { ISablierV2MerkleLT } from "../../src/periphery/interfaces/ISablierV2MerkleLT.sol";
+import { MerkleLockup, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
 
 /// @notice Abstract contract containing all the events emitted by the protocol.
 abstract contract Events {
@@ -29,7 +34,7 @@ abstract contract Events {
     event TransferAdmin(address indexed oldAdmin, address indexed newAdmin);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-V2-LOCKUP
+                                        CORE
     //////////////////////////////////////////////////////////////////////////*/
 
     event AllowToHook(address indexed admin, address recipient);
@@ -42,7 +47,6 @@ abstract contract Events {
         uint128 senderAmount,
         uint128 recipientAmount
     );
-
     event RenounceLockupStream(uint256 indexed streamId);
 
     event SetNFTDescriptor(
@@ -50,10 +54,6 @@ abstract contract Events {
     );
 
     event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 amount);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                             SABLIER-V2-LOCKUP-DYNAMIC
-    //////////////////////////////////////////////////////////////////////////*/
 
     event CreateLockupDynamicStream(
         uint256 streamId,
@@ -69,10 +69,6 @@ abstract contract Events {
         address broker
     );
 
-    /*//////////////////////////////////////////////////////////////////////////
-                              SABLIER-V2-LOCKUP-LINEAR
-    //////////////////////////////////////////////////////////////////////////*/
-
     event CreateLockupLinearStream(
         uint256 streamId,
         address funder,
@@ -86,10 +82,6 @@ abstract contract Events {
         address broker
     );
 
-    /*//////////////////////////////////////////////////////////////////////////
-                             SABLIER-V2-LOCKUP-TRANCHED
-    //////////////////////////////////////////////////////////////////////////*/
-
     event CreateLockupTranchedStream(
         uint256 streamId,
         address funder,
@@ -102,5 +94,32 @@ abstract contract Events {
         LockupTranched.Tranche[] tranches,
         LockupTranched.Timestamps timestamps,
         address broker
+    );
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     PERIPHERY
+    //////////////////////////////////////////////////////////////////////////*/
+
+    event Claim(uint256 index, address indexed recipient, uint128 amount, uint256 indexed streamId);
+
+    event Clawback(address indexed admin, address indexed to, uint128 amount);
+
+    event CreateMerkleLL(
+        ISablierV2MerkleLL indexed merkleLL,
+        MerkleLockup.ConstructorParams baseParams,
+        ISablierV2LockupLinear lockupLinear,
+        LockupLinear.Durations streamDurations,
+        uint256 aggregateAmount,
+        uint256 recipientCount
+    );
+
+    event CreateMerkleLT(
+        ISablierV2MerkleLT indexed merkleLT,
+        MerkleLockup.ConstructorParams baseParams,
+        ISablierV2LockupTranched lockupTranched,
+        MerkleLT.TrancheWithPercentage[] tranchesWithPercentages,
+        uint256 totalDuration,
+        uint256 aggregateAmount,
+        uint256 recipientCount
     );
 }

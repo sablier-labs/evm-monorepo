@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Errors } from "periphery/libraries/Errors.sol";
-import { BatchLockup } from "periphery/types/DataTypes.sol";
+import { Errors } from "src/periphery/libraries/Errors.sol";
+import { BatchLockup } from "src/periphery/types/DataTypes.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Periphery_Test } from "../../../Periphery.t.sol";
 
-contract CreateWithDurationsLT_Integration_Test is Integration_Test {
+contract CreateWithDurationsLT_Integration_Test is Periphery_Test {
     function setUp() public virtual override {
-        Integration_Test.setUp();
+        Periphery_Test.setUp();
+        resetPrank({ msgSender: users.sender });
     }
 
     function test_RevertWhen_BatchSizeZero() external {
@@ -22,22 +23,22 @@ contract CreateWithDurationsLT_Integration_Test is Integration_Test {
     }
 
     function test_BatchCreateWithDurations() external whenBatchSizeNotZero {
-        // Asset flow: Alice → batchLockup → Sablier
+        // Asset flow: Sender → batchLockup → Sablier
         // Expect transfers from Alice to the batchLockup, and then from the batchLockup to the Sablier contract.
         expectCallToTransferFrom({
-            from: users.alice,
+            from: users.sender,
             to: address(batchLockup),
-            amount: defaults.TOTAL_TRANSFER_AMOUNT()
+            value: defaults.TOTAL_TRANSFER_AMOUNT()
         });
         expectMultipleCallsToCreateWithDurationsLT({
             count: defaults.BATCH_SIZE(),
-            params: defaults.createWithDurationsLT()
+            params: defaults.createWithDurationsBrokerNullLT()
         });
         expectMultipleCallsToTransferFrom({
             count: defaults.BATCH_SIZE(),
             from: address(batchLockup),
             to: address(lockupTranched),
-            amount: defaults.PER_STREAM_AMOUNT()
+            value: defaults.DEPOSIT_AMOUNT()
         });
 
         // Assert that the batch of streams has been created successfully.

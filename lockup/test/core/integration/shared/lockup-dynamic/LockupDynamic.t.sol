@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { Broker, LockupDynamic } from "core/types/DataTypes.sol";
+import { Broker, LockupDynamic } from "src/core/types/DataTypes.sol";
 
 import { Lockup_Integration_Shared_Test } from "../lockup/Lockup.t.sol";
 
@@ -22,7 +22,7 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         Lockup_Integration_Shared_Test.setUp();
 
         _params.createWithDurations.sender = users.sender;
-        _params.createWithDurations.recipient = users.recipient;
+        _params.createWithDurations.recipient = users.recipient0;
         _params.createWithDurations.totalAmount = defaults.TOTAL_AMOUNT();
         _params.createWithDurations.asset = dai;
         _params.createWithDurations.cancelable = true;
@@ -30,7 +30,7 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         _params.createWithDurations.broker = defaults.broker();
 
         _params.createWithTimestamps.sender = users.sender;
-        _params.createWithTimestamps.recipient = users.recipient;
+        _params.createWithTimestamps.recipient = users.recipient0;
         _params.createWithTimestamps.totalAmount = defaults.TOTAL_AMOUNT();
         _params.createWithTimestamps.asset = dai;
         _params.createWithTimestamps.cancelable = true;

@@ -3,17 +3,15 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2LockupDynamic } from "core/interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupLinear } from "core/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2LockupTranched } from "core/interfaces/ISablierV2LockupTranched.sol";
-import { Precompiles } from "precompiles/Precompiles.sol";
+import { ISablierV2LockupDynamic } from "src/core/interfaces/ISablierV2LockupDynamic.sol";
+import { ISablierV2LockupLinear } from "src/core/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierV2LockupTranched } from "src/core/interfaces/ISablierV2LockupTranched.sol";
 
-import { Fuzzers as V2CoreFuzzers } from "../../core/utils/Fuzzers.sol";
-import { Defaults } from "../utils/Defaults.sol";
-import { Base_Test } from "../Base.t.sol";
+import { Periphery_Test } from "../Periphery.t.sol";
+import { Merkle } from "../../utils/Murky.sol";
 
 /// @notice Common logic needed by all fork tests.
-abstract contract Fork_Test is Base_Test, V2CoreFuzzers {
+abstract contract Fork_Test is Periphery_Test, Merkle {
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -37,23 +35,10 @@ abstract contract Fork_Test is Base_Test, V2CoreFuzzers {
         vm.createSelectFork({ blockNumber: 20_339_512, urlOrAlias: "mainnet" });
 
         // Set up the base test contract.
-        Base_Test.setUp();
+        Periphery_Test.setUp();
 
         // Load the external dependencies.
         loadDependencies();
-
-        // Deploy the defaults contract and allow it to access cheatcodes.
-        defaults = new Defaults({ users_: users, asset_: FORK_ASSET });
-        vm.allowCheatcodes(address(defaults));
-
-        // Deploy V2 Periphery.
-        deployPeripheryConditionally();
-
-        // Label the contracts.
-        labelContracts(FORK_ASSET);
-
-        // Approve the BatchLockup contract.
-        approveContract({ asset_: FORK_ASSET, from: users.alice, spender: address(batchLockup) });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

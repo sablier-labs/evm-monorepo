@@ -2,12 +2,12 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { LockupDynamic } from "core/types/DataTypes.sol";
 
-import { BatchLockup } from "periphery/types/DataTypes.sol";
+import { LockupDynamic } from "src/core/types/DataTypes.sol";
+import { BatchLockup } from "src/periphery/types/DataTypes.sol";
 
-import { ArrayBuilder } from "../../utils/ArrayBuilder.sol";
-import { BatchLockupBuilder } from "../../utils/BatchLockupBuilder.sol";
+import { ArrayBuilder } from "../../../utils/ArrayBuilder.sol";
+import { BatchLockupBuilder } from "../../../utils/BatchLockupBuilder.sol";
 import { Fork_Test } from "../Fork.t.sol";
 
 /// @dev Runs against multiple fork assets.
@@ -35,7 +35,7 @@ abstract contract CreateWithTimestamps_LockupDynamic_BatchLockup_Fork_Test is Fo
         (params.perStreamAmount,) = fuzzDynamicStreamAmounts({
             upperBound: MAX_UINT128 / params.batchSize,
             segments: params.segments,
-            brokerFee: defaults.BROKER_FEE()
+            brokerFee: defaults.brokerNull().fee
         });
 
         checkUsers(params.sender, params.recipient);
@@ -55,24 +55,24 @@ abstract contract CreateWithTimestamps_LockupDynamic_BatchLockup_Fork_Test is Fo
             transferable: true,
             startTime: params.startTime,
             segments: params.segments,
-            broker: defaults.broker()
+            broker: defaults.brokerNull()
         });
         BatchLockup.CreateWithTimestampsLD[] memory batchParams =
             BatchLockupBuilder.fillBatch(createWithTimestamps, params.batchSize);
 
         expectCallToTransferFrom({
-            asset_: address(FORK_ASSET),
+            asset: FORK_ASSET,
             from: params.sender,
             to: address(batchLockup),
-            amount: totalTransferAmount
+            value: totalTransferAmount
         });
         expectMultipleCallsToCreateWithTimestampsLD({ count: uint64(params.batchSize), params: createWithTimestamps });
         expectMultipleCallsToTransferFrom({
-            asset_: address(FORK_ASSET),
+            asset: FORK_ASSET,
             count: uint64(params.batchSize),
             from: address(batchLockup),
             to: address(lockupDynamic),
-            amount: params.perStreamAmount
+            value: params.perStreamAmount
         });
 
         uint256[] memory actualStreamIds = batchLockup.createWithTimestampsLD(lockupDynamic, FORK_ASSET, batchParams);

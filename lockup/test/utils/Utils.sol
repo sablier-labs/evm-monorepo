@@ -5,7 +5,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
 import { CommonBase } from "forge-std/src/Base.sol";
 
-import { LockupDynamic, LockupTranched } from "../../../src/core/types/DataTypes.sol";
+import { LockupDynamic, LockupTranched } from "../../src/core/types/DataTypes.sol";
 
 abstract contract Utils is CommonBase, PRBMathUtils {
     /// @dev Bounds a `uint128` number.
