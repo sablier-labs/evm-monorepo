@@ -44,6 +44,10 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice The maximum number of segments allowed in a stream.
+    /// @dev This is initialized at construction time and cannot be changed later.
+    function MAX_SEGMENT_COUNT() external view returns (uint256);
+
     /// @notice Retrieves the segments used to compose the dynamic distribution function.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
@@ -60,10 +64,6 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @param streamId The stream ID for the query.
     /// @return timestamps See the documentation in {DataTypes}.
     function getTimestamps(uint256 streamId) external view returns (LockupDynamic.Timestamps memory timestamps);
-
-    /// @notice The maximum number of segments allowed in a stream.
-    /// @dev This is initialized at construction time and cannot be changed later.
-    function MAX_SEGMENT_COUNT() external view returns (uint256);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS

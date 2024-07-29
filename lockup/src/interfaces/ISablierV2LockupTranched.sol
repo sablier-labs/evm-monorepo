@@ -44,6 +44,10 @@ interface ISablierV2LockupTranched is ISablierV2Lockup {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice The maximum number of tranches allowed in a stream.
+    /// @dev This is initialized at construction time and cannot be changed later.
+    function MAX_TRANCHE_COUNT() external view returns (uint256);
+
     /// @notice Retrieves the full stream details.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
@@ -60,10 +64,6 @@ interface ISablierV2LockupTranched is ISablierV2Lockup {
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function getTranches(uint256 streamId) external view returns (LockupTranched.Tranche[] memory tranches);
-
-    /// @notice The maximum number of tranches allowed in a stream.
-    /// @dev This is initialized at construction time and cannot be changed later.
-    function MAX_TRANCHE_COUNT() external view returns (uint256);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS

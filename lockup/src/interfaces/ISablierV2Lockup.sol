@@ -67,6 +67,11 @@ interface ISablierV2Lockup is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Retrieves the maximum broker fee that can be charged by the broker, denoted as a fixed-point
+    /// number where 1e18 is 100%.
+    /// @dev This value is hard coded as a constant.
+    function MAX_BROKER_FEE() external view returns (UD60x18);
+
     /// @notice Retrieves the address of the ERC-20 asset to be distributed.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
@@ -143,11 +148,6 @@ interface ISablierV2Lockup is
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function isWarm(uint256 streamId) external view returns (bool result);
-
-    /// @notice Retrieves the maximum broker fee that can be charged by the broker, denoted as a fixed-point
-    /// number where 1e18 is 100%.
-    /// @dev This value is hard coded as a constant.
-    function MAX_BROKER_FEE() external view returns (UD60x18);
 
     /// @notice Counter for stream IDs, used in the create functions.
     function nextStreamId() external view returns (uint256);
