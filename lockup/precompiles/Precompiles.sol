@@ -7,7 +7,6 @@ import { ISablierV2LockupLinear } from "../src/core/interfaces/ISablierV2LockupL
 import { ISablierV2LockupTranched } from "../src/core/interfaces/ISablierV2LockupTranched.sol";
 import { ISablierV2NFTDescriptor } from "../src/core/interfaces/ISablierV2NFTDescriptor.sol";
 import { SablierV2NFTDescriptor } from "../src/core/SablierV2NFTDescriptor.sol";
-
 import { ISablierV2BatchLockup } from "../src/periphery/interfaces/ISablierV2BatchLockup.sol";
 import { ISablierV2MerkleLockupFactory } from "../src/periphery/interfaces/ISablierV2MerkleLockupFactory.sol";
 

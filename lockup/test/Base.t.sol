@@ -11,8 +11,11 @@ import { SablierV2LockupDynamic } from "src/core/SablierV2LockupDynamic.sol";
 import { SablierV2LockupLinear } from "src/core/SablierV2LockupLinear.sol";
 import { SablierV2LockupTranched } from "src/core/SablierV2LockupTranched.sol";
 import { SablierV2NFTDescriptor } from "src/core/SablierV2NFTDescriptor.sol";
+import { LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
 import { ISablierV2MerkleLockupFactory } from "src/periphery/interfaces/ISablierV2MerkleLockupFactory.sol";
 import { ISablierV2BatchLockup } from "src/periphery/interfaces/ISablierV2BatchLockup.sol";
+import { ISablierV2MerkleLL } from "src/periphery/interfaces/ISablierV2MerkleLL.sol";
+import { ISablierV2MerkleLT } from "src/periphery/interfaces/ISablierV2MerkleLT.sol";
 import { SablierV2BatchLockup } from "src/periphery/SablierV2BatchLockup.sol";
 import { SablierV2MerkleLockupFactory } from "src/periphery/SablierV2MerkleLockupFactory.sol";
 
@@ -48,6 +51,8 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     ISablierV2LockupLinear internal lockupLinear;
     ISablierV2LockupTranched internal lockupTranched;
     ISablierV2MerkleLockupFactory internal merkleLockupFactory;
+    ISablierV2MerkleLL internal merkleLL;
+    ISablierV2MerkleLT internal merkleLT;
     ISablierV2NFTDescriptor internal nftDescriptor;
     Noop internal noop;
     RecipientGood internal recipientGood;
@@ -86,7 +91,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
         users.broker = createUser("Broker");
         users.eve = createUser("Eve");
         users.operator = createUser("Operator");
-        users.recipient0 = createUser("Recipient0");
+        users.recipient = createUser("Recipient");
         users.recipient1 = createUser("Recipient1");
         users.recipient2 = createUser("Recipient2");
         users.recipient3 = createUser("Recipient3");
@@ -103,6 +108,13 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Approve `spender` to spend assets from `from`.
+    function approveContract(IERC20 asset_, address from, address spender) internal {
+        resetPrank({ msgSender: from });
+        (bool success,) = address(asset_).call(abi.encodeCall(IERC20.approve, (spender, MAX_UINT256)));
+        success;
+    }
 
     /// @dev Approves all contracts to spend assets from the address passed.
     function approveProtocol(address from) internal {
@@ -156,7 +168,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    CALL EXPECTS
+                                CALL EXPECTS - IERC20
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Expects a call to {IERC20.transfer}.
@@ -177,5 +189,126 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     /// @dev Expects a call to {IERC20.transferFrom}.
     function expectCallToTransferFrom(IERC20 asset, address from, address to, uint256 value) internal {
         vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transferFrom, (from, to, value)) });
+    }
+
+    /// @dev Expects multiple calls to {IERC20.transfer}.
+    function expectMultipleCallsToTransfer(uint64 count, address to, uint256 value) internal {
+        vm.expectCall({ callee: address(dai), count: count, data: abi.encodeCall(IERC20.transfer, (to, value)) });
+    }
+
+    /// @dev Expects multiple calls to {IERC20.transferFrom}.
+    function expectMultipleCallsToTransferFrom(uint64 count, address from, address to, uint256 value) internal {
+        expectMultipleCallsToTransferFrom(dai, count, from, to, value);
+    }
+
+    /// @dev Expects multiple calls to {IERC20.transferFrom}.
+    function expectMultipleCallsToTransferFrom(
+        IERC20 asset,
+        uint64 count,
+        address from,
+        address to,
+        uint256 value
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(asset),
+            count: count,
+            data: abi.encodeCall(IERC20.transferFrom, (from, to, value))
+        });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                CALL EXPECTS - LOCKUP
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Expects multiple calls to {ISablierV2LockupDynamic.createWithDurations}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithDurationsLD(
+        uint64 count,
+        LockupDynamic.CreateWithDurations memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupDynamic),
+            count: count,
+            data: abi.encodeCall(ISablierV2LockupDynamic.createWithDurations, (params))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierV2LockupLinear.createWithDurations}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithDurationsLL(
+        uint64 count,
+        LockupLinear.CreateWithDurations memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupLinear),
+            count: count,
+            data: abi.encodeCall(ISablierV2LockupLinear.createWithDurations, (params))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierV2LockupTranched.createWithDurations}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithDurationsLT(
+        uint64 count,
+        LockupTranched.CreateWithDurations memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupTranched),
+            count: count,
+            data: abi.encodeCall(ISablierV2LockupTranched.createWithDurations, (params))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierV2LockupDynamic.createWithTimestamps}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithTimestampsLD(
+        uint64 count,
+        LockupDynamic.CreateWithTimestamps memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupDynamic),
+            count: count,
+            data: abi.encodeCall(ISablierV2LockupDynamic.createWithTimestamps, (params))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierV2LockupLinear.createWithTimestamps}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithTimestampsLL(
+        uint64 count,
+        LockupLinear.CreateWithTimestamps memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupLinear),
+            count: count,
+            data: abi.encodeCall(ISablierV2LockupLinear.createWithTimestamps, (params))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierV2LockupTranched.createWithTimestamps}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithTimestampsLT(
+        uint64 count,
+        LockupTranched.CreateWithTimestamps memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupTranched),
+            count: count,
+            data: abi.encodeCall(ISablierV2LockupTranched.createWithTimestamps, (params))
+        });
     }
 }

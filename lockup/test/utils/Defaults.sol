@@ -36,11 +36,11 @@ contract Defaults is Constants, Merkle {
     uint40 public immutable MAX_SEGMENT_DURATION;
     uint256 public constant MAX_TRANCHE_COUNT = 10_000;
     uint128 public constant REFUND_AMOUNT = DEPOSIT_AMOUNT - CLIFF_AMOUNT;
-    uint256 public SEGMENT_COUNT;
+    uint256 public constant SEGMENT_COUNT = 2;
     uint40 public immutable START_TIME;
     uint128 public constant TOTAL_AMOUNT = 10_030.090270812437311935e18; // deposit + broker fee
     uint40 public constant TOTAL_DURATION = 10_000 seconds;
-    uint256 public TRANCHE_COUNT;
+    uint256 public constant TRANCHE_COUNT = 3;
     uint128 public constant TOTAL_TRANSFER_AMOUNT = DEPOSIT_AMOUNT * uint128(BATCH_SIZE);
     uint128 public constant WITHDRAW_AMOUNT = 2600e18;
     uint40 public immutable WARP_26_PERCENT; // 26% of the way through the stream
@@ -53,7 +53,7 @@ contract Defaults is Constants, Merkle {
     bool public constant CANCELABLE = false;
     uint128 public constant CLAIM_AMOUNT = 10_000e18;
     uint40 public immutable EXPIRATION;
-    uint40 public immutable FIRST_CLAIM_TIME;
+    uint40 public constant FIRST_CLAIM_TIME = JULY_1_2024;
     uint256 public constant INDEX1 = 1;
     uint256 public constant INDEX2 = 2;
     uint256 public constant INDEX3 = 3;
@@ -82,13 +82,9 @@ contract Defaults is Constants, Merkle {
         START_TIME = JULY_1_2024 + 2 days;
         CLIFF_TIME = START_TIME + CLIFF_DURATION;
         END_TIME = START_TIME + TOTAL_DURATION;
-        MAX_SEGMENT_DURATION = TOTAL_DURATION / uint40(MAX_SEGMENT_COUNT);
-        SEGMENT_COUNT = 2;
-        TRANCHE_COUNT = 3;
-        WARP_26_PERCENT = START_TIME + CLIFF_DURATION + 100 seconds;
-
         EXPIRATION = JULY_1_2024 + 12 weeks;
-        FIRST_CLAIM_TIME = JULY_1_2024;
+        MAX_SEGMENT_DURATION = TOTAL_DURATION / uint40(MAX_SEGMENT_COUNT);
+        WARP_26_PERCENT = START_TIME + CLIFF_DURATION + 100 seconds;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -147,7 +143,7 @@ contract Defaults is Constants, Merkle {
             isDepleted: false,
             isStream: true,
             isTransferable: true,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             segments: segments(),
             sender: users.sender,
             startTime: START_TIME,
@@ -169,7 +165,7 @@ contract Defaults is Constants, Merkle {
             isTransferable: true,
             isDepleted: false,
             isStream: true,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             sender: users.sender,
             startTime: START_TIME,
             wasCanceled: false
@@ -189,7 +185,7 @@ contract Defaults is Constants, Merkle {
             isDepleted: false,
             isStream: true,
             isTransferable: true,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             sender: users.sender,
             startTime: START_TIME,
             tranches: tranches(),
@@ -259,7 +255,7 @@ contract Defaults is Constants, Merkle {
     function createWithDurationsLD() public view returns (LockupDynamic.CreateWithDurations memory) {
         return LockupDynamic.CreateWithDurations({
             sender: users.sender,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
             asset: asset,
             cancelable: true,
@@ -279,7 +275,7 @@ contract Defaults is Constants, Merkle {
     function createWithDurationsLL() public view returns (LockupLinear.CreateWithDurations memory) {
         return LockupLinear.CreateWithDurations({
             sender: users.sender,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
             asset: asset,
             cancelable: true,
@@ -299,7 +295,7 @@ contract Defaults is Constants, Merkle {
     function createWithDurationsLT() public view returns (LockupTranched.CreateWithDurations memory) {
         return LockupTranched.CreateWithDurations({
             sender: users.sender,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
             asset: asset,
             cancelable: true,
@@ -319,7 +315,7 @@ contract Defaults is Constants, Merkle {
     function createWithTimestampsLD() public view returns (LockupDynamic.CreateWithTimestamps memory) {
         return LockupDynamic.CreateWithTimestamps({
             sender: users.sender,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
             asset: asset,
             cancelable: true,
@@ -340,7 +336,7 @@ contract Defaults is Constants, Merkle {
     function createWithTimestampsLL() public view returns (LockupLinear.CreateWithTimestamps memory) {
         return LockupLinear.CreateWithTimestamps({
             sender: users.sender,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
             asset: asset,
             cancelable: true,
@@ -360,7 +356,7 @@ contract Defaults is Constants, Merkle {
     function createWithTimestampsLT() public view returns (LockupTranched.CreateWithTimestamps memory) {
         return LockupTranched.CreateWithTimestamps({
             sender: users.sender,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
             asset: asset,
             cancelable: true,

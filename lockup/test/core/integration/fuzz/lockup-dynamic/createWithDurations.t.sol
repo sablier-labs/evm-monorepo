@@ -77,7 +77,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
             streamId: streamId,
             funder: vars.funder,
             sender: users.sender,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             amounts: vars.createAmounts,
             asset: dai,
             cancelable: true,
@@ -108,7 +108,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.isTransferable, true, "isTransferable");
-        assertEq(actualStream.recipient, users.recipient0, "recipient");
+        assertEq(actualStream.recipient, users.recipient, "recipient");
         assertEq(actualStream.segments, vars.segmentsWithTimestamps, "segments");
         assertEq(actualStream.sender, users.sender, "sender");
         assertEq(actualStream.startTime, timestamps.start, "startTime");
@@ -126,7 +126,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
 
         // Assert that the NFT has been minted.
         vars.actualNFTOwner = lockupDynamic.ownerOf({ tokenId: streamId });
-        vars.expectedNFTOwner = users.recipient0;
+        vars.expectedNFTOwner = users.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
     }
 }

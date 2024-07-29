@@ -34,7 +34,7 @@ abstract contract Fork_Test is Periphery_Test, Merkle {
         // Fork Ethereum Mainnet at a specific block number.
         vm.createSelectFork({ blockNumber: 20_339_512, urlOrAlias: "mainnet" });
 
-        // Set up the base test contract.
+        // Set up the parent test contract.
         Periphery_Test.setUp();
 
         // Load the external dependencies.

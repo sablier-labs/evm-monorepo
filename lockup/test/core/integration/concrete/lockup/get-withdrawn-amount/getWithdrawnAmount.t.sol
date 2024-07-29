@@ -38,7 +38,7 @@ abstract contract GetWithdrawnAmount_Integration_Concrete_Test is
         uint128 withdrawAmount = lockup.streamedAmountOf(defaultStreamId);
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: withdrawAmount });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);

@@ -92,7 +92,7 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.
-        lockupDynamic.withdraw({ streamId: streamId, to: users.recipient0, amount: withdrawAmount });
+        lockupDynamic.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(streamId);

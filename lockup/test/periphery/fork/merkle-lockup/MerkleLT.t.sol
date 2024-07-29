@@ -59,7 +59,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
 
     function testForkFuzz_MerkleLT(Params memory params) external {
         vm.assume(params.admin != address(0) && params.admin != users.admin);
-        vm.assume(params.leafData.length > 1);
+        vm.assume(params.leafData.length > 0);
         assumeNoBlacklisted({ token: address(FORK_ASSET), addr: params.admin });
         params.posBeforeSort = _bound(params.posBeforeSort, 0, params.leafData.length - 1);
 

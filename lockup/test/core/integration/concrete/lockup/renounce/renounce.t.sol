@@ -40,7 +40,7 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test, Lockup
 
     function test_RevertGiven_StatusDepleted() external whenNotDelegateCalled givenStreamCold {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamId));
         lockup.renounce(defaultStreamId);
     }

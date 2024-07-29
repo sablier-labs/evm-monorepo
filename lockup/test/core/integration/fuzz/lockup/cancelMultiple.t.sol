@@ -47,7 +47,7 @@ abstract contract CancelMultiple_Integration_Fuzz_Test is Integration_Test, Canc
         emit CancelLockupStream({
             streamId: streamIds[0],
             sender: users.sender,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             asset: dai,
             senderAmount: senderAmount0,
             recipientAmount: defaults.DEPOSIT_AMOUNT() - senderAmount0
@@ -56,7 +56,7 @@ abstract contract CancelMultiple_Integration_Fuzz_Test is Integration_Test, Canc
         emit CancelLockupStream({
             streamId: streamIds[1],
             sender: users.sender,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             asset: dai,
             senderAmount: senderAmount1,
             recipientAmount: defaults.DEPOSIT_AMOUNT() - senderAmount1
@@ -84,7 +84,7 @@ abstract contract CancelMultiple_Integration_Fuzz_Test is Integration_Test, Canc
         assertEq(lockup.getRefundedAmount(streamIds[1]), expectedRefundedAmount1, "refundedAmount1");
 
         // Assert that the NFTs have not been burned.
-        address expectedNFTOwner = users.recipient0;
+        address expectedNFTOwner = users.recipient;
         assertEq(lockup.getRecipient(streamIds[0]), expectedNFTOwner, "NFT owner0");
         assertEq(lockup.getRecipient(streamIds[1]), expectedNFTOwner, "NFT owner1");
     }

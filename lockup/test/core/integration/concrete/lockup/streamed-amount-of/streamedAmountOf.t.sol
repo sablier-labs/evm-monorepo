@@ -40,7 +40,7 @@ abstract contract StreamedAmountOf_Integration_Concrete_Test is
     {
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() + 10 seconds });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = defaults.CLIFF_AMOUNT();
@@ -63,7 +63,7 @@ abstract contract StreamedAmountOf_Integration_Concrete_Test is
 
     function test_StreamedAmountOf_StatusDepleted() external givenNotNull givenStreamHasNotBeenCanceled {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");

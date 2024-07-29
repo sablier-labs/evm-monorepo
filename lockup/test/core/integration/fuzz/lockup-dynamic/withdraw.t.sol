@@ -102,7 +102,7 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         emit MetadataUpdate({ _tokenId: vars.streamId });
 
         // Make the Recipient the caller.
-        resetPrank({ msgSender: users.recipient0 });
+        resetPrank({ msgSender: users.recipient });
 
         // Make the withdrawal.
         lockupDynamic.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });

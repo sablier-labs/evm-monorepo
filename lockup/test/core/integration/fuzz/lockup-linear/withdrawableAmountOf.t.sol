@@ -119,7 +119,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.
-        lockupLinear.withdraw({ streamId: streamId, to: users.recipient0, amount: withdrawAmount });
+        lockupLinear.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(streamId);

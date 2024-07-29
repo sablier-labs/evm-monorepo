@@ -22,7 +22,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
     function test_RevertWhen_DelegateCalled() external {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         bytes memory callData =
-            abi.encodeCall(ISablierV2Lockup.withdraw, (defaultStreamId, users.recipient0, withdrawAmount));
+            abi.encodeCall(ISablierV2Lockup.withdraw, (defaultStreamId, users.recipient, withdrawAmount));
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -31,16 +31,16 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         uint256 nullStreamId = 1729;
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
-        lockup.withdraw({ streamId: nullStreamId, to: users.recipient0, amount: withdrawAmount });
+        lockup.withdraw({ streamId: nullStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
     function test_RevertGiven_StreamDepleted() external whenNotDelegateCalled givenNotNull {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamId));
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: withdrawAmount });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
     function test_RevertWhen_ToZeroAddress() external whenNotDelegateCalled givenNotNull givenStreamNotDepleted {
@@ -57,7 +57,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         whenToNonZeroAddress
     {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_WithdrawAmountZero.selector, defaultStreamId));
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: 0 });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
     }
 
     function test_RevertWhen_Overdraw()
@@ -74,7 +74,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
                 Errors.SablierV2Lockup_Overdraw.selector, defaultStreamId, MAX_UINT128, withdrawableAmount
             )
         );
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: MAX_UINT128 });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: MAX_UINT128 });
     }
 
     function test_RevertWhen_CallerUnknown()
@@ -139,7 +139,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         whenWithdrawalAddressNotRecipient
     {
         // Transfer the stream to Alice.
-        lockup.transferFrom(users.recipient0, users.alice, defaultStreamId);
+        lockup.transferFrom(users.recipient, users.alice, defaultStreamId);
 
         // Run the test.
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
@@ -147,11 +147,11 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
             abi.encodeWithSelector(
                 Errors.SablierV2Lockup_WithdrawalAddressNotRecipient.selector,
                 defaultStreamId,
-                users.recipient0,
-                users.recipient0
+                users.recipient,
+                users.recipient
             )
         );
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: withdrawAmount });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
     function test_Withdraw_CallerApprovedOperator()
@@ -233,7 +233,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: defaults.WITHDRAW_AMOUNT() });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
@@ -255,7 +255,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: defaults.WITHDRAW_AMOUNT() });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
@@ -278,7 +278,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         vm.warp({ newTimestamp: defaults.END_TIME() });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: defaults.DEPOSIT_AMOUNT() });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.DEPOSIT_AMOUNT() });
 
         // Assert that the stream's status is "DEPLETED".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -291,7 +291,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
 
         // Assert that the NFT has not been burned.
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
-        address expectedNFTOwner = users.recipient0;
+        address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
@@ -314,7 +314,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: withdrawAmount });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Assert that the stream's status is "DEPLETED".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -328,7 +328,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
 
         // Assert that the NFT has not been burned.
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
-        address expectedNFTOwner = users.recipient0;
+        address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 

@@ -94,7 +94,7 @@ contract WithdrawableAmountOf_LockupTranched_Integration_Fuzz_Test is
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.
-        lockupTranched.withdraw({ streamId: streamId, to: users.recipient0, amount: withdrawAmount });
+        lockupTranched.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupTranched.withdrawableAmountOf(streamId);

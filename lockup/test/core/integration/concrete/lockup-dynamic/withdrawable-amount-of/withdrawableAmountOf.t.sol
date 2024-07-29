@@ -67,7 +67,7 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 3750 seconds });
 
         // Make the withdrawal.
-        lockupDynamic.withdraw({ streamId: defaultStreamId, to: users.recipient0, amount: defaults.WITHDRAW_AMOUNT() });
+        lockupDynamic.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(defaultStreamId);

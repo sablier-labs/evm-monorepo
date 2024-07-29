@@ -7,6 +7,6 @@ coverage:
 ignore:
   - "precompiles"
   - "script"
-  - "src/libraries/NFTSVG.sol"
-  - "src/libraries/SVGElements.sol"
+  - "src/core/libraries/NFTSVG.sol"
+  - "src/core/libraries/SVGElements.sol"
   - "test"

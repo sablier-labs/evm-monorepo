@@ -14,7 +14,6 @@ abstract contract Benchmark_Test is Base_Test {
 
     uint128 internal immutable AMOUNT_PER_SEGMENT = 100e18;
     uint128 internal immutable AMOUNT_PER_TRANCHE = 100e18;
-    uint256[7] internal streamIds = [50, 51, 52, 53, 54, 55, 56];
 
     /// @dev The directory where the benchmark files are stored.
     string internal benchmarkResults = "benchmark/results/";
@@ -26,6 +25,8 @@ abstract contract Benchmark_Test is Base_Test {
     string internal contentToAppend;
 
     ISablierV2Lockup internal lockup;
+
+    uint256[7] internal streamIds = [50, 51, 52, 53, 54, 55, 56];
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -47,11 +48,11 @@ abstract contract Benchmark_Test is Base_Test {
 
     function gasBurn() internal {
         // Set the caller to the Recipient for `burn` and change timestamp to the end time.
-        resetPrank({ msgSender: users.recipient0 });
+        resetPrank({ msgSender: users.recipient });
 
         vm.warp({ newTimestamp: defaults.END_TIME() });
 
-        lockup.withdrawMax(streamIds[0], users.recipient0);
+        lockup.withdrawMax(streamIds[0], users.recipient);
 
         uint256 initialGas = gasleft();
         lockup.burn(streamIds[0]);
@@ -101,7 +102,7 @@ abstract contract Benchmark_Test is Base_Test {
         string memory gasUsed = vm.toString(initialGas - gasleft());
 
         // Check if caller is recipient or not.
-        bool isCallerRecipient = caller == users.recipient0;
+        bool isCallerRecipient = caller == users.recipient;
 
         string memory s = isCallerRecipient
             ? string.concat("| `withdraw` ", extraInfo, " (by Recipient) | ")
@@ -138,13 +139,13 @@ abstract contract Benchmark_Test is Base_Test {
     }
 
     function gasWithdraw_ByAnyone(uint256 streamId1, uint256 streamId2, string memory extraInfo) internal {
-        gasWithdraw_AfterEndTime(streamId1, users.sender, users.recipient0, extraInfo);
-        gasWithdraw_BeforeEndTime(streamId2, users.sender, users.recipient0, extraInfo);
+        gasWithdraw_AfterEndTime(streamId1, users.sender, users.recipient, extraInfo);
+        gasWithdraw_BeforeEndTime(streamId2, users.sender, users.recipient, extraInfo);
     }
 
     function gasWithdraw_ByRecipient(uint256 streamId1, uint256 streamId2, string memory extraInfo) internal {
-        gasWithdraw_AfterEndTime(streamId1, users.recipient0, users.alice, extraInfo);
-        gasWithdraw_BeforeEndTime(streamId2, users.recipient0, users.alice, extraInfo);
+        gasWithdraw_AfterEndTime(streamId1, users.recipient, users.alice, extraInfo);
+        gasWithdraw_BeforeEndTime(streamId2, users.recipient, users.alice, extraInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

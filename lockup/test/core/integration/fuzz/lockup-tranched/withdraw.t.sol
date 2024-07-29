@@ -93,7 +93,7 @@ contract Withdraw_LockupTranched_Integration_Fuzz_Test is
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
         // Make the Recipient the caller.
-        resetPrank({ msgSender: users.recipient0 });
+        resetPrank({ msgSender: users.recipient });
 
         // Expect the assets to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: params.to, value: vars.withdrawAmount });

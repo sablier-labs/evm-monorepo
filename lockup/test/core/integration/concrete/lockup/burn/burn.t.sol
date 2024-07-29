@@ -18,7 +18,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         notTransferableStreamId = createDefaultStreamNotTransferable();
 
         // Make the Recipient (owner of the NFT) the caller in this test suite.
-        resetPrank({ msgSender: users.recipient0 });
+        resetPrank({ msgSender: users.recipient });
     }
 
     function test_RevertWhen_DelegateCalled() external {
@@ -87,14 +87,14 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         resetPrank({ msgSender: users.sender });
         lockup.cancel(streamId);
-        resetPrank({ msgSender: users.recipient0 });
+        resetPrank({ msgSender: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 
     modifier givenStreamHasBeenDepleted(uint256 streamId_) {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: streamId_, to: users.recipient0 });
+        lockup.withdrawMax({ streamId: streamId_, to: users.recipient });
         _;
     }
 

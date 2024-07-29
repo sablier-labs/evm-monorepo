@@ -24,7 +24,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
     function test_RevertGiven_Null() external whenNotDelegateCalled {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
-        lockup.withdrawMaxAndTransfer({ streamId: nullStreamId, newRecipient: users.recipient0 });
+        lockup.withdrawMaxAndTransfer({ streamId: nullStreamId, newRecipient: users.recipient });
     }
 
     function test_RevertWhen_CallerNotCurrentRecipient() external whenNotDelegateCalled givenNotNull {
@@ -41,14 +41,14 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
     function test_RevertGiven_NFTBurned() external whenNotDelegateCalled givenNotNull whenCallerCurrentRecipient {
         // Deplete the stream.
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
         // Burn the NFT.
         lockup.burn({ streamId: defaultStreamId });
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.recipient0)
+            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.recipient)
         );
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
     }
@@ -61,7 +61,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         givenNFTNotBurned
     {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
     }
 
@@ -77,7 +77,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Lockup_NotTransferable.selector, notTransferableStreamId)
         );
-        lockup.withdrawMaxAndTransfer({ streamId: notTransferableStreamId, newRecipient: users.recipient0 });
+        lockup.withdrawMaxAndTransfer({ streamId: notTransferableStreamId, newRecipient: users.recipient });
     }
 
     function test_WithdrawMaxAndTransfer()
@@ -96,20 +96,20 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
         // Expect the assets to be transferred to the Recipient.
-        expectCallToTransfer({ to: users.recipient0, value: expectedWithdrawnAmount });
+        expectCallToTransfer({ to: users.recipient, value: expectedWithdrawnAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: defaultStreamId,
-            to: users.recipient0,
+            to: users.recipient,
             amount: expectedWithdrawnAmount,
             asset: dai
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit Transfer({ from: users.recipient0, to: users.alice, tokenId: defaultStreamId });
+        emit Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
 
         // Make the max withdrawal and transfer the NFT.
         uint128 actualWithdrawnAmount =

@@ -29,7 +29,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test, Cancel_I
 
     function test_RevertGiven_StatusDepleted() external whenNotDelegateCalled givenNotNull givenStreamCold {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient0 });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
@@ -72,11 +72,11 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test, Cancel_I
         whenCallerUnauthorized
     {
         // Make the Recipient the caller in this test.
-        resetPrank({ msgSender: users.recipient0 });
+        resetPrank({ msgSender: users.recipient });
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.recipient0)
+            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.recipient)
         );
         lockup.cancel(defaultStreamId);
     }

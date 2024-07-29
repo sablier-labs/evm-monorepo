@@ -9,9 +9,13 @@
   ]
   gas_limit = 9223372036854775807
   gas_reports = [
+    "SablierV2BatchLockup",
     "SablierV2LockupDynamic",
     "SablierV2LockupLinear",
     "SablierV2LockupTranched",
+    "SablierV2MerkleLL",
+    "SablierV2MerkleLockupFactory",
+    "SablierV2MerkleLT",
     "SablierV2NFTDescriptor",
   ]
   optimizer = true

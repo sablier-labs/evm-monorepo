@@ -141,7 +141,7 @@ else
     echo -e "${WC}Missing '.env.deployment'. Provide details below: ${NC}\n"
 
     # initialize chains
-    initialize_interactive    
+    initialize_interactive
 fi
 
 # Check for arguments passed to the script
@@ -201,7 +201,7 @@ for ((i=1; i<=$#; i++)); do
 
     # Check if '--script' flag is provided in the arguments
     if [[ ${arg} == "--script" || ${arg} == "-s" ]]; then
-        files=(script/*.s.sol)
+        files=(script/**/*.s.sol)
 
         # Present the list of available scripts
         echo "Please select a script:"

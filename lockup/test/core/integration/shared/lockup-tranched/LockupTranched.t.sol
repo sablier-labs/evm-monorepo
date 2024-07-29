@@ -22,7 +22,7 @@ abstract contract LockupTranched_Integration_Shared_Test is Lockup_Integration_S
         Lockup_Integration_Shared_Test.setUp();
 
         _params.createWithDurations.sender = users.sender;
-        _params.createWithDurations.recipient = users.recipient0;
+        _params.createWithDurations.recipient = users.recipient;
         _params.createWithDurations.totalAmount = defaults.TOTAL_AMOUNT();
         _params.createWithDurations.asset = dai;
         _params.createWithDurations.cancelable = true;
@@ -30,7 +30,7 @@ abstract contract LockupTranched_Integration_Shared_Test is Lockup_Integration_S
         _params.createWithDurations.broker = defaults.broker();
 
         _params.createWithTimestamps.sender = users.sender;
-        _params.createWithTimestamps.recipient = users.recipient0;
+        _params.createWithTimestamps.recipient = users.recipient;
         _params.createWithTimestamps.totalAmount = defaults.TOTAL_AMOUNT();
         _params.createWithTimestamps.asset = dai;
         _params.createWithTimestamps.cancelable = true;

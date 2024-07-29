@@ -103,7 +103,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = lockupLinear.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = users.recipient0;
+        address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 
@@ -260,7 +260,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
             streamId: streamId,
             funder: funder,
             sender: users.sender,
-            recipient: users.recipient0,
+            recipient: users.recipient,
             amounts: defaults.lockupCreateAmounts(),
             asset: IERC20(asset),
             cancelable: true,
@@ -290,7 +290,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = lockupLinear.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = users.recipient0;
+        address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }
