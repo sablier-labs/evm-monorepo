@@ -288,7 +288,7 @@ for chain in "${provided_chains[@]}"; do
     if [[ ${DETERMINISTIC_DEPLOYMENT} == true ]]; then
         echo -e "${SC}+${NC} Deterministic address"
         if [[ ${sol_script} == "" ]]; then
-            deployment_command+=("script" "script/DeployDeterministicCore.s.sol")
+            deployment_command+=("script" "script/DeployDeterministicProtocol.s.sol")
         else
             deployment_command+=("script" "${sol_script}")
         fi
@@ -307,7 +307,7 @@ for chain in "${provided_chains[@]}"; do
     else
         # Construct the command
         if [[ ${sol_script} == "" ]]; then
-            deployment_command+=("script" "script/DeployCore.s.sol")
+            deployment_command+=("script" "script/DeployProtocol.s.sol")
         else
             deployment_command+=("script" "${sol_script}")
         fi
@@ -356,17 +356,23 @@ for chain in "${provided_chains[@]}"; do
         touch "${chain_file}"
 
         # Extract and save contract addresses
+        batchLockup_address=$(echo "${output}" | awk '/batchLockup: contract/{print $NF}')
         lockupDynamic_address=$(echo "${output}" | awk '/lockupDynamic: contract/{print $NF}')
         lockupLinear_address=$(echo "${output}" | awk '/lockupLinear: contract/{print $NF}')
         lockupTranched_address=$(echo "${output}" | awk '/lockupTranched: contract/{print $NF}')
+        merkleLockupFactory_address=$(echo "${output}" | awk '/merkleLockupFactory: contract/{print $NF}')
         nftDescriptor_address=$(echo "${output}" | awk '/nftDescriptor: contract/{print $NF}')
 
         # Save to the chain file
         {
+            echo "Core Contracts"
             echo "SablierV2LockupDynamic = ${lockupDynamic_address}"
             echo "SablierV2LockupLinear = ${lockupLinear_address}"
             echo "SablierV2LockupTranched = ${lockupTranched_address}"
             echo "SablierV2NFTDescriptor = ${nftDescriptor_address}"
+            echo "Periphery Contracts"
+            echo "SablierV2BatchLockup = ${batchLockup_address}"
+            echo "SablierV2MerkleLockupFactory = ${merkleLockupFactory_address}"
         } >> "$chain_file"
 
         echo -e "${SC}${TICK} Deployed on ${chain}. You can find the addresses in ${chain_file}${NC}"

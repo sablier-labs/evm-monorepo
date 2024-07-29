@@ -7,43 +7,74 @@
 # Strict mode: https://gist.github.com/vncsna/64825d5609c146e80de8b1fd623011ca
 set -euo pipefail
 
+# Generate the artifacts with Forge
+FOUNDRY_PROFILE=optimized forge build
+
 # Delete the current artifacts
 artifacts=./artifacts
 rm -rf $artifacts
 
 # Create the new artifacts directories
 mkdir $artifacts \
-  "$artifacts/interfaces" \
-  "$artifacts/interfaces/erc20" \
-  "$artifacts/interfaces/erc721" \
-  "$artifacts/libraries"
+  "$artifacts/core" \
+  "$artifacts/core/interfaces" \
+  "$artifacts/core/libraries" \
+  "$artifacts/erc20" \
+  "$artifacts/erc721" \
+  "$artifacts/periphery" \
+  "$artifacts/periphery/interfaces" \
+  "$artifacts/periphery/libraries"
 
-# Generate the artifacts with Forge
-FOUNDRY_PROFILE=optimized forge build
+################################################
+####                 CORE                   ####
+################################################
 
-# Copy the production artifacts
-cp out-optimized/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json $artifacts
-cp out-optimized/SablierV2LockupLinear.sol/SablierV2LockupLinear.json $artifacts
-cp out-optimized/SablierV2LockupTranched.sol/SablierV2LockupTranched.json $artifacts
-cp out-optimized/SablierV2NFTDescriptor.sol/SablierV2NFTDescriptor.json $artifacts
+core=./artifacts/core
+cp out-optimized/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json $core
+cp out-optimized/SablierV2LockupLinear.sol/SablierV2LockupLinear.json $core
+cp out-optimized/SablierV2LockupTranched.sol/SablierV2LockupTranched.json $core
+cp out-optimized/SablierV2NFTDescriptor.sol/SablierV2NFTDescriptor.json $core
 
-interfaces=./artifacts/interfaces
-cp out-optimized/ISablierLockupRecipient.sol/ISablierLockupRecipient.json $interfaces
-cp out-optimized/ISablierV2Lockup.sol/ISablierV2Lockup.json $interfaces
-cp out-optimized/ISablierV2LockupDynamic.sol/ISablierV2LockupDynamic.json $interfaces
-cp out-optimized/ISablierV2LockupLinear.sol/ISablierV2LockupLinear.json $interfaces
-cp out-optimized/ISablierV2LockupTranched.sol/ISablierV2LockupTranched.json $interfaces
-cp out-optimized/ISablierV2NFTDescriptor.sol/ISablierV2NFTDescriptor.json $interfaces
+core_interfaces=./artifacts/core/interfaces
+cp out-optimized/ISablierLockupRecipient.sol/ISablierLockupRecipient.json $core_interfaces
+cp out-optimized/ISablierV2Lockup.sol/ISablierV2Lockup.json $core_interfaces
+cp out-optimized/ISablierV2LockupDynamic.sol/ISablierV2LockupDynamic.json $core_interfaces
+cp out-optimized/ISablierV2LockupLinear.sol/ISablierV2LockupLinear.json $core_interfaces
+cp out-optimized/ISablierV2LockupTranched.sol/ISablierV2LockupTranched.json $core_interfaces
+cp out-optimized/ISablierV2NFTDescriptor.sol/ISablierV2NFTDescriptor.json $core_interfaces
 
-erc20=./artifacts/interfaces/erc20
+core_libraries=./artifacts/core/libraries
+cp out-optimized/Errors.sol/Errors.json $core_libraries
+
+################################################
+####               PERIPHERY                ####
+################################################
+
+periphery=./artifacts/periphery
+cp out-optimized/SablierV2BatchLockup.sol/SablierV2BatchLockup.json $periphery
+cp out-optimized/SablierV2MerkleLL.sol/SablierV2MerkleLL.json $periphery
+cp out-optimized/SablierV2MerkleLockupFactory.sol/SablierV2MerkleLockupFactory.json $periphery
+cp out-optimized/SablierV2MerkleLT.sol/SablierV2MerkleLT.json $periphery
+
+periphery_interfaces=./artifacts/periphery/interfaces
+cp out-optimized/ISablierV2BatchLockup.sol/ISablierV2BatchLockup.json $periphery_interfaces
+cp out-optimized/ISablierV2MerkleLL.sol/ISablierV2MerkleLL.json $periphery_interfaces
+cp out-optimized/ISablierV2MerkleLockupFactory.sol/ISablierV2MerkleLockupFactory.json $periphery_interfaces
+cp out-optimized/ISablierV2MerkleLT.sol/ISablierV2MerkleLT.json $periphery_interfaces
+
+periphery_libraries=./artifacts/periphery/libraries
+cp out-optimized/libraries/Errors.sol/Errors.json $periphery_libraries
+
+################################################
+####                OTHERS                  ####
+################################################
+
+erc20=./artifacts/erc20
 cp out-optimized/IERC20.sol/IERC20.json $erc20
 
-erc721=./artifacts/interfaces/erc721
+erc721=./artifacts/erc721
 cp out-optimized/IERC721.sol/IERC721.json $erc721
 cp out-optimized/IERC721Metadata.sol/IERC721Metadata.json $erc721
-
-libraries=./artifacts/libraries
-cp out-optimized/Errors.sol/Errors.json $libraries
 
 # Format the artifacts with Prettier
 bun prettier --write ./artifacts
