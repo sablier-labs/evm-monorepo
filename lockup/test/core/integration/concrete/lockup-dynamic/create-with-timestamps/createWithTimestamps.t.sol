@@ -7,7 +7,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { stdError } from "forge-std/src/StdError.sol";
 
-import { ISablierV2LockupDynamic } from "src/core/interfaces/ISablierV2LockupDynamic.sol";
+import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Broker, Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
 
@@ -29,7 +29,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
 
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2LockupDynamic.createWithTimestamps, defaults.createWithTimestampsLD());
+            abi.encodeCall(ISablierLockupDynamic.createWithTimestamps, defaults.createWithTimestampsLD());
         (bool success, bytes memory returnData) = address(lockupDynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -43,7 +43,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_DepositAmountZero() external whenNotDelegateCalled whenRecipientNonZeroAddress {
         // It is not possible to obtain a zero deposit amount from a non-zero total amount, because the `MAX_BROKER_FEE`
         // is hard coded to 10%.
-        vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
+        vm.expectRevert(Errors.SablierLockup_DepositAmountZero.selector);
         uint128 totalAmount = 0;
         createDefaultStreamWithTotalAmount(totalAmount);
     }
@@ -54,7 +54,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
-        vm.expectRevert(Errors.SablierV2Lockup_StartTimeZero.selector);
+        vm.expectRevert(Errors.SablierLockup_StartTimeZero.selector);
         createDefaultStreamWithStartTime(0);
     }
 
@@ -66,7 +66,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenStartTimeNotZero
     {
         LockupDynamic.Segment[] memory segments;
-        vm.expectRevert(Errors.SablierV2LockupDynamic_SegmentCountZero.selector);
+        vm.expectRevert(Errors.SablierLockupDynamic_SegmentCountZero.selector);
         createDefaultStreamWithSegments(segments);
     }
 
@@ -80,9 +80,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     {
         uint256 segmentCount = defaults.MAX_SEGMENT_COUNT() + 1;
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, segmentCount)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupDynamic_SegmentCountTooHigh.selector, segmentCount));
         createDefaultStreamWithSegments(segments);
     }
 
@@ -119,7 +117,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
+                Errors.SablierLockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                 defaults.START_TIME(),
                 segments[0].timestamp
             )
@@ -146,7 +144,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
+                Errors.SablierLockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                 defaults.START_TIME(),
                 segments[0].timestamp
             )
@@ -175,7 +173,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         uint256 index = 1;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_SegmentTimestampsNotOrdered.selector,
+                Errors.SablierLockupDynamic_SegmentTimestampsNotOrdered.selector,
                 index,
                 segments[0].timestamp,
                 segments[1].timestamp
@@ -200,7 +198,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     {
         uint40 endTime = defaults.END_TIME();
         vm.warp({ newTimestamp: endTime });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeNotInTheFuture.selector, endTime, endTime));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_EndTimeNotInTheFuture.selector, endTime, endTime));
         createDefaultStream();
     }
 
@@ -230,7 +228,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum.selector,
+                Errors.SablierLockupDynamic_DepositAmountNotEqualToSegmentAmountsSum.selector,
                 depositAmount,
                 defaultDepositAmount
             )
@@ -256,7 +254,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     {
         UD60x18 brokerFee = MAX_BROKER_FEE + ud(1);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, brokerFee, MAX_BROKER_FEE)
+            abi.encodeWithSelector(Errors.SablierLockup_BrokerFeeTooHigh.selector, brokerFee, MAX_BROKER_FEE)
         );
         createDefaultStreamWithBroker(Broker({ account: users.broker, fee: brokerFee }));
     }
@@ -329,7 +327,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         // Make the Sender the stream's funder.
         address funder = users.sender;
 
-        // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
+        // Expect the assets to be transferred from the funder to {SablierLockupDynamic}.
         expectCallToTransferFrom({
             asset: IERC20(asset),
             from: funder,

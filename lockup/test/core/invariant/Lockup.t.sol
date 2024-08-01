@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { Invariant_Test } from "./Invariant.t.sol";
 import { LockupHandler } from "./handlers/LockupHandler.sol";
 import { LockupStore } from "./stores/LockupStore.sol";
 
-/// @notice Common invariant test logic needed across contracts that inherit from {SablierV2Lockup}.
+/// @notice Common invariant test logic needed across contracts that inherit from {SablierLockup}.
 abstract contract Lockup_Invariant_Test is Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2Lockup internal lockup;
+    ISablierLockup internal lockup;
     LockupHandler internal lockupHandler;
     LockupStore internal lockupStore;
 

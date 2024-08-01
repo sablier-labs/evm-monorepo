@@ -1,6 +1,6 @@
 {
-  "name": "@sablier/v2-core",
-  "description": "Core smart contracts of the Sablier V2 token distribution protocol",
+  "name": "@sablier/lockup",
+  "description": "Core smart contracts of the Lockup token distribution protocol",
   "license": "BUSL-1.1",
   "version": "1.2.0",
   "author": {
@@ -8,7 +8,7 @@
     "url": "https://sablier.com"
   },
   "bugs": {
-    "url": "https://github.com/sablier-labs/v2-core/issues"
+    "url": "https://github.com/sablier-labs/lockup/issues"
   },
   "dependencies": {
     "@openzeppelin/contracts": "5.0.2",
@@ -29,7 +29,7 @@
     "CHANGELOG.md",
     "LICENSE-GPL.md"
   ],
-  "homepage": "https://github.com/sablier-labs/v2-core#readme",
+  "homepage": "https://github.com/sablier-labs/lockup#readme",
   "keywords": [
     "asset-distribution",
     "asset-streaming",
@@ -38,10 +38,12 @@
     "cryptoassets",
     "ethereum",
     "foundry",
+    "lockup",
     "money-streaming",
     "real-time-finance",
     "sablier",
     "sablier-v2",
+    "sablier-lockup",
     "smart-contracts",
     "solidity",
     "token-distribution",
@@ -56,7 +58,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": "github.com/sablier-labs/v2-core",
+  "repository": "github.com/sablier-labs/lockup",
   "scripts": {
     "benchmark": "bun run build:optimized && FOUNDRY_PROFILE=benchmark forge test --mt testGas && bun run prettier:write",
     "build": "forge build",

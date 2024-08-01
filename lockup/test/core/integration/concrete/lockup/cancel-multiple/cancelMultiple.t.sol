@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Solarray } from "solarray/src/Solarray.sol";
 
-import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Lockup } from "src/core/types/DataTypes.sol";
 
@@ -19,7 +19,7 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_DelegateCalled() external whenNotDelegateCalled {
-        bytes memory callData = abi.encodeCall(ISablierV2Lockup.cancelMultiple, (testStreamIds));
+        bytes memory callData = abi.encodeCall(ISablierLockup.cancelMultiple, (testStreamIds));
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -31,26 +31,26 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
 
     function test_RevertGiven_OnlyNull() external whenNotDelegateCalled whenArrayCountNotZero {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(nullStreamId) });
     }
 
     function test_RevertGiven_SomeNull() external whenNotDelegateCalled whenArrayCountNotZero {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(testStreamIds[0], nullStreamId) });
     }
 
     function test_RevertGiven_AllStreamsCold() external whenNotDelegateCalled whenArrayCountNotZero givenNoNull {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, testStreamIds[0]));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamSettled.selector, testStreamIds[0]));
         lockup.cancelMultiple({ streamIds: testStreamIds });
     }
 
     function test_RevertGiven_SomeStreamsCold() external whenNotDelegateCalled whenArrayCountNotZero givenNoNull {
         uint256 earlyStreamId = createDefaultStreamWithEndTime({ endTime: defaults.CLIFF_TIME() + 1 seconds });
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() + 1 seconds });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, earlyStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamSettled.selector, earlyStreamId));
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(testStreamIds[0], earlyStreamId) });
     }
 
@@ -66,9 +66,7 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, testStreamIds[0], users.eve)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, testStreamIds[0], users.eve));
         lockup.cancelMultiple(testStreamIds);
     }
 
@@ -85,7 +83,7 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, testStreamIds[0], users.recipient)
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, testStreamIds[0], users.recipient)
         );
         lockup.cancelMultiple(testStreamIds);
     }
@@ -105,9 +103,7 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
 
         // Run the test.
         uint256[] memory streamIds = Solarray.uint256s(eveStreamId, testStreamIds[0]);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, testStreamIds[0], users.eve)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, testStreamIds[0], users.eve));
         lockup.cancelMultiple(streamIds);
     }
 
@@ -124,7 +120,7 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, testStreamIds[0], users.recipient)
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, testStreamIds[0], users.recipient)
         );
         lockup.cancelMultiple(testStreamIds);
     }
@@ -139,7 +135,7 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
     {
         uint256 notCancelableStreamId = createDefaultStreamNotCancelable();
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, notCancelableStreamId)
+            abi.encodeWithSelector(Errors.SablierLockup_StreamNotCancelable.selector, notCancelableStreamId)
         );
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(notCancelableStreamId) });
     }
@@ -154,7 +150,7 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
     {
         uint256 notCancelableStreamId = createDefaultStreamNotCancelable();
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, notCancelableStreamId)
+            abi.encodeWithSelector(Errors.SablierLockup_StreamNotCancelable.selector, notCancelableStreamId)
         );
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(testStreamIds[0], notCancelableStreamId) });
     }

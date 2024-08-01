@@ -3,19 +3,19 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
+import { LockupNFTDescriptor } from "../../src/core/LockupNFTDescriptor.sol";
 import { NFTSVG } from "../../src/core/libraries/NFTSVG.sol";
 import { SVGElements } from "../../src/core/libraries/SVGElements.sol";
-import { SablierV2NFTDescriptor } from "../../src/core/SablierV2NFTDescriptor.sol";
 
 import { BaseScript } from "../Base.s.sol";
 
 /// @notice Generates an NFT SVG using the user-provided parameters.
-contract GenerateSVG is BaseScript, SablierV2NFTDescriptor {
+contract GenerateSVG is BaseScript, LockupNFTDescriptor {
     using Strings for address;
     using Strings for string;
 
     address internal constant DAI = address(uint160(uint256(keccak256("DAI"))));
-    address internal constant LOCKUP_LINEAR = address(uint160(uint256(keccak256("SablierV2LockupLinear"))));
+    address internal constant LOCKUP_LINEAR = address(uint160(uint256(keccak256("SablierLockupLinear"))));
 
     /// @param progress The streamed amount as a numerical percentage with 4 implied decimals.
     /// @param status The status of the stream, as a string.
@@ -40,8 +40,8 @@ contract GenerateSVG is BaseScript, SablierV2NFTDescriptor {
                 duration: calculateDurationInDays({ startTime: 0, endTime: duration * 1 days }),
                 progress: stringifyPercentage(progress),
                 progressNumerical: progress,
-                sablierAddress: LOCKUP_LINEAR.toHexString(),
-                sablierModel: "Lockup Linear",
+                lockupAddress: LOCKUP_LINEAR.toHexString(),
+                lockupModel: "Lockup Linear",
                 status: status
             })
         );

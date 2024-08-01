@@ -33,9 +33,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         uint256 defaultMax = defaults.MAX_SEGMENT_COUNT();
         segmentCount = _bound(segmentCount, defaultMax + 1, defaultMax * 2);
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, segmentCount)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupDynamic_SegmentCountTooHigh.selector, segmentCount));
         createDefaultStreamWithSegments(segments);
     }
 
@@ -77,7 +75,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
+                Errors.SablierLockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                 defaults.START_TIME(),
                 segments[0].timestamp
             )
@@ -114,7 +112,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum.selector,
+                Errors.SablierLockupDynamic_DepositAmountNotEqualToSegmentAmountsSum.selector,
                 depositAmount,
                 defaultDepositAmount
             )
@@ -140,7 +138,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         vm.assume(broker.account != address(0));
         broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
+            abi.encodeWithSelector(Errors.SablierLockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
         );
         createDefaultStreamWithBroker(broker);
     }
@@ -211,10 +209,10 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         // Mint enough assets to the fuzzed funder.
         deal({ token: address(dai), to: funder, give: vars.totalAmount });
 
-        // Approve {SablierV2LockupDynamic} to transfer the assets from the fuzzed funder.
+        // Approve {SablierLockupDynamic} to transfer the assets from the fuzzed funder.
         dai.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
 
-        // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
+        // Expect the assets to be transferred from the funder to {SablierLockupDynamic}.
         expectCallToTransferFrom({ from: funder, to: address(lockupDynamic), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.

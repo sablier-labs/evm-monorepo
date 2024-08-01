@@ -3,28 +3,27 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2LockupLinear } from "src/core/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
 import { LockupLinear } from "src/core/types/DataTypes.sol";
 
 import { LockupStore } from "../stores/LockupStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
-/// @dev This contract is a complement of {LockupLinearHandler}. The goal is to bias the invariant calls
-/// toward the lockup functions (especially the create stream functions) by creating multiple handlers for
-/// the lockup contracts.
+/// @dev This contract is a complement of {LockupLinearHandler}. The goal is to bias the invariant calls toward the
+/// lockup functions (especially the create stream functions) by creating multiple handlers for the Lockup contracts.
 contract LockupLinearCreateHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2LockupLinear public lockupLinear;
+    ISablierLockupLinear public lockupLinear;
     LockupStore public lockupStore;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierV2LockupLinear lockupLinear_) BaseHandler(asset_) {
+    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierLockupLinear lockupLinear_) BaseHandler(asset_) {
         lockupStore = lockupStore_;
         lockupLinear = lockupLinear_;
     }
@@ -58,7 +57,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         // Mint enough assets to the Sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve {SablierV2LockupLinear} to spend the assets.
+        // Approve {SablierLockupLinear} to spend the assets.
         asset.approve({ spender: address(lockupLinear), value: params.totalAmount });
 
         // Create the stream.
@@ -103,7 +102,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         // Mint enough assets to the Sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve {SablierV2LockupLinear} to spend the assets.
+        // Approve {SablierLockupLinear} to spend the assets.
         asset.approve({ spender: address(lockupLinear), value: params.totalAmount });
 
         // Create the stream.

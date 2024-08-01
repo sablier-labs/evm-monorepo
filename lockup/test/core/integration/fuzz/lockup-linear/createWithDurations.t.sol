@@ -39,9 +39,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
-            )
+            abi.encodeWithSelector(Errors.SablierLockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime)
         );
 
         // Create the stream.
@@ -60,7 +58,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
         // Make the Sender the stream's funder (recall that the Sender is the default caller).
         address funder = users.sender;
 
-        // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierLockupLinear}.
         expectCallToTransferFrom({ from: funder, to: address(lockupLinear), value: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the broker fee to be paid to the broker.

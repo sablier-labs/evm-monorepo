@@ -8,35 +8,35 @@ import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/U
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 
-import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
-import { ISablierV2LockupDynamic } from "./interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2NFTDescriptor } from "./interfaces/ISablierV2NFTDescriptor.sol";
+import { SablierLockup } from "./abstracts/SablierLockup.sol";
+import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
+import { ISablierLockupDynamic } from "./interfaces/ISablierLockupDynamic.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Lockup, LockupDynamic } from "./types/DataTypes.sol";
 
 /*
 
-███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ██╗   ██╗██████╗
-██╔════╝██╔══██╗██╔══██╗██║     ██║██╔════╝██╔══██╗    ██║   ██║╚════██╗
-███████╗███████║██████╔╝██║     ██║█████╗  ██████╔╝    ██║   ██║ █████╔╝
-╚════██║██╔══██║██╔══██╗██║     ██║██╔══╝  ██╔══██╗    ╚██╗ ██╔╝██╔═══╝
-███████║██║  ██║██████╔╝███████╗██║███████╗██║  ██║     ╚████╔╝ ███████╗
-╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝      ╚═══╝  ╚══════╝
+███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ██╗      ██████╗  ██████╗██╗  ██╗██╗   ██╗██████╗
+██╔════╝██╔══██╗██╔══██╗██║     ██║██╔════╝██╔══██╗    ██║     ██╔═══██╗██╔════╝██║ ██╔╝██║   ██║██╔══██╗
+███████╗███████║██████╔╝██║     ██║█████╗  ██████╔╝    ██║     ██║   ██║██║     █████╔╝ ██║   ██║██████╔╝
+╚════██║██╔══██║██╔══██╗██║     ██║██╔══╝  ██╔══██╗    ██║     ██║   ██║██║     ██╔═██╗ ██║   ██║██╔═══╝
+███████║██║  ██║██████╔╝███████╗██║███████╗██║  ██║    ███████╗╚██████╔╝╚██████╗██║  ██╗╚██████╔╝██║
+╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝    ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝
 
-██╗      ██████╗  ██████╗██╗  ██╗██╗   ██╗██████╗     ██████╗ ██╗   ██╗███╗   ██╗ █████╗ ███╗   ███╗██╗ ██████╗
-██║     ██╔═══██╗██╔════╝██║ ██╔╝██║   ██║██╔══██╗    ██╔══██╗╚██╗ ██╔╝████╗  ██║██╔══██╗████╗ ████║██║██╔════╝
-██║     ██║   ██║██║     █████╔╝ ██║   ██║██████╔╝    ██║  ██║ ╚████╔╝ ██╔██╗ ██║███████║██╔████╔██║██║██║
-██║     ██║   ██║██║     ██╔═██╗ ██║   ██║██╔═══╝     ██║  ██║  ╚██╔╝  ██║╚██╗██║██╔══██║██║╚██╔╝██║██║██║
-███████╗╚██████╔╝╚██████╗██║  ██╗╚██████╔╝██║         ██████╔╝   ██║   ██║ ╚████║██║  ██║██║ ╚═╝ ██║██║╚██████╗
-╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝         ╚═════╝    ╚═╝   ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝ ╚═════╝
+██████╗ ██╗   ██╗███╗   ██╗ █████╗ ███╗   ███╗██╗ ██████╗
+██╔══██╗╚██╗ ██╔╝████╗  ██║██╔══██╗████╗ ████║██║██╔════╝
+██║  ██║ ╚████╔╝ ██╔██╗ ██║███████║██╔████╔██║██║██║
+██║  ██║  ╚██╔╝  ██║╚██╗██║██╔══██║██║╚██╔╝██║██║██║
+██████╔╝   ██║   ██║ ╚████║██║  ██║██║ ╚═╝ ██║██║╚██████╗
+╚═════╝    ╚═╝   ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝ ╚═════╝
 
 */
 
-/// @title SablierV2LockupDynamic
-/// @notice See the documentation in {ISablierV2LockupDynamic}.
-contract SablierV2LockupDynamic is
-    ISablierV2LockupDynamic, // 5 inherited components
-    SablierV2Lockup // 14 inherited components
+/// @title SablierLockupDynamic
+/// @notice See the documentation in {ISablierLockupDynamic}.
+contract SablierLockupDynamic is
+    ISablierLockupDynamic, // 5 inherited components
+    SablierLockup // 14 inherited components
 {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
@@ -46,10 +46,10 @@ contract SablierV2LockupDynamic is
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2LockupDynamic
+    /// @inheritdoc ISablierLockupDynamic
     uint256 public immutable override MAX_SEGMENT_COUNT;
 
-    /// @dev Stream segments mapped by stream IDs. This complements the `_streams` mapping in {SablierV2Lockup}.
+    /// @dev Stream segments mapped by stream IDs. This complements the `_streams` mapping in {SablierLockup}.
     mapping(uint256 id => LockupDynamic.Segment[] segments) internal _segments;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -62,11 +62,11 @@ contract SablierV2LockupDynamic is
     /// @param maxSegmentCount The maximum number of segments allowed in a stream.
     constructor(
         address initialAdmin,
-        ISablierV2NFTDescriptor initialNFTDescriptor,
+        ILockupNFTDescriptor initialNFTDescriptor,
         uint256 maxSegmentCount
     )
-        ERC721("Sablier V2 Lockup Dynamic NFT", "SAB-V2-LOCKUP-DYN")
-        SablierV2Lockup(initialAdmin, initialNFTDescriptor)
+        ERC721("Sablier Lockup Dynamic NFT", "SAB-LOCKUP-DYN")
+        SablierLockup(initialAdmin, initialNFTDescriptor)
     {
         MAX_SEGMENT_COUNT = maxSegmentCount;
         nextStreamId = 1;
@@ -76,7 +76,7 @@ contract SablierV2LockupDynamic is
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2LockupDynamic
+    /// @inheritdoc ISablierLockupDynamic
     function getSegments(uint256 streamId)
         external
         view
@@ -87,7 +87,7 @@ contract SablierV2LockupDynamic is
         segments = _segments[streamId];
     }
 
-    /// @inheritdoc ISablierV2LockupDynamic
+    /// @inheritdoc ISablierLockupDynamic
     function getStream(uint256 streamId)
         external
         view
@@ -119,7 +119,7 @@ contract SablierV2LockupDynamic is
         });
     }
 
-    /// @inheritdoc ISablierV2LockupDynamic
+    /// @inheritdoc ISablierLockupDynamic
     function getTimestamps(uint256 streamId)
         external
         view
@@ -134,7 +134,7 @@ contract SablierV2LockupDynamic is
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2LockupDynamic
+    /// @inheritdoc ISablierLockupDynamic
     function createWithDurations(LockupDynamic.CreateWithDurations calldata params)
         external
         override
@@ -160,7 +160,7 @@ contract SablierV2LockupDynamic is
         );
     }
 
-    /// @inheritdoc ISablierV2LockupDynamic
+    /// @inheritdoc ISablierLockupDynamic
     function createWithTimestamps(LockupDynamic.CreateWithTimestamps calldata params)
         external
         override
@@ -175,7 +175,7 @@ contract SablierV2LockupDynamic is
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc SablierV2Lockup
+    /// @inheritdoc SablierLockup
     /// @dev The distribution function is:
     ///
     /// $$
@@ -362,7 +362,7 @@ contract SablierV2LockupDynamic is
         }
 
         // Log the newly created stream.
-        emit ISablierV2LockupDynamic.CreateLockupDynamicStream({
+        emit ISablierLockupDynamic.CreateLockupDynamicStream({
             streamId: streamId,
             funder: msg.sender,
             sender: params.sender,

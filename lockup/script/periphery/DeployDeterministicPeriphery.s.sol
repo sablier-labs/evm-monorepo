@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
-import { SablierV2BatchLockup } from "../../src/periphery/SablierV2BatchLockup.sol";
-import { SablierV2MerkleLockupFactory } from "../../src/periphery/SablierV2MerkleLockupFactory.sol";
+import { SablierBatchLockup } from "../../src/periphery/SablierBatchLockup.sol";
+import { SablierMerkleLockupFactory } from "../../src/periphery/SablierMerkleLockupFactory.sol";
 
 import { BaseScript } from "../Base.s.sol";
 
-/// @notice Deploys all V2 Periphery contracts at deterministic addresses across chains, in the following order:
+/// @notice Deploys all Periphery contracts at deterministic addresses across chains, in the following order:
 ///
-/// 1. {SablierV2BatchLockup}
-/// 2. {SablierV2MerkleLockupFactory}
+/// 1. {SablierBatchLockup}
+/// 2. {SablierMerkleLockupFactory}
 ///
 /// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicPeriphery is BaseScript {
@@ -18,10 +18,10 @@ contract DeployDeterministicPeriphery is BaseScript {
         public
         virtual
         broadcast
-        returns (SablierV2BatchLockup batchLockup, SablierV2MerkleLockupFactory merkleLockupFactory)
+        returns (SablierBatchLockup batchLockup, SablierMerkleLockupFactory merkleLockupFactory)
     {
         bytes32 salt = constructCreate2Salt();
-        batchLockup = new SablierV2BatchLockup{ salt: salt }();
-        merkleLockupFactory = new SablierV2MerkleLockupFactory{ salt: salt }();
+        batchLockup = new SablierBatchLockup{ salt: salt }();
+        merkleLockupFactory = new SablierMerkleLockupFactory{ salt: salt }();
     }
 }

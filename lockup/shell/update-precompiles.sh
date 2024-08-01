@@ -12,12 +12,12 @@ set -euo pipefail
 FOUNDRY_PROFILE=optimized forge build
 
 # Retrieve the raw bytecodes, removing the "0x" prefix
-batch_lockup=$(cat out-optimized/SablierV2BatchLockup.sol/SablierV2BatchLockup.json | jq -r '.bytecode.object' | cut -c 3-)
-lockup_dynamic=$(cat out-optimized/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json | jq -r '.bytecode.object' | cut -c 3-)
-lockup_linear=$(cat out-optimized/SablierV2LockupLinear.sol/SablierV2LockupLinear.json | jq -r '.bytecode.object' | cut -c 3-)
-lockup_tranched=$(cat out-optimized/SablierV2LockupTranched.sol/SablierV2LockupTranched.json | jq -r '.bytecode.object' | cut -c 3-)
-merkle_lockup_factory=$(cat out-optimized/SablierV2MerkleLockupFactory.sol/SablierV2MerkleLockupFactory.json | jq -r '.bytecode.object' | cut -c 3-)
-nft_descriptor=$(cat out-optimized/SablierV2NFTDescriptor.sol/SablierV2NFTDescriptor.json | jq -r '.bytecode.object' | cut -c 3-)
+batch_lockup=$(cat out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json | jq -r '.bytecode.object' | cut -c 3-)
+lockup_dynamic=$(cat out-optimized/SablierLockupDynamic.sol/SablierLockupDynamic.json | jq -r '.bytecode.object' | cut -c 3-)
+lockup_linear=$(cat out-optimized/SablierLockupLinear.sol/SablierLockupLinear.json | jq -r '.bytecode.object' | cut -c 3-)
+lockup_tranched=$(cat out-optimized/SablierLockupTranched.sol/SablierLockupTranched.json | jq -r '.bytecode.object' | cut -c 3-)
+merkle_lockup_factory=$(cat out-optimized/SablierMerkleLockupFactory.sol/SablierMerkleLockupFactory.json | jq -r '.bytecode.object' | cut -c 3-)
+nft_descriptor=$(cat out-optimized/LockupNFTDescriptor.sol/LockupNFTDescriptor.json | jq -r '.bytecode.object' | cut -c 3-)
 
 precompiles_path="precompiles/Precompiles.sol"
 if [ ! -f $precompiles_path ]; then

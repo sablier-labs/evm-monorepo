@@ -3,8 +3,8 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { SablierV2MerkleLL } from "src/periphery/SablierV2MerkleLL.sol";
-import { SablierV2MerkleLT } from "src/periphery/SablierV2MerkleLT.sol";
+import { SablierMerkleLL } from "src/periphery/SablierMerkleLL.sol";
+import { SablierMerkleLT } from "src/periphery/SablierMerkleLT.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
@@ -101,10 +101,9 @@ contract Periphery_Test is Base_Test {
         bytes memory constructorArgs =
             abi.encode(defaults.baseParams(admin, asset_, expiration, merkleRoot), lockupLinear, defaults.durations());
         if (!isTestOptimizedProfile()) {
-            return bytes.concat(type(SablierV2MerkleLL).creationCode, constructorArgs);
+            return bytes.concat(type(SablierMerkleLL).creationCode, constructorArgs);
         } else {
-            return
-                bytes.concat(vm.getCode("out-optimized/SablierV2MerkleLL.sol/SablierV2MerkleLL.json"), constructorArgs);
+            return bytes.concat(vm.getCode("out-optimized/SablierMerkleLL.sol/SablierMerkleLL.json"), constructorArgs);
         }
     }
 
@@ -124,10 +123,9 @@ contract Periphery_Test is Base_Test {
             defaults.tranchesWithPercentages()
         );
         if (!isTestOptimizedProfile()) {
-            return bytes.concat(type(SablierV2MerkleLT).creationCode, constructorArgs);
+            return bytes.concat(type(SablierMerkleLT).creationCode, constructorArgs);
         } else {
-            return
-                bytes.concat(vm.getCode("out-optimized/SablierV2MerkleLT.sol/SablierV2MerkleLT.json"), constructorArgs);
+            return bytes.concat(vm.getCode("out-optimized/SablierMerkleLT.sol/SablierMerkleLT.json"), constructorArgs);
         }
     }
 }

@@ -3,25 +3,25 @@ pragma solidity >=0.8.22;
 
 import { uUNIT } from "@prb/math/src/UD2x18.sol";
 
-import { ISablierV2LockupLinear } from "../core/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2LockupTranched } from "../core/interfaces/ISablierV2LockupTranched.sol";
+import { ISablierLockupLinear } from "../core/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockupTranched } from "../core/interfaces/ISablierLockupTranched.sol";
 import { LockupLinear } from "../core/types/DataTypes.sol";
 
-import { ISablierV2MerkleLL } from "./interfaces/ISablierV2MerkleLL.sol";
-import { ISablierV2MerkleLockupFactory } from "./interfaces/ISablierV2MerkleLockupFactory.sol";
-import { ISablierV2MerkleLT } from "./interfaces/ISablierV2MerkleLT.sol";
-import { SablierV2MerkleLL } from "./SablierV2MerkleLL.sol";
-import { SablierV2MerkleLT } from "./SablierV2MerkleLT.sol";
+import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
+import { ISablierMerkleLockupFactory } from "./interfaces/ISablierMerkleLockupFactory.sol";
+import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
+import { SablierMerkleLL } from "./SablierMerkleLL.sol";
+import { SablierMerkleLT } from "./SablierMerkleLT.sol";
 import { MerkleLockup, MerkleLT } from "./types/DataTypes.sol";
 
-/// @title SablierV2MerkleLockupFactory
-/// @notice See the documentation in {ISablierV2MerkleLockupFactory}.
-contract SablierV2MerkleLockupFactory is ISablierV2MerkleLockupFactory {
+/// @title SablierMerkleLockupFactory
+/// @notice See the documentation in {ISablierMerkleLockupFactory}.
+contract SablierMerkleLockupFactory is ISablierMerkleLockupFactory {
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2MerkleLockupFactory
+    /// @inheritdoc ISablierMerkleLockupFactory
     function isPercentagesSum100(MerkleLT.TrancheWithPercentage[] calldata tranches)
         external
         pure
@@ -39,16 +39,16 @@ contract SablierV2MerkleLockupFactory is ISablierV2MerkleLockupFactory {
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice inheritdoc ISablierV2MerkleLockupFactory
+    /// @notice inheritdoc ISablierMerkleLockupFactory
     function createMerkleLL(
         MerkleLockup.ConstructorParams memory baseParams,
-        ISablierV2LockupLinear lockupLinear,
+        ISablierLockupLinear lockupLinear,
         LockupLinear.Durations memory streamDurations,
         uint256 aggregateAmount,
         uint256 recipientCount
     )
         external
-        returns (ISablierV2MerkleLL merkleLL)
+        returns (ISablierMerkleLL merkleLL)
     {
         // Hash the parameters to generate a salt.
         bytes32 salt = keccak256(
@@ -68,22 +68,22 @@ contract SablierV2MerkleLockupFactory is ISablierV2MerkleLockupFactory {
         );
 
         // Deploy the MerkleLockup contract with CREATE2.
-        merkleLL = new SablierV2MerkleLL{ salt: salt }(baseParams, lockupLinear, streamDurations);
+        merkleLL = new SablierMerkleLL{ salt: salt }(baseParams, lockupLinear, streamDurations);
 
         // Log the creation of the MerkleLockup contract, including some metadata that is not stored on-chain.
         emit CreateMerkleLL(merkleLL, baseParams, lockupLinear, streamDurations, aggregateAmount, recipientCount);
     }
 
-    /// @notice inheritdoc ISablierV2MerkleLockupFactory
+    /// @notice inheritdoc ISablierMerkleLockupFactory
     function createMerkleLT(
         MerkleLockup.ConstructorParams memory baseParams,
-        ISablierV2LockupTranched lockupTranched,
+        ISablierLockupTranched lockupTranched,
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages,
         uint256 aggregateAmount,
         uint256 recipientCount
     )
         external
-        returns (ISablierV2MerkleLT merkleLT)
+        returns (ISablierMerkleLT merkleLT)
     {
         uint256 totalDuration;
 
@@ -117,7 +117,7 @@ contract SablierV2MerkleLockupFactory is ISablierV2MerkleLockupFactory {
         );
 
         // Deploy the MerkleLockup contract with CREATE2.
-        merkleLT = new SablierV2MerkleLT{ salt: salt }(baseParams, lockupTranched, tranchesWithPercentages);
+        merkleLT = new SablierMerkleLT{ salt: salt }(baseParams, lockupTranched, tranchesWithPercentages);
 
         // Log the creation of the MerkleLockup contract, including some metadata that is not stored on-chain.
         emit CreateMerkleLT(

@@ -23,7 +23,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
     function setUp() public virtual override {
         Fork_Test.setUp();
 
-        // Approve {SablierV2LockupLinear} to transfer the asset holder's assets.
+        // Approve {SablierLockupLinear} to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
         (bool success,) = address(FORK_ASSET).call(abi.encodeCall(IERC20.approve, (address(lockupLinear), MAX_UINT256)));
         success;

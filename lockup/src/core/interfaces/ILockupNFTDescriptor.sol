@@ -3,10 +3,10 @@ pragma solidity >=0.8.22;
 
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
-/// @title ISablierV2NFTDescriptor
-/// @notice This contract generates the URI describing the Sablier V2 stream NFTs.
+/// @title ILockupNFTDescriptor
+/// @notice This contract generates the URI describing the Sablier stream NFTs.
 /// @dev Inspired by Uniswap V3 Positions NFTs.
-interface ISablierV2NFTDescriptor {
+interface ILockupNFTDescriptor {
     /// @notice Produces the URI describing a particular stream NFT.
     /// @dev This is a data URI with the JSON contents directly inlined.
     /// @param sablier The address of the Sablier contract the stream was created in.

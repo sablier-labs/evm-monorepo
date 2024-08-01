@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { ISablierV2LockupDynamic } from "src/core/interfaces/ISablierV2LockupDynamic.sol";
+import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
 
@@ -27,7 +27,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
     /// @dev it should revert.
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2LockupDynamic.createWithDurations, defaults.createWithDurationsLD());
+            abi.encodeCall(ISablierLockupDynamic.createWithDurations, defaults.createWithDurationsLD());
         (bool success, bytes memory returnData) = address(lockupDynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -35,7 +35,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
     /// @dev it should revert.
     function test_RevertWhen_SegmentCountTooHigh() external whenNotDelegateCalled {
         LockupDynamic.SegmentWithDuration[] memory segments = new LockupDynamic.SegmentWithDuration[](25_000);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, 25_000));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupDynamic_SegmentCountTooHigh.selector, 25_000));
         createDefaultStreamWithDurations(segments);
     }
 
@@ -46,7 +46,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
         uint256 index = 1;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_SegmentTimestampsNotOrdered.selector,
+                Errors.SablierLockupDynamic_SegmentTimestampsNotOrdered.selector,
                 index,
                 startTime + segments[0].duration,
                 startTime + segments[0].duration
@@ -67,7 +67,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
             segments[0].duration = MAX_UINT40;
             vm.expectRevert(
                 abi.encodeWithSelector(
-                    Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
+                    Errors.SablierLockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                     startTime,
                     startTime + segments[0].duration
                 )
@@ -99,7 +99,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
             uint256 index = 1;
             vm.expectRevert(
                 abi.encodeWithSelector(
-                    Errors.SablierV2LockupDynamic_SegmentTimestampsNotOrdered.selector,
+                    Errors.SablierLockupDynamic_SegmentTimestampsNotOrdered.selector,
                     index,
                     startTime + segments[0].duration,
                     startTime + segments[0].duration + segments[1].duration
@@ -132,7 +132,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
         segments[0].timestamp = timestamps.start + segmentsWithDurations[0].duration;
         segments[1].timestamp = segments[0].timestamp + segmentsWithDurations[1].duration;
 
-        // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
+        // Expect the assets to be transferred from the funder to {SablierLockupDynamic}.
         expectCallToTransferFrom({ from: funder, to: address(lockupDynamic), value: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the broker fee to be paid to the broker.

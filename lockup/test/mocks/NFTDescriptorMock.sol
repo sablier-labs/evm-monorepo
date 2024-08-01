@@ -6,12 +6,12 @@ import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions
 import { NFTSVG } from "src/core/libraries/NFTSVG.sol";
 import { SVGElements } from "src/core/libraries/SVGElements.sol";
 import { Lockup } from "src/core/types/DataTypes.sol";
-import { SablierV2NFTDescriptor } from "src/core/SablierV2NFTDescriptor.sol";
+import { LockupNFTDescriptor } from "src/core/LockupNFTDescriptor.sol";
 
 /// @dev This mock is needed for:
 /// - Running the tests against the `--via-ir` precompiles
 /// - Testing reverts: https://github.com/foundry-rs/foundry/issues/864
-contract NFTDescriptorMock is SablierV2NFTDescriptor {
+contract NFTDescriptorMock is LockupNFTDescriptor {
     function abbreviateAmount_(uint256 amount, uint256 decimals) external pure returns (string memory) {
         return abbreviateAmount(amount, decimals);
     }
@@ -52,9 +52,9 @@ contract NFTDescriptorMock is SablierV2NFTDescriptor {
     }
 
     function generateDescription_(
-        string memory sablierModel,
+        string memory lockupModel,
         string memory assetSymbol,
-        string memory sablierAddress,
+        string memory lockupAddress,
         string memory assetAddress,
         string memory streamId,
         bool isTransferable
@@ -63,11 +63,11 @@ contract NFTDescriptorMock is SablierV2NFTDescriptor {
         pure
         returns (string memory)
     {
-        return generateDescription(sablierModel, assetSymbol, sablierAddress, assetAddress, streamId, isTransferable);
+        return generateDescription(lockupModel, assetSymbol, lockupAddress, assetAddress, streamId, isTransferable);
     }
 
-    function generateName_(string memory sablierModel, string memory streamId) external pure returns (string memory) {
-        return generateName(sablierModel, streamId);
+    function generateName_(string memory lockupModel, string memory streamId) external pure returns (string memory) {
+        return generateName(lockupModel, streamId);
     }
 
     function generateSVG_(NFTSVG.SVGParams memory params) external pure returns (string memory) {

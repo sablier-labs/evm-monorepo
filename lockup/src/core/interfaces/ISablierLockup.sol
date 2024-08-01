@@ -8,11 +8,11 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Lockup } from "../types/DataTypes.sol";
 import { IAdminable } from "./IAdminable.sol";
-import { ISablierV2NFTDescriptor } from "./ISablierV2NFTDescriptor.sol";
+import { ILockupNFTDescriptor } from "./ILockupNFTDescriptor.sol";
 
-/// @title ISablierV2Lockup
-/// @notice Common logic between all Sablier V2 Lockup contracts.
-interface ISablierV2Lockup is
+/// @title ISablierLockup
+/// @notice Common logic between all Sablier Lockup contracts.
+interface ISablierLockup is
     IAdminable, // 0 inherited components
     IERC4906, // 2 inherited components
     IERC721Metadata // 2 inherited components
@@ -53,7 +53,7 @@ interface ISablierV2Lockup is
     /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     event SetNFTDescriptor(
-        address indexed admin, ISablierV2NFTDescriptor oldNFTDescriptor, ISablierV2NFTDescriptor newNFTDescriptor
+        address indexed admin, ILockupNFTDescriptor oldNFTDescriptor, ILockupNFTDescriptor newNFTDescriptor
     );
 
     /// @notice Emitted when assets are withdrawn from a stream.
@@ -153,7 +153,7 @@ interface ISablierV2Lockup is
     function nextStreamId() external view returns (uint256);
 
     /// @notice Contract that generates the non-fungible token URI.
-    function nftDescriptor() external view returns (ISablierV2NFTDescriptor);
+    function nftDescriptor() external view returns (ILockupNFTDescriptor);
 
     /// @notice Calculates the amount that the sender would be refunded if the stream were canceled, denoted in units
     /// of the asset's decimals.
@@ -279,7 +279,7 @@ interface ISablierV2Lockup is
     /// - `msg.sender` must be the contract admin.
     ///
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
-    function setNFTDescriptor(ISablierV2NFTDescriptor newNFTDescriptor) external;
+    function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external;
 
     /// @notice Withdraws the provided amount of assets from the stream to the `to` address.
     ///

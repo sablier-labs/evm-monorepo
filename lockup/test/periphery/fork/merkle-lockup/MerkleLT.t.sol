@@ -5,7 +5,7 @@ import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
-import { ISablierV2MerkleLT } from "src/periphery/interfaces/ISablierV2MerkleLT.sol";
+import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
 import { MerkleLockup } from "src/periphery/types/DataTypes.sol";
 
 import { MerkleBuilder } from "../../../utils/MerkleBuilder.sol";
@@ -48,7 +48,8 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         uint256[] indexes;
         uint256 leafPos;
         uint256 leafToClaim;
-        ISablierV2MerkleLT merkleLT;
+        ISablierMerkleLT merkleLT;
+        bytes32[] merkleProof;
         bytes32 merkleRoot;
         address[] recipients;
         uint256 recipientCount;
@@ -94,7 +95,14 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
 
         // Sort the leaves in ascending order to match the production environment.
         MerkleBuilder.sortLeaves(leaves);
-        vars.merkleRoot = getRoot(leaves.toBytes32());
+
+        // Compute the Merkle root.
+        if (leaves.length == 1) {
+            // If there is only one leaf, the Merkle root is the hash of the leaf itself.
+            vars.merkleRoot = bytes32(leaves[0]);
+        } else {
+            vars.merkleRoot = getRoot(leaves.toBytes32());
+        }
 
         // Make the caller the admin.
         resetPrank({ msgSender: params.admin });
@@ -111,7 +119,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
 
         vm.expectEmit({ emitter: address(merkleLockupFactory) });
         emit CreateMerkleLT({
-            merkleLT: ISablierV2MerkleLT(vars.expectedLT),
+            merkleLT: ISablierMerkleLT(vars.expectedLT),
             baseParams: vars.baseParams,
             lockupTranched: lockupTranched,
             tranchesWithPercentages: defaults.tranchesWithPercentages(),
@@ -154,11 +162,20 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
             vars.amounts[params.posBeforeSort],
             vars.expectedStreamId
         );
+
+        // Compute the Merkle proof.
+        if (leaves.length == 1) {
+            // If there is only one leaf, the Merkle proof should be an empty array as no proof is needed because the
+            // leaf is the root.
+        } else {
+            vars.merkleProof = getProof(leaves.toBytes32(), vars.leafPos);
+        }
+
         vars.actualStreamId = vars.merkleLT.claim({
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
-            merkleProof: getProof(leaves.toBytes32(), vars.leafPos)
+            merkleProof: vars.merkleProof
         });
 
         vars.actualStream = lockupTranched.getStream(vars.actualStreamId);

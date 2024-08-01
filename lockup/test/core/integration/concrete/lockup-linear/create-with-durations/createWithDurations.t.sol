@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2LockupLinear } from "src/core/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
 
@@ -23,7 +23,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
 
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaults.createWithDurationsLL());
+            abi.encodeCall(ISablierLockupLinear.createWithDurations, defaults.createWithDurationsLL());
         (bool success, bytes memory returnData) = address(lockupLinear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -42,7 +42,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime
+                Errors.SablierLockupLinear_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime
             )
         );
 
@@ -69,9 +69,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeNotLessThanEndTime.selector, startTime, endTime
-            )
+            abi.encodeWithSelector(Errors.SablierLockupLinear_StartTimeNotLessThanEndTime.selector, startTime, endTime)
         );
 
         // Create the stream.
@@ -95,7 +93,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
             end: blockTimestamp + defaults.TOTAL_DURATION()
         });
 
-        // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierLockupLinear}.
         expectCallToTransferFrom({ from: funder, to: address(lockupLinear), value: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the broker fee to be paid to the broker.

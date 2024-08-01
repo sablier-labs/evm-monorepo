@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupLinear } from "src/core/types/DataTypes.sol";
 import { Errors } from "src/periphery/libraries/Errors.sol";
-import { ISablierV2MerkleLL } from "src/periphery/interfaces/ISablierV2MerkleLL.sol";
+import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol";
 import { MerkleLockup } from "src/periphery/types/DataTypes.sol";
 
 import { MerkleLockup_Integration_Test } from "../../MerkleLockup.t.sol";
@@ -19,7 +19,7 @@ contract CreateMerkleLL_Integration_Test is MerkleLockup_Integration_Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2MerkleLockup_CampaignNameTooLong.selector, bytes(baseParams.name).length, 32
+                Errors.SablierMerkleLockup_CampaignNameTooLong.selector, bytes(baseParams.name).length, 32
             )
         );
 
@@ -78,7 +78,7 @@ contract CreateMerkleLL_Integration_Test is MerkleLockup_Integration_Test {
 
         vm.expectEmit({ emitter: address(merkleLockupFactory) });
         emit CreateMerkleLL({
-            merkleLL: ISablierV2MerkleLL(expectedLL),
+            merkleLL: ISablierMerkleLL(expectedLL),
             baseParams: baseParams,
             lockupLinear: lockupLinear,
             streamDurations: defaults.durations(),

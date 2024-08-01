@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
-import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 
 import { Lockup_Integration_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
@@ -22,7 +22,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
     }
 
     function test_RevertWhen_DelegateCalled() external {
-        bytes memory callData = abi.encodeCall(ISablierV2Lockup.burn, streamId);
+        bytes memory callData = abi.encodeCall(ISablierLockup.burn, streamId);
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -33,7 +33,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));
         lockup.burn(nullStreamId);
     }
 
@@ -52,7 +52,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenStreamHasNotBeenDepleted
     {
         vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 
@@ -63,7 +63,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenStreamHasNotBeenDepleted
     {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 
@@ -74,7 +74,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenStreamHasNotBeenDepleted
     {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 
@@ -88,7 +88,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         resetPrank({ msgSender: users.sender });
         lockup.cancel(streamId);
         resetPrank({ msgSender: users.recipient });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 
@@ -105,7 +105,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenStreamHasBeenDepleted(streamId)
     {
         resetPrank({ msgSender: users.eve });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, streamId, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, streamId, users.eve));
         lockup.burn(streamId);
     }
 

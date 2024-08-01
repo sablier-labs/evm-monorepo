@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2LockupTranched } from "src/core/interfaces/ISablierV2LockupTranched.sol";
+import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 
@@ -25,7 +25,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
     /// @dev it should revert.
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2LockupTranched.createWithDurations, defaults.createWithDurationsLT());
+            abi.encodeCall(ISablierLockupTranched.createWithDurations, defaults.createWithDurationsLT());
         (bool success, bytes memory returnData) = address(lockupTranched).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -33,7 +33,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
     /// @dev it should revert.
     function test_RevertWhen_TrancheCountTooHigh() external whenNotDelegateCalled {
         LockupTranched.TrancheWithDuration[] memory tranches = new LockupTranched.TrancheWithDuration[](25_000);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2LockupTranched_TrancheCountTooHigh.selector, 25_000));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupTranched_TrancheCountTooHigh.selector, 25_000));
         createDefaultStreamWithDurations(tranches);
     }
 
@@ -44,7 +44,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
         uint256 index = 2;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupTranched_TrancheTimestampsNotOrdered.selector,
+                Errors.SablierLockupTranched_TrancheTimestampsNotOrdered.selector,
                 index,
                 startTime + tranches[0].duration + tranches[1].duration,
                 startTime + tranches[0].duration + tranches[1].duration
@@ -65,7 +65,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
             tranches[0].duration = MAX_UINT40;
             vm.expectRevert(
                 abi.encodeWithSelector(
-                    Errors.SablierV2LockupTranched_StartTimeNotLessThanFirstTrancheTimestamp.selector,
+                    Errors.SablierLockupTranched_StartTimeNotLessThanFirstTrancheTimestamp.selector,
                     startTime,
                     startTime + tranches[0].duration
                 )
@@ -93,7 +93,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
             uint256 index = 1;
             vm.expectRevert(
                 abi.encodeWithSelector(
-                    Errors.SablierV2LockupTranched_TrancheTimestampsNotOrdered.selector,
+                    Errors.SablierLockupTranched_TrancheTimestampsNotOrdered.selector,
                     index,
                     startTime + tranches[0].duration,
                     startTime + tranches[0].duration + tranches[1].duration
@@ -126,7 +126,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
         tranches[1].timestamp = tranches[0].timestamp + tranchesWithDurations[1].duration;
         tranches[2].timestamp = tranches[1].timestamp + tranchesWithDurations[2].duration;
 
-        // Expect the assets to be transferred from the funder to {SablierV2LockupTranched}.
+        // Expect the assets to be transferred from the funder to {SablierLockupTranched}.
         expectCallToTransferFrom({ from: funder, to: address(lockupTranched), value: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the broker fee to be paid to the broker.

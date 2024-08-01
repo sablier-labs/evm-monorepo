@@ -30,18 +30,18 @@ mkdir $artifacts \
 ################################################
 
 core=./artifacts/core
-cp out-optimized/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json $core
-cp out-optimized/SablierV2LockupLinear.sol/SablierV2LockupLinear.json $core
-cp out-optimized/SablierV2LockupTranched.sol/SablierV2LockupTranched.json $core
-cp out-optimized/SablierV2NFTDescriptor.sol/SablierV2NFTDescriptor.json $core
+cp out-optimized/LockupNFTDescriptor.sol/LockupNFTDescriptor.json $core
+cp out-optimized/SablierLockupDynamic.sol/SablierLockupDynamic.json $core
+cp out-optimized/SablierLockupLinear.sol/SablierLockupLinear.json $core
+cp out-optimized/SablierLockupTranched.sol/SablierLockupTranched.json $core
 
 core_interfaces=./artifacts/core/interfaces
+cp out-optimized/ILockupNFTDescriptor.sol/ILockupNFTDescriptor.json $core_interfaces
 cp out-optimized/ISablierLockupRecipient.sol/ISablierLockupRecipient.json $core_interfaces
-cp out-optimized/ISablierV2Lockup.sol/ISablierV2Lockup.json $core_interfaces
-cp out-optimized/ISablierV2LockupDynamic.sol/ISablierV2LockupDynamic.json $core_interfaces
-cp out-optimized/ISablierV2LockupLinear.sol/ISablierV2LockupLinear.json $core_interfaces
-cp out-optimized/ISablierV2LockupTranched.sol/ISablierV2LockupTranched.json $core_interfaces
-cp out-optimized/ISablierV2NFTDescriptor.sol/ISablierV2NFTDescriptor.json $core_interfaces
+cp out-optimized/ISablierLockup.sol/ISablierLockup.json $core_interfaces
+cp out-optimized/ISablierLockupDynamic.sol/ISablierLockupDynamic.json $core_interfaces
+cp out-optimized/ISablierLockupLinear.sol/ISablierLockupLinear.json $core_interfaces
+cp out-optimized/ISablierLockupTranched.sol/ISablierLockupTranched.json $core_interfaces
 
 core_libraries=./artifacts/core/libraries
 cp out-optimized/Errors.sol/Errors.json $core_libraries
@@ -51,16 +51,16 @@ cp out-optimized/Errors.sol/Errors.json $core_libraries
 ################################################
 
 periphery=./artifacts/periphery
-cp out-optimized/SablierV2BatchLockup.sol/SablierV2BatchLockup.json $periphery
-cp out-optimized/SablierV2MerkleLL.sol/SablierV2MerkleLL.json $periphery
-cp out-optimized/SablierV2MerkleLockupFactory.sol/SablierV2MerkleLockupFactory.json $periphery
-cp out-optimized/SablierV2MerkleLT.sol/SablierV2MerkleLT.json $periphery
+cp out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json $periphery
+cp out-optimized/SablierMerkleLL.sol/SablierMerkleLL.json $periphery
+cp out-optimized/SablierMerkleLockupFactory.sol/SablierMerkleLockupFactory.json $periphery
+cp out-optimized/SablierMerkleLT.sol/SablierMerkleLT.json $periphery
 
 periphery_interfaces=./artifacts/periphery/interfaces
-cp out-optimized/ISablierV2BatchLockup.sol/ISablierV2BatchLockup.json $periphery_interfaces
-cp out-optimized/ISablierV2MerkleLL.sol/ISablierV2MerkleLL.json $periphery_interfaces
-cp out-optimized/ISablierV2MerkleLockupFactory.sol/ISablierV2MerkleLockupFactory.json $periphery_interfaces
-cp out-optimized/ISablierV2MerkleLT.sol/ISablierV2MerkleLT.json $periphery_interfaces
+cp out-optimized/ISablierBatchLockup.sol/ISablierBatchLockup.json $periphery_interfaces
+cp out-optimized/ISablierMerkleLL.sol/ISablierMerkleLL.json $periphery_interfaces
+cp out-optimized/ISablierMerkleLockupFactory.sol/ISablierMerkleLockupFactory.json $periphery_interfaces
+cp out-optimized/ISablierMerkleLT.sol/ISablierMerkleLT.json $periphery_interfaces
 
 periphery_libraries=./artifacts/periphery/libraries
 cp out-optimized/libraries/Errors.sol/Errors.json $periphery_libraries

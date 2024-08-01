@@ -11,7 +11,7 @@ abstract contract GetStartTime_Integration_Concrete_Test is Integration_Test, Lo
 
     function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));
         lockup.getStartTime(nullStreamId);
     }
 

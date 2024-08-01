@@ -17,10 +17,10 @@ library NFTSVG {
         string assetAddress;
         string assetSymbol;
         string duration;
+        string lockupAddress;
+        string lockupModel;
         string progress;
         uint256 progressNumerical;
-        string sablierAddress;
-        string sablierModel;
         string status;
     }
 
@@ -89,7 +89,7 @@ library NFTSVG {
             '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">',
             SVGElements.BACKGROUND,
             generateDefs(params.accentColor, params.status, vars.cards),
-            generateFloatingText(params.sablierAddress, params.sablierModel, params.assetAddress, params.assetSymbol),
+            generateFloatingText(params.lockupAddress, params.lockupModel, params.assetAddress, params.assetSymbol),
             generateHrefs(vars.progressXPosition, vars.statusXPosition, vars.amountXPosition, vars.durationXPosition),
             "</svg>"
         );
@@ -118,8 +118,8 @@ library NFTSVG {
     }
 
     function generateFloatingText(
-        string memory sablierAddress,
-        string memory sablierModel,
+        string memory lockupAddress,
+        string memory lockupModel,
         string memory assetAddress,
         string memory assetSymbol
     )
@@ -131,11 +131,11 @@ library NFTSVG {
             '<text text-rendering="optimizeSpeed">',
             SVGElements.floatingText({
                 offset: "-100%",
-                text: string.concat(sablierAddress, unicode" • ", "Sablier V2 ", sablierModel)
+                text: string.concat(lockupAddress, unicode" • ", "Sablier ", lockupModel)
             }),
             SVGElements.floatingText({
                 offset: "0%",
-                text: string.concat(sablierAddress, unicode" • ", "Sablier V2 ", sablierModel)
+                text: string.concat(lockupAddress, unicode" • ", "Sablier ", lockupModel)
             }),
             SVGElements.floatingText({ offset: "-50%", text: string.concat(assetAddress, unicode" • ", assetSymbol) }),
             SVGElements.floatingText({ offset: "50%", text: string.concat(assetAddress, unicode" • ", assetSymbol) }),

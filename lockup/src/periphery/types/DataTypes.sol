@@ -7,7 +7,7 @@ import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 import { Broker, LockupDynamic, LockupLinear, LockupTranched } from "../../core/types/DataTypes.sol";
 
 library BatchLockup {
-    /// @notice A struct encapsulating all parameters of {SablierV2LockupDynamic.createWithDurations} except for the
+    /// @notice A struct encapsulating all parameters of {SablierLockupDynamic.createWithDurations} except for the
     /// asset.
     struct CreateWithDurationsLD {
         address sender;
@@ -19,7 +19,7 @@ library BatchLockup {
         Broker broker;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierV2LockupLinear.createWithDurations} except for the
+    /// @notice A struct encapsulating all parameters of {SablierLockupLinear.createWithDurations} except for the
     /// asset.
     struct CreateWithDurationsLL {
         address sender;
@@ -31,7 +31,7 @@ library BatchLockup {
         Broker broker;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierV2LockupTranched.createWithDurations} except for the
+    /// @notice A struct encapsulating all parameters of {SablierLockupTranched.createWithDurations} except for the
     /// asset.
     struct CreateWithDurationsLT {
         address sender;
@@ -43,7 +43,7 @@ library BatchLockup {
         Broker broker;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierV2LockupDynamic.createWithTimestamps} except for the
+    /// @notice A struct encapsulating all parameters of {SablierLockupDynamic.createWithTimestamps} except for the
     /// asset.
     struct CreateWithTimestampsLD {
         address sender;
@@ -56,7 +56,7 @@ library BatchLockup {
         Broker broker;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierV2LockupLinear.createWithTimestamps} except for the
+    /// @notice A struct encapsulating all parameters of {SablierLockupLinear.createWithTimestamps} except for the
     /// asset.
     struct CreateWithTimestampsLL {
         address sender;
@@ -68,7 +68,7 @@ library BatchLockup {
         Broker broker;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierV2LockupTranched.createWithTimestamps} except for the
+    /// @notice A struct encapsulating all parameters of {SablierLockupTranched.createWithTimestamps} except for the
     /// asset.
     struct CreateWithTimestampsLT {
         address sender;

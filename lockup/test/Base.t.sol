@@ -3,21 +3,21 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2LockupDynamic } from "src/core/interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupLinear } from "src/core/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2LockupTranched } from "src/core/interfaces/ISablierV2LockupTranched.sol";
-import { ISablierV2NFTDescriptor } from "src/core/interfaces/ISablierV2NFTDescriptor.sol";
-import { SablierV2LockupDynamic } from "src/core/SablierV2LockupDynamic.sol";
-import { SablierV2LockupLinear } from "src/core/SablierV2LockupLinear.sol";
-import { SablierV2LockupTranched } from "src/core/SablierV2LockupTranched.sol";
-import { SablierV2NFTDescriptor } from "src/core/SablierV2NFTDescriptor.sol";
+import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
+import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
+import { LockupNFTDescriptor } from "src/core/LockupNFTDescriptor.sol";
+import { SablierLockupDynamic } from "src/core/SablierLockupDynamic.sol";
+import { SablierLockupLinear } from "src/core/SablierLockupLinear.sol";
+import { SablierLockupTranched } from "src/core/SablierLockupTranched.sol";
 import { LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
-import { ISablierV2MerkleLockupFactory } from "src/periphery/interfaces/ISablierV2MerkleLockupFactory.sol";
-import { ISablierV2BatchLockup } from "src/periphery/interfaces/ISablierV2BatchLockup.sol";
-import { ISablierV2MerkleLL } from "src/periphery/interfaces/ISablierV2MerkleLL.sol";
-import { ISablierV2MerkleLT } from "src/periphery/interfaces/ISablierV2MerkleLT.sol";
-import { SablierV2BatchLockup } from "src/periphery/SablierV2BatchLockup.sol";
-import { SablierV2MerkleLockupFactory } from "src/periphery/SablierV2MerkleLockupFactory.sol";
+import { ISablierMerkleLockupFactory } from "src/periphery/interfaces/ISablierMerkleLockupFactory.sol";
+import { ISablierBatchLockup } from "src/periphery/interfaces/ISablierBatchLockup.sol";
+import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol";
+import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
+import { SablierBatchLockup } from "src/periphery/SablierBatchLockup.sol";
+import { SablierMerkleLockupFactory } from "src/periphery/SablierMerkleLockupFactory.sol";
 
 import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
@@ -44,16 +44,16 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2BatchLockup internal batchLockup;
+    ISablierBatchLockup internal batchLockup;
     ERC20Mock internal dai;
     Defaults internal defaults;
-    ISablierV2LockupDynamic internal lockupDynamic;
-    ISablierV2LockupLinear internal lockupLinear;
-    ISablierV2LockupTranched internal lockupTranched;
-    ISablierV2MerkleLockupFactory internal merkleLockupFactory;
-    ISablierV2MerkleLL internal merkleLL;
-    ISablierV2MerkleLT internal merkleLT;
-    ISablierV2NFTDescriptor internal nftDescriptor;
+    ISablierLockupDynamic internal lockupDynamic;
+    ISablierLockupLinear internal lockupLinear;
+    ISablierLockupTranched internal lockupTranched;
+    ISablierMerkleLockupFactory internal merkleLockupFactory;
+    ISablierMerkleLL internal merkleLL;
+    ISablierMerkleLT internal merkleLT;
+    ILockupNFTDescriptor internal nftDescriptor;
     Noop internal noop;
     RecipientGood internal recipientGood;
     ERC20MissingReturn internal usdt;
@@ -148,14 +148,14 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     /// for contracts deployed via `CREATE` are based on the caller-and-nonce-hash).
     function deployProtocolConditionally() internal {
         if (!isBenchmarkProfile() && !isTestOptimizedProfile()) {
-            batchLockup = new SablierV2BatchLockup();
-            nftDescriptor = new SablierV2NFTDescriptor();
-            lockupDynamic = new SablierV2LockupDynamic(users.admin, nftDescriptor, defaults.MAX_SEGMENT_COUNT());
-            lockupLinear = new SablierV2LockupLinear(users.admin, nftDescriptor);
-            lockupTranched = new SablierV2LockupTranched(users.admin, nftDescriptor, defaults.MAX_TRANCHE_COUNT());
-            merkleLockupFactory = new SablierV2MerkleLockupFactory();
+            batchLockup = new SablierBatchLockup();
+            nftDescriptor = new LockupNFTDescriptor();
+            lockupDynamic = new SablierLockupDynamic(users.admin, nftDescriptor, defaults.MAX_SEGMENT_COUNT());
+            lockupLinear = new SablierLockupLinear(users.admin, nftDescriptor);
+            lockupTranched = new SablierLockupTranched(users.admin, nftDescriptor, defaults.MAX_TRANCHE_COUNT());
+            merkleLockupFactory = new SablierMerkleLockupFactory();
         } else {
-            (lockupDynamic, lockupLinear, lockupTranched, nftDescriptor, batchLockup, merkleLockupFactory) =
+            (nftDescriptor, lockupDynamic, lockupLinear, lockupTranched, batchLockup, merkleLockupFactory) =
                 deployOptimizedProtocol(users.admin, defaults.MAX_SEGMENT_COUNT(), defaults.MAX_TRANCHE_COUNT());
         }
 
@@ -222,7 +222,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
                                 CALL EXPECTS - LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Expects multiple calls to {ISablierV2LockupDynamic.createWithDurations}, each with the specified
+    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithDurations}, each with the specified
     /// `params`.
     function expectMultipleCallsToCreateWithDurationsLD(
         uint64 count,
@@ -233,11 +233,11 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
         vm.expectCall({
             callee: address(lockupDynamic),
             count: count,
-            data: abi.encodeCall(ISablierV2LockupDynamic.createWithDurations, (params))
+            data: abi.encodeCall(ISablierLockupDynamic.createWithDurations, (params))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierV2LockupLinear.createWithDurations}, each with the specified
+    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithDurations}, each with the specified
     /// `params`.
     function expectMultipleCallsToCreateWithDurationsLL(
         uint64 count,
@@ -248,11 +248,11 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
         vm.expectCall({
             callee: address(lockupLinear),
             count: count,
-            data: abi.encodeCall(ISablierV2LockupLinear.createWithDurations, (params))
+            data: abi.encodeCall(ISablierLockupLinear.createWithDurations, (params))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierV2LockupTranched.createWithDurations}, each with the specified
+    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithDurations}, each with the specified
     /// `params`.
     function expectMultipleCallsToCreateWithDurationsLT(
         uint64 count,
@@ -263,11 +263,11 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
         vm.expectCall({
             callee: address(lockupTranched),
             count: count,
-            data: abi.encodeCall(ISablierV2LockupTranched.createWithDurations, (params))
+            data: abi.encodeCall(ISablierLockupTranched.createWithDurations, (params))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierV2LockupDynamic.createWithTimestamps}, each with the specified
+    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithTimestamps}, each with the specified
     /// `params`.
     function expectMultipleCallsToCreateWithTimestampsLD(
         uint64 count,
@@ -278,11 +278,11 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
         vm.expectCall({
             callee: address(lockupDynamic),
             count: count,
-            data: abi.encodeCall(ISablierV2LockupDynamic.createWithTimestamps, (params))
+            data: abi.encodeCall(ISablierLockupDynamic.createWithTimestamps, (params))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierV2LockupLinear.createWithTimestamps}, each with the specified
+    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithTimestamps}, each with the specified
     /// `params`.
     function expectMultipleCallsToCreateWithTimestampsLL(
         uint64 count,
@@ -293,11 +293,11 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
         vm.expectCall({
             callee: address(lockupLinear),
             count: count,
-            data: abi.encodeCall(ISablierV2LockupLinear.createWithTimestamps, (params))
+            data: abi.encodeCall(ISablierLockupLinear.createWithTimestamps, (params))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierV2LockupTranched.createWithTimestamps}, each with the specified
+    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithTimestamps}, each with the specified
     /// `params`.
     function expectMultipleCallsToCreateWithTimestampsLT(
         uint64 count,
@@ -308,7 +308,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
         vm.expectCall({
             callee: address(lockupTranched),
             count: count,
-            data: abi.encodeCall(ISablierV2LockupTranched.createWithTimestamps, (params))
+            data: abi.encodeCall(ISablierLockupTranched.createWithTimestamps, (params))
         });
     }
 }

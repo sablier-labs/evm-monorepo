@@ -6,36 +6,36 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
-import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
-import { ISablierV2LockupLinear } from "./interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2NFTDescriptor } from "./interfaces/ISablierV2NFTDescriptor.sol";
+import { SablierLockup } from "./abstracts/SablierLockup.sol";
+import { SablierLockup } from "./abstracts/SablierLockup.sol";
+import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
+import { ISablierLockupLinear } from "./interfaces/ISablierLockupLinear.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 
 /*
 
-███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ██╗   ██╗██████╗
-██╔════╝██╔══██╗██╔══██╗██║     ██║██╔════╝██╔══██╗    ██║   ██║╚════██╗
-███████╗███████║██████╔╝██║     ██║█████╗  ██████╔╝    ██║   ██║ █████╔╝
-╚════██║██╔══██║██╔══██╗██║     ██║██╔══╝  ██╔══██╗    ╚██╗ ██╔╝██╔═══╝
-███████║██║  ██║██████╔╝███████╗██║███████╗██║  ██║     ╚████╔╝ ███████╗
-╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝      ╚═══╝  ╚══════╝
+███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ██╗      ██████╗  ██████╗██╗  ██╗██╗   ██╗██████╗
+██╔════╝██╔══██╗██╔══██╗██║     ██║██╔════╝██╔══██╗    ██║     ██╔═══██╗██╔════╝██║ ██╔╝██║   ██║██╔══██╗
+███████╗███████║██████╔╝██║     ██║█████╗  ██████╔╝    ██║     ██║   ██║██║     █████╔╝ ██║   ██║██████╔╝
+╚════██║██╔══██║██╔══██╗██║     ██║██╔══╝  ██╔══██╗    ██║     ██║   ██║██║     ██╔═██╗ ██║   ██║██╔═══╝
+███████║██║  ██║██████╔╝███████╗██║███████╗██║  ██║    ███████╗╚██████╔╝╚██████╗██║  ██╗╚██████╔╝██║
+╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝    ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝
 
-██╗      ██████╗  ██████╗██╗  ██╗██╗   ██╗██████╗     ██╗     ██╗███╗   ██╗███████╗ █████╗ ██████╗
-██║     ██╔═══██╗██╔════╝██║ ██╔╝██║   ██║██╔══██╗    ██║     ██║████╗  ██║██╔════╝██╔══██╗██╔══██╗
-██║     ██║   ██║██║     █████╔╝ ██║   ██║██████╔╝    ██║     ██║██╔██╗ ██║█████╗  ███████║██████╔╝
-██║     ██║   ██║██║     ██╔═██╗ ██║   ██║██╔═══╝     ██║     ██║██║╚██╗██║██╔══╝  ██╔══██║██╔══██╗
-███████╗╚██████╔╝╚██████╗██║  ██╗╚██████╔╝██║         ███████╗██║██║ ╚████║███████╗██║  ██║██║  ██║
-╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝         ╚══════╝╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝
+██╗     ██╗███╗   ██╗███████╗ █████╗ ██████╗
+██║     ██║████╗  ██║██╔════╝██╔══██╗██╔══██╗
+██║     ██║██╔██╗ ██║█████╗  ███████║██████╔╝
+██║     ██║██║╚██╗██║██╔══╝  ██╔══██║██╔══██╗
+███████╗██║██║ ╚████║███████╗██║  ██║██║  ██║
+╚══════╝╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝
 
 */
 
-/// @title SablierV2LockupLinear
-/// @notice See the documentation in {ISablierV2LockupLinear}.
-contract SablierV2LockupLinear is
-    ISablierV2LockupLinear, // 5 inherited components
-    SablierV2Lockup // 14 inherited components
+/// @title SablierLockupLinear
+/// @notice See the documentation in {ISablierLockupLinear}.
+contract SablierLockupLinear is
+    ISablierLockupLinear, // 5 inherited components
+    SablierLockup // 14 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -43,7 +43,7 @@ contract SablierV2LockupLinear is
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Cliff times mapped by stream IDs. This complements the `_streams` mapping in {SablierV2Lockup}.
+    /// @dev Cliff times mapped by stream IDs. This complements the `_streams` mapping in {SablierLockup}.
     mapping(uint256 id => uint40 cliff) internal _cliffs;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -55,10 +55,10 @@ contract SablierV2LockupLinear is
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
     constructor(
         address initialAdmin,
-        ISablierV2NFTDescriptor initialNFTDescriptor
+        ILockupNFTDescriptor initialNFTDescriptor
     )
-        ERC721("Sablier V2 Lockup Linear NFT", "SAB-V2-LOCKUP-LIN")
-        SablierV2Lockup(initialAdmin, initialNFTDescriptor)
+        ERC721("Sablier Lockup Linear NFT", "SAB-LOCKUP-LIN")
+        SablierLockup(initialAdmin, initialNFTDescriptor)
     {
         nextStreamId = 1;
     }
@@ -67,12 +67,12 @@ contract SablierV2LockupLinear is
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2LockupLinear
+    /// @inheritdoc ISablierLockupLinear
     function getCliffTime(uint256 streamId) external view override notNull(streamId) returns (uint40 cliffTime) {
         cliffTime = _cliffs[streamId];
     }
 
-    /// @inheritdoc ISablierV2LockupLinear
+    /// @inheritdoc ISablierLockupLinear
     function getStream(uint256 streamId)
         external
         view
@@ -104,7 +104,7 @@ contract SablierV2LockupLinear is
         });
     }
 
-    /// @inheritdoc ISablierV2LockupLinear
+    /// @inheritdoc ISablierLockupLinear
     function getTimestamps(uint256 streamId)
         external
         view
@@ -123,7 +123,7 @@ contract SablierV2LockupLinear is
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2LockupLinear
+    /// @inheritdoc ISablierLockupLinear
     function createWithDurations(LockupLinear.CreateWithDurations calldata params)
         external
         override
@@ -159,7 +159,7 @@ contract SablierV2LockupLinear is
         );
     }
 
-    /// @inheritdoc ISablierV2LockupLinear
+    /// @inheritdoc ISablierLockupLinear
     function createWithTimestamps(LockupLinear.CreateWithTimestamps calldata params)
         external
         override
@@ -174,7 +174,7 @@ contract SablierV2LockupLinear is
                            INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc SablierV2Lockup
+    /// @inheritdoc SablierLockup
     /// @dev The distribution function is:
     ///
     /// $$
@@ -283,7 +283,7 @@ contract SablierV2LockupLinear is
         }
 
         // Log the newly created stream.
-        emit ISablierV2LockupLinear.CreateLockupLinearStream({
+        emit ISablierLockupLinear.CreateLockupLinearStream({
             streamId: streamId,
             funder: msg.sender,
             sender: params.sender,

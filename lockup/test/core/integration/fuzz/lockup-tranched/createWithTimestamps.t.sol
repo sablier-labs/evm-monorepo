@@ -33,9 +33,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         uint256 defaultMax = defaults.MAX_TRANCHE_COUNT();
         trancheCount = _bound(trancheCount, defaultMax + 1, defaultMax * 10);
         LockupTranched.Tranche[] memory tranches = new LockupTranched.Tranche[](trancheCount);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2LockupTranched_TrancheCountTooHigh.selector, trancheCount)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupTranched_TrancheCountTooHigh.selector, trancheCount));
         createDefaultStreamWithTranches(tranches);
     }
 
@@ -77,7 +75,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupTranched_StartTimeNotLessThanFirstTrancheTimestamp.selector,
+                Errors.SablierLockupTranched_StartTimeNotLessThanFirstTrancheTimestamp.selector,
                 defaults.START_TIME(),
                 tranches[0].timestamp
             )
@@ -114,7 +112,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupTranched_DepositAmountNotEqualToTrancheAmountsSum.selector,
+                Errors.SablierLockupTranched_DepositAmountNotEqualToTrancheAmountsSum.selector,
                 depositAmount,
                 defaultDepositAmount
             )
@@ -140,7 +138,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         vm.assume(broker.account != address(0));
         broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
+            abi.encodeWithSelector(Errors.SablierLockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
         );
         createDefaultStreamWithBroker(broker);
     }
@@ -212,10 +210,10 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         // Mint enough assets to the fuzzed funder.
         deal({ token: address(dai), to: funder, give: vars.totalAmount });
 
-        // Approve {SablierV2LockupTranched} to transfer the assets from the fuzzed funder.
+        // Approve {SablierLockupTranched} to transfer the assets from the fuzzed funder.
         dai.approve({ spender: address(lockupTranched), value: MAX_UINT256 });
 
-        // Expect the assets to be transferred from the funder to {SablierV2LockupTranched}.
+        // Expect the assets to be transferred from the funder to {SablierLockupTranched}.
         expectCallToTransferFrom({ from: funder, to: address(lockupTranched), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.

@@ -4,22 +4,22 @@ pragma solidity >=0.8.22 <0.9.0;
 import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
 
 contract GenerateName_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
-    function gn(string memory sablierModel, string memory streamId) internal view returns (string memory) {
-        return nftDescriptorMock.generateName_(sablierModel, streamId);
+    function gn(string memory lockupModel, string memory streamId) internal view returns (string memory) {
+        return nftDescriptorMock.generateName_(lockupModel, streamId);
     }
 
     function dyn(string memory streamId) internal pure returns (string memory) {
-        return string.concat("Sablier V2 Lockup Dynamic #", streamId);
+        return string.concat("Sablier Lockup Dynamic #", streamId);
     }
 
     function lin(string memory streamId) internal pure returns (string memory) {
-        return string.concat("Sablier V2 Lockup Linear #", streamId);
+        return string.concat("Sablier Lockup Linear #", streamId);
     }
 
     function test_GenerateName_Empty() external view {
-        assertEq(gn("", ""), "Sablier V2  #", "metadata name");
-        assertEq(gn("A", ""), "Sablier V2 A #", "metadata name");
-        assertEq(gn("", "1"), "Sablier V2  #1", "metadata name");
+        assertEq(gn("", ""), "Sablier  #", "metadata name");
+        assertEq(gn("A", ""), "Sablier A #", "metadata name");
+        assertEq(gn("", "1"), "Sablier  #1", "metadata name");
     }
 
     function test_GenerateName() external view {

@@ -7,7 +7,7 @@ import { Broker, LockupDynamic } from "src/core/types/DataTypes.sol";
 
 import { Lockup_Integration_Shared_Test } from "../lockup/Lockup.t.sol";
 
-/// @notice Common testing logic needed across {SablierV2LockupDynamic} integration tests.
+/// @notice Common testing logic needed across {SablierLockupDynamic} integration tests.
 abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Shared_Test {
     struct CreateParams {
         LockupDynamic.CreateWithDurations createWithDurations;

@@ -5,12 +5,12 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { IAdminable } from "../../core/interfaces/IAdminable.sol";
 
-/// @title ISablierV2MerkleLockup
-/// @notice A contract that lets user claim Sablier streams using Merkle proofs. A popular use case for MerkleLockup
+/// @title ISablierMerkleLockup
+/// @notice A contract that lets user claim Lockup streams using Merkle proofs. A popular use case for MerkleLockup
 /// is airstreams: a portmanteau of "airdrop" and "stream". This is an airdrop model where the tokens are distributed
 /// over time, as opposed to all at once.
 /// @dev This is the base interface for MerkleLockup. See the Sablier docs for more guidance: https://docs.sablier.com
-interface ISablierV2MerkleLockup is IAdminable {
+interface ISablierMerkleLockup is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/

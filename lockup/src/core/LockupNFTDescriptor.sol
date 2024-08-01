@@ -7,8 +7,8 @@ import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions
 import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
-import { ISablierV2Lockup } from "./interfaces/ISablierV2Lockup.sol";
-import { ISablierV2NFTDescriptor } from "./interfaces/ISablierV2NFTDescriptor.sol";
+import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
+import { ISablierLockup } from "./interfaces/ISablierLockup.sol";
 import { Lockup } from "./types/DataTypes.sol";
 
 import { Errors } from "./libraries/Errors.sol";
@@ -17,25 +17,27 @@ import { SVGElements } from "./libraries/SVGElements.sol";
 
 /*
 
-███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ██╗   ██╗██████╗
-██╔════╝██╔══██╗██╔══██╗██║     ██║██╔════╝██╔══██╗    ██║   ██║╚════██╗
-███████╗███████║██████╔╝██║     ██║█████╗  ██████╔╝    ██║   ██║ █████╔╝
-╚════██║██╔══██║██╔══██╗██║     ██║██╔══╝  ██╔══██╗    ╚██╗ ██╔╝██╔═══╝
-███████║██║  ██║██████╔╝███████╗██║███████╗██║  ██║     ╚████╔╝ ███████╗
-╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝      ╚═══╝  ╚══════╝
+███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ███╗   ██╗███████╗████████╗
+██╔════╝██╔══██╗██╔══██╗██║     ██║██╔════╝██╔══██╗    ████╗  ██║██╔════╝╚══██╔══╝
+███████╗███████║██████╔╝██║     ██║█████╗  ██████╔╝    ██╔██╗ ██║█████╗     ██║
+╚════██║██╔══██║██╔══██╗██║     ██║██╔══╝  ██╔══██╗    ██║╚██╗██║██╔══╝     ██║
+███████║██║  ██║██████╔╝███████╗██║███████╗██║  ██║    ██║ ╚████║██║        ██║
+╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝    ╚═╝  ╚═══╝╚═╝        ╚═╝
 
-███╗   ██╗███████╗████████╗    ██████╗ ███████╗███████╗ ██████╗██████╗ ██╗██████╗ ████████╗ ██████╗ ██████╗
-████╗  ██║██╔════╝╚══██╔══╝    ██╔══██╗██╔════╝██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗
-██╔██╗ ██║█████╗     ██║       ██║  ██║█████╗  ███████╗██║     ██████╔╝██║██████╔╝   ██║   ██║   ██║██████╔╝
-██║╚██╗██║██╔══╝     ██║       ██║  ██║██╔══╝  ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ██║   ██║██╔══██╗
-██║ ╚████║██║        ██║       ██████╔╝███████╗███████║╚██████╗██║  ██║██║██║        ██║   ╚██████╔╝██║  ██║
-╚═╝  ╚═══╝╚═╝        ╚═╝       ╚═════╝ ╚══════╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝    ╚═════╝ ╚═╝  ╚═╝
+
+██████╗ ███████╗███████╗ ██████╗██████╗ ██╗██████╗ ████████╗ ██████╗ ██████╗
+██╔══██╗██╔════╝██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗
+██║  ██║█████╗  ███████╗██║     ██████╔╝██║██████╔╝   ██║   ██║   ██║██████╔╝
+██║  ██║██╔══╝  ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ██║   ██║██╔══██╗
+██████╔╝███████╗███████║╚██████╗██║  ██║██║██║        ██║   ╚██████╔╝██║  ██║
+╚═════╝ ╚══════╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝    ╚═════╝ ╚═╝  ╚═╝
+
 
 */
 
-/// @title SablierV2NFTDescriptor
-/// @notice See the documentation in {ISablierV2NFTDescriptor}.
-contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
+/// @title LockupNFTDescriptor
+/// @notice See the documentation in {ILockupNFTDescriptor}.
+contract LockupNFTDescriptor is ILockupNFTDescriptor {
     using Strings for address;
     using Strings for string;
     using Strings for uint256;
@@ -51,57 +53,57 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
         uint128 depositedAmount;
         bool isTransferable;
         string json;
+        ISablierLockup lockup;
+        string lockupModel;
+        string lockupStringified;
         bytes returnData;
-        ISablierV2Lockup sablier;
-        string sablierModel;
-        string sablierStringified;
         string status;
         string svg;
         uint256 streamedPercentage;
         bool success;
     }
 
-    /// @inheritdoc ISablierV2NFTDescriptor
-    function tokenURI(IERC721Metadata sablier, uint256 streamId) external view override returns (string memory uri) {
+    /// @inheritdoc ILockupNFTDescriptor
+    function tokenURI(IERC721Metadata lockup, uint256 streamId) external view override returns (string memory uri) {
         TokenURIVars memory vars;
 
         // Load the contracts.
-        vars.sablier = ISablierV2Lockup(address(sablier));
-        vars.sablierModel = mapSymbol(sablier);
-        vars.sablierStringified = address(sablier).toHexString();
-        vars.asset = address(vars.sablier.getAsset(streamId));
+        vars.lockup = ISablierLockup(address(lockup));
+        vars.lockupModel = mapSymbol(lockup);
+        vars.lockupStringified = address(lockup).toHexString();
+        vars.asset = address(vars.lockup.getAsset(streamId));
         vars.assetSymbol = safeAssetSymbol(vars.asset);
-        vars.depositedAmount = vars.sablier.getDepositedAmount(streamId);
+        vars.depositedAmount = vars.lockup.getDepositedAmount(streamId);
 
         // Load the stream's data.
-        vars.status = stringifyStatus(vars.sablier.statusOf(streamId));
+        vars.status = stringifyStatus(vars.lockup.statusOf(streamId));
         vars.streamedPercentage = calculateStreamedPercentage({
-            streamedAmount: vars.sablier.streamedAmountOf(streamId),
+            streamedAmount: vars.lockup.streamedAmountOf(streamId),
             depositedAmount: vars.depositedAmount
         });
 
         // Generate the SVG.
         vars.svg = NFTSVG.generateSVG(
             NFTSVG.SVGParams({
-                accentColor: generateAccentColor(address(sablier), streamId),
+                accentColor: generateAccentColor(address(lockup), streamId),
                 amount: abbreviateAmount({ amount: vars.depositedAmount, decimals: safeAssetDecimals(vars.asset) }),
                 assetAddress: vars.asset.toHexString(),
                 assetSymbol: vars.assetSymbol,
                 duration: calculateDurationInDays({
-                    startTime: vars.sablier.getStartTime(streamId),
-                    endTime: vars.sablier.getEndTime(streamId)
+                    startTime: vars.lockup.getStartTime(streamId),
+                    endTime: vars.lockup.getEndTime(streamId)
                 }),
-                sablierAddress: vars.sablierStringified,
+                lockupAddress: vars.lockupStringified,
                 progress: stringifyPercentage(vars.streamedPercentage),
                 progressNumerical: vars.streamedPercentage,
                 status: vars.status,
-                sablierModel: vars.sablierModel
+                lockupModel: vars.lockupModel
             })
         );
 
         // Performs a low-level call to handle older deployments that miss the `isTransferable` function.
         (vars.success, vars.returnData) =
-            address(vars.sablier).staticcall(abi.encodeCall(ISablierV2Lockup.isTransferable, (streamId)));
+            address(vars.lockup).staticcall(abi.encodeCall(ISablierLockup.isTransferable, (streamId)));
 
         // When the call has failed, the stream NFT is assumed to be transferable.
         vars.isTransferable = vars.success ? abi.decode(vars.returnData, (bool)) : true;
@@ -111,20 +113,20 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             '{"attributes":',
             generateAttributes({
                 assetSymbol: vars.assetSymbol,
-                sender: vars.sablier.getSender(streamId).toHexString(),
+                sender: vars.lockup.getSender(streamId).toHexString(),
                 status: vars.status
             }),
             ',"description":"',
             generateDescription({
-                sablierModel: vars.sablierModel,
+                lockupModel: vars.lockupModel,
                 assetSymbol: vars.assetSymbol,
-                sablierStringified: vars.sablierStringified,
+                lockupStringified: vars.lockupStringified,
                 assetAddress: vars.asset.toHexString(),
                 streamId: streamId.toString(),
                 isTransferable: vars.isTransferable
             }),
             '","external_url":"https://sablier.com","name":"',
-            generateName({ sablierModel: vars.sablierModel, streamId: streamId.toString() }),
+            generateName({ lockupModel: vars.lockupModel, streamId: streamId.toString() }),
             '","image":"data:image/svg+xml;base64,',
             Base64.encode(bytes(vars.svg)),
             '"}'
@@ -277,9 +279,9 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
     /// @notice Generates a string with the NFT's JSON metadata description, which provides a high-level overview.
     function generateDescription(
-        string memory sablierModel,
+        string memory lockupModel,
         string memory assetSymbol,
-        string memory sablierStringified,
+        string memory lockupStringified,
         string memory assetAddress,
         string memory streamId,
         bool isTransferable
@@ -295,16 +297,16 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             : unicode"❕INFO: This NFT is non-transferable. It cannot be sold or transferred to another account.";
 
         return string.concat(
-            "This NFT represents a payment stream in a Sablier V2 ",
-            sablierModel,
+            "This NFT represents a payment stream in a Sablier Lockup ",
+            lockupModel,
             " contract. The owner of this NFT can withdraw the streamed assets, which are denominated in ",
             assetSymbol,
             ".\\n\\n- Stream ID: ",
             streamId,
             "\\n- ",
-            sablierModel,
+            lockupModel,
             " Address: ",
-            sablierStringified,
+            lockupStringified,
             "\\n- ",
             assetSymbol,
             " Address: ",
@@ -316,8 +318,8 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
     /// @notice Generates a string with the NFT's JSON metadata name, which is unique for each stream.
     /// @dev The `streamId` is equivalent to the ERC-721 `tokenId`.
-    function generateName(string memory sablierModel, string memory streamId) internal pure returns (string memory) {
-        return string.concat("Sablier V2 ", sablierModel, " #", streamId);
+    function generateName(string memory lockupModel, string memory streamId) internal pure returns (string memory) {
+        return string.concat("Sablier ", lockupModel, " #", streamId);
     }
 
     /// @notice Checks whether the provided string contains only alphanumeric characters, spaces, and dashes.
@@ -347,14 +349,14 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
     /// @dev Reverts if the symbol is unknown.
     function mapSymbol(IERC721Metadata sablier) internal view returns (string memory) {
         string memory symbol = sablier.symbol();
-        if (symbol.equal("SAB-V2-LOCKUP-LIN")) {
-            return "Lockup Linear";
-        } else if (symbol.equal("SAB-V2-LOCKUP-DYN")) {
-            return "Lockup Dynamic";
-        } else if (symbol.equal("SAB-V2-LOCKUP-TRA")) {
-            return "Lockup Tranched";
+        if (symbol.equal("SAB-LOCKUP-LIN") || symbol.equal("SAB-V2-LOCKUP-LIN")) {
+            return "Sablier Lockup Linear";
+        } else if (symbol.equal("SAB-LOCKUP-DYN") || symbol.equal("SAB-V2-LOCKUP-DYN")) {
+            return "Sablier Lockup Dynamic";
+        } else if (symbol.equal("SAB-LOCKUP-TRA") || symbol.equal("SAB-V2-LOCKUP-TRA")) {
+            return "Sablier Lockup Tranched";
         } else {
-            revert Errors.SablierV2NFTDescriptor_UnknownNFT(sablier, symbol);
+            revert Errors.LockupNFTDescriptor_UnknownNFT(sablier, symbol);
         }
     }
 

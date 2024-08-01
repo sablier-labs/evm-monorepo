@@ -26,7 +26,7 @@ contract LockupLinear_Gas_Test is Benchmark_Test {
 
     function testGas_Implementations() external {
         // Set the file path.
-        benchmarkResultsFile = string.concat(benchmarkResults, "SablierV2LockupLinear.md");
+        benchmarkResultsFile = string.concat(benchmarkResults, "SablierLockupLinear.md");
 
         // Create the file if it doesn't exist, otherwise overwrite it.
         vm.writeFile({

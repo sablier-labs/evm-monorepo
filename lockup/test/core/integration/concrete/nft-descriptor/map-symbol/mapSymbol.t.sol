@@ -12,7 +12,7 @@ contract MapSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_Shared
     function test_RevertGiven_UnknownNFT() external {
         MockERC721 nft = new MockERC721();
         nft.initialize("Foo", "FOO");
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2NFTDescriptor_UnknownNFT.selector, nft, "FOO"));
+        vm.expectRevert(abi.encodeWithSelector(Errors.LockupNFTDescriptor_UnknownNFT.selector, nft, "FOO"));
         nftDescriptorMock.mapSymbol_(IERC721Metadata(address(nft)));
     }
 
@@ -21,20 +21,20 @@ contract MapSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_Shared
     }
 
     function test_MapSymbol_LockupDynamic() external view givenKnownNFT {
-        string memory actualSablierModel = nftDescriptorMock.mapSymbol_(lockupDynamic);
-        string memory expectedSablierModel = "Lockup Dynamic";
-        assertEq(actualSablierModel, expectedSablierModel, "sablierModel");
+        string memory actualLockupModel = nftDescriptorMock.mapSymbol_(lockupDynamic);
+        string memory expectedLockupModel = "Sablier Lockup Dynamic";
+        assertEq(actualLockupModel, expectedLockupModel, "lockupModel");
     }
 
     function test_MapSymbol_LockupLinear() external view givenKnownNFT {
-        string memory actualSablierModel = nftDescriptorMock.mapSymbol_(lockupLinear);
-        string memory expectedSablierModel = "Lockup Linear";
-        assertEq(actualSablierModel, expectedSablierModel, "sablierModel");
+        string memory actualLockupModel = nftDescriptorMock.mapSymbol_(lockupLinear);
+        string memory expectedLockupModel = "Sablier Lockup Linear";
+        assertEq(actualLockupModel, expectedLockupModel, "lockupModel");
     }
 
     function test_MapSymbol_LockupTranched() external view givenKnownNFT {
-        string memory actualSablierModel = nftDescriptorMock.mapSymbol_(lockupTranched);
-        string memory expectedSablierModel = "Lockup Tranched";
-        assertEq(actualSablierModel, expectedSablierModel, "sablierModel");
+        string memory actualLockupModel = nftDescriptorMock.mapSymbol_(lockupTranched);
+        string memory expectedLockupModel = "Sablier Lockup Tranched";
+        assertEq(actualLockupModel, expectedLockupModel, "lockupModel");
     }
 }

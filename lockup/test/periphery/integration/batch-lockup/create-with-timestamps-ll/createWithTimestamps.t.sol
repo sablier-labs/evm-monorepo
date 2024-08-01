@@ -14,7 +14,7 @@ contract CreateWithTimestampsLL_Integration_Test is Periphery_Test {
 
     function test_RevertWhen_BatchSizeZero() external {
         BatchLockup.CreateWithTimestampsLL[] memory batchParams = new BatchLockup.CreateWithTimestampsLL[](0);
-        vm.expectRevert(Errors.SablierV2BatchLockup_BatchSizeZero.selector);
+        vm.expectRevert(Errors.SablierBatchLockup_BatchSizeZero.selector);
         batchLockup.createWithTimestampsLL(lockupLinear, dai, batchParams);
     }
 
@@ -23,8 +23,8 @@ contract CreateWithTimestampsLL_Integration_Test is Periphery_Test {
     }
 
     function test_BatchCreateWithTimestamps() external whenBatchSizeNotZero {
-        // Asset flow: Sender → batchLockup → Sablier
-        // Expect transfers from Alice to the batchLockup, and then from the batchLockup to the Sablier contract.
+        // Asset flow: Sender → batchLockup → SablierLockup
+        // Expect transfers from Alice to the batchLockup, and then from the batchLockup to the Lockup contract.
         expectCallToTransferFrom({
             from: users.sender,
             to: address(batchLockup),

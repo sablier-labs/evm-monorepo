@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { ISablierLockupRecipient } from "src/core/interfaces/ISablierLockupRecipient.sol";
-import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 
 import { Lockup } from "src/core/types/DataTypes.sol";
@@ -22,7 +22,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
     function test_RevertWhen_DelegateCalled() external {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         bytes memory callData =
-            abi.encodeCall(ISablierV2Lockup.withdraw, (defaultStreamId, users.recipient, withdrawAmount));
+            abi.encodeCall(ISablierLockup.withdraw, (defaultStreamId, users.recipient, withdrawAmount));
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -30,7 +30,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
     function test_RevertGiven_Null() external whenNotDelegateCalled {
         uint256 nullStreamId = 1729;
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));
         lockup.withdraw({ streamId: nullStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
@@ -39,13 +39,13 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamDepleted.selector, defaultStreamId));
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
     function test_RevertWhen_ToZeroAddress() external whenNotDelegateCalled givenNotNull givenStreamNotDepleted {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_WithdrawToZeroAddress.selector, defaultStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_WithdrawToZeroAddress.selector, defaultStreamId));
         lockup.withdraw({ streamId: defaultStreamId, to: address(0), amount: withdrawAmount });
     }
 
@@ -56,7 +56,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenStreamNotDepleted
         whenToNonZeroAddress
     {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_WithdrawAmountZero.selector, defaultStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_WithdrawAmountZero.selector, defaultStreamId));
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
     }
 
@@ -71,7 +71,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         uint128 withdrawableAmount = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_Overdraw.selector, defaultStreamId, MAX_UINT128, withdrawableAmount
+                Errors.SablierLockup_Overdraw.selector, defaultStreamId, MAX_UINT128, withdrawableAmount
             )
         );
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: MAX_UINT128 });
@@ -95,7 +95,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_WithdrawalAddressNotRecipient.selector,
+                Errors.SablierLockup_WithdrawalAddressNotRecipient.selector,
                 defaultStreamId,
                 unknownCaller,
                 unknownCaller
@@ -120,10 +120,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_WithdrawalAddressNotRecipient.selector,
-                defaultStreamId,
-                users.sender,
-                users.sender
+                Errors.SablierLockup_WithdrawalAddressNotRecipient.selector, defaultStreamId, users.sender, users.sender
             )
         );
         lockup.withdraw({ streamId: defaultStreamId, to: users.sender, amount: withdrawAmount });
@@ -145,7 +142,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_WithdrawalAddressNotRecipient.selector,
+                Errors.SablierLockup_WithdrawalAddressNotRecipient.selector,
                 defaultStreamId,
                 users.recipient,
                 users.recipient
@@ -424,9 +421,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         // Expect a revert.
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2Lockup_InvalidHookSelector.selector, address(recipientInvalidSelector)
-            )
+            abi.encodeWithSelector(Errors.SablierLockup_InvalidHookSelector.selector, address(recipientInvalidSelector))
         );
 
         // Cancel the stream.

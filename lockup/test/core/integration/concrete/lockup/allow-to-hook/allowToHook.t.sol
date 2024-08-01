@@ -30,7 +30,7 @@ abstract contract AllowToHook_Integration_Concrete_Test is Integration_Test, Loc
 
     function test_RevertWhen_ProvidedAddressNoCode() external whenCallerAdmin {
         address eoa = vm.addr({ privateKey: 1 });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_AllowToHookZeroCodeSize.selector, eoa));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_AllowToHookZeroCodeSize.selector, eoa));
         lockup.allowToHook(eoa);
     }
 
@@ -46,7 +46,7 @@ abstract contract AllowToHook_Integration_Concrete_Test is Integration_Test, Loc
         // Incorrect interface ID.
         address recipient = address(recipientInterfaceIDIncorrect);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_AllowToHookUnsupportedInterface.selector, recipient)
+            abi.encodeWithSelector(Errors.SablierLockup_AllowToHookUnsupportedInterface.selector, recipient)
         );
         lockup.allowToHook(recipient);
 

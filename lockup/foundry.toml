@@ -9,14 +9,14 @@
   ]
   gas_limit = 9223372036854775807
   gas_reports = [
-    "SablierV2BatchLockup",
-    "SablierV2LockupDynamic",
-    "SablierV2LockupLinear",
-    "SablierV2LockupTranched",
-    "SablierV2MerkleLL",
-    "SablierV2MerkleLockupFactory",
-    "SablierV2MerkleLT",
-    "SablierV2NFTDescriptor",
+    "LockupNFTDescriptor",
+    "SablierBatchLockup",
+    "SablierLockupDynamic",
+    "SablierLockupLinear",
+    "SablierLockupTranched",
+    "SablierMerkleLL",
+    "SablierMerkleLockupFactory",
+    "SablierMerkleLT",
   ]
   optimizer = true
   optimizer_runs = 1000
@@ -78,10 +78,10 @@
   ]
 
 [profile.smt.model_checker.contracts]
-  "src/SablierV2LockupDynamic.sol" = ["SablierV2LockupDynamic"]
-  "src/SablierV2LockupLinear.sol" = ["SablierV2LockupLinear"]
-  "src/SablierV2LockupTranched.sol" = ["SablierV2LockupTranched"]
-  "src/SablierV2NFTDescriptor.sol" = ["SablierV2NFTDescriptor"]
+  "src/LockupNFTDescriptor.sol" = ["LockupNFTDescriptor"]
+  "src/SablierLockupDynamic.sol" = ["SablierLockupDynamic"]
+  "src/SablierLockupLinear.sol" = ["SablierLockupLinear"]
+  "src/SablierLockupTranched.sol" = ["SablierLockupTranched"]
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
@@ -90,7 +90,7 @@
 [doc]
   ignore = ["**/*.t.sol"]
   out = "docs"
-  repository = "https://github.com/sablier-labs/v2-core"
+  repository = "https://github.com/sablier-labs/lockup"
 
 [etherscan]
   arbitrum = { key = "${ARBISCAN_API_KEY}" }

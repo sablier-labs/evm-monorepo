@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { SablierV2MerkleLT } from "src/periphery/SablierV2MerkleLT.sol";
+import { SablierMerkleLT } from "src/periphery/SablierMerkleLT.sol";
 import { MerkleLT } from "src/periphery/types/DataTypes.sol";
 
 import { MerkleLockup_Integration_Test } from "../../MerkleLockup.t.sol";
@@ -36,8 +36,8 @@ contract Constructor_MerkleLT_Integration_Test is MerkleLockup_Integration_Test 
     }
 
     function test_Constructor() external {
-        SablierV2MerkleLT constructedLT =
-            new SablierV2MerkleLT(defaults.baseParams(), lockupTranched, defaults.tranchesWithPercentages());
+        SablierMerkleLT constructedLT =
+            new SablierMerkleLT(defaults.baseParams(), lockupTranched, defaults.tranchesWithPercentages());
 
         Vars memory vars;
 

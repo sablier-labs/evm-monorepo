@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 
 import { Lockup_Integration_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
@@ -15,7 +15,7 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test, Lockup
     }
 
     function test_RevertWhen_DelegateCalled() external givenStreamWarm {
-        bytes memory callData = abi.encodeCall(ISablierV2Lockup.renounce, defaultStreamId);
+        bytes memory callData = abi.encodeCall(ISablierLockup.renounce, defaultStreamId);
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -26,7 +26,7 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test, Lockup
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));
         lockup.renounce(nullStreamId);
     }
 
@@ -41,20 +41,20 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test, Lockup
     function test_RevertGiven_StatusDepleted() external whenNotDelegateCalled givenStreamCold {
         vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamDepleted.selector, defaultStreamId));
         lockup.renounce(defaultStreamId);
     }
 
     function test_RevertGiven_StatusCanceled() external whenNotDelegateCalled givenStreamCold {
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCanceled.selector, defaultStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamCanceled.selector, defaultStreamId));
         lockup.renounce(defaultStreamId);
     }
 
     function test_RevertGiven_StatusSettled() external whenNotDelegateCalled givenStreamCold {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, defaultStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamSettled.selector, defaultStreamId));
         lockup.renounce(defaultStreamId);
     }
 
@@ -72,9 +72,7 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test, Lockup
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.eve)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, defaultStreamId, users.eve));
         lockup.renounce(defaultStreamId);
     }
 
@@ -88,7 +86,7 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test, Lockup
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, notCancelableStreamId)
+            abi.encodeWithSelector(Errors.SablierLockup_StreamNotCancelable.selector, notCancelableStreamId)
         );
         lockup.renounce(notCancelableStreamId);
     }

@@ -56,7 +56,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         // Mint enough assets to the fuzzed funder.
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
 
-        // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
+        // Expect the assets to be transferred from the funder to {SablierLockupDynamic}.
         expectCallToTransferFrom({ from: vars.funder, to: address(lockupDynamic), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.

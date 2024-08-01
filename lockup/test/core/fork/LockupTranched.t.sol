@@ -22,7 +22,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
     function setUp() public virtual override {
         Fork_Test.setUp();
 
-        // Approve {SablierV2LockupTranched} to transfer the holder's assets.
+        // Approve {SablierLockupTranched} to transfer the holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
         (bool success,) =
             address(FORK_ASSET).call(abi.encodeCall(IERC20.approve, (address(lockupTranched), MAX_UINT256)));

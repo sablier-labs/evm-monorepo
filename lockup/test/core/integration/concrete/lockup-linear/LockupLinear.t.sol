@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 
 import { LockupLinear_Integration_Shared_Test } from "../../shared/lockup-linear/LockupLinear.t.sol";
 import { Integration_Test } from "../../Integration.t.sol";
@@ -41,7 +41,7 @@ import { WithdrawMultiple_Integration_Concrete_Test } from "../lockup/withdraw-m
                             NON-SHARED ABSTRACT TEST
 //////////////////////////////////////////////////////////////////////////*/
 
-/// @notice Common testing logic needed across {SablierV2LockupLinear} integration concrete tests.
+/// @notice Common testing logic needed across {SablierLockupLinear} integration concrete tests.
 abstract contract LockupLinear_Integration_Concrete_Test is Integration_Test, LockupLinear_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, LockupLinear_Integration_Shared_Test) {
         // Both of these contracts inherit from {Base_Test}, which is fine because multiple inheritance is
@@ -49,8 +49,8 @@ abstract contract LockupLinear_Integration_Concrete_Test is Integration_Test, Lo
         Integration_Test.setUp();
         LockupLinear_Integration_Shared_Test.setUp();
 
-        // Cast the {LockupLinear} contract as {ISablierV2Lockup}.
-        lockup = ISablierV2Lockup(lockupLinear);
+        // Cast the {LockupLinear} contract as {ISablierLockup}.
+        lockup = ISablierLockup(lockupLinear);
     }
 }
 

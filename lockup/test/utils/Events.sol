@@ -3,12 +3,12 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2LockupLinear } from "../../src/core/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2LockupTranched } from "../../src/core/interfaces/ISablierV2LockupTranched.sol";
-import { ISablierV2NFTDescriptor } from "../../src/core/interfaces/ISablierV2NFTDescriptor.sol";
+import { ILockupNFTDescriptor } from "../../src/core/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierLockupLinear } from "../../src/core/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockupTranched } from "../../src/core/interfaces/ISablierLockupTranched.sol";
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/core/types/DataTypes.sol";
-import { ISablierV2MerkleLL } from "../../src/periphery/interfaces/ISablierV2MerkleLL.sol";
-import { ISablierV2MerkleLT } from "../../src/periphery/interfaces/ISablierV2MerkleLT.sol";
+import { ISablierMerkleLL } from "../../src/periphery/interfaces/ISablierMerkleLL.sol";
+import { ISablierMerkleLT } from "../../src/periphery/interfaces/ISablierMerkleLT.sol";
 import { MerkleLockup, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
 
 /// @notice Abstract contract containing all the events emitted by the protocol.
@@ -50,7 +50,7 @@ abstract contract Events {
     event RenounceLockupStream(uint256 indexed streamId);
 
     event SetNFTDescriptor(
-        address indexed admin, ISablierV2NFTDescriptor oldNFTDescriptor, ISablierV2NFTDescriptor newNFTDescriptor
+        address indexed admin, ILockupNFTDescriptor oldNFTDescriptor, ILockupNFTDescriptor newNFTDescriptor
     );
 
     event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 amount);
@@ -105,18 +105,18 @@ abstract contract Events {
     event Clawback(address indexed admin, address indexed to, uint128 amount);
 
     event CreateMerkleLL(
-        ISablierV2MerkleLL indexed merkleLL,
+        ISablierMerkleLL indexed merkleLL,
         MerkleLockup.ConstructorParams baseParams,
-        ISablierV2LockupLinear lockupLinear,
+        ISablierLockupLinear lockupLinear,
         LockupLinear.Durations streamDurations,
         uint256 aggregateAmount,
         uint256 recipientCount
     );
 
     event CreateMerkleLT(
-        ISablierV2MerkleLT indexed merkleLT,
+        ISablierMerkleLT indexed merkleLT,
         MerkleLockup.ConstructorParams baseParams,
-        ISablierV2LockupTranched lockupTranched,
+        ISablierLockupTranched lockupTranched,
         MerkleLT.TrancheWithPercentage[] tranchesWithPercentages,
         uint256 totalDuration,
         uint256 aggregateAmount,

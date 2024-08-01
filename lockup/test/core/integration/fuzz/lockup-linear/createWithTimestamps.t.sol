@@ -31,7 +31,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         vm.assume(broker.account != address(0));
         broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
+            abi.encodeWithSelector(Errors.SablierLockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
         );
         createDefaultStreamWithBroker(broker);
     }
@@ -45,7 +45,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         startTime = boundUint40(startTime, defaults.CLIFF_TIME() + 1 seconds, defaults.END_TIME() - 1 seconds);
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeNotLessThanCliffTime.selector, startTime, defaults.CLIFF_TIME()
+                Errors.SablierLockupLinear_StartTimeNotLessThanCliffTime.selector, startTime, defaults.CLIFF_TIME()
             )
         );
         createDefaultStreamWithStartTime(startTime);
@@ -65,9 +65,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         cliffTime = boundUint40(cliffTime, endTime, MAX_UNIX_TIMESTAMP);
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
-            )
+            abi.encodeWithSelector(Errors.SablierLockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime)
         );
         createDefaultStreamWithTimestamps(LockupLinear.Timestamps({ start: startTime, cliff: cliffTime, end: endTime }));
     }
@@ -139,10 +137,10 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         // Mint enough assets to the funder.
         deal({ token: address(dai), to: funder, give: params.totalAmount });
 
-        // Approve {SablierV2LockupLinear} to transfer the assets from the fuzzed funder.
+        // Approve {SablierLockupLinear} to transfer the assets from the fuzzed funder.
         dai.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
 
-        // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierLockupLinear}.
         expectCallToTransferFrom({ from: funder, to: address(lockupLinear), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.

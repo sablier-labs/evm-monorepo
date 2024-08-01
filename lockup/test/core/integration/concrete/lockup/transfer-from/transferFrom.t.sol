@@ -13,9 +13,7 @@ abstract contract TransferFrom_Integration_Concrete_Test is Integration_Test, Lo
 
     function test_RevertGiven_StreamNotTransferable() external {
         uint256 notTransferableStreamId = createDefaultStreamNotTransferable();
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_NotTransferable.selector, notTransferableStreamId)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_NotTransferable.selector, notTransferableStreamId));
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: notTransferableStreamId });
     }
 

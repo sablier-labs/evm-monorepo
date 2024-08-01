@@ -1,29 +1,29 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
-import { SablierV2LockupDynamic } from "../../src/core/SablierV2LockupDynamic.sol";
-import { SablierV2LockupLinear } from "../../src/core/SablierV2LockupLinear.sol";
-import { SablierV2LockupTranched } from "../../src/core/SablierV2LockupTranched.sol";
-import { SablierV2NFTDescriptor } from "../../src/core/SablierV2NFTDescriptor.sol";
+import { LockupNFTDescriptor } from "../../src/core/LockupNFTDescriptor.sol";
+import { SablierLockupDynamic } from "../../src/core/SablierLockupDynamic.sol";
+import { SablierLockupLinear } from "../../src/core/SablierLockupLinear.sol";
+import { SablierLockupTranched } from "../../src/core/SablierLockupTranched.sol";
 
 import { BaseScript } from "../Base.s.sol";
 
-/// @notice Deploys all V2 Core contracts.
+/// @notice Deploys all Core contracts.
 contract DeployCore is BaseScript {
     function run(address initialAdmin)
         public
         virtual
         broadcast
         returns (
-            SablierV2LockupDynamic lockupDynamic,
-            SablierV2LockupLinear lockupLinear,
-            SablierV2LockupTranched lockupTranched,
-            SablierV2NFTDescriptor nftDescriptor
+            LockupNFTDescriptor nftDescriptor,
+            SablierLockupDynamic lockupDynamic,
+            SablierLockupLinear lockupLinear,
+            SablierLockupTranched lockupTranched
         )
     {
-        nftDescriptor = new SablierV2NFTDescriptor();
-        lockupDynamic = new SablierV2LockupDynamic(initialAdmin, nftDescriptor, segmentCountMap[block.chainid]);
-        lockupLinear = new SablierV2LockupLinear(initialAdmin, nftDescriptor);
-        lockupTranched = new SablierV2LockupTranched(initialAdmin, nftDescriptor, trancheCountMap[block.chainid]);
+        nftDescriptor = new LockupNFTDescriptor();
+        lockupDynamic = new SablierLockupDynamic(initialAdmin, nftDescriptor, segmentCountMap[block.chainid]);
+        lockupLinear = new SablierLockupLinear(initialAdmin, nftDescriptor);
+        lockupTranched = new SablierLockupTranched(initialAdmin, nftDescriptor, trancheCountMap[block.chainid]);
     }
 }

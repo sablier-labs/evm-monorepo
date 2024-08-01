@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupLinear } from "src/core/types/DataTypes.sol";
-import { SablierV2MerkleLL } from "src/periphery/SablierV2MerkleLL.sol";
+import { SablierMerkleLL } from "src/periphery/SablierMerkleLL.sol";
 
 import { MerkleLockup_Integration_Test } from "../../MerkleLockup.t.sol";
 
@@ -34,8 +34,7 @@ contract Constructor_MerkleLL_Integration_Test is MerkleLockup_Integration_Test 
     }
 
     function test_Constructor() external {
-        SablierV2MerkleLL constructedLL =
-            new SablierV2MerkleLL(defaults.baseParams(), lockupLinear, defaults.durations());
+        SablierMerkleLL constructedLL = new SablierMerkleLL(defaults.baseParams(), lockupLinear, defaults.durations());
 
         Vars memory vars;
 

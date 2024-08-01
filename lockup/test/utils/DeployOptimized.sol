@@ -3,80 +3,79 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 
-import { ISablierV2LockupDynamic } from "../../src/core/interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupLinear } from "../../src/core/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2LockupTranched } from "../../src/core/interfaces/ISablierV2LockupTranched.sol";
-import { ISablierV2NFTDescriptor } from "../../src/core/interfaces/ISablierV2NFTDescriptor.sol";
-import { ISablierV2BatchLockup } from "../../src/periphery/interfaces/ISablierV2BatchLockup.sol";
-import { ISablierV2MerkleLockupFactory } from "../../src/periphery/interfaces/ISablierV2MerkleLockupFactory.sol";
+import { ILockupNFTDescriptor } from "../../src/core/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierLockupDynamic } from "../../src/core/interfaces/ISablierLockupDynamic.sol";
+import { ISablierLockupLinear } from "../../src/core/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockupTranched } from "../../src/core/interfaces/ISablierLockupTranched.sol";
+import { ISablierBatchLockup } from "../../src/periphery/interfaces/ISablierBatchLockup.sol";
+import { ISablierMerkleLockupFactory } from "../../src/periphery/interfaces/ISablierMerkleLockupFactory.sol";
 
 abstract contract DeployOptimized is StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                         CORE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Deploys {SablierV2LockupDynamic} from an optimized source compiled with `--via-ir`.
+    /// @dev Deploys {SablierLockupDynamic} from an optimized source compiled with `--via-ir`.
     function deployOptimizedLockupDynamic(
         address initialAdmin,
-        ISablierV2NFTDescriptor nftDescriptor_,
+        ILockupNFTDescriptor nftDescriptor_,
         uint256 maxSegmentCount
     )
         internal
-        returns (ISablierV2LockupDynamic)
+        returns (ISablierLockupDynamic)
     {
-        return ISablierV2LockupDynamic(
+        return ISablierLockupDynamic(
             deployCode(
-                "out-optimized/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json",
+                "out-optimized/SablierLockupDynamic.sol/SablierLockupDynamic.json",
                 abi.encode(initialAdmin, address(nftDescriptor_), maxSegmentCount)
             )
         );
     }
 
-    /// @dev Deploys {SablierV2LockupLinear} from an optimized source compiled with `--via-ir`.
+    /// @dev Deploys {SablierLockupLinear} from an optimized source compiled with `--via-ir`.
     function deployOptimizedLockupLinear(
         address initialAdmin,
-        ISablierV2NFTDescriptor nftDescriptor_
+        ILockupNFTDescriptor nftDescriptor_
     )
         internal
-        returns (ISablierV2LockupLinear)
+        returns (ISablierLockupLinear)
     {
-        return ISablierV2LockupLinear(
+        return ISablierLockupLinear(
             deployCode(
-                "out-optimized/SablierV2LockupLinear.sol/SablierV2LockupLinear.json",
+                "out-optimized/SablierLockupLinear.sol/SablierLockupLinear.json",
                 abi.encode(initialAdmin, address(nftDescriptor_))
             )
         );
     }
 
-    /// @dev Deploys {SablierV2LockupTranched} from an optimized source compiled with `--via-ir`.
+    /// @dev Deploys {SablierLockupTranched} from an optimized source compiled with `--via-ir`.
     function deployOptimizedLockupTranched(
         address initialAdmin,
-        ISablierV2NFTDescriptor nftDescriptor_,
+        ILockupNFTDescriptor nftDescriptor_,
         uint256 maxTrancheCount
     )
         internal
-        returns (ISablierV2LockupTranched)
+        returns (ISablierLockupTranched)
     {
-        return ISablierV2LockupTranched(
+        return ISablierLockupTranched(
             deployCode(
-                "out-optimized/SablierV2LockupTranched.sol/SablierV2LockupTranched.json",
+                "out-optimized/SablierLockupTranched.sol/SablierLockupTranched.json",
                 abi.encode(initialAdmin, address(nftDescriptor_), maxTrancheCount)
             )
         );
     }
 
-    /// @dev Deploys {SablierV2NFTDescriptor} from an optimized source compiled with `--via-ir`.
-    function deployOptimizedNFTDescriptor() internal returns (ISablierV2NFTDescriptor) {
-        return
-            ISablierV2NFTDescriptor(deployCode("out-optimized/SablierV2NFTDescriptor.sol/SablierV2NFTDescriptor.json"));
+    /// @dev Deploys {LockupNFTDescriptor} from an optimized source compiled with `--via-ir`.
+    function deployOptimizedNFTDescriptor() internal returns (ILockupNFTDescriptor) {
+        return ILockupNFTDescriptor(deployCode("out-optimized/LockupNFTDescriptor.sol/LockupNFTDescriptor.json"));
     }
 
-    /// @notice Deploys all V2 Core contracts from an optimized source compiled with `--via-ir` in the following order:
+    /// @notice Deploys all Lockup contracts from an optimized source compiled with `--via-ir` in the following order:
     ///
-    /// 1. {SablierV2NFTDescriptor}
-    /// 2. {SablierV2LockupDynamic}
-    /// 3. {SablierV2LockupLinear}
-    /// 4. {SablierV2LockupTranched}
+    /// 1. {LockupNFTDescriptor}
+    /// 2. {SablierLockupDynamic}
+    /// 3. {SablierLockupLinear}
+    /// 4. {SablierLockupTranched}
     function deployOptimizedCore(
         address initialAdmin,
         uint256 maxSegmentCount,
@@ -84,10 +83,10 @@ abstract contract DeployOptimized is StdCheats {
     )
         internal
         returns (
-            ISablierV2LockupDynamic lockupDynamic_,
-            ISablierV2LockupLinear lockupLinear_,
-            ISablierV2LockupTranched lockupTranched_,
-            ISablierV2NFTDescriptor nftDescriptor_
+            ILockupNFTDescriptor nftDescriptor_,
+            ISablierLockupDynamic lockupDynamic_,
+            ISablierLockupLinear lockupLinear_,
+            ISablierLockupTranched lockupTranched_
         )
     {
         nftDescriptor_ = deployOptimizedNFTDescriptor();
@@ -100,23 +99,23 @@ abstract contract DeployOptimized is StdCheats {
                                      PERIPHERY
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Deploys {SablierV2BatchLockup} from an optimized source compiled with `--via-ir`.
-    function deployOptimizedBatchLockup() internal returns (ISablierV2BatchLockup) {
-        return ISablierV2BatchLockup(deployCode("out-optimized/SablierV2BatchLockup.sol/SablierV2BatchLockup.json"));
+    /// @dev Deploys {SablierBatchLockup} from an optimized source compiled with `--via-ir`.
+    function deployOptimizedBatchLockup() internal returns (ISablierBatchLockup) {
+        return ISablierBatchLockup(deployCode("out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json"));
     }
 
-    /// @dev Deploys {SablierV2MerkleLockupFactory} from an optimized source compiled with `--via-ir`.
-    function deployOptimizedMerkleLockupFactory() internal returns (ISablierV2MerkleLockupFactory) {
-        return ISablierV2MerkleLockupFactory(
-            deployCode("out-optimized/SablierV2MerkleLockupFactory.sol/SablierV2MerkleLockupFactory.json")
+    /// @dev Deploys {SablierMerkleLockupFactory} from an optimized source compiled with `--via-ir`.
+    function deployOptimizedMerkleLockupFactory() internal returns (ISablierMerkleLockupFactory) {
+        return ISablierMerkleLockupFactory(
+            deployCode("out-optimized/SablierMerkleLockupFactory.sol/SablierMerkleLockupFactory.json")
         );
     }
 
-    /// @notice Deploys all V2 Periphery contracts from an optimized source in the following order:
+    /// @notice Deploys all  Periphery contracts from an optimized source in the following order:
     ///
-    /// 1. {SablierV2BatchLockup}
-    /// 2. {SablierV2MerkleLockupFactory}
-    function deployOptimizedPeriphery() internal returns (ISablierV2BatchLockup, ISablierV2MerkleLockupFactory) {
+    /// 1. {SablierBatchLockup}
+    /// 2. {SablierMerkleLockupFactory}
+    function deployOptimizedPeriphery() internal returns (ISablierBatchLockup, ISablierMerkleLockupFactory) {
         return (deployOptimizedBatchLockup(), deployOptimizedMerkleLockupFactory());
     }
 
@@ -124,14 +123,14 @@ abstract contract DeployOptimized is StdCheats {
                                       PROTOCOL
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Deploys all V2 Core and Periphery contracts from an optimized source in the following order:
+    /// @notice Deploys all Lockup and Periphery contracts from an optimized source in the following order:
     ///
-    /// 1. {SablierV2NFTDescriptor}
-    /// 2. {SablierV2LockupDynamic}
-    /// 3. {SablierV2LockupLinear}
-    /// 4. {SablierV2LockupTranched}
-    /// 5. {SablierV2BatchLockup}
-    /// 6. {SablierV2MerkleLockupFactory}
+    /// 1. {LockupNFTDescriptor}
+    /// 2. {SablierLockupDynamic}
+    /// 3. {SablierLockupLinear}
+    /// 4. {SablierLockupTranched}
+    /// 5. {SablierBatchLockup}
+    /// 6. {SablierMerkleLockupFactory}
     function deployOptimizedProtocol(
         address initialAdmin,
         uint256 maxSegmentCount,
@@ -139,15 +138,15 @@ abstract contract DeployOptimized is StdCheats {
     )
         internal
         returns (
-            ISablierV2LockupDynamic lockupDynamic_,
-            ISablierV2LockupLinear lockupLinear_,
-            ISablierV2LockupTranched lockupTranched_,
-            ISablierV2NFTDescriptor nftDescriptor_,
-            ISablierV2BatchLockup batchLockup_,
-            ISablierV2MerkleLockupFactory merkleLockupFactory_
+            ILockupNFTDescriptor nftDescriptor_,
+            ISablierLockupDynamic lockupDynamic_,
+            ISablierLockupLinear lockupLinear_,
+            ISablierLockupTranched lockupTranched_,
+            ISablierBatchLockup batchLockup_,
+            ISablierMerkleLockupFactory merkleLockupFactory_
         )
     {
-        (lockupDynamic_, lockupLinear_, lockupTranched_, nftDescriptor_) =
+        (nftDescriptor_, lockupDynamic_, lockupLinear_, lockupTranched_) =
             deployOptimizedCore(initialAdmin, maxSegmentCount, maxTrancheCount);
         (batchLockup_, merkleLockupFactory_) = deployOptimizedPeriphery();
     }

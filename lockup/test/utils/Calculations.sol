@@ -18,7 +18,7 @@ abstract contract Calculations {
         return totalAmount - brokerFeeAmount;
     }
 
-    /// @dev Helper function that replicates the logic of {SablierV2LockupLinear.streamedAmountOf}.
+    /// @dev Helper function that replicates the logic of {SablierLockupLinear.streamedAmountOf}.
     function calculateStreamedAmount(
         uint40 startTime,
         uint40 endTime,
@@ -40,7 +40,7 @@ abstract contract Calculations {
         }
     }
 
-    /// @dev Replicates the logic of {SablierV2LockupDynamic._calculateStreamedAmountForMultipleSegments}.
+    /// @dev Replicates the logic of {SablierLockupDynamic._calculateStreamedAmountForMultipleSegments}.
     function calculateStreamedAmountForMultipleSegments(
         LockupDynamic.Segment[] memory segments,
         uint40 startTime,
@@ -86,7 +86,7 @@ abstract contract Calculations {
         }
     }
 
-    /// @dev Replicates the logic of {SablierV2LockupDynamic._calculateStreamedAmountForOneSegment}.
+    /// @dev Replicates the logic of {SablierLockupDynamic._calculateStreamedAmountForOneSegment}.
     function calculateStreamedAmountForOneSegment(
         LockupDynamic.Segment memory segment,
         uint40 startTime
@@ -111,7 +111,7 @@ abstract contract Calculations {
         }
     }
 
-    /// @dev Helper function that replicates the logic of {SablierV2LockupTranched._calculateStreamedAmount}.
+    /// @dev Helper function that replicates the logic of {SablierLockupTranched._calculateStreamedAmount}.
     function calculateStreamedAmountForTranches(
         LockupTranched.Tranche[] memory tranches,
         uint128 depositAmount

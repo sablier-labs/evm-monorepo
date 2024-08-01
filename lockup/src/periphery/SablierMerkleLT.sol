@@ -7,19 +7,19 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { uUNIT } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud60x18, ZERO } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierV2LockupTranched } from "../core/interfaces/ISablierV2LockupTranched.sol";
+import { ISablierLockupTranched } from "../core/interfaces/ISablierLockupTranched.sol";
 import { Broker, LockupTranched } from "../core/types/DataTypes.sol";
 
-import { SablierV2MerkleLockup } from "./abstracts/SablierV2MerkleLockup.sol";
-import { ISablierV2MerkleLT } from "./interfaces/ISablierV2MerkleLT.sol";
+import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
+import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { MerkleLockup, MerkleLT } from "./types/DataTypes.sol";
 
-/// @title SablierV2MerkleLT
-/// @notice See the documentation in {ISablierV2MerkleLT}.
-contract SablierV2MerkleLT is
-    ISablierV2MerkleLT, // 2 inherited components
-    SablierV2MerkleLockup // 4 inherited components
+/// @title SablierMerkleLT
+/// @notice See the documentation in {ISablierMerkleLT}.
+contract SablierMerkleLT is
+    ISablierMerkleLT, // 2 inherited components
+    SablierMerkleLockup // 4 inherited components
 {
     using BitMaps for BitMaps.BitMap;
     using SafeERC20 for IERC20;
@@ -28,10 +28,10 @@ contract SablierV2MerkleLT is
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2MerkleLT
-    ISablierV2LockupTranched public immutable override LOCKUP_TRANCHED;
+    /// @inheritdoc ISablierMerkleLT
+    ISablierLockupTranched public immutable override LOCKUP_TRANCHED;
 
-    /// @inheritdoc ISablierV2MerkleLT
+    /// @inheritdoc ISablierMerkleLT
     uint64 public immutable override TOTAL_PERCENTAGE;
 
     /// @dev The tranches with their respective unlock percentages and durations.
@@ -41,14 +41,14 @@ contract SablierV2MerkleLT is
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Constructs the contract by initializing the immutable state variables, and max approving the Sablier
+    /// @dev Constructs the contract by initializing the immutable state variables, and max approving the Lockup
     /// contract.
     constructor(
         MerkleLockup.ConstructorParams memory baseParams,
-        ISablierV2LockupTranched lockupTranched,
+        ISablierLockupTranched lockupTranched,
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages
     )
-        SablierV2MerkleLockup(baseParams)
+        SablierMerkleLockup(baseParams)
     {
         LOCKUP_TRANCHED = lockupTranched;
 
@@ -63,7 +63,7 @@ contract SablierV2MerkleLT is
         }
         TOTAL_PERCENTAGE = totalPercentage;
 
-        // Max approve the Sablier contract to spend funds from the MerkleLockup contract.
+        // Max approve the Lockup contract to spend funds from the MerkleLockup contract.
         ASSET.forceApprove(address(LOCKUP_TRANCHED), type(uint256).max);
     }
 
@@ -71,7 +71,7 @@ contract SablierV2MerkleLT is
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2MerkleLT
+    /// @inheritdoc ISablierMerkleLT
     function getTranchesWithPercentages() external view override returns (MerkleLT.TrancheWithPercentage[] memory) {
         return _tranchesWithPercentages;
     }
@@ -80,7 +80,7 @@ contract SablierV2MerkleLT is
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2MerkleLT
+    /// @inheritdoc ISablierMerkleLT
     function claim(
         uint256 index,
         address recipient,
@@ -93,7 +93,7 @@ contract SablierV2MerkleLT is
     {
         // Check: the sum of percentages equals 100%.
         if (TOTAL_PERCENTAGE != uUNIT) {
-            revert Errors.SablierV2MerkleLT_TotalPercentageNotOneHundred(TOTAL_PERCENTAGE);
+            revert Errors.SablierMerkleLT_TotalPercentageNotOneHundred(TOTAL_PERCENTAGE);
         }
 
         // Generate the Merkle tree leaf by hashing the corresponding parameters. Hashing twice prevents second
@@ -109,7 +109,7 @@ contract SablierV2MerkleLT is
         // Effect: mark the index as claimed.
         _claimedBitMap.set(index);
 
-        // Interaction: create the stream via {SablierV2LockupTranched}.
+        // Interaction: create the stream via {SablierLockupTranched}.
         streamId = LOCKUP_TRANCHED.createWithDurations(
             LockupTranched.CreateWithDurations({
                 sender: admin,

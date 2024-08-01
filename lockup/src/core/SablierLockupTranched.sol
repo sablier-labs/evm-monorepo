@@ -5,35 +5,35 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
-import { ISablierV2LockupTranched } from "./interfaces/ISablierV2LockupTranched.sol";
-import { ISablierV2NFTDescriptor } from "./interfaces/ISablierV2NFTDescriptor.sol";
+import { SablierLockup } from "./abstracts/SablierLockup.sol";
+import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
+import { ISablierLockupTranched } from "./interfaces/ISablierLockupTranched.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Lockup, LockupTranched } from "./types/DataTypes.sol";
 
 /*
 
-███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ██╗   ██╗██████╗
-██╔════╝██╔══██╗██╔══██╗██║     ██║██╔════╝██╔══██╗    ██║   ██║╚════██╗
-███████╗███████║██████╔╝██║     ██║█████╗  ██████╔╝    ██║   ██║ █████╔╝
-╚════██║██╔══██║██╔══██╗██║     ██║██╔══╝  ██╔══██╗    ╚██╗ ██╔╝██╔═══╝
-███████║██║  ██║██████╔╝███████╗██║███████╗██║  ██║     ╚████╔╝ ███████╗
-╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝      ╚═══╝  ╚══════╝
+███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ██╗      ██████╗  ██████╗██╗  ██╗██╗   ██╗██████╗
+██╔════╝██╔══██╗██╔══██╗██║     ██║██╔════╝██╔══██╗    ██║     ██╔═══██╗██╔════╝██║ ██╔╝██║   ██║██╔══██╗
+███████╗███████║██████╔╝██║     ██║█████╗  ██████╔╝    ██║     ██║   ██║██║     █████╔╝ ██║   ██║██████╔╝
+╚════██║██╔══██║██╔══██╗██║     ██║██╔══╝  ██╔══██╗    ██║     ██║   ██║██║     ██╔═██╗ ██║   ██║██╔═══╝
+███████║██║  ██║██████╔╝███████╗██║███████╗██║  ██║    ███████╗╚██████╔╝╚██████╗██║  ██╗╚██████╔╝██║
+╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝    ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝
 
-██╗      ██████╗  ██████╗██╗  ██╗██╗   ██╗██████╗    ████████╗██████╗  █████╗ ███╗   ██╗ ██████╗██╗  ██╗███████╗██████╗
-██║     ██╔═══██╗██╔════╝██║ ██╔╝██║   ██║██╔══██╗   ╚══██╔══╝██╔══██╗██╔══██╗████╗  ██║██╔════╝██║  ██║██╔════╝██╔══██╗
-██║     ██║   ██║██║     █████╔╝ ██║   ██║██████╔╝      ██║   ██████╔╝███████║██╔██╗ ██║██║     ███████║█████╗  ██║  ██║
-██║     ██║   ██║██║     ██╔═██╗ ██║   ██║██╔═══╝       ██║   ██╔══██╗██╔══██║██║╚██╗██║██║     ██╔══██║██╔══╝  ██║  ██║
-███████╗╚██████╔╝╚██████╗██║  ██╗╚██████╔╝██║           ██║   ██║  ██║██║  ██║██║ ╚████║╚██████╗██║  ██║███████╗██████╔╝
-╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝           ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═════╝
+████████╗██████╗  █████╗ ███╗   ██╗ ██████╗██╗  ██╗███████╗██████╗
+╚══██╔══╝██╔══██╗██╔══██╗████╗  ██║██╔════╝██║  ██║██╔════╝██╔══██╗
+   ██║   ██████╔╝███████║██╔██╗ ██║██║     ███████║█████╗  ██║  ██║
+   ██║   ██╔══██╗██╔══██║██║╚██╗██║██║     ██╔══██║██╔══╝  ██║  ██║
+   ██║   ██║  ██║██║  ██║██║ ╚████║╚██████╗██║  ██║███████╗██████╔╝
+   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═════╝
 
 */
 
-/// @title SablierV2LockupTranched
-/// @notice See the documentation in {ISablierV2LockupTranched}.
-contract SablierV2LockupTranched is
-    ISablierV2LockupTranched, // 5 inherited components
-    SablierV2Lockup // 14 inherited components
+/// @title SablierLockupTranched
+/// @notice See the documentation in {ISablierLockupTranched}.
+contract SablierLockupTranched is
+    ISablierLockupTranched, // 5 inherited components
+    SablierLockup // 14 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -41,10 +41,10 @@ contract SablierV2LockupTranched is
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2LockupTranched
+    /// @inheritdoc ISablierLockupTranched
     uint256 public immutable override MAX_TRANCHE_COUNT;
 
-    /// @dev Stream tranches mapped by stream IDs. This complements the `_streams` mapping in {SablierV2Lockup}.
+    /// @dev Stream tranches mapped by stream IDs. This complements the `_streams` mapping in {SablierLockup}.
     mapping(uint256 id => LockupTranched.Tranche[] tranches) internal _tranches;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -57,11 +57,11 @@ contract SablierV2LockupTranched is
     /// @param maxTrancheCount The maximum number of tranches allowed in a stream.
     constructor(
         address initialAdmin,
-        ISablierV2NFTDescriptor initialNFTDescriptor,
+        ILockupNFTDescriptor initialNFTDescriptor,
         uint256 maxTrancheCount
     )
-        ERC721("Sablier V2 Lockup Tranched NFT", "SAB-V2-LOCKUP-TRA")
-        SablierV2Lockup(initialAdmin, initialNFTDescriptor)
+        ERC721("Sablier Lockup Tranched NFT", "SAB-LOCKUP-TRA")
+        SablierLockup(initialAdmin, initialNFTDescriptor)
     {
         MAX_TRANCHE_COUNT = maxTrancheCount;
         nextStreamId = 1;
@@ -71,7 +71,7 @@ contract SablierV2LockupTranched is
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2LockupTranched
+    /// @inheritdoc ISablierLockupTranched
     function getStream(uint256 streamId)
         external
         view
@@ -103,7 +103,7 @@ contract SablierV2LockupTranched is
         });
     }
 
-    /// @inheritdoc ISablierV2LockupTranched
+    /// @inheritdoc ISablierLockupTranched
     function getTimestamps(uint256 streamId)
         external
         view
@@ -114,7 +114,7 @@ contract SablierV2LockupTranched is
         timestamps = LockupTranched.Timestamps({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
     }
 
-    /// @inheritdoc ISablierV2LockupTranched
+    /// @inheritdoc ISablierLockupTranched
     function getTranches(uint256 streamId)
         external
         view
@@ -129,7 +129,7 @@ contract SablierV2LockupTranched is
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2LockupTranched
+    /// @inheritdoc ISablierLockupTranched
     function createWithDurations(LockupTranched.CreateWithDurations calldata params)
         external
         override
@@ -155,7 +155,7 @@ contract SablierV2LockupTranched is
         );
     }
 
-    /// @inheritdoc ISablierV2LockupTranched
+    /// @inheritdoc ISablierLockupTranched
     function createWithTimestamps(LockupTranched.CreateWithTimestamps calldata params)
         external
         override
@@ -170,7 +170,7 @@ contract SablierV2LockupTranched is
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc SablierV2Lockup
+    /// @inheritdoc SablierLockup
     /// @dev The distribution function is:
     ///
     /// $$
@@ -266,7 +266,7 @@ contract SablierV2LockupTranched is
         }
 
         // Log the newly created stream.
-        emit ISablierV2LockupTranched.CreateLockupTranchedStream({
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: streamId,
             funder: msg.sender,
             sender: params.sender,

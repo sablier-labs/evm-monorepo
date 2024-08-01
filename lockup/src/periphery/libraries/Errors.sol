@@ -5,35 +5,35 @@ pragma solidity >=0.8.22;
 /// @notice Library containing all custom errors the protocol may revert with.
 library Errors {
     /*//////////////////////////////////////////////////////////////////////////
-                             SABLIER-V2-BATCH-LOCKUP
+                                SABLIER-BATCH-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    error SablierV2BatchLockup_BatchSizeZero();
+    error SablierBatchLockup_BatchSizeZero();
 
     /*//////////////////////////////////////////////////////////////////////////
-                             SABLIER-V2-MERKLE-LOCKUP
+                               SABLIER-MERKLE-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when trying to claim after the campaign has expired.
-    error SablierV2MerkleLockup_CampaignExpired(uint256 blockTimestamp, uint40 expiration);
+    error SablierMerkleLockup_CampaignExpired(uint256 blockTimestamp, uint40 expiration);
 
     /// @notice Thrown when trying to create a campaign with a name that is too long.
-    error SablierV2MerkleLockup_CampaignNameTooLong(uint256 nameLength, uint256 maxLength);
+    error SablierMerkleLockup_CampaignNameTooLong(uint256 nameLength, uint256 maxLength);
 
     /// @notice Thrown when trying to clawback when the current timestamp is over the grace period and the campaign has
     /// not expired.
-    error SablierV2MerkleLockup_ClawbackNotAllowed(uint256 blockTimestamp, uint40 expiration, uint40 firstClaimTime);
+    error SablierMerkleLockup_ClawbackNotAllowed(uint256 blockTimestamp, uint40 expiration, uint40 firstClaimTime);
 
     /// @notice Thrown when trying to claim with an invalid Merkle proof.
-    error SablierV2MerkleLockup_InvalidProof();
+    error SablierMerkleLockup_InvalidProof();
 
     /// @notice Thrown when trying to claim the same stream more than once.
-    error SablierV2MerkleLockup_StreamClaimed(uint256 index);
+    error SablierMerkleLockup_StreamClaimed(uint256 index);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                SABLIER-V2-MERKLE-LT
+                                 SABLIER-MERKLE-LT
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when trying to claim from an LT campaign with tranches' unlock percentages not adding up to 100%.
-    error SablierV2MerkleLT_TotalPercentageNotOneHundred(uint64 totalPercentage);
+    error SablierMerkleLT_TotalPercentageNotOneHundred(uint64 totalPercentage);
 }

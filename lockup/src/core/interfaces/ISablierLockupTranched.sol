@@ -4,11 +4,11 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Lockup, LockupTranched } from "../types/DataTypes.sol";
-import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
+import { ISablierLockup } from "./ISablierLockup.sol";
 
-/// @title ISablierV2LockupTranched
+/// @title ISablierLockupTranched
 /// @notice Creates and manages Lockup streams with a tranched distribution function.
-interface ISablierV2LockupTranched is ISablierV2Lockup {
+interface ISablierLockupTranched is ISablierLockup {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/

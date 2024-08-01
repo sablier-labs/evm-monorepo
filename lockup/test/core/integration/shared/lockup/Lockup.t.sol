@@ -3,21 +3,21 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Broker } from "src/core/types/DataTypes.sol";
 
 import { Base_Test } from "test/Base.t.sol";
 
-/// @dev This contracts avoids duplicating test logic for {SablierV2LockupLinear} and {SablierV2LockupDynamic};
-/// both of these contracts inherit from {SablierV2Lockup}.
+/// @dev This contracts avoids duplicating test logic for {SablierLockupLinear} and {SablierLockupDynamic};
+/// both of these contracts inherit from {SablierLockup}.
 abstract contract Lockup_Integration_Shared_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev A test contract that is meant to be overridden by the implementing contract, which will be
-    /// either {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
-    ISablierV2Lockup internal lockup;
+    /// either {SablierLockupLinear} or {SablierLockupDynamic}.
+    ISablierLockup internal lockup;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION

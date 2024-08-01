@@ -4,19 +4,19 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { ISablierV2LockupTranched } from "../../src/core/interfaces/ISablierV2LockupTranched.sol";
-import { ISablierV2MerkleLockupFactory } from "../../src/periphery/interfaces/ISablierV2MerkleLockupFactory.sol";
-import { ISablierV2MerkleLT } from "../../src/periphery/interfaces/ISablierV2MerkleLT.sol";
+import { ISablierLockupTranched } from "../../src/core/interfaces/ISablierLockupTranched.sol";
+import { ISablierMerkleLockupFactory } from "../../src/periphery/interfaces/ISablierMerkleLockupFactory.sol";
+import { ISablierMerkleLT } from "../../src/periphery/interfaces/ISablierMerkleLT.sol";
 import { MerkleLockup, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
 
 import { BaseScript } from "../Base.s.sol";
 
 contract CreateMerkleLT is BaseScript {
     /// @dev Deploy via Forge.
-    function run() public virtual broadcast returns (ISablierV2MerkleLT merkleLT) {
+    function run() public virtual broadcast returns (ISablierMerkleLT merkleLT) {
         // Prepare the constructor parameters.
-        ISablierV2MerkleLockupFactory merkleLockupFactory =
-            ISablierV2MerkleLockupFactory(0xF35aB407CF28012Ba57CAF5ee2f6d6E4420253bc);
+        ISablierMerkleLockupFactory merkleLockupFactory =
+            ISablierMerkleLockupFactory(0xF35aB407CF28012Ba57CAF5ee2f6d6E4420253bc); // TODO: Update address once deployed.
 
         MerkleLockup.ConstructorParams memory baseParams;
         baseParams.asset = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
@@ -28,7 +28,8 @@ contract CreateMerkleLT is BaseScript {
         baseParams.name = "The Boys LT";
         baseParams.transferable = true;
 
-        ISablierV2LockupTranched lockupTranched = ISablierV2LockupTranched(0xf86B359035208e4529686A1825F2D5BeE38c28A8);
+        // TODO: Update address once deployed.
+        ISablierLockupTranched lockupTranched = ISablierLockupTranched(0xf86B359035208e4529686A1825F2D5BeE38c28A8);
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = new MerkleLT.TrancheWithPercentage[](2);
         tranchesWithPercentages[0] =
             MerkleLT.TrancheWithPercentage({ unlockPercentage: UD2x18.wrap(50), duration: 3600 });

@@ -5,7 +5,7 @@ import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
 import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
-import { ISablierV2MerkleLT } from "src/periphery/interfaces/ISablierV2MerkleLT.sol";
+import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
 import { Errors } from "src/periphery/libraries/Errors.sol";
 import { MerkleLockup, MerkleLT } from "src/periphery/types/DataTypes.sol";
 
@@ -46,7 +46,7 @@ contract Claim_Integration_Test is Merkle, MerkleLockup_Integration_Test {
         bytes32[] memory merkleProof = defaults.index1Proof();
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2MerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
+            abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
         );
 
         merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 1, merkleProof: merkleProof });
@@ -73,7 +73,7 @@ contract Claim_Integration_Test is Merkle, MerkleLockup_Integration_Test {
         bytes32[] memory merkleProof = defaults.index1Proof();
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2MerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
+            abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
         );
 
         merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 1, merkleProof: merkleProof });
@@ -89,7 +89,7 @@ contract Claim_Integration_Test is Merkle, MerkleLockup_Integration_Test {
         bytes32[] memory merkleProof;
         vm.warp({ newTimestamp: warpTime });
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2MerkleLockup_CampaignExpired.selector, warpTime, expiration)
+            abi.encodeWithSelector(Errors.SablierMerkleLockup_CampaignExpired.selector, warpTime, expiration)
         );
         merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 1, merkleProof: merkleProof });
     }
@@ -103,7 +103,7 @@ contract Claim_Integration_Test is Merkle, MerkleLockup_Integration_Test {
         uint256 index1 = defaults.INDEX1();
         uint128 amount = defaults.CLAIM_AMOUNT();
         bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2MerkleLockup_StreamClaimed.selector, index1));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLockup_StreamClaimed.selector, index1));
         merkleLT.claim(index1, users.recipient1, amount, merkleProof);
     }
 
@@ -125,7 +125,7 @@ contract Claim_Integration_Test is Merkle, MerkleLockup_Integration_Test {
         uint256 invalidIndex = 1337;
         uint128 amount = defaults.CLAIM_AMOUNT();
         bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2MerkleLockup_InvalidProof.selector));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLockup_InvalidProof.selector));
         merkleLT.claim(invalidIndex, users.recipient1, amount, merkleProof);
     }
 
@@ -140,7 +140,7 @@ contract Claim_Integration_Test is Merkle, MerkleLockup_Integration_Test {
         address invalidRecipient = address(1337);
         uint128 amount = defaults.CLAIM_AMOUNT();
         bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2MerkleLockup_InvalidProof.selector));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLockup_InvalidProof.selector));
         merkleLT.claim(index1, invalidRecipient, amount, merkleProof);
     }
 
@@ -154,7 +154,7 @@ contract Claim_Integration_Test is Merkle, MerkleLockup_Integration_Test {
         uint256 index1 = defaults.INDEX1();
         uint128 invalidAmount = 1337;
         bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2MerkleLockup_InvalidProof.selector));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLockup_InvalidProof.selector));
         merkleLT.claim(index1, users.recipient1, invalidAmount, merkleProof);
     }
 
@@ -168,7 +168,7 @@ contract Claim_Integration_Test is Merkle, MerkleLockup_Integration_Test {
         uint256 index1 = defaults.INDEX1();
         uint128 amount = defaults.CLAIM_AMOUNT();
         bytes32[] memory invalidMerkleProof = defaults.index2Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2MerkleLockup_InvalidProof.selector));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLockup_InvalidProof.selector));
         merkleLT.claim(index1, users.recipient1, amount, invalidMerkleProof);
     }
 
@@ -204,7 +204,7 @@ contract Claim_Integration_Test is Merkle, MerkleLockup_Integration_Test {
         baseParams.merkleRoot = getRoot(leaves.toBytes32());
 
         // Deploy a test MerkleLT contract.
-        ISablierV2MerkleLT testMerkleLT = merkleLockupFactory.createMerkleLT(
+        ISablierMerkleLT testMerkleLT = merkleLockupFactory.createMerkleLT(
             baseParams,
             lockupTranched,
             defaults.tranchesWithPercentages(),

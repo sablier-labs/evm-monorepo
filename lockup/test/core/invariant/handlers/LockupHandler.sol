@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { LockupStore } from "../stores/LockupStore.sol";
@@ -15,7 +15,7 @@ abstract contract LockupHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2Lockup public lockup;
+    ISablierLockup public lockup;
     LockupStore public lockupStore;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ abstract contract LockupHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierV2Lockup lockup_) BaseHandler(asset_) {
+    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierLockup lockup_) BaseHandler(asset_) {
         lockupStore = lockupStore_;
         lockup = lockup_;
     }
@@ -72,7 +72,7 @@ abstract contract LockupHandler is BaseHandler {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-V2-LOCKUP
+                                 SABLIER-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
     function burn(

@@ -22,7 +22,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
     function setUp() public virtual override {
         Fork_Test.setUp();
 
-        // Approve {SablierV2LockupDynamic} to transfer the holder's assets.
+        // Approve {SablierLockupDynamic} to transfer the holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
         (bool success,) =
             address(FORK_ASSET).call(abi.encodeCall(IERC20.approve, (address(lockupDynamic), MAX_UINT256)));

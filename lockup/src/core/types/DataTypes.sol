@@ -7,7 +7,7 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 // DataTypes.sol
 //
-// This file defines all structs used in V2 Core, most of which are organized under three namespaces:
+// This file defines all structs used in Lockup, most of which are organized under three namespaces:
 //
 // - Lockup
 // - LockupDynamic
@@ -26,7 +26,7 @@ struct Broker {
     UD60x18 fee;
 }
 
-/// @notice Namespace for the structs used in both {SablierV2LockupLinear} and {SablierV2LockupDynamic}.
+/// @notice Namespace for the structs used in both {SablierLockupLinear} and {SablierLockupDynamic}.
 library Lockup {
     /// @notice Struct encapsulating the deposit, withdrawn, and refunded amounts, all denoted in units of the asset's
     /// decimals.
@@ -71,7 +71,7 @@ library Lockup {
         DEPLETED
     }
 
-    /// @notice A common data structure to be stored in all {SablierV2Lockup} models.
+    /// @notice A common data structure to be stored in all {SablierLockup} models.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
     /// @param sender The address distributing the assets, with the ability to cancel the stream.
     /// @param startTime The Unix timestamp indicating the stream's start.
@@ -101,9 +101,9 @@ library Lockup {
     }
 }
 
-/// @notice Namespace for the structs used in {SablierV2LockupDynamic}.
+/// @notice Namespace for the structs used in {SablierLockupDynamic}.
 library LockupDynamic {
-    /// @notice Struct encapsulating the parameters of the {SablierV2LockupDynamic.createWithDurations} function.
+    /// @notice Struct encapsulating the parameters of the {SablierLockupDynamic.createWithDurations} function.
     /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
@@ -127,7 +127,7 @@ library LockupDynamic {
         Broker broker;
     }
 
-    /// @notice Struct encapsulating the parameters of the {SablierV2LockupDynamic.createWithTimestamps} function.
+    /// @notice Struct encapsulating the parameters of the {SablierLockupDynamic.createWithTimestamps} function.
     /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
@@ -163,7 +163,7 @@ library LockupDynamic {
         uint40 timestamp;
     }
 
-    /// @notice Segment struct used at runtime in {SablierV2LockupDynamic.createWithDurations}.
+    /// @notice Segment struct used at runtime in {SablierLockupDynamic.createWithDurations}.
     /// @param amount The amount of assets to be streamed in the segment, denoted in units of the asset's decimals.
     /// @param exponent The exponent of the segment, denoted as a fixed-point number.
     /// @param duration The time difference in seconds between the segment and the previous one.
@@ -199,9 +199,9 @@ library LockupDynamic {
     }
 }
 
-/// @notice Namespace for the structs used in {SablierV2LockupLinear}.
+/// @notice Namespace for the structs used in {SablierLockupLinear}.
 library LockupLinear {
-    /// @notice Struct encapsulating the parameters of the {SablierV2LockupLinear.createWithDurations} function.
+    /// @notice Struct encapsulating the parameters of the {SablierLockupLinear.createWithDurations} function.
     /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
@@ -224,7 +224,7 @@ library LockupLinear {
         Broker broker;
     }
 
-    /// @notice Struct encapsulating the parameters of the {SablierV2LockupLinear.createWithTimestamps} function.
+    /// @notice Struct encapsulating the parameters of the {SablierLockupLinear.createWithTimestamps} function.
     /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
@@ -284,9 +284,9 @@ library LockupLinear {
     }
 }
 
-/// @notice Namespace for the structs used in {SablierV2LockupTranched}.
+/// @notice Namespace for the structs used in {SablierLockupTranched}.
 library LockupTranched {
-    /// @notice Struct encapsulating the parameters of the {SablierV2LockupTranched.createWithDurations} function.
+    /// @notice Struct encapsulating the parameters of the {SablierLockupTranched.createWithDurations} function.
     /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
@@ -310,7 +310,7 @@ library LockupTranched {
         Broker broker;
     }
 
-    /// @notice Struct encapsulating the parameters of the {SablierV2LockupTranched.createWithTimestamps} function.
+    /// @notice Struct encapsulating the parameters of the {SablierLockupTranched.createWithTimestamps} function.
     /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
@@ -369,7 +369,7 @@ library LockupTranched {
         uint40 timestamp;
     }
 
-    /// @notice Tranche struct used at runtime in {SablierV2LockupTranched.createWithDurations}.
+    /// @notice Tranche struct used at runtime in {SablierLockupTranched.createWithDurations}.
     /// @param amount The amount of assets to be unlocked in the tranche, denoted in units of the asset's decimals.
     /// @param duration The time difference in seconds between the tranche and the previous one.
     struct TrancheWithDuration {

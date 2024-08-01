@@ -4,27 +4,27 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import { ISablierV2LockupDynamic } from "../core/interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupLinear } from "../core/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2LockupTranched } from "../core/interfaces/ISablierV2LockupTranched.sol";
+import { ISablierLockupDynamic } from "../core/interfaces/ISablierLockupDynamic.sol";
+import { ISablierLockupLinear } from "../core/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockupTranched } from "../core/interfaces/ISablierLockupTranched.sol";
 import { LockupDynamic, LockupLinear, LockupTranched } from "../core/types/DataTypes.sol";
 
-import { ISablierV2BatchLockup } from "./interfaces/ISablierV2BatchLockup.sol";
+import { ISablierBatchLockup } from "./interfaces/ISablierBatchLockup.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { BatchLockup } from "./types/DataTypes.sol";
 
-/// @title SablierV2BatchLockup
-/// @notice See the documentation in {ISablierV2BatchLockup}.
-contract SablierV2BatchLockup is ISablierV2BatchLockup {
+/// @title SablierBatchLockup
+/// @notice See the documentation in {ISablierBatchLockup}.
+contract SablierBatchLockup is ISablierBatchLockup {
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
-                             SABLIER-V2-LOCKUP-DYNAMIC
+                               SABLIER-LOCKUP-DYNAMIC
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2BatchLockup
+    /// @inheritdoc ISablierBatchLockup
     function createWithDurationsLD(
-        ISablierV2LockupDynamic lockupDynamic,
+        ISablierLockupDynamic lockupDynamic,
         IERC20 asset,
         BatchLockup.CreateWithDurationsLD[] calldata batch
     )
@@ -35,7 +35,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
         // Check that the batch size is not zero.
         uint256 batchSize = batch.length;
         if (batchSize == 0) {
-            revert Errors.SablierV2BatchLockup_BatchSizeZero();
+            revert Errors.SablierBatchLockup_BatchSizeZero();
         }
 
         // Calculate the sum of all of stream amounts. It is safe to use unchecked addition because one of the create
@@ -48,7 +48,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierV2LockupDynamic} to spend the amount of assets.
+        // Perform the ERC-20 transfer and approve {SablierLockupDynamic} to spend the amount of assets.
         _handleTransfer(address(lockupDynamic), asset, transferAmount);
 
         // Create a stream for each element in the parameter array.
@@ -70,9 +70,9 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
         }
     }
 
-    /// @inheritdoc ISablierV2BatchLockup
+    /// @inheritdoc ISablierBatchLockup
     function createWithTimestampsLD(
-        ISablierV2LockupDynamic lockupDynamic,
+        ISablierLockupDynamic lockupDynamic,
         IERC20 asset,
         BatchLockup.CreateWithTimestampsLD[] calldata batch
     )
@@ -83,7 +83,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
         // Check that the batch size is not zero.
         uint256 batchSize = batch.length;
         if (batchSize == 0) {
-            revert Errors.SablierV2BatchLockup_BatchSizeZero();
+            revert Errors.SablierBatchLockup_BatchSizeZero();
         }
 
         // Calculate the sum of all of stream amounts. It is safe to use unchecked addition because one of the create
@@ -96,7 +96,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierV2LockupDynamic} to spend the amount of assets.
+        // Perform the ERC-20 transfer and approve {SablierLockupDynamic} to spend the amount of assets.
         _handleTransfer(address(lockupDynamic), asset, transferAmount);
 
         // Create a stream for each element in the parameter array.
@@ -120,12 +120,12 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                              SABLIER-V2-LOCKUP-LINEAR
+                               SABLIER-LOCKUP-LINEAR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2BatchLockup
+    /// @inheritdoc ISablierBatchLockup
     function createWithDurationsLL(
-        ISablierV2LockupLinear lockupLinear,
+        ISablierLockupLinear lockupLinear,
         IERC20 asset,
         BatchLockup.CreateWithDurationsLL[] calldata batch
     )
@@ -136,7 +136,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
         // Check that the batch size is not zero.
         uint256 batchSize = batch.length;
         if (batchSize == 0) {
-            revert Errors.SablierV2BatchLockup_BatchSizeZero();
+            revert Errors.SablierBatchLockup_BatchSizeZero();
         }
 
         // Calculate the sum of all of stream amounts. It is safe to use unchecked addition because one of the create
@@ -149,7 +149,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierV2LockupLinear} to spend the amount of assets.
+        // Perform the ERC-20 transfer and approve {SablierLockupLinear} to spend the amount of assets.
         _handleTransfer(address(lockupLinear), asset, transferAmount);
 
         // Create a stream for each element in the parameter array.
@@ -171,9 +171,9 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
         }
     }
 
-    /// @inheritdoc ISablierV2BatchLockup
+    /// @inheritdoc ISablierBatchLockup
     function createWithTimestampsLL(
-        ISablierV2LockupLinear lockupLinear,
+        ISablierLockupLinear lockupLinear,
         IERC20 asset,
         BatchLockup.CreateWithTimestampsLL[] calldata batch
     )
@@ -184,7 +184,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
         // Check that the batch is not empty.
         uint256 batchSize = batch.length;
         if (batchSize == 0) {
-            revert Errors.SablierV2BatchLockup_BatchSizeZero();
+            revert Errors.SablierBatchLockup_BatchSizeZero();
         }
 
         // Calculate the sum of all of stream amounts. It is safe to use unchecked addition because one of the create
@@ -197,7 +197,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierV2LockupLinear} to spend the amount of assets.
+        // Perform the ERC-20 transfer and approve {SablierLockupLinear} to spend the amount of assets.
         _handleTransfer(address(lockupLinear), asset, transferAmount);
 
         // Create a stream for each element in the parameter array.
@@ -220,12 +220,12 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                             SABLIER-V2-LOCKUP-TRANCHED
+                              SABLIER-LOCKUP-TRANCHED
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2BatchLockup
+    /// @inheritdoc ISablierBatchLockup
     function createWithDurationsLT(
-        ISablierV2LockupTranched lockupTranched,
+        ISablierLockupTranched lockupTranched,
         IERC20 asset,
         BatchLockup.CreateWithDurationsLT[] calldata batch
     )
@@ -236,7 +236,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
         // Check that the batch size is not zero.
         uint256 batchSize = batch.length;
         if (batchSize == 0) {
-            revert Errors.SablierV2BatchLockup_BatchSizeZero();
+            revert Errors.SablierBatchLockup_BatchSizeZero();
         }
 
         // Calculate the sum of all of stream amounts. It is safe to use unchecked addition because one of the create
@@ -249,7 +249,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierV2LockupTranched} to spend the amount of assets.
+        // Perform the ERC-20 transfer and approve {SablierLockupTranched} to spend the amount of assets.
         _handleTransfer(address(lockupTranched), asset, transferAmount);
 
         // Create a stream for each element in the parameter array.
@@ -271,9 +271,9 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
         }
     }
 
-    /// @inheritdoc ISablierV2BatchLockup
+    /// @inheritdoc ISablierBatchLockup
     function createWithTimestampsLT(
-        ISablierV2LockupTranched lockupTranched,
+        ISablierLockupTranched lockupTranched,
         IERC20 asset,
         BatchLockup.CreateWithTimestampsLT[] calldata batch
     )
@@ -284,7 +284,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
         // Check that the batch size is not zero.
         uint256 batchSize = batch.length;
         if (batchSize == 0) {
-            revert Errors.SablierV2BatchLockup_BatchSizeZero();
+            revert Errors.SablierBatchLockup_BatchSizeZero();
         }
 
         // Calculate the sum of all of stream amounts. It is safe to use unchecked addition because one of the create
@@ -297,7 +297,7 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierV2LockupTranched} to spend the amount of assets.
+        // Perform the ERC-20 transfer and approve {SablierLockupTranched} to spend the amount of assets.
         _handleTransfer(address(lockupTranched), asset, transferAmount);
 
         // Create a stream for each element in the parameter array.
@@ -324,24 +324,24 @@ contract SablierV2BatchLockup is ISablierV2BatchLockup {
                                   HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Helper function to approve a Sablier contract to spend funds from the batchLockup. If the current allowance
-    /// is insufficient, this function approves Sablier to spend the exact `amount`.
+    /// @dev Helper function to approve a Lockup contract to spend funds from the batchLockup. If the current allowance
+    /// is insufficient, this function approves Lockup to spend the exact `amount`.
     /// The {SafeERC20.forceApprove} function is used to handle special ERC-20 assets (e.g. USDT) that require the
     /// current allowance to be zero before setting it to a non-zero value.
-    function _approve(address sablierContract, IERC20 asset, uint256 amount) internal {
-        uint256 allowance = asset.allowance({ owner: address(this), spender: sablierContract });
+    function _approve(address lockupContract, IERC20 asset, uint256 amount) internal {
+        uint256 allowance = asset.allowance({ owner: address(this), spender: lockupContract });
         if (allowance < amount) {
-            asset.forceApprove({ spender: sablierContract, value: amount });
+            asset.forceApprove({ spender: lockupContract, value: amount });
         }
     }
 
-    /// @dev Helper function to transfer assets from the caller to the batchLockup contract and approve the Sablier
+    /// @dev Helper function to transfer assets from the caller to the batchLockup contract and approve the Lockup
     /// contract.
-    function _handleTransfer(address sablierContract, IERC20 asset, uint256 amount) internal {
+    function _handleTransfer(address lockupContract, IERC20 asset, uint256 amount) internal {
         // Transfer the assets to the batchLockup contract.
         asset.safeTransferFrom({ from: msg.sender, to: address(this), value: amount });
 
-        // Approve the Sablier contract to spend funds.
-        _approve(sablierContract, asset, amount);
+        // Approve the Lockup contract to spend funds.
+        _approve(lockupContract, asset, amount);
     }
 }

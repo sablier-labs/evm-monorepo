@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2NFTDescriptor } from "../../src/core/interfaces/ISablierV2NFTDescriptor.sol";
-import { SablierV2LockupDynamic } from "../../src/core/SablierV2LockupDynamic.sol";
+import { ILockupNFTDescriptor } from "../../src/core/interfaces/ILockupNFTDescriptor.sol";
+import { SablierLockupDynamic } from "../../src/core/SablierLockupDynamic.sol";
 
 import { BaseScript } from "../Base.s.sol";
 
 contract DeployLockupDynamic is BaseScript {
     function run(
         address initialAdmin,
-        ISablierV2NFTDescriptor initialNFTDescriptor
+        ILockupNFTDescriptor initialNFTDescriptor
     )
         public
         virtual
         broadcast
-        returns (SablierV2LockupDynamic lockupDynamic)
+        returns (SablierLockupDynamic lockupDynamic)
     {
-        lockupDynamic = new SablierV2LockupDynamic(initialAdmin, initialNFTDescriptor, segmentCountMap[block.chainid]);
+        lockupDynamic = new SablierLockupDynamic(initialAdmin, initialNFTDescriptor, segmentCountMap[block.chainid]);
     }
 }

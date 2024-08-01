@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { ISablierV2MerkleLL } from "src/periphery/interfaces/ISablierV2MerkleLL.sol";
-import { ISablierV2MerkleLT } from "src/periphery/interfaces/ISablierV2MerkleLT.sol";
+import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol";
+import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
 
 import { Periphery_Test } from "../../Periphery.t.sol";
 
@@ -63,19 +63,19 @@ abstract contract MerkleLockup_Integration_Test is Periphery_Test {
         return computeMerkleLLAddress(users.alice, admin, dai, merkleRoot, expiration);
     }
 
-    function createMerkleLL() internal returns (ISablierV2MerkleLL) {
+    function createMerkleLL() internal returns (ISablierMerkleLL) {
         return createMerkleLL(users.admin, defaults.EXPIRATION());
     }
 
-    function createMerkleLL(address admin) internal returns (ISablierV2MerkleLL) {
+    function createMerkleLL(address admin) internal returns (ISablierMerkleLL) {
         return createMerkleLL(admin, defaults.EXPIRATION());
     }
 
-    function createMerkleLL(uint40 expiration) internal returns (ISablierV2MerkleLL) {
+    function createMerkleLL(uint40 expiration) internal returns (ISablierMerkleLL) {
         return createMerkleLL(users.admin, expiration);
     }
 
-    function createMerkleLL(address admin, uint40 expiration) internal returns (ISablierV2MerkleLL) {
+    function createMerkleLL(address admin, uint40 expiration) internal returns (ISablierMerkleLL) {
         return merkleLockupFactory.createMerkleLL({
             baseParams: defaults.baseParams(admin, dai, expiration, defaults.MERKLE_ROOT()),
             lockupLinear: lockupLinear,
@@ -126,19 +126,19 @@ abstract contract MerkleLockup_Integration_Test is Periphery_Test {
         return computeMerkleLTAddress(users.alice, admin, dai, merkleRoot, expiration);
     }
 
-    function createMerkleLT() internal returns (ISablierV2MerkleLT) {
+    function createMerkleLT() internal returns (ISablierMerkleLT) {
         return createMerkleLT(users.admin, defaults.EXPIRATION());
     }
 
-    function createMerkleLT(address admin) internal returns (ISablierV2MerkleLT) {
+    function createMerkleLT(address admin) internal returns (ISablierMerkleLT) {
         return createMerkleLT(admin, defaults.EXPIRATION());
     }
 
-    function createMerkleLT(uint40 expiration) internal returns (ISablierV2MerkleLT) {
+    function createMerkleLT(uint40 expiration) internal returns (ISablierMerkleLT) {
         return createMerkleLT(users.admin, expiration);
     }
 
-    function createMerkleLT(address admin, uint40 expiration) internal returns (ISablierV2MerkleLT) {
+    function createMerkleLT(address admin, uint40 expiration) internal returns (ISablierMerkleLT) {
         return merkleLockupFactory.createMerkleLT({
             baseParams: defaults.baseParams(admin, dai, expiration, defaults.MERKLE_ROOT()),
             lockupTranched: lockupTranched,

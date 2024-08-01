@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Solarray } from "solarray/src/Solarray.sol";
 
-import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Lockup } from "src/core/types/DataTypes.sol";
 
@@ -19,7 +19,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_DelegateCalled() external {
-        bytes memory callData = abi.encodeCall(ISablierV2Lockup.withdrawMultiple, (testStreamIds, testAmounts));
+        bytes memory callData = abi.encodeCall(ISablierLockup.withdrawMultiple, (testStreamIds, testAmounts));
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -29,7 +29,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         uint128[] memory amounts = new uint128[](1);
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_WithdrawArrayCountsNotEqual.selector, streamIds.length, amounts.length
+                Errors.SablierLockup_WithdrawArrayCountsNotEqual.selector, streamIds.length, amounts.length
             )
         );
         lockup.withdrawMultiple(streamIds, amounts);
@@ -57,7 +57,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
     {
         uint256 nullStreamId = 1729;
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));
         lockup.withdrawMultiple({
             streamIds: Solarray.uint256s(nullStreamId),
             amounts: Solarray.uint128s(withdrawAmount)
@@ -77,7 +77,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Expect the relevant error to be thrown.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));
 
         // Withdraw from multiple streams.
         lockup.withdrawMultiple({ streamIds: streamIds, amounts: testAmounts });
@@ -100,7 +100,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient });
 
         // Expect the relevant error to be thrown.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, testStreamIds[0]));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamDepleted.selector, testStreamIds[0]));
 
         // Withdraw from multiple streams.
         lockup.withdrawMultiple(streamIds, amounts);
@@ -120,7 +120,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient });
 
         // Expect the relevant error to be thrown.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, testStreamIds[0]));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamDepleted.selector, testStreamIds[0]));
 
         // Withdraw from multiple streams.
         lockup.withdrawMultiple({ streamIds: testStreamIds, amounts: testAmounts });
@@ -140,7 +140,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
 
         // Run the test.
         uint128[] memory amounts = Solarray.uint128s(defaults.WITHDRAW_AMOUNT(), 0, 0);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_WithdrawAmountZero.selector, testStreamIds[1]));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_WithdrawAmountZero.selector, testStreamIds[1]));
         lockup.withdrawMultiple({ streamIds: testStreamIds, amounts: amounts });
     }
 
@@ -162,7 +162,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         uint128[] memory amounts = Solarray.uint128s(testAmounts[0], testAmounts[1], MAX_UINT128);
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_Overdraw.selector, testStreamIds[2], MAX_UINT128, withdrawableAmount
+                Errors.SablierLockup_Overdraw.selector, testStreamIds[2], MAX_UINT128, withdrawableAmount
             )
         );
         lockup.withdrawMultiple({ streamIds: testStreamIds, amounts: amounts });

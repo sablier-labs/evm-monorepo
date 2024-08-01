@@ -9,7 +9,7 @@ Parameters
 
 Licensor: Sablier Labs Ltd
 
-Licensed Work: Sablier V2 Core The Licensed Work is (C) 2024 Sablier Labs Ltd
+Licensed Work: Sablier Lockup The Licensed Work is (C) 2024 Sablier Labs Ltd
 
 Additional Use Grant: Any uses listed and defined at v2-core-license-grants.sablier.eth
 

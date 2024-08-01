@@ -6,7 +6,7 @@ import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierV2LockupLinear } from "src/core/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Broker, Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
 
@@ -28,7 +28,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
 
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2LockupLinear.createWithTimestamps, defaults.createWithTimestampsLL());
+            abi.encodeCall(ISablierLockupLinear.createWithTimestamps, defaults.createWithTimestampsLL());
         (bool success, bytes memory returnData) = address(lockupLinear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -42,7 +42,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     /// @dev It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
     /// `MAX_BROKER_FEE` is hard coded to 10%.
     function test_RevertWhen_DepositAmountZero() external whenNotDelegateCalled whenRecipientNonZeroAddress {
-        vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
+        vm.expectRevert(Errors.SablierLockup_DepositAmountZero.selector);
         createDefaultStreamWithTotalAmount(0);
     }
 
@@ -55,7 +55,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         uint40 cliffTime = defaults.CLIFF_TIME();
         uint40 endTime = defaults.END_TIME();
 
-        vm.expectRevert(Errors.SablierV2Lockup_StartTimeZero.selector);
+        vm.expectRevert(Errors.SablierLockup_StartTimeZero.selector);
         createDefaultStreamWithTimestamps(LockupLinear.Timestamps({ start: 0, cliff: cliffTime, end: endTime }));
     }
 
@@ -71,9 +71,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         uint40 endTime = defaults.START_TIME();
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeNotLessThanEndTime.selector, startTime, endTime
-            )
+            abi.encodeWithSelector(Errors.SablierLockupLinear_StartTimeNotLessThanEndTime.selector, startTime, endTime)
         );
         createDefaultStreamWithTimestamps(LockupLinear.Timestamps({ start: startTime, cliff: 0, end: endTime }));
     }
@@ -121,7 +119,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         uint40 endTime = defaults.END_TIME();
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime
+                Errors.SablierLockupLinear_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime
             )
         );
         createDefaultStreamWithTimestamps(LockupLinear.Timestamps({ start: startTime, cliff: cliffTime, end: endTime }));
@@ -140,9 +138,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         uint40 cliffTime = defaults.END_TIME();
         uint40 endTime = defaults.CLIFF_TIME();
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
-            )
+            abi.encodeWithSelector(Errors.SablierLockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime)
         );
         createDefaultStreamWithTimestamps(LockupLinear.Timestamps({ start: startTime, cliff: cliffTime, end: endTime }));
     }
@@ -160,7 +156,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     {
         uint40 endTime = defaults.END_TIME();
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeNotInTheFuture.selector, endTime, endTime));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_EndTimeNotInTheFuture.selector, endTime, endTime));
         createDefaultStream();
     }
 
@@ -177,7 +173,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     {
         UD60x18 brokerFee = MAX_BROKER_FEE + ud(1);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, brokerFee, MAX_BROKER_FEE)
+            abi.encodeWithSelector(Errors.SablierLockup_BrokerFeeTooHigh.selector, brokerFee, MAX_BROKER_FEE)
         );
         createDefaultStreamWithBroker(Broker({ account: users.broker, fee: brokerFee }));
     }
@@ -236,7 +232,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         // Make the Sender the stream's funder.
         address funder = users.sender;
 
-        // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierLockupLinear}.
         expectCallToTransferFrom({
             asset: IERC20(asset),
             from: funder,

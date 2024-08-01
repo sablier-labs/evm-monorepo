@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 
 import { LockupTranched_Integration_Shared_Test } from "../../shared/lockup-tranched/LockupTranched.t.sol";
 import { Integration_Test } from "../../Integration.t.sol";
@@ -41,7 +41,7 @@ import { WithdrawMultiple_Integration_Concrete_Test } from "../lockup/withdraw-m
                             NON-SHARED ABSTRACT TEST
 //////////////////////////////////////////////////////////////////////////*/
 
-/// @notice Common testing logic needed across {SablierV2LockupTranched} integration concrete tests.
+/// @notice Common testing logic needed across {SablierLockupTranched} integration concrete tests.
 abstract contract LockupTranched_Integration_Concrete_Test is
     Integration_Test,
     LockupTranched_Integration_Shared_Test
@@ -52,8 +52,8 @@ abstract contract LockupTranched_Integration_Concrete_Test is
         Integration_Test.setUp();
         LockupTranched_Integration_Shared_Test.setUp();
 
-        // Cast the {LockupTranched} contract as {ISablierV2Lockup}.
-        lockup = ISablierV2Lockup(lockupTranched);
+        // Cast the {LockupTranched} contract as {ISablierLockup}.
+        lockup = ISablierLockup(lockupTranched);
     }
 }
 

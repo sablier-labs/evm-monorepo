@@ -7,7 +7,7 @@ import { Lockup_Invariant_Test } from "./Lockup.t.sol";
 import { LockupLinearHandler } from "./handlers/LockupLinearHandler.sol";
 import { LockupLinearCreateHandler } from "./handlers/LockupLinearCreateHandler.sol";
 
-/// @dev Invariant tests for {SablierV2LockupLinear}.
+/// @dev Invariant tests for {SablierLockupLinear}.
 contract LockupLinear_Invariant_Test is Lockup_Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
@@ -33,7 +33,7 @@ contract LockupLinear_Invariant_Test is Lockup_Invariant_Test {
         vm.label({ account: address(lockupLinearHandler), newLabel: "LockupLinearHandler" });
         vm.label({ account: address(lockupLinearCreateHandler), newLabel: "LockupLinearCreateHandler" });
 
-        // Cast the lockupLinear contract as {ISablierV2Lockup} and the lockupLinear handler as {LockupHandler}.
+        // Cast the lockupLinear contract as {ISablierLockup} and the lockupLinear handler as {LockupHandler}.
         lockup = lockupLinear;
         lockupHandler = lockupLinearHandler;
 
@@ -78,7 +78,7 @@ contract LockupLinear_Invariant_Test is Lockup_Invariant_Test {
         }
     }
 
-    /// @dev Settled streams must not appear as cancelable in {SablierV2LockupLinear.getStream}.
+    /// @dev Settled streams must not appear as cancelable in {SablierLockupLinear.getStream}.
     function invariant_StatusSettled_GetStream() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {

@@ -7,8 +7,8 @@ import { ud60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Solarray } from "solarray/src/Solarray.sol";
 
-import { ISablierV2LockupDynamic } from "../../src/core/interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupLinear } from "../../src/core/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierLockupDynamic } from "../../src/core/interfaces/ISablierLockupDynamic.sol";
+import { ISablierLockupLinear } from "../../src/core/interfaces/ISablierLockupLinear.sol";
 import { Broker, LockupDynamic, LockupLinear } from "../../src/core/types/DataTypes.sol";
 
 import { BaseScript } from "../Base.s.sol";
@@ -20,8 +20,8 @@ interface IERC20Mint {
 /// @notice Initializes the protocol by creating some streams.
 contract Init is BaseScript {
     function run(
-        ISablierV2LockupLinear lockupLinear,
-        ISablierV2LockupDynamic lockupDynamic,
+        ISablierLockupLinear lockupLinear,
+        ISablierLockupDynamic lockupDynamic,
         IERC20 asset
     )
         public
@@ -37,7 +37,7 @@ contract Init is BaseScript {
         // Mint enough assets to the sender.
         IERC20Mint(address(asset)).mint({ beneficiary: sender, value: 131_601.1e18 + 10_000e18 });
 
-        // Approve the Sablier contracts to transfer the ERC-20 assets from the sender.
+        // Approve the Lockup contracts to transfer the ERC-20 assets from the sender.
         asset.approve({ spender: address(lockupLinear), value: type(uint256).max });
         asset.approve({ spender: address(lockupDynamic), value: type(uint256).max });
 

@@ -366,13 +366,13 @@ for chain in "${provided_chains[@]}"; do
         # Save to the chain file
         {
             echo "Core Contracts"
-            echo "SablierV2LockupDynamic = ${lockupDynamic_address}"
-            echo "SablierV2LockupLinear = ${lockupLinear_address}"
-            echo "SablierV2LockupTranched = ${lockupTranched_address}"
-            echo "SablierV2NFTDescriptor = ${nftDescriptor_address}"
+            echo "LockupNFTDescriptor = ${nftDescriptor_address}"
+            echo "SablierLockupDynamic = ${lockupDynamic_address}"
+            echo "SablierLockupLinear = ${lockupLinear_address}"
+            echo "SablierLockupTranched = ${lockupTranched_address}"
             echo "Periphery Contracts"
-            echo "SablierV2BatchLockup = ${batchLockup_address}"
-            echo "SablierV2MerkleLockupFactory = ${merkleLockupFactory_address}"
+            echo "SablierBatchLockup = ${batchLockup_address}"
+            echo "SablierMerkleLockupFactory = ${merkleLockupFactory_address}"
         } >> "$chain_file"
 
         echo -e "${SC}${TICK} Deployed on ${chain}. You can find the addresses in ${chain_file}${NC}"

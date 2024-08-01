@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2Lockup } from "src/core/interfaces/ISablierV2Lockup.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 
 import { WithdrawMaxAndTransfer_Integration_Shared_Test } from "../../../shared/lockup/withdrawMaxAndTransfer.t.sol";
@@ -16,14 +16,14 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_DelegateCalled() external {
-        bytes memory callData = abi.encodeCall(ISablierV2Lockup.withdrawMaxAndTransfer, (defaultStreamId, users.alice));
+        bytes memory callData = abi.encodeCall(ISablierLockup.withdrawMaxAndTransfer, (defaultStreamId, users.alice));
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));
         lockup.withdrawMaxAndTransfer({ streamId: nullStreamId, newRecipient: users.recipient });
     }
 
@@ -32,9 +32,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.eve)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, defaultStreamId, users.eve));
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.eve });
     }
 
@@ -48,7 +46,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.recipient)
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, defaultStreamId, users.recipient)
         );
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
     }
@@ -74,9 +72,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         givenWithdrawableAmountNotZero
     {
         uint256 notTransferableStreamId = createDefaultStreamNotTransferable();
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_NotTransferable.selector, notTransferableStreamId)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_NotTransferable.selector, notTransferableStreamId));
         lockup.withdrawMaxAndTransfer({ streamId: notTransferableStreamId, newRecipient: users.recipient });
     }
 

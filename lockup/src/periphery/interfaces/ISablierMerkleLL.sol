@@ -1,32 +1,28 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { ISablierV2LockupTranched } from "../../core/interfaces/ISablierV2LockupTranched.sol";
+import { ISablierLockupLinear } from "../../core/interfaces/ISablierLockupLinear.sol";
 
-import { ISablierV2MerkleLockup } from "./ISablierV2MerkleLockup.sol";
-import { MerkleLT } from "../types/DataTypes.sol";
+import { ISablierMerkleLockup } from "./ISablierMerkleLockup.sol";
 
-/// @title ISablierV2MerkleLT
-/// @notice MerkleLockup campaign that creates LockupTranched streams.
-interface ISablierV2MerkleLT is ISablierV2MerkleLockup {
+/// @title ISablierMerkleLL
+/// @notice MerkleLockup campaign that creates LockupLinear streams.
+interface ISablierMerkleLL is ISablierMerkleLockup {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the tranches with their respective unlock percentages and durations.
-    function getTranchesWithPercentages() external view returns (MerkleLT.TrancheWithPercentage[] memory);
+    /// @notice The address of the {SablierLockupLinear} contract.
+    function LOCKUP_LINEAR() external view returns (ISablierLockupLinear);
 
-    /// @notice The address of the {SablierV2LockupTranched} contract.
-    function LOCKUP_TRANCHED() external view returns (ISablierV2LockupTranched);
-
-    /// @notice The total percentage of the tranches.
-    function TOTAL_PERCENTAGE() external view returns (uint64);
+    /// @notice The total streaming duration of each stream.
+    function streamDurations() external view returns (uint40 cliff, uint40 duration);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Makes the claim by creating a LockupTranched stream to the recipient. A stream NFT is minted to the
+    /// @notice Makes the claim by creating a LockupLinear stream to the recipient. A stream NFT is minted to the
     /// recipient.
     ///
     /// @dev Emits a {Claim} event.
@@ -35,7 +31,6 @@ interface ISablierV2MerkleLT is ISablierV2MerkleLockup {
     /// - The campaign must not have expired.
     /// - The stream must not have been claimed already.
     /// - The Merkle proof must be valid.
-    /// - TOTAL_PERCENTAGE must be equal to 100%.
     ///
     /// @param index The index of the recipient in the Merkle tree.
     /// @param recipient The address of the stream holder.

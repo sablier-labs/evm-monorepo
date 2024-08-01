@@ -6,18 +6,18 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierV2LockupLinear } from "../core/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierLockupLinear } from "../core/interfaces/ISablierLockupLinear.sol";
 import { Broker, LockupLinear } from "../core/types/DataTypes.sol";
 
-import { SablierV2MerkleLockup } from "./abstracts/SablierV2MerkleLockup.sol";
-import { ISablierV2MerkleLL } from "./interfaces/ISablierV2MerkleLL.sol";
+import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
+import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
 import { MerkleLockup } from "./types/DataTypes.sol";
 
-/// @title SablierV2MerkleLL
-/// @notice See the documentation in {ISablierV2MerkleLL}.
-contract SablierV2MerkleLL is
-    ISablierV2MerkleLL, // 2 inherited components
-    SablierV2MerkleLockup // 4 inherited components
+/// @title SablierMerkleLL
+/// @notice See the documentation in {ISablierMerkleLL}.
+contract SablierMerkleLL is
+    ISablierMerkleLL, // 2 inherited components
+    SablierMerkleLockup // 4 inherited components
 {
     using BitMaps for BitMaps.BitMap;
     using SafeERC20 for IERC20;
@@ -26,29 +26,29 @@ contract SablierV2MerkleLL is
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2MerkleLL
-    ISablierV2LockupLinear public immutable override LOCKUP_LINEAR;
+    /// @inheritdoc ISablierMerkleLL
+    ISablierLockupLinear public immutable override LOCKUP_LINEAR;
 
-    /// @inheritdoc ISablierV2MerkleLL
+    /// @inheritdoc ISablierMerkleLL
     LockupLinear.Durations public override streamDurations;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Constructs the contract by initializing the immutable state variables, and max approving the Sablier
+    /// @dev Constructs the contract by initializing the immutable state variables, and max approving the Lockup
     /// contract.
     constructor(
         MerkleLockup.ConstructorParams memory baseParams,
-        ISablierV2LockupLinear lockupLinear,
+        ISablierLockupLinear lockupLinear,
         LockupLinear.Durations memory streamDurations_
     )
-        SablierV2MerkleLockup(baseParams)
+        SablierMerkleLockup(baseParams)
     {
         LOCKUP_LINEAR = lockupLinear;
         streamDurations = streamDurations_;
 
-        // Max approve the Sablier contract to spend funds from the MerkleLockup contract.
+        // Max approve the Lockup contract to spend funds from the MerkleLockup contract.
         ASSET.forceApprove(address(LOCKUP_LINEAR), type(uint256).max);
     }
 
@@ -56,7 +56,7 @@ contract SablierV2MerkleLL is
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2MerkleLL
+    /// @inheritdoc ISablierMerkleLL
     function claim(
         uint256 index,
         address recipient,
@@ -77,7 +77,7 @@ contract SablierV2MerkleLL is
         // Effect: mark the index as claimed.
         _claimedBitMap.set(index);
 
-        // Interaction: create the stream via {SablierV2LockupLinear}.
+        // Interaction: create the stream via {SablierLockupLinear}.
         streamId = LOCKUP_LINEAR.createWithDurations(
             LockupLinear.CreateWithDurations({
                 sender: admin,

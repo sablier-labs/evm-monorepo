@@ -503,7 +503,7 @@ contract Defaults is Constants, Merkle {
         tranches_[1] = LockupTranched.Tranche({ amount: 7500e18, timestamp: uint40(block.timestamp) + TOTAL_DURATION });
     }
 
-    /// @dev Mirros the logic from {SablierV2MerkleLT._calculateTranches}.
+    /// @dev Mirros the logic from {SablierMerkleLT._calculateTranches}.
     function tranchesMerkleLockup(uint128 totalAmount)
         public
         view

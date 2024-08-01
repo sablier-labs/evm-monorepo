@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2MerkleLT } from "src/periphery/interfaces/ISablierV2MerkleLT.sol";
+import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
 
 import { MerkleLockup_Integration_Test } from "../../MerkleLockup.t.sol";
 
@@ -11,7 +11,7 @@ contract HasExpired_Integration_Test is MerkleLockup_Integration_Test {
     }
 
     function test_HasExpired_ExpirationZero() external {
-        ISablierV2MerkleLT testLockup = createMerkleLT({ expiration: 0 });
+        ISablierMerkleLT testLockup = createMerkleLT({ expiration: 0 });
         assertFalse(testLockup.hasExpired(), "campaign expired");
     }
 
