@@ -8,16 +8,6 @@
     { access = "read-write", path = "./benchmark/results" },
   ]
   gas_limit = 9223372036854775807
-  gas_reports = [
-    "LockupNFTDescriptor",
-    "SablierBatchLockup",
-    "SablierLockupDynamic",
-    "SablierLockupLinear",
-    "SablierLockupTranched",
-    "SablierMerkleLL",
-    "SablierMerkleLockupFactory",
-    "SablierMerkleLT",
-  ]
   optimizer = true
   optimizer_runs = 1000
   out = "out"
