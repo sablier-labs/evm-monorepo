@@ -68,10 +68,10 @@
   ]
 
 [profile.smt.model_checker.contracts]
-  "src/LockupNFTDescriptor.sol" = ["LockupNFTDescriptor"]
-  "src/SablierLockupDynamic.sol" = ["SablierLockupDynamic"]
-  "src/SablierLockupLinear.sol" = ["SablierLockupLinear"]
-  "src/SablierLockupTranched.sol" = ["SablierLockupTranched"]
+  "src/core/LockupNFTDescriptor.sol" = ["LockupNFTDescriptor"]
+  "src/core/SablierLockupDynamic.sol" = ["SablierLockupDynamic"]
+  "src/core/SablierLockupLinear.sol" = ["SablierLockupLinear"]
+  "src/core/SablierLockupTranched.sol" = ["SablierLockupTranched"]
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
