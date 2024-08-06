@@ -141,6 +141,6 @@
   polygon = "${POLYGON_RPC_URL}"
   scroll = "https://rpc.scroll.io/"
   sei = "https://evm-rpc.sei-apis.com"
-  sei_testnet = "https://evm-rpc-testnet.sei-apis.com"
+  sei_testnet = "https://evm-rpc.arctic-1.seinetwork.io"
   sepolia = "${SEPOLIA_RPC_URL}"
   taiko_hekla = "https://rpc.hekla.taiko.xyz"
