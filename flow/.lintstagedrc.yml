@@ -1,0 +1,4 @@
+"*.{json,md,svg,yml}": "prettier --write"
+"*.sol":
+  - "bun solhint --fix --noPrompt"
+  - "forge fmt"

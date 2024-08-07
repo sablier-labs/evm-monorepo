@@ -16,9 +16,11 @@
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std#v1.8.2",
+    "husky": "^9.1.4",
+    "lint-staged": "^15.2.8",
     "prettier": "^3.3.2",
     "solady": "0.0.208",
-    "solhint": "^5.0.1"
+    "solhint": "^5.0.3"
   },
   "files": [
     "artifacts",
@@ -59,8 +61,11 @@
     "gas:snapshot": "forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "gas:snapshot:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "lint": "bun run lint:sol && bun run prettier:check",
+    "lint:fix": "bun run lint:sol:fix && forge fmt",
     "lint:sol": "forge fmt --check && bun solhint \"{precompiles,script,src,test}/**/*.sol\"",
+    "lint:sol:fix": "bun solhint \"{precompiles,script,src,test}/**/*.sol\" --fix --noPrompt",
     "prepack": "bun install && bash ./shell/prepare-artifacts.sh",
+    "prepare": "husky",
     "prettier:check": "prettier --check \"**/*.{json,md,svg,yml}\"",
     "prettier:write": "prettier --write \"**/*.{json,md,svg,yml}\"",
     "test": "forge test",

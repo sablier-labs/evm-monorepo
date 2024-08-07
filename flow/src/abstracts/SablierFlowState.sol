@@ -7,11 +7,11 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
+import { ISablierFlowNFTDescriptor } from "./../interfaces/ISablierFlowNFTDescriptor.sol";
+import { ISablierFlowState } from "./../interfaces/ISablierFlowState.sol";
+import { Errors } from "./../libraries/Errors.sol";
+import { Flow } from "./../types/DataTypes.sol";
 import { Adminable } from "./Adminable.sol";
-import { ISablierFlowState } from "../interfaces/ISablierFlowState.sol";
-import { ISablierFlowNFTDescriptor } from "../interfaces/ISablierFlowNFTDescriptor.sol";
-import { Flow } from "../types/DataTypes.sol";
-import { Errors } from "../libraries/Errors.sol";
 
 /// @title SablierFlowState
 /// @notice See the documentation in {ISablierFlowState}.

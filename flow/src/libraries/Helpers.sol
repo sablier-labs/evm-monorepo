@@ -5,8 +5,8 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
 
+import { Broker } from "./../types/DataTypes.sol";
 import { Errors } from "./Errors.sol";
-import { Broker } from "../types/DataTypes.sol";
 
 /// @title Helpers
 /// @notice Library with helper functions in {SablierFlow} contract.

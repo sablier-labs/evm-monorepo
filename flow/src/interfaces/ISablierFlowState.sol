@@ -5,8 +5,8 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
+import { Flow } from "./../types/DataTypes.sol";
 import { ISablierFlowNFTDescriptor } from "./ISablierFlowNFTDescriptor.sol";
-import { Flow } from "../types/DataTypes.sol";
 
 /// @title ISablierFlowState
 /// @notice State variables, storage and constants, for the {SablierFlow} contract, and their respective getters.
