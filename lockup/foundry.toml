@@ -110,6 +110,7 @@
   sei_testnet = { key = "verifyContract", url = "https://blockscout.com/poa/core/api?" }
   sepolia = { key = "${SEPOLIASCAN_KEY}" }
   taiko_hekla = { key = "verifyContract", url = "https://blockscoutapi.hekla.taiko.xyz/api?" }
+  taiko_mainnet = { key = "${TAIKO_MAINNET_API_KEY}" }
   
 [fmt]
   bracket_spacing = true
@@ -144,3 +145,4 @@
   sei_testnet = "https://evm-rpc.arctic-1.seinetwork.io"
   sepolia = "${SEPOLIA_RPC_URL}"
   taiko_hekla = "https://rpc.hekla.taiko.xyz"
+  taiko_mainnet = "https://rpc.mainnet.taiko.xyz"
