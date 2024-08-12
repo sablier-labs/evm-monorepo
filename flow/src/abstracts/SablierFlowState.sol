@@ -95,7 +95,9 @@ abstract contract SablierFlowState is
     }
 
     /// @inheritdoc ISablierFlowState
-    function getAssetDecimals(uint256 streamId)
+    function getAssetDecimals(
+        uint256 streamId
+    )
         external
         view
         override
@@ -111,7 +113,9 @@ abstract contract SablierFlowState is
     }
 
     /// @inheritdoc ISablierFlowState
-    function getLastTimeUpdate(uint256 streamId)
+    function getLastTimeUpdate(
+        uint256 streamId
+    )
         external
         view
         override
@@ -122,7 +126,9 @@ abstract contract SablierFlowState is
     }
 
     /// @inheritdoc ISablierFlowState
-    function getRatePerSecond(uint256 streamId)
+    function getRatePerSecond(
+        uint256 streamId
+    )
         external
         view
         override
@@ -138,7 +144,9 @@ abstract contract SablierFlowState is
     }
 
     /// @inheritdoc ISablierFlowState
-    function getRemainingAmount(uint256 streamId)
+    function getRemainingAmount(
+        uint256 streamId
+    )
         external
         view
         override
