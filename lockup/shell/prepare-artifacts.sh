@@ -52,14 +52,16 @@ cp out-optimized/Errors.sol/Errors.json $core_libraries
 
 periphery=./artifacts/periphery
 cp out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json $periphery
+cp out-optimized/SablierMerkleFactory.sol/SablierMerkleFactory.json $periphery
+cp out-optimized/SablierMerkleInstant.sol/SablierMerkleInstant.json $periphery
 cp out-optimized/SablierMerkleLL.sol/SablierMerkleLL.json $periphery
-cp out-optimized/SablierMerkleLockupFactory.sol/SablierMerkleLockupFactory.json $periphery
 cp out-optimized/SablierMerkleLT.sol/SablierMerkleLT.json $periphery
 
 periphery_interfaces=./artifacts/periphery/interfaces
 cp out-optimized/ISablierBatchLockup.sol/ISablierBatchLockup.json $periphery_interfaces
+cp out-optimized/ISablierMerkleFactory.sol/ISablierMerkleFactory.json $periphery_interfaces
+cp out-optimized/ISablierMerkleInstant.sol/ISablierMerkleInstant.json $periphery_interfaces
 cp out-optimized/ISablierMerkleLL.sol/ISablierMerkleLL.json $periphery_interfaces
-cp out-optimized/ISablierMerkleLockupFactory.sol/ISablierMerkleLockupFactory.json $periphery_interfaces
 cp out-optimized/ISablierMerkleLT.sol/ISablierMerkleLT.json $periphery_interfaces
 
 periphery_libraries=./artifacts/periphery/libraries

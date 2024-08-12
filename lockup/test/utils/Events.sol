@@ -7,9 +7,10 @@ import { ILockupNFTDescriptor } from "../../src/core/interfaces/ILockupNFTDescri
 import { ISablierLockupLinear } from "../../src/core/interfaces/ISablierLockupLinear.sol";
 import { ISablierLockupTranched } from "../../src/core/interfaces/ISablierLockupTranched.sol";
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/core/types/DataTypes.sol";
+import { ISablierMerkleInstant } from "../../src/periphery/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "../../src/periphery/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "../../src/periphery/interfaces/ISablierMerkleLT.sol";
-import { MerkleLockup, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
+import { MerkleBase, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
 
 /// @notice Abstract contract containing all the events emitted by the protocol.
 abstract contract Events {
@@ -100,14 +101,25 @@ abstract contract Events {
                                      PERIPHERY
     //////////////////////////////////////////////////////////////////////////*/
 
+    event Claim(uint256 index, address indexed recipient, uint128 amount);
+
     event Claim(uint256 index, address indexed recipient, uint128 amount, uint256 indexed streamId);
 
     event Clawback(address indexed admin, address indexed to, uint128 amount);
 
+    event CreateMerkleInstant(
+        ISablierMerkleInstant indexed merkleInstant,
+        MerkleBase.ConstructorParams baseParams,
+        uint256 aggregateAmount,
+        uint256 recipientCount
+    );
+
     event CreateMerkleLL(
         ISablierMerkleLL indexed merkleLL,
-        MerkleLockup.ConstructorParams baseParams,
+        MerkleBase.ConstructorParams baseParams,
         ISablierLockupLinear lockupLinear,
+        bool cancelable,
+        bool transferable,
         LockupLinear.Durations streamDurations,
         uint256 aggregateAmount,
         uint256 recipientCount
@@ -115,8 +127,10 @@ abstract contract Events {
 
     event CreateMerkleLT(
         ISablierMerkleLT indexed merkleLT,
-        MerkleLockup.ConstructorParams baseParams,
+        MerkleBase.ConstructorParams baseParams,
         ISablierLockupTranched lockupTranched,
+        bool cancelable,
+        bool transferable,
         MerkleLT.TrancheWithPercentage[] tranchesWithPercentages,
         uint256 totalDuration,
         uint256 aggregateAmount,

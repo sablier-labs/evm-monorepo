@@ -14,10 +14,6 @@ import { Fork_Test } from "../Fork.t.sol";
 abstract contract CreateWithTimestamps_LockupDynamic_BatchLockup_Fork_Test is Fork_Test {
     constructor(IERC20 asset_) Fork_Test(asset_) { }
 
-    function setUp() public virtual override {
-        Fork_Test.setUp();
-    }
-
     struct CreateWithTimestampsParams {
         uint128 batchSize;
         address sender;

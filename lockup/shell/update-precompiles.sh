@@ -16,7 +16,7 @@ batch_lockup=$(cat out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json 
 lockup_dynamic=$(cat out-optimized/SablierLockupDynamic.sol/SablierLockupDynamic.json | jq -r '.bytecode.object' | cut -c 3-)
 lockup_linear=$(cat out-optimized/SablierLockupLinear.sol/SablierLockupLinear.json | jq -r '.bytecode.object' | cut -c 3-)
 lockup_tranched=$(cat out-optimized/SablierLockupTranched.sol/SablierLockupTranched.json | jq -r '.bytecode.object' | cut -c 3-)
-merkle_lockup_factory=$(cat out-optimized/SablierMerkleLockupFactory.sol/SablierMerkleLockupFactory.json | jq -r '.bytecode.object' | cut -c 3-)
+merkle_factory=$(cat out-optimized/SablierMerkleFactory.sol/SablierMerkleFactory.json | jq -r '.bytecode.object' | cut -c 3-)
 nft_descriptor=$(cat out-optimized/LockupNFTDescriptor.sol/LockupNFTDescriptor.json | jq -r '.bytecode.object' | cut -c 3-)
 
 precompiles_path="precompiles/Precompiles.sol"
@@ -30,7 +30,7 @@ sd "(BYTECODE_BATCH_LOCKUP =)[^;]+;" "\$1 hex\"$batch_lockup\";" $precompiles_pa
 sd "(BYTECODE_LOCKUP_DYNAMIC =)[^;]+;" "\$1 hex\"$lockup_dynamic\";" $precompiles_path
 sd "(BYTECODE_LOCKUP_LINEAR =)[^;]+;" "\$1 hex\"$lockup_linear\";" $precompiles_path
 sd "(BYTECODE_LOCKUP_TRANCHED =)[^;]+;" "\$1 hex\"$lockup_tranched\";" $precompiles_path
-sd "(BYTECODE_MERKLE_LOCKUP_FACTORY =)[^;]+;" "\$1 hex\"$merkle_lockup_factory\";" $precompiles_path
+sd "(BYTECODE_MERKLE_FACTORY =)[^;]+;" "\$1 hex\"$merkle_factory\";" $precompiles_path
 sd "(BYTECODE_NFT_DESCRIPTOR =)[^;]+;" "\$1 hex\"$nft_descriptor\";" $precompiles_path
 
 # Reformat the code with Forge

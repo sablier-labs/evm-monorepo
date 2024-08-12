@@ -82,25 +82,21 @@ library BatchLockup {
     }
 }
 
-library MerkleLockup {
-    /// @notice Struct encapsulating the base constructor parameters of a MerkleLockup campaign.
+library MerkleBase {
+    /// @notice Struct encapsulating the base constructor parameters of a Merkle campaign.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
-    /// @param cancelable Indicates if the stream will be cancelable after claiming.
     /// @param expiration The expiration of the campaign, as a Unix timestamp.
-    /// @param initialAdmin The initial admin of the MerkleLockup campaign.
+    /// @param initialAdmin The initial admin of the campaign.
     /// @param ipfsCID The content identifier for indexing the contract on IPFS.
     /// @param merkleRoot The Merkle root of the claim data.
     /// @param name The name of the campaign.
-    /// @param transferable Indicates if the stream will be transferable after claiming.
     struct ConstructorParams {
         IERC20 asset;
-        bool cancelable;
         uint40 expiration;
         address initialAdmin;
         string ipfsCID;
         bytes32 merkleRoot;
         string name;
-        bool transferable;
     }
 }
 

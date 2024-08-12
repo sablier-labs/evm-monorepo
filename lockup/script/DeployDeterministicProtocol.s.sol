@@ -5,7 +5,7 @@ import { LockupNFTDescriptor } from "../src/core/LockupNFTDescriptor.sol";
 import { SablierLockupDynamic } from "../src/core/SablierLockupDynamic.sol";
 import { SablierLockupLinear } from "../src/core/SablierLockupLinear.sol";
 import { SablierLockupTranched } from "../src/core/SablierLockupTranched.sol";
-import { SablierMerkleLockupFactory } from "../src/periphery/SablierMerkleLockupFactory.sol";
+import { SablierMerkleFactory } from "../src/periphery/SablierMerkleFactory.sol";
 import { SablierBatchLockup } from "../src/periphery/SablierBatchLockup.sol";
 
 import { BaseScript } from "./Base.s.sol";
@@ -23,7 +23,7 @@ contract DeployDeterministicProtocol is BaseScript {
             SablierLockupLinear lockupLinear,
             SablierLockupTranched lockupTranched,
             SablierBatchLockup batchLockup,
-            SablierMerkleLockupFactory merkleLockupFactory
+            SablierMerkleFactory merkleFactory
         )
     {
         bytes32 salt = constructCreate2Salt();
@@ -38,6 +38,6 @@ contract DeployDeterministicProtocol is BaseScript {
 
         // Deploy Periphery.
         batchLockup = new SablierBatchLockup{ salt: salt }();
-        merkleLockupFactory = new SablierMerkleLockupFactory{ salt: salt }();
+        merkleFactory = new SablierMerkleFactory{ salt: salt }();
     }
 }

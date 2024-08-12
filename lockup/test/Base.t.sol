@@ -12,12 +12,13 @@ import { SablierLockupDynamic } from "src/core/SablierLockupDynamic.sol";
 import { SablierLockupLinear } from "src/core/SablierLockupLinear.sol";
 import { SablierLockupTranched } from "src/core/SablierLockupTranched.sol";
 import { LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
-import { ISablierMerkleLockupFactory } from "src/periphery/interfaces/ISablierMerkleLockupFactory.sol";
 import { ISablierBatchLockup } from "src/periphery/interfaces/ISablierBatchLockup.sol";
+import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
+import { ISablierMerkleInstant } from "src/periphery/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
 import { SablierBatchLockup } from "src/periphery/SablierBatchLockup.sol";
-import { SablierMerkleLockupFactory } from "src/periphery/SablierMerkleLockupFactory.sol";
+import { SablierMerkleFactory } from "src/periphery/SablierMerkleFactory.sol";
 
 import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
@@ -50,7 +51,8 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     ISablierLockupDynamic internal lockupDynamic;
     ISablierLockupLinear internal lockupLinear;
     ISablierLockupTranched internal lockupTranched;
-    ISablierMerkleLockupFactory internal merkleLockupFactory;
+    ISablierMerkleFactory internal merkleFactory;
+    ISablierMerkleInstant internal merkleInstant;
     ISablierMerkleLL internal merkleLL;
     ISablierMerkleLT internal merkleLT;
     ILockupNFTDescriptor internal nftDescriptor;
@@ -123,12 +125,12 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
         dai.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
         dai.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
         dai.approve({ spender: address(lockupTranched), value: MAX_UINT256 });
-        dai.approve({ spender: address(merkleLockupFactory), value: MAX_UINT256 });
+        dai.approve({ spender: address(merkleFactory), value: MAX_UINT256 });
         usdt.approve({ spender: address(batchLockup), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockupTranched), value: MAX_UINT256 });
-        usdt.approve({ spender: address(merkleLockupFactory), value: MAX_UINT256 });
+        usdt.approve({ spender: address(merkleFactory), value: MAX_UINT256 });
     }
 
     /// @dev Generates a user, labels its address, funds it with test assets, and approves the protocol contracts.
@@ -153,9 +155,9 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
             lockupDynamic = new SablierLockupDynamic(users.admin, nftDescriptor, defaults.MAX_SEGMENT_COUNT());
             lockupLinear = new SablierLockupLinear(users.admin, nftDescriptor);
             lockupTranched = new SablierLockupTranched(users.admin, nftDescriptor, defaults.MAX_TRANCHE_COUNT());
-            merkleLockupFactory = new SablierMerkleLockupFactory();
+            merkleFactory = new SablierMerkleFactory();
         } else {
-            (nftDescriptor, lockupDynamic, lockupLinear, lockupTranched, batchLockup, merkleLockupFactory) =
+            (nftDescriptor, lockupDynamic, lockupLinear, lockupTranched, batchLockup, merkleFactory) =
                 deployOptimizedProtocol(users.admin, defaults.MAX_SEGMENT_COUNT(), defaults.MAX_TRANCHE_COUNT());
         }
 
@@ -163,7 +165,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
         vm.label({ account: address(lockupDynamic), newLabel: "LockupDynamic" });
         vm.label({ account: address(lockupLinear), newLabel: "LockupLinear" });
         vm.label({ account: address(lockupTranched), newLabel: "LockupTranched" });
-        vm.label({ account: address(merkleLockupFactory), newLabel: "MerkleLockupFactory" });
+        vm.label({ account: address(merkleFactory), newLabel: "MerkleFactory" });
         vm.label({ account: address(nftDescriptor), newLabel: "NFTDescriptor" });
     }
 

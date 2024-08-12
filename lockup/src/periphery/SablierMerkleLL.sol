@@ -9,15 +9,15 @@ import { ud } from "@prb/math/src/UD60x18.sol";
 import { ISablierLockupLinear } from "../core/interfaces/ISablierLockupLinear.sol";
 import { Broker, LockupLinear } from "../core/types/DataTypes.sol";
 
-import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
+import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
-import { MerkleLockup } from "./types/DataTypes.sol";
+import { MerkleBase } from "./types/DataTypes.sol";
 
 /// @title SablierMerkleLL
 /// @notice See the documentation in {ISablierMerkleLL}.
 contract SablierMerkleLL is
     ISablierMerkleLL, // 2 inherited components
-    SablierMerkleLockup // 4 inherited components
+    SablierMerkleBase // 4 inherited components
 {
     using BitMaps for BitMaps.BitMap;
     using SafeERC20 for IERC20;
@@ -27,7 +27,13 @@ contract SablierMerkleLL is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLL
+    bool public immutable override CANCELABLE;
+
+    /// @inheritdoc ISablierMerkleLL
     ISablierLockupLinear public immutable override LOCKUP_LINEAR;
+
+    /// @inheritdoc ISablierMerkleLL
+    bool public immutable override TRANSFERABLE;
 
     /// @inheritdoc ISablierMerkleLL
     LockupLinear.Durations public override streamDurations;
@@ -39,16 +45,20 @@ contract SablierMerkleLL is
     /// @dev Constructs the contract by initializing the immutable state variables, and max approving the Lockup
     /// contract.
     constructor(
-        MerkleLockup.ConstructorParams memory baseParams,
+        MerkleBase.ConstructorParams memory baseParams,
         ISablierLockupLinear lockupLinear,
+        bool cancelable,
+        bool transferable,
         LockupLinear.Durations memory streamDurations_
     )
-        SablierMerkleLockup(baseParams)
+        SablierMerkleBase(baseParams)
     {
+        CANCELABLE = cancelable;
         LOCKUP_LINEAR = lockupLinear;
+        TRANSFERABLE = transferable;
         streamDurations = streamDurations_;
 
-        // Max approve the Lockup contract to spend funds from the MerkleLockup contract.
+        // Max approve the Lockup contract to spend funds from the MerkleLL contract.
         ASSET.forceApprove(address(LOCKUP_LINEAR), type(uint256).max);
     }
 

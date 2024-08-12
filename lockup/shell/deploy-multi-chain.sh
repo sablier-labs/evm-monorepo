@@ -360,7 +360,7 @@ for chain in "${provided_chains[@]}"; do
         lockupDynamic_address=$(echo "${output}" | awk '/lockupDynamic: contract/{print $NF}')
         lockupLinear_address=$(echo "${output}" | awk '/lockupLinear: contract/{print $NF}')
         lockupTranched_address=$(echo "${output}" | awk '/lockupTranched: contract/{print $NF}')
-        merkleLockupFactory_address=$(echo "${output}" | awk '/merkleLockupFactory: contract/{print $NF}')
+        merkleFactory_address=$(echo "${output}" | awk '/merkleFactory: contract/{print $NF}')
         nftDescriptor_address=$(echo "${output}" | awk '/nftDescriptor: contract/{print $NF}')
 
         # Save to the chain file
@@ -372,7 +372,7 @@ for chain in "${provided_chains[@]}"; do
             echo "SablierLockupTranched = ${lockupTranched_address}"
             echo "Periphery Contracts"
             echo "SablierBatchLockup = ${batchLockup_address}"
-            echo "SablierMerkleLockupFactory = ${merkleLockupFactory_address}"
+            echo "SablierMerkleFactory = ${merkleFactory_address}"
         } >> "$chain_file"
 
         echo -e "${SC}${TICK} Deployed on ${chain}. You can find the addresses in ${chain_file}${NC}"

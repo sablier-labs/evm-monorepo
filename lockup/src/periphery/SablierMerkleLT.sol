@@ -10,16 +10,16 @@ import { UD60x18, ud60x18, ZERO } from "@prb/math/src/UD60x18.sol";
 import { ISablierLockupTranched } from "../core/interfaces/ISablierLockupTranched.sol";
 import { Broker, LockupTranched } from "../core/types/DataTypes.sol";
 
-import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
+import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { MerkleLockup, MerkleLT } from "./types/DataTypes.sol";
+import { MerkleBase, MerkleLT } from "./types/DataTypes.sol";
 
 /// @title SablierMerkleLT
 /// @notice See the documentation in {ISablierMerkleLT}.
 contract SablierMerkleLT is
     ISablierMerkleLT, // 2 inherited components
-    SablierMerkleLockup // 4 inherited components
+    SablierMerkleBase // 4 inherited components
 {
     using BitMaps for BitMaps.BitMap;
     using SafeERC20 for IERC20;
@@ -29,10 +29,16 @@ contract SablierMerkleLT is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLT
+    bool public immutable override CANCELABLE;
+
+    /// @inheritdoc ISablierMerkleLT
     ISablierLockupTranched public immutable override LOCKUP_TRANCHED;
 
     /// @inheritdoc ISablierMerkleLT
     uint64 public immutable override TOTAL_PERCENTAGE;
+
+    /// @inheritdoc ISablierMerkleLT
+    bool public immutable override TRANSFERABLE;
 
     /// @dev The tranches with their respective unlock percentages and durations.
     MerkleLT.TrancheWithPercentage[] internal _tranchesWithPercentages;
@@ -44,13 +50,17 @@ contract SablierMerkleLT is
     /// @dev Constructs the contract by initializing the immutable state variables, and max approving the Lockup
     /// contract.
     constructor(
-        MerkleLockup.ConstructorParams memory baseParams,
+        MerkleBase.ConstructorParams memory baseParams,
         ISablierLockupTranched lockupTranched,
+        bool cancelable,
+        bool transferable,
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages
     )
-        SablierMerkleLockup(baseParams)
+        SablierMerkleBase(baseParams)
     {
+        CANCELABLE = cancelable;
         LOCKUP_TRANCHED = lockupTranched;
+        TRANSFERABLE = transferable;
 
         uint256 count = tranchesWithPercentages.length;
 
@@ -63,7 +73,7 @@ contract SablierMerkleLT is
         }
         TOTAL_PERCENTAGE = totalPercentage;
 
-        // Max approve the Lockup contract to spend funds from the MerkleLockup contract.
+        // Max approve the Lockup contract to spend funds from the MerkleLT contract.
         ASSET.forceApprove(address(LOCKUP_TRANCHED), type(uint256).max);
     }
 

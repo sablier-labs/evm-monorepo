@@ -7,7 +7,7 @@ import { ud2x18, uUNIT } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud, ZERO } from "@prb/math/src/UD60x18.sol";
 
 import { Broker, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/core/types/DataTypes.sol";
-import { BatchLockup, MerkleLockup, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
+import { BatchLockup, MerkleBase, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
 
 import { ArrayBuilder } from "./ArrayBuilder.sol";
 import { Constants } from "./Constants.sol";
@@ -443,7 +443,7 @@ contract Defaults is Constants, Merkle {
                                   MERKLE-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    function baseParams() public view returns (MerkleLockup.ConstructorParams memory) {
+    function baseParams() public view returns (MerkleBase.ConstructorParams memory) {
         return baseParams(users.admin, asset, EXPIRATION, MERKLE_ROOT);
     }
 
@@ -455,17 +455,15 @@ contract Defaults is Constants, Merkle {
     )
         public
         pure
-        returns (MerkleLockup.ConstructorParams memory)
+        returns (MerkleBase.ConstructorParams memory)
     {
-        return MerkleLockup.ConstructorParams({
+        return MerkleBase.ConstructorParams({
             asset: asset_,
-            cancelable: CANCELABLE,
             expiration: expiration,
             initialAdmin: admin,
             ipfsCID: IPFS_CID,
             merkleRoot: merkleRoot,
-            name: NAME,
-            transferable: TRANSFERABLE
+            name: NAME
         });
     }
 
@@ -497,19 +495,15 @@ contract Defaults is Constants, Merkle {
         return LEAVES;
     }
 
-    function tranchesMerkleLockup() public view returns (LockupTranched.Tranche[] memory tranches_) {
+    function tranchesMerkleLT() public view returns (LockupTranched.Tranche[] memory tranches_) {
         tranches_ = new LockupTranched.Tranche[](2);
         tranches_[0] = LockupTranched.Tranche({ amount: 2500e18, timestamp: uint40(block.timestamp) + CLIFF_DURATION });
         tranches_[1] = LockupTranched.Tranche({ amount: 7500e18, timestamp: uint40(block.timestamp) + TOTAL_DURATION });
     }
 
     /// @dev Mirros the logic from {SablierMerkleLT._calculateTranches}.
-    function tranchesMerkleLockup(uint128 totalAmount)
-        public
-        view
-        returns (LockupTranched.Tranche[] memory tranches_)
-    {
-        tranches_ = tranchesMerkleLockup();
+    function tranchesMerkleLT(uint128 totalAmount) public view returns (LockupTranched.Tranche[] memory tranches_) {
+        tranches_ = tranchesMerkleLT();
 
         uint128 amount0 = ud(totalAmount).mul(tranchesWithPercentages()[0].unlockPercentage.intoUD60x18()).intoUint128();
         uint128 amount1 = ud(totalAmount).mul(tranchesWithPercentages()[1].unlockPercentage.intoUD60x18()).intoUint128();

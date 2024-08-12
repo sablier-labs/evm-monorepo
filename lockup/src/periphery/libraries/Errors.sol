@@ -11,24 +11,24 @@ library Errors {
     error SablierBatchLockup_BatchSizeZero();
 
     /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-MERKLE-LOCKUP
+                                SABLIER-MERKLE-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when trying to claim after the campaign has expired.
-    error SablierMerkleLockup_CampaignExpired(uint256 blockTimestamp, uint40 expiration);
+    error SablierMerkleBase_CampaignExpired(uint256 blockTimestamp, uint40 expiration);
 
     /// @notice Thrown when trying to create a campaign with a name that is too long.
-    error SablierMerkleLockup_CampaignNameTooLong(uint256 nameLength, uint256 maxLength);
+    error SablierMerkleBase_CampaignNameTooLong(uint256 nameLength, uint256 maxLength);
 
     /// @notice Thrown when trying to clawback when the current timestamp is over the grace period and the campaign has
     /// not expired.
-    error SablierMerkleLockup_ClawbackNotAllowed(uint256 blockTimestamp, uint40 expiration, uint40 firstClaimTime);
+    error SablierMerkleBase_ClawbackNotAllowed(uint256 blockTimestamp, uint40 expiration, uint40 firstClaimTime);
 
     /// @notice Thrown when trying to claim with an invalid Merkle proof.
-    error SablierMerkleLockup_InvalidProof();
+    error SablierMerkleBase_InvalidProof();
 
     /// @notice Thrown when trying to claim the same stream more than once.
-    error SablierMerkleLockup_StreamClaimed(uint256 index);
+    error SablierMerkleBase_StreamClaimed(uint256 index);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-MERKLE-LT
