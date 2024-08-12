@@ -35,7 +35,7 @@ abstract contract Fork_Test is Periphery_Test, Merkle {
         vm.createSelectFork({ blockNumber: 20_339_512, urlOrAlias: "mainnet" });
 
         // Set up the parent test contract.
-        super.setUp();
+        Periphery_Test.setUp();
 
         // Load the external dependencies.
         loadDependencies();

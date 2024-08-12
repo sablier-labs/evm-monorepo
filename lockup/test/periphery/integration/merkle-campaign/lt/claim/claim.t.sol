@@ -14,7 +14,7 @@ import { Merkle } from "test/utils/Murky.sol";
 
 import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
 
-contract Claim_Integration_Test is Merkle, MerkleCampaign_Integration_Test {
+contract Claim_MerkleLT_Integration_Test is Merkle, MerkleCampaign_Integration_Test {
     using MerkleBuilder for uint256[];
 
     modifier whenTotalPercentageNotOneHundred() {

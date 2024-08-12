@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { LockupLinear } from "src/core/types/DataTypes.sol";
 import { SablierMerkleLL } from "src/periphery/SablierMerkleLL.sol";
 
-import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
+import { MerkleCampaign_Integration_Test } from "../MerkleCampaign.t.sol";
 
 contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
     /// @dev Needed to prevent "Stack too deep" error

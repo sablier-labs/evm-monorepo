@@ -10,6 +10,10 @@ import { SablierMerkleLT } from "src/periphery/SablierMerkleLT.sol";
 import { Base_Test } from "../Base.t.sol";
 
 contract Periphery_Test is Base_Test {
+    function setUp() public virtual override {
+        Base_Test.setUp();
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                    MERKLE-BASE
     //////////////////////////////////////////////////////////////////////////*/

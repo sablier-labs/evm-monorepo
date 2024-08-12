@@ -8,7 +8,7 @@ import { Periphery_Test } from "../../../Periphery.t.sol";
 
 contract CreateWithTimestampsLD_Integration_Test is Periphery_Test {
     function setUp() public virtual override {
-        super.setUp();
+        Periphery_Test.setUp();
         resetPrank({ msgSender: users.sender });
     }
 

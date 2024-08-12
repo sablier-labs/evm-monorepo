@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleInstant } from "src/periphery/SablierMerkleInstant.sol";
 
-import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
+import { MerkleCampaign_Integration_Test } from "../MerkleCampaign.t.sol";
 
 contract Constructor_MerkleInstant_Integration_Test is MerkleCampaign_Integration_Test {
     /// @dev Needed to prevent "Stack too deep" error

@@ -8,8 +8,12 @@ import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol"
 import { Periphery_Test } from "../../Periphery.t.sol";
 
 abstract contract MerkleCampaign_Integration_Test is Periphery_Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  SET-UP FUNCTION
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
-        super.setUp();
+        Periphery_Test.setUp();
 
         // Make Alice the caller.
         resetPrank(users.alice);
