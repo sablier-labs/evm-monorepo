@@ -82,7 +82,7 @@ library Lockup {
     /// @param isDepleted Boolean indicating if the stream is depleted.
     /// @param isStream Boolean indicating if the struct entity exists.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
-    /// @param amounts Struct encapsulating the deposit, withdrawn, and refunded amounts, all denoted in units of the
+    /// @param amounts Struct encapsulating the deposit, withdrawn, and refunded amounts, both denoted in units of the
     /// asset's decimals.
     struct Stream {
         // slot 0
@@ -104,11 +104,11 @@ library Lockup {
 /// @notice Namespace for the structs used in {SablierLockupDynamic}.
 library LockupDynamic {
     /// @notice Struct encapsulating the parameters of the {SablierLockupDynamic.createWithDurations} function.
-    /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
-    /// the same as `msg.sender`.
-    /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, denoted in units of the asset's decimals.
+    /// @param sender The address distributing the assets, which is able to cancel the stream. It doesn't have to be the
+    /// same as `msg.sender`.
+    /// @param recipient The address receiving the assets, as well as the NFT owner.
+    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the asset's
+    /// decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
@@ -128,11 +128,11 @@ library LockupDynamic {
     }
 
     /// @notice Struct encapsulating the parameters of the {SablierLockupDynamic.createWithTimestamps} function.
-    /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
-    /// the same as `msg.sender`.
-    /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, denoted in units of the asset's decimals.
+    /// @param sender The address distributing the assets, which is able to cancel the stream. It doesn't have to be the
+    /// same as `msg.sender`.
+    /// @param recipient The address receiving the assets, as well as the NFT owner.
+    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the asset's
+    /// decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
@@ -153,7 +153,7 @@ library LockupDynamic {
     }
 
     /// @notice Segment struct used in the Lockup Dynamic stream.
-    /// @param amount The amount of assets to be streamed in the segment, denoted in units of the asset's decimals.
+    /// @param amount The amount of assets streamed in the segment, denoted in units of the asset's decimals.
     /// @param exponent The exponent of the segment, denoted as a fixed-point number.
     /// @param timestamp The Unix timestamp indicating the segment's end.
     struct Segment {
@@ -164,7 +164,7 @@ library LockupDynamic {
     }
 
     /// @notice Segment struct used at runtime in {SablierLockupDynamic.createWithDurations}.
-    /// @param amount The amount of assets to be streamed in the segment, denoted in units of the asset's decimals.
+    /// @param amount The amount of assets streamed in the segment, denoted in units of the asset's decimals.
     /// @param exponent The exponent of the segment, denoted as a fixed-point number.
     /// @param duration The time difference in seconds between the segment and the previous one.
     struct SegmentWithDuration {
@@ -204,9 +204,9 @@ library LockupLinear {
     /// @notice Struct encapsulating the parameters of the {SablierLockupLinear.createWithDurations} function.
     /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
-    /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, denoted in units of the asset's decimals.
+    /// @param recipient The address receiving the assets, as well as the NFT owner.
+    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the asset's
+    /// decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
@@ -227,9 +227,9 @@ library LockupLinear {
     /// @notice Struct encapsulating the parameters of the {SablierLockupLinear.createWithTimestamps} function.
     /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
-    /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, denoted in units of the asset's decimals.
+    /// @param recipient The address receiving the assets, as well as the NFT owner.
+    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the asset's
+    /// decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
@@ -289,9 +289,9 @@ library LockupTranched {
     /// @notice Struct encapsulating the parameters of the {SablierLockupTranched.createWithDurations} function.
     /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
-    /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, denoted in units of the asset's decimals.
+    /// @param recipient The address receiving the assets, as well as the NFT owner.
+    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the asset's
+    /// decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
@@ -313,9 +313,9 @@ library LockupTranched {
     /// @notice Struct encapsulating the parameters of the {SablierLockupTranched.createWithTimestamps} function.
     /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
-    /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
-    /// broker fee, denoted in units of the asset's decimals.
+    /// @param recipient The address receiving the assets, as well as the NFT owner.
+    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the asset's
+    /// decimals.
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.

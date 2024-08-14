@@ -22,7 +22,7 @@ interface ISablierMerkleFactory {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when a {SablierV2MerkleInstant} campaign is created.
+    /// @notice Emitted when a {SablierMerkleInstant} campaign is created.
     event CreateMerkleInstant(
         ISablierMerkleInstant indexed merkleInstant,
         MerkleBase.ConstructorParams baseParams,

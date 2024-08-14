@@ -30,7 +30,7 @@ interface ISablierLockup is
     /// @param streamId The ID of the stream.
     /// @param sender The address of the stream's sender.
     /// @param recipient The address of the stream's recipient.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param asset The contract address of the ERC-20 asset that has been distributed.
     /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in units of the asset's
     /// decimals.
     /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of the
@@ -59,7 +59,7 @@ interface ISablierLockup is
     /// @notice Emitted when assets are withdrawn from a stream.
     /// @param streamId The ID of the stream.
     /// @param to The address that has received the withdrawn assets.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param asset The contract address of the ERC-20 asset that has been withdrawn.
     /// @param amount The amount of assets withdrawn, denoted in units of the asset's decimals.
     event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 amount);
 
@@ -72,7 +72,7 @@ interface ISablierLockup is
     /// @dev This value is hard coded as a constant.
     function MAX_BROKER_FEE() external view returns (UD60x18);
 
-    /// @notice Retrieves the address of the ERC-20 asset to be distributed.
+    /// @notice Retrieves the address of the ERC-20 asset being distributed.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function getAsset(uint256 streamId) external view returns (IERC20 asset);
