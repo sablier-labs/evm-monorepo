@@ -73,7 +73,7 @@
     "test": "forge test",
     "test:core": "FOUNDRY_PROFILE=lite forge test --match-path \"test/core/**/*.sol\" --nmt \"testFork\"",
     "test:lite": "FOUNDRY_PROFILE=lite forge test",
-    "test:periphery": "FOUNDRY_PROFILE=lite forge test --match-path \"test/periphery/**/*.sol\" --nmt \"testFork\"",
-    "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
+    "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test",
+    "test:periphery": "FOUNDRY_PROFILE=lite forge test --match-path \"test/periphery/**/*.sol\" --nmt \"testFork\""
   }
 }
