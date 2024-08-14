@@ -76,7 +76,9 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
     /// @return streamId The ID of the newly created stream.
-    function createWithDurations(LockupLinear.CreateWithDurations calldata params)
+    function createWithDurations(
+        LockupLinear.CreateWithDurations calldata params
+    )
         external
         returns (uint256 streamId);
 
@@ -102,7 +104,9 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
     /// @return streamId The ID of the newly created stream.
-    function createWithTimestamps(LockupLinear.CreateWithTimestamps calldata params)
+    function createWithTimestamps(
+        LockupLinear.CreateWithTimestamps calldata params
+    )
         external
         returns (uint256 streamId);
 }

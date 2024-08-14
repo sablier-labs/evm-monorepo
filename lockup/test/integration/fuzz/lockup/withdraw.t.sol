@@ -14,7 +14,9 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple caller addresses.
-    function testFuzz_Withdraw_UnknownCaller(address caller)
+    function testFuzz_Withdraw_UnknownCaller(
+        address caller
+    )
         external
         whenNotDelegateCalled
         givenNotNull
@@ -47,7 +49,9 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple values for the withdrawal address.
-    function testFuzz_Withdraw_CallerApprovedOperator(address to)
+    function testFuzz_Withdraw_CallerApprovedOperator(
+        address to
+    )
         external
         whenNotDelegateCalled
         givenNotNull

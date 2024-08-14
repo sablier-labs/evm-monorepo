@@ -80,7 +80,9 @@ interface ISablierV2LockupTranched is ISablierV2Lockup {
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
     /// @return streamId The ID of the newly created stream.
-    function createWithDurations(LockupTranched.CreateWithDurations calldata params)
+    function createWithDurations(
+        LockupTranched.CreateWithDurations calldata params
+    )
         external
         returns (uint256 streamId);
 
@@ -107,7 +109,9 @@ interface ISablierV2LockupTranched is ISablierV2Lockup {
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
     /// @return streamId The ID of the newly created stream.
-    function createWithTimestamps(LockupTranched.CreateWithTimestamps calldata params)
+    function createWithTimestamps(
+        LockupTranched.CreateWithTimestamps calldata params
+    )
         external
         returns (uint256 streamId);
 }

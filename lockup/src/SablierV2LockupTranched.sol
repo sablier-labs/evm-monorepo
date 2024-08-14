@@ -72,7 +72,9 @@ contract SablierV2LockupTranched is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupTranched
-    function getStream(uint256 streamId)
+    function getStream(
+        uint256 streamId
+    )
         external
         view
         override
@@ -104,7 +106,9 @@ contract SablierV2LockupTranched is
     }
 
     /// @inheritdoc ISablierV2LockupTranched
-    function getTimestamps(uint256 streamId)
+    function getTimestamps(
+        uint256 streamId
+    )
         external
         view
         override
@@ -115,7 +119,9 @@ contract SablierV2LockupTranched is
     }
 
     /// @inheritdoc ISablierV2LockupTranched
-    function getTranches(uint256 streamId)
+    function getTranches(
+        uint256 streamId
+    )
         external
         view
         override
@@ -130,7 +136,9 @@ contract SablierV2LockupTranched is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupTranched
-    function createWithDurations(LockupTranched.CreateWithDurations calldata params)
+    function createWithDurations(
+        LockupTranched.CreateWithDurations calldata params
+    )
         external
         override
         noDelegateCall
@@ -156,7 +164,9 @@ contract SablierV2LockupTranched is
     }
 
     /// @inheritdoc ISablierV2LockupTranched
-    function createWithTimestamps(LockupTranched.CreateWithTimestamps calldata params)
+    function createWithTimestamps(
+        LockupTranched.CreateWithTimestamps calldata params
+    )
         external
         override
         noDelegateCall

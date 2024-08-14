@@ -20,7 +20,9 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
         CreateWithDurations_Integration_Shared_Test.setUp();
     }
 
-    function testFuzz_RevertWhen_TotalDurationCalculationOverflows(LockupLinear.Durations memory durations)
+    function testFuzz_RevertWhen_TotalDurationCalculationOverflows(
+        LockupLinear.Durations memory durations
+    )
         external
         whenNotDelegateCalled
         whenCliffDurationCalculationDoesNotOverflow
@@ -48,7 +50,9 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
         createDefaultStreamWithDurations(durations);
     }
 
-    function testFuzz_CreateWithDurations(LockupLinear.Durations memory durations)
+    function testFuzz_CreateWithDurations(
+        LockupLinear.Durations memory durations
+    )
         external
         whenNotDelegateCalled
         whenCliffDurationCalculationDoesNotOverflow

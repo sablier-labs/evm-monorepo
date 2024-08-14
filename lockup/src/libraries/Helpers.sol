@@ -14,7 +14,9 @@ library Helpers {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Calculate the timestamps and return the segments.
-    function calculateSegmentTimestamps(LockupDynamic.SegmentWithDuration[] memory segments)
+    function calculateSegmentTimestamps(
+        LockupDynamic.SegmentWithDuration[] memory segments
+    )
         internal
         view
         returns (LockupDynamic.Segment[] memory segmentsWithTimestamps)
@@ -47,7 +49,9 @@ library Helpers {
     }
 
     /// @dev Calculate the timestamps and return the tranches.
-    function calculateTrancheTimestamps(LockupTranched.TrancheWithDuration[] memory tranches)
+    function calculateTrancheTimestamps(
+        LockupTranched.TrancheWithDuration[] memory tranches
+    )
         internal
         view
         returns (LockupTranched.Tranche[] memory tranchesWithTimestamps)

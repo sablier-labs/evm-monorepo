@@ -77,7 +77,9 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupDynamic
-    function getSegments(uint256 streamId)
+    function getSegments(
+        uint256 streamId
+    )
         external
         view
         override
@@ -88,7 +90,9 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2LockupDynamic
-    function getStream(uint256 streamId)
+    function getStream(
+        uint256 streamId
+    )
         external
         view
         override
@@ -120,7 +124,9 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2LockupDynamic
-    function getTimestamps(uint256 streamId)
+    function getTimestamps(
+        uint256 streamId
+    )
         external
         view
         override
@@ -135,7 +141,9 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupDynamic
-    function createWithDurations(LockupDynamic.CreateWithDurations calldata params)
+    function createWithDurations(
+        LockupDynamic.CreateWithDurations calldata params
+    )
         external
         override
         noDelegateCall
@@ -161,7 +169,9 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2LockupDynamic
-    function createWithTimestamps(LockupDynamic.CreateWithTimestamps calldata params)
+    function createWithTimestamps(
+        LockupDynamic.CreateWithTimestamps calldata params
+    )
         external
         override
         noDelegateCall
