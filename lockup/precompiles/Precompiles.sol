@@ -183,7 +183,9 @@ contract Precompiles {
     }
 
     /// @notice Deploys all V2 Core contracts.
-    function deployCore(address initialAdmin)
+    function deployCore(
+        address initialAdmin
+    )
         public
         returns (
             ISablierV2LockupDynamic lockupDynamic,
