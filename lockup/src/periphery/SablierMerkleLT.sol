@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { BitMaps } from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { uUNIT } from "@prb/math/src/UD2x18.sol";
@@ -21,7 +20,6 @@ contract SablierMerkleLT is
     ISablierMerkleLT, // 2 inherited components
     SablierMerkleBase // 4 inherited components
 {
-    using BitMaps for BitMaps.BitMap;
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -87,40 +85,21 @@ contract SablierMerkleLT is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                         USER-FACING NON-CONSTANT FUNCTIONS
+                           INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierMerkleLT
-    function claim(
-        uint256 index,
-        address recipient,
-        uint128 amount,
-        bytes32[] calldata merkleProof
-    )
-        external
-        override
-        returns (uint256 streamId)
-    {
+    /// @inheritdoc SablierMerkleBase
+    function _claim(uint256 index, address recipient, uint128 amount) internal override {
         // Check: the sum of percentages equals 100%.
         if (TOTAL_PERCENTAGE != uUNIT) {
             revert Errors.SablierMerkleLT_TotalPercentageNotOneHundred(TOTAL_PERCENTAGE);
         }
 
-        // Generate the Merkle tree leaf by hashing the corresponding parameters. Hashing twice prevents second
-        // preimage attacks.
-        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(index, recipient, amount))));
-
-        // Check: validate the function.
-        _checkClaim(index, leaf, merkleProof);
-
         // Calculate the tranches based on the unlock percentages.
         LockupTranched.TrancheWithDuration[] memory tranches = _calculateTranches(amount);
 
-        // Effect: mark the index as claimed.
-        _claimedBitMap.set(index);
-
         // Interaction: create the stream via {SablierLockupTranched}.
-        streamId = LOCKUP_TRANCHED.createWithDurations(
+        uint256 streamId = LOCKUP_TRANCHED.createWithDurations(
             LockupTranched.CreateWithDurations({
                 sender: admin,
                 recipient: recipient,
@@ -142,7 +121,9 @@ contract SablierMerkleLT is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Calculates the tranches based on the claim amount and the unlock percentages for each tranche.
-    function _calculateTranches(uint128 claimAmount)
+    function _calculateTranches(
+        uint128 claimAmount
+    )
         internal
         view
         returns (LockupTranched.TrancheWithDuration[] memory tranches)

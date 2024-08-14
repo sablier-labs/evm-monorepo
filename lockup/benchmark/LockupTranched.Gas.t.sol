@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { Broker, LockupTranched } from "../src/core/types/DataTypes.sol";
+import { LockupTranched } from "../src/core/types/DataTypes.sol";
 
 import { Benchmark_Test } from "./Benchmark.t.sol";
 

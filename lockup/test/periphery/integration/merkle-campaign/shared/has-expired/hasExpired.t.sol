@@ -10,9 +10,8 @@ abstract contract HasExpired_Integration_Test is MerkleCampaign_Integration_Shar
         MerkleCampaign_Integration_Shared_Test.setUp();
     }
 
-    ISablierMerkleBase internal campaignWithZeroExpiry;
-
-    function test_HasExpired_ExpirationZero() external view createMerkleCampaignWithZeroExpiry {
+    function test_HasExpired_ExpirationZero() external {
+        ISablierMerkleBase campaignWithZeroExpiry = ISablierMerkleBase(createMerkleLT({ expiration: 0 }));
         assertFalse(campaignWithZeroExpiry.hasExpired(), "campaign expired");
     }
 

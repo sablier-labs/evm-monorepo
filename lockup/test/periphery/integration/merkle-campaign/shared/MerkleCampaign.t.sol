@@ -15,15 +15,25 @@ abstract contract MerkleCampaign_Integration_Shared_Test is MerkleCampaign_Integ
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                      HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function claim() internal {
+        merkleBase.claim({
+            index: defaults.INDEX1(),
+            recipient: users.recipient1,
+            amount: defaults.CLAIM_AMOUNT(),
+            merkleProof: defaults.index1Proof()
+        });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                    MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev A shared modifier meant to be overridden by the implementing test contracts.
-    modifier afterFirstClaim() virtual {
-        _;
-    }
-
-    modifier createMerkleCampaignWithZeroExpiry() virtual {
+    modifier afterFirstClaim() {
+        // Make the first claim to set `_firstClaimTime`.
+        claim();
         _;
     }
 
@@ -32,11 +42,29 @@ abstract contract MerkleCampaign_Integration_Shared_Test is MerkleCampaign_Integ
         _;
     }
 
+    modifier givenCampaignNotExpired() {
+        _;
+    }
+
     modifier givenExpirationNotZero() {
         _;
     }
 
-    modifier givenRecipientHasClaimed() virtual {
+    modifier givenIncludedInMerkleTree() {
+        _;
+    }
+
+    modifier givenNotClaimed() {
+        _;
+    }
+
+    modifier givenNotIncludedInMerkleTree() {
+        _;
+    }
+
+    modifier givenRecipientHasClaimed() {
+        // Make the first claim to set `_firstClaimTime`.
+        claim();
         _;
     }
 

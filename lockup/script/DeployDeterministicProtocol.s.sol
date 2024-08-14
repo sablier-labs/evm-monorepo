@@ -13,7 +13,9 @@ import { BaseScript } from "./Base.s.sol";
 /// @notice Deploys the Lockup Protocol at deterministic addresses across chains.
 contract DeployDeterministicProtocol is BaseScript {
     /// @dev Deploy via Forge.
-    function run(address initialAdmin)
+    function run(
+        address initialAdmin
+    )
         public
         virtual
         broadcast

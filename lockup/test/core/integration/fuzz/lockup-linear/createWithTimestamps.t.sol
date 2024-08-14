@@ -22,7 +22,9 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         CreateWithTimestamps_Integration_Shared_Test.setUp();
     }
 
-    function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
+    function testFuzz_RevertWhen_BrokerFeeTooHigh(
+        Broker memory broker
+    )
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -36,7 +38,9 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         createDefaultStreamWithBroker(broker);
     }
 
-    function testFuzz_RevertWhen_StartTimeNotLessThanCliffTime(uint40 startTime)
+    function testFuzz_RevertWhen_StartTimeNotLessThanCliffTime(
+        uint40 startTime
+    )
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress

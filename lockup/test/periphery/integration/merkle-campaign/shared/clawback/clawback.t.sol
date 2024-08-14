@@ -42,7 +42,9 @@ abstract contract Clawback_Integration_Test is MerkleCampaign_Integration_Shared
         test_Clawback(users.admin);
     }
 
-    function testFuzz_Clawback(address to)
+    function testFuzz_Clawback(
+        address to
+    )
         external
         whenCallerAdmin
         afterFirstClaim

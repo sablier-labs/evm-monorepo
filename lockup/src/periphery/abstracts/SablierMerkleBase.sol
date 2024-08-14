@@ -94,6 +94,47 @@ abstract contract SablierMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleBase
+    function claim(
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] calldata merkleProof
+    )
+        external
+        override
+    {
+        // Check: the campaign has not expired.
+        if (hasExpired()) {
+            revert Errors.SablierMerkleBase_CampaignExpired({ blockTimestamp: block.timestamp, expiration: EXPIRATION });
+        }
+
+        // Check: the index has not been claimed.
+        if (_claimedBitMap.get(index)) {
+            revert Errors.SablierMerkleBase_StreamClaimed(index);
+        }
+
+        // Generate the Merkle tree leaf by hashing the corresponding parameters. Hashing twice prevents second
+        // preimage attacks.
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(index, recipient, amount))));
+
+        // Check: the input claim is included in the Merkle tree.
+        if (!MerkleProof.verify(merkleProof, MERKLE_ROOT, leaf)) {
+            revert Errors.SablierMerkleBase_InvalidProof();
+        }
+
+        // Effect: set the `_firstClaimTime` if its zero.
+        if (_firstClaimTime == 0) {
+            _firstClaimTime = uint40(block.timestamp);
+        }
+
+        // Effect: mark the index as claimed.
+        _claimedBitMap.set(index);
+
+        // Call the internal virtual function.
+        _claim(index, recipient, amount);
+    }
+
+    /// @inheritdoc ISablierMerkleBase
     function clawback(address to, uint128 amount) external override onlyAdmin {
         // Check: current timestamp is over the grace period and the campaign has not expired.
         if (_hasGracePeriodPassed() && !hasExpired()) {
@@ -125,26 +166,6 @@ abstract contract SablierMerkleBase is
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Validates the parameters of the `claim` function, which is implemented by child contracts.
-    function _checkClaim(uint256 index, bytes32 leaf, bytes32[] calldata merkleProof) internal {
-        // Check: the campaign has not expired.
-        if (hasExpired()) {
-            revert Errors.SablierMerkleBase_CampaignExpired({ blockTimestamp: block.timestamp, expiration: EXPIRATION });
-        }
-
-        // Check: the index has not been claimed.
-        if (_claimedBitMap.get(index)) {
-            revert Errors.SablierMerkleBase_StreamClaimed(index);
-        }
-
-        // Check: the input claim is included in the Merkle tree.
-        if (!MerkleProof.verify(merkleProof, MERKLE_ROOT, leaf)) {
-            revert Errors.SablierMerkleBase_InvalidProof();
-        }
-
-        // Effect: set the `_firstClaimTime` if its zero.
-        if (_firstClaimTime == 0) {
-            _firstClaimTime = uint40(block.timestamp);
-        }
-    }
+    /// @dev This function is implemented by child contracts, so the logic varies depending on the model.
+    function _claim(uint256 index, address recipient, uint128 amount) internal virtual;
 }

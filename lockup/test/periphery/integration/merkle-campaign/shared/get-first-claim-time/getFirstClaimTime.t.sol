@@ -13,7 +13,7 @@ abstract contract GetFirstClaimTime_Integration_Test is MerkleCampaign_Integrati
         assertEq(firstClaimTime, 0);
     }
 
-    function test_GetFirstClaimTime() external view afterFirstClaim {
+    function test_GetFirstClaimTime() external afterFirstClaim {
         uint256 firstClaimTime = merkleBase.getFirstClaimTime();
         assertEq(firstClaimTime, getBlockTimestamp());
     }

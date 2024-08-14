@@ -34,7 +34,9 @@ contract CreateWithDurations_LockupTranched_Integration_Fuzz_Test is
         uint128 totalAmount;
     }
 
-    function testFuzz_CreateWithDurations(LockupTranched.TrancheWithDuration[] memory tranches)
+    function testFuzz_CreateWithDurations(
+        LockupTranched.TrancheWithDuration[] memory tranches
+    )
         external
         whenNotDelegateCalled
         whenTrancheCountNotTooHigh

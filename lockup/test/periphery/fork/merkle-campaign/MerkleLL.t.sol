@@ -32,7 +32,6 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
 
     struct Vars {
         LockupLinear.StreamLL actualStream;
-        uint256 actualStreamId;
         uint256 aggregateAmount;
         uint128[] amounts;
         MerkleBase.ConstructorParams baseParams;
@@ -167,18 +166,17 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         if (leaves.length == 1) {
             // If there is only one leaf, the Merkle proof should be an empty array as no proof is needed because the
             // leaf is the root.
-        } else {
-            vars.merkleProof = getProof(leaves.toBytes32(), vars.leafPos);
         }
+        else vars.merkleProof = getProof(leaves.toBytes32(), vars.leafPos);
 
-        vars.actualStreamId = vars.merkleLL.claim({
+        vars.merkleLL.claim({
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
             merkleProof: vars.merkleProof
         });
 
-        vars.actualStream = lockupLinear.getStream(vars.actualStreamId);
+        vars.actualStream = lockupLinear.getStream(vars.expectedStreamId);
         vars.expectedStream = LockupLinear.StreamLL({
             amounts: Lockup.Amounts({ deposited: vars.amounts[params.posBeforeSort], refunded: 0, withdrawn: 0 }),
             asset: FORK_ASSET,
@@ -195,7 +193,6 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         });
 
         assertTrue(vars.merkleLL.hasClaimed(vars.indexes[params.posBeforeSort]));
-        assertEq(vars.actualStreamId, vars.expectedStreamId);
         assertEq(vars.actualStream, vars.expectedStream);
 
         /*//////////////////////////////////////////////////////////////////////////

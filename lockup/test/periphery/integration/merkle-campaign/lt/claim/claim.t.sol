@@ -1,21 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
 import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
-import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
 import { Errors } from "src/periphery/libraries/Errors.sol";
-import { MerkleBase, MerkleLT } from "src/periphery/types/DataTypes.sol";
+import { MerkleLT } from "src/periphery/types/DataTypes.sol";
 
-import { MerkleBuilder } from "test/utils/MerkleBuilder.sol";
-import { Merkle } from "test/utils/Murky.sol";
+import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
+import { MerkleLT_Integration_Shared_Test } from "../MerkleLT.t.sol";
 
-import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
-
-contract Claim_MerkleLT_Integration_Test is Merkle, MerkleCampaign_Integration_Test {
-    using MerkleBuilder for uint256[];
+contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Integration_Shared_Test {
+    function setUp() public override(Claim_Integration_Test, MerkleLT_Integration_Shared_Test) {
+        super.setUp();
+    }
 
     modifier whenTotalPercentageNotOneHundred() {
         _;
@@ -23,234 +21,64 @@ contract Claim_MerkleLT_Integration_Test is Merkle, MerkleCampaign_Integration_T
 
     function test_RevertWhen_TotalPercentageLessThanOneHundred() external whenTotalPercentageNotOneHundred {
         // Create a MerkleLT campaign with a total percentage less than 100.
-        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
-        bool cancelable = defaults.CANCELABLE();
-        bool transferable = defaults.TRANSFERABLE();
-        uint256 aggregateAmount = defaults.AGGREGATE_AMOUNT();
-        uint256 recipientCount = defaults.RECIPIENT_COUNT();
-
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
         tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);
         tranchesWithPercentages[1].unlockPercentage = ud2x18(0.2e18);
 
-        uint64 totalPercentage =
-            tranchesWithPercentages[0].unlockPercentage.unwrap() + tranchesWithPercentages[1].unlockPercentage.unwrap();
-
         merkleLT = merkleFactory.createMerkleLT(
-            baseParams,
-            lockupTranched,
-            cancelable,
-            transferable,
-            tranchesWithPercentages,
-            aggregateAmount,
-            recipientCount
-        );
-
-        // Claim an airstream.
-        bytes32[] memory merkleProof = defaults.index1Proof();
-
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
-        );
-
-        merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 1, merkleProof: merkleProof });
-    }
-
-    function test_RevertWhen_TotalPercentageGreaterThanOneHundred() external whenTotalPercentageNotOneHundred {
-        // Create a MerkleLT campaign with a total percentage less than 100.
-        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
-        bool cancelable = defaults.CANCELABLE();
-        bool transferable = defaults.TRANSFERABLE();
-        uint256 aggregateAmount = defaults.AGGREGATE_AMOUNT();
-        uint256 recipientCount = defaults.RECIPIENT_COUNT();
-
-        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
-        tranchesWithPercentages[0].unlockPercentage = ud2x18(0.75e18);
-        tranchesWithPercentages[1].unlockPercentage = ud2x18(0.8e18);
-
-        uint64 totalPercentage =
-            tranchesWithPercentages[0].unlockPercentage.unwrap() + tranchesWithPercentages[1].unlockPercentage.unwrap();
-
-        merkleLT = merkleFactory.createMerkleLT(
-            baseParams,
-            lockupTranched,
-            cancelable,
-            transferable,
-            tranchesWithPercentages,
-            aggregateAmount,
-            recipientCount
-        );
-
-        // Claim an airstream.
-        bytes32[] memory merkleProof = defaults.index1Proof();
-
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
-        );
-
-        merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 1, merkleProof: merkleProof });
-    }
-
-    modifier whenTotalPercentageOneHundred() {
-        _;
-    }
-
-    function test_RevertGiven_CampaignExpired() external whenTotalPercentageOneHundred {
-        uint40 expiration = defaults.EXPIRATION();
-        uint256 warpTime = expiration + 1 seconds;
-        bytes32[] memory merkleProof;
-        vm.warp({ newTimestamp: warpTime });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_CampaignExpired.selector, warpTime, expiration));
-        merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 1, merkleProof: merkleProof });
-    }
-
-    modifier givenCampaignNotExpired() {
-        _;
-    }
-
-    function test_RevertGiven_AlreadyClaimed() external whenTotalPercentageOneHundred givenCampaignNotExpired {
-        claimLT();
-        uint256 index1 = defaults.INDEX1();
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_StreamClaimed.selector, index1));
-        merkleLT.claim(index1, users.recipient1, amount, merkleProof);
-    }
-
-    modifier givenNotClaimed() {
-        _;
-    }
-
-    modifier givenNotIncludedInMerkleTree() {
-        _;
-    }
-
-    function test_RevertWhen_InvalidIndex()
-        external
-        whenTotalPercentageOneHundred
-        givenCampaignNotExpired
-        givenNotClaimed
-        givenNotIncludedInMerkleTree
-    {
-        uint256 invalidIndex = 1337;
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
-        merkleLT.claim(invalidIndex, users.recipient1, amount, merkleProof);
-    }
-
-    function test_RevertWhen_InvalidRecipient()
-        external
-        whenTotalPercentageOneHundred
-        givenCampaignNotExpired
-        givenNotClaimed
-        givenNotIncludedInMerkleTree
-    {
-        uint256 index1 = defaults.INDEX1();
-        address invalidRecipient = address(1337);
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
-        merkleLT.claim(index1, invalidRecipient, amount, merkleProof);
-    }
-
-    function test_RevertWhen_InvalidAmount()
-        external
-        whenTotalPercentageOneHundred
-        givenCampaignNotExpired
-        givenNotClaimed
-        givenNotIncludedInMerkleTree
-    {
-        uint256 index1 = defaults.INDEX1();
-        uint128 invalidAmount = 1337;
-        bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
-        merkleLT.claim(index1, users.recipient1, invalidAmount, merkleProof);
-    }
-
-    function test_RevertWhen_InvalidMerkleProof()
-        external
-        whenTotalPercentageOneHundred
-        givenCampaignNotExpired
-        givenNotClaimed
-        givenNotIncludedInMerkleTree
-    {
-        uint256 index1 = defaults.INDEX1();
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        bytes32[] memory invalidMerkleProof = defaults.index2Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
-        merkleLT.claim(index1, users.recipient1, amount, invalidMerkleProof);
-    }
-
-    modifier givenIncludedInMerkleTree() {
-        _;
-    }
-
-    /// @dev Needed this variable in storage due to how the imported libraries work.
-    uint256[] public leaves = new uint256[](4); // same number of recipients as in Defaults
-
-    function test_Claim_CalculatedAmountsSumNotEqualClaimAmount()
-        external
-        whenTotalPercentageOneHundred
-        givenCampaignNotExpired
-        givenNotClaimed
-        givenIncludedInMerkleTree
-    {
-        // Declare a claim amount that will cause a rounding error.
-        uint128 claimAmount = defaults.CLAIM_AMOUNT() + 1;
-
-        // Compute the test Merkle tree.
-        leaves = defaults.getLeaves();
-        uint256 leaf = MerkleBuilder.computeLeaf(defaults.INDEX1(), users.recipient1, claimAmount);
-        leaves[0] = leaf;
-        MerkleBuilder.sortLeaves(leaves);
-
-        // Compute the test Merkle proof.
-        uint256 pos = Arrays.findUpperBound(leaves, leaf);
-        bytes32[] memory proof = getProof(leaves.toBytes32(), pos);
-
-        /// Declare the constructor params.
-        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
-        baseParams.merkleRoot = getRoot(leaves.toBytes32());
-
-        // Deploy a test MerkleLT contract.
-        ISablierMerkleLT testMerkleLT = merkleFactory.createMerkleLT(
-            baseParams,
+            defaults.baseParams(),
             lockupTranched,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
-            defaults.tranchesWithPercentages(),
+            tranchesWithPercentages,
             defaults.AGGREGATE_AMOUNT(),
             defaults.RECIPIENT_COUNT()
         );
 
-        // Fund the MerkleLT contract.
-        deal({ token: address(dai), to: address(testMerkleLT), give: defaults.AGGREGATE_AMOUNT() });
+        uint64 totalPercentage =
+            tranchesWithPercentages[0].unlockPercentage.unwrap() + tranchesWithPercentages[1].unlockPercentage.unwrap();
 
-        uint256 expectedStreamId = lockupTranched.nextStreamId();
-        vm.expectEmit({ emitter: address(testMerkleLT) });
-        emit Claim(defaults.INDEX1(), users.recipient1, claimAmount, expectedStreamId);
+        // Claim an airstream.
+        bytes32[] memory merkleProof = defaults.index1Proof();
 
-        uint256 actualStreamId = testMerkleLT.claim(defaults.INDEX1(), users.recipient1, claimAmount, proof);
-        LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(actualStreamId);
-        LockupTranched.StreamLT memory expectedStream = LockupTranched.StreamLT({
-            amounts: Lockup.Amounts({ deposited: claimAmount, refunded: 0, withdrawn: 0 }),
-            asset: dai,
-            endTime: getBlockTimestamp() + defaults.TOTAL_DURATION(),
-            isCancelable: defaults.CANCELABLE(),
-            isDepleted: false,
-            isStream: true,
-            isTransferable: defaults.TRANSFERABLE(),
-            recipient: users.recipient1,
-            sender: users.admin,
-            startTime: getBlockTimestamp(),
-            tranches: defaults.tranchesMerkleLT(claimAmount),
-            wasCanceled: false
-        });
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
+        );
 
-        assertTrue(testMerkleLT.hasClaimed(defaults.INDEX1()), "not claimed");
-        assertEq(actualStreamId, expectedStreamId, "invalid stream id");
-        assertEq(actualStream, expectedStream);
+        merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 10_000e18, merkleProof: merkleProof });
+    }
+
+    function test_RevertWhen_TotalPercentageGreaterThanOneHundred() external whenTotalPercentageNotOneHundred {
+        // Create a MerkleLT campaign with a total percentage less than 100.
+        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
+        tranchesWithPercentages[0].unlockPercentage = ud2x18(0.75e18);
+        tranchesWithPercentages[1].unlockPercentage = ud2x18(0.8e18);
+
+        merkleLT = merkleFactory.createMerkleLT(
+            defaults.baseParams(),
+            lockupTranched,
+            defaults.CANCELABLE(),
+            defaults.TRANSFERABLE(),
+            tranchesWithPercentages,
+            defaults.AGGREGATE_AMOUNT(),
+            defaults.RECIPIENT_COUNT()
+        );
+
+        uint64 totalPercentage =
+            tranchesWithPercentages[0].unlockPercentage.unwrap() + tranchesWithPercentages[1].unlockPercentage.unwrap();
+
+        // Claim an airstream.
+        bytes32[] memory merkleProof = defaults.index1Proof();
+
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
+        );
+
+        merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 10_000e18, merkleProof: merkleProof });
+    }
+
+    modifier whenTotalPercentageOneHundred() {
+        _;
     }
 
     modifier whenCalculatedAmountsSumEqualsClaimAmount() {
@@ -259,6 +87,7 @@ contract Claim_MerkleLT_Integration_Test is Merkle, MerkleCampaign_Integration_T
 
     function test_Claim()
         external
+        override
         whenTotalPercentageOneHundred
         givenCampaignNotExpired
         givenNotClaimed
@@ -269,8 +98,8 @@ contract Claim_MerkleLT_Integration_Test is Merkle, MerkleCampaign_Integration_T
         vm.expectEmit({ emitter: address(merkleLT) });
         emit Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
 
-        uint256 actualStreamId = claimLT();
-        LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(actualStreamId);
+        claim();
+        LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(expectedStreamId);
         LockupTranched.StreamLT memory expectedStream = LockupTranched.StreamLT({
             amounts: Lockup.Amounts({ deposited: defaults.CLAIM_AMOUNT(), refunded: 0, withdrawn: 0 }),
             asset: dai,
@@ -286,8 +115,7 @@ contract Claim_MerkleLT_Integration_Test is Merkle, MerkleCampaign_Integration_T
             wasCanceled: false
         });
 
-        assertTrue(merkleLT.hasClaimed(defaults.INDEX1()), "not claimed");
-        assertEq(actualStreamId, expectedStreamId, "invalid stream id");
         assertEq(actualStream, expectedStream);
+        assertTrue(merkleLT.hasClaimed(defaults.INDEX1()), "not claimed");
     }
 }

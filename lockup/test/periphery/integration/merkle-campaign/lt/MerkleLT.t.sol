@@ -27,12 +27,6 @@ abstract contract MerkleLT_Integration_Shared_Test is MerkleCampaign_Integration
 //////////////////////////////////////////////////////////////////////////*/
 
 contract Clawback_MerkleLT_Integration_Test is Clawback_Integration_Test, MerkleLT_Integration_Shared_Test {
-    modifier afterFirstClaim() override {
-        // Make the first claim to set `_firstClaimTime`.
-        claimLT();
-        _;
-    }
-
     function setUp() public override(Clawback_Integration_Test, MerkleLT_Integration_Shared_Test) {
         Clawback_Integration_Test.setUp();
         MerkleLT_Integration_Shared_Test.setUp();
@@ -43,12 +37,6 @@ contract GetFirstClaimTime_MerkleLT_Integration_Test is
     GetFirstClaimTime_Integration_Test,
     MerkleLT_Integration_Shared_Test
 {
-    modifier afterFirstClaim() override {
-        // Make the first claim to set `_firstClaimTime`.
-        claimLT();
-        _;
-    }
-
     function setUp() public override(GetFirstClaimTime_Integration_Test, MerkleLT_Integration_Shared_Test) {
         GetFirstClaimTime_Integration_Test.setUp();
         MerkleLT_Integration_Shared_Test.setUp();
@@ -56,12 +44,6 @@ contract GetFirstClaimTime_MerkleLT_Integration_Test is
 }
 
 contract HasClaimed_MerkleLT_Integration_Test is HasClaimed_Integration_Test, MerkleLT_Integration_Shared_Test {
-    modifier givenRecipientHasClaimed() override {
-        // Make the first claim to set `_firstClaimTime`.
-        claimLT();
-        _;
-    }
-
     function setUp() public override(HasClaimed_Integration_Test, MerkleLT_Integration_Shared_Test) {
         HasClaimed_Integration_Test.setUp();
         MerkleLT_Integration_Shared_Test.setUp();
@@ -69,11 +51,6 @@ contract HasClaimed_MerkleLT_Integration_Test is HasClaimed_Integration_Test, Me
 }
 
 contract HasExpired_MerkleLT_Integration_Test is HasExpired_Integration_Test, MerkleLT_Integration_Shared_Test {
-    modifier createMerkleCampaignWithZeroExpiry() override {
-        campaignWithZeroExpiry = ISablierMerkleBase(createMerkleLT({ expiration: 0 }));
-        _;
-    }
-
     function setUp() public override(HasExpired_Integration_Test, MerkleLT_Integration_Shared_Test) {
         HasExpired_Integration_Test.setUp();
         MerkleLT_Integration_Shared_Test.setUp();

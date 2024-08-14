@@ -33,15 +33,6 @@ abstract contract MerkleCampaign_Integration_Test is Periphery_Test {
                                     MERKLE-INSTANT
     //////////////////////////////////////////////////////////////////////////*/
 
-    function claimInstant() internal {
-        return merkleInstant.claim({
-            index: defaults.INDEX1(),
-            recipient: users.recipient1,
-            amount: defaults.CLAIM_AMOUNT(),
-            merkleProof: defaults.index1Proof()
-        });
-    }
-
     function computeMerkleInstantAddress() internal view returns (address) {
         return computeMerkleInstantAddress(users.admin, defaults.MERKLE_ROOT(), defaults.EXPIRATION());
     }
@@ -93,15 +84,6 @@ abstract contract MerkleCampaign_Integration_Test is Periphery_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-LL
     //////////////////////////////////////////////////////////////////////////*/
-
-    function claimLL() internal returns (uint256) {
-        return merkleLL.claim({
-            index: defaults.INDEX1(),
-            recipient: users.recipient1,
-            amount: defaults.CLAIM_AMOUNT(),
-            merkleProof: defaults.index1Proof()
-        });
-    }
 
     function computeMerkleLLAddress() internal view returns (address) {
         return computeMerkleLLAddress(users.admin, defaults.MERKLE_ROOT(), defaults.EXPIRATION());
@@ -158,15 +140,6 @@ abstract contract MerkleCampaign_Integration_Test is Periphery_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-LT
     //////////////////////////////////////////////////////////////////////////*/
-
-    function claimLT() internal returns (uint256) {
-        return merkleLT.claim({
-            index: defaults.INDEX1(),
-            recipient: users.recipient1,
-            amount: defaults.CLAIM_AMOUNT(),
-            merkleProof: defaults.index1Proof()
-        });
-    }
 
     function computeMerkleLTAddress() internal view returns (address) {
         return computeMerkleLTAddress(users.admin, defaults.MERKLE_ROOT(), defaults.EXPIRATION());

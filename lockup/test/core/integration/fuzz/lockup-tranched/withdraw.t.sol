@@ -40,7 +40,9 @@ contract Withdraw_LockupTranched_Integration_Fuzz_Test is
         uint128 withdrawableAmount;
     }
 
-    function testFuzz_Withdraw_TrancheFuzzing(Params memory params)
+    function testFuzz_Withdraw_TrancheFuzzing(
+        Params memory params
+    )
         external
         whenNotDelegateCalled
         givenNotNull

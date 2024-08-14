@@ -2,106 +2,23 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
-import { Errors } from "src/periphery/libraries/Errors.sol";
 
-import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
+import { MerkleLL_Integration_Shared_Test } from "../MerkleLL.t.sol";
+import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
 
-contract Claim_MerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
-    function test_RevertGiven_CampaignExpired() external {
-        uint40 expiration = defaults.EXPIRATION();
-        uint256 warpTime = expiration + 1 seconds;
-        bytes32[] memory merkleProof;
-        vm.warp({ newTimestamp: warpTime });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_CampaignExpired.selector, warpTime, expiration));
-        merkleLL.claim({ index: 1, recipient: users.recipient1, amount: 1, merkleProof: merkleProof });
+contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Integration_Shared_Test {
+    function setUp() public override(Claim_Integration_Test, MerkleLL_Integration_Shared_Test) {
+        super.setUp();
     }
 
-    modifier givenCampaignNotExpired() {
-        _;
-    }
-
-    function test_RevertGiven_AlreadyClaimed() external givenCampaignNotExpired {
-        claimLL();
-        uint256 index1 = defaults.INDEX1();
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_StreamClaimed.selector, index1));
-        merkleLL.claim(index1, users.recipient1, amount, merkleProof);
-    }
-
-    modifier givenNotClaimed() {
-        _;
-    }
-
-    modifier givenNotIncludedInMerkleTree() {
-        _;
-    }
-
-    function test_RevertWhen_InvalidIndex()
-        external
-        givenCampaignNotExpired
-        givenNotClaimed
-        givenNotIncludedInMerkleTree
-    {
-        uint256 invalidIndex = 1337;
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
-        merkleLL.claim(invalidIndex, users.recipient1, amount, merkleProof);
-    }
-
-    function test_RevertWhen_InvalidRecipient()
-        external
-        givenCampaignNotExpired
-        givenNotClaimed
-        givenNotIncludedInMerkleTree
-    {
-        uint256 index1 = defaults.INDEX1();
-        address invalidRecipient = address(1337);
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
-        merkleLL.claim(index1, invalidRecipient, amount, merkleProof);
-    }
-
-    function test_RevertWhen_InvalidAmount()
-        external
-        givenCampaignNotExpired
-        givenNotClaimed
-        givenNotIncludedInMerkleTree
-    {
-        uint256 index1 = defaults.INDEX1();
-        uint128 invalidAmount = 1337;
-        bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
-        merkleLL.claim(index1, users.recipient1, invalidAmount, merkleProof);
-    }
-
-    function test_RevertWhen_InvalidMerkleProof()
-        external
-        givenCampaignNotExpired
-        givenNotClaimed
-        givenNotIncludedInMerkleTree
-    {
-        uint256 index1 = defaults.INDEX1();
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        bytes32[] memory invalidMerkleProof = defaults.index2Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
-        merkleLL.claim(index1, users.recipient1, amount, invalidMerkleProof);
-    }
-
-    modifier givenIncludedInMerkleTree() {
-        _;
-    }
-
-    function test_Claim() external givenCampaignNotExpired givenNotClaimed givenIncludedInMerkleTree {
+    function test_ClaimLL() external givenCampaignNotExpired givenNotClaimed givenIncludedInMerkleTree {
         uint256 expectedStreamId = lockupLinear.nextStreamId();
 
         vm.expectEmit({ emitter: address(merkleLL) });
         emit Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
-        uint256 actualStreamId = claimLL();
+        claim();
 
-        LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(actualStreamId);
+        LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(expectedStreamId);
         LockupLinear.StreamLL memory expectedStream = LockupLinear.StreamLL({
             amounts: Lockup.Amounts({ deposited: defaults.CLAIM_AMOUNT(), refunded: 0, withdrawn: 0 }),
             asset: dai,
@@ -117,8 +34,7 @@ contract Claim_MerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
             wasCanceled: false
         });
 
-        assertTrue(merkleLL.hasClaimed(defaults.INDEX1()), "not claimed");
-        assertEq(actualStreamId, expectedStreamId, "invalid stream id");
         assertEq(actualStream, expectedStream);
+        assertTrue(merkleLL.hasClaimed(defaults.INDEX1()), "not claimed");
     }
 }
