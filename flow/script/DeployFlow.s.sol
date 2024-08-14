@@ -8,7 +8,9 @@ import { BaseScript } from "./Base.s.sol";
 
 /// @notice Deploys {SablierFlow}.
 contract DeployFlow is BaseScript {
-    function run(address initialAdmin)
+    function run(
+        address initialAdmin
+    )
         public
         broadcast
         returns (SablierFlow flow, SablierFlowNFTDescriptor nftDescriptor)
