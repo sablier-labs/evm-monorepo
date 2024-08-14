@@ -95,8 +95,8 @@ contract LockupLinearCreateHandler is BaseHandler {
             );
         }
 
-        // Bound the end time so that it is always greater than the start time, the cliff time, and the block timestamp.
-        uint40 endTimeLowerBound = maxOfThree(params.timestamps.start, params.timestamps.cliff, blockTimestamp);
+        // Bound the end time so that it is always greater than the start time, and the cliff time.
+        uint40 endTimeLowerBound = maxOfTwo(params.timestamps.start, params.timestamps.cliff);
         params.timestamps.end = boundUint40(params.timestamps.end, endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
 
         // Mint enough assets to the Sender.

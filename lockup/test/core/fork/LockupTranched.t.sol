@@ -177,8 +177,9 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         );
 
         // Check if the stream is settled. It is possible for a Lockup Tranched stream to settle at the time of creation
-        // because some tranche amounts can be zero.
-        vars.isSettled = lockupTranched.refundableAmountOf(vars.streamId) == 0;
+        // because some tranche amounts can be zero or the last tranche timestamp can be in the past
+        vars.isSettled =
+            lockupTranched.refundableAmountOf(vars.streamId) == 0 || vars.timestamps.end <= getBlockTimestamp();
         vars.isCancelable = vars.isSettled ? false : true;
 
         // Assert that the stream has been created.

@@ -101,7 +101,6 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         whenTrancheAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstTrancheTimestamp
         whenTrancheTimestampsOrdered
-        whenEndTimeInTheFuture
     {
         depositDiff = boundUint128(depositDiff, 100, defaults.TOTAL_AMOUNT());
 
@@ -140,7 +139,6 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         whenTrancheAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstTrancheTimestamp
         whenTrancheTimestampsOrdered
-        whenEndTimeInTheFuture
         whenDepositAmountEqualToTrancheAmountsSum
     {
         vm.assume(broker.account != address(0));
@@ -188,7 +186,6 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         whenTrancheAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstTrancheTimestamp
         whenTrancheTimestampsOrdered
-        whenEndTimeInTheFuture
         whenDepositAmountEqualToTrancheAmountsSum
         whenBrokerFeeNotTooHigh
         whenAssetContract

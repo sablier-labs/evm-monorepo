@@ -105,7 +105,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeLessThanEndTime
-        whenEndTimeInTheFuture
         whenBrokerFeeNotTooHigh
         whenAssetContract
         whenAssetERC20

@@ -184,24 +184,6 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         createDefaultStreamWithTranches(tranches);
     }
 
-    function test_RevertGiven_EndTimeNotInTheFuture()
-        external
-        whenNotDelegateCalled
-        whenRecipientNonZeroAddress
-        whenDepositAmountNotZero
-        whenStartTimeNotZero
-        whenTrancheCountNotZero
-        whenTrancheCountNotTooHigh
-        whenTrancheAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstTrancheTimestamp
-        whenTrancheTimestampsOrdered
-    {
-        uint40 endTime = defaults.END_TIME();
-        vm.warp({ newTimestamp: endTime });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_EndTimeNotInTheFuture.selector, endTime, endTime));
-        createDefaultStream();
-    }
-
     function test_RevertWhen_DepositAmountNotEqualToTrancheAmountsSum()
         external
         whenNotDelegateCalled
@@ -213,7 +195,6 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenTrancheAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstTrancheTimestamp
         whenTrancheTimestampsOrdered
-        whenEndTimeInTheFuture
     {
         resetPrank({ msgSender: users.sender });
 
@@ -249,7 +230,6 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenTrancheAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstTrancheTimestamp
         whenTrancheTimestampsOrdered
-        whenEndTimeInTheFuture
         whenDepositAmountEqualToTrancheAmountsSum
     {
         UD60x18 brokerFee = MAX_BROKER_FEE + ud(1);
@@ -270,7 +250,6 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenTrancheAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstTrancheTimestamp
         whenTrancheTimestampsOrdered
-        whenEndTimeInTheFuture
         whenDepositAmountEqualToTrancheAmountsSum
         whenBrokerFeeNotTooHigh
     {
@@ -294,7 +273,6 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenTrancheAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstTrancheTimestamp
         whenTrancheTimestampsOrdered
-        whenEndTimeInTheFuture
         whenDepositAmountEqualToTrancheAmountsSum
         whenBrokerFeeNotTooHigh
         whenAssetContract
@@ -313,7 +291,6 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenTrancheAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstTrancheTimestamp
         whenTrancheTimestampsOrdered
-        whenEndTimeInTheFuture
         whenDepositAmountEqualToTrancheAmountsSum
         whenBrokerFeeNotTooHigh
         whenAssetContract

@@ -143,23 +143,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         createDefaultStreamWithTimestamps(LockupLinear.Timestamps({ start: startTime, cliff: cliffTime, end: endTime }));
     }
 
-    function test_RevertGiven_EndTimeNotInTheFuture()
-        external
-        whenNotDelegateCalled
-        whenRecipientNonZeroAddress
-        whenDepositAmountNotZero
-        whenStartTimeNotZero
-        whenCliffTimeGreaterThanZero
-        whenStartTimeLessThanEndTime
-        whenCliffTimeLessThanEndTime
-        whenEndTimeInTheFuture
-    {
-        uint40 endTime = defaults.END_TIME();
-        vm.warp({ newTimestamp: defaults.END_TIME() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_EndTimeNotInTheFuture.selector, endTime, endTime));
-        createDefaultStream();
-    }
-
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         whenNotDelegateCalled
@@ -169,7 +152,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenCliffTimeGreaterThanZero
         whenStartTimeLessThanEndTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeInTheFuture
     {
         UD60x18 brokerFee = MAX_BROKER_FEE + ud(1);
         vm.expectRevert(
@@ -187,7 +169,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenCliffTimeGreaterThanZero
         whenStartTimeLessThanEndTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeInTheFuture
         whenBrokerFeeNotTooHigh
     {
         address nonContract = address(8128);
@@ -204,7 +185,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenCliffTimeGreaterThanZero
         whenStartTimeLessThanEndTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeInTheFuture
         whenBrokerFeeNotTooHigh
         whenAssetContract
     {
@@ -219,7 +199,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenCliffTimeGreaterThanZero
         whenStartTimeLessThanEndTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeInTheFuture
         whenBrokerFeeNotTooHigh
         whenAssetContract
         whenAssetERC20

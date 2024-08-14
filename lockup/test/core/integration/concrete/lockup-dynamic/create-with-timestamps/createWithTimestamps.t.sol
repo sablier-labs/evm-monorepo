@@ -184,24 +184,6 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertGiven_EndTimeNotInTheFuture()
-        external
-        whenNotDelegateCalled
-        whenRecipientNonZeroAddress
-        whenDepositAmountNotZero
-        whenStartTimeNotZero
-        whenSegmentCountNotZero
-        whenSegmentCountNotTooHigh
-        whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentTimestamp
-        whenSegmentTimestampsOrdered
-    {
-        uint40 endTime = defaults.END_TIME();
-        vm.warp({ newTimestamp: endTime });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_EndTimeNotInTheFuture.selector, endTime, endTime));
-        createDefaultStream();
-    }
-
     function test_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum()
         external
         whenNotDelegateCalled
@@ -213,7 +195,6 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentTimestamp
         whenSegmentTimestampsOrdered
-        whenEndTimeInTheFuture
     {
         resetPrank({ msgSender: users.sender });
 
@@ -249,7 +230,6 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentTimestamp
         whenSegmentTimestampsOrdered
-        whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
     {
         UD60x18 brokerFee = MAX_BROKER_FEE + ud(1);
@@ -270,7 +250,6 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentTimestamp
         whenSegmentTimestampsOrdered
-        whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
         whenBrokerFeeNotTooHigh
     {
@@ -294,7 +273,6 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentTimestamp
         whenSegmentTimestampsOrdered
-        whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
         whenBrokerFeeNotTooHigh
         whenAssetContract
@@ -313,7 +291,6 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentTimestamp
         whenSegmentTimestampsOrdered
-        whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
         whenBrokerFeeNotTooHigh
         whenAssetContract

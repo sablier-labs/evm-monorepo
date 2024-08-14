@@ -98,7 +98,6 @@ interface ISablierLockupLinear is ISablierLockup {
     /// - `params.timestamps.start` must be greater than zero and less than `params.timestamps.end`.
     /// - If set, `params.timestamps.cliff` must be greater than `params.timestamps.start` and less than
     /// `params.timestamps.end`.
-    /// - `params.timestamps.end` must be in the future.
     /// - `params.recipient` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
     ///

@@ -119,7 +119,7 @@ library Helpers {
         uint40 startTime
     )
         internal
-        view
+        pure
     {
         // Check: the deposit amount is not zero.
         if (depositAmount == 0) {
@@ -147,7 +147,7 @@ library Helpers {
     }
 
     /// @dev Checks the parameters of the {SablierLockupLinear-_create} function.
-    function checkCreateLockupLinear(uint128 depositAmount, LockupLinear.Timestamps memory timestamps) internal view {
+    function checkCreateLockupLinear(uint128 depositAmount, LockupLinear.Timestamps memory timestamps) internal pure {
         // Check: the deposit amount is not zero.
         if (depositAmount == 0) {
             revert Errors.SablierLockup_DepositAmountZero();
@@ -175,12 +175,6 @@ library Helpers {
         if (timestamps.start >= timestamps.end) {
             revert Errors.SablierLockupLinear_StartTimeNotLessThanEndTime(timestamps.start, timestamps.end);
         }
-
-        // Check: the end time is in the future.
-        uint40 blockTimestamp = uint40(block.timestamp);
-        if (blockTimestamp >= timestamps.end) {
-            revert Errors.SablierLockup_EndTimeNotInTheFuture(blockTimestamp, timestamps.end);
-        }
     }
 
     /// @dev Checks the parameters of the {SablierLockupTranched-_create} function.
@@ -191,7 +185,7 @@ library Helpers {
         uint40 startTime
     )
         internal
-        view
+        pure
     {
         // Check: the deposit amount is not zero.
         if (depositAmount == 0) {
@@ -234,7 +228,7 @@ library Helpers {
         uint40 startTime
     )
         private
-        view
+        pure
     {
         // Check: the start time is strictly less than the first segment timestamp.
         if (startTime >= segments[0].timestamp) {
@@ -269,14 +263,6 @@ library Helpers {
             previousSegmentTimestamp = currentSegmentTimestamp;
         }
 
-        // Check: the last timestamp is in the future.
-        // When the loop exits, the current segment's timestamp is the last segment's timestamp, i.e. the stream's end
-        // time. The variable is not renamed for gas efficiency purposes.
-        uint40 blockTimestamp = uint40(block.timestamp);
-        if (blockTimestamp >= currentSegmentTimestamp) {
-            revert Errors.SablierLockup_EndTimeNotInTheFuture(blockTimestamp, currentSegmentTimestamp);
-        }
-
         // Check: the deposit amount is equal to the segment amounts sum.
         if (depositAmount != segmentAmountsSum) {
             revert Errors.SablierLockupDynamic_DepositAmountNotEqualToSegmentAmountsSum(
@@ -297,7 +283,7 @@ library Helpers {
         uint40 startTime
     )
         private
-        view
+        pure
     {
         // Check: the start time is strictly less than the first tranche timestamp.
         if (startTime >= tranches[0].timestamp) {
@@ -330,14 +316,6 @@ library Helpers {
 
             // Make the current timestamp the previous timestamp of the next loop iteration.
             previousTrancheTimestamp = currentTrancheTimestamp;
-        }
-
-        // Check: the last timestamp is in the future.
-        // When the loop exits, the current tranche's timestamp is the last tranche's timestamp, i.e. the stream's end
-        // time. The variable is not renamed for gas efficiency purposes.
-        uint40 blockTimestamp = uint40(block.timestamp);
-        if (blockTimestamp >= currentTrancheTimestamp) {
-            revert Errors.SablierLockup_EndTimeNotInTheFuture(blockTimestamp, currentTrancheTimestamp);
         }
 
         // Check: the deposit amount is equal to the tranche amounts sum.

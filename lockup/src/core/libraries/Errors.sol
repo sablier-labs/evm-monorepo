@@ -40,9 +40,6 @@ library Errors {
     /// @notice Thrown when trying to create a stream with a zero deposit amount.
     error SablierLockup_DepositAmountZero();
 
-    /// @notice Thrown when trying to create a stream with an end time not in the future.
-    error SablierLockup_EndTimeNotInTheFuture(uint40 blockTimestamp, uint40 endTime);
-
     /// @notice Thrown when the hook does not return the correct selector.
     error SablierLockup_InvalidHookSelector(address recipient);
 

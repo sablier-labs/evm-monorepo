@@ -102,7 +102,6 @@ interface ISablierLockupTranched is ISablierLockup {
     /// - `params.startTime` must be greater than zero and less than the first tranche's timestamp.
     /// - `params.tranches` must have at least one tranche, but not more than `MAX_TRANCHE_COUNT`.
     /// - The tranche timestamps must be arranged in ascending order.
-    /// - The last tranche timestamp (i.e. the stream's end time) must be in the future.
     /// - The sum of the tranche amounts must equal the deposit amount.
     /// - `params.recipient` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.

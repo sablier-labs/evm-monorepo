@@ -61,6 +61,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         bool hasCliff;
         uint256 initialLockupLinearBalance;
         uint256 initialRecipientBalance;
+        bool isCancelable;
         bool isDepleted;
         bool isSettled;
         uint256 streamId;
@@ -128,8 +129,8 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
                 params.timestamps.cliff, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks
             );
         }
-        // Bound the end time so that it is always greater than the block timestamp, the start time, and the cliff time.
-        vars.endTimeLowerBound = maxOfThree(params.timestamps.start, params.timestamps.cliff, vars.blockTimestamp);
+        // Bound the end time so that it is always greater than the start time, and the cliff time.
+        vars.endTimeLowerBound = maxOfTwo(params.timestamps.start, params.timestamps.cliff);
         params.timestamps.end =
             boundUint40(params.timestamps.end, vars.endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
 
@@ -183,13 +184,18 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
             })
         );
 
+        // Check if the stream is settled. It is possible for a Lockup Linear stream to settle at the time of creation
+        // in case end time is in the past.
+        vars.isSettled = params.timestamps.end <= vars.blockTimestamp;
+        vars.isCancelable = vars.isSettled ? false : true;
+
         // Assert that the stream has been created.
         LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, FORK_ASSET, "asset");
         assertEq(actualStream.cliffTime, params.timestamps.cliff, "cliffTime");
         assertEq(actualStream.endTime, params.timestamps.end, "endTime");
-        assertEq(actualStream.isCancelable, true, "isCancelable");
+        assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.isTransferable, true, "isTransferable");
@@ -200,8 +206,13 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
 
         // Assert that the stream's status is correct.
         vars.actualStatus = lockupLinear.statusOf(vars.streamId);
-        vars.expectedStatus =
-            params.timestamps.start > vars.blockTimestamp ? Lockup.Status.PENDING : Lockup.Status.STREAMING;
+        if (params.timestamps.end <= vars.blockTimestamp) {
+            vars.expectedStatus = Lockup.Status.SETTLED;
+        } else if (params.timestamps.start > vars.blockTimestamp) {
+            vars.expectedStatus = Lockup.Status.PENDING;
+        } else {
+            vars.expectedStatus = Lockup.Status.STREAMING;
+        }
         assertEq(vars.actualStatus, vars.expectedStatus, "post-create stream status");
 
         // Assert that the next stream ID has been bumped.

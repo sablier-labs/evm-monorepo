@@ -125,13 +125,11 @@ abstract contract Fuzzers is Constants, Utils {
     }
 
     /// @dev Fuzzes the segment timestamps.
-    function fuzzSegmentTimestamps(LockupDynamic.Segment[] memory segments, uint40 startTime) internal view {
+    function fuzzSegmentTimestamps(LockupDynamic.Segment[] memory segments, uint40 startTime) internal pure {
         // Return here if there's only one segment to not run into division by zero.
         uint40 segmentCount = uint40(segments.length);
         if (segmentCount == 1) {
-            // The end time must be in the future.
-            uint40 blockTimestamp = getBlockTimestamp();
-            segments[0].timestamp = (startTime < blockTimestamp ? blockTimestamp : startTime) + 2 days;
+            segments[0].timestamp = startTime + 2 days;
             return;
         }
 
@@ -173,13 +171,11 @@ abstract contract Fuzzers is Constants, Utils {
     }
 
     /// @dev Fuzzes the tranche timestamps.
-    function fuzzTrancheTimestamps(LockupTranched.Tranche[] memory tranches, uint40 startTime) internal view {
+    function fuzzTrancheTimestamps(LockupTranched.Tranche[] memory tranches, uint40 startTime) internal pure {
         // Return here if there's only one tranche to not run into division by zero.
         uint40 trancheCount = uint40(tranches.length);
         if (trancheCount == 1) {
-            // The end time must be in the future.
-            uint40 blockTimestamp = getBlockTimestamp();
-            tranches[0].timestamp = (startTime < blockTimestamp ? blockTimestamp : startTime) + 2 days;
+            tranches[0].timestamp = startTime + 2 days;
             return;
         }
 

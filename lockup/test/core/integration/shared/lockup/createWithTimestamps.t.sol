@@ -46,10 +46,6 @@ abstract contract CreateWithTimestamps_Integration_Shared_Test is Lockup_Integra
         _;
     }
 
-    modifier whenEndTimeInTheFuture() {
-        _;
-    }
-
     modifier whenNotDelegateCalled() {
         _;
     }
