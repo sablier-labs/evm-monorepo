@@ -97,7 +97,7 @@ library Lockup {
         bool isStream;
         bool isTransferable;
         // slot 2 and 3
-        Lockup.Amounts amounts;
+        Amounts amounts;
     }
 }
 
