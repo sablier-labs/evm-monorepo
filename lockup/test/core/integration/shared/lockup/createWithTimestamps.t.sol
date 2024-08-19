@@ -70,6 +70,10 @@ abstract contract CreateWithTimestamps_Integration_Shared_Test is Lockup_Integra
         _;
     }
 
+    modifier whenSenderNonZeroAddress() {
+        _;
+    }
+
     modifier whenStartTimeLessThanEndTime() {
         _;
     }

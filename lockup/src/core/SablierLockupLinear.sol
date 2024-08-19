@@ -249,7 +249,7 @@ contract SablierLockupLinear is
             Helpers.checkAndCalculateBrokerFee(params.totalAmount, params.broker.fee, MAX_BROKER_FEE);
 
         // Check: validate the user-provided parameters.
-        Helpers.checkCreateLockupLinear(createAmounts.deposit, params.timestamps);
+        Helpers.checkCreateLockupLinear(params.sender, createAmounts.deposit, params.timestamps);
 
         // Load the stream ID.
         streamId = nextStreamId;

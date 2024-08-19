@@ -33,7 +33,12 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled {
+    function test_RevertWhen_SenderZeroAddress() external whenNotDelegateCalled {
+        vm.expectRevert(Errors.SablierLockup_SenderZeroAddress.selector);
+        createDefaultStreamWithSender(address(0));
+    }
+
+    function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled whenSenderNonZeroAddress {
         address recipient = address(0);
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, recipient));
         createDefaultStreamWithRecipient(recipient);
@@ -41,7 +46,12 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
 
     /// @dev It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
     /// `MAX_BROKER_FEE` is hard coded to 10%.
-    function test_RevertWhen_DepositAmountZero() external whenNotDelegateCalled whenRecipientNonZeroAddress {
+    function test_RevertWhen_DepositAmountZero()
+        external
+        whenNotDelegateCalled
+        whenSenderNonZeroAddress
+        whenRecipientNonZeroAddress
+    {
         vm.expectRevert(Errors.SablierLockup_DepositAmountZero.selector);
         createDefaultStreamWithTotalAmount(0);
     }
@@ -49,6 +59,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     function test_RevertWhen_StartTimeZero()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
@@ -62,6 +73,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     function test_RevertWhen_StartTimeNotLessThanEndTime()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -79,6 +91,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     function test_CreateWithTimestamps_StartTimeLessThanEndTime()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -108,6 +121,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     function test_RevertWhen_StartTimeGreaterThanCliffTime()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -128,6 +142,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     function test_RevertWhen_CliffTimeNotLessThanEndTime()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -146,6 +161,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -163,6 +179,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     function test_RevertWhen_AssetNotContract()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -179,6 +196,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     function test_CreateWithTimestamps_AssetMissingReturnValue()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -194,6 +212,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     function test_CreateWithTimestamps()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeGreaterThanZero

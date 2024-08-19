@@ -52,6 +52,9 @@ library Errors {
     /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
     error SablierLockup_Overdraw(uint256 streamId, uint128 amount, uint128 withdrawableAmount);
 
+    /// @notice Thrown when trying to create a stream with the sender as the zero address.
+    error SablierLockup_SenderZeroAddress();
+
     /// @notice Thrown when trying to create a stream with a zero start time.
     error SablierLockup_StartTimeZero();
 

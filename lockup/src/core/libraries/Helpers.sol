@@ -113,6 +113,7 @@ library Helpers {
 
     /// @dev Checks the parameters of the {SablierLockupDynamic-_create} function.
     function checkCreateLockupDynamic(
+        address sender,
         uint128 depositAmount,
         LockupDynamic.Segment[] memory segments,
         uint256 maxSegmentCount,
@@ -121,6 +122,11 @@ library Helpers {
         internal
         pure
     {
+        // Check: the sender is not the zero address.
+        if (sender == address(0)) {
+            revert Errors.SablierLockup_SenderZeroAddress();
+        }
+
         // Check: the deposit amount is not zero.
         if (depositAmount == 0) {
             revert Errors.SablierLockup_DepositAmountZero();
@@ -147,7 +153,19 @@ library Helpers {
     }
 
     /// @dev Checks the parameters of the {SablierLockupLinear-_create} function.
-    function checkCreateLockupLinear(uint128 depositAmount, LockupLinear.Timestamps memory timestamps) internal pure {
+    function checkCreateLockupLinear(
+        address sender,
+        uint128 depositAmount,
+        LockupLinear.Timestamps memory timestamps
+    )
+        internal
+        pure
+    {
+        // Check: the sender is not the zero address.
+        if (sender == address(0)) {
+            revert Errors.SablierLockup_SenderZeroAddress();
+        }
+
         // Check: the deposit amount is not zero.
         if (depositAmount == 0) {
             revert Errors.SablierLockup_DepositAmountZero();
@@ -179,6 +197,7 @@ library Helpers {
 
     /// @dev Checks the parameters of the {SablierLockupTranched-_create} function.
     function checkCreateLockupTranched(
+        address sender,
         uint128 depositAmount,
         LockupTranched.Tranche[] memory tranches,
         uint256 maxTrancheCount,
@@ -187,6 +206,11 @@ library Helpers {
         internal
         pure
     {
+        // Check: the sender is not the zero address.
+        if (sender == address(0)) {
+            revert Errors.SablierLockup_SenderZeroAddress();
+        }
+
         // Check: the deposit amount is not zero.
         if (depositAmount == 0) {
             revert Errors.SablierLockup_DepositAmountZero();

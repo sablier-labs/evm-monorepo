@@ -34,13 +34,23 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled {
+    function test_RevertWhen_SenderZeroAddress() external whenNotDelegateCalled {
+        vm.expectRevert(Errors.SablierLockup_SenderZeroAddress.selector);
+        createDefaultStreamWithSender(address(0));
+    }
+
+    function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled whenSenderNonZeroAddress {
         address recipient = address(0);
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, recipient));
         createDefaultStreamWithRecipient(recipient);
     }
 
-    function test_RevertWhen_DepositAmountZero() external whenNotDelegateCalled whenRecipientNonZeroAddress {
+    function test_RevertWhen_DepositAmountZero()
+        external
+        whenNotDelegateCalled
+        whenSenderNonZeroAddress
+        whenRecipientNonZeroAddress
+    {
         // It is not possible to obtain a zero deposit amount from a non-zero total amount, because the `MAX_BROKER_FEE`
         // is hard coded to 10%.
         vm.expectRevert(Errors.SablierLockup_DepositAmountZero.selector);
@@ -51,6 +61,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_StartTimeZero()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
@@ -61,6 +72,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_SegmentCountZero()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -73,6 +85,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_SegmentCountTooHigh()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -87,6 +100,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -103,6 +117,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_StartTimeGreaterThanFirstSegmentTimestamp()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -130,6 +145,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_StartTimeEqualToFirstSegmentTimestamp()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -157,6 +173,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_SegmentTimestampsNotOrdered()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -187,6 +204,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -222,6 +240,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -242,6 +261,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_RevertWhen_AssetNotContract()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -265,6 +285,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_CreateWithTimestamps_AssetMissingReturnValue()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -283,6 +304,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     function test_CreateWithTimestamps()
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero

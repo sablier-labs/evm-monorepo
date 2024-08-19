@@ -27,6 +27,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
     )
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
@@ -43,6 +44,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
     )
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
@@ -61,6 +63,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
     )
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
@@ -102,6 +105,8 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
     )
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
+        whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeLessThanEndTime
@@ -109,7 +114,10 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         whenAssetContract
         whenAssetERC20
     {
-        vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
+        vm.assume(
+            funder != address(0) && params.sender != address(0) && params.recipient != address(0)
+                && params.broker.account != address(0)
+        );
         vm.assume(params.totalAmount != 0);
         params.timestamps.start =
             boundUint40(params.timestamps.start, defaults.START_TIME(), defaults.START_TIME() + 10_000 seconds);

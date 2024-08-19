@@ -233,7 +233,9 @@ contract SablierLockupTranched is
             Helpers.checkAndCalculateBrokerFee(params.totalAmount, params.broker.fee, MAX_BROKER_FEE);
 
         // Check: validate the user-provided parameters.
-        Helpers.checkCreateLockupTranched(createAmounts.deposit, params.tranches, MAX_TRANCHE_COUNT, params.startTime);
+        Helpers.checkCreateLockupTranched(
+            params.sender, createAmounts.deposit, params.tranches, MAX_TRANCHE_COUNT, params.startTime
+        );
 
         // Load the stream ID in a variable.
         streamId = nextStreamId;

@@ -99,6 +99,7 @@ interface ISablierLockupLinear is ISablierLockup {
     /// - If set, `params.timestamps.cliff` must be greater than `params.timestamps.start` and less than
     /// `params.timestamps.end`.
     /// - `params.recipient` must not be the zero address.
+    /// - `params.sender` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.

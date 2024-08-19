@@ -104,6 +104,7 @@ interface ISablierLockupTranched is ISablierLockup {
     /// - The tranche timestamps must be arranged in ascending order.
     /// - The sum of the tranche amounts must equal the deposit amount.
     /// - `params.recipient` must not be the zero address.
+    /// - `params.sender` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.

@@ -28,6 +28,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
     )
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
@@ -45,6 +46,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
     )
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
@@ -64,6 +66,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
     )
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
@@ -94,6 +97,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
     )
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
@@ -132,6 +136,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
     )
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
@@ -178,6 +183,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
     )
         external
         whenNotDelegateCalled
+        whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
@@ -191,7 +197,10 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         whenAssetContract
         whenAssetERC20
     {
-        vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
+        vm.assume(
+            funder != address(0) && params.sender != address(0) && params.recipient != address(0)
+                && params.broker.account != address(0)
+        );
         vm.assume(params.tranches.length != 0);
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
 
