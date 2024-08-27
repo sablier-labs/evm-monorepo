@@ -9,22 +9,22 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
 
-        // Advance the time past the solvency period so that there is debt.
+        // Advance the time past the solvency period so that there is uncovered debt.
         vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD + 1 days });
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT_6D));
         expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNoDelegateCall {
-        bytes memory callData = abi.encodeCall(flow.depositAndPause, (nullStreamId, TRANSFER_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (nullStreamId, DEPOSIT_AMOUNT_6D));
         expectRevert_Null(callData);
     }
 
     function test_RevertGiven_Paused() external whenNoDelegateCall givenNotNull {
-        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT_6D));
         expectRevert_Paused(callData);
     }
 
@@ -35,7 +35,7 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
         givenNotPaused
         whenCallerNotSender
     {
-        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT_6D));
         expectRevert_CallerRecipient(callData);
     }
 
@@ -46,45 +46,40 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
         givenNotPaused
         whenCallerNotSender
     {
-        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, TRANSFER_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT_6D));
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
     function test_WhenCallerSender() external whenNoDelegateCall givenNotNull givenNotPaused {
-        uint128 transferAmount = flow.streamDebtOf(defaultStreamId);
         uint128 previousStreamBalance = flow.getBalance(defaultStreamId);
-        uint128 previousAmountOwed = flow.amountOwedOf(defaultStreamId);
+        uint128 previousTotalDebt = flow.totalDebtOf(defaultStreamId);
 
         // It should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events
-        vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({ from: users.sender, to: address(flow), value: transferAmount });
+        vm.expectEmit({ emitter: address(usdc) });
+        emit IERC20.Transfer({ from: users.sender, to: address(flow), value: DEPOSIT_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit DepositFlowStream({
-            streamId: defaultStreamId,
-            funder: users.sender,
-            depositAmount: getNormalizedAmount(transferAmount, 18)
-        });
+        emit DepositFlowStream({ streamId: defaultStreamId, funder: users.sender, amount: DEPOSIT_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
         emit PauseFlowStream({
             streamId: defaultStreamId,
-            recipient: users.recipient,
             sender: users.sender,
-            amountOwed: previousAmountOwed
+            recipient: users.recipient,
+            totalDebt: previousTotalDebt
         });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
-        // It should perform the ERC20 transfer
-        expectCallToTransferFrom({ asset: dai, from: users.sender, to: address(flow), amount: transferAmount });
+        // It should perform the ERC-20 transfer
+        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), amount: DEPOSIT_AMOUNT_6D });
 
-        flow.depositAndPause(defaultStreamId, transferAmount);
+        flow.depositAndPause(defaultStreamId, DEPOSIT_AMOUNT_6D);
 
         // It should update the stream balance
         uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
-        uint128 expectedStreamBalance = previousStreamBalance + transferAmount;
+        uint128 expectedStreamBalance = previousStreamBalance + DEPOSIT_AMOUNT_6D;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
         // It should pause the stream
@@ -94,8 +89,8 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
         uint256 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         assertEq(actualRatePerSecond, 0, "rate per second");
 
-        // It should update the remaining amount
-        uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
-        assertEq(actualRemainingAmount, previousAmountOwed, "remaining amount");
+        // It should update the snapshot debt
+        uint128 actualSnapshotDebt = flow.getSnapshotDebt(defaultStreamId);
+        assertEq(actualSnapshotDebt, previousTotalDebt, "snapshot debt");
     }
 }

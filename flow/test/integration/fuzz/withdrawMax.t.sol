@@ -31,39 +31,39 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
         // Ensure no value is transferred.
-        vm.expectEmit({ emitter: address(asset) });
+        vm.expectEmit({ emitter: address(token) });
         emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: 0 });
 
-        uint128 expectedAmountOwed = flow.amountOwedOf(streamId);
+        uint128 expectedTotalDebt = flow.totalDebtOf(streamId);
         uint128 expectedStreamBalance = flow.getBalance(streamId);
-        uint256 expectedAssetBalance = asset.balanceOf(address(flow));
+        uint256 expectedTokenBalance = token.balanceOf(address(flow));
 
-        // Prank the caller and withdraw the assets.
+        // Prank the caller and withdraw the tokens.
         resetPrank(caller);
         flow.withdrawMax(streamId, users.recipient);
 
-        // Assert that all states are unchanged except for lastTimeUpdate.
-        uint128 actualLastTimeUpdate = flow.getLastTimeUpdate(streamId);
-        assertEq(actualLastTimeUpdate, getBlockTimestamp(), "last time update");
+        // Assert that all states are unchanged except for snapshotTime.
+        uint128 actualSnapshotTime = flow.getSnapshotTime(streamId);
+        assertEq(actualSnapshotTime, getBlockTimestamp(), "snapshot time");
 
-        uint128 actualAmountOwed = flow.amountOwedOf(streamId);
-        assertEq(actualAmountOwed, expectedAmountOwed, "full amount owed");
+        uint128 actualTotalDebt = flow.totalDebtOf(streamId);
+        assertEq(actualTotalDebt, expectedTotalDebt, "total debt");
 
         uint128 actualStreamBalance = flow.getBalance(streamId);
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
-        uint256 actualAssetBalance = asset.balanceOf(address(flow));
-        assertEq(actualAssetBalance, expectedAssetBalance, "asset balance");
+        uint256 actualTokenBalance = token.balanceOf(address(flow));
+        assertEq(actualTokenBalance, expectedTokenBalance, "token balance");
     }
 
     /// @dev Checklist:
-    /// - It should withdraw the max withdrawble amount from a stream.
+    /// - It should withdraw the max covered debt from a stream.
     /// - It should emit the following events: {Transfer}, {MetadataUpdate}, {WithdrawFromFlowStream}
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Only two values for caller (stream owner and approved operator).
     /// - Multiple non-zero values for withdrawTo address.
-    /// - Multiple streams to withdraw from, each with different asset decimals and rps.
+    /// - Multiple streams to withdraw from, each with different token decimals and rps.
     /// - Multiple points in time.
     function testFuzz_WithdrawalAddressNotOwner(
         address withdrawTo,
@@ -78,7 +78,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     {
         vm.assume(withdrawTo != address(0) && withdrawTo != address(flow));
 
-        (streamId, decimals,) = useFuzzedStreamOrCreate(streamId, decimals);
+        (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
@@ -87,19 +87,20 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
         // Prank to either recipient or operator.
-        resetPrank({ msgSender: useRecipientOrOperator(streamId, timeJump) });
+        address caller = useRecipientOrOperator(streamId, timeJump);
+        resetPrank({ msgSender: caller });
 
-        // Withdraw the assets.
-        _test_WithdrawMax(withdrawTo, streamId, decimals);
+        // Withdraw the tokens.
+        _test_WithdrawMax(caller, withdrawTo, streamId);
     }
 
     /// @dev Checklist:
-    /// - It should withdraw the max withdrawble amount from a stream.
+    /// - It should withdraw the max withdrawable amount from a stream.
     /// - It should emit the following events: {Transfer}, {MetadataUpdate}, {WithdrawFromFlowStream}
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Multiple non-zero values for callers.
-    /// - Multiple streams to withdraw from, each with different asset decimals and rps.
+    /// - Multiple streams to withdraw from, each with different token decimals and rps.
     /// - Multiple points in time.
     function testFuzz_WithdrawMax(
         address caller,
@@ -115,7 +116,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     {
         vm.assume(caller != address(0));
 
-        (streamId, decimals,) = useFuzzedStreamOrCreate(streamId, decimals);
+        (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
@@ -123,51 +124,47 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
-        // Prank the caller and withdraw the assets.
+        // Prank the caller and withdraw the tokens.
         resetPrank(caller);
-        _test_WithdrawMax(users.recipient, streamId, decimals);
+        _test_WithdrawMax(caller, users.recipient, streamId);
     }
 
     // Shared private function.
-    function _test_WithdrawMax(address withdrawTo, uint256 streamId, uint8 decimals) private {
-        uint128 amountOwed = flow.amountOwedOf(streamId);
-        uint256 assetbalance = asset.balanceOf(address(flow));
+    function _test_WithdrawMax(address caller, address withdrawTo, uint256 streamId) private {
+        uint128 totalDebt = flow.totalDebtOf(streamId);
+        uint256 tokenBalance = token.balanceOf(address(flow));
         uint128 streamBalance = flow.getBalance(streamId);
-        uint128 expectedWithdrawAmount = flow.withdrawableAmountOf(streamId);
+        uint128 withdrawAmount = flow.coveredDebtOf(streamId);
 
         // Expect the relevant events to be emitted.
-        vm.expectEmit({ emitter: address(asset) });
-        emit IERC20.Transfer({
-            from: address(flow),
-            to: withdrawTo,
-            value: getTransferAmount(expectedWithdrawAmount, decimals)
-        });
+        vm.expectEmit({ emitter: address(token) });
+        emit IERC20.Transfer({ from: address(flow), to: withdrawTo, value: withdrawAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit WithdrawFromFlowStream({ streamId: streamId, to: withdrawTo, withdrawnAmount: expectedWithdrawAmount });
+        emit WithdrawFromFlowStream(streamId, withdrawTo, token, caller, withdrawAmount, getBlockTimestamp());
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: streamId });
 
-        // Withdraw the assets.
+        // Withdraw the tokens.
         flow.withdrawMax(streamId, withdrawTo);
 
-        // It should update lastTimeUpdate.
-        assertEq(flow.getLastTimeUpdate(streamId), getBlockTimestamp(), "last time update");
+        // It should update snapshot time.
+        assertEq(flow.getSnapshotTime(streamId), getBlockTimestamp(), "snapshot time");
 
-        // It should decrease the full amount owed by withdrawn value.
-        uint128 actualAmountOwed = flow.amountOwedOf(streamId);
-        uint128 expectedAmountOwed = amountOwed - expectedWithdrawAmount;
-        assertEq(actualAmountOwed, expectedAmountOwed, "full amount owed");
+        // It should decrease the total debt by the withdrawn value.
+        uint128 actualTotalDebt = flow.totalDebtOf(streamId);
+        uint128 expectedTotalDebt = totalDebt - withdrawAmount;
+        assertEq(actualTotalDebt, expectedTotalDebt, "total debt");
 
         // It should reduce the stream balance by the withdrawn amount.
         uint128 actualStreamBalance = flow.getBalance(streamId);
-        uint128 expectedStreamBalance = streamBalance - expectedWithdrawAmount;
+        uint128 expectedStreamBalance = streamBalance - withdrawAmount;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
-        // It should reduce the asset balance of stream.
-        uint256 actualAssetBalance = asset.balanceOf(address(flow));
-        uint256 expectedAssetBalance = assetbalance - getTransferAmount(expectedWithdrawAmount, decimals);
-        assertEq(actualAssetBalance, expectedAssetBalance, "asset balance");
+        // It should reduce the token balance of stream.
+        uint256 actualTokenBalance = token.balanceOf(address(flow));
+        uint256 expectedTokenBalance = tokenBalance - withdrawAmount;
+        assertEq(actualTokenBalance, expectedTokenBalance, "token balance");
     }
 }

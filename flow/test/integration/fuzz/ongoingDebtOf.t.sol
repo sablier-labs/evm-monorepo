@@ -3,11 +3,11 @@ pragma solidity >=0.8.22;
 
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
-contract RecentAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
+contract OngoingDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// @dev It should return the expected value.
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
-    /// - Multiple paused streams, each with different asset decimals and rps.
+    /// - Multiple paused streams, each with different token decimals and rps.
     /// - Multiple points in time.
     function testFuzz_Paused(uint256 streamId, uint40 timeJump, uint8 decimals) external givenNotNull {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
@@ -21,21 +21,21 @@ contract RecentAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Pause the stream.
         flow.pause(streamId);
 
-        uint128 expectedRecentAmount = flow.recentAmountOf(streamId);
+        uint128 expectedOngoingDebt = flow.ongoingDebtOf(streamId);
 
         // Simulate the passage of time after pause.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
-        // Assert that amount owed is zero.
-        uint128 actualRecentAmount = flow.recentAmountOf(streamId);
-        assertEq(actualRecentAmount, expectedRecentAmount, "recent amount");
+        // Assert that the ongoing debt did not change.
+        uint128 actualOngoingDebt = flow.ongoingDebtOf(streamId);
+        assertEq(actualOngoingDebt, expectedOngoingDebt, "ongoing debt");
     }
 
     /// @dev It should return 0.
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
-    /// - Multiple non-paused streams, each with different asset decimals and rps.
-    function testFuzz_EqualLastTimeUpdate(
+    /// - Multiple non-paused streams, each with different token decimals and rps.
+    function testFuzz_EqualSnapshotTime(
         uint256 streamId,
         uint40 timeJump,
         uint8 decimals
@@ -53,19 +53,19 @@ contract RecentAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
         // Update the last time to block timestamp.
-        updateLastTimeToBlockTimestamp(streamId);
+        updateSnapshotTimeToBlockTimestamp(streamId);
 
-        // Assert that amount owed is zero.
-        uint128 actualRecentAmount = flow.recentAmountOf(streamId);
-        assertEq(actualRecentAmount, 0, "recent amount");
+        // Assert that ongoing debt is zero.
+        uint128 actualOngoingDebt = flow.ongoingDebtOf(streamId);
+        assertEq(actualOngoingDebt, 0, "ongoing debt");
     }
 
-    /// @dev It should return the recent amount.
+    /// @dev It should return the ongoing debt.
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
-    /// - Multiple non-paused streams, each with different asset decimals and rps.
-    /// - Multiple points in time after the value of lastTimeUpdate.
-    function testFuzz_RecentAmountOf(
+    /// - Multiple non-paused streams, each with different token decimals and rps.
+    /// - Multiple points in time after the value of snapshotTime.
+    function testFuzz_OngoingDebtOf(
         uint256 streamId,
         uint40 timeJump,
         uint8 decimals
@@ -74,10 +74,10 @@ contract RecentAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         givenNotNull
         givenNotPaused
     {
-        (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
+        (streamId, decimals,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Update the last time to block timestamp.
-        updateLastTimeToBlockTimestamp(streamId);
+        updateSnapshotTimeToBlockTimestamp(streamId);
 
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
@@ -87,9 +87,10 @@ contract RecentAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: warpTimestamp });
 
-        // Assert that amount owed is zero.
-        uint128 actualRecentAmount = flow.recentAmountOf(streamId);
-        uint128 expectedRecentAmount = flow.getRatePerSecond(streamId) * (warpTimestamp - MAY_1_2024);
-        assertEq(actualRecentAmount, expectedRecentAmount, "recent amount");
+        // Assert that total debt is zero.
+        uint128 actualOngoingDebt = flow.ongoingDebtOf(streamId);
+        uint128 expectedOngoingDebt =
+            getDenormalizedAmount(flow.getRatePerSecond(streamId) * (warpTimestamp - MAY_1_2024), decimals);
+        assertEq(actualOngoingDebt, expectedOngoingDebt, "ongoing debt");
     }
 }

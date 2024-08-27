@@ -84,9 +84,9 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
             vm.expectEmit({ emitter: address(flow) });
             emit AdjustFlowStream({
                 streamId: streamId,
-                amountOwed: flow.amountOwedOf(streamId),
-                newRatePerSecond: newRatePerSecond,
-                oldRatePerSecond: currentRatePerSecond
+                totalDebt: flow.totalDebtOf(streamId),
+                oldRatePerSecond: currentRatePerSecond,
+                newRatePerSecond: newRatePerSecond
             });
 
             vm.expectEmit({ emitter: address(flow) });

@@ -11,8 +11,8 @@ contract RefundableAmountOf_Integration_Concrete_Test is Integration_Test {
 
     function test_GivenBalanceZero() external view givenNotNull {
         // It should return zero.
-        uint128 refundableAmount = flow.refundableAmountOf(defaultStreamId);
-        assertEq(refundableAmount, 0, "refundable amount");
+        uint128 actualRefundableAmount = flow.refundableAmountOf(defaultStreamId);
+        assertEq(actualRefundableAmount, 0, "refundable amount");
     }
 
     modifier givenBalanceNotZero() override {
@@ -25,23 +25,23 @@ contract RefundableAmountOf_Integration_Concrete_Test is Integration_Test {
         // Pause the stream.
         flow.pause(defaultStreamId);
 
-        // It should return correct refundable amount.
-        uint128 refundableAmount = flow.refundableAmountOf(defaultStreamId);
-        assertEq(refundableAmount, ONE_MONTH_REFUNDABLE_AMOUNT, "refundable amount");
+        // It should return the correct refundable amount.
+        uint128 actualRefundableAmount = flow.refundableAmountOf(defaultStreamId);
+        assertEq(actualRefundableAmount, ONE_MONTH_REFUNDABLE_AMOUNT_6D, "refundable amount");
     }
 
-    function test_WhenAmountOwedExceedsBalance() external givenNotNull givenBalanceNotZero givenNotPaused {
-        // Simulate the passage of time until debt begins.
+    function test_WhenTotalDebtExceedsBalance() external givenNotNull givenBalanceNotZero givenNotPaused {
+        // Simulate the passage of time until debt becomes uncovered.
         vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD });
 
         // It should return zero.
-        uint128 refundableAmount = flow.refundableAmountOf(defaultStreamId);
-        assertEq(refundableAmount, 0, "refundable amount");
+        uint128 actualRefundableAmount = flow.refundableAmountOf(defaultStreamId);
+        assertEq(actualRefundableAmount, 0, "refundable amount");
     }
 
-    function test_WhenAmountOwedDoesNotExceedBalance() external givenNotNull givenBalanceNotZero givenNotPaused {
-        // It should return correct refundable amount.
-        uint128 refundableAmount = flow.refundableAmountOf(defaultStreamId);
-        assertEq(refundableAmount, ONE_MONTH_REFUNDABLE_AMOUNT, "refundable amount");
+    function test_WhenTotalDebtDoesNotExceedBalance() external givenNotNull givenBalanceNotZero givenNotPaused {
+        // It should return the correct refundable amount.
+        uint128 actualRefundableAmount = flow.refundableAmountOf(defaultStreamId);
+        assertEq(actualRefundableAmount, ONE_MONTH_REFUNDABLE_AMOUNT_6D, "refundable amount");
     }
 }

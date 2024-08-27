@@ -20,7 +20,7 @@ AdjustRatePerSecond_Integration_Concrete_Test
                  ├── when new rate per second equals current rate per second
                  │  └── it should revert
                  └── when new rate per second not equals current rate per second
-                    ├── it should update remaining amount
-                    ├── it should update lastTimeUpdate
+                    ├── it should update snapshot debt
+                    ├── it should update snapshot time
                     ├── it should set the new rate per second
                     └── it should emit 1 {AdjustFlowStream}, 1 {MetadataUpdate} events

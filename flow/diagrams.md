@@ -2,17 +2,17 @@
 
 ### Types
 
-| Type      | Statuses                                   | Description                                                   |
-| :-------- | :----------------------------------------- | :------------------------------------------------------------ |
-| Streaming | `STREAMING_SOLVENT`, `STREAMING_INSOLVENT` | The amount owed to the recipient is increasing over time.     |
-| Paused    | `PAUSED_SOLVENT`, `PAUSED_INSOLVENT`       | The amount owed to the recipient is not increasing over time. |
+| Type      | Statuses                                   | Description           |
+| :-------- | :----------------------------------------- | :-------------------- |
+| Streaming | `STREAMING_SOLVENT`, `STREAMING_INSOLVENT` | Debt is accruing.     |
+| Paused    | `PAUSED_SOLVENT`, `PAUSED_INSOLVENT`       | Debt is not accruing. |
 
-| Status                | Description                             |
-| --------------------- | --------------------------------------- |
-| `STREAMING_SOLVENT`   | Streaming stream when there is no debt. |
-| `STREAMING_INSOLVENT` | Streaming stream when there is debt.    |
-| `PAUSED_SOLVENT`      | Paused stream when there is no debt.    |
-| `PAUSED_INSOLVENT`    | Paused stream when there is debt.       |
+| Status                | Description                                       |
+| --------------------- | ------------------------------------------------- |
+| `STREAMING_SOLVENT`   | Streaming stream when there is no uncovered debt. |
+| `STREAMING_INSOLVENT` | Streaming stream when there is no uncovered debt. |
+| `PAUSED_SOLVENT`      | Paused stream when there is no uncovered debt.    |
+| `PAUSED_INSOLVENT`    | Paused stream when there is uncovered debt.       |
 
 ### Statuses diagram
 
@@ -65,8 +65,8 @@ stateDiagram-v2
 
 1. The arrows point to the status on which the function can be called
 2. The "update" comments refer only to the internal state
-3. `ltu` is always updated to `block.timestamp`
-4. Red lines refers to the function that are doing an ERC20 transfer
+3. `st` is always updated to `block.timestamp`, expect for `withdrawAt`
+4. Red lines refers to the function that are doing an ERC-20 transfer
 
 ```mermaid
 flowchart LR
@@ -95,22 +95,22 @@ flowchart LR
     classDef yellow fill:#ffff99,stroke:#333,stroke-width:2px;
     classDef black fill:#000000,stroke:#333,stroke-width:2px;
 
-    CR -- "update rps\nupdate ltu" --> NULL
-    ADJRPS -- "update ra (+rca)\nupdate rps\nupdate ltu" -->  STR
+    CR -- "update rps\nupdate st" --> NULL
+    ADJRPS -- "update sd (+od)\nupdate rps\nupdate st" -->  STR
 
     DP -- "update bal (+)" --> BOTH
 
     RFD -- "update bal (-)" --> BOTH
 
-    WTD -- "update ra (-) \nupdate ltu\nupdate bal (-)" --> BOTH
+    WTD -- "update sd (-) \nupdate st\nupdate bal (-)" --> BOTH
 
-    VD -- "update ra (bal)\nupdate rps (0)" --> BOTH
+    VD -- "update sd (bal)\nupdate rps (0)" --> BOTH
 
-    PS -- "update ra (+rca)\nupdate rps (0)" --> STR
+    PS -- "update sd (+od)\nupdate rps (0)" --> STR
 
     BOTH --> STR & PSED
 
-    RST -- "update rps \nupdate ltu" --> PSED
+    RST -- "update rps \nupdate st" --> PSED
 
     linkStyle 2,3,4 stroke:#ff0000,stroke-width:2px
 ```
@@ -135,13 +135,13 @@ flowchart LR
     stream[(Stream Internal State)]:::green
     bal([Balance - bal]):::green
     rps([RatePerSecond - rps]):::green
-    ra([RemainingAmount - ra]):::green
-    ltu([Last Time Update - ltu]):::green
+    sd([SnapshotDebt - sd]):::green
+    st([Snapshot Time - st]):::green
 
     stream --> bal
     stream --> rps
-    stream --> ra
-    stream --> ltu
+    stream --> sd
+    stream --> st
 
     classDef green fill:#32cd32,stroke:#333,stroke-width:2px;
 ```
@@ -162,54 +162,54 @@ flowchart LR
 
 ## Amount Calculations
 
-### Recent Amount
+### Ongoing Debt
 
 **Notes:** `now` refers to `block.timestamp`.
 
 ```mermaid
 flowchart TD
-rca([Recent Amount - ra]):::green1
+rca([Ongoing Debt - od]):::green1
 di0{ }:::green0
 di1{ }:::green0
 res_00([0 ]):::green1
 res_01([0 ]):::green1
-res_rca(["rps*(now - ltu)"]):::green1
+res_rca(["rps*(now - st)"]):::green1
 
 rca --> di0
 di0 -- "streaming" --> di1
 di0 -- "paused" --> res_00
-di1 -- "now < ltu" --> res_01
-di1 -- "now >= ltu" --> res_rca
+di1 -- "now < st" --> res_01
+di1 -- "now >= st" --> res_rca
 
 classDef green0 fill:#98FB98,stroke:#333,stroke-width:2px;
 classDef green1 fill:#32cd32,stroke:#333,stroke-width:2px;
 ```
 
-### Withdrawable Amount
+### Covered debt
 
-**Notes:** Debt greater than zero means:
+**Notes:** Uncovered debt greater than zero means:
 
-1. `ra > bal` when the status is `PAUSED`
-2. `ra + rca > bal` when the status is `STREAMING`
+1. `sd > bal` when the status is `PAUSED`
+2. `sd + od > bal` when the status is `STREAMING`
 
 ```mermaid
 flowchart TD
     di0{ }:::blue0
     di1{ }:::blue0
     di2{ }:::blue0
-    wa([Withdrawable Amount - wa]):::blue0
+    cd([Covered Debt - cd]):::blue0
     res_0([0 ]):::blue1
     res_bal([bal]):::blue1
-    res_ra([ra]):::blue1
-    res_sum([rca + ra]):::blue1
+    res_sd([sd]):::blue1
+    res_sum([od + sd]):::blue1
 
 
-    wa --> di0
+    cd --> di0
     di0 -- "bal = 0" --> res_0
     di0 -- "bal > 0" --> di1
-    di1 -- "debt > 0" --> res_bal
-    di1 -- "debt = 0" --> di2
-    di2 -- "paused" --> res_ra
+    di1 -- "ud > 0" --> res_bal
+    di1 -- "ud = 0" --> di2
+    di2 -- "paused" --> res_sd
     di2 -- "streaming" --> res_sum
 
     classDef blue0 fill:#DAE8FC,stroke:#333,stroke-width:2px;
@@ -221,27 +221,27 @@ flowchart TD
 
 ```mermaid
     flowchart TD
-    rfa([Refundable Amount - rfa]):::orange0
-    res_rfa([bal - wa]):::orange1
-    rfa --> res_rfa
+    ra([Refundable Amount - ra]):::orange0
+    res_ra([bal - cd]):::orange1
+    ra --> res_ra
 
     classDef orange0 fill:#FFA500,stroke:#333,stroke-width:2px;
     classDef orange1 fill:#FFCD28,stroke:#333,stroke-width:2px;
 
 ```
 
-### Stream Debt
+### Uncovered Debt
 
 ```mermaid
 flowchart TD
     di0{ }:::red1
-    sd([Stream Debt - sd]):::red0
-    res_sd(["rca + ra - bal"]):::red1
+    sd([Uncovered Debt - ud]):::red0
+    res_sd(["od + sd - bal"]):::red1
     res_zero([0]):::red1
 
     sd --> di0
-    di0 -- "bal < rca + ra" --> res_sd
-    di0 -- "bal >= rca + ra" --> res_zero
+    di0 -- "bal < od + sd" --> res_sd
+    di0 -- "bal >= od + sd" --> res_zero
 
     classDef red0 fill:#EA6B66,stroke:#333,stroke-width:2px;
     classDef red1 fill:#FFCCCC,stroke:#333,stroke-width:2px;

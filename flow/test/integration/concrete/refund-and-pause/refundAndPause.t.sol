@@ -13,17 +13,17 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(flow.refundAndPause, (defaultStreamId, REFUND_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.refundAndPause, (defaultStreamId, REFUND_AMOUNT_6D));
         expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNoDelegateCall {
-        bytes memory callData = abi.encodeCall(flow.refundAndPause, (nullStreamId, REFUND_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.refundAndPause, (nullStreamId, REFUND_AMOUNT_6D));
         expectRevert_Null(callData);
     }
 
     function test_RevertGiven_Paused() external whenNoDelegateCall givenNotNull {
-        bytes memory callData = abi.encodeCall(flow.refundAndPause, (defaultStreamId, REFUND_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.refundAndPause, (defaultStreamId, REFUND_AMOUNT_6D));
         expectRevert_Paused(callData);
     }
 
@@ -34,7 +34,7 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
         givenNotPaused
         whenCallerNotSender
     {
-        bytes memory callData = abi.encodeCall(flow.refundAndPause, (defaultStreamId, REFUND_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.refundAndPause, (defaultStreamId, REFUND_AMOUNT_6D));
         expectRevert_CallerRecipient(callData);
     }
 
@@ -45,53 +45,50 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
         givenNotPaused
         whenCallerNotSender
     {
-        bytes memory callData = abi.encodeCall(flow.refundAndPause, (defaultStreamId, REFUND_AMOUNT));
+        bytes memory callData = abi.encodeCall(flow.refundAndPause, (defaultStreamId, REFUND_AMOUNT_6D));
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
     function test_WhenCallerSender() external whenNoDelegateCall givenNotNull givenNotPaused {
-        uint128 previousAmountOwed = flow.amountOwedOf(defaultStreamId);
+        uint128 previousTotalDebt = flow.totalDebtOf(defaultStreamId);
 
         // It should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events
-        vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({ from: address(flow), to: users.sender, value: REFUND_AMOUNT });
+        vm.expectEmit({ emitter: address(usdc) });
+        emit IERC20.Transfer({ from: address(flow), to: users.sender, value: REFUND_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit RefundFromFlowStream({ streamId: defaultStreamId, sender: users.sender, refundAmount: REFUND_AMOUNT });
+        emit RefundFromFlowStream({ streamId: defaultStreamId, sender: users.sender, amount: REFUND_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
         emit PauseFlowStream({
             streamId: defaultStreamId,
-            recipient: users.recipient,
             sender: users.sender,
-            amountOwed: previousAmountOwed
+            recipient: users.recipient,
+            totalDebt: previousTotalDebt
         });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
-        // It should perform the ERC20 transfer
-        expectCallToTransfer({ asset: dai, to: users.sender, amount: REFUND_AMOUNT });
+        // It should perform the ERC-20 transfer
+        expectCallToTransfer({ token: usdc, to: users.sender, amount: REFUND_AMOUNT_6D });
 
-        uint128 actualTransferAmount = flow.refundAndPause(defaultStreamId, REFUND_AMOUNT);
+        flow.refundAndPause(defaultStreamId, REFUND_AMOUNT_6D);
 
         // It should update the stream balance
         uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
-        uint128 expectedStreamBalance = DEPOSIT_AMOUNT - REFUND_AMOUNT;
+        uint128 expectedStreamBalance = DEPOSIT_AMOUNT_6D - REFUND_AMOUNT_6D;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
         // It should pause the stream
         assertTrue(flow.isPaused(defaultStreamId), "is paused");
 
-        // It should set rate per second to 0
+        // It should set the rate per second to 0
         uint256 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         assertEq(actualRatePerSecond, 0, "rate per second");
 
-        // It should update the remaining amount
-        uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
-        assertEq(actualRemainingAmount, previousAmountOwed, "remaining amount");
-
-        // Assert that the returned value equals the transfer value.
-        assertEq(actualTransferAmount, REFUND_AMOUNT);
+        // It should update the snapshot debt
+        uint128 actualSnapshotDebt = flow.getSnapshotDebt(defaultStreamId);
+        assertEq(actualSnapshotDebt, previousTotalDebt, "snapshot debt");
     }
 }

@@ -41,73 +41,73 @@ abstract contract Integration_Test is Base_Test {
     }
 
     function createDefaultStream() internal returns (uint256) {
-        return createDefaultStream(dai);
+        return createDefaultStream(usdc);
     }
 
-    function createDefaultStream(IERC20 asset_) internal returns (uint256) {
-        return createDefaultStream(RATE_PER_SECOND, asset_);
+    function createDefaultStream(IERC20 token_) internal returns (uint256) {
+        return createDefaultStream(RATE_PER_SECOND, token_);
     }
 
-    function createDefaultStream(uint128 ratePerSecond, IERC20 asset_) internal returns (uint256) {
+    function createDefaultStream(uint128 ratePerSecond, IERC20 token_) internal returns (uint256) {
         return flow.create({
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: ratePerSecond,
-            asset: asset_,
-            isTransferable: IS_TRANFERABLE
+            token: token_,
+            transferable: TRANSFERABLE
         });
     }
 
     function defaultStream() internal view returns (Flow.Stream memory) {
         return Flow.Stream({
-            asset: dai,
-            assetDecimals: 18,
             balance: 0,
-            lastTimeUpdate: getBlockTimestamp(),
+            snapshotTime: getBlockTimestamp(),
             isPaused: false,
             isStream: true,
-            isTransferable: IS_TRANFERABLE,
+            isTransferable: TRANSFERABLE,
             ratePerSecond: RATE_PER_SECOND,
-            remainingAmount: 0,
-            sender: users.sender
+            snapshotDebt: 0,
+            sender: users.sender,
+            token: usdc,
+            tokenDecimals: DECIMALS
         });
     }
 
     function defaultStreamWithDeposit() internal view returns (Flow.Stream memory stream) {
         stream = defaultStream();
-        stream.balance = DEPOSIT_AMOUNT;
+        stream.balance = DEPOSIT_AMOUNT_6D;
     }
 
-    function depositAmount(uint256 streamId, uint128 transferAmount) internal {
-        IERC20 asset = flow.getAsset(streamId);
+    function deposit(uint256 streamId, uint128 amount) internal {
+        IERC20 token = flow.getToken(streamId);
 
-        deal({ token: address(asset), to: users.sender, give: transferAmount });
-        asset.approve(address(flow), transferAmount);
+        deal({ token: address(token), to: users.sender, give: amount });
+        token.approve(address(flow), amount);
 
-        flow.deposit(streamId, transferAmount);
+        flow.deposit(streamId, amount);
     }
 
     function depositDefaultAmount(uint256 streamId) internal {
-        IERC20 asset = flow.getAsset(streamId);
-        uint8 decimals = flow.getAssetDecimals(streamId);
-        uint128 transferAmount = getDefaultTransferAmount(decimals);
+        IERC20 token = flow.getToken(streamId);
+        uint8 decimals = flow.getTokenDecimals(streamId);
+        uint128 depositAmount = getDefaultDepositAmount(decimals);
 
-        deal({ token: address(asset), to: users.sender, give: transferAmount });
-        asset.approve(address(flow), transferAmount);
+        deal({ token: address(token), to: users.sender, give: depositAmount });
+        token.approve(address(flow), depositAmount);
 
-        flow.deposit(streamId, transferAmount);
+        flow.deposit(streamId, depositAmount);
     }
 
     function depositToDefaultStream() internal {
-        depositAmount(defaultStreamId, TRANSFER_AMOUNT);
+        deposit(defaultStreamId, DEPOSIT_AMOUNT_6D);
     }
 
-    /// @dev Update the `lastTimeUpdate` of a stream to the current block timestamp.
-    function updateLastTimeToBlockTimestamp(uint256 streamId) internal {
+    /// @dev Update the `snapshotTime` of a stream to the current block timestamp.
+    function updateSnapshotTimeToBlockTimestamp(uint256 streamId) internal {
         resetPrank(users.sender);
         uint128 ratePerSecond = flow.getRatePerSecond(streamId);
 
-        // Updates the last time update via `adjustRatePerSecond`.
+        // Updates the snapshot time via `adjustRatePerSecond`.
         flow.adjustRatePerSecond(streamId, 1);
 
         // Restores the rate per second.

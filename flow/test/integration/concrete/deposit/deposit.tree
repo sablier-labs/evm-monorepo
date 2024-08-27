@@ -5,17 +5,17 @@ Deposit_Integration_Concrete_Test
    ├── given null
    │  └── it should revert
    └── given not null
-      ├── when transfer amount zero
+      ├── when deposit amount zero
       │  └── it should revert
-      └── when transfer amount not zero
-         ├── when asset misses ERC20 return
+      └── when deposit amount not zero
+         ├── when token misses ERC20 return
          │  └── it should make the deposit
-         └── when asset does not miss ERC20 return
-            ├── given asset does not have 18 decimals
+         └── when token does not miss ERC20 return
+            ├── given token has 18 decimals
             │  ├── it should update the stream balance
             │  ├── it should perform the ERC20 transfer
             │  └── it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
-            └── given asset has 18 decimals
+            └── given token does not have 18 decimals
                ├── it should update the stream balance
                ├── it should perform the ERC20 transfer
                └── it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events

@@ -1,11 +1,11 @@
-RecentAmountOf_Integration_Concrete_Test
+OngoingDebtOf_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
    ├── given paused
    │  └── it should return zero
    └── given not paused
-      ├── when last time update in present
+      ├── when snapshot time in present
       │  └── it should return zero
-      └── when last time update in past
-         └── it should return the correct recent amount
+      └── when snapshot time in past
+         └── it should return the correct ongoing debt

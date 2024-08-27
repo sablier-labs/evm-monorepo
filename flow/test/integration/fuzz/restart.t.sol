@@ -7,7 +7,7 @@ contract Restart_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// @dev Checklist:
     /// - It should restart the stream.
     /// - It should update rate per second.
-    /// - It should update lastTimeUpdate.
+    /// - It should update snapshot time.
     /// - It should emit the following events: {MetadataUpdate}, {RestartFlowStream}
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
@@ -55,8 +55,8 @@ contract Restart_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint128 actualRatePerSecond = flow.getRatePerSecond(streamId);
         assertEq(actualRatePerSecond, ratePerSecond, "ratePerSecond");
 
-        // It should update lastTimeUpdate.
-        uint40 actualLastTimeUpdate = flow.getLastTimeUpdate(streamId);
-        assertEq(actualLastTimeUpdate, warpTimestamp, "lastTimeUpdate");
+        // It should update snapshot time.
+        uint40 actualSnapshotTime = flow.getSnapshotTime(streamId);
+        assertEq(actualSnapshotTime, warpTimestamp, "snapshotTime");
     }
 }

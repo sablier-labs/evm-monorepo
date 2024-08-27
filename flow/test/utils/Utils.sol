@@ -13,23 +13,28 @@ import { Constants } from "./Constants.sol";
 abstract contract Utils is CommonBase, Constants, PRBMathUtils {
     using SafeCastLib for uint256;
 
-    /// @dev Bounds the rate per second between a realistic range.
-    function boundRatePerSecond(uint128 ratePerSecond) internal pure returns (uint128) {
-        return boundUint128(ratePerSecond, 0.00001e18, 10e18);
-    }
-
-    /// @dev Bound transfer amount to avoid overflow.
-    function boundTransferAmount(
+    /// @dev Bound deposit amount to avoid overflow.
+    function boundDepositAmount(
         uint128 amount,
         uint128 balance,
         uint8 decimals
     )
         internal
         pure
-        returns (uint128 transferAmount)
+        returns (uint128 depositAmount)
     {
-        uint128 maxDeposit = (UINT128_MAX - balance) / uint128(10 ** (18 - decimals));
-        transferAmount = boundUint128(amount, 1, maxDeposit - 1);
+        uint128 maxDepositAmount = (UINT128_MAX - balance);
+
+        if (decimals < 18) {
+            maxDepositAmount = maxDepositAmount / uint128(10 ** (18 - decimals));
+        }
+
+        depositAmount = boundUint128(amount, 1, maxDepositAmount - 1);
+    }
+
+    /// @dev Bounds the rate per second between a realistic range.
+    function boundRatePerSecond(uint128 ratePerSecond) internal pure returns (uint128) {
+        return boundUint128(ratePerSecond, 0.00001e18, 10e18);
     }
 
     /// @dev Bounds a `uint128` number.
@@ -52,19 +57,19 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
         return uint40(block.timestamp);
     }
 
-    /// @dev Calculates the transfer amount using `TRANSFER_VALUE` and `decimals`.
-    function getDefaultTransferAmount(uint8 decimals) internal pure returns (uint128 transferAmount) {
+    /// @dev Calculates the default deposit amount using `TRANSFER_VALUE` and `decimals`.
+    function getDefaultDepositAmount(uint8 decimals) internal pure returns (uint128 depositAmount) {
         return TRANSFER_VALUE * (10 ** decimals).toUint128();
     }
 
-    /// @dev Mirror function for {Helpers.calculateNormalizedAmount}.
-    function getNormalizedAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
-        return Helpers.calculateNormalizedAmount(amount, decimals);
+    /// @dev Mirror function for {Helpers.denormalizeAmount}.
+    function getDenormalizedAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
+        return Helpers.denormalizeAmount(amount, decimals);
     }
 
-    /// @dev Mirror function for {Helpers.calculateTransferAmount}.
-    function getTransferAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
-        return Helpers.calculateTransferAmount(amount, decimals);
+    /// @dev Mirror function for {Helpers.normalizeAmount}.
+    function getNormalizedAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
+        return Helpers.normalizeAmount(amount, decimals);
     }
 
     /// @dev Checks if the Foundry profile is "test-optimized".

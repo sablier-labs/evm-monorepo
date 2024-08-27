@@ -15,107 +15,113 @@ interface ISablierFlow is
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the sender changes the rate per second.
+    /// @notice Emitted when the payment rate per second is updated by the sender.
     /// @param streamId The ID of the stream.
-    /// @param amountOwed The amount of assets owed by the sender to the recipient, including debt, denoted in 18
-    /// decimals.
-    /// @param newRatePerSecond The newly changed rate per second, denoted in 18 decimals.
-    /// @param oldRatePerSecond The rate per second to change, denoted in 18 decimals.
+    /// @param totalDebt The total debt at the time of the update, denoted in token's decimals.
+    /// @param oldRatePerSecond The old payment rate per second, denoted in 18 decimals.
+    /// @param newRatePerSecond The new payment rate per second, denoted in 18 decimals.
     event AdjustFlowStream(
-        uint256 indexed streamId, uint128 amountOwed, uint128 newRatePerSecond, uint128 oldRatePerSecond
+        uint256 indexed streamId, uint128 totalDebt, uint128 oldRatePerSecond, uint128 newRatePerSecond
     );
 
     /// @notice Emitted when a Flow stream is created.
     /// @param streamId The ID of the newly created stream.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param sender The address from which to stream the assets, which has the ability to adjust and pause the stream.
-    /// @param recipient The address toward which to stream the assets.
-    /// @param lastTimeUpdate The Unix timestamp for the recent amount calculation.
-    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
+    /// @param sender The address streaming the tokens, which is able to adjust and pause the stream.
+    /// @param recipient The address receiving the tokens, as well as the NFT owner.
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
+    /// @param token The contract address of the ERC-20 token to be streamed.
+    /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
     event CreateFlowStream(
-        uint256 indexed streamId,
-        IERC20 indexed asset,
+        uint256 streamId,
         address indexed sender,
-        address recipient,
-        uint40 lastTimeUpdate,
-        uint128 ratePerSecond
+        address indexed recipient,
+        uint128 ratePerSecond,
+        IERC20 indexed token,
+        bool transferable
     );
 
-    /// @notice Emitted when a Flow stream is funded.
-    /// @param streamId The ID of the Flow stream.
-    /// @param funder The address which funded the stream.
-    /// @param depositAmount The amount of assets deposited into the stream, denoted in 18 decimals.
-    event DepositFlowStream(uint256 indexed streamId, address indexed funder, uint128 depositAmount);
-
-    /// @notice Emitted when a Flow stream is paused.
-    /// @param streamId The ID of the Flow stream.
-    /// @param recipient The address of the stream's recipient.
-    /// @param sender The address of the stream's sender.
-    /// @param amountOwed The amount of assets owed by the sender to the recipient, including debt, denoted in 18
-    /// decimals.
-    event PauseFlowStream(uint256 indexed streamId, address recipient, address sender, uint128 amountOwed);
-
-    /// @notice Emitted when assets are refunded from a Flow stream.
-    /// @param streamId The ID of the Flow stream.
-    /// @param sender The address of the stream's sender.
-    /// @param refundAmount The amount of assets refunded to the sender, denoted in 18 decimals.
-    event RefundFromFlowStream(uint256 indexed streamId, address indexed sender, uint128 refundAmount);
-
-    /// @notice Emitted when a Flow stream is re-started.
-    /// @param streamId The ID of the Flow stream.
-    /// @param sender The address of the stream's sender.
-    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    event RestartFlowStream(uint256 indexed streamId, address sender, uint128 ratePerSecond);
-
-    /// @notice Emitted when a Flow stream is voided by the recipient.
+    /// @notice Emitted when a stream is funded.
     /// @param streamId The ID of the stream.
-    /// @param recipient The address of the stream's recipient.
+    /// @param funder The address that made the deposit.
+    /// @param amount The amount of tokens deposited into the stream, denoted in token's decimals.
+    event DepositFlowStream(uint256 indexed streamId, address indexed funder, uint128 amount);
+
+    /// @notice Emitted when a stream is paused by the sender.
+    /// @param streamId The ID of the stream.
     /// @param sender The address of the stream's sender.
-    /// @param newAmountOwed The updated amount of assets owed by the sender to the recipient, denoted in 18  decimals.
-    /// @param writenoffDebt The debt amount written-off by the recipient.
-    event VoidFlowStream(
-        uint256 indexed streamId, address recipient, address sender, uint128 newAmountOwed, uint128 writenoffDebt
+    /// @param recipient The address of the stream's recipient.
+    /// @param totalDebt The amount of tokens owed by the sender to the recipient, denoted in token's decimals.
+    event PauseFlowStream(
+        uint256 indexed streamId, address indexed sender, address indexed recipient, uint128 totalDebt
     );
 
-    /// @notice Emitted when assets are withdrawn from a Flow stream.
-    /// @param streamId The ID of the Flow stream.
-    /// @param to The address that has received the withdrawn assets.
-    /// @param withdrawnAmount The amount of assets withdrawn, denoted in 18 decimals.
-    event WithdrawFromFlowStream(uint256 indexed streamId, address indexed to, uint128 withdrawnAmount);
+    /// @notice Emitted when a sender is refunded from a stream.
+    /// @param streamId The ID of the stream.
+    /// @param sender The address of the stream's sender.
+    /// @param amount The amount of tokens refunded to the sender, denoted in token's decimals.
+    event RefundFromFlowStream(uint256 indexed streamId, address indexed sender, uint128 amount);
+
+    /// @notice Emitted when a stream is restarted by the sender.
+    /// @param streamId The ID of the stream.
+    /// @param sender The address of the stream's sender.
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
+    event RestartFlowStream(uint256 indexed streamId, address indexed sender, uint128 ratePerSecond);
+
+    /// @notice Emitted when a stream is voided by a recipient or an approved operator.
+    /// @param streamId The ID of the stream.
+    /// @param sender The address of the stream's sender.
+    /// @param recipient The address of the stream's recipient.
+    /// @param caller The address that performed the void, which can be the recipient or an approved operator.
+    /// @param newTotalDebt The new total debt, denoted in token's decimals.
+    /// @param writtenOffDebt The amount of debt written off by the caller, denoted in token's decimals.
+    event VoidFlowStream(
+        uint256 indexed streamId,
+        address indexed sender,
+        address indexed recipient,
+        address caller,
+        uint128 newTotalDebt,
+        uint128 writtenOffDebt
+    );
+
+    /// @notice Emitted when tokens are withdrawn from a stream by a recipient or an approved operator.
+    /// @param streamId The ID of the stream.
+    /// @param to The address that received the withdrawn tokens.
+    /// @param token The contract address of the ERC-20 token that was withdrawn.
+    /// @param caller The address that performed the withdrawal, which can be the recipient or an approved operator.
+    /// @param withdrawAmount The amount withdrawn, denoted in token's decimals.
+    /// @param withdrawTime The Unix timestamp up to which ongoing debt was calculated from the snapshot time.
+    event WithdrawFromFlowStream(
+        uint256 indexed streamId,
+        address indexed to,
+        IERC20 indexed token,
+        address caller,
+        uint128 withdrawAmount,
+        uint40 withdrawTime
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Returns the amount owed by the sender to the recipient, including debt, denoted in 18 decimals.
-    /// @dev Reverts if `streamId` refers to a null stream.
+    /// @notice Returns the amount of debt covered by the stream balance, denoted in token's decimals.
+    /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    /// @return amountOwed The amount owed by the sender to the recipient.
-    function amountOwedOf(uint256 streamId) external view returns (uint128 amountOwed);
+    function coveredDebtOf(uint256 streamId) external view returns (uint128 coveredDebt);
 
-    /// @notice Returns the timestamp at which the stream depletes its balance and starts to accumulate debt.
-    /// @dev Reverts if `streamId` refers to a paused or a null stream.
-    ///
-    /// Notes:
-    /// - If the stream has no debt, it returns the timestamp when the debt begins based on current balance and
-    /// rate per second.
-    /// - If the stream has debt, it returns 0.
-    ///
+    /// @notice Returns the time at which the stream will deplete its balance and start to accumulate uncovered debt. If
+    /// there already is uncovered debt, it returns zero.
+    /// @dev Reverts if `streamId` references a paused or a null stream.
     /// @param streamId The stream ID for the query.
-    /// @return depletionTime The UNIX timestamp.
     function depletionTimeOf(uint256 streamId) external view returns (uint40 depletionTime);
 
-    /// @notice Calculates the recent amount streamed to the recipient from the last time update until the current
-    /// timestamp, denoted in 18 decimals.
+    /// @notice Returns the amount of debt accrued since the snapshot time until now, denoted in token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    /// @return recentAmount The recent amount from the last time update until the current timestamp.
-    function recentAmountOf(uint256 streamId) external view returns (uint128 recentAmount);
+    function ongoingDebtOf(uint256 streamId) external view returns (uint128 ongoingDebt);
 
-    /// @notice Calculates the amount that the sender can refund from stream, denoted in 18 decimals.
+    /// @notice Returns the amount that the sender can be refunded from the stream, denoted in token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    /// @return refundableAmount The amount that the sender can refund.
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
 
     /// @notice Returns the stream's status.
@@ -123,14 +129,18 @@ interface ISablierFlow is
     /// @param streamId The stream ID for the query.
     function statusOf(uint256 streamId) external view returns (Flow.Status status);
 
-    /// @notice Calculates the amount that the sender owes on the stream, i.e. if more assets have been streamed than
-    /// its balance, denoted in 18 decimals. If there is no debt, it will return zero.
+    /// @notice Returns the total amount owed by the sender to the recipient, denoted in token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    /// @return debt The amount that the sender owes on the stream.
-    function streamDebtOf(uint256 streamId) external view returns (uint128 debt);
+    function totalDebtOf(uint256 streamId) external view returns (uint128 totalDebt);
 
-    /// @notice Calculates the amount that the recipient can withdraw from the stream, denoted in 18 decimals.
+    /// @notice Returns the amount of debt not covered by the stream balance, denoted in token's decimals.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    function uncoveredDebtOf(uint256 streamId) external view returns (uint128 uncoveredDebt);
+
+    /// @notice Calculates the amount that the recipient can withdraw from the stream, denoted in token decimals. This
+    /// is an alias for `coveredDebtOf`.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     /// @return withdrawableAmount The amount that the recipient can withdraw.
@@ -140,60 +150,57 @@ interface ISablierFlow is
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Changes the stream's rate per second.
+    /// @notice Changes the stream's payment rate per second.
     ///
-    /// @dev Emits a {Transfer} and {AdjustFlowStream} event.
+    /// @dev Emits an {AdjustFlowStream} and {MetadataUpdate} event.
     ///
     /// Notes:
-    /// - It updates `lastTimeUpdate` to the current block timestamp.
-    /// - It updates the remaining amount by adding up recent amount.
+    /// - Performs a debt snapshot.
     ///
-    /// Requiremenets:
+    /// Requirements:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null stream or a paused stream.
+    /// - `streamId` must not reference a null or paused stream.
     /// - `msg.sender` must be the stream's sender.
     /// - `newRatePerSecond` must be greater than zero and not equal to the current rate per second.
     ///
     /// @param streamId The ID of the stream to adjust.
-    /// @param newRatePerSecond The new rate per second of the Flow stream, denoted in 18 decimals.
+    /// @param newRatePerSecond The new payment rate per second, denoted in 18 decimals.
     function adjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) external;
 
-    /// @notice Creates a new Flow stream with `block.timestamp` as `lastTimeUpdate` and set stream balance to 0.
-    /// The stream is wrapped in an ERC-721 NFT.
+    /// @notice Creates a new Flow stream by setting the snapshot time to `block.timestamp` and leaving the balance to
+    /// zero. The stream is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateFlowStream} event.
     ///
-    /// Requiremenets:
+    /// Requirements:
     /// - Must not be delegate called.
-    /// - `recipient` must not be the zero address.
     /// - `sender` must not be the zero address.
+    /// - `recipient` must not be the zero address.
     /// - `ratePerSecond` must be greater than zero.
-    /// - `asset` must implement `decimals` function and should not return a number greater than 255.
-    /// - `asset` decimals must not be greater than 18.
+    /// - The `token`'s decimals must be less than or equal to 18.
     ///
-    /// @param recipient The address receiving the assets.
-    /// @param sender The address streaming the assets, with the ability to adjust and pause the stream. It doesn't
+    /// @param sender The address streaming the tokens, which is able to adjust and pause the stream. It doesn't
     /// have to be the same as `msg.sender`.
-    /// @param sender The address streaming the assets. It doesn't have to be the same as `msg.sender`.
-    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param isTransferable Boolean indicating if the stream NFT is transferable.
+    /// @param recipient The address receiving the tokens.
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
+    /// @param token The contract address of the ERC-20 token to be streamed.
+    /// @param transferable Boolean indicating if the stream NFT is transferable.
     ///
     /// @return streamId The ID of the newly created stream.
     function create(
-        address recipient,
         address sender,
+        address recipient,
         uint128 ratePerSecond,
-        IERC20 asset,
-        bool isTransferable
+        IERC20 token,
+        bool transferable
     )
         external
         returns (uint256 streamId);
 
-    /// @notice Creates a new Flow stream with `block.timestamp` as `lastTimeUpdate` and set the stream balance to
-    /// `amount`. The stream is wrapped in an ERC-721 NFT.
+    /// @notice Creates a new Flow stream by setting the snapshot time to `block.timestamp` and the balance to `amount`.
+    /// The stream is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {CreateFlowStream}, {Transfer} and {DepositFlowStream} events.
+    /// @dev Emits a {Transfer}, {CreateFlowStream}, and {DepositFlowStream} event.
     ///
     /// Notes:
     /// - Refer to the notes in {deposit}.
@@ -201,30 +208,29 @@ interface ISablierFlow is
     /// Requirements:
     /// - Refer to the requirements in {create} and {deposit}.
     ///
-    /// @param recipient The address receiving the assets.
-    /// @param sender The address streaming the assets. It doesn't have to be the same as `msg.sender`.
-    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param isTransferable Boolean indicating if the stream NFT is transferable.
-    /// @param transferAmount The transfer amount, denoted in units of the asset's decimals.
+    /// @param sender The address streaming the tokens. It doesn't have to be the same as `msg.sender`.
+    /// @param recipient The address receiving the tokens.
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
+    /// @param token The contract address of the ERC-20 token to be streamed.
+    /// @param transferable Boolean indicating if the stream NFT is transferable.
+    /// @param amount The deposit amount, denoted in token's decimals.
     ///
     /// @return streamId The ID of the newly created stream.
     function createAndDeposit(
-        address recipient,
         address sender,
+        address recipient,
         uint128 ratePerSecond,
-        IERC20 asset,
-        bool isTransferable,
-        uint128 transferAmount
+        IERC20 token,
+        bool transferable,
+        uint128 amount
     )
         external
         returns (uint256 streamId);
 
-    /// @notice Creates a new Flow stream with `block.timestamp` as `lastTimeUpdate` and set the stream balance to
-    /// an amount calculated from the `totalAmount` after broker fee amount deduction. The stream is wrapped in an
-    /// ERC-721 NFT.
+    /// @notice Creates a new Flow stream by setting the snapshot time to `block.timestamp` and the balance to
+    /// `totalAmount` minus the broker fee. The stream is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {CreateFlowStream}, {Transfer} and {DepositFlowStream} events.
+    /// @dev Emits a {Transfer}, {CreateFlowStream}, and {DepositFlowStream} events.
     ///
     /// Notes:
     /// - Refer to the notes in {depositViaBroker}.
@@ -232,46 +238,44 @@ interface ISablierFlow is
     /// Requirements:
     /// - Refer to the requirements in {create} and {depositViaBroker}.
     ///
-    /// @param recipient The address receiving the assets.
-    /// @param sender The address streaming the assets. It doesn't have to be the same as `msg.sender`.
-    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param isTransferable Boolean indicating if the stream NFT is transferable.
-    /// @param totalTransferAmount The total transfer amount, including the stream transfer amount and broker fee
-    /// amount, denoted in units of the asset's decimals.
-    /// @param broker The broker's address and fee.
+    /// @param sender The address streaming the tokens. It doesn't have to be the same as `msg.sender`.
+    /// @param recipient The address receiving the tokens.
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
+    /// @param token The contract address of the ERC-20 token to be streamed.
+    /// @param transferable Boolean indicating if the stream NFT is transferable.
+    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the token's
+    /// decimals.
+    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
+    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set
+    /// to zero.
     ///
     /// @return streamId The ID of the newly created stream.
     function createAndDepositViaBroker(
-        address recipient,
         address sender,
+        address recipient,
         uint128 ratePerSecond,
-        IERC20 asset,
-        bool isTransferable,
-        uint128 totalTransferAmount,
+        IERC20 token,
+        bool transferable,
+        uint128 totalAmount,
         Broker calldata broker
     )
         external
         returns (uint256 streamId);
 
-    /// @notice Deposits assets in a stream.
+    /// @notice Makes a deposit in a stream.
     ///
     /// @dev Emits a {Transfer} and {DepositFlowStream} event.
-    ///
-    /// Notes:
-    /// - If the asset has less than 18 decimals, the amount deposited will be normalized to 18 decimals before adding
-    /// it to the stream balance.
     ///
     /// Requirements:
     /// - Must not be delegate called.
     /// - `streamId` must not reference a null stream.
-    /// - `transferAmount` must be greater than zero.
+    /// - `amount` must be greater than zero.
     ///
-    /// @param streamId The ID of the stream to deposit on.
-    /// @param transferAmount The transfer amount, denoted in units of the asset's decimals.
-    function deposit(uint256 streamId, uint128 transferAmount) external;
+    /// @param streamId The ID of the stream to deposit to.
+    /// @param amount The deposit amount, denoted in token's decimals.
+    function deposit(uint256 streamId, uint128 amount) external;
 
-    /// @notice Deposits assets in a stream and pauses it.
+    /// @notice Deposits tokens in a stream and pauses it.
     ///
     /// @dev Emits a {Transfer}, {DepositFlowStream} and {PauseFlowStream} event.
     ///
@@ -281,11 +285,11 @@ interface ISablierFlow is
     /// Requirements:
     /// - Refer to the requirements in {deposit} and {pause}.
     ///
-    /// @param streamId The ID of the stream to deposit on and then pause.
-    /// @param transferAmount The transfer amount, denoted in units of the asset's decimals.
-    function depositAndPause(uint256 streamId, uint128 transferAmount) external;
+    /// @param streamId The ID of the stream to deposit to, and then pause.
+    /// @param amount The deposit amount, denoted in token's decimals.
+    function depositAndPause(uint256 streamId, uint128 amount) external;
 
-    /// @notice Deposits assets in a stream.
+    /// @notice Deposits tokens in a stream.
     ///
     /// @dev Emits a {Transfer} and {DepositFlowStream} event.
     ///
@@ -295,24 +299,24 @@ interface ISablierFlow is
     /// Requirements:
     /// - Must not be delegate called.
     /// - `streamId` must not reference a null stream.
-    /// - `totalTransferAmount` must be greater than zero. Otherwise it will revert inside {deposit}.
+    /// - `totalAmount` must be greater than zero. Otherwise it will revert inside {deposit}.
     /// - `broker.account` must not be 0 address.
     /// - `broker.fee` must not be greater than `MAX_BROKER_FEE`. It can be zero.
     ///
     /// @param streamId The ID of the stream to deposit on.
-    /// @param totalTransferAmount The total transfer amount, including the stream transfer amount and broker fee
-    /// amount, denoted in units of the  asset's decimals.
-    /// @param broker The broker's address and fee.
-    function depositViaBroker(uint256 streamId, uint128 totalTransferAmount, Broker calldata broker) external;
+    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in token's decimals.
+    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
+    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
+    function depositViaBroker(uint256 streamId, uint128 totalAmount, Broker calldata broker) external;
 
     /// @notice Pauses the stream.
     ///
     /// @dev Emits a {PauseFlowStream} event.
     ///
     /// Notes:
-    /// - It does not update `lastTimeUpdate` to the current block timestamp.
-    /// - It updates the remaining amount by adding up recent amount.
-    /// - It sets rate per second to zero.
+    /// - It does not set the snapshot time to the current block timestamp.
+    /// - It updates the snapshot debt by adding up ongoing debt.
+    /// - It sets the rate per second to zero.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -322,7 +326,7 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to pause.
     function pause(uint256 streamId) external;
 
-    /// @notice Refunds the provided amount of assets from the stream to the sender's address.
+    /// @notice Refunds the provided amount of tokens from the stream to the sender's address.
     ///
     /// @dev Emits a {Transfer} and {RefundFromFlowStream} event.
     ///
@@ -333,12 +337,10 @@ interface ISablierFlow is
     /// - `amount` must be greater than zero and must not exceed the refundable amount.
     ///
     /// @param streamId The ID of the stream to refund from.
-    /// @param amount The amount to refund, denoted in 18 decimals.
-    ///
-    /// @return transferAmount The amount transferred to the sender, denoted in asset's decimals.
-    function refund(uint256 streamId, uint128 amount) external returns (uint128 transferAmount);
+    /// @param amount The amount to refund, denoted in token's decimals.
+    function refund(uint256 streamId, uint128 amount) external;
 
-    /// @notice Refunds the provided amount of assets from the stream to the sender's address.
+    /// @notice Refunds the provided amount of tokens from the stream to the sender's address.
     ///
     /// @dev Emits a {Transfer}, {RefundFromFlowStream} and {PauseFlowStream} event.
     ///
@@ -349,109 +351,103 @@ interface ISablierFlow is
     /// - Refer to the requirements in {refund} and {pause}.
     ///
     /// @param streamId The ID of the stream to refund from and then pause.
-    /// @param amount The amount to refund, denoted in 18 decimals.
-    ///
-    /// @return transferAmount The amount transferred to the sender, denoted in asset's decimals.
-    function refundAndPause(uint256 streamId, uint128 amount) external returns (uint128 transferAmount);
+    /// @param amount The amount to refund, denoted in token's decimals.
+    function refundAndPause(uint256 streamId, uint128 amount) external;
 
     /// @notice Restarts the stream with the provided rate per second.
     ///
     /// @dev Emits a {RestartFlowStream} event.
-    ///   - This function updates stream's `lastTimeUpdate` to the current block timestamp.
+    /// - This function updates stream's `snapshotTime` to the current block timestamp.
     ///
     /// Notes:
-    /// - It sets `lastTimeUpdate` to the current block timestamp.
+    /// - It sets the snapshot time to the current block timestamp.
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null stream.
-    /// - `streamId` must not reference a paused stream.
+    /// - `streamId` must not reference a null or paused stream.
     /// - `msg.sender` must be the stream's sender.
     /// - `ratePerSecond` must be greater than zero.
     ///
     /// @param streamId The ID of the stream to restart.
-    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
     function restart(uint256 streamId, uint128 ratePerSecond) external;
 
-    /// @notice Restarts the stream with the provided rate per second, and deposits in the stream.
+    /// @notice Restarts the stream with the provided rate per second, and makes a deposit.
     ///
-    /// @dev Emits a {RestartFlowStream}, {Transfer} and {DepositFlowStream} event.
+    /// @dev Emits a {RestartFlowStream}, {Transfer}, and {DepositFlowStream} event.
     ///
     /// Notes:
     /// - Refer to the notes in {restart} and {deposit}.
     ///
     /// Requirements:
-    /// - `transferAmount` must be greater than zero.
+    /// - `amount` must be greater than zero.
     /// - Refer to the requirements in {restart}.
     ///
     /// @param streamId The ID of the stream to restart.
-    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    /// @param transferAmount The transfer amount, denoted in units of the asset's decimals.
-    function restartAndDeposit(uint256 streamId, uint128 ratePerSecond, uint128 transferAmount) external;
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
+    /// @param amount The deposit amount, denoted in token's decimals.
+    function restartAndDeposit(uint256 streamId, uint128 ratePerSecond, uint128 amount) external;
 
-    /// @notice Voids the stream debt and pauses it.
+    /// @notice Voids the uncovered debt, and pauses the stream.
     ///
     /// @dev Emits a {VoidFlowStream} event.
     ///
     /// Notes:
-    /// - It sets the remaining amount to stream balance so that the stream debt becomes zero.
-    /// - It sets rate per second to zero.
+    /// - It sets the snapshot debt to the stream's balance so that the uncovered debt becomes zero.
+    /// - It sets the payment rate per second to zero.
+    /// - A paused stream can be voided only if its uncovered debt is not zero.
     ///
     /// Requirements:
     /// - Must not be delegate called.
     /// - `streamId` must not reference a null stream.
     /// - `msg.sender` must either be the stream's recipient or an approved third party.
-    /// - stream debt must be greater than zero.
-    ///
-    /// Notes:
-    /// - A paused stream can also be voided if its debt is not zero.
+    /// - The uncovered debt must be greater than zero.
     ///
     /// @param streamId The ID of the stream to void.
     function void(uint256 streamId) external;
 
-    /// @notice Withdraws the amount of assets calculated based on time reference and the remaining amount, from the
-    /// stream to the provided `to` address.
+    /// @notice Withdraws to the `to` address the amount calculated based on the `time` reference and the snapshot time.
     ///
     /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
     ///
     /// Notes:
-    /// - It sets `lastTimeUpdate` to the `time` specified.
-    /// - If stream balance is less than the amount owed at `time`:
+    /// - It sets the snapshot time to the `time` specified.
+    /// - If stream balance is less than the total debt at `time`:
     ///   - It withdraws the full balance.
-    ///   - It sets the remaining amount to the amount owed minus the stream balance.
-    /// - If stream balance is greater than the amount owed at `time`:
-    ///   - It withdraws the amount owed at `time`.
-    ///   - It sets the remaining amount to zero.
+    ///   - It sets the snapshot debt to the total debt minus the stream balance.
+    /// - If stream balance is greater than the total debt at `time`:
+    ///   - It withdraws the total debt at `time`.
+    ///   - It sets the snapshot debt to zero.
     ///
     /// Requirements:
     /// - Must not be delegate called.
     /// - `streamId` must not reference a null stream.
     /// - `to` must not be the zero address.
     /// - `to` must be the recipient if `msg.sender` is not the stream's recipient.
-    /// - `time` must be greater than the stream's `lastTimeUpdate` and must not be in the future.
+    /// - `time` must be greater than the stream's `snapshotTime` and must not be in the future.
     /// -  The stream balance must be greater than zero.
     ///
     /// @param streamId The ID of the stream to withdraw from.
-    /// @param to The address receiving the withdrawn assets.
-    /// @param time The Unix timestamp to calculate the recent streamed amount since last time update.
+    /// @param to The address receiving the withdrawn tokens.
+    /// @param time The Unix timestamp up to which ongoing debt is calculated from the snapshot time.
     ///
-    /// @return transferAmount The amount transferred to the recipient, denoted in asset's decimals.
-    function withdrawAt(uint256 streamId, address to, uint40 time) external returns (uint128 transferAmount);
+    /// @return withdrawAmount The amount transferred to the recipient, denoted in token's decimals.
+    function withdrawAt(uint256 streamId, address to, uint40 time) external returns (uint128 withdrawAmount);
 
-    /// @notice Withdraws the maximum withdrawable amount from the stream to the provided address `to`.
+    /// @notice Withdraws the entire withdrawable amount from the stream to the provided address `to`.
     ///
-    /// @dev Emits a {Transfer}, {WithdrawFromFlowStream} event.
+    /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
     ///
     /// Notes:
-    /// - It calls {withdrawAt} with the current block timestamp.
+    /// - It uses the value returned by {withdrawAt} with the current block timestamp.
     /// - Refer to the notes in {withdrawAt}.
     ///
     /// Requirements:
     /// - Refer to the requirements in {withdrawAt}.
     ///
     /// @param streamId The ID of the stream to withdraw from.
-    /// @param to The address receiving the withdrawn assets.
+    /// @param to The address receiving the withdrawn tokens.
     ///
-    /// @return transferAmount The amount transferred to the recipient, denoted in asset's decimals.
-    function withdrawMax(uint256 streamId, address to) external returns (uint128 transferAmount);
+    /// @return withdrawAmount The amount withdrawn to the recipient, denoted in token's decimals.
+    function withdrawMax(uint256 streamId, address to) external returns (uint128 withdrawAmount);
 }

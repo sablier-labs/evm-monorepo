@@ -37,40 +37,44 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
     }
 
     function _test_WithdrawMax() private {
+        uint128 withdrawAmount = ONE_MONTH_DEBT_6D;
+
         // It should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdated} events.
-        vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: ONE_MONTH_STREAMED_AMOUNT });
+        vm.expectEmit({ emitter: address(usdc) });
+        emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: withdrawAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit WithdrawFromFlowStream({
             streamId: defaultStreamId,
             to: users.recipient,
-            withdrawnAmount: ONE_MONTH_STREAMED_AMOUNT
+            token: IERC20(address(usdc)),
+            caller: users.sender,
+            withdrawAmount: withdrawAmount,
+            withdrawTime: getBlockTimestamp()
         });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
-        // It should perform the ERC20 transfer
-        uint128 transferAmount = getTransferAmount(ONE_MONTH_STREAMED_AMOUNT, 18);
-        expectCallToTransfer({ asset: dai, to: users.recipient, amount: transferAmount });
+        // It should perform the ERC-20 transfer.
+        expectCallToTransfer({ token: usdc, to: users.recipient, amount: withdrawAmount });
 
-        uint128 actualTransferAmount = flow.withdrawMax(defaultStreamId, users.recipient);
+        uint128 actualWithdrawAmount = flow.withdrawMax(defaultStreamId, users.recipient);
 
         // It should update the stream balance.
         uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
-        uint128 expectedStreamBalance = DEPOSIT_AMOUNT - ONE_MONTH_STREAMED_AMOUNT;
+        uint128 expectedStreamBalance = DEPOSIT_AMOUNT_6D - ONE_MONTH_DEBT_6D;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
-        // It should set the remaining amount to zero.
-        uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
-        assertEq(actualRemainingAmount, 0, "remaining amount");
+        // It should set the snapshot debt to zero.
+        uint128 actualSnapshotDebt = flow.getSnapshotDebt(defaultStreamId);
+        assertEq(actualSnapshotDebt, 0, "snapshot debt");
 
-        // It should update lastTimeUpdate.
-        uint128 actualLastTimeUpdate = flow.getLastTimeUpdate(defaultStreamId);
-        assertEq(actualLastTimeUpdate, getBlockTimestamp(), "last time update");
+        // It should update snapshot time.
+        uint128 actualSnapshotTime = flow.getSnapshotTime(defaultStreamId);
+        assertEq(actualSnapshotTime, getBlockTimestamp(), "snapshot time");
 
-        // Assert that the returned value equals the transfer value.
-        assertEq(actualTransferAmount, transferAmount);
+        // Assert that the withdraw amounts match.
+        assertEq(actualWithdrawAmount, withdrawAmount);
     }
 }

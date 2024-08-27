@@ -17,7 +17,7 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(callData);
     }
 
-    function test_GivenPausedAndNoDebt() external givenNotNull {
+    function test_GivenPausedAndNoUncoveredDebt() external givenNotNull {
         flow.pause(defaultStreamId);
 
         // it should return PAUSED_SOLVENT
@@ -26,8 +26,7 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    function test_GivenPausedAndDebt() external givenNotNull {
-        // it should return PAUSED_INSOLVENT
+    function test_GivenPausedAndUncoveredDebt() external givenNotNull {
         vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD + 1 });
         flow.pause(defaultStreamId);
 
@@ -37,14 +36,14 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    function test_GivenStreamingAndNoDebt() external view givenNotNull {
+    function test_GivenStreamingAndNoUncoveredDebt() external view givenNotNull {
         // it should return STREAMING_SOLVENT
         uint8 actualStatus = uint8(flow.statusOf(defaultStreamId));
         uint8 expectedStatus = uint8(Flow.Status.STREAMING_SOLVENT);
         assertEq(actualStatus, expectedStatus);
     }
 
-    function test_GivenStreamingAndDebt() external givenNotNull {
+    function test_GivenStreamingAndUncoveredDebt() external givenNotNull {
         // it should return STREAMING_INSOLVENT
         vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD + 1 });
 

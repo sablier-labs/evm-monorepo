@@ -26,26 +26,16 @@ interface ISablierFlowState is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the asset of the stream.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The ID of the stream to make the query for.
-    function getAsset(uint256 streamId) external view returns (IERC20 asset);
-
-    /// @notice Retrieves the asset decimals of the stream.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The ID of the stream to make the query for.
-    function getAssetDecimals(uint256 streamId) external view returns (uint8 assetDecimals);
+    /// @notice Retrieves the maximum broker fee that can be charged by the broker, denoted as a fixed-point number
+    /// where 1e18 is 100%.
+    /// @dev This value is hard coded as a constant.
+    function MAX_BROKER_FEE() external view returns (UD60x18 fee);
 
     /// @notice Retrieves the balance of the stream, i.e. the total deposited amounts subtracted by the total withdrawn
-    /// amounts, denoted in 18 decimals.
+    /// amounts, denoted in token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function getBalance(uint256 streamId) external view returns (uint128 balance);
-
-    /// @notice Retrieves the last time update of the stream, which is a Unix timestamp.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The ID of the stream to make the query for.
-    function getLastTimeUpdate(uint256 streamId) external view returns (uint40 lastTimeUpdate);
 
     /// @notice Retrieves the rate per second of the stream, denoted in 18 decimals.
     /// @dev Reverts if `streamId` references a null stream.
@@ -57,20 +47,35 @@ interface ISablierFlowState is
     /// @param streamId The stream ID for the query.
     function getRecipient(uint256 streamId) external view returns (address recipient);
 
-    /// @notice Retrieves the remaining amount of the stream, denoted in 18 decimals.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function getRemainingAmount(uint256 streamId) external view returns (uint128 remainingAmount);
-
     /// @notice Retrieves the stream's sender.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function getSender(uint256 streamId) external view returns (address sender);
 
+    /// @notice Retrieves the snapshot debt of the stream, denoted in token's decimals.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    function getSnapshotDebt(uint256 streamId) external view returns (uint128 snapshotDebt);
+
+    /// @notice Retrieves the snapshot time of the stream, which is a Unix timestamp.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The ID of the stream to make the query for.
+    function getSnapshotTime(uint256 streamId) external view returns (uint40 snapshotTime);
+
     /// @notice Retrieves the stream entity.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function getStream(uint256 streamId) external view returns (Flow.Stream memory stream);
+
+    /// @notice Retrieves the token of the stream.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The ID of the stream to make the query for.
+    function getToken(uint256 streamId) external view returns (IERC20 token);
+
+    /// @notice Retrieves the token decimals of the stream.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The ID of the stream to make the query for.
+    function getTokenDecimals(uint256 streamId) external view returns (uint8 tokenDecimals);
 
     /// @notice Retrieves a flag indicating whether the stream is paused.
     /// @dev Reverts if `streamId` references a null stream.
@@ -82,13 +87,13 @@ interface ISablierFlowState is
     /// @param streamId The stream ID for the query.
     function isStream(uint256 streamId) external view returns (bool result);
 
-    /// @notice Retrieves the maximum broker fee that can be charged by the broker, denoted as a fixed-point number
-    /// where 1e18 is 100%.
-    /// @dev This value is hard coded as a constant.
-    function MAX_BROKER_FEE() external view returns (UD60x18 fee);
+    /// @notice Retrieves a flag indicating whether the stream NFT is transferable.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    function isTransferable(uint256 streamId) external view returns (bool result);
 
     /// @notice Counter for stream ids.
-    /// @return The next stream id.
+    /// @return The next stream ID.
     function nextStreamId() external view returns (uint256);
 
     /// @notice Contract that generates the non-fungible token URI.

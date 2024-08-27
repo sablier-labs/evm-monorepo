@@ -18,7 +18,7 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenAssetDoesNotMissERC20Return() {
+    modifier whenTokenDoesNotMissERC20Return() {
         _;
     }
 
@@ -46,11 +46,11 @@ abstract contract Modifiers {
                                        CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenAssetDecimalsDoesNotExceed18() {
+    modifier whenTokenDecimalsDoesNotExceed18() {
         _;
     }
 
-    modifier whenAssetImplementsDecimals() {
+    modifier whenTokenImplementsDecimals() {
         _;
     }
 
@@ -74,7 +74,7 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenTransferAmountNotZero() {
+    modifier whenDepositAmountNotZero() {
         _;
     }
 

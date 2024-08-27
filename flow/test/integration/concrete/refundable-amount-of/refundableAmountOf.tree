@@ -8,7 +8,7 @@ RefundableAmountOf_Integration_Concrete_Test
       ├── given paused
       │  └── it should return correct refundable amount
       └── given not paused
-         ├── when amount owed exceeds balance
+         ├── when total debt exceeds balance
          │  └── it should return zero
-         └── when amount owed does not exceed balance
+         └── when total debt does not exceed balance
             └── it should return correct refundable amount

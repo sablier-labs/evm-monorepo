@@ -12,7 +12,7 @@ contract Refund_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Multiple non-zero values for refund amount.
-    /// - Multiple streams to refund from, each with different asset decimals and rate per second.
+    /// - Multiple streams to refund from, each with different token decimals and rate per second.
     /// - Multiple points in time post depletion period.
     function testFuzz_RevertWhen_PostDepletion(
         uint256 streamId,
@@ -37,19 +37,19 @@ contract Refund_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.warp({ newTimestamp: timeJump });
 
         // Expect the relevant error.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Overrefund.selector, streamId, refundAmount, 0));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_RefundOverflow.selector, streamId, refundAmount, 0));
 
         // Request the refund.
         flow.refund(streamId, refundAmount);
     }
 
     /// @dev Checklist:
-    /// - It should refund asset from a stream.
+    /// - It should refund token from a stream.
     /// - It should emit the following events: {Transfer}, {MetadataUpdate}, {RefundFromFlowStream}
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Multiple non-zero values for refund amount, but not exceeding the refundable amount.
-    /// - Multiple streams to refund from, each with different asset decimals and rate per second.
+    /// - Multiple streams to refund from, each with different token decimals and rate per second.
     /// - Multiple points in time prior to depletion period.
     function testFuzz_Refund(
         uint256 streamId,
@@ -61,7 +61,7 @@ contract Refund_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         whenNoDelegateCall
         givenNotNull
     {
-        (streamId, decimals,) = useFuzzedStreamOrCreate(streamId, decimals);
+        (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump to provide a realistic time frame and not exceeding depletion timestamp.
         uint40 depletionPeriod = flow.depletionTimeOf(streamId);
@@ -71,34 +71,33 @@ contract Refund_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.warp({ newTimestamp: timeJump });
 
         // Bound the refund amount to avoid error.
-        refundAmount = boundUint128(refundAmount, 0.001e18, flow.refundableAmountOf(streamId));
+        refundAmount = boundUint128(refundAmount, 1, flow.refundableAmountOf(streamId));
 
         // Following variables are used during assertions.
-        uint256 prevAssetBalance = asset.balanceOf(address(flow));
-        uint128 prevStreamBalance = flow.getBalance(streamId);
-        uint128 transferAmount = getTransferAmount(refundAmount, decimals);
+        uint256 initialTokenBalance = token.balanceOf(address(flow));
+        uint128 initialStreamBalance = flow.getBalance(streamId);
 
         // Expect the relevant events to be emitted.
-        vm.expectEmit({ emitter: address(asset) });
-        emit IERC20.Transfer({ from: address(flow), to: users.sender, value: transferAmount });
+        vm.expectEmit({ emitter: address(token) });
+        emit IERC20.Transfer({ from: address(flow), to: users.sender, value: refundAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit RefundFromFlowStream({ streamId: streamId, sender: users.sender, refundAmount: refundAmount });
+        emit RefundFromFlowStream({ streamId: streamId, sender: users.sender, amount: refundAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: streamId });
 
         // Request the refund.
-        flow.refund(streamId, refundAmount);
+        flow.refund({ streamId: streamId, amount: refundAmount });
 
-        // Assert that the asset balance of stream has been updated.
-        uint256 actualAssetBalance = asset.balanceOf(address(flow));
-        uint256 expectedAssetBalance = prevAssetBalance - transferAmount;
-        assertEq(actualAssetBalance, expectedAssetBalance, "asset balanceOf");
+        // Assert that the token balance of stream has been updated.
+        uint256 actualTokenBalance = token.balanceOf(address(flow));
+        uint256 expectedTokenBalance = initialTokenBalance - refundAmount;
+        assertEq(actualTokenBalance, expectedTokenBalance, "token balanceOf");
 
         // Assert that stored balance in stream has been updated.
         uint256 actualStreamBalance = flow.getBalance(streamId);
-        uint256 expectedStreamBalance = prevStreamBalance - refundAmount;
+        uint256 expectedStreamBalance = initialStreamBalance - refundAmount;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
     }
 }

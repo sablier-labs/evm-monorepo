@@ -17,9 +17,11 @@ contract FlowHandler is BaseHandler {
     address internal currentSender;
     uint256 internal currentStreamId;
 
-    /// @dev Debt, remaining and recent amount mapped to each stream id.
-    mapping(uint256 streamId => uint128 amount) public previousDebtOf;
-    mapping(uint256 streamId => uint128 amount) public previousAmountOwedOf;
+    /// @dev Total debts mapped by stream IDs.
+    mapping(uint256 streamId => uint128 amount) public previousTotalDebtOf;
+
+    /// @dev Uncovered debts mapped by stream IDs.
+    mapping(uint256 streamId => uint128 amount) public previousUncoveredDebtOf;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -33,8 +35,8 @@ contract FlowHandler is BaseHandler {
 
     /// @dev Updates the states of handler right before calling each Flow function.
     modifier updateFlowHandlerStates() {
-        previousDebtOf[currentStreamId] = flow.streamDebtOf(currentStreamId);
-        previousAmountOwedOf[currentStreamId] = flow.amountOwedOf(currentStreamId);
+        previousTotalDebtOf[currentStreamId] = flow.totalDebtOf(currentStreamId);
+        previousUncoveredDebtOf[currentStreamId] = flow.uncoveredDebtOf(currentStreamId);
         _;
     }
 
@@ -114,7 +116,7 @@ contract FlowHandler is BaseHandler {
     function deposit(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        uint128 transferAmount
+        uint128 depositAmount
     )
         external
         instrument("deposit")
@@ -123,27 +125,25 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         updateFlowHandlerStates
     {
-        // Calculate the upper bound, based on the asset decimals, for the transfer amount.
-        uint128 upperBound = getTransferAmount(1_000_000e18, flow.getAssetDecimals(currentStreamId));
+        // Calculate the upper bound, based on the token decimals, for the deposit amount.
+        uint128 upperBound = getDenormalizedAmount(1_000_000e18, flow.getTokenDecimals(currentStreamId));
 
-        // Bound the transfer amount.
-        transferAmount = uint128(_bound(transferAmount, 100, upperBound));
+        // Bound the deposit amount.
+        depositAmount = boundUint128(depositAmount, 100, upperBound);
 
-        IERC20 asset = flow.getAsset(currentStreamId);
+        IERC20 token = flow.getToken(currentStreamId);
 
-        // Mint enough assets to the Sender.
-        deal({ token: address(asset), to: currentSender, give: asset.balanceOf(currentSender) + transferAmount });
+        // Mint enough tokens to the Sender.
+        deal({ token: address(token), to: currentSender, give: token.balanceOf(currentSender) + depositAmount });
 
-        // Approve {SablierFlow} to spend the assets.
-        asset.approve({ spender: address(flow), value: transferAmount });
+        // Approve {SablierFlow} to spend the tokens.
+        token.approve({ spender: address(flow), value: depositAmount });
 
         // Deposit into the stream.
-        flow.deposit({ streamId: currentStreamId, transferAmount: transferAmount });
-
-        uint128 normalizedAmount = getNormalizedAmount(transferAmount, flow.getAssetDecimals(currentStreamId));
+        flow.deposit({ streamId: currentStreamId, amount: depositAmount });
 
         // Update the deposited amount.
-        flowStore.updateStreamDepositedAmountsSum(currentStreamId, normalizedAmount);
+        flowStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);
     }
 
     /// @dev A function that does nothing but warp the time into the future.
@@ -163,7 +163,7 @@ contract FlowHandler is BaseHandler {
     {
         uint128 refundableAmount = flow.refundableAmountOf(currentStreamId);
 
-        // The protocol doesn't allow zero refund amount.
+        // The protocol doesn't allow zero refund amounts.
         vm.assume(refundableAmount > 0);
 
         // Bound the refund amount so that it does not exceed the `refundableAmount`.
@@ -209,8 +209,8 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         updateFlowHandlerStates
     {
-        // Check if the debt is not zero.
-        vm.assume(flow.streamDebtOf(currentStreamId) > 0);
+        // Check if the uncovered debt is greater than zero.
+        vm.assume(flow.uncoveredDebtOf(currentStreamId) > 0);
 
         // Void the stream.
         flow.void(currentStreamId);
@@ -233,10 +233,10 @@ contract FlowHandler is BaseHandler {
         vm.assume(to != address(0));
 
         // Check if there is anything to withdraw.
-        vm.assume(flow.withdrawableAmountOf(currentStreamId) > 0);
+        vm.assume(flow.coveredDebtOf(currentStreamId) > 0);
 
-        // Bound the time so that it is between last time update and current time.
-        time = uint40(_bound(time, flow.getLastTimeUpdate(currentStreamId), getBlockTimestamp()));
+        // Bound the time so that it is between snapshot time and current time.
+        time = uint40(_bound(time, flow.getSnapshotTime(currentStreamId), getBlockTimestamp()));
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
         // address must be set to the recipient.
@@ -246,6 +246,17 @@ contract FlowHandler is BaseHandler {
         }
 
         uint128 initialBalance = flow.getBalance(currentStreamId);
+
+        // We need to calculate the total debt at the time of withdrawal. Otherwise the modifier updates the mappings
+        // with `block.timestamp` as the time reference.
+        uint128 totalDebt = flow.getSnapshotDebt(currentStreamId)
+            + getDenormalizedAmount({
+                amount: flow.getRatePerSecond(currentStreamId) * (time - flow.getSnapshotTime(currentStreamId)),
+                decimals: flow.getTokenDecimals(currentStreamId)
+            });
+        uint128 uncoveredDebt = initialBalance < totalDebt ? totalDebt - initialBalance : 0;
+        previousTotalDebtOf[currentStreamId] = totalDebt;
+        previousUncoveredDebtOf[currentStreamId] = uncoveredDebt;
 
         // Withdraw from the stream.
         flow.withdrawAt({ streamId: currentStreamId, to: to, time: time });

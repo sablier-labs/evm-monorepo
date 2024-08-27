@@ -23,14 +23,14 @@ abstract contract Assertions is PRBMathAssertions {
     /// @dev Compares two {Flow.Stream} struct entities.
     function assertEq(Flow.Stream memory a, Flow.Stream memory b) internal pure {
         assertEq(a.ratePerSecond, b.ratePerSecond, "ratePerSecond");
-        assertEq(a.asset, b.asset, "asset");
-        assertEq(a.assetDecimals, b.assetDecimals, "assetDecimals");
         assertEq(a.balance, b.balance, "balance");
-        assertEq(a.lastTimeUpdate, b.lastTimeUpdate, "lastTimeUpdate");
+        assertEq(a.snapshotTime, b.snapshotTime, "snapshotTime");
         assertEq(a.isPaused, b.isPaused, "isPaused");
         assertEq(a.isStream, b.isStream, "isStream");
         assertEq(a.isTransferable, b.isTransferable, "isTransferable");
-        assertEq(a.remainingAmount, b.remainingAmount, "remainingAmount");
+        assertEq(a.snapshotDebt, b.snapshotDebt, "snapshotDebt");
         assertEq(a.sender, b.sender, "sender");
+        assertEq(a.token, b.token, "token");
+        assertEq(a.tokenDecimals, b.tokenDecimals, "tokenDecimals");
     }
 }

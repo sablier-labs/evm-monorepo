@@ -7,7 +7,7 @@ import { Base_Test } from "../../Base.t.sol";
 import { Integration_Test } from "../Integration.t.sol";
 
 abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
-    IERC20 internal asset;
+    IERC20 internal token;
     uint128 internal depositedAmount;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
     uint256[19] public fixtureStreamId;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                        SET-UP
+                                      SET-UP
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public override {
@@ -49,29 +49,23 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
             decimals = boundUint8(decimals, 0, 18);
 
             // Create stream.
-            streamId = _createAssetAndStream(decimals);
+            streamId = _createTokenAndStream(decimals);
 
             // Hash the next stream ID and the decimal to generate a seed.
             uint128 amountSeed = uint128(uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals))));
-
             // Bound the amount between a realistic range.
             uint128 amount = boundUint128(amountSeed, 1, 1_000_000_000e18);
-
-            // Calculate the transfer amount.
-            uint128 transferAmount = getTransferAmount(amount, decimals);
+            uint128 depositAmount = getDenormalizedAmount(amount, decimals);
 
             // Deposit into the stream.
-            depositAmount(streamId, transferAmount);
+            deposit(streamId, depositAmount);
 
-            // Get the normalized amount to return.
-            amount = getNormalizedAmount(transferAmount, decimals);
-
-            return (streamId, decimals, amount);
+            return (streamId, decimals, depositAmount);
         }
 
-        asset = flow.getAsset(streamId);
-
-        return (streamId, flow.getAssetDecimals(streamId), DEPOSIT_AMOUNT);
+        token = flow.getToken(streamId);
+        decimals = flow.getTokenDecimals(streamId);
+        return (streamId, decimals, getDefaultDepositAmount(decimals));
     }
 
     /// @dev Helper function to return the address of either recipient or operator depending on the value of `timeJump`.
@@ -86,22 +80,22 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
         }
     }
 
-    /// @dev Helper function to create an asset with the `decimals` and then a stream using the newly created asset.
-    function _createAssetAndStream(uint8 decimals) private returns (uint256 streamId) {
-        asset = createAsset(decimals);
+    /// @dev Helper function to create an token with the `decimals` and then a stream using the newly created token.
+    function _createTokenAndStream(uint8 decimals) private returns (uint256 streamId) {
+        token = createToken(decimals);
 
         // Hash the next stream ID and the decimal to generate a seed.
         uint256 ratePerSecondSeed = uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals)));
         uint128 ratePerSecond = boundRatePerSecond(uint128(ratePerSecondSeed));
 
         // Create stream.
-        streamId = createDefaultStream(ratePerSecond, asset);
+        streamId = createDefaultStream(ratePerSecond, token);
     }
 
     function _setupStreamsWithAllDecimals() private {
         for (uint8 decimal; decimal < 19; ++decimal) {
-            // Create asset, create stream and deposit.
-            uint256 streamId = _createAssetAndStream(decimal);
+            // Create token, create stream and deposit.
+            uint256 streamId = _createTokenAndStream(decimal);
 
             depositDefaultAmount(streamId);
 

@@ -1,24 +1,24 @@
 
 Create_Integration_Concrete_Test
 ├── when delegate call
-│   └── it should revert
+│  └── it should revert
 └── when no delegate call
-    ├── when sender address zero
-    │   └── it should revert
-    └── when sender not address zero
-        ├── when rate per second zero
-        │   └── it should revert
-        └── when rate per second not zero
-            ├── when asset does not implement decimals
-            │   └── it should revert
-            └── when asset implements decimals
-                ├── when asset decimals exceeds 18
-                │   └── it should revert
-                └── when asset decimals does not exceed 18
-                    ├── when recipient address zero
-                    │   └── it should revert
-                    └── when recipient not address zero
-                        ├── it should create the stream
-                        ├── it should bump the next stream id
-                        ├── it should mint the NFT
-                        └── it should emit 1 {MetadataUpdate}, 1 {CreateFlowStream} and 1 {Transfer} events
+   ├── when sender address zero
+   │  └── it should revert
+   └── when sender not address zero
+      ├── when rate per second zero
+      │  └── it should revert
+      └── when rate per second not zero
+         ├── when token does not implement decimals
+         │  └── it should revert
+         └── when token implements decimals
+            ├── when token decimals exceeds 18
+            │  └── it should revert
+            └── when token decimals does not exceed 18
+               ├── when recipient address zero
+               │  └── it should revert
+               └── when recipient not address zero
+                  ├── it should create the stream
+                  ├── it should bump the next stream id
+                  ├── it should mint the NFT
+                  └── it should emit 1 {MetadataUpdate}, 1 {CreateFlowStream} and 1 {Transfer} events

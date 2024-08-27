@@ -2,7 +2,8 @@
 
 This repository contains the smart contracts for Sablier Flow. Streams created with Sablier Flow have no end time and
 require no upfront deposit. This is ideal for regular payments such as salaries and subscriptions, where an end time is
-not specified. For vesting or airdrops, refer to [our Lockup protocol](https://github.com/sablier-labs/v2-core/).
+not specified. For vesting or airdrops, refer to the [Sablier Lockup](https://github.com/sablier-labs/v2-core/)
+protocol.
 
 ## Motivation
 
@@ -15,13 +16,13 @@ struct Stream {
   uint128 balance;
   uint128 ratePerSecond;
   address sender;
-  uint40 lastTimeUpdate;
-  bool isStream;
+  uint40 snapshotTime;
   bool isPaused;
+  bool isStream;
   bool isTransferable;
-  IERC20 asset;
-  uint8 assetDecimals;
-  uint128 remainingAmount;
+  IERC20 token;
+  uint8 tokenDecimals;
+  uint128 snapshotDebt;
 }
 ```
 
@@ -32,84 +33,84 @@ struct Stream {
 - Anyone can deposit into a stream, allowing others to fund your streams.
 - No limit on deposits; any amount can be deposited or refunded if not yet streamed to recipients.
 - Streams without sufficient balance will accumulate debt until paused or sufficiently funded.
-- Senders can pause and restart streams without losing track of debt and the amount owed to the recipient.
+- Senders can pause and restart streams without losing track of previously accrued debt.
 
-## How It Works
+## How it works
 
 When a stream is created, no deposit is required, so the initial stream balance can be zero. The sender can deposit any
 amount into the stream at any time. To improve experience for some users, a `createAndDeposit` function has been
 implemented to allow both create and deposit operations in a single transaction.
 
 Streams begin streaming as soon as the transaction is confirmed on the blockchain. They have no end date, but the sender
-can pause the stream at any time. This stops the streaming of assets but retains the record of the amount owed to the
-recipient up to that point.
+can pause the stream at any time. This stops the streaming of tokens but retains the record of the accrued debt up to
+that point.
 
-The `lastTimeUpdate` value, set to `block.timestamp` when the stream is created, is crucial for tracking the amount owed
-over time. The recipient can withdraw the streamed amount at any point. If there are insufficient funds in the stream,
-the recipient can only withdraw the available balance.
+The `snapshotTime` value, set to `block.timestamp` when the stream is created, is crucial for tracking the debt over
+time. The recipient can withdraw the streamed amount at any point. However, if there aren't sufficient funds, the
+recipient can only withdraw the available balance.
 
 ## Abbreviations
 
-| Full Name          | Abbreviation |
-| ------------------ | ------------ |
-| amount owed        | ao           |
-| balance            | bal          |
-| block.timestamp    | now          |
-| debt               | debt         |
-| lastTimeUpdate     | ltu          |
-| ratePerSecond      | rps          |
-| recentAmount       | rca          |
-| refundableAmount   | rfa          |
-| remainingAmount    | ra           |
-| withdrawableAmount | wa           |
+| Variable         | Abbreviation |
+| ---------------- | ------------ |
+| totalDebt        | td           |
+| ongoingDebt      | od           |
+| snapshotDebt     | sd           |
+| snapshotTime     | st           |
+| uncoveredDebt    | ud           |
+| refundableAmount | ra           |
+| coveredDebt      | cd           |
+| balance          | bal          |
+| block.timestamp  | now          |
+| ratePerSecond    | rps          |
 
-## Core Components
+## Core components
 
-### 1. Recent amount
+### 1. Total debt
 
-The recent amount (rca) is calculated as the rate per second (rps) multiplied by the delta between the current time and
-`lastTimeUpdate`.
+The total debt (td) is the total amount the sender owes to the recipient. It is calculated as the sum of the snapshot
+debt and the ongoing debt.
 
-$rca = rps \times (now - ltu)$
+$td = sd + od$
 
-### 2. Remaining amount
+### 2. Ongoing debt
 
-The remaining amount (ra) is the amount that the sender owed to the recipient until the last time update. When
-`lastTimeUpdate` is updated, the remaining amount increases by the recent amount.
+The ongoing debt (od) is calculated as the rate per second (rps) multiplied by the delta between the current time and
+`snapshotTime`.
 
-$ra = \sum rca_t$
+$od = rps \times (now - lst)$
 
-### 3. Amount Owed
+### 3. Snapshot debt
 
-The amount owed (ao) is the total amount the sender owes to the recipient. It is calculated as the sum of the remaining
-amount and the recent amount.
+The snapshot debt (sd) is the amount that the sender owed the recipient at snapshot time. When `snapshotTime` is
+updated, the snapshot debt increases by the ongoing debt.
 
-$ao = ra + rca$
+$sd = \sum od_t$
 
-### 4. Debt
+### 4. Uncovered debt
 
-The debt is the difference between the amount owed and the actual balance, applicable when the amount owed exceeds the
-balance.
+The uncovered debt (ud) is the difference between the total debt and the actual balance, applicable when the total debt
+exceeds the balance.
 
-$`debt = \begin{cases} ao - bal & \text{if } ao \gt bal \\ 0 & \text{if } ao \le bal \end{cases}`$
+$`ud = \begin{cases} td - bal & \text{if } td \gt bal \\ 0 & \text{if } td \le bal \end{cases}`$
 
-### 5. Withdrawable amount
+### 5. Refundable amount
 
-The withdrawable amount (wa) is the amount owed when there is no debt. If there is debt, the withdrawable amount is the
-stream balance
+The refundable amount (ra) is the amount that the sender can be refunded. It is the difference between the stream
+balance and the total debt.
 
-$`wa = \begin{cases} ao & \text{if } debt = 0 \\ bal & \text{if } debt \gt 0 \end{cases}`$
+$`ra = \begin{cases} bal - td & \text{if } ud = 0 \\ 0 & \text{if } ud > 0 \end{cases}`$
 
-### 6. Refundable amount
+### 6. Covered debt
 
-The refundable amount (rfa) is the amount that the sender can refund from the stream. It is the difference between the
-stream balance and the amount owed
+The covered debt (cd) is the total debt when there is no uncovered debt. But if there is uncovered debt, the covered
+debt is capped to the stream balance.
 
-$`rfa = \begin{cases} bal - ao & \text{if } debt = 0 \\ 0 & \text{if } debt > 0 \end{cases}`$
+$`cd = \begin{cases} td & \text{if } ud = 0 \\ bal & \text{if } ud \gt 0 \end{cases}`$
 
-## Precision Issues
+## Precision issues
 
-The `rps` introduces a precision problem for assets with fewer decimals (e.g.
+The `rps` introduces a precision problem for tokens with fewer decimals (e.g.
 [USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s), which has 6 decimals).
 
 Let's consider an example: if a user wants to stream 10 USDC per day, the _rps_ should be
@@ -118,12 +119,12 @@ $rps = 0.000115740740740740740740...$ (infinite decimals)
 
 But since USDC only has 6 decimals, the _rps_ would be limited to $0.000115$, leading to
 $0.000115 \times \text{seconds in one day} = 9.936000$ USDC streamed in one day. This results in a shortfall of
-$0.064000$ USDC per day, which is problematic
+$0.064000$ USDC per day, which is problematic.
 
 ### Solution
 
-In the contracts, we normalize all internal amounts (e.g. `rps`, `bal`, `ra`, `ao`) to 18 decimals. While this doesn't
-completely solve the issue, it significantly minimizes it.
+In the contracts, we normalize the rate per second to 18 decimals. While this doesn't completely solve the issue, it
+significantly minimizes it.
 
 Using the same example (streaming 10 USDC per day), if _rps_ has 18 decimals, the end-of-day result would be:
 
@@ -142,43 +143,24 @@ $0.000115740740740740 \times (\text{seconds in one day} + 1 second) = 10.0001157
 
 Currently, it's not possible to address this precision problem entirely.
 
-### Technical Implementaion
-
-We use 18 fixed-point numbers for all internal amounts and calculation functions to avoid the overload of conversion to
-actual `ERC20` balances. The only time we perform these conversions is during external calls to `ERC20`'s
-`transfer`/`transferFrom` (i.e. deposit, withdraw and refund operations). When performing these actions, we adjust the
-calculated amount (withdrawable or refundable) based on the asset's decimals:
-
-Deposit:
-
-- if the asset has 18 decimals, the internal deposited amount remains same as the transfer amount
-- if the asset has fewer decimals, the internal deposited amount is increased by the difference between the asset
-  decimals and 18
-
-Withdraw and Refund:
-
-- if the asset has 18 decimals, the transfer amount is the same as the internal amount
-- if the asset has fewer decimals, the transfer amount is decreased by the difference between 18 and asset decimals
-
-Asset decimal is retrieved directly from the ERC20 contract. We store the asset decimals to avoid making an external
-call to get the decimals of the asset each time a deposit or withdraw is made. Decimals are stored as `uint8`, making
-them inexpensive to store.
-
 ### Limitations
 
-- ERC20 tokens with decimals higher than 18 are not supported.
+- ERC-20 tokens with decimals higher than 18 are not supported.
 
 ## Invariants
 
-1. for any stream, $ltu \le now$
+1. for any stream, $lst \le now$
 
-2. for a given asset, $\sum$ stream balances normalized to asset decimal $\leq$ asset.balanceOf(SablierFlow)
+2. for a given token, $\sum$ stream balances $\eq$ token.balanceOf(SablierFlow)
 
-3. for any stream, if $debt > 0 \implies wa = bal$
+   Note: In the code, this invariant is tested with equality, as we don't implement the `ERC20.transferFrom` handlers.
+   In real life, someone can transfer tokens to the contract.
 
-4. if $rps \gt 0$ and no deposits are made $\implies \frac{d(debt)}{dt} \ge 0$
+3. for any stream, if $ud > 0 \implies cd = bal$
 
-5. if $rps \gt 0$, and no withdraw is made $\implies \frac{d(ao)}{dt} \ge 0$
+4. if $rps \gt 0$ and no deposits are made $\implies \frac{d(ud)}{dt} \ge 0$
+
+5. if $rps \gt 0$, and no withdraw is made $\implies \frac{d(td)}{dt} \ge 0$
 
 6. for any stream, sum of deposited amounts $\ge$ sum of withdrawn amounts + sum of refunded
 
@@ -186,10 +168,10 @@ them inexpensive to store.
 
 8. next stream id = current stream id + 1
 
-9. if $debt = 0$ and $isPaused = true \implies wa = ra$
+9. if $ud = 0$ and $isPaused = true \implies cd = sa$
 
-10. if $debt = 0$ and $isPaused = false \implies wa = ra + rca$
+10. if $ud = 0$ and $isPaused = false \implies cd = sa + oa$
 
-11. $bal = rfa + wa$
+11. $bal = ra + cd$
 
 12. if $isPaused = true \implies rps = 0$

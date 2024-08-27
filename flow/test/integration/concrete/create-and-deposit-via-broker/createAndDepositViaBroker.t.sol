@@ -15,9 +15,9 @@ contract CreateAndDepositViaBroker_Integration_Concrete_Test is Integration_Test
                 users.sender,
                 users.recipient,
                 RATE_PER_SECOND,
-                dai,
-                IS_TRANFERABLE,
-                TOTAL_TRANSFER_AMOUNT_WITH_BROKER_FEE,
+                usdc,
+                TRANSFERABLE,
+                TOTAL_AMOUNT_WITH_BROKER_FEE_6D,
                 defaultBroker
             )
         );
@@ -27,42 +27,41 @@ contract CreateAndDepositViaBroker_Integration_Concrete_Test is Integration_Test
     function test_WhenNoDelegateCall() external {
         uint256 expectedStreamId = flow.nextStreamId();
 
-        // It should emit events: 1 {MetadataUpdate}, 1 {CreateFlowStream}, 2 {Transfer}, 1
-        // {DepositFlowStream}
+        // It should emit events: 1 {MetadataUpdate}, 1 {CreateFlowStream}, 2 {Transfer}, 1 {DepositFlowStream}
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: expectedStreamId });
 
         vm.expectEmit({ emitter: address(flow) });
         emit CreateFlowStream({
             streamId: expectedStreamId,
-            asset: dai,
             sender: users.sender,
             recipient: users.recipient,
-            lastTimeUpdate: getBlockTimestamp(),
-            ratePerSecond: RATE_PER_SECOND
+            ratePerSecond: RATE_PER_SECOND,
+            token: usdc,
+            transferable: TRANSFERABLE
         });
 
-        vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({ from: users.sender, to: address(flow), value: TRANSFER_AMOUNT });
+        vm.expectEmit({ emitter: address(usdc) });
+        emit IERC20.Transfer({ from: users.sender, to: address(flow), value: DEPOSIT_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit DepositFlowStream({ streamId: expectedStreamId, funder: users.sender, depositAmount: DEPOSIT_AMOUNT });
+        emit DepositFlowStream({ streamId: expectedStreamId, funder: users.sender, amount: DEPOSIT_AMOUNT_6D });
 
-        vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({ from: users.sender, to: users.broker, value: BROKER_FEE_AMOUNT });
+        vm.expectEmit({ emitter: address(usdc) });
+        emit IERC20.Transfer({ from: users.sender, to: users.broker, value: BROKER_FEE_AMOUNT_6D });
 
-        // It should perform the ERC20 transfers
-        expectCallToTransferFrom({ asset: dai, from: users.sender, to: address(flow), amount: TRANSFER_AMOUNT });
+        // It should perform the ERC-20 transfers
+        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), amount: DEPOSIT_AMOUNT_6D });
 
-        expectCallToTransferFrom({ asset: dai, from: users.sender, to: users.broker, amount: BROKER_FEE_AMOUNT });
+        expectCallToTransferFrom({ token: usdc, from: users.sender, to: users.broker, amount: BROKER_FEE_AMOUNT_6D });
 
         uint256 actualStreamId = flow.createAndDepositViaBroker({
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
-            asset: dai,
-            isTransferable: IS_TRANFERABLE,
-            totalTransferAmount: TOTAL_TRANSFER_AMOUNT_WITH_BROKER_FEE,
+            token: usdc,
+            transferable: TRANSFERABLE,
+            totalAmount: TOTAL_AMOUNT_WITH_BROKER_FEE_6D,
             broker: defaultBroker
         });
 
@@ -82,7 +81,7 @@ contract CreateAndDepositViaBroker_Integration_Concrete_Test is Integration_Test
 
         // It should update the stream balance
         uint128 actualStreamBalance = flow.getBalance(expectedStreamId);
-        uint128 expectedStreamBalance = DEPOSIT_AMOUNT;
+        uint128 expectedStreamBalance = DEPOSIT_AMOUNT_6D;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
     }
 }

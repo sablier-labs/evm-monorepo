@@ -41,35 +41,35 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
-    function test_GivenStreamHasDebt() external whenNoDelegateCall givenNotNull givenNotPaused whenCallerSender {
-        // Check that debt is positive.
-        assertGt(flow.streamDebtOf(defaultStreamId), 0, "stream debt");
+    function test_GivenUncoveredDebt() external whenNoDelegateCall givenNotNull givenNotPaused whenCallerSender {
+        // Check that uncovered debt is greater than zero.
+        assertGt(flow.uncoveredDebtOf(defaultStreamId), 0, "uncovered debt");
 
         // It should pause the stream.
         test_Pause();
     }
 
-    function test_GivenStreamHasNoDebt() external whenNoDelegateCall givenNotNull givenNotPaused whenCallerSender {
-        // Make deposit to clear debt.
+    function test_GivenNoUncoveredDebt() external whenNoDelegateCall givenNotNull givenNotPaused whenCallerSender {
+        // Make deposit to repay uncovered debt.
         depositToDefaultStream();
 
-        // Check that debt is zero.
-        assertEq(flow.streamDebtOf(defaultStreamId), 0, "stream debt");
+        // Check that uncovered debt is zero.
+        assertEq(flow.uncoveredDebtOf(defaultStreamId), 0, "uncovered debt");
 
         // It should pause the stream.
         test_Pause();
     }
 
     function test_Pause() internal {
-        uint128 previousAmountOwed = flow.amountOwedOf(defaultStreamId);
+        uint128 initialTotalDebt = flow.totalDebtOf(defaultStreamId);
 
         // It should emit 1 {PauseFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
         emit PauseFlowStream({
             streamId: defaultStreamId,
-            recipient: users.recipient,
             sender: users.sender,
-            amountOwed: previousAmountOwed
+            recipient: users.recipient,
+            totalDebt: initialTotalDebt
         });
 
         vm.expectEmit({ emitter: address(flow) });
@@ -84,8 +84,8 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
         uint256 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         assertEq(actualRatePerSecond, 0, "rate per second");
 
-        // It should update the remaining amount.
-        uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
-        assertEq(actualRemainingAmount, previousAmountOwed, "remaining amount");
+        // It should update the snapshot debt.
+        uint128 actualSnapshotDebt = flow.getSnapshotDebt(defaultStreamId);
+        assertEq(actualSnapshotDebt, initialTotalDebt, "snapshot debt");
     }
 }

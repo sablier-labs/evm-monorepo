@@ -9,7 +9,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// @dev It should revert.
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
-    /// - Multiple paused streams, each with different asset decimals and rps.
+    /// - Multiple paused streams, each with different token decimals and rps.
     /// - Multiple points in time.
     function testFuzz_RevertGiven_Paused(
         uint256 streamId,
@@ -44,7 +44,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// - It should emit the following events: {MetadataUpdate}, {PauseFlowStream}
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
-    /// - Multiple non-paused streams, each with different asset decimals and rps.
+    /// - Multiple non-paused streams, each with different token decimals and rps.
     /// - Multiple points in time.
     function testFuzz_Pause(
         uint256 streamId,
@@ -68,9 +68,9 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit PauseFlowStream({
             streamId: streamId,
-            recipient: users.recipient,
             sender: users.sender,
-            amountOwed: flow.amountOwedOf(streamId)
+            recipient: users.recipient,
+            totalDebt: flow.totalDebtOf(streamId)
         });
 
         vm.expectEmit({ emitter: address(flow) });

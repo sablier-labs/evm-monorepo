@@ -17,17 +17,17 @@ contract FlowCreateHandler is BaseHandler {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Default ERC20 assets used for testing.
-    IERC20[] public assets;
-    IERC20 public currentAsset;
+    /// @dev Default ERC-20 tokens used for testing.
+    IERC20[] public tokens;
+    IERC20 public currentToken;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier useFuzzedAsset(uint256 assetIndexSeed) {
-        assetIndexSeed = _bound(assetIndexSeed, 0, assets.length - 1);
-        currentAsset = assets[assetIndexSeed];
+    modifier useFuzzedToken(uint256 tokenIndexSeed) {
+        tokenIndexSeed = _bound(tokenIndexSeed, 0, tokens.length - 1);
+        currentToken = tokens[tokenIndexSeed];
         _;
     }
 
@@ -47,9 +47,9 @@ contract FlowCreateHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(FlowStore flowStore_, ISablierFlow flow_, IERC20[] memory assets_) BaseHandler(flowStore_, flow_) {
-        for (uint256 i = 0; i < assets_.length; ++i) {
-            assets.push(assets_[i]);
+    constructor(FlowStore flowStore_, ISablierFlow flow_, IERC20[] memory tokens_) BaseHandler(flowStore_, flow_) {
+        for (uint256 i = 0; i < tokens_.length; ++i) {
+            tokens.push(tokens_[i]);
         }
     }
 
@@ -60,11 +60,11 @@ contract FlowCreateHandler is BaseHandler {
     /// @dev Struct to prevent stack too deep error.
     struct CreateParams {
         uint256 timeJumpSeed;
-        uint256 assetIndexSeed;
+        uint256 tokenIndexSeed;
         address sender;
         address recipient;
         uint128 ratePerSecond;
-        bool isTransferable;
+        bool transferable;
     }
 
     function create(
@@ -73,7 +73,7 @@ contract FlowCreateHandler is BaseHandler {
         public
         instrument("create")
         checkUsers(params)
-        useFuzzedAsset(params.assetIndexSeed)
+        useFuzzedToken(params.tokenIndexSeed)
         adjustTimestamp(params.timeJumpSeed)
     {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
@@ -83,7 +83,7 @@ contract FlowCreateHandler is BaseHandler {
 
         // Create the stream.
         uint256 streamId =
-            flow.create(params.sender, params.recipient, params.ratePerSecond, currentAsset, params.isTransferable);
+            flow.create(params.sender, params.recipient, params.ratePerSecond, currentToken, params.transferable);
 
         // Store the stream id.
         flowStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -91,46 +91,44 @@ contract FlowCreateHandler is BaseHandler {
 
     function createAndDeposit(
         CreateParams memory params,
-        uint128 transferAmount
+        uint128 depositAmount
     )
         public
         instrument("createAndDeposit")
         checkUsers(params)
-        useFuzzedAsset(params.assetIndexSeed)
+        useFuzzedToken(params.tokenIndexSeed)
         adjustTimestamp(params.timeJumpSeed)
     {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
-        uint8 decimals = IERC20Metadata(address(currentAsset)).decimals();
+        uint8 decimals = IERC20Metadata(address(currentToken)).decimals();
 
-        // Calculate the upper bound, based on the asset decimals, for the transfer amount.
-        uint128 upperBound = getTransferAmount(1_000_000e18, decimals);
+        // Calculate the upper bound, based on the token decimals, for the deposit amount.
+        uint128 upperBound = getDenormalizedAmount(1_000_000e18, decimals);
 
         // Bound the stream parameters.
         params.ratePerSecond = boundRatePerSecond(params.ratePerSecond);
-        transferAmount = uint128(_bound(transferAmount, 100, upperBound));
+        depositAmount = uint128(_bound(depositAmount, 100, upperBound));
 
-        // Mint enough assets to the Sender.
+        // Mint enough tokens to the Sender.
         deal({
-            token: address(currentAsset),
+            token: address(currentToken),
             to: params.sender,
-            give: currentAsset.balanceOf(params.sender) + transferAmount
+            give: currentToken.balanceOf(params.sender) + depositAmount
         });
 
-        // Approve {SablierFlow} to spend the assets.
-        currentAsset.approve({ spender: address(flow), value: transferAmount });
+        // Approve {SablierFlow} to spend the tokens.
+        currentToken.approve({ spender: address(flow), value: depositAmount });
 
         // Create the stream.
         uint256 streamId = flow.createAndDeposit(
-            params.sender, params.recipient, params.ratePerSecond, currentAsset, params.isTransferable, transferAmount
+            params.sender, params.recipient, params.ratePerSecond, currentToken, params.transferable, depositAmount
         );
 
         // Store the stream id.
         flowStore.pushStreamId(streamId, params.sender, params.recipient);
 
-        uint128 normalizedAmount = getNormalizedAmount(transferAmount, decimals);
-
         // Store the deposited amount.
-        flowStore.updateStreamDepositedAmountsSum(streamId, normalizedAmount);
+        flowStore.updateStreamDepositedAmountsSum(streamId, depositAmount);
     }
 }

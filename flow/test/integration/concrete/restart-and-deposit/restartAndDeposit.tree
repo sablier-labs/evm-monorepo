@@ -13,7 +13,7 @@ RestartAndDeposit_Integration_Concrete_Test
       └── when caller sender
          ├── it should restart the stream
          ├── it should update the rate per second
-         ├── it should update lastTimeUpdate
+         ├── it should update snapshot time
          ├── it should update the stream balance
          ├── it should perform the ERC20 transfer
          └── it should emit 1 {RestartFlowStream}, 1 {Transfer}, 1 {DepositFlowStream} and 1 {MetadataUpdate} events
