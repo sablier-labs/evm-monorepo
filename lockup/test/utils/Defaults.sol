@@ -7,7 +7,7 @@ import { ud2x18, uUNIT } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud, ZERO } from "@prb/math/src/UD60x18.sol";
 
 import { Broker, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/core/types/DataTypes.sol";
-import { BatchLockup, MerkleBase, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
+import { BatchLockup, MerkleBase, MerkleLL, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
 
 import { ArrayBuilder } from "./ArrayBuilder.sol";
 import { Constants } from "./Constants.sol";
@@ -64,6 +64,8 @@ contract Defaults is Constants, Merkle {
     bytes32 public MERKLE_ROOT;
     string public constant NAME = "Airdrop Campaign";
     bytes32 public constant NAME_BYTES32 = bytes32(abi.encodePacked("Airdrop Campaign"));
+    uint40 public immutable STREAM_START_TIME_NON_ZERO = JULY_1_2024 - 2 days;
+    uint40 public immutable STREAM_START_TIME_ZERO = 0;
     uint64 public constant TOTAL_PERCENTAGE = uUNIT;
     bool public constant TRANSFERABLE = false;
 
@@ -501,15 +503,29 @@ contract Defaults is Constants, Merkle {
         return LEAVES;
     }
 
-    function tranchesMerkleLT() public view returns (LockupTranched.Tranche[] memory tranches_) {
-        tranches_ = new LockupTranched.Tranche[](2);
-        tranches_[0] = LockupTranched.Tranche({ amount: 2500e18, timestamp: uint40(block.timestamp) + CLIFF_DURATION });
-        tranches_[1] = LockupTranched.Tranche({ amount: 7500e18, timestamp: uint40(block.timestamp) + TOTAL_DURATION });
+    function schedule() public pure returns (MerkleLL.Schedule memory schedule_) {
+        schedule_.startTime = STREAM_START_TIME_ZERO;
+        schedule_.cliffDuration = CLIFF_DURATION;
+        schedule_.totalDuration = TOTAL_DURATION;
     }
 
-    /// @dev Mirros the logic from {SablierMerkleLT._calculateTranches}.
-    function tranchesMerkleLT(uint128 totalAmount) public view returns (LockupTranched.Tranche[] memory tranches_) {
-        tranches_ = tranchesMerkleLT();
+    /// @dev Mirros the logic from {SablierMerkleLT._calculateStartTimeAndTranches}.
+    function tranchesMerkleLT(
+        uint40 streamStartTime,
+        uint128 totalAmount
+    )
+        public
+        view
+        returns (LockupTranched.Tranche[] memory tranches_)
+    {
+        tranches_ = new LockupTranched.Tranche[](2);
+        if (streamStartTime == 0) {
+            tranches_[0].timestamp = uint40(block.timestamp) + CLIFF_DURATION;
+            tranches_[1].timestamp = uint40(block.timestamp) + TOTAL_DURATION;
+        } else {
+            tranches_[0].timestamp = streamStartTime + CLIFF_DURATION;
+            tranches_[1].timestamp = streamStartTime + TOTAL_DURATION;
+        }
 
         uint128 amount0 = ud(totalAmount).mul(tranchesWithPercentages()[0].unlockPercentage.intoUD60x18()).intoUint128();
         uint128 amount1 = ud(totalAmount).mul(tranchesWithPercentages()[1].unlockPercentage.intoUD60x18()).intoUint128();

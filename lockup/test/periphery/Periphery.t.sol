@@ -71,7 +71,7 @@ contract Periphery_Test is Base_Test {
                 lockupLinear,
                 defaults.CANCELABLE(),
                 defaults.TRANSFERABLE(),
-                abi.encode(defaults.durations())
+                abi.encode(defaults.schedule())
             )
         );
         bytes32 creationBytecodeHash = keccak256(getMerkleLLBytecode(admin, asset_, merkleRoot, expiration));
@@ -105,6 +105,7 @@ contract Periphery_Test is Base_Test {
                 lockupTranched,
                 defaults.CANCELABLE(),
                 defaults.TRANSFERABLE(),
+                defaults.STREAM_START_TIME_ZERO(),
                 abi.encode(defaults.tranchesWithPercentages())
             )
         );
@@ -151,7 +152,7 @@ contract Periphery_Test is Base_Test {
             lockupLinear,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
-            defaults.durations()
+            defaults.schedule()
         );
         if (!isTestOptimizedProfile()) {
             return bytes.concat(type(SablierMerkleLL).creationCode, constructorArgs);
@@ -175,6 +176,7 @@ contract Periphery_Test is Base_Test {
             lockupTranched,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
+            defaults.STREAM_START_TIME_ZERO(),
             defaults.tranchesWithPercentages()
         );
         if (!isTestOptimizedProfile()) {

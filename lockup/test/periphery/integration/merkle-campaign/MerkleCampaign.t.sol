@@ -131,7 +131,7 @@ abstract contract MerkleCampaign_Integration_Test is Periphery_Test {
             lockupLinear: lockupLinear,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
-            streamDurations: defaults.durations(),
+            schedule: defaults.schedule(),
             aggregateAmount: defaults.AGGREGATE_AMOUNT(),
             recipientCount: defaults.RECIPIENT_COUNT()
         });
@@ -187,6 +187,7 @@ abstract contract MerkleCampaign_Integration_Test is Periphery_Test {
             lockupTranched: lockupTranched,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
+            streamStartTime: defaults.STREAM_START_TIME_ZERO(),
             tranchesWithPercentages: defaults.tranchesWithPercentages(),
             aggregateAmount: defaults.AGGREGATE_AMOUNT(),
             recipientCount: defaults.RECIPIENT_COUNT()

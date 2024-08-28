@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupLinear } from "src/core/types/DataTypes.sol";
 import { SablierMerkleLL } from "src/periphery/SablierMerkleLL.sol";
+import { MerkleLL } from "src/periphery/types/DataTypes.sol";
 
 import { MerkleCampaign_Integration_Test } from "../MerkleCampaign.t.sol";
 
@@ -15,7 +15,7 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         string actualIpfsCID;
         string actualName;
         bool actualCancelable;
-        LockupLinear.Durations actualDurations;
+        MerkleLL.Schedule actualSchedule;
         uint40 actualExpiration;
         address actualLockupLinear;
         bytes32 actualMerkleRoot;
@@ -24,7 +24,7 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         uint256 expectedAllowance;
         address expectedAsset;
         bool expectedCancelable;
-        LockupLinear.Durations expectedDurations;
+        MerkleLL.Schedule expectedSchedule;
         uint40 expectedExpiration;
         string expectedIpfsCID;
         address expectedLockupLinear;
@@ -35,7 +35,7 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
 
     function test_Constructor() external {
         SablierMerkleLL constructedLL = new SablierMerkleLL(
-            defaults.baseParams(), lockupLinear, defaults.CANCELABLE(), defaults.TRANSFERABLE(), defaults.durations()
+            defaults.baseParams(), lockupLinear, defaults.CANCELABLE(), defaults.TRANSFERABLE(), defaults.schedule()
         );
 
         Vars memory vars;
@@ -56,11 +56,6 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         vars.expectedCancelable = defaults.CANCELABLE();
         assertEq(vars.actualCancelable, vars.expectedCancelable, "cancelable");
 
-        (vars.actualDurations.cliff, vars.actualDurations.total) = constructedLL.streamDurations();
-        vars.expectedDurations = defaults.durations();
-        assertEq(vars.actualDurations.cliff, vars.expectedDurations.cliff, "durations.cliff");
-        assertEq(vars.actualDurations.total, vars.expectedDurations.total, "durations.total");
-
         vars.actualExpiration = constructedLL.EXPIRATION();
         vars.expectedExpiration = defaults.EXPIRATION();
         assertEq(vars.actualExpiration, vars.expectedExpiration, "expiration");
@@ -80,6 +75,13 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         vars.actualName = constructedLL.name();
         vars.expectedName = defaults.NAME_BYTES32();
         assertEq(bytes32(abi.encodePacked(vars.actualName)), vars.expectedName, "name");
+
+        (vars.actualSchedule.startTime, vars.actualSchedule.cliffDuration, vars.actualSchedule.totalDuration) =
+            constructedLL.schedule();
+        vars.expectedSchedule = defaults.schedule();
+        assertEq(vars.actualSchedule.startTime, vars.expectedSchedule.startTime, "schedule.startTime");
+        assertEq(vars.actualSchedule.cliffDuration, vars.expectedSchedule.cliffDuration, "schedule.cliffDuration");
+        assertEq(vars.actualSchedule.totalDuration, vars.expectedSchedule.totalDuration, "schedule.totalDuration");
 
         vars.actualTransferable = constructedLL.TRANSFERABLE();
         vars.expectedTransferable = defaults.TRANSFERABLE();

@@ -30,6 +30,8 @@ interface ISablierMerkleLL is ISablierMerkleBase {
     /// @dev This is an immutable state variable.
     function TRANSFERABLE() external returns (bool);
 
-    /// @notice The total streaming duration of each stream.
-    function streamDurations() external view returns (uint40 cliff, uint40 duration);
+    /// @notice The start time, cliff duration and the end duration used to calculate the time variables in
+    /// `LockupLinear.CreateWithTimestamps`.
+    /// @dev A start time value of zero will be considered as `block.timestamp`.
+    function schedule() external view returns (uint40 startTime, uint40 cliffDuration, uint40 endDuration);
 }

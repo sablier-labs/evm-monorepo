@@ -5,7 +5,6 @@ import { uUNIT } from "@prb/math/src/UD2x18.sol";
 
 import { ISablierLockupLinear } from "../core/interfaces/ISablierLockupLinear.sol";
 import { ISablierLockupTranched } from "../core/interfaces/ISablierLockupTranched.sol";
-import { LockupLinear } from "../core/types/DataTypes.sol";
 
 import { ISablierMerkleFactory } from "./interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleInstant } from "./interfaces/ISablierMerkleInstant.sol";
@@ -14,7 +13,7 @@ import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
 import { SablierMerkleInstant } from "./SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "./SablierMerkleLL.sol";
 import { SablierMerkleLT } from "./SablierMerkleLT.sol";
-import { MerkleBase, MerkleLT } from "./types/DataTypes.sol";
+import { MerkleBase, MerkleLL, MerkleLT } from "./types/DataTypes.sol";
 
 /// @title SablierMerkleFactory
 /// @notice See the documentation in {ISablierMerkleFactory}.
@@ -78,7 +77,7 @@ contract SablierMerkleFactory is ISablierMerkleFactory {
         ISablierLockupLinear lockupLinear,
         bool cancelable,
         bool transferable,
-        LockupLinear.Durations memory streamDurations,
+        MerkleLL.Schedule memory schedule,
         uint256 aggregateAmount,
         uint256 recipientCount
     )
@@ -98,24 +97,16 @@ contract SablierMerkleFactory is ISablierMerkleFactory {
                 lockupLinear,
                 cancelable,
                 transferable,
-                abi.encode(streamDurations)
+                abi.encode(schedule)
             )
         );
 
         // Deploy the MerkleLL contract with CREATE2.
-        merkleLL =
-            new SablierMerkleLL{ salt: salt }(baseParams, lockupLinear, cancelable, transferable, streamDurations);
+        merkleLL = new SablierMerkleLL{ salt: salt }(baseParams, lockupLinear, cancelable, transferable, schedule);
 
         // Log the creation of the MerkleLL contract, including some metadata that is not stored on-chain.
         emit CreateMerkleLL(
-            merkleLL,
-            baseParams,
-            lockupLinear,
-            cancelable,
-            transferable,
-            streamDurations,
-            aggregateAmount,
-            recipientCount
+            merkleLL, baseParams, lockupLinear, cancelable, transferable, schedule, aggregateAmount, recipientCount
         );
     }
 
@@ -125,6 +116,7 @@ contract SablierMerkleFactory is ISablierMerkleFactory {
         ISablierLockupTranched lockupTranched,
         bool cancelable,
         bool transferable,
+        uint40 streamStartTime,
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages,
         uint256 aggregateAmount,
         uint256 recipientCount
@@ -132,20 +124,53 @@ contract SablierMerkleFactory is ISablierMerkleFactory {
         external
         returns (ISablierMerkleLT merkleLT)
     {
+        // Calculate the sum of percentages and durations across all tranches.
+        uint256 count = tranchesWithPercentages.length;
         uint256 totalDuration;
-
-        // Need a separate scope to prevent the stack too deep error.
-        {
-            // Calculate the sum of percentages and durations across all tranches.
-            uint256 count = tranchesWithPercentages.length;
-            for (uint256 i = 0; i < count; ++i) {
-                unchecked {
-                    // Safe to use `unchecked` because its only used in the event.
-                    totalDuration += tranchesWithPercentages[i].duration;
-                }
+        for (uint256 i = 0; i < count; ++i) {
+            unchecked {
+                // Safe to use `unchecked` because its only used in the event.
+                totalDuration += tranchesWithPercentages[i].duration;
             }
         }
 
+        // Deploy the MerkleLT contract.
+        merkleLT = _deployMerkleLT(
+            baseParams, lockupTranched, cancelable, transferable, streamStartTime, tranchesWithPercentages
+        );
+
+        // Log the creation of the MerkleLT contract, including some metadata that is not stored on-chain.
+        emit CreateMerkleLT(
+            merkleLT,
+            baseParams,
+            lockupTranched,
+            cancelable,
+            transferable,
+            streamStartTime,
+            tranchesWithPercentages,
+            totalDuration,
+            aggregateAmount,
+            recipientCount
+        );
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                           INTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Deploys a new MerkleLT contract with CREATE2.
+    /// @dev We need a separate function to prevent the stack too deep error.
+    function _deployMerkleLT(
+        MerkleBase.ConstructorParams memory baseParams,
+        ISablierLockupTranched lockupTranched,
+        bool cancelable,
+        bool transferable,
+        uint40 streamStartTime,
+        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages
+    )
+        internal
+        returns (ISablierMerkleLT merkleLT)
+    {
         // Hash the parameters to generate a salt.
         bytes32 salt = keccak256(
             abi.encodePacked(
@@ -159,26 +184,14 @@ contract SablierMerkleFactory is ISablierMerkleFactory {
                 lockupTranched,
                 cancelable,
                 transferable,
+                streamStartTime,
                 abi.encode(tranchesWithPercentages)
             )
         );
 
         // Deploy the MerkleLT contract with CREATE2.
         merkleLT = new SablierMerkleLT{ salt: salt }(
-            baseParams, lockupTranched, cancelable, transferable, tranchesWithPercentages
-        );
-
-        // Log the creation of the MerkleLT contract, including some metadata that is not stored on-chain.
-        emit CreateMerkleLT(
-            merkleLT,
-            baseParams,
-            lockupTranched,
-            cancelable,
-            transferable,
-            tranchesWithPercentages,
-            totalDuration,
-            aggregateAmount,
-            recipientCount
+            baseParams, lockupTranched, cancelable, transferable, streamStartTime, tranchesWithPercentages
         );
     }
 }

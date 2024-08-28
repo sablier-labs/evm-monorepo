@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupLinear } from "src/core/types/DataTypes.sol";
 import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol";
 import { Errors } from "src/periphery/libraries/Errors.sol";
-import { MerkleBase } from "src/periphery/types/DataTypes.sol";
+import { MerkleBase, MerkleLL } from "src/periphery/types/DataTypes.sol";
 
 import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
 
@@ -13,7 +12,7 @@ contract CreateMerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
         MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
         bool cancelable = defaults.CANCELABLE();
         bool transferable = defaults.TRANSFERABLE();
-        LockupLinear.Durations memory streamDurations = defaults.durations();
+        MerkleLL.Schedule memory schedule = defaults.schedule();
         uint256 aggregateAmount = defaults.AGGREGATE_AMOUNT();
         uint256 recipientCount = defaults.RECIPIENT_COUNT();
 
@@ -30,7 +29,7 @@ contract CreateMerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
             lockupLinear: lockupLinear,
             cancelable: cancelable,
             transferable: transferable,
-            streamDurations: streamDurations,
+            schedule: schedule,
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount
         });
@@ -45,7 +44,7 @@ contract CreateMerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
         MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
         bool cancelable = defaults.CANCELABLE();
         bool transferable = defaults.TRANSFERABLE();
-        LockupLinear.Durations memory streamDurations = defaults.durations();
+        MerkleLL.Schedule memory schedule = defaults.schedule();
         uint256 aggregateAmount = defaults.AGGREGATE_AMOUNT();
         uint256 recipientCount = defaults.RECIPIENT_COUNT();
 
@@ -56,7 +55,7 @@ contract CreateMerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
             lockupLinear: lockupLinear,
             cancelable: cancelable,
             transferable: transferable,
-            streamDurations: streamDurations,
+            schedule: schedule,
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount
         });
@@ -91,7 +90,7 @@ contract CreateMerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
             lockupLinear: lockupLinear,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
-            streamDurations: defaults.durations(),
+            schedule: defaults.schedule(),
             aggregateAmount: defaults.AGGREGATE_AMOUNT(),
             recipientCount: defaults.RECIPIENT_COUNT()
         });

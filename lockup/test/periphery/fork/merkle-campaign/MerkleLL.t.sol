@@ -118,7 +118,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             lockupLinear: lockupLinear,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
-            streamDurations: defaults.durations(),
+            schedule: defaults.schedule(),
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.recipientCount
         });
@@ -128,7 +128,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             lockupLinear: lockupLinear,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
-            streamDurations: defaults.durations(),
+            schedule: defaults.schedule(),
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.recipientCount
         });

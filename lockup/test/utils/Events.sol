@@ -10,7 +10,7 @@ import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/c
 import { ISablierMerkleInstant } from "../../src/periphery/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "../../src/periphery/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "../../src/periphery/interfaces/ISablierMerkleLT.sol";
-import { MerkleBase, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
+import { MerkleBase, MerkleLL, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
 
 /// @notice Abstract contract containing all the events emitted by the protocol.
 abstract contract Events {
@@ -120,7 +120,7 @@ abstract contract Events {
         ISablierLockupLinear lockupLinear,
         bool cancelable,
         bool transferable,
-        LockupLinear.Durations streamDurations,
+        MerkleLL.Schedule schedule,
         uint256 aggregateAmount,
         uint256 recipientCount
     );
@@ -131,6 +131,7 @@ abstract contract Events {
         ISablierLockupTranched lockupTranched,
         bool cancelable,
         bool transferable,
+        uint40 streamStartTime,
         MerkleLT.TrancheWithPercentage[] tranchesWithPercentages,
         uint256 totalDuration,
         uint256 aggregateAmount,

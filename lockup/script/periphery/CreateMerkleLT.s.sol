@@ -39,6 +39,7 @@ contract CreateMerkleLT is BaseScript {
             lockupTranched: ISablierLockupTranched(0xf86B359035208e4529686A1825F2D5BeE38c28A8),
             cancelable: true,
             transferable: true,
+            streamStartTime: 0, // i.e. block.timestamp
             tranchesWithPercentages: tranchesWithPercentages,
             aggregateAmount: 10_000e18,
             recipientCount: 100

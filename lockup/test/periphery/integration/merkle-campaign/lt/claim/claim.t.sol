@@ -30,6 +30,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
             lockupTranched,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
+            defaults.STREAM_START_TIME_ZERO(),
             tranchesWithPercentages,
             defaults.AGGREGATE_AMOUNT(),
             defaults.RECIPIENT_COUNT()
@@ -59,6 +60,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
             lockupTranched,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
+            defaults.STREAM_START_TIME_ZERO(),
             tranchesWithPercentages,
             defaults.AGGREGATE_AMOUNT(),
             defaults.RECIPIENT_COUNT()
@@ -85,33 +87,71 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         _;
     }
 
-    function test_Claim()
+    function test_WhenStreamStartTimeZero()
         external
-        override
         whenTotalPercentageOneHundred
         givenCampaignNotExpired
         givenNotClaimed
         givenIncludedInMerkleTree
         whenCalculatedAmountsSumEqualsClaimAmount
     {
+        // It should create a stream with block.timestamp as start time.
+        _test_Claim({ streamStartTime: 0, startTime: getBlockTimestamp() });
+    }
+
+    function test_WhenStreamStartTimeNotZero()
+        external
+        whenTotalPercentageOneHundred
+        givenCampaignNotExpired
+        givenNotClaimed
+        givenIncludedInMerkleTree
+        whenCalculatedAmountsSumEqualsClaimAmount
+    {
+        merkleLT = merkleFactory.createMerkleLT({
+            baseParams: defaults.baseParams(),
+            lockupTranched: lockupTranched,
+            cancelable: defaults.CANCELABLE(),
+            transferable: defaults.TRANSFERABLE(),
+            streamStartTime: defaults.STREAM_START_TIME_NON_ZERO(),
+            tranchesWithPercentages: defaults.tranchesWithPercentages(),
+            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
+            recipientCount: defaults.RECIPIENT_COUNT()
+        });
+
+        // It should create a stream with `STREAM_START_TIME` as start time.
+        _test_Claim({
+            streamStartTime: defaults.STREAM_START_TIME_NON_ZERO(),
+            startTime: defaults.STREAM_START_TIME_NON_ZERO()
+        });
+    }
+
+    /// @dev Helper function to test claim.
+    function _test_Claim(uint40 streamStartTime, uint40 startTime) private {
+        deal({ token: address(dai), to: address(merkleLT), give: defaults.AGGREGATE_AMOUNT() });
+
         uint256 expectedStreamId = lockupTranched.nextStreamId();
+
+        // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
         emit Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
 
-        claim();
+        // Claim the airstream.
+        merkleLT.claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), defaults.index1Proof());
+
+        // It should create a stream with `STREAM_START_TIME` as start time.
         LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(expectedStreamId);
         LockupTranched.StreamLT memory expectedStream = LockupTranched.StreamLT({
             amounts: Lockup.Amounts({ deposited: defaults.CLAIM_AMOUNT(), refunded: 0, withdrawn: 0 }),
             asset: dai,
-            endTime: getBlockTimestamp() + defaults.TOTAL_DURATION(),
+            endTime: startTime + defaults.TOTAL_DURATION(),
             isCancelable: defaults.CANCELABLE(),
             isDepleted: false,
             isStream: true,
             isTransferable: defaults.TRANSFERABLE(),
             recipient: users.recipient1,
             sender: users.admin,
-            startTime: getBlockTimestamp(),
-            tranches: defaults.tranchesMerkleLT(),
+            startTime: startTime,
+            tranches: defaults.tranchesMerkleLT({ streamStartTime: streamStartTime, totalAmount: defaults.CLAIM_AMOUNT() }),
             wasCanceled: false
         });
 

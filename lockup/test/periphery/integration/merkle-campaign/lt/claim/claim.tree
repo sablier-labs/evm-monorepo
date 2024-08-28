@@ -1,9 +1,13 @@
-claim.t.sol
-├── when the total percentage does not equal 100%
-│   ├── when the total percentage is less than 100%
+Claim_MerkleLT_Integration_Test
+├── when the total percentage does not equal 100
+│   ├── when the total percentage is less than 100
 │   │   └── it should revert
-│   └── when the total percentage is greater than 100%
+│   └── when the total percentage is greater than 100
 │       └── it should revert
-└── when the total percentage equals 100%
-    ├── it should create a stream
-    └── it should emit a {Claim} event
+└── when the total percentage equals 100
+    ├── when stream start time zero
+    │   ├── it should create a stream with block.timestamp as start time
+    │   └── it should emit a {Claim} event
+    └── when stream start time not zero
+        ├── it should create a stream with `STREAM_START_TIME` as start time
+        └── it should emit a {Claim} event
