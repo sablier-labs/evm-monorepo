@@ -1,26 +1,23 @@
-withdrawMaxAndTransfer.t.sol
-├── when delegate called
+WithdrawMaxAndTransfer_Integration_Concrete_Test
+├── when delegate call
 │  └── it should revert
-└── when not delegate called
-   ├── given the ID references a null stream
+└── when no delegate call
+   ├── given null
    │  └── it should revert
-   └── given the ID does not reference a null stream
-      ├── given the stream is not transferable
+   └── given not null
+      ├── given non transferable stream
       │  └── it should revert
-      └── given the stream is transferable
-         ├── given the NFT has been burned
+      └── given transferable stream
+         ├── given burned NFT
          │  └── it should revert
-         └── given the NFT has not been burned
-            ├── given the withdrawable amount is zero
-            │  └── it should skip the withdrawal
-            └── given the withdrawable amount is not zero
-               ├── when the caller is not the current recipient
+         └── given not burned NFT
+            ├── given zero withdrawable amount
+            │  ├── it should not expect a transfer call on asset
+            │  └── it should emit {Transfer} event on NFT
+            └── given non zero withdrawable amount
+               ├── when caller not current recipient
                │  └── it should revert
-               └── when the caller is the current recipient
-                  ├── it should make the max withdrawal
+               └── when caller current recipient
                   ├── it should update the withdrawn amount
                   ├── it should transfer the NFT
-                  ├── it should emit a {WithdrawFromLockupStream} event
-                  ├── it should emit a {Transfer} event
-                  ├── it should emit a {MetadataUpdate} event
-                  └── it should return the withdrawable amount
+                  └── it should emit {Transfer}, {WithdrawFromLockupStream} and {MetadataUpdate} events

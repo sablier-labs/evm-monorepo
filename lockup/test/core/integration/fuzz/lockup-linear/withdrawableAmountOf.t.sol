@@ -19,12 +19,12 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         WithdrawableAmountOf_Integration_Shared_Test.setUp();
     }
 
-    function testFuzz_WithdrawableAmountOf_CliffTimeInTheFuture(
+    function testFuzz_WithdrawableAmountOf_CliffTimeInFuture(
         uint40 timeJump
     )
         external
         givenNotNull
-        givenStreamHasNotBeenCanceled
+        givenNotCanceledStream
     {
         timeJump = boundUint40(timeJump, 0, defaults.CLIFF_DURATION() - 1);
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
@@ -33,7 +33,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier whenCliffTimeNotInTheFuture() {
+    modifier whenCliffTimeNotInFuture() {
         resetPrank({ msgSender: users.sender });
         _;
     }
@@ -51,8 +51,8 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
     )
         external
         givenNotNull
-        givenStreamHasNotBeenCanceled
-        whenCliffTimeNotInTheFuture
+        givenNotCanceledStream
+        whenCliffTimeNotInFuture
     {
         vm.assume(depositAmount != 0);
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
@@ -75,10 +75,6 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier givenPreviousWithdrawals() {
-        _;
-    }
-
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
@@ -97,9 +93,9 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
     )
         external
         givenNotNull
-        givenStreamHasNotBeenCanceled
-        whenCliffTimeNotInTheFuture
-        givenPreviousWithdrawals
+        givenNotCanceledStream
+        whenCliffTimeNotInFuture
+        givenPreviousWithdrawal
     {
         depositAmount = boundUint128(depositAmount, 10_000, MAX_UINT128);
 

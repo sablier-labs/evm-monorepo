@@ -19,14 +19,14 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         resetPrank({ msgSender: users.sender });
     }
 
-    function test_WithdrawHooks_GivenSameSenderAndRecipient() external {
+    function test_GivenRecipientSameAsSender() external {
         // Create a stream with identical sender and recipient.
         uint256 streamId = createDefaultStreamWithIdenticalUsers(users.sender);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
-        // Expect Sablier to NOT run the user hook.
+        // It should not make Sablier run the user hook.
         vm.expectCall({
             callee: users.sender,
             data: abi.encodeCall(
@@ -39,11 +39,11 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         lockup.withdraw({ streamId: streamId, to: users.sender, amount: withdrawAmount });
     }
 
-    modifier givenDifferentSenderAndRecipient() {
+    modifier givenRecipientNotSameAsSender() {
         _;
     }
 
-    function test_WithdrawHooks_CallerUnknown() external givenDifferentSenderAndRecipient {
+    function test_WhenCallerUnknown() external givenRecipientNotSameAsSender {
         // Create the test stream.
         uint256 streamId = createDefaultStreamWithUsers({ recipient: address(recipientGood), sender: users.sender });
 
@@ -54,7 +54,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
-        // Expect Sablier to run the recipient hook.
+        // It should make Sablier run the recipient hook.
         vm.expectCall({
             callee: address(recipientGood),
             data: abi.encodeCall(
@@ -68,7 +68,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         lockup.withdraw({ streamId: streamId, to: address(recipientGood), amount: withdrawAmount });
     }
 
-    function test_WithdrawHooks_CallerApprovedOperator() external givenDifferentSenderAndRecipient {
+    function test_WhenCallerApprovedThirdParty() external givenRecipientNotSameAsSender {
         // Create the test stream.
         uint256 streamId = createDefaultStreamWithUsers({ recipient: address(recipientGood), sender: users.sender });
 
@@ -82,7 +82,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
-        // Expect Sablier to run the recipient hook.
+        // It should make Sablier run the recipient hook.
         vm.expectCall({
             callee: address(recipientGood),
             data: abi.encodeCall(
@@ -96,7 +96,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         lockup.withdraw({ streamId: streamId, to: address(recipientGood), amount: withdrawAmount });
     }
 
-    function test_WithdrawHooks_CallerSender() external givenDifferentSenderAndRecipient {
+    function test_WhenCallerSender() external givenRecipientNotSameAsSender {
         // Create the test stream.
         uint256 streamId = createDefaultStreamWithUsers({ recipient: address(recipientGood), sender: users.sender });
 
@@ -106,7 +106,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
-        // Expect Sablier to run the recipient hook.
+        // It should make Sablier run the recipient hook.
         vm.expectCall({
             callee: address(recipientGood),
             data: abi.encodeCall(
@@ -120,7 +120,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         lockup.withdraw({ streamId: streamId, to: address(recipientGood), amount: withdrawAmount });
     }
 
-    function test_WithdrawHooks_CallerRecipient() external givenDifferentSenderAndRecipient {
+    function test_WhenCallerRecipient() external givenRecipientNotSameAsSender {
         // Create the test stream.
         uint256 streamId = createDefaultStreamWithUsers({ recipient: address(recipientGood), sender: users.sender });
 
@@ -130,7 +130,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
-        // Expect Sablier to NOT run the recipient hook.
+        // It should make Sablier run the recipient hook.
         vm.expectCall({
             callee: address(recipientGood),
             data: abi.encodeCall(

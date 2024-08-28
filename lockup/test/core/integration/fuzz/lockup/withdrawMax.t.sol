@@ -11,7 +11,7 @@ abstract contract WithdrawMax_Integration_Fuzz_Test is Integration_Test, Withdra
         WithdrawMax_Integration_Shared_Test.setUp();
     }
 
-    function testFuzz_WithdrawMax_EndTimeNotInTheFuture(uint256 timeJump) external {
+    function testFuzz_WithdrawMax_EndTimeNotInFuture(uint256 timeJump) external {
         timeJump = _bound(timeJump, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
@@ -46,13 +46,13 @@ abstract contract WithdrawMax_Integration_Fuzz_Test is Integration_Test, Withdra
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the NFT has not been burned.
+        // Assert that the not burned NFT.
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    function testFuzz_WithdrawMax(uint256 timeJump) external givenEndTimeInTheFuture {
+    function testFuzz_WithdrawMax(uint256 timeJump) external givenEndTimeInFuture {
         timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
 
         // Simulate the passage of time.

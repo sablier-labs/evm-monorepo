@@ -21,14 +21,14 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         CreateWithDurations_Integration_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_DelegateCalled() external {
+    function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
             abi.encodeCall(ISablierLockupLinear.createWithDurations, defaults.createWithDurationsLL());
         (bool success, bytes memory returnData) = address(lockupLinear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_CliffDurationCalculationOverflows() external whenNotDelegateCalled {
+    function test_RevertWhen_CliffTimeCalculationOverflows() external whenNoDelegateCall whenCliffDurationNotZero {
         uint40 startTime = getBlockTimestamp();
         uint40 cliffDuration = MAX_UINT40 - startTime + 2 seconds;
         uint40 totalDuration = defaults.TOTAL_DURATION();
@@ -39,7 +39,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
             cliffTime = startTime + cliffDuration;
         }
 
-        // Expect the relevant error to be thrown.
+        // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierLockupLinear_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime
@@ -50,11 +50,12 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         createDefaultStreamWithDurations(LockupLinear.Durations({ cliff: cliffDuration, total: totalDuration }));
     }
 
-    function test_RevertWhen_TotalDurationCalculationOverflows()
-        external
-        whenNotDelegateCalled
-        whenCliffDurationCalculationDoesNotOverflow
-    {
+    function test_WhenCliffTimeCalculationNotOverflow() external whenNoDelegateCall whenCliffDurationNotZero {
+        LockupLinear.Durations memory durations = defaults.durations();
+        _test_CreateWithDurations(durations);
+    }
+
+    function test_RevertWhen_EndTimeCalculationOverflows() external whenNoDelegateCall whenCliffDurationZero {
         uint40 startTime = getBlockTimestamp();
         LockupLinear.Durations memory durations =
             LockupLinear.Durations({ cliff: 0, total: MAX_UINT40 - startTime + 1 seconds });
@@ -67,7 +68,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
             endTime = startTime + durations.total;
         }
 
-        // Expect the relevant error to be thrown.
+        // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierLockupLinear_StartTimeNotLessThanEndTime.selector, startTime, endTime)
         );
@@ -76,12 +77,13 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         createDefaultStreamWithDurations(durations);
     }
 
-    function test_CreateWithDurations()
-        external
-        whenNotDelegateCalled
-        whenCliffDurationCalculationDoesNotOverflow
-        whenTotalDurationCalculationDoesNotOverflow
-    {
+    function test_WhenEndTimeCalculationNotOverflow() external whenNoDelegateCall whenCliffDurationZero {
+        LockupLinear.Durations memory durations = defaults.durations();
+        durations.cliff = 0;
+        _test_CreateWithDurations(durations);
+    }
+
+    function _test_CreateWithDurations(LockupLinear.Durations memory durations) private {
         // Make the Sender the stream's funder
         address funder = users.sender;
 
@@ -89,17 +91,19 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         uint40 blockTimestamp = getBlockTimestamp();
         LockupLinear.Timestamps memory timestamps = LockupLinear.Timestamps({
             start: blockTimestamp,
-            cliff: blockTimestamp + defaults.CLIFF_DURATION(),
-            end: blockTimestamp + defaults.TOTAL_DURATION()
+            cliff: blockTimestamp + durations.cliff,
+            end: blockTimestamp + durations.total
         });
 
-        // Expect the assets to be transferred from the funder to {SablierLockupLinear}.
+        if (durations.cliff == 0) timestamps.cliff = 0;
+
+        // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({ from: funder, to: address(lockupLinear), value: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the broker fee to be paid to the broker.
         expectCallToTransferFrom({ from: funder, to: users.broker, value: defaults.BROKER_FEE_AMOUNT() });
 
-        // Expect the relevant events to be emitted.
+        // It should emit {CreateLockupLinearStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockupLinear) });
         emit MetadataUpdate({ _tokenId: streamId });
         vm.expectEmit({ emitter: address(lockupLinear) });
@@ -117,9 +121,9 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         });
 
         // Create the stream.
-        createDefaultStreamWithDurations();
+        createDefaultStreamWithDurations(durations);
 
-        // Assert that the stream has been created.
+        // It should create the stream.
         LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(streamId);
         LockupLinear.StreamLL memory expectedStream = defaults.lockupLinearStream();
         expectedStream.startTime = timestamps.start;
@@ -132,12 +136,12 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the next stream ID has been bumped.
+        // It should bump the next stream ID.
         uint256 actualNextStreamId = lockupLinear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
-        // Assert that the NFT has been minted.
+        // It should mint the NFT.
         address actualNFTOwner = lockupLinear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");

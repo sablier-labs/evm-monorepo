@@ -15,11 +15,7 @@ abstract contract GetSender_Integration_Concrete_Test is Integration_Test, Locku
         lockup.getSender(nullStreamId);
     }
 
-    modifier givenNotNull() {
-        _;
-    }
-
-    function test_GetSender() external givenNotNull {
+    function test_GivenNotNull() external {
         uint256 streamId = createDefaultStream();
         address actualSender = lockup.getSender(streamId);
         address expectedSender = users.sender;

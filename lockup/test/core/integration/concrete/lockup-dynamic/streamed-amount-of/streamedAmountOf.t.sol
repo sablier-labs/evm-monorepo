@@ -19,37 +19,20 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         StreamedAmountOf_Integration_Concrete_Test.setUp();
     }
 
-    function test_StreamedAmountOf_StartTimeInTheFuture()
-        external
-        givenNotNull
-        givenStreamHasNotBeenCanceled
-        givenStatusStreaming
-    {
-        vm.warp({ newTimestamp: 0 });
-        uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = 0;
-        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
-    }
-
-    function test_StreamedAmountOf_StartTimeInThePresent()
-        external
-        givenNotNull
-        givenStreamHasNotBeenCanceled
-        givenStatusStreaming
-    {
+    function test_GivenStartTimeInPresent() external givenSTREAMINGStatus {
         vm.warp({ newTimestamp: defaults.START_TIME() });
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = 0;
+        assertEq(actualStreamedAmount, 0, "streamedAmount");
+    }
+
+    function test_GivenEndTimeNotInFuture() external givenSTREAMINGStatus givenStartTimeInPast {
+        vm.warp({ newTimestamp: defaults.END_TIME() + 1 });
+        uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
+        uint128 expectedStreamedAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    function test_StreamedAmountOf_OneSegment()
-        external
-        givenNotNull
-        givenStreamHasNotBeenCanceled
-        givenStatusStreaming
-        whenStartTimeInThePast
-    {
+    function test_GivenSingleSegment() external givenSTREAMINGStatus givenStartTimeInPast givenEndTimeInFuture {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + 2000 seconds });
 
@@ -64,50 +47,17 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSegments(segments);
 
-        // Run the test.
+        // It should return the correct streamed amount.
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount = 4472.13595499957941e18; // (0.2^0.5)*10,000
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier givenMultipleSegments() {
-        _;
-    }
-
-    function test_StreamedAmountOf_CurrentTimestamp1st()
-        external
-        givenNotNull
-        givenStreamHasNotBeenCanceled
-        givenStatusStreaming
-        givenMultipleSegments
-        whenStartTimeInThePast
-    {
-        // Warp 1 second to the future.
-        vm.warp({ newTimestamp: defaults.START_TIME() + 1 seconds });
-
-        // Run the test.
-        uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = 0.000000053506725e18;
-        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
-    }
-
-    modifier givenCurrentTimestampNot1st() {
-        _;
-    }
-
-    function test_StreamedAmountOf_CurrentTimestampNot1st()
-        external
-        givenNotNull
-        givenStreamHasNotBeenCanceled
-        givenStatusStreaming
-        whenStartTimeInThePast
-        givenMultipleSegments
-        givenCurrentTimestampNot1st
-    {
+    function test_GivenMultipleSegments() external givenSTREAMINGStatus givenStartTimeInPast givenEndTimeInFuture {
         // Simulate the passage of time. 750 seconds is ~10% of the way in the second segment.
         vm.warp({ newTimestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 750 seconds });
 
-        // Run the test.
+        // It should return the correct streamed amount.
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = defaults.segments()[0].amount + 2371.708245126284505e18; // ~7,500*0.1^{0.5}
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");

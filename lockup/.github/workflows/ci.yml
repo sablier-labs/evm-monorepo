@@ -17,6 +17,13 @@ jobs:
   lint:
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-lint.yml@main"
 
+  bulloak:
+    needs: ["lint"]
+    uses: "sablier-labs/reusable-workflows/.github/workflows/bulloak-check.yml@main"
+    with:
+      skip-modifiers: true
+      tree-path: "test/core"
+
   build:
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@main"
 

@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { NFTDescriptor_Integration_Shared_Test } from "../../../shared/nft-descriptor/NFTDescriptor.t.sol";
 
 contract IsAllowedCharacter_Integration_Concrete_Test is NFTDescriptor_Integration_Shared_Test {
-    function test_IsAllowedCharacter_EmptyString() external view {
+    function test_WhenEmptyString() external view {
         string memory symbol = "";
         bool result = nftDescriptorMock.isAllowedCharacter_(symbol);
         assertTrue(result, "isAllowedCharacter");
@@ -14,7 +14,7 @@ contract IsAllowedCharacter_Integration_Concrete_Test is NFTDescriptor_Integrati
         _;
     }
 
-    function test_IsAllowedCharacter_ContainsUnsupportedCharacters() external view whenNotEmptyString {
+    function test_GivenUnsupportedCharacters() external view whenNotEmptyString {
         string memory symbol = "<foo/>";
         bool result = nftDescriptorMock.isAllowedCharacter_(symbol);
         assertFalse(result, "isAllowedCharacter");
@@ -64,11 +64,7 @@ contract IsAllowedCharacter_Integration_Concrete_Test is NFTDescriptor_Integrati
         assertFalse(result, "isAllowedCharacter");
     }
 
-    modifier whenOnlySupportedCharacters() {
-        _;
-    }
-
-    function test_IsAllowedCharacter() external view whenNotEmptyString whenOnlySupportedCharacters {
+    function test_GivenSupportedCharacters() external view whenNotEmptyString {
         string memory symbol = "foo";
         bool result = nftDescriptorMock.isAllowedCharacter_(symbol);
         assertTrue(result, "isAllowedCharacter");

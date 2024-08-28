@@ -13,11 +13,7 @@ contract GetTranches_LockupTranched_Integration_Concrete_Test is LockupTranched_
         lockupTranched.getTranches(nullStreamId);
     }
 
-    modifier givenNotNull() {
-        _;
-    }
-
-    function test_GetTranches() external givenNotNull {
+    function test_GivenNotNull() external {
         uint256 streamId = createDefaultStream();
         LockupTranched.Tranche[] memory actualTranches = lockupTranched.getTranches(streamId);
         LockupTranched.Tranche[] memory expectedTranches = defaults.tranches();

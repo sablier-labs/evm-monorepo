@@ -1,14 +1,17 @@
-safeAssetSymbol.t.sol
-├── when the asset is not an ERC-20 contract
-│  └── it should return a hard-coded value
-└── when the asset is an ERC-20 contract
-   ├── given the symbol is returned as bytes32
-   │  └── it should return a hard-coded value
-   └── given the symbol is returned as string
-      ├── given the symbol is longer than 30 characters
-      │  └── it should return a hard-coded values
-      └── given the symbol is not longer than 30 characters
-         ├── given the symbol contains non-alphanumeric characters
-         │  └── it should return a hard-coded value
-         └── given the symbol contains only alphanumeric characters
-            └── it should return the correct symbol value
+SafeAssetSymbol_Integration_Concrete_Test
+├── when asset not contract
+│   └── it should return a hard-coded value
+└── when asset contract
+    ├── given symbol not implemented
+    │   └── it should return a hard-coded value
+    └── given symbol implemented
+        ├── given symbol as bytes32
+        │   └── it should return a hard-coded value
+        └── given symbol as string
+            ├── given symbol longer than 30 chars
+            │   └── it should return a hard-coded values
+            └── given symbol not longer than 30 chars
+                ├── given symbol contains non-alphanumeric chars
+                │   └── it should return a hard-coded value
+                └── given symbol contains alphanumeric chars
+                    └── it should return the correct symbol value

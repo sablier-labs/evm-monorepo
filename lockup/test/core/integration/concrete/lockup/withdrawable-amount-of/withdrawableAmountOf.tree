@@ -1,16 +1,15 @@
-withdrawableAmountOf.t.sol
-├── given the ID references a null stream
+WithdrawableAmountOf_Integration_Concrete_Test
+├── given null
 │  └── it should revert
-└── given the ID does not reference a null stream
-   ├── given the stream has been canceled
-   │  ├── given the stream's status is "CANCELED"
-   │  │  └── it should return the correct withdrawable amount
-   │  └── given the stream's status is "DEPLETED"
-   │     └── it should return zero
-   └── given the stream has not been canceled
-      ├── given the stream's status is "PENDING"
+└── given not null
+   ├── given canceled stream and CANCELED status
+   │  └── it should return the correct withdrawable amount
+   ├── given canceled stream and DEPLETED status
+   │  └── it should return zero
+   └── given not canceled stream
+      ├── given PENDING status
       │  └── it should return zero
-      ├── given the stream's status is "SETTLED"
+      ├── given SETTLED status
       │  └── it should return the correct withdrawable amount
-      └── given the stream's status is "DEPLETED"
+      └── given DEPLETED status
          └── it should return zero

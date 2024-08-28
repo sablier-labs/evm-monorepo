@@ -11,14 +11,14 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
         WithdrawMax_Integration_Shared_Test.setUp();
     }
 
-    function test_WithdrawMax_EndTimeNotInTheFuture() external {
+    function test_GivenEndTimeNotInFuture() external {
         // Warp to the stream's end.
         vm.warp({ newTimestamp: defaults.END_TIME() + 1 seconds });
 
         // Expect the ERC-20 assets to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: defaults.DEPOSIT_AMOUNT() });
 
-        // Expect the relevant event to be emitted.
+        // It should emit a {WithdrawFromLockupStream} event.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: defaultStreamId,
@@ -28,29 +28,33 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
         });
 
         // Make the max withdrawal.
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        uint128 actualReturnedValue = lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
-        // Assert that the withdrawn amount has been updated.
+        // It should return the withdrawn amount.
+        uint128 expectedReturnedValue = defaults.DEPOSIT_AMOUNT();
+        assertEq(actualReturnedValue, expectedReturnedValue, "returnValue");
+
+        // It should update the withdrawn amount.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the stream's status is "DEPLETED".
+        // It should mark the stream as depleted.
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the stream is not cancelable anymore.
+        // It should make the stream not cancelable.
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the NFT has not been burned.
+        // Assert that the not burned NFT.
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    function test_WithdrawMax() external givenEndTimeInTheFuture {
+    function test_GivenEndTimeInFuture() external {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
@@ -60,7 +64,7 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
         // Expect the assets to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: expectedWithdrawnAmount });
 
-        // Expect the relevant event to be emitted.
+        // It should emit a {WithdrawFromLockupStream} event.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: defaultStreamId,
@@ -72,7 +76,7 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
         // Make the max withdrawal.
         uint128 actualWithdrawnAmount = lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
-        // Assert that the withdrawn amount has been updated.
+        // It should return the withdrawable amount.
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the stream's status is still "STREAMING".

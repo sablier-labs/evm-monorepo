@@ -374,7 +374,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
             assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-cancel Recipient balance");
         }
 
-        // Assert that the NFT has not been burned.
+        // Assert that the not burned NFT.
         vars.actualNFTOwner = lockupDynamic.ownerOf({ tokenId: vars.streamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "post-cancel NFT owner");

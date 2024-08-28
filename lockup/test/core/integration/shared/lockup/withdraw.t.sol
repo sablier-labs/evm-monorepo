@@ -5,15 +5,25 @@ import { Lockup_Integration_Shared_Test } from "./Lockup.t.sol";
 
 abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_Test {
     uint256 internal defaultStreamId;
+    address internal caller;
 
     function setUp() public virtual override {
         defaultStreamId = createDefaultStream();
         resetPrank({ msgSender: users.recipient });
     }
 
-    modifier givenEndTimeInTheFuture() {
+    modifier givenEndTimeInFuture() {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
+        _;
+    }
+
+    modifier givenNotCanceledStream() {
+        _;
+    }
+
+    modifier givenNotDEPLETEDStatus() {
+        vm.warp({ newTimestamp: defaults.START_TIME() });
         _;
     }
 
@@ -22,11 +32,6 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
     }
 
     modifier givenRecipientAllowedToHook() {
-        _;
-    }
-
-    modifier givenStreamNotDepleted() {
-        vm.warp({ newTimestamp: defaults.START_TIME() });
         _;
     }
 
@@ -39,43 +44,31 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
         _;
     }
 
-    modifier whenNoOverdraw() {
+    modifier whenHookReturnsValidSelector() {
         _;
     }
 
-    modifier whenNotDelegateCalled() {
+    modifier whenNoDelegateCall() {
         _;
     }
 
-    modifier whenRecipientNotReentrant() {
+    modifier whenNonRevertingRecipient() {
         _;
     }
 
-    modifier whenRecipientNotReverting() {
+    modifier whenNonZeroWithdrawAmount() {
         _;
     }
 
-    modifier whenRecipientReturnsSelector() {
+    modifier whenWithdrawalAddressNotZero() {
         _;
     }
 
-    modifier whenStreamHasNotBeenCanceled() {
+    modifier whenWithdrawalAddressRecipient() {
         _;
     }
 
-    modifier whenToNonZeroAddress() {
-        _;
-    }
-
-    modifier whenWithdrawalAddressIsRecipient() {
-        _;
-    }
-
-    modifier whenWithdrawalAddressNotRecipient() {
-        _;
-    }
-
-    modifier whenWithdrawAmountNotZero() {
+    modifier whenWithdrawAmountDoesNotOverdraw() {
         _;
     }
 }

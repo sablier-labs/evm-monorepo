@@ -35,8 +35,8 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
     )
         external
         givenNotNull
-        givenStreamHasNotBeenCanceled
-        whenStartTimeInThePast
+        givenNotCanceledStream
+        givenStartTimeInPast
     {
         vm.assume(segment.amount != 0);
         segment.timestamp = boundUint40(segment.timestamp, defaults.CLIFF_TIME(), defaults.END_TIME());
@@ -86,8 +86,8 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
     )
         external
         givenNotNull
-        givenStreamHasNotBeenCanceled
-        whenStartTimeInThePast
+        givenNotCanceledStream
+        givenStartTimeInPast
         givenMultipleSegments
         whenCurrentTimestampNot1st
     {
@@ -132,8 +132,8 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
     )
         external
         givenNotNull
-        givenStreamHasNotBeenCanceled
-        whenStartTimeInThePast
+        givenNotCanceledStream
+        givenStartTimeInPast
         givenMultipleSegments
         whenCurrentTimestampNot1st
     {

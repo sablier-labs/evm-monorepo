@@ -30,7 +30,7 @@ abstract contract GetWithdrawnAmount_Integration_Fuzz_Test is
     )
         external
         givenNotNull
-        givenPreviousWithdrawals
+        givenPreviousWithdrawal
     {
         timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
 

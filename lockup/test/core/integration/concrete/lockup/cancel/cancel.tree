@@ -1,55 +1,51 @@
-cancel.t.sol
-├── when delegate called
+Cancel_Integration_Concrete_Test
+├── when delegate call
 │  └── it should revert
-└── when not delegate called
-   ├── given the ID references a null stream
+└── when no delegate call
+   ├── given null
    │  └── it should revert
-   └── given the ID does not reference a null stream
-      ├── given the stream is cold
-      │  ├── given the stream's status is "DEPLETED"
+   └── given not null
+      ├── given cold stream
+      │  ├── given DEPLETED status
       │  │  └── it should revert
-      │  ├── given the stream's status is "CANCELED"
+      │  ├── given CANCELED status
       │  │  └── it should revert
-      │  └── given the stream's status is "SETTLED"
+      │  └── given SETTLED status
       │     └── it should revert
-      └── given the stream is warm
-         ├── when the caller is unauthorized
-         │  ├── when the caller is a malicious third party
+      └── given warm stream
+         ├── when unauthorized caller
+         │  ├── when caller malicious third party
          │  │  └── it should revert
-         │  └── when the caller is the recipient
+         │  └── when caller recipient
          │     └── it should revert
-         └── when the caller is authorized
-            ├── given the stream is not cancelable
+         └── when authorized caller
+            ├── given non cancelable stream
             │  └── it should revert
-            └── given the stream is cancelable
-               ├── given the stream's status is "PENDING"
-               │  ├── it should cancel the stream
+            └── given cancelable stream
+               ├── given PENDING status
                │  ├── it should mark the stream as depleted
                │  └── it should make the stream not cancelable
-               └── given the stream's status is "STREAMING"
-                  ├── given the recipient is not allowed to hook
-                  │  ├── it should cancel the stream
+               └── given STREAMING status
+                  ├── given recipient not allowed to hook
                   │  ├── it should mark the stream as canceled
                   │  └── it should not make Sablier run the recipient hook
-                  └── given the recipient is allowed to hook
-                     ├── when the recipient reverts
+                  └── given recipient allowed to hook
+                     ├── when reverting recipient
                      │  └── it should revert the entire transaction
-                     └── when the recipient does not revert
-                        ├── when the recipient hook does not return a valid selector
+                     └── when non reverting recipient
+                        ├── when recipient returns invalid selector
                         │  └── it should revert
-                        └── when the recipient hook returns a valid selector
-                           ├── when there is reentrancy
-                           │  ├── it should cancel the stream
-                           │  ├── it should mark the stream as canceled
+                        └── when recipient returns valid selector
+                           ├── when reentrancy
+                           │  ├── it should mark the stream as depleted
                            │  ├── it should make Sablier run the recipient hook
                            │  ├── it should perform a reentrancy call to the Lockup contract
                            │  └── it should make the withdrawal via the reentrancy
-                           └── when there is no reentrancy
-                              ├── it should cancel the stream
+                           └── when no reentrancy
                               ├── it should mark the stream as canceled
-                              ├── it should make the stream not cancelable
+                              ├── it should make the stream as non cancelable
                               ├── it should update the refunded amount
                               ├── it should refund the sender
                               ├── it should make Sablier run the recipient hook
-                              ├── it should emit a {MetadataUpdate} event
-                              └── it should emit a {CancelLockupStream} event
+                              ├── it should not burn the NFT
+                              └── it should emit {MetadataUpdate} and {CancelLockupStream} events

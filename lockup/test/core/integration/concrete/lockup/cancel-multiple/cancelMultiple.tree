@@ -1,37 +1,25 @@
-cancelMultiple.t.sol
-├── when delegate called
+CancelMultiple_Integration_Concrete_Test
+├── when delegate call
 │  └── it should revert
-└── when not delegate called
-   ├── when the array count is zero
+└── when no delegate call
+   ├── when zero array length
    │  └── it should do nothing
-   └── when the array count is not zero
-      ├── given the stream IDs array references only null streams
+   └── when non zero array length
+      ├── given atleast one null stream
       │  └── it should revert
-      ├── given the stream IDs array references some null streams
-      │  └── it should revert
-      └── given the stream IDs array references only streams that are not null
-         ├── given all streams are cold
+      └── given no null streams
+         ├── given atleast one cold stream
          │  └── it should revert
-         ├── given some streams are cold
-         │  └── it should revert
-         └── given all streams are warm
-            ├── when the caller is unauthorized for all streams
-            │  ├── when the caller is a malicious third party
-            │  │  └── it should revert
-            │  └── when the caller is the recipient
-            │     └── it should revert
-            ├── when the caller is unauthorized for some streams
-            │  ├── when the caller is a malicious third party
-            │  │  └── it should revert
-            │  └── when the caller is the recipient
-            │     └── it should revert
-            └── when the caller is authorized for all streams
-               ├── given all streams are not cancelable
+         └── given no cold streams
+            ├── when caller unauthorized for any
+            │  └── it should revert
+            └── when caller authorized for all
+               ├── given atleast one non cancelable stream
                │  └── it should revert
-               ├── given some streams are not cancelable
-               │  └── it should revert
-               └── given all streams are cancelable
-                  ├── it should cancel the streams
+               └── given no non cancelable streams
+                  ├── it should mark the streams as canceled
+                  ├── it should make the streams as non cancelable
                   ├── it should refund the sender
                   ├── it should update the refunded amounts
-                  └── it should emit {CancelLockupStream} events
+                  ├── it should not burn the NFT for all streams
+                  └── it should emit {CancelLockupStream} events for all streams

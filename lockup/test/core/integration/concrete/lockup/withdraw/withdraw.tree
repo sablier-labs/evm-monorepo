@@ -1,76 +1,65 @@
-withdraw.t.sol
-├── when delegate called
+Withdraw_Integration_Concrete_Test
+├── when delegate call
 │  └── it should revert
-└── when not delegate called
-   ├── given the ID references a null stream
+└── when no delegate call
+   ├── given null
    │  └── it should revert
-   └── given the ID does not reference a null stream
-      ├── given the stream's status is "DEPLETED"
+   └── given not null
+      ├── given DEPLETED status
       │  └── it should revert
-      └── given the stream's status is not "DEPLETED"
-         ├── when the provided address is zero
+      └── given not DEPLETED status
+         ├── when withdrawal address zero
          │  └── it should revert
-         └── when the provided address is not zero
-            ├── when the withdraw amount is zero
+         └── when withdrawal address not zero
+            ├── when zero withdraw amount
             │  └── it should revert
-            └── when the withdraw amount is not zero
-               ├── when the withdraw amount overdraws
+            └── when non zero withdraw amount
+               ├── when withdraw amount overdraws
                │  └── it should revert
-               └── when the withdraw amount does not overdraw
-                  ├── when the withdrawal address is not the stream recipient
-                  │  ├── when the caller is unknown
+               └── when withdraw amount does not overdraw
+                  ├── when withdrawal address not recipient
+                  │  ├── when caller not approved third party or recipient
                   │  │  └── it should revert
-                  │  ├── when the caller is the sender
-                  │  │  └── it should revert
-                  │  ├── when the caller is a former recipient
-                  │  │  └── it should revert
-                  │  ├── when the caller is an approved third party
-                  │  │  ├── it should make the withdrawal
-                  │  │  └── it should update the withdrawn amount
-                  │  └── when the caller is the recipient
+                  │  └── when caller approved third party or recipient
                   │     ├── it should make the withdrawal
                   │     ├── it should update the withdrawn amount
-                  │     ├── it should emit a {MetadataUpdate} event
-                  │     └── it should emit a {WithdrawFromLockupStream} event
-                  └── when the withdrawal address is the stream recipient
-                     ├── when the caller is unknown
+                  │     └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events
+                  └── when withdrawal address recipient
+                     ├── when caller unknown
                      │  ├── it should make the withdrawal
                      │  └── it should update the withdrawn amount
-                     ├── when the caller is the recipient
+                     ├── when caller recipient
                      │  ├── it should make the withdrawal
                      │  └── it should update the withdrawn amount
-                     └── when the caller is the sender
-                        ├── given the end time is not in the future
+                     └── when caller sender
+                        ├── given end time not in future
                         │  ├── it should make the withdrawal
                         │  ├── it should mark the stream as depleted
                         │  └── it should make the stream not cancelable
-                        └── given the end time is in the future
-                           ├── given the stream has been canceled
+                        └── given end time in future
+                           ├── given canceled stream
                            │  ├── it should make the withdrawal
                            │  ├── it should mark the stream as depleted
                            │  ├── it should update the withdrawn amount
-                           │  ├── it should make Sablier run the recipient hook
-                           │  ├── it should emit a {MetadataUpdate} event
-                           │  └── it should emit a {WithdrawFromLockupStream} event
-                           └── given the stream has not been canceled
-                              ├── given the recipient is not allowed to hook
+                           │  └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events
+                           └── given not canceled stream
+                              ├── given recipient not allowed to hook
                               │  ├── it should make the withdrawal
                               │  ├── it should update the withdrawn amount
                               │  └── it should not make Sablier run the recipient hook
-                              └── given the recipient is allowed to hook
-                                 ├── when the recipient reverts
-                                 │  └── it should revert the entire transaction
-                                 └── when the recipient does not revert
-                                    ├── when the recipient hook does not return a valid selector
+                              └── given recipient allowed to hook
+                                 ├── when reverting recipient
+                                 │  └── it should revert
+                                 └── when non reverting recipient
+                                    ├── when hook returns invalid selector
                                     │  └── it should revert
-                                    └── when the recipient hook returns a valid selector
-                                       ├── when there is reentrancy
+                                    └── when hook returns valid selector
+                                       ├── when reentrancy
                                        │  ├── it should make multiple withdrawals
                                        │  ├── it should update the withdrawn amounts
                                        │  └── it should make Sablier run the recipient hook
-                                       └── when there is no reentrancy
+                                       └── when no reentrancy
                                           ├── it should make the withdrawal
                                           ├── it should update the withdrawn amount
                                           ├── it should make Sablier run the recipient hook
-                                          ├── it should emit a {MetadataUpdate} event
-                                          └── it should emit a {WithdrawFromLockupStream} event
+                                          └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events

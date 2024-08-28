@@ -27,19 +27,19 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         CreateWithTimestamps_Integration_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_DelegateCalled() external {
+    function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
             abi.encodeCall(ISablierLockupDynamic.createWithTimestamps, defaults.createWithTimestampsLD());
         (bool success, bytes memory returnData) = address(lockupDynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_SenderZeroAddress() external whenNotDelegateCalled {
+    function test_RevertWhen_SenderZeroAddress() external whenNoDelegateCall {
         vm.expectRevert(Errors.SablierLockup_SenderZeroAddress.selector);
         createDefaultStreamWithSender(address(0));
     }
 
-    function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled whenSenderNonZeroAddress {
+    function test_RevertWhen_RecipientZeroAddress() external whenNoDelegateCall whenSenderNotZeroAddress {
         address recipient = address(0);
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, recipient));
         createDefaultStreamWithRecipient(recipient);
@@ -47,9 +47,9 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
 
     function test_RevertWhen_DepositAmountZero()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
     {
         // It is not possible to obtain a zero deposit amount from a non-zero total amount, because the `MAX_BROKER_FEE`
         // is hard coded to 10%.
@@ -60,9 +60,9 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
 
     function test_RevertWhen_StartTimeZero()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
     {
         vm.expectRevert(Errors.SablierLockup_StartTimeZero.selector);
@@ -71,9 +71,9 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
 
     function test_RevertWhen_SegmentCountZero()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
     {
@@ -82,11 +82,11 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_SegmentCountTooHigh()
+    function test_RevertWhen_SegmentCountExceedsMaxValue()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
@@ -99,13 +99,13 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
 
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotTooHigh
+        whenSegmentCountNotExceedMaxValue
     {
         LockupDynamic.Segment[] memory segments = defaults.segments();
         segments[0].amount = MAX_UINT128;
@@ -114,16 +114,16 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_StartTimeGreaterThanFirstSegmentTimestamp()
+    function test_RevertWhen_StartTimeGreaterThanFirstTimestamp()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotTooHigh
-        whenSegmentAmountsSumDoesNotOverflow
+        whenSegmentCountNotExceedMaxValue
+        whenSegmentAmountsSumNotOverflow
     {
         // Change the timestamp of the first segment.
         LockupDynamic.Segment[] memory segments = defaults.segments();
@@ -142,16 +142,16 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_StartTimeEqualToFirstSegmentTimestamp()
+    function test_RevertWhen_StartTimeEqualsFirstTimestamp()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotTooHigh
-        whenSegmentAmountsSumDoesNotOverflow
+        whenSegmentCountNotExceedMaxValue
+        whenSegmentAmountsSumNotOverflow
     {
         // Change the timestamp of the first segment.
         LockupDynamic.Segment[] memory segments = defaults.segments();
@@ -170,17 +170,17 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_SegmentTimestampsNotOrdered()
+    function test_RevertWhen_TimestampsNotStrictlyIncreasing()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotTooHigh
-        whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentCountNotExceedMaxValue
+        whenSegmentAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
     {
         // Swap the segment timestamps.
         LockupDynamic.Segment[] memory segments = defaults.segments();
@@ -201,18 +201,18 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum()
+    function test_RevertWhen_DepositAmountNotEqualSegmentAmountsSum()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotTooHigh
-        whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentTimestamp
-        whenSegmentTimestampsOrdered
+        whenSegmentCountNotExceedMaxValue
+        whenSegmentAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenTimestampsStrictlyIncreasing
     {
         resetPrank({ msgSender: users.sender });
 
@@ -237,19 +237,23 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         lockupDynamic.createWithTimestamps(params);
     }
 
-    function test_RevertWhen_BrokerFeeTooHigh()
+    modifier whenDepositAmountNotEqualsSegmentAmountsSum() {
+        _;
+    }
+
+    function test_RevertWhen_BrokerFeeExceedsMaxValue()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotTooHigh
-        whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentTimestamp
-        whenSegmentTimestampsOrdered
-        whenDepositAmountEqualToSegmentAmountsSum
+        whenSegmentCountNotExceedMaxValue
+        whenSegmentAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenTimestampsStrictlyIncreasing
+        whenDepositAmountNotEqualsSegmentAmountsSum
     {
         UD60x18 brokerFee = MAX_BROKER_FEE + ud(1);
         vm.expectRevert(
@@ -260,18 +264,18 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
 
     function test_RevertWhen_AssetNotContract()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotTooHigh
-        whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentTimestamp
-        whenSegmentTimestampsOrdered
-        whenDepositAmountEqualToSegmentAmountsSum
-        whenBrokerFeeNotTooHigh
+        whenSegmentCountNotExceedMaxValue
+        whenSegmentAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenTimestampsStrictlyIncreasing
+        whenDepositAmountNotEqualsSegmentAmountsSum
+        whenBrokerFeeNotExceedMaxValue
     {
         address nonContract = address(8128);
 
@@ -282,41 +286,40 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithAsset(IERC20(nonContract));
     }
 
-    function test_CreateWithTimestamps_AssetMissingReturnValue()
+    function test_WhenAssetMissesERC20ReturnValue()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotTooHigh
-        whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentTimestamp
-        whenSegmentTimestampsOrdered
-        whenDepositAmountEqualToSegmentAmountsSum
-        whenBrokerFeeNotTooHigh
+        whenSegmentCountNotExceedMaxValue
+        whenSegmentAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenTimestampsStrictlyIncreasing
+        whenDepositAmountNotEqualsSegmentAmountsSum
+        whenBrokerFeeNotExceedMaxValue
         whenAssetContract
     {
         testCreateWithTimestamps(address(usdt));
     }
 
-    function test_CreateWithTimestamps()
+    function test_WhenAssetNotMissERC20ReturnValue()
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotTooHigh
-        whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentTimestamp
-        whenSegmentTimestampsOrdered
-        whenDepositAmountEqualToSegmentAmountsSum
-        whenBrokerFeeNotTooHigh
+        whenSegmentCountNotExceedMaxValue
+        whenSegmentAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenTimestampsStrictlyIncreasing
+        whenDepositAmountNotEqualsSegmentAmountsSum
+        whenBrokerFeeNotExceedMaxValue
         whenAssetContract
-        whenAssetERC20
     {
         testCreateWithTimestamps(address(dai));
     }
@@ -326,7 +329,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         // Make the Sender the stream's funder.
         address funder = users.sender;
 
-        // Expect the assets to be transferred from the funder to {SablierLockupDynamic}.
+        // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({
             asset: IERC20(asset),
             from: funder,
@@ -342,7 +345,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
             value: defaults.BROKER_FEE_AMOUNT()
         });
 
-        // Expect the relevant events to be emitted.
+        // It should emit {CreateLockupDynamicStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockupDynamic) });
         emit MetadataUpdate({ _tokenId: streamId });
         vm.expectEmit({ emitter: address(lockupDynamic) });
@@ -363,7 +366,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         // Create the stream.
         streamId = createDefaultStreamWithAsset(IERC20(asset));
 
-        // Assert that the stream has been created.
+        // It should create the stream.
         LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(streamId);
         LockupDynamic.StreamLD memory expectedStream = defaults.lockupDynamicStream();
         expectedStream.asset = IERC20(asset);
@@ -374,12 +377,12 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         Lockup.Status expectedStatus = Lockup.Status.PENDING;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the next stream ID has been bumped.
+        // It should bump the next stream ID.
         uint256 actualNextStreamId = lockupDynamic.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
-        // Assert that the NFT has been minted.
+        // It should mint the NFT.
         address actualNFTOwner = lockupDynamic.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");

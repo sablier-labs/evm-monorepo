@@ -23,7 +23,7 @@ abstract contract GetRecipient_Integration_Concrete_Test is Integration_Test, Lo
         _;
     }
 
-    function test_RevertGiven_NFTBurned() external {
+    function test_RevertGiven_BurnedNFT() external givenNotNull {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.END_TIME() });
 
@@ -41,11 +41,7 @@ abstract contract GetRecipient_Integration_Concrete_Test is Integration_Test, Lo
         lockup.getRecipient(defaultStreamId);
     }
 
-    modifier givenNFTNotBurned() {
-        _;
-    }
-
-    function test_GetRecipient() external view givenNotNull givenNFTNotBurned {
+    function test_GivenNotBurnedNFT() external view givenNotNull {
         address actualRecipient = lockup.getRecipient(defaultStreamId);
         address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient, "recipient");

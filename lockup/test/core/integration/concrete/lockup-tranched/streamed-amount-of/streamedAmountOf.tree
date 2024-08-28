@@ -1,11 +1,12 @@
-streamedAmountOf.t.sol
-└── given the stream's status is "STREAMING"
-   ├── given the start time is in the future
+StreamedAmountOf_LockupTranched_Integration_Concrete_Test
+└── given STREAMING status
+   ├── given start time in present
    │  └── it should return zero
-   ├── given the start time is in the present
-   │  └── it should return zero
-   └── given the start time is in the past
-      ├── given the current timestamp is the 1st in the array
-      │  └── it should return the correct streamed amount
-      └── given the current timestamp is not the 1st in the array
-         └── it should return the correct streamed amount
+   └── given start time in past
+      ├── given end time not in future
+      │  └── it should return the deposited amount
+      └── given end time in future
+         ├── given first tranche timestamp in future
+         │  └── it should return 0
+         └── given first tranche timestamp not in future
+            └── it should return the correct streamed amount

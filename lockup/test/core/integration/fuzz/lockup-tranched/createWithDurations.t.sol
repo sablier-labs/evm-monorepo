@@ -38,10 +38,9 @@ contract CreateWithDurations_LockupTranched_Integration_Fuzz_Test is
         LockupTranched.TrancheWithDuration[] memory tranches
     )
         external
-        whenNotDelegateCalled
-        whenTrancheCountNotTooHigh
-        whenDurationsNotZero
-        whenTimestampsCalculationsDoNotOverflow
+        whenNoDelegateCall
+        whenTrancheCountNotExceedMaxValue
+        whenTimestampsCalculationNotOverflow
     {
         vm.assume(tranches.length != 0);
 

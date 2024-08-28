@@ -15,7 +15,7 @@ abstract contract GetWithdrawnAmount_Integration_Shared_Test is Lockup_Integrati
         _;
     }
 
-    modifier givenPreviousWithdrawals() {
+    modifier givenPreviousWithdrawal() {
         _;
     }
 }

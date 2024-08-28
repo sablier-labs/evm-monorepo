@@ -9,18 +9,14 @@ abstract contract IsStream_Integration_Concrete_Test is Integration_Test, Lockup
 
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) { }
 
-    function test_IsStream_Null() external view {
+    function test_GivenNull() external view {
         uint256 nullStreamId = 1729;
         bool isStream = lockup.isStream(nullStreamId);
         assertFalse(isStream, "isStream");
     }
 
-    modifier givenNotNull() {
+    function test_GivenNotNull() external {
         defaultStreamId = createDefaultStream();
-        _;
-    }
-
-    function test_IsStream() external givenNotNull {
         bool isStream = lockup.isStream(defaultStreamId);
         assertTrue(isStream, "isStream");
     }

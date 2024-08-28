@@ -24,20 +24,20 @@ contract GetStream_LockupTranched_Integration_Concrete_Test is LockupTranched_In
         _;
     }
 
-    function test_GetStream_StatusSettled() external givenNotNull {
+    function test_GivenSettledStream() external givenNotNull {
         vm.warp({ newTimestamp: defaults.END_TIME() });
+
+        // It should return the stream struct.
         LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(defaultStreamId);
         LockupTranched.StreamLT memory expectedStream = defaults.lockupTranchedStream();
+        // It should always return stream as non-cancelable.
         expectedStream.isCancelable = false;
         assertEq(actualStream, expectedStream);
     }
 
-    modifier givenStatusNotSettled() {
-        _;
-    }
-
-    function test_GetStream() external givenNotNull givenStatusNotSettled {
+    function test_GivenNotSettledStream() external givenNotNull {
         uint256 streamId = createDefaultStream();
+        // It should return the stream struct.
         LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(streamId);
         LockupTranched.StreamLT memory expectedStream = defaults.lockupTranchedStream();
         assertEq(actualStream, expectedStream);

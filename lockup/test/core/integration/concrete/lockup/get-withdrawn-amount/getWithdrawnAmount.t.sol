@@ -20,17 +20,17 @@ abstract contract GetWithdrawnAmount_Integration_Concrete_Test is
         lockup.getWithdrawnAmount(nullStreamId);
     }
 
-    function test_GetWithdrawnAmount_NoPreviousWithdrawals() external givenNotNull {
+    function test_GivenNoPreviousWithdrawals() external givenNotNull {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
-        // Assert that the withdrawn amount has been updated.
+        // It should return zero.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = 0;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    function test_GetWithdrawnAmount() external givenNotNull givenPreviousWithdrawals {
+    function test_GivenPreviousWithdrawal() external givenNotNull {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
@@ -40,7 +40,7 @@ abstract contract GetWithdrawnAmount_Integration_Concrete_Test is
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
-        // Assert that the withdrawn amount has been updated.
+        // It should return the correct withdrawn amount.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");

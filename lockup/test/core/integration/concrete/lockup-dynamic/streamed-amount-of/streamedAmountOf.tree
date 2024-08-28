@@ -1,14 +1,12 @@
-streamedAmountOf.t.sol
-└── given the stream's status is "STREAMING"
-   ├── given the start time is in the future
+StreamedAmountOf_LockupDynamic_Integration_Concrete_Test
+└── given STREAMING status
+   ├── given start time in present
    │  └── it should return zero
-   ├── given the start time is in the present
-   │  └── it should return zero
-   └── given the start time is in the past
-      ├── given there is one segment
-      │  └── it should return the correct streamed amount
-      └── given there are multiple segments
-         ├── given the current timestamp is the 1st in the array
+   └── given start time in past
+      ├── given end time not in future
+      │  └── it should return the deposited amount
+      └── given end time in future
+         ├── given single segment
          │  └── it should return the correct streamed amount
-         └── given the current timestamp is not the 1st in the array
+         └── given multiple segments
             └── it should return the correct streamed amount

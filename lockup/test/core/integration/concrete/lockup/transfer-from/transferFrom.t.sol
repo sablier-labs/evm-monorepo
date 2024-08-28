@@ -11,21 +11,17 @@ abstract contract TransferFrom_Integration_Concrete_Test is Integration_Test, Lo
         resetPrank({ msgSender: users.recipient });
     }
 
-    function test_RevertGiven_StreamNotTransferable() external {
+    function test_RevertGiven_NonTransferableStream() external {
         uint256 notTransferableStreamId = createDefaultStreamNotTransferable();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_NotTransferable.selector, notTransferableStreamId));
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: notTransferableStreamId });
     }
 
-    modifier givenStreamTransferable() {
-        _;
-    }
-
-    function test_TransferFrom() external givenStreamTransferable {
+    function test_GivenTransferableStream() external {
         // Create a stream.
         uint256 streamId = createDefaultStream();
 
-        // Expect the relevant events to be emitted.
+        // It should emit {MetadataUpdate} and {Transfer} events.
         vm.expectEmit({ emitter: address(lockup) });
         emit MetadataUpdate({ _tokenId: streamId });
         vm.expectEmit({ emitter: address(lockup) });
@@ -34,7 +30,7 @@ abstract contract TransferFrom_Integration_Concrete_Test is Integration_Test, Lo
         // Transfer the NFT.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: streamId });
 
-        // Assert that Alice is the new stream recipient (and NFT owner).
+        // It should change the stream recipient (and NFT owner).
         address actualRecipient = lockup.getRecipient(streamId);
         address expectedRecipient = users.alice;
         assertEq(actualRecipient, expectedRecipient, "recipient");

@@ -1,17 +1,17 @@
-statusOf.t.sol
-├── given the ID references a null stream
+StatusOf_Integration_Concrete_Test
+├── given null
 │  └── it should revert
-└── given the ID does not reference a null stream
-   ├── given assets have been fully withdrawn
+└── given not null
+   ├── given assets fully withdrawn
    │  └── it should return DEPLETED
-   └── given assets have not been fully withdrawn
-      ├── given the stream has been canceled
+   └── given assets not fully withdrawn
+      ├── given canceled stream
       │  └── it should return CANCELED
-      └── given the stream has not been canceled
-         ├── given the start time is in the future
+      └── given not canceled stream
+         ├── given start time in future
          │  └── it should return PENDING
-         └── given the start time is not in the future
-            ├── given the refundable amount is zero
+         └── given start time not in future
+            ├── given zero refundable amount
             │  └── it should return SETTLED
-            └── given the refundable amount is not zero
+            └── given non zero refundable amount
                └── it should return STREAMING

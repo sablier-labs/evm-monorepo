@@ -1,8 +1,8 @@
-wasCanceled.t.sol
-├── given the ID references a null stream
+WasCanceled_Integration_Concrete_Test
+├── given null
 │  └── it should revert
-└── given the ID does not reference a null stream
-   ├── given the stream was not canceled
+└── given not null
+   ├── given canceled stream
    │  └── it should return false
-   └── given the stream was canceled
+   └── given not canceled stream
       └── it should return true

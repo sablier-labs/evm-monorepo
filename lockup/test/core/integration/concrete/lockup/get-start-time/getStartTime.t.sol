@@ -15,14 +15,9 @@ abstract contract GetStartTime_Integration_Concrete_Test is Integration_Test, Lo
         lockup.getStartTime(nullStreamId);
     }
 
-    modifier givenNotNull() {
-        _;
-    }
-
-    function test_GetStartTime() external givenNotNull {
-        uint256 streamId = createDefaultStream();
-        uint40 actualStartTime = lockup.getStartTime(streamId);
-        uint40 expectedStartTime = defaults.START_TIME();
-        assertEq(actualStartTime, expectedStartTime, "startTime");
+    function test_GivenNotNull() external {
+        uint256 nullStreamId = 1729;
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));
+        lockup.getStartTime(nullStreamId);
     }
 }

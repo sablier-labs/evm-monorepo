@@ -1,8 +1,8 @@
-isAllowedCharacter.t.sol
-├── when the symbol is an empty string
+IsAllowedCharacter_Integration_Concrete_Test
+├── when empty string
 │  └── it should return true
-└── when the symbol is not an empty string
-   ├── given the symbol contain unsupported characters
+└── when not empty string
+   ├── given unsupported characters
    │  └── it should return false
-   └── given the symbol contains only supported characters
+   └── given supported characters
       └── it should return true

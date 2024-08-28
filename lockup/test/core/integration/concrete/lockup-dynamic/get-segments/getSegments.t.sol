@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/core/libraries/Errors.sol";
@@ -13,11 +12,7 @@ contract GetSegments_LockupDynamic_Integration_Concrete_Test is LockupDynamic_In
         lockupDynamic.getSegments(nullStreamId);
     }
 
-    modifier givenNotNull() {
-        _;
-    }
-
-    function test_GetSegments() external givenNotNull {
+    function test_GivenNotNull() external {
         uint256 streamId = createDefaultStream();
         LockupDynamic.Segment[] memory actualSegments = lockupDynamic.getSegments(streamId);
         LockupDynamic.Segment[] memory expectedSegments = defaults.segments();

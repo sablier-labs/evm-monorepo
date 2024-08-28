@@ -22,32 +22,32 @@ abstract contract IsCold_Integration_Concrete_Test is Integration_Test, Lockup_I
         _;
     }
 
-    function test_IsCold_StatusPending() external givenNotNull {
+    function test_GivenPENDINGStatus() external givenNotNull {
         vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
         bool isCold = lockup.isCold(defaultStreamId);
         assertFalse(isCold, "isCold");
     }
 
-    function test_IsCold_StatusStreaming() external givenNotNull {
+    function test_GivenSTREAMINGStatus() external givenNotNull {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         bool isCold = lockup.isCold(defaultStreamId);
         assertFalse(isCold, "isCold");
     }
 
-    function test_IsCold_StatusSettled() external givenNotNull {
+    function test_GivenSETTLEDStatus() external givenNotNull {
         vm.warp({ newTimestamp: defaults.END_TIME() });
         bool isCold = lockup.isCold(defaultStreamId);
         assertTrue(isCold, "isCold");
     }
 
-    function test_IsCold_StatusCanceled() external givenNotNull {
+    function test_GivenCANCELEDStatus() external givenNotNull {
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         bool isCold = lockup.isCold(defaultStreamId);
         assertTrue(isCold, "isCold");
     }
 
-    function test_IsCold_StatusDepleted() external givenNotNull {
+    function test_GivenDEPLETEDStatus() external givenNotNull {
         vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         bool isCold = lockup.isCold(defaultStreamId);

@@ -1,15 +1,22 @@
-createWithDurations.t.sol
-├── when delegate called
+CreateWithDurations_LockupLinear_Integration_Concrete_Test
+├── when delegate call
 │  └── it should revert
-└── when not delegate called
-   ├── when the cliff duration calculation overflows uint256
-   │  └── it should revert due to the start time being greater than the cliff time
-   └── when the cliff duration calculation does not overflow uint256
-      ├── when the total duration calculation overflows uint256
+└── when no delegate call
+   ├── when cliff duration not zero
+   │  ├── when cliff time calculation overflows
+   │  │  └── it should revert
+   │  └── when cliff time calculation not overflow
+   │     ├── it should create the stream
+   │     ├── it should bump the next stream ID
+   │     ├── it should mint the NFT
+   │     ├── it should perform the ERC-20 transfers
+   │     └── it should emit {CreateLockupLinearStream} and {MetadataUpdate} events
+   └── when cliff duration zero
+      ├── when end time calculation overflows
       │  └── it should revert
-      └── when the total duration calculation does not overflow uint256
+      └── when end time calculation not overflow
          ├── it should create the stream
          ├── it should bump the next stream ID
          ├── it should mint the NFT
          ├── it should perform the ERC-20 transfers
-         └── it should emit a {CreateLockupLinearStream} event
+         └── it should emit {CreateLockupLinearStream} and {MetadataUpdate} events

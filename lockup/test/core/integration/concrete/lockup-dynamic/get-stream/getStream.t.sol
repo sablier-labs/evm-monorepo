@@ -24,20 +24,21 @@ contract GetStream_LockupDynamic_Integration_Concrete_Test is LockupDynamic_Inte
         _;
     }
 
-    function test_GetStream_StatusSettled() external givenNotNull {
+    function test_GivenSettledStream() external givenNotNull {
         vm.warp({ newTimestamp: defaults.END_TIME() });
+
+        // It should return the stream struct.
         LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(defaultStreamId);
         LockupDynamic.StreamLD memory expectedStream = defaults.lockupDynamicStream();
+        // It should always return stream as non-cancelable.
         expectedStream.isCancelable = false;
         assertEq(actualStream, expectedStream);
     }
 
-    modifier givenStatusNotSettled() {
-        _;
-    }
-
-    function test_GetStream() external givenNotNull givenStatusNotSettled {
+    function test_GivenNotSettledStream() external givenNotNull {
         uint256 streamId = createDefaultStream();
+
+        // It should return the stream struct.
         LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(streamId);
         LockupDynamic.StreamLD memory expectedStream = defaults.lockupDynamicStream();
         assertEq(actualStream, expectedStream);

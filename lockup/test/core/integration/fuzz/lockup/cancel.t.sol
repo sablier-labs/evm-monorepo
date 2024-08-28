@@ -15,11 +15,11 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         uint256 timeJump
     )
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
-        givenStreamWarm
-        whenCallerAuthorized
-        givenStreamCancelable
+        givenWarmStream
+        whenAuthorizedCaller
+        givenCancelableStream
     {
         timeJump = _bound(timeJump, 1 seconds, 100 weeks);
 
@@ -48,15 +48,15 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         uint128 withdrawAmount
     )
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
-        givenStreamWarm
-        whenCallerAuthorized
-        givenStreamCancelable
-        givenStatusStreaming
+        givenWarmStream
+        whenAuthorizedCaller
+        givenCancelableStream
+        givenSTREAMINGStatus
         givenRecipientAllowedToHook
-        whenRecipientNotReverting
-        whenRecipientReturnsSelector
+        whenNonRevertingRecipient
+        whenRecipientReturnsValidSelector
         whenRecipientNotReentrant
     {
         timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
@@ -104,7 +104,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the NFT has not been burned.
+        // Assert that the not burned NFT.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = address(recipientGood);
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");

@@ -44,11 +44,11 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         Params memory params
     )
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
-        whenToNonZeroAddress
-        whenWithdrawAmountNotZero
-        whenNoOverdraw
+        whenWithdrawalAddressNotZero
+        whenNonZeroWithdrawAmount
+        whenWithdrawAmountDoesNotOverdraw
     {
         vm.assume(params.segments.length != 0);
         vm.assume(params.to != address(0));

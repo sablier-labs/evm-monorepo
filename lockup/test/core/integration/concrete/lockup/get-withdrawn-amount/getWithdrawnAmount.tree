@@ -1,8 +1,8 @@
-getWithdrawnAmount.t.sol
-├── given the ID references a null stream
+GetWithdrawnAmount_Integration_Concrete_Test
+├── given null
 │  └── it should revert
-└── given the ID does not reference a null stream
-   ├── given there are no previous withdrawals
+└── given not null
+   ├── given no previous withdrawals
    │  └── it should return zero
-   └── given there are previous withdrawals
+   └── given previous withdrawal
       └── it should return the correct withdrawn amount

@@ -1,48 +1,46 @@
-createWithTimestamps.t.sol
-├── when delegate called
+CreateWithTimestamps_LockupLinear_Integration_Concrete_Test
+├── when delegate call
 │  └── it should revert
-└── when not delegate called
-   ├── when the sender is the zero address
+└── when no delegate call
+   ├── when sender zero address
    │  └── it should revert
-   └── when the sender is not the zero address
-      ├── when the recipient is the zero address
+   └── when sender not zero address
+      ├── when recipient zero address
       │  └── it should revert
-      └── when the recipient is not the zero address
-         ├── when the deposit amount is zero
+      └── when recipient not zero address
+         ├── when deposit amount zero
          │  └── it should revert
-         └── when the deposit amount is not zero
-            ├── when the start time is zero
+         └── when deposit amount not zero
+            ├── when start time zero
             │  └── it should revert
-            └── when the start time is not zero
-               ├── when the cliff time is zero
-               │  ├── when the start time is not less than the end time
+            └── when start time not zero
+               ├── when cliff time zero
+               │  ├── when start time not less than end time
                │  │  └── it should revert
-               │  └── when the start time is less than the end time
+               │  └── when start time less than end time
                │     └── it should create the stream
-               └── when the cliff time is greater than zero
-                  ├── when the start time is not less than the cliff time
+               └── when cliff time not zero
+                  ├── when start time not less than cliff time
                   │  └── it should revert
-                  └── when the start time is less than the cliff time
-                     ├── when the cliff time is not less than the end time
+                  └── when start time less than cliff time
+                     ├── when cliff time not less than end time
                      │  └── it should revert
-                     └── when the cliff time is less than the end time
-                        ├── when the broker fee is too high
+                     └── when cliff time less than end time
+                        ├── when broker fee exceeds max value
                         │  └── it should revert
-                        └── when the broker fee is not too high
-                           ├── when the asset is not a contract
+                        └── when broker fee not exceed max value
+                           ├── when asset not contract
                            │  └── it should revert
-                           └── when the asset is a contract
-                              ├── when the asset misses the ERC-20 return value
+                           └── when asset contract
+                              ├── when asset misses ERC20 return value
                               │  ├── it should create the stream
                               │  ├── it should bump the next stream ID
                               │  ├── it should mint the NFT
-                              │  ├── it should emit a {MetadataUpdate} event
-                              │  ├── it should perform the ERC-20 transfers
-                              │  └── it should emit a {CreateLockupLinearStream} event
-                              └── when the asset does not miss the ERC-20 return value
+                              │  ├── it should emit {MetadataUpdate} and {CreateLockupLinearStream} events
+                              │  └── it should perform the ERC-20 transfers
+                              └── when asset not miss ERC20 return value
                                  ├── it should create the stream
                                  ├── it should bump the next stream ID
                                  ├── it should mint the NFT
-                                 ├── it should emit a {MetadataUpdate} event
-                                 ├── it should perform the ERC-20 transfers
-                                 └── it should emit a {CreateLockupLinearStream} event
+                                 ├── it should emit {MetadataUpdate} and {CreateLockupLinearStream} events
+                                 └── it should perform the ERC-20 transfers

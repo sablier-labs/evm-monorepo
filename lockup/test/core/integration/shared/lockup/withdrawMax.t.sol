@@ -11,7 +11,7 @@ abstract contract WithdrawMax_Integration_Shared_Test is Lockup_Integration_Shar
         resetPrank({ msgSender: users.recipient });
     }
 
-    modifier givenEndTimeInTheFuture() {
+    modifier givenEndTimeInFuture() {
         _;
     }
 }

@@ -1,8 +1,8 @@
-isDepleted.t.sol
-├── given the ID references a null stream
+IsDepleted_Integration_Concrete_Test
+├── given null
 │  └── it should revert
-└── given the ID does not reference a null stream
-   ├── given the stream is not depleted
+└── given not null
+   ├── given not depleted stream
    │  └── it should return false
-   └── given the stream is depleted
+   └── given depleted stream
       └── it should return true

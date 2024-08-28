@@ -1,33 +1,33 @@
-burn.t.sol
-├── when delegate called
+Burn_Integration_Concrete_Test
+├── when delegate call
 │  └── it should revert
-└── when not delegate called
-   ├── given the ID references a null stream
+└── when no delegate call
+   ├── given null
    │  └── it should revert
-   └── given the ID does not reference a null stream
-      ├── given the stream has not been depleted
-      │  ├── given the stream's status is "PENDING"
+   └── given not null
+      ├── given not depleted stream
+      │  ├── given PENDING status
       │  │  └── it should revert
-      │  ├── given the stream's status is "STREAMING"
+      │  ├── given STREAMING status
       │  │  └── it should revert
-      │  ├── given the stream's status is "SETTLED"
+      │  ├── given SETTLED status
       │  │  └── it should revert
-      │  └── given the stream's status is "CANCELED"
+      │  └── given CANCELED status
       │     └── it should revert
-      └── given the stream has been depleted
-         ├── when the caller is unauthorized
+      └── given depleted stream
+         ├── when unauthorized caller
          │  └── it should revert
-         └── when the caller is authorized
-            ├── given the NFT does not exist
+         └── when authorized caller
+            ├── given NFT does not exist
             │  └── it should revert
-            └── given the NFT exists
-               ├── given the NFT is not transferable
+            └── given NFT exists
+               ├── given non transferable NFT
                │  ├── it should burn the NFT
                │  └── it should emit a {MetadataUpdate} event
-               └── given the NFT is transferable
-                  ├── when the caller is an approved third party
+               └── given transferable NFT
+                  ├── when caller approved third party
                   │  ├── it should burn the NFT
                   │  └── it should emit a {MetadataUpdate} event
-                  └── when the caller is the owner of the NFT
+                  └── when caller NFT owner
                      ├── it should burn the NFT
                      └── it should emit a {MetadataUpdate} event

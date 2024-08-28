@@ -27,9 +27,9 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         uint256 trancheCount
     )
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
     {
@@ -45,12 +45,12 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         uint128 amount1
     )
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
-        whenTrancheCountNotTooHigh
+        whenTrancheCountNotExceedMaxValue
     {
         amount0 = boundUint128(amount0, MAX_UINT128 / 2 + 1, MAX_UINT128);
         amount1 = boundUint128(amount0, MAX_UINT128 / 2 + 1, MAX_UINT128);
@@ -65,13 +65,13 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         uint40 firstTimestamp
     )
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
-        whenTrancheCountNotTooHigh
-        whenTrancheAmountsSumDoesNotOverflow
+        whenTrancheCountNotExceedMaxValue
+        whenTrancheAmountsSumNotOverflow
     {
         firstTimestamp = boundUint40(firstTimestamp, 0, defaults.START_TIME());
 
@@ -96,15 +96,15 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         uint128 depositDiff
     )
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
-        whenTrancheCountNotTooHigh
-        whenTrancheAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstTrancheTimestamp
-        whenTrancheTimestampsOrdered
+        whenTrancheCountNotExceedMaxValue
+        whenTrancheAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenTrancheTimestampsAreOrdered
     {
         depositDiff = boundUint128(depositDiff, 100, defaults.TOTAL_AMOUNT());
 
@@ -135,16 +135,16 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         Broker memory broker
     )
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
-        whenTrancheCountNotTooHigh
-        whenTrancheAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstTrancheTimestamp
-        whenTrancheTimestampsOrdered
-        whenDepositAmountEqualToTrancheAmountsSum
+        whenTrancheCountNotExceedMaxValue
+        whenTrancheAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenTrancheTimestampsAreOrdered
+        whenDepositAmountNotEqualTrancheAmountsSum
     {
         vm.assume(broker.account != address(0));
         broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
@@ -182,18 +182,18 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         LockupTranched.CreateWithTimestamps memory params
     )
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenTrancheCountNotZero
-        whenTrancheCountNotTooHigh
-        whenTrancheAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstTrancheTimestamp
-        whenTrancheTimestampsOrdered
-        whenDepositAmountEqualToTrancheAmountsSum
-        whenBrokerFeeNotTooHigh
+        whenTrancheCountNotExceedMaxValue
+        whenTrancheAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenTrancheTimestampsAreOrdered
+        whenDepositAmountNotEqualTrancheAmountsSum
+        whenBrokerFeeNotExceedMaxValue
         whenAssetContract
         whenAssetERC20
     {

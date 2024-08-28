@@ -20,50 +20,51 @@ abstract contract WithdrawableAmountOf_Integration_Concrete_Test is
         lockup.withdrawableAmountOf(nullStreamId);
     }
 
-    function test_WithdrawableAmountOf_StreamHasBeenCanceled_StatusCanceled()
-        external
-        givenNotNull
-        givenStreamHasBeenCanceled
-    {
+    function test_GivenCanceledStreamAndCANCELEDStatus() external givenNotNull {
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
+
+        // It should return the correct withdrawable amount.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         uint256 expectedWithdrawableAmount = defaults.CLIFF_AMOUNT();
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    /// @dev This test warps a second time to ensure that {withdrawableAmountOf} ignores the current time.
-    function test_WithdrawableAmountOf_StreamHasBeenCanceled_StatusDepleted()
-        external
-        givenNotNull
-        givenStreamHasBeenCanceled
-    {
+    function test_GivenCanceledStreamAndDEPLETEDStatus() external givenNotNull {
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() + 10 seconds });
+
+        // It should return zero.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    function test_WithdrawableAmountOf_StatusPending() external givenNotNull givenStreamHasNotBeenCanceled {
+    function test_GivenPENDINGStatus() external givenNotNull givenNotCanceledStream {
         vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
+
+        // It should return zero.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    function test_WithdrawableAmountOf_StatusSettled() external givenNotNull givenStreamHasNotBeenCanceled {
+    function test_GivenSETTLEDStatus() external givenNotNull givenNotCanceledStream {
         vm.warp({ newTimestamp: defaults.END_TIME() });
+
+        // It should return the correct withdrawable amount.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    function test_WithdrawableAmountOf_StatusDepleted() external givenNotNull givenStreamHasNotBeenCanceled {
+    function test_GivenDEPLETEDStatus() external givenNotNull givenNotCanceledStream {
         vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+
+        // It should return zero.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");

@@ -28,19 +28,19 @@ abstract contract CancelMultiple_Integration_Shared_Test is Lockup_Integration_S
         _;
     }
 
-    modifier givenAllStreamsWarm() {
+    modifier givenNoColdStreams() {
         _;
     }
 
-    modifier givenNoNull() {
+    modifier givenNotNull() {
         _;
     }
 
-    modifier whenArrayCountNotZero() {
+    modifier whenAuthorizedCaller() {
         _;
     }
 
-    modifier whenCallerAuthorizedAllStreams() {
+    modifier whenCallerAuthorizedForAll() {
         _;
         vm.warp({ newTimestamp: originalTime });
         createTestStreams();
@@ -48,11 +48,11 @@ abstract contract CancelMultiple_Integration_Shared_Test is Lockup_Integration_S
         _;
     }
 
-    modifier whenCallerUnauthorized() {
+    modifier whenNoDelegateCall() {
         _;
     }
 
-    modifier whenNotDelegateCalled() {
+    modifier whenNonZeroArrayLength() {
         _;
     }
 }

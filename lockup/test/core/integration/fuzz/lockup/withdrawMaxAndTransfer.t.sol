@@ -21,11 +21,11 @@ abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
         address newRecipient
     )
         external
-        whenNotDelegateCalled
+        whenNoDelegateCall
         givenNotNull
         whenCallerCurrentRecipient
-        givenNFTNotBurned
-        givenStreamTransferable
+        givenNotBurnedNFT
+        givenTransferableStream
     {
         vm.assume(newRecipient != address(0));
         timeJump = _bound(timeJump, 0, defaults.TOTAL_DURATION() * 2);

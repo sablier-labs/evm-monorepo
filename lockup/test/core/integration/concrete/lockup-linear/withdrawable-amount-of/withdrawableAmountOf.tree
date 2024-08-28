@@ -1,9 +1,9 @@
-withdrawableAmountOf.t.sol
-└── given the stream's status is "STREAMING"
-   ├── given the cliff time is in the future
+WithdrawableAmountOf_LockupLinear_Integration_Concrete_Test
+└── given STREAMING status
+   ├── given cliff time in future
    │  └── it should return zero
-   └── given the cliff time is not in the future
-      ├── given there are no previous withdrawals
+   └── given cliff time not in future
+      ├── given no previous withdrawals
       │  └── it should return the correct withdrawable amount
-      └── given there are previous withdrawals
+      └── given previous withdrawal
          └── it should return the correct withdrawable amount

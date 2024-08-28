@@ -18,47 +18,26 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Concrete_Test is
         WithdrawableAmountOf_Integration_Concrete_Test.setUp();
     }
 
-    function test_WithdrawableAmountOf_CliffTimeInTheFuture()
-        external
-        givenNotNull
-        givenStreamHasNotBeenCanceled
-        givenStatusStreaming
-    {
+    function test_GivenCliffTimeInFuture() external view givenSTREAMINGStatus {
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier givenCliffTimeNotInTheFuture() {
+    modifier givenCliffTimeNotInFuture() {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         _;
     }
 
-    function test_WithdrawableAmountOf_NoPreviousWithdrawals()
-        external
-        givenNotNull
-        givenStreamHasNotBeenCanceled
-        givenStatusStreaming
-        givenCliffTimeNotInTheFuture
-    {
+    function test_GivenNoPreviousWithdrawals() external givenSTREAMINGStatus givenCliffTimeNotInFuture {
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier givenPreviousWithdrawals() {
+    function test_GivenPreviousWithdrawal() external givenSTREAMINGStatus givenCliffTimeNotInFuture {
         lockupLinear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
-        _;
-    }
 
-    function test_WithdrawableAmountOf_WithWithdrawals()
-        external
-        givenNotNull
-        givenStreamHasNotBeenCanceled
-        givenStatusStreaming
-        givenCliffTimeNotInTheFuture
-        givenPreviousWithdrawals
-    {
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");

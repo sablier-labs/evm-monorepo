@@ -22,18 +22,14 @@ abstract contract IsDepleted_Integration_Concrete_Test is Integration_Test, Lock
         _;
     }
 
-    function test_IsDepleted_StreamNotDepleted() external givenNotNull {
+    function test_GivenNotDepletedStream() external givenNotNull {
         bool isDepleted = lockup.isDepleted(defaultStreamId);
         assertFalse(isDepleted, "isDepleted");
     }
 
-    modifier givenStreamDepleted() {
+    function test_GivenDepletedStream() external givenNotNull {
         vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        _;
-    }
-
-    function test_IsDepleted() external givenNotNull givenStreamDepleted {
         bool isDepleted = lockup.isDepleted(defaultStreamId);
         assertTrue(isDepleted, "isDepleted");
     }

@@ -1,11 +1,11 @@
-isCancelable.t.sol
-├── given the ID references a null stream
+IsCancelable_Integration_Concrete_Test
+├── given null
 │  └── it should revert
-└── given the ID does not reference a null stream
-   ├── given the stream is cold
+└── given not null
+   ├── given cold stream
    │  └── it should return true
-   └── given the stream is not cold
-      ├── given the stream is cancelable
+   └── given warm stream
+      ├── given cancelable stream
       │  └── it should return true
-      └── given the stream is not cancelable
+      └── given non cancelable stream
          └── it should return false

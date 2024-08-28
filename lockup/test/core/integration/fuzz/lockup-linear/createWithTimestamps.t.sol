@@ -26,9 +26,9 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         Broker memory broker
     )
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
     {
         vm.assume(broker.account != address(0));
@@ -43,9 +43,9 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         uint40 startTime
     )
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
     {
         startTime = boundUint40(startTime, defaults.CLIFF_TIME() + 1 seconds, defaults.END_TIME() - 1 seconds);
@@ -62,9 +62,9 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         uint40 endTime
     )
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
     {
         uint40 startTime = defaults.START_TIME();
@@ -104,13 +104,13 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         LockupLinear.CreateWithTimestamps memory params
     )
         external
-        whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeLessThanEndTime
-        whenBrokerFeeNotTooHigh
+        whenBrokerFeeNotExceedMaxValue
         whenAssetContract
         whenAssetERC20
     {

@@ -13,11 +13,7 @@ contract GetTimestamps_LockupDynamic_Integration_Concrete_Test is LockupDynamic_
         lockupDynamic.getTimestamps(nullStreamId);
     }
 
-    modifier givenNotNull() {
-        _;
-    }
-
-    function test_GetTimestamps() external givenNotNull {
+    function test_GivenNotNull() external {
         uint256 streamId = createDefaultStream();
         LockupDynamic.Timestamps memory actualTimestamps = lockupDynamic.getTimestamps(streamId);
         LockupDynamic.Timestamps memory expectedTimestamps = defaults.lockupDynamicTimestamps();

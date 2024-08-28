@@ -11,18 +11,15 @@ abstract contract IsAllowedToHook_Integration_Concrete_Test is Integration_Test,
         defaultStreamId = createDefaultStream();
     }
 
-    function test_IsAllowedToHook_GivenProvidedAddressIsNotAllowedToHook() external view {
+    function test_GivenProvidedAddressNotAllowedToHook() external view {
         bool result = lockup.isAllowedToHook(address(recipientGood));
         assertFalse(result, "isAllowedToHook");
     }
 
-    modifier givenProvidedAddressIsAllowedToHook() {
+    function test_GivenProvidedAddressAllowedToHook() external {
         resetPrank({ msgSender: users.admin });
         lockup.allowToHook(address(recipientGood));
-        _;
-    }
 
-    function test_IsAllowedToHook() external givenProvidedAddressIsAllowedToHook {
         bool result = lockup.isAllowedToHook(address(recipientGood));
         assertTrue(result, "isAllowedToHook");
     }
