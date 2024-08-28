@@ -8,7 +8,7 @@ import { MerkleBase } from "src/periphery/types/DataTypes.sol";
 import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
 
 contract CreateMerkleInstant_Integration_Test is MerkleCampaign_Integration_Test {
-    function test_RevertWhen_CampaignNameTooLong() external {
+    function test_RevertWhen_NameTooLong() external {
         MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
         uint256 aggregateAmount = defaults.AGGREGATE_AMOUNT();
         uint256 recipientCount = defaults.RECIPIENT_COUNT();
@@ -28,12 +28,12 @@ contract CreateMerkleInstant_Integration_Test is MerkleCampaign_Integration_Test
         });
     }
 
-    modifier whenCampaignNameNotTooLong() {
+    modifier whenNameNotTooLong() {
         _;
     }
 
     /// @dev This test works because a default MerkleInstant contract is deployed in {Integration_Test.setUp}
-    function test_RevertGiven_CreatedAlready() external whenCampaignNameNotTooLong {
+    function test_RevertGiven_CampaignAlreadyExists() external whenNameNotTooLong {
         MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
         uint256 aggregateAmount = defaults.AGGREGATE_AMOUNT();
         uint256 recipientCount = defaults.RECIPIENT_COUNT();
@@ -47,18 +47,7 @@ contract CreateMerkleInstant_Integration_Test is MerkleCampaign_Integration_Test
         });
     }
 
-    modifier givenNotCreatedAlready() {
-        _;
-    }
-
-    function testFuzz_CreateMerkleInstant(
-        address admin,
-        uint40 expiration
-    )
-        external
-        whenCampaignNameNotTooLong
-        givenNotCreatedAlready
-    {
+    function test_GivenCampaignNotExists(address admin, uint40 expiration) external whenNameNotTooLong {
         vm.assume(admin != users.admin);
         address expectedMerkleInstant = computeMerkleInstantAddress(admin, expiration);
 

@@ -15,11 +15,11 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         super.setUp();
     }
 
-    modifier whenTotalPercentageNotOneHundred() {
+    modifier whenTotalPercentageNot100() {
         _;
     }
 
-    function test_RevertWhen_TotalPercentageLessThanOneHundred() external whenTotalPercentageNotOneHundred {
+    function test_RevertWhen_TotalPercentageLessThan100() external whenMerkleProofValid whenTotalPercentageNot100 {
         // Create a MerkleLT campaign with a total percentage less than 100.
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
         tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);
@@ -49,7 +49,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 10_000e18, merkleProof: merkleProof });
     }
 
-    function test_RevertWhen_TotalPercentageGreaterThanOneHundred() external whenTotalPercentageNotOneHundred {
+    function test_RevertWhen_TotalPercentageGreaterThan100() external whenMerkleProofValid whenTotalPercentageNot100 {
         // Create a MerkleLT campaign with a total percentage less than 100.
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
         tranchesWithPercentages[0].unlockPercentage = ud2x18(0.75e18);
@@ -79,34 +79,16 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 10_000e18, merkleProof: merkleProof });
     }
 
-    modifier whenTotalPercentageOneHundred() {
+    modifier whenTotalPercentage100() {
         _;
     }
 
-    modifier whenCalculatedAmountsSumEqualsClaimAmount() {
-        _;
-    }
-
-    function test_WhenStreamStartTimeZero()
-        external
-        whenTotalPercentageOneHundred
-        givenCampaignNotExpired
-        givenNotClaimed
-        givenIncludedInMerkleTree
-        whenCalculatedAmountsSumEqualsClaimAmount
-    {
+    function test_WhenStreamStartTimeZero() external whenMerkleProofValid whenTotalPercentage100 {
         // It should create a stream with block.timestamp as start time.
         _test_Claim({ streamStartTime: 0, startTime: getBlockTimestamp() });
     }
 
-    function test_WhenStreamStartTimeNotZero()
-        external
-        whenTotalPercentageOneHundred
-        givenCampaignNotExpired
-        givenNotClaimed
-        givenIncludedInMerkleTree
-        whenCalculatedAmountsSumEqualsClaimAmount
-    {
+    function test_WhenStreamStartTimeNotZero() external whenMerkleProofValid whenTotalPercentage100 {
         merkleLT = merkleFactory.createMerkleLT({
             baseParams: defaults.baseParams(),
             lockupTranched: lockupTranched,

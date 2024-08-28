@@ -10,21 +10,21 @@ abstract contract HasExpired_Integration_Test is MerkleCampaign_Integration_Shar
         MerkleCampaign_Integration_Shared_Test.setUp();
     }
 
-    function test_HasExpired_ExpirationZero() external {
+    function test_WhenExpirationZero() external {
         ISablierMerkleBase campaignWithZeroExpiry = ISablierMerkleBase(createMerkleLT({ expiration: 0 }));
         assertFalse(campaignWithZeroExpiry.hasExpired(), "campaign expired");
     }
 
-    function test_HasExpired_ExpirationLessThanBlockTimestamp() external view givenExpirationNotZero {
+    function test_WhenExpirationInPast() external view whenExpirationNotZero {
         assertFalse(merkleBase.hasExpired(), "campaign expired");
     }
 
-    function test_HasExpired_ExpirationEqualToBlockTimestamp() external givenExpirationNotZero {
+    function test_WhenTheExpirationInPresent() external whenExpirationNotZero {
         vm.warp({ newTimestamp: defaults.EXPIRATION() });
         assertTrue(merkleBase.hasExpired(), "campaign not expired");
     }
 
-    function test_HasExpired_ExpirationGreaterThanBlockTimestamp() external givenExpirationNotZero {
+    function test_WhenTheExpirationInFuture() external whenExpirationNotZero {
         vm.warp({ newTimestamp: defaults.EXPIRATION() + 1 seconds });
         assertTrue(merkleBase.hasExpired(), "campaign not expired");
     }

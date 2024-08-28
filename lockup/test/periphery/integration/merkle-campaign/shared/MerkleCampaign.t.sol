@@ -31,44 +31,11 @@ abstract contract MerkleCampaign_Integration_Shared_Test is MerkleCampaign_Integ
                                    MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier afterFirstClaim() {
-        // Make the first claim to set `_firstClaimTime`.
-        claim();
-        _;
-    }
-
-    modifier givenCampaignExpired() {
-        vm.warp({ newTimestamp: defaults.EXPIRATION() + 1 seconds });
-        _;
-    }
-
     modifier givenCampaignNotExpired() {
         _;
     }
 
-    modifier givenExpirationNotZero() {
-        _;
-    }
-
-    modifier givenIncludedInMerkleTree() {
-        _;
-    }
-
-    modifier givenNotClaimed() {
-        _;
-    }
-
-    modifier givenNotIncludedInMerkleTree() {
-        _;
-    }
-
-    modifier givenRecipientHasClaimed() {
-        // Make the first claim to set `_firstClaimTime`.
-        claim();
-        _;
-    }
-
-    modifier postGracePeriod() {
+    modifier givenSevenDaysPassed() {
         vm.warp({ newTimestamp: getBlockTimestamp() + 8 days });
         _;
     }
@@ -78,7 +45,21 @@ abstract contract MerkleCampaign_Integration_Shared_Test is MerkleCampaign_Integ
         _;
     }
 
-    modifier whenIndexInTree() {
+    modifier whenExpirationNotZero() {
+        _;
+    }
+
+    modifier whenFirstClaimMade() {
+        // Make the first claim to set `_firstClaimTime`.
+        claim();
+        _;
+    }
+
+    modifier whenIndexInMerkleTree() {
+        _;
+    }
+
+    modifier whenMerkleProofValid() {
         _;
     }
 }

@@ -68,7 +68,7 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
         _;
     }
 
-    modifier whenWithdrawAmountDoesNotOverdraw() {
+    modifier whenWithdrawAmountNotOverdraw() {
         _;
     }
 }

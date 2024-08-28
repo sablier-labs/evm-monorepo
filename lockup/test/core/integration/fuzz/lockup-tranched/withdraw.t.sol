@@ -48,7 +48,7 @@ contract Withdraw_LockupTranched_Integration_Fuzz_Test is
         givenNotNull
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
     {
         vm.assume(params.tranches.length != 0);
         vm.assume(params.to != address(0));

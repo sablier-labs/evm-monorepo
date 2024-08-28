@@ -1,9 +1,9 @@
-createMerkleLL.t.sol
-├── when the campaign name is too long
+CreateMerkleLL_Integration_Test
+├── when name too long
 │  └── it should revert
-└── when the campaign name is not too long
-   ├── given the campaign has been created already
+└── when name not too long
+   ├── given campaign already exists
    │  └── it should revert
-   └── given the campaign has not been created already
+   └── given campaign not exists
       ├── it should create the campaign
       └── it should emit a {CreateMerkleLL} event

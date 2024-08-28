@@ -16,7 +16,7 @@ Withdraw_Integration_Concrete_Test
             └── when non zero withdraw amount
                ├── when withdraw amount overdraws
                │  └── it should revert
-               └── when withdraw amount does not overdraw
+               └── when withdraw amount not overdraw
                   ├── when withdrawal address not recipient
                   │  ├── when caller not approved third party or recipient
                   │  │  └── it should revert

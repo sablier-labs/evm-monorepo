@@ -17,16 +17,16 @@ abstract contract Clawback_Integration_Test is MerkleCampaign_Integration_Shared
         merkleBase.clawback({ to: users.eve, amount: 1 });
     }
 
-    function test_Clawback_BeforeFirstClaim() external whenCallerAdmin {
+    function test_WhenFirstClaimNotMade() external whenCallerAdmin {
         test_Clawback(users.admin);
     }
 
-    function test_Clawback_GracePeriod() external whenCallerAdmin afterFirstClaim {
+    function test_GivenSevenDaysNotPassed() external whenCallerAdmin whenFirstClaimMade {
         vm.warp({ newTimestamp: getBlockTimestamp() + 6 days });
         test_Clawback(users.admin);
     }
 
-    function test_RevertGiven_CampaignNotExpired() external whenCallerAdmin afterFirstClaim postGracePeriod {
+    function test_RevertGiven_CampaignNotExpired() external whenCallerAdmin whenFirstClaimMade givenSevenDaysPassed {
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierMerkleBase_ClawbackNotAllowed.selector,
@@ -38,26 +38,17 @@ abstract contract Clawback_Integration_Test is MerkleCampaign_Integration_Shared
         merkleBase.clawback({ to: users.admin, amount: 1 });
     }
 
-    function test_Clawback() external whenCallerAdmin afterFirstClaim postGracePeriod givenCampaignExpired {
-        test_Clawback(users.admin);
-    }
-
-    function testFuzz_Clawback(
-        address to
-    )
-        external
-        whenCallerAdmin
-        afterFirstClaim
-        postGracePeriod
-        givenCampaignExpired
-    {
+    function test_GivenCampaignExpired(address to) external whenCallerAdmin whenFirstClaimMade givenSevenDaysPassed {
+        vm.warp({ newTimestamp: defaults.EXPIRATION() + 1 seconds });
         vm.assume(to != address(0));
         test_Clawback(to);
     }
 
     function test_Clawback(address to) internal {
         uint128 clawbackAmount = uint128(dai.balanceOf(address(merkleBase)));
+        // It should perform the ERC-20 transfer.
         expectCallToTransfer({ to: to, value: clawbackAmount });
+        // It should emit a {Clawback} event.
         vm.expectEmit({ emitter: address(merkleBase) });
         emit Clawback({ admin: users.admin, to: to, amount: clawbackAmount });
         merkleBase.clawback({ to: to, amount: clawbackAmount });

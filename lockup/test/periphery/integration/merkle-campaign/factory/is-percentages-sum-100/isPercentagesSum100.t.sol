@@ -8,7 +8,7 @@ import { MerkleLT } from "src/periphery/types/DataTypes.sol";
 import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
 
 contract IsPercentagesSum100_Integration_Test is MerkleCampaign_Integration_Test {
-    function test_RevertWhen_SumOverflow() public {
+    function test_RevertWhen_PercentagesSumOverflows() public {
         MerkleLT.TrancheWithPercentage[] memory tranches = defaults.tranchesWithPercentages();
         tranches[0].unlockPercentage = MAX_UD2x18;
 
@@ -16,19 +16,19 @@ contract IsPercentagesSum100_Integration_Test is MerkleCampaign_Integration_Test
         merkleFactory.isPercentagesSum100(tranches);
     }
 
-    modifier whenSumDoesNotOverflow() {
+    modifier whenPercentagesSumNotOverflow() {
         _;
     }
 
-    modifier whenTotalPercentageNotOneHundred() {
+    modifier whenPercentagesSumNot100Pct() {
         _;
     }
 
-    function test_TotalPercentageLessThanOneHundred()
+    function test_WhenPercentagesSumLessThan100Pct()
         external
         view
-        whenSumDoesNotOverflow
-        whenTotalPercentageNotOneHundred
+        whenPercentagesSumNotOverflow
+        whenPercentagesSumNot100Pct
     {
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
         tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);
@@ -37,11 +37,11 @@ contract IsPercentagesSum100_Integration_Test is MerkleCampaign_Integration_Test
         assertFalse(merkleFactory.isPercentagesSum100(tranchesWithPercentages), "isPercentagesSum100");
     }
 
-    function test_TotalPercentageGreaterThanOneHundred()
+    function test_WhenPercentagesSumGreaterThan100Pct()
         external
         view
-        whenSumDoesNotOverflow
-        whenTotalPercentageNotOneHundred
+        whenPercentagesSumNotOverflow
+        whenPercentagesSumNot100Pct
     {
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
         tranchesWithPercentages[0].unlockPercentage = ud2x18(0.5e18);
@@ -50,11 +50,7 @@ contract IsPercentagesSum100_Integration_Test is MerkleCampaign_Integration_Test
         assertFalse(merkleFactory.isPercentagesSum100(tranchesWithPercentages), "isPercentagesSum100");
     }
 
-    modifier whenTotalPercentageOneHundred() {
-        _;
-    }
-
-    function test_IsPercentagesSum100() external view whenSumDoesNotOverflow whenTotalPercentageOneHundred {
+    function test_WhenPercentagesSum100Pct() external view whenPercentagesSumNotOverflow {
         assertTrue(merkleFactory.isPercentagesSum100(defaults.tranchesWithPercentages()), "isPercentagesSum100");
     }
 }

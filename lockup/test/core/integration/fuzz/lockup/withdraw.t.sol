@@ -22,7 +22,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         givenNotNull
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
     {
         vm.assume(caller != users.sender && caller != users.recipient);
 
@@ -58,7 +58,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
     {
         vm.assume(to != address(0));
 
@@ -100,7 +100,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         givenNotNull
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenCallerRecipient
     {
         timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
@@ -167,7 +167,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         givenNotNull
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         givenNotCanceledStream
     {
         timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);

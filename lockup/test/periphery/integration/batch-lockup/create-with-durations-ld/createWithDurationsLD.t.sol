@@ -18,11 +18,7 @@ contract CreateWithDurationsLD_Integration_Test is Periphery_Test {
         batchLockup.createWithDurationsLD(lockupDynamic, dai, batchParams);
     }
 
-    modifier whenBatchSizeNotZero() {
-        _;
-    }
-
-    function test_BatchCreateWithDurations() external whenBatchSizeNotZero {
+    function test_WhenBatchSizeNotZero() external {
         // Asset flow: Sender → batchLockup → SablierLockup
         // Expect transfers from Alice to the batchLockup, and then from the batchLockup to the Lockup contract.
         expectCallToTransferFrom({

@@ -9,7 +9,15 @@ contract Claim_MerkleInstant_Integration_Test is Claim_Integration_Test, MerkleI
         super.setUp();
     }
 
-    function test_ClaimInstant() external givenCampaignNotExpired givenNotClaimed givenIncludedInMerkleTree {
+    function test_Claim()
+        external
+        givenCampaignNotExpired
+        givenRecipientNotClaimed
+        whenIndexValid
+        whenRecipientValid
+        whenAmountValid
+        whenMerkleProofValid
+    {
         vm.expectEmit({ emitter: address(merkleBase) });
         emit Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT());
 

@@ -19,7 +19,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         _;
     }
 
-    function test_WhenScheduledCliffDurationZero() external whenScheduledStartTimeZero {
+    function test_WhenScheduledCliffDurationZero() external whenMerkleProofValid whenScheduledStartTimeZero {
         schedule.cliffDuration = 0;
 
         merkleLL = merkleFactory.createMerkleLL({
@@ -37,13 +37,13 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         _test_Claim({ startTime: getBlockTimestamp(), cliffTime: 0 });
     }
 
-    function test_WhenScheduledCliffDurationNotZero() external whenScheduledStartTimeZero {
+    function test_WhenScheduledCliffDurationNotZero() external whenMerkleProofValid whenScheduledStartTimeZero {
         // It should create a stream with block.timestamp as start time.
         // It should create a stream with cliff as start time + cliff duration.
         _test_Claim({ startTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + defaults.CLIFF_DURATION() });
     }
 
-    function test_WhenScheduledStartTimeNotZero() external {
+    function test_WhenScheduledStartTimeNotZero() external whenMerkleProofValid {
         schedule.startTime = defaults.STREAM_START_TIME_NON_ZERO();
 
         merkleLL = merkleFactory.createMerkleLL({

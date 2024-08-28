@@ -111,7 +111,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressNotRecipient(false)
     {
         // Simulate the passage of time.
@@ -136,7 +136,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressNotRecipient(true)
     {
         // Simulate the passage of time.
@@ -169,7 +169,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressRecipient
     {
         // Make the unknown address the caller in this test.
@@ -194,7 +194,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressRecipient
     {
         // Simulate the passage of time.
@@ -216,7 +216,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressRecipient
         whenCallerSender
     {
@@ -248,7 +248,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressRecipient
         whenCallerSender
         givenEndTimeInFuture
@@ -296,7 +296,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressRecipient
         whenCallerSender
         givenEndTimeInFuture
@@ -332,7 +332,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressRecipient
         whenCallerSender
         givenEndTimeInFuture
@@ -362,7 +362,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressRecipient
         whenCallerSender
         givenEndTimeInFuture
@@ -395,7 +395,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressRecipient
         whenCallerSender
         givenEndTimeInFuture
@@ -445,7 +445,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
         whenNonZeroWithdrawAmount
-        whenWithdrawAmountDoesNotOverdraw
+        whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressRecipient
         whenCallerSender
         givenEndTimeInFuture

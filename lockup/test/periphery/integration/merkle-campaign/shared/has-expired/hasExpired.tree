@@ -1,10 +1,10 @@
-hasExpired.t.sol
-├── when the expiration is zero
+HasExpired_Integration_Test
+├── when expiration zero
 │  └── it should return false
-└── when the expiration is not zero
-   ├── when the expiration is less than the block timestamp
+└── when expiration not zero
+   ├── when expiration in past
    │  └── it should return false
-   ├── when the expiration is equal to the block timestamp
+   ├── when the expiration in present
    │  └── it should return true
-   └──  when the expiration is greater than the block timestamp
+   └── when the expiration in future
       └── it should return true

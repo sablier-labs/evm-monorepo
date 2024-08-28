@@ -1,19 +1,21 @@
-claim.t.sol
-├── given the campaign has expired
+Claim_Integration_Test
+├── given campaign expired
 │  └── it should revert
-└── given the campaign has not expired
-   ├── given the recipient has claimed
+└── given campaign not expired
+   ├── given recipient claimed
    │  └── it should revert
-   └── given the recipient has not claimed
-      ├── given the claim is not included in the Merkle tree
-      │  ├── when the index is not valid
-      │  │  └── it should revert
-      │  ├── when the recipient address is not valid
-      │  │  └── it should revert
-      │  ├── when the amount is not valid
-      │  │  └── it should revert
-      │  └── when the Merkle proof is not valid
-      │     └── it should revert
-      └── given the claim is included in the Merkle tree
-         ├── it should mark the index as Claimed
-         └── it should emit {Claim} event
+   └── given recipient not claimed
+      ├── when index not valid
+      │  └── it should revert
+      └── when index valid
+         ├── when recipient not valid
+         │  └── it should revert
+         └── when recipient valid
+            ├── when amount not valid
+            │  └── it should revert
+            └── when amount valid
+               ├── when Merkle proof not valid
+               │  └── it should revert
+               └── when Merkle proof valid
+                  ├── it should mark the index as Claimed
+                  └── it should emit {Claim} event

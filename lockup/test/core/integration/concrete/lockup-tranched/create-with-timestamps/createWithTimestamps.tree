@@ -33,7 +33,7 @@ CreateWithTimestamps_LockupTranched_Integration_Concrete_Test
                            └── when timestamps strictly increasing
                               ├── when deposit amount not equal tranche amounts sum
                               │  └── it should revert
-                              └── when the deposit amount equals tranche amounts sum
+                              └── when deposit amount equals tranche amounts sum
                                  ├── when broker fee exceeds max value
                                  │  └── it should revert
                                  └── when broker fee not exceed max value

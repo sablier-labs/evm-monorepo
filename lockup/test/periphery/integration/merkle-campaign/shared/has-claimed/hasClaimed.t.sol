@@ -8,16 +8,21 @@ abstract contract HasClaimed_Integration_Test is MerkleCampaign_Integration_Shar
         MerkleCampaign_Integration_Shared_Test.setUp();
     }
 
-    function test_HasClaimed_IndexNotInTree() external {
+    function test_WhenIndexNotInMerkleTree() external {
         uint256 indexNotInTree = 1337e18;
         assertFalse(merkleBase.hasClaimed(indexNotInTree), "claimed");
     }
 
-    function test_HasClaimed_NotClaimed() external whenIndexInTree {
+    function test_GivenRecipientNotClaimed() external whenIndexInMerkleTree {
+        // It should return false.
         assertFalse(merkleBase.hasClaimed(defaults.INDEX1()), "claimed");
     }
 
-    function test_HasClaimed() external whenIndexInTree givenRecipientHasClaimed {
+    function test_GivenRecipientClaimed() external whenIndexInMerkleTree {
+        // Make the first claim to set `_firstClaimTime`.
+        claim();
+
+        // It should return true.
         assertTrue(merkleBase.hasClaimed(defaults.INDEX1()), "not claimed");
     }
 }

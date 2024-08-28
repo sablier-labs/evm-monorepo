@@ -93,7 +93,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         _;
     }
 
-    function test_RevertGiven_NFTDoesNotExist()
+    function test_RevertGiven_NFTNotExist()
         external
         whenNoDelegateCall
         givenNotNull

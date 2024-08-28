@@ -18,11 +18,7 @@ contract CreateWithTimestampsLL_Integration_Test is Periphery_Test {
         batchLockup.createWithTimestampsLL(lockupLinear, dai, batchParams);
     }
 
-    modifier whenBatchSizeNotZero() {
-        _;
-    }
-
-    function test_BatchCreateWithTimestamps() external whenBatchSizeNotZero {
+    function test_WhenBatchSizeNotZero() external {
         // Asset flow: Sender → batchLockup → SablierLockup
         // Expect transfers from Alice to the batchLockup, and then from the batchLockup to the Lockup contract.
         expectCallToTransferFrom({

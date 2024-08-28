@@ -29,7 +29,7 @@ contract TokenURI_LockupDynamic_Integration_Concrete_Test is LockupDynamic_Integ
         }
     }
 
-    function test_RevertGiven_NFTDoesNotExist() external {
+    function test_RevertGiven_NFTNotExist() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, nullStreamId));
         lockupDynamic.tokenURI({ tokenId: nullStreamId });

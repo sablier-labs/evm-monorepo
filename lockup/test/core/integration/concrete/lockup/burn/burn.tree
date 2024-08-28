@@ -18,7 +18,7 @@ Burn_Integration_Concrete_Test
          ├── when unauthorized caller
          │  └── it should revert
          └── when authorized caller
-            ├── given NFT does not exist
+            ├── given NFT not exist
             │  └── it should revert
             └── given NFT exists
                ├── given non transferable NFT

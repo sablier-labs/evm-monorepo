@@ -1,8 +1,8 @@
-hasClaimed.t.sol
-├── when the index is not in the Merkle tree
+HasClaimed_Integration_Test
+├── when index not in Merkle tree
 │  └── it should return false
-└── when the index is in the Merkle tree
-   ├── given the recipient has not claimed
+└── when index in Merkle tree
+   ├── given recipient not claimed
    │  └── it should return false
-   └── given the recipient has claimed
+   └── given recipient claimed
       └── it should return true
