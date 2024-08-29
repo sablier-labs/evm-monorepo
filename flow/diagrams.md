@@ -125,7 +125,7 @@ flowchart LR
 | Restart             |           ✅           |    ❌     |     ❌      |           ❌           |
 | Pause               |           ✅           |    ❌     |     ❌      |           ❌           |
 | Transfer NFT        |           ❌           |    ✅     |     ✅      |           ❌           |
-| Void                |           ❌           |    ✅     |     ✅      |           ❌           |
+| Void                |           ✅           |    ✅     |     ✅      |           ❌           |
 | Withdraw            | ✅ (only to Recipient) |    ✅     |     ✅      | ✅ (only to Recipient) |
 
 ### Internal State

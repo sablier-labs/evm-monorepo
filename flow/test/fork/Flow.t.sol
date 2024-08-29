@@ -445,12 +445,13 @@ contract Flow_Fork_Test is Fork_Test {
 
     function _test_Void(uint256 streamId) private {
         // Make sure the requirements are respected.
-        address recipient = flow.getRecipient(streamId);
         address sender = flow.getSender(streamId);
+        address recipient = flow.getRecipient(streamId);
         uint128 uncoveredDebt = flow.uncoveredDebtOf(streamId);
 
+        resetPrank({ msgSender: sender });
+
         if (uncoveredDebt == 0) {
-            resetPrank({ msgSender: sender });
             if (flow.isPaused(streamId)) {
                 flow.restart(streamId, RATE_PER_SECOND);
             }
@@ -470,8 +471,6 @@ contract Flow_Fork_Test is Fork_Test {
             uncoveredDebt = flow.uncoveredDebtOf(streamId);
         }
 
-        resetPrank({ msgSender: recipient });
-
         uint128 beforeVoidBalance = flow.getBalance(streamId);
 
         // It should emit 1 {VoidFlowStream}, 1 {MetadataUpdate} events.
@@ -480,7 +479,7 @@ contract Flow_Fork_Test is Fork_Test {
             streamId: streamId,
             recipient: recipient,
             sender: sender,
-            caller: recipient,
+            caller: sender,
             newTotalDebt: beforeVoidBalance,
             writtenOffDebt: uncoveredDebt
         });

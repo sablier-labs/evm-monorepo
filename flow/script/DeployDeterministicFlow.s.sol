@@ -9,9 +9,7 @@ import { BaseScript } from "./Base.s.sol";
 /// @notice Deploys {SablierFlow} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
 contract DeployDeterministicFlow is BaseScript {
-    function run(
-        address initialAdmin
-    )
+    function run(address initialAdmin)
         public
         broadcast
         returns (SablierFlow flow, SablierFlowNFTDescriptor nftDescriptor)

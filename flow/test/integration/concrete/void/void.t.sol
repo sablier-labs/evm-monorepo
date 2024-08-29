@@ -38,26 +38,28 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         _;
     }
 
-    function test_RevertWhen_CallerSender()
+    function test_RevertWhen_CallerNotAuthorized()
         external
         whenNoDelegateCall
         givenNotNull
         givenStreamHasUncoveredDebt
-        whenCallerNotRecipient
-    {
-        bytes memory callData = abi.encodeCall(flow.void, (defaultStreamId));
-        expectRevert_CallerSender(callData);
-    }
-
-    function test_RevertWhen_CallerMaliciousThirdParty()
-        external
-        whenNoDelegateCall
-        givenNotNull
-        givenStreamHasUncoveredDebt
-        whenCallerNotRecipient
     {
         bytes memory callData = abi.encodeCall(flow.void, (defaultStreamId));
         expectRevert_CallerMaliciousThirdParty(callData);
+    }
+
+    function test_WhenCallerSender()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenStreamHasUncoveredDebt
+        whenCallerAuthorized
+    {
+        // Make the sender the caller in this test.
+        resetPrank({ msgSender: users.sender });
+
+        // It should void the stream.
+        _test_Void(users.sender);
     }
 
     function test_WhenCallerApprovedThirdParty()
@@ -65,7 +67,7 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         whenNoDelegateCall
         givenNotNull
         givenStreamHasUncoveredDebt
-        whenCallerNotRecipient
+        whenCallerAuthorized
     {
         // Approve the operator to handle the stream.
         flow.approve({ to: users.operator, tokenId: defaultStreamId });
@@ -77,7 +79,13 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         _test_Void(users.operator);
     }
 
-    function test_WhenCallerRecipient() external whenNoDelegateCall givenNotNull givenStreamHasUncoveredDebt {
+    function test_WhenCallerRecipient()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenStreamHasUncoveredDebt
+        whenCallerAuthorized
+    {
         // It should void the stream.
         _test_Void(users.recipient);
     }

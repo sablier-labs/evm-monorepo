@@ -106,7 +106,7 @@ abstract contract Modifiers {
                                         VOID
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenCallerNotRecipient() {
+    modifier whenCallerAuthorized() {
         _;
     }
 

@@ -8,15 +8,15 @@ Void_Integration_Concrete_Test
       ├── given stream has no uncovered debt
       │  └── it should revert
       └── given stream has uncovered debt
-         ├── when caller not recipient
-         │  ├── when caller sender
-         │  │  └── it should revert
-         │  ├── when caller malicious third party
-         │  │  └── it should revert
-         │  └── when caller approved third party
-         │     └── it should void the stream
-         └── when caller recipient
-            ├── it should set the rate per second to zero
-            ├── it should pause the stream
-            ├── it should update the total debt to stream balance
-            └── it should emit 1 {VoidFlowStream}, 1 {MetadataUpdate} events
+         ├── when caller not authorized
+         │  └── it should revert
+         └── when caller authorized
+            ├── when caller sender
+            │  └── it should void the stream
+            ├── when caller approved third party
+            │  └── it should void the stream
+            └── when caller recipient
+               ├── it should set the rate per second to zero
+               ├── it should pause the stream
+               ├── it should update the total debt to stream balance
+               └── it should emit 1 {VoidFlowStream}, 1 {MetadataUpdate} events

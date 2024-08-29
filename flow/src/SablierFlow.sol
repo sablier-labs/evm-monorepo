@@ -50,9 +50,7 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function depletionTimeOf(
-        uint256 streamId
-    )
+    function depletionTimeOf(uint256 streamId)
         external
         view
         override
@@ -90,9 +88,7 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function refundableAmountOf(
-        uint256 streamId
-    )
+    function refundableAmountOf(uint256 streamId)
         external
         view
         override
@@ -132,9 +128,7 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function uncoveredDebtOf(
-        uint256 streamId
-    )
+    function uncoveredDebtOf(uint256 streamId)
         external
         view
         override
@@ -145,9 +139,7 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function withdrawableAmountOf(
-        uint256 streamId
-    )
+    function withdrawableAmountOf(uint256 streamId)
         external
         view
         override
@@ -290,9 +282,7 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function pause(
-        uint256 streamId
-    )
+    function pause(uint256 streamId)
         external
         override
         noDelegateCall
@@ -743,8 +733,8 @@ contract SablierFlow is
             revert Errors.SablierFlow_UncoveredDebtZero(streamId);
         }
 
-        // Check: if `msg.sender` is either the stream's recipient or an approved third party.
-        if (!_isCallerStreamRecipientOrApproved(streamId)) {
+        // Check: `msg.sender` is either the stream's sender, recipient or an approved third party.
+        if (msg.sender != _streams[streamId].sender && !_isCallerStreamRecipientOrApproved(streamId)) {
             revert Errors.SablierFlow_Unauthorized({ streamId: streamId, caller: msg.sender });
         }
 
@@ -777,7 +767,7 @@ contract SablierFlow is
             revert Errors.SablierFlow_WithdrawToZeroAddress(streamId);
         }
 
-        // Check: if `msg.sender` is neither the stream's recipient nor an approved third party, the withdrawal address
+        // Check: `msg.sender` is neither the stream's recipient nor an approved third party, the withdrawal address
         // must be the recipient.
         if (to != _ownerOf(streamId) && !_isCallerStreamRecipientOrApproved(streamId)) {
             revert Errors.SablierFlow_WithdrawalAddressNotRecipient({ streamId: streamId, caller: msg.sender, to: to });

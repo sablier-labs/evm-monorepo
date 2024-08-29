@@ -67,9 +67,7 @@ contract FlowCreateHandler is BaseHandler {
         bool transferable;
     }
 
-    function create(
-        CreateParams memory params
-    )
+    function create(CreateParams memory params)
         public
         instrument("create")
         checkUsers(params)
