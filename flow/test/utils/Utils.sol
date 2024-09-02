@@ -72,6 +72,12 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
         return Helpers.normalizeAmount(amount, decimals);
     }
 
+    /// @dev Checks if the Foundry profile is "benchmark".
+    function isBenchmarkProfile() internal view returns (bool) {
+        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
+        return Strings.equal(profile, "benchmark");
+    }
+
     /// @dev Checks if the Foundry profile is "test-optimized".
     function isTestOptimizedProfile() internal view returns (bool) {
         string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });

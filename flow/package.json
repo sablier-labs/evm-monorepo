@@ -26,6 +26,7 @@
     "artifacts",
     "precompiles",
     "src",
+    "test/utils",
     "LICENSE-GPL.md"
   ],
   "keywords": [
@@ -55,23 +56,19 @@
     "access": "restricted"
   },
   "scripts": {
+    "benchmark": "bun run build:optimized && FOUNDRY_PROFILE=benchmark forge test --mt testGas && bun run prettier:write",
     "build": "forge build",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
     "clean": "rm -rf artifacts broadcast cache docs out out-optimized out-svg",
-    "gas:report": "forge test --gas-report --mp \"./test/integration/**/*.sol\" --nmt \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
-    "gas:snapshot": "forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
-    "gas:snapshot:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "lint": "bun run lint:sol && bun run prettier:check",
     "lint:fix": "bun run lint:sol:fix && forge fmt",
-    "lint:sol": "forge fmt --check && bun solhint \"{precompiles,script,src,test}/**/*.sol\"",
-    "lint:sol:fix": "bun solhint \"{precompiles,script,src,test}/**/*.sol\" --fix --noPrompt",
+    "lint:sol": "forge fmt --check && bun solhint \"{benchmark,precompiles,script,src,test}/**/*.sol\"",
+    "lint:sol:fix": "bun solhint \"{benchmark,precompiles,script,src,test}/**/*.sol\" --fix --noPrompt",
     "prepack": "bun install && bash ./shell/prepare-artifacts.sh",
     "prepare": "husky",
     "prettier:check": "prettier --check \"**/*.{json,md,svg,yml}\"",
     "prettier:write": "prettier --write \"**/*.{json,md,svg,yml}\"",
     "test": "forge test",
-    "test:coverage": "forge coverage",
-    "test:coverage:report": "forge coverage --report lcov && genhtml lcov.info --ignore-errors inconsistent --branch-coverage --output-dir coverage",
     "test:lite": "FOUNDRY_PROFILE=lite forge test",
     "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   }

@@ -58,6 +58,18 @@ abstract contract Integration_Test is Base_Test {
         });
     }
 
+    /// @dev Helper function to create an token with the `decimals` and then a stream using the newly created token.
+    function createTokenAndStream(uint8 decimals) internal returns (IERC20 token, uint256 streamId) {
+        token = createToken(decimals);
+
+        // Hash the next stream ID and the decimal to generate a seed.
+        uint256 ratePerSecondSeed = uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals)));
+        uint128 ratePerSecond = boundRatePerSecond(uint128(ratePerSecondSeed));
+
+        // Create stream.
+        streamId = createDefaultStream(ratePerSecond, token);
+    }
+
     function defaultStream() internal view returns (Flow.Stream memory) {
         return Flow.Stream({
             balance: 0,
@@ -81,21 +93,17 @@ abstract contract Integration_Test is Base_Test {
     function deposit(uint256 streamId, uint128 amount) internal {
         IERC20 token = flow.getToken(streamId);
 
-        deal({ token: address(token), to: users.sender, give: amount });
-        token.approve(address(flow), amount);
+        deal({ token: address(token), to: users.sender, give: UINT128_MAX });
+        token.approve(address(flow), UINT128_MAX);
 
         flow.deposit(streamId, amount);
     }
 
     function depositDefaultAmount(uint256 streamId) internal {
-        IERC20 token = flow.getToken(streamId);
         uint8 decimals = flow.getTokenDecimals(streamId);
         uint128 depositAmount = getDefaultDepositAmount(decimals);
 
-        deal({ token: address(token), to: users.sender, give: depositAmount });
-        token.approve(address(flow), depositAmount);
-
-        flow.deposit(streamId, depositAmount);
+        deposit(streamId, depositAmount);
     }
 
     function depositToDefaultStream() internal {

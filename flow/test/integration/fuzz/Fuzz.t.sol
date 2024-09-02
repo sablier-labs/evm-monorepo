@@ -49,7 +49,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
             decimals = boundUint8(decimals, 0, 18);
 
             // Create stream.
-            streamId = _createTokenAndStream(decimals);
+            (token, streamId) = createTokenAndStream(decimals);
 
             // Hash the next stream ID and the decimal to generate a seed.
             uint128 amountSeed = uint128(uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals))));
@@ -80,26 +80,12 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
         }
     }
 
-    /// @dev Helper function to create an token with the `decimals` and then a stream using the newly created token.
-    function _createTokenAndStream(uint8 decimals) private returns (uint256 streamId) {
-        token = createToken(decimals);
-
-        // Hash the next stream ID and the decimal to generate a seed.
-        uint256 ratePerSecondSeed = uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals)));
-        uint128 ratePerSecond = boundRatePerSecond(uint128(ratePerSecondSeed));
-
-        // Create stream.
-        streamId = createDefaultStream(ratePerSecond, token);
-    }
-
     function _setupStreamsWithAllDecimals() private {
         for (uint8 decimal; decimal < 19; ++decimal) {
             // Create token, create stream and deposit.
-            uint256 streamId = _createTokenAndStream(decimal);
+            (token, fixtureStreamId[decimal]) = createTokenAndStream(decimal);
 
-            depositDefaultAmount(streamId);
-
-            fixtureStreamId[decimal] = streamId;
+            depositDefaultAmount(fixtureStreamId[decimal]);
         }
     }
 }

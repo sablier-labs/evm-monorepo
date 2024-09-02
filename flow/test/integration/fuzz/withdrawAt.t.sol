@@ -39,6 +39,12 @@ contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.expectEmit({ emitter: address(token) });
         emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: 0 });
 
+        vm.expectEmit({ emitter: address(flow) });
+        emit WithdrawFromFlowStream(streamId, users.recipient, token, caller, 0, withdrawTime);
+
+        vm.expectEmit({ emitter: address(flow) });
+        emit MetadataUpdate({ _tokenId: streamId });
+
         uint128 expectedTotalDebt = flow.totalDebtOf(streamId);
         uint128 expectedStreamBalance = flow.getBalance(streamId);
         uint256 expectedTokenBalance = token.balanceOf(address(flow));

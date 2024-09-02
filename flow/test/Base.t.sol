@@ -41,7 +41,7 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
     function setUp() public virtual {
         users.admin = payable(makeAddr("admin"));
 
-        if (!isTestOptimizedProfile()) {
+        if (!isBenchmarkProfile() && !isTestOptimizedProfile()) {
             nftDescriptor = new SablierFlowNFTDescriptor();
             flow = new SablierFlow(users.admin, nftDescriptor);
         } else {
