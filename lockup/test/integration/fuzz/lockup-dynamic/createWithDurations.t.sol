@@ -34,9 +34,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         uint128 totalAmount;
     }
 
-    function testFuzz_CreateWithDurations(
-        LockupDynamic.SegmentWithDuration[] memory segments
-    )
+    function testFuzz_CreateWithDurations(LockupDynamic.SegmentWithDuration[] memory segments)
         external
         whenNotDelegateCalled
         whenSegmentCountNotTooHigh

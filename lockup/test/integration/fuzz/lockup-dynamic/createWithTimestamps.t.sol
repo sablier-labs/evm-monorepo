@@ -23,9 +23,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         CreateWithTimestamps_Integration_Shared_Test.setUp();
     }
 
-    function testFuzz_RevertWhen_SegmentCountTooHigh(
-        uint256 segmentCount
-    )
+    function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -61,9 +59,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentTimestamp(
-        uint40 firstTimestamp
-    )
+    function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentTimestamp(uint40 firstTimestamp)
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -91,9 +87,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(
-        uint128 depositDiff
-    )
+    function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositDiff)
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -132,9 +126,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         lockupDynamic.createWithTimestamps(params);
     }
 
-    function testFuzz_RevertWhen_BrokerFeeTooHigh(
-        Broker memory broker
-    )
+    function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress

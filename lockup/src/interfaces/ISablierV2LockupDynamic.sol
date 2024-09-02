@@ -80,9 +80,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
     /// @return streamId The ID of the newly created stream.
-    function createWithDurations(
-        LockupDynamic.CreateWithDurations calldata params
-    )
+    function createWithDurations(LockupDynamic.CreateWithDurations calldata params)
         external
         returns (uint256 streamId);
 
@@ -109,9 +107,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
     /// @return streamId The ID of the newly created stream.
-    function createWithTimestamps(
-        LockupDynamic.CreateWithTimestamps calldata params
-    )
+    function createWithTimestamps(LockupDynamic.CreateWithTimestamps calldata params)
         external
         returns (uint256 streamId);
 }

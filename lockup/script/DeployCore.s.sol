@@ -10,9 +10,7 @@ import { BaseScript } from "./Base.s.sol";
 
 /// @notice Deploys all V2 Core contracts.
 contract DeployCore is BaseScript {
-    function run(
-        address initialAdmin
-    )
+    function run(address initialAdmin)
         public
         virtual
         broadcast

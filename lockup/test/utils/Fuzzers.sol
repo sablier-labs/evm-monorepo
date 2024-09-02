@@ -20,9 +20,7 @@ abstract contract Fuzzers is Constants, Utils {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Just like {fuzzDynamicStreamAmounts} but with defaults.
-    function fuzzDynamicStreamAmounts(
-        LockupDynamic.Segment[] memory segments
-    )
+    function fuzzDynamicStreamAmounts(LockupDynamic.Segment[] memory segments)
         internal
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
@@ -32,9 +30,7 @@ abstract contract Fuzzers is Constants, Utils {
     }
 
     /// @dev Just like {fuzzDynamicStreamAmounts} but with defaults.
-    function fuzzDynamicStreamAmounts(
-        LockupDynamic.SegmentWithDuration[] memory segments
-    )
+    function fuzzDynamicStreamAmounts(LockupDynamic.SegmentWithDuration[] memory segments)
         internal
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
@@ -203,9 +199,7 @@ abstract contract Fuzzers is Constants, Utils {
     }
 
     /// @dev Just like {fuzzTranchedStreamAmounts} but with defaults.
-    function fuzzTranchedStreamAmounts(
-        LockupTranched.Tranche[] memory tranches
-    )
+    function fuzzTranchedStreamAmounts(LockupTranched.Tranche[] memory tranches)
         internal
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
@@ -215,9 +209,7 @@ abstract contract Fuzzers is Constants, Utils {
     }
 
     /// @dev Just like {fuzzTranchedStreamAmounts} but with defaults.
-    function fuzzTranchedStreamAmounts(
-        LockupTranched.TrancheWithDuration[] memory tranches
-    )
+    function fuzzTranchedStreamAmounts(LockupTranched.TrancheWithDuration[] memory tranches)
         internal
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)

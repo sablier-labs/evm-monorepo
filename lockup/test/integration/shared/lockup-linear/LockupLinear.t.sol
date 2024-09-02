@@ -49,9 +49,7 @@ abstract contract LockupLinear_Integration_Shared_Test is Lockup_Integration_Sha
     }
 
     /// @dev Creates the default stream with the provided durations.
-    function createDefaultStreamWithDurations(
-        LockupLinear.Durations memory durations
-    )
+    function createDefaultStreamWithDurations(LockupLinear.Durations memory durations)
         internal
         returns (uint256 streamId)
     {
@@ -103,9 +101,7 @@ abstract contract LockupLinear_Integration_Shared_Test is Lockup_Integration_Sha
     }
 
     /// @dev Creates the default stream with the provided timestamps.
-    function createDefaultStreamWithTimestamps(
-        LockupLinear.Timestamps memory timestamps
-    )
+    function createDefaultStreamWithTimestamps(LockupLinear.Timestamps memory timestamps)
         internal
         returns (uint256 streamId)
     {
