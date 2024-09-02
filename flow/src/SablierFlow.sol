@@ -5,6 +5,7 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Batch } from "./abstracts/Batch.sol";
 import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
@@ -77,7 +78,7 @@ contract SablierFlow is
         unchecked {
             // The solvency amount is normalized to 18 decimals since it is divided by the rate per second.
             uint128 solvencyAmount = Helpers.normalizeAmount(balance - totalDebt, _streams[streamId].tokenDecimals);
-            uint128 solvencyPeriod = solvencyAmount / _streams[streamId].ratePerSecond;
+            uint128 solvencyPeriod = solvencyAmount / _streams[streamId].ratePerSecond.unwrap();
             depletionTime = uint40(block.timestamp + solvencyPeriod);
         }
     }
@@ -156,7 +157,7 @@ contract SablierFlow is
     /// @inheritdoc ISablierFlow
     function adjustRatePerSecond(
         uint256 streamId,
-        uint128 newRatePerSecond
+        UD21x18 newRatePerSecond
     )
         external
         override
@@ -174,7 +175,7 @@ contract SablierFlow is
     function create(
         address sender,
         address recipient,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         IERC20 token,
         bool transferable
     )
@@ -191,7 +192,7 @@ contract SablierFlow is
     function createAndDeposit(
         address sender,
         address recipient,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         IERC20 token,
         bool transferable,
         uint128 amount
@@ -212,7 +213,7 @@ contract SablierFlow is
     function createAndDepositViaBroker(
         address sender,
         address recipient,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         IERC20 token,
         bool transferable,
         uint128 totalAmount,
@@ -334,7 +335,7 @@ contract SablierFlow is
     /// @inheritdoc ISablierFlow
     function restart(
         uint256 streamId,
-        uint128 ratePerSecond
+        UD21x18 ratePerSecond
     )
         external
         override
@@ -350,7 +351,7 @@ contract SablierFlow is
     /// @inheritdoc ISablierFlow
     function restartAndDeposit(
         uint256 streamId,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         uint128 amount
     )
         external
@@ -460,7 +461,7 @@ contract SablierFlow is
         }
 
         // Calculate the ongoing debt accrued by multiplying the elapsed time by the rate per second.
-        uint128 normalizedAmount = elapsedTime * _streams[streamId].ratePerSecond;
+        uint128 normalizedAmount = elapsedTime * _streams[streamId].ratePerSecond.unwrap();
 
         // Since amount values are represented in token decimals, denormalize the amount before returning.
         return Helpers.denormalizeAmount(normalizedAmount, _streams[streamId].tokenDecimals);
@@ -500,16 +501,16 @@ contract SablierFlow is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _adjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) internal {
+    function _adjustRatePerSecond(uint256 streamId, UD21x18 newRatePerSecond) internal {
         // Check: the new rate per second is not zero.
-        if (newRatePerSecond == 0) {
+        if (newRatePerSecond.unwrap() == 0) {
             revert Errors.SablierFlow_RatePerSecondZero();
         }
 
-        uint128 oldRatePerSecond = _streams[streamId].ratePerSecond;
+        UD21x18 oldRatePerSecond = _streams[streamId].ratePerSecond;
 
         // Check: the new rate per second is different from the current rate per second.
-        if (newRatePerSecond == oldRatePerSecond) {
+        if (newRatePerSecond.unwrap() == oldRatePerSecond.unwrap()) {
             revert Errors.SablierFlow_RatePerSecondNotDifferent(streamId, newRatePerSecond);
         }
 
@@ -535,7 +536,7 @@ contract SablierFlow is
     function _create(
         address sender,
         address recipient,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         IERC20 token,
         bool transferable
     )
@@ -548,7 +549,7 @@ contract SablierFlow is
         }
 
         // Check: the rate per second is not zero.
-        if (ratePerSecond == 0) {
+        if (ratePerSecond.unwrap() == 0) {
             revert Errors.SablierFlow_RatePerSecondZero();
         }
 
@@ -632,7 +633,7 @@ contract SablierFlow is
         _updateSnapshotDebt(streamId);
 
         // Effect: set the rate per second to zero.
-        _streams[streamId].ratePerSecond = 0;
+        _streams[streamId].ratePerSecond = ud21x18(0);
 
         // Effect: set the stream as paused.
         _streams[streamId].isPaused = true;
@@ -677,14 +678,14 @@ contract SablierFlow is
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _restart(uint256 streamId, uint128 ratePerSecond) internal {
+    function _restart(uint256 streamId, UD21x18 ratePerSecond) internal {
         // Check: the stream is paused.
         if (!_streams[streamId].isPaused) {
             revert Errors.SablierFlow_StreamNotPaused(streamId);
         }
 
         // Check: the rate per second is not zero.
-        if (ratePerSecond == 0) {
+        if (ratePerSecond.unwrap() == 0) {
             revert Errors.SablierFlow_RatePerSecondZero();
         }
 
@@ -744,7 +745,7 @@ contract SablierFlow is
         _streams[streamId].snapshotDebt = balance;
 
         // Effect: set the rate per second to zero.
-        _streams[streamId].ratePerSecond = 0;
+        _streams[streamId].ratePerSecond = ud21x18(0);
 
         // Effect: set the stream as paused. This also sets the ongoing debt to zero.
         _streams[streamId].isPaused = true;

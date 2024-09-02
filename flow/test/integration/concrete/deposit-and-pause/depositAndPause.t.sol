@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -86,7 +87,7 @@ contract DepositAndPause_Integration_Concrete_Test is Integration_Test {
         assertTrue(flow.isPaused(defaultStreamId), "is paused");
 
         // It should set rate per second to 0
-        uint256 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
+        UD21x18 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         assertEq(actualRatePerSecond, 0, "rate per second");
 
         // It should update the snapshot debt

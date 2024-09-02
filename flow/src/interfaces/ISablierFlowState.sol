@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Flow } from "./../types/DataTypes.sol";
@@ -37,10 +38,11 @@ interface ISablierFlowState is
     /// @param streamId The stream ID for the query.
     function getBalance(uint256 streamId) external view returns (uint128 balance);
 
-    /// @notice Retrieves the rate per second of the stream, denoted in 18 decimals.
+    /// @notice Retrieves the rate per second of the stream, denoted as a fixed-point number where 1e18 is 1 token
+    /// per second.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The ID of the stream to make the query for.
-    function getRatePerSecond(uint256 streamId) external view returns (uint128 ratePerSecond);
+    function getRatePerSecond(uint256 streamId) external view returns (UD21x18 ratePerSecond);
 
     /// @notice Retrieves the stream's recipient.
     /// @dev Reverts if `streamId` references a null stream.

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
@@ -48,7 +50,7 @@ contract Restart_Integration_Concrete_Test is Integration_Test {
         givenPaused
     {
         vm.expectRevert(Errors.SablierFlow_RatePerSecondZero.selector);
-        flow.restart({ streamId: defaultStreamId, ratePerSecond: 0 });
+        flow.restart({ streamId: defaultStreamId, ratePerSecond: ud21x18(0) });
     }
 
     function test_WhenNewRatePerSecondNotZero() external whenNoDelegateCall givenNotNull whenCallerSender givenPaused {
@@ -67,7 +69,7 @@ contract Restart_Integration_Concrete_Test is Integration_Test {
         assertFalse(isPaused);
 
         // It should update rate per second.
-        uint128 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
+        UD21x18 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         assertEq(actualRatePerSecond, RATE_PER_SECOND, "ratePerSecond");
 
         // It should update snapshot time.

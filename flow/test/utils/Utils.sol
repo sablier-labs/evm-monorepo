@@ -2,12 +2,11 @@
 pragma solidity >=0.8.22;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
 import { CommonBase } from "forge-std/src/Base.sol";
 import { SafeCastLib } from "solady/src/utils/SafeCastLib.sol";
-
 import { Helpers } from "src/libraries/Helpers.sol";
-
 import { Constants } from "./Constants.sol";
 
 abstract contract Utils is CommonBase, Constants, PRBMathUtils {
@@ -33,8 +32,8 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
     }
 
     /// @dev Bounds the rate per second between a realistic range.
-    function boundRatePerSecond(uint128 ratePerSecond) internal pure returns (uint128) {
-        return boundUint128(ratePerSecond, 0.00001e18, 10e18);
+    function boundRatePerSecond(UD21x18 ratePerSecond) internal pure returns (UD21x18) {
+        return ud21x18(boundUint128(ratePerSecond.unwrap(), 0.00001e18, 10e18));
     }
 
     /// @dev Bounds a `uint128` number.

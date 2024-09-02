@@ -58,8 +58,8 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
 
         // Assert that the refundable amount same as the deposited amount minus streamed amount.
         uint128 actualRefundableAmount = flow.refundableAmountOf(streamId);
-        uint128 expectedRefundableAmount =
-            depositedAmount - getDenormalizedAmount(flow.getRatePerSecond(streamId) * (timeJump - MAY_1_2024), decimals);
+        uint128 expectedRefundableAmount = depositedAmount
+            - getDenormalizedAmount(flow.getRatePerSecond(streamId).unwrap() * (timeJump - MAY_1_2024), decimals);
         assertEq(actualRefundableAmount, expectedRefundableAmount);
     }
 

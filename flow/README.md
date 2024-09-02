@@ -14,7 +14,7 @@ stream. The following struct defines a Flow stream:
 ```solidity
 struct Stream {
   uint128 balance;
-  uint128 ratePerSecond;
+  UD21x18 ratePerSecond;
   address sender;
   uint40 snapshotTime;
   bool isPaused;

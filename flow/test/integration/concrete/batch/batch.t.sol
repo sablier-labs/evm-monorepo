@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 
@@ -87,7 +88,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         depositDefaultAmount(defaultStreamIds[0]);
         depositDefaultAmount(defaultStreamIds[1]);
 
-        uint128 newRatePerSecond = RATE_PER_SECOND + 1;
+        UD21x18 newRatePerSecond = ud21x18(RATE_PER_SECOND.unwrap() + 1);
 
         bytes[] memory calls = new bytes[](2);
         calls[0] = abi.encodeCall(flow.adjustRatePerSecond, (defaultStreamIds[0], newRatePerSecond));

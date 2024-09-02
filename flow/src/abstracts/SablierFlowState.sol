@@ -5,6 +5,7 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierFlowNFTDescriptor } from "./../interfaces/ISablierFlowNFTDescriptor.sol";
@@ -100,7 +101,7 @@ abstract contract SablierFlowState is
         view
         override
         notNull(streamId)
-        returns (uint128 ratePerSecond)
+        returns (UD21x18 ratePerSecond)
     {
         ratePerSecond = _streams[streamId].ratePerSecond;
     }

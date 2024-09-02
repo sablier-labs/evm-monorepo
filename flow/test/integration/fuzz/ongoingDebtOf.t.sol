@@ -90,7 +90,7 @@ contract OngoingDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Assert that total debt is zero.
         uint128 actualOngoingDebt = flow.ongoingDebtOf(streamId);
         uint128 expectedOngoingDebt =
-            getDenormalizedAmount(flow.getRatePerSecond(streamId) * (warpTimestamp - MAY_1_2024), decimals);
+            getDenormalizedAmount(flow.getRatePerSecond(streamId).unwrap() * (warpTimestamp - MAY_1_2024), decimals);
         assertEq(actualOngoingDebt, expectedOngoingDebt, "ongoing debt");
     }
 }

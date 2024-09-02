@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Flow } from "src/types/DataTypes.sol";
@@ -48,7 +49,7 @@ abstract contract Integration_Test is Base_Test {
         return createDefaultStream(RATE_PER_SECOND, token_);
     }
 
-    function createDefaultStream(uint128 ratePerSecond, IERC20 token_) internal returns (uint256) {
+    function createDefaultStream(UD21x18 ratePerSecond, IERC20 token_) internal returns (uint256) {
         return flow.create({
             sender: users.sender,
             recipient: users.recipient,
@@ -63,8 +64,8 @@ abstract contract Integration_Test is Base_Test {
         token = createToken(decimals);
 
         // Hash the next stream ID and the decimal to generate a seed.
-        uint256 ratePerSecondSeed = uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals)));
-        uint128 ratePerSecond = boundRatePerSecond(uint128(ratePerSecondSeed));
+        UD21x18 ratePerSecond =
+            boundRatePerSecond(ud21x18(uint128(uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals))))));
 
         // Create stream.
         streamId = createDefaultStream(ratePerSecond, token);
@@ -113,10 +114,10 @@ abstract contract Integration_Test is Base_Test {
     /// @dev Update the `snapshotTime` of a stream to the current block timestamp.
     function updateSnapshotTimeToBlockTimestamp(uint256 streamId) internal {
         resetPrank(users.sender);
-        uint128 ratePerSecond = flow.getRatePerSecond(streamId);
+        UD21x18 ratePerSecond = flow.getRatePerSecond(streamId);
 
         // Updates the snapshot time via `adjustRatePerSecond`.
-        flow.adjustRatePerSecond(streamId, 1);
+        flow.adjustRatePerSecond(streamId, ud21x18(1));
 
         // Restores the rate per second.
         flow.adjustRatePerSecond(streamId, ratePerSecond);

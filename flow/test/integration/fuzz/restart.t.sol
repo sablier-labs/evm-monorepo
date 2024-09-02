@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
 contract Restart_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
@@ -15,7 +17,7 @@ contract Restart_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// - Multiple points in time.
     function testFuzz_Restart(
         uint256 streamId,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         uint40 timeJump,
         uint8 decimals
     )
@@ -25,7 +27,7 @@ contract Restart_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
-        ratePerSecond = boundUint128(ratePerSecond, 1, UINT128_MAX);
+        ratePerSecond = ud21x18(boundUint128(ratePerSecond.unwrap(), 1, UINT128_MAX));
 
         // Pause the stream.
         flow.pause(streamId);
@@ -52,7 +54,7 @@ contract Restart_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         assertFalse(flow.isPaused(streamId), "isPaused");
 
         // It should update rate per second.
-        uint128 actualRatePerSecond = flow.getRatePerSecond(streamId);
+        UD21x18 actualRatePerSecond = flow.getRatePerSecond(streamId);
         assertEq(actualRatePerSecond, ratePerSecond, "ratePerSecond");
 
         // It should update snapshot time.

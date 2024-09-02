@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "5.0.2",
-    "@prb/math": "4.0.3"
+    "@prb/math": "github:PaulRBerg/prb-math/#95f00b2"
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std#v1.8.2",

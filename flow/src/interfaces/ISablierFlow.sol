@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Broker, Flow } from "./../types/DataTypes.sol";
 import { ISablierFlowState } from "./ISablierFlowState.sol";
@@ -18,24 +19,27 @@ interface ISablierFlow is
     /// @notice Emitted when the payment rate per second is updated by the sender.
     /// @param streamId The ID of the stream.
     /// @param totalDebt The total debt at the time of the update, denoted in token's decimals.
-    /// @param oldRatePerSecond The old payment rate per second, denoted in 18 decimals.
-    /// @param newRatePerSecond The new payment rate per second, denoted in 18 decimals.
+    /// @param oldRatePerSecond The old payment rate per second, denoted as a fixed-point number where 1e18 is 1 token
+    /// per second.
+    /// @param newRatePerSecond The new payment rate per second, denoted as a fixed-point number where 1e18 is 1 token
+    /// per second.
     event AdjustFlowStream(
-        uint256 indexed streamId, uint128 totalDebt, uint128 oldRatePerSecond, uint128 newRatePerSecond
+        uint256 indexed streamId, uint128 totalDebt, UD21x18 oldRatePerSecond, UD21x18 newRatePerSecond
     );
 
     /// @notice Emitted when a Flow stream is created.
     /// @param streamId The ID of the newly created stream.
     /// @param sender The address streaming the tokens, which is able to adjust and pause the stream.
     /// @param recipient The address receiving the tokens, as well as the NFT owner.
-    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
+    /// where 1e18 is 1 token per second.
     /// @param token The contract address of the ERC-20 token to be streamed.
     /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
     event CreateFlowStream(
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         IERC20 indexed token,
         bool transferable
     );
@@ -64,8 +68,9 @@ interface ISablierFlow is
     /// @notice Emitted when a stream is restarted by the sender.
     /// @param streamId The ID of the stream.
     /// @param sender The address of the stream's sender.
-    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
-    event RestartFlowStream(uint256 indexed streamId, address indexed sender, uint128 ratePerSecond);
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
+    /// where 1e18 is 1 token per second.
+    event RestartFlowStream(uint256 indexed streamId, address indexed sender, UD21x18 ratePerSecond);
 
     /// @notice Emitted when a stream is voided by the sender, recipient or an approved operator.
     /// @param streamId The ID of the stream.
@@ -164,8 +169,9 @@ interface ISablierFlow is
     /// - `newRatePerSecond` must be greater than zero and not equal to the current rate per second.
     ///
     /// @param streamId The ID of the stream to adjust.
-    /// @param newRatePerSecond The new payment rate per second, denoted in 18 decimals.
-    function adjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) external;
+    /// @param newRatePerSecond The new payment rate per second, denoted as a fixed-point number where 1e18 is 1 token
+    /// per second.
+    function adjustRatePerSecond(uint256 streamId, UD21x18 newRatePerSecond) external;
 
     /// @notice Creates a new Flow stream by setting the snapshot time to `block.timestamp` and leaving the balance to
     /// zero. The stream is wrapped in an ERC-721 NFT.
@@ -182,7 +188,8 @@ interface ISablierFlow is
     /// @param sender The address streaming the tokens, which is able to adjust and pause the stream. It doesn't
     /// have to be the same as `msg.sender`.
     /// @param recipient The address receiving the tokens.
-    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
+    /// where 1e18 is 1 token per second.
     /// @param token The contract address of the ERC-20 token to be streamed.
     /// @param transferable Boolean indicating if the stream NFT is transferable.
     ///
@@ -190,7 +197,7 @@ interface ISablierFlow is
     function create(
         address sender,
         address recipient,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         IERC20 token,
         bool transferable
     )
@@ -210,7 +217,8 @@ interface ISablierFlow is
     ///
     /// @param sender The address streaming the tokens. It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address receiving the tokens.
-    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
+    /// where 1e18 is 1 token per second.
     /// @param token The contract address of the ERC-20 token to be streamed.
     /// @param transferable Boolean indicating if the stream NFT is transferable.
     /// @param amount The deposit amount, denoted in token's decimals.
@@ -219,7 +227,7 @@ interface ISablierFlow is
     function createAndDeposit(
         address sender,
         address recipient,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         IERC20 token,
         bool transferable,
         uint128 amount
@@ -240,7 +248,8 @@ interface ISablierFlow is
     ///
     /// @param sender The address streaming the tokens. It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address receiving the tokens.
-    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
+    /// where 1e18 is 1 token per second.
     /// @param token The contract address of the ERC-20 token to be streamed.
     /// @param transferable Boolean indicating if the stream NFT is transferable.
     /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the token's
@@ -253,7 +262,7 @@ interface ISablierFlow is
     function createAndDepositViaBroker(
         address sender,
         address recipient,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         IERC20 token,
         bool transferable,
         uint128 totalAmount,
@@ -369,8 +378,9 @@ interface ISablierFlow is
     /// - `ratePerSecond` must be greater than zero.
     ///
     /// @param streamId The ID of the stream to restart.
-    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
-    function restart(uint256 streamId, uint128 ratePerSecond) external;
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
+    /// where 1e18 is 1 token per second.
+    function restart(uint256 streamId, UD21x18 ratePerSecond) external;
 
     /// @notice Restarts the stream with the provided rate per second, and makes a deposit.
     ///
@@ -384,9 +394,10 @@ interface ISablierFlow is
     /// - Refer to the requirements in {restart}.
     ///
     /// @param streamId The ID of the stream to restart.
-    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted in 18 decimals.
+    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
+    /// where 1e18 is 1 token per second.
     /// @param amount The deposit amount, denoted in token's decimals.
-    function restartAndDeposit(uint256 streamId, uint128 ratePerSecond, uint128 amount) external;
+    function restartAndDeposit(uint256 streamId, UD21x18 ratePerSecond, uint128 amount) external;
 
     /// @notice Voids the uncovered debt, and pauses the stream.
     ///

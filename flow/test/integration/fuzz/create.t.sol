@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
 contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
@@ -17,7 +19,7 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     function testFuzz_Create(
         address recipient,
         address sender,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         uint8 decimals,
         bool transferable
     )
@@ -28,7 +30,7 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.assume(sender != address(0) && recipient != address(0));
 
         // Bound the variables.
-        ratePerSecond = boundUint128(ratePerSecond, 1, UINT128_MAX - 1);
+        ratePerSecond = ud21x18(boundUint128(ratePerSecond.unwrap(), 1, UINT128_MAX - 1));
         decimals = boundUint8(decimals, 0, 18);
 
         // Create a new token.

@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 /// @notice Struct encapsulating the broker parameters.
@@ -40,8 +41,9 @@ library Flow {
     ///
     /// @param balance The amount of tokens that are currently available in the stream, denoted in token's decimals.
     /// This is the sum of deposited amounts minus the sum of withdrawn amounts.
-    /// @param ratePerSecond The payment rate per second, denoted in 18 decimals. For example, to stream 1000 tokens per
-    /// week, this parameter would have the value $(1000 * 10^18) / (7 days in seconds)$.
+    /// @param ratePerSecond The payment rate per second, denoted as a fixed-point number where 1e18 is 1 token per
+    /// second. For example, to stream 1000 tokens per week, this parameter would have the value $(1000 * 10^18) / (7
+    /// days in seconds)$.
     /// @param sender The address streaming the tokens, with the ability to pause the stream.
     /// @param snapshotTime The Unix timestamp used for the ongoing debt calculation.
     /// @param isPaused Boolean indicating if the stream is paused.
@@ -55,7 +57,7 @@ library Flow {
     struct Stream {
         // slot 0
         uint128 balance;
-        uint128 ratePerSecond;
+        UD21x18 ratePerSecond;
         // slot 1
         address sender;
         uint40 snapshotTime;

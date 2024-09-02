@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
@@ -14,7 +16,7 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
     /// - Multiple points in time to adjust the rate per second.
     function testFuzz_RevertGiven_Paused(
         uint256 streamId,
-        uint128 newRatePerSecond,
+        UD21x18 newRatePerSecond,
         uint40 timeJump,
         uint8 decimals
     )
@@ -24,7 +26,7 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
     {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
-        newRatePerSecond = boundUint128(newRatePerSecond, 1, UINT128_MAX);
+        newRatePerSecond = ud21x18(boundUint128(newRatePerSecond.unwrap(), 1, UINT128_MAX));
 
         // Make the stream paused.
         flow.pause(streamId);
@@ -52,7 +54,7 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
     /// - Multiple points in time to adjust the rate per second.
     function testFuzz_AdjustRatePerSecond(
         uint256 streamId,
-        uint128 newRatePerSecond,
+        UD21x18 newRatePerSecond,
         uint40 timeJump,
         uint8 decimals
     )
@@ -63,7 +65,7 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
     {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
-        newRatePerSecond = boundUint128(newRatePerSecond, 1, UINT128_MAX);
+        newRatePerSecond = ud21x18(boundUint128(newRatePerSecond.unwrap(), 1, UINT128_MAX));
 
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
@@ -71,8 +73,8 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
-        uint128 currentRatePerSecond = flow.getRatePerSecond(streamId);
-        if (newRatePerSecond == currentRatePerSecond) {
+        UD21x18 currentRatePerSecond = flow.getRatePerSecond(streamId);
+        if (newRatePerSecond.unwrap() == currentRatePerSecond.unwrap()) {
             // Expect the relevant error.
             vm.expectRevert(
                 abi.encodeWithSelector(

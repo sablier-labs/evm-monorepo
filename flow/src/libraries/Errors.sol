@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 /// @title Errors
@@ -46,7 +47,7 @@ library Errors {
     error SablierFlow_Null(uint256 streamId);
 
     /// @notice Thrown when trying to change the rate per second with the same rate per second.
-    error SablierFlow_RatePerSecondNotDifferent(uint256 streamId, uint128 ratePerSecond);
+    error SablierFlow_RatePerSecondNotDifferent(uint256 streamId, UD21x18 ratePerSecond);
 
     /// @notice Thrown when trying to set the rate per second of a stream to zero.
     error SablierFlow_RatePerSecondZero();

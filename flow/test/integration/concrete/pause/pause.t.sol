@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
+
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract Pause_Integration_Concrete_Test is Integration_Test {
@@ -81,7 +83,7 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
         assertTrue(flow.isPaused(defaultStreamId), "is paused");
 
         // It should set the rate per second to zero.
-        uint256 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
+        UD21x18 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         assertEq(actualRatePerSecond, 0, "rate per second");
 
         // It should update the snapshot debt.

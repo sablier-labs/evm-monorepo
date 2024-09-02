@@ -160,7 +160,7 @@ contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint256 tokenBalance = token.balanceOf(address(flow));
         uint128 totalDebt = flow.getSnapshotDebt(streamId)
             + getDenormalizedAmount({
-                amount: flow.getRatePerSecond(streamId) * (withdrawTime - flow.getSnapshotTime(streamId)),
+                amount: flow.getRatePerSecond(streamId).unwrap() * (withdrawTime - flow.getSnapshotTime(streamId)),
                 decimals: flow.getTokenDecimals(streamId)
             });
         uint128 streamBalance = flow.getBalance(streamId);
@@ -185,7 +185,7 @@ contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // It should decrease the full total debt by withdrawn value.
         uint128 actualTotalDebt = flow.getSnapshotDebt(streamId)
             + getDenormalizedAmount({
-                amount: flow.getRatePerSecond(streamId) * (withdrawTime - flow.getSnapshotTime(streamId)),
+                amount: flow.getRatePerSecond(streamId).unwrap() * (withdrawTime - flow.getSnapshotTime(streamId)),
                 decimals: flow.getTokenDecimals(streamId)
             });
         uint128 expectedTotalDebt = totalDebt - withdrawAmount;

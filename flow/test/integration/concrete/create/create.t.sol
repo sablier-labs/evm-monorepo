@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ud21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Flow } from "src/types/DataTypes.sol";
@@ -33,7 +34,7 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         flow.create({
             sender: users.sender,
             recipient: users.recipient,
-            ratePerSecond: 0,
+            ratePerSecond: ud21x18(0),
             token: dai,
             transferable: TRANSFERABLE
         });

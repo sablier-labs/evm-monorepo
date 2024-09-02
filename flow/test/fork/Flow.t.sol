@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Flow } from "src/types/DataTypes.sol";
 
@@ -29,7 +30,7 @@ contract Flow_Fork_Test is Fork_Test {
         // Create params
         address recipient;
         address sender;
-        uint128 ratePerSecond;
+        UD21x18 ratePerSecond;
         bool transferable;
         // Amounts
         uint128 depositAmount;
@@ -84,8 +85,9 @@ contract Flow_Fork_Test is Fork_Test {
             // Create unique values by hashing the fuzzed params with index.
             params.recipient = makeAddr(vm.toString(abi.encodePacked(params.recipient, i)));
             params.sender = makeAddr(vm.toString(abi.encodePacked(params.sender, i)));
-            params.ratePerSecond =
-                boundRatePerSecond(uint128(uint256(keccak256(abi.encodePacked(params.ratePerSecond, i)))));
+            params.ratePerSecond = boundRatePerSecond(
+                ud21x18(uint128(uint256(keccak256(abi.encodePacked(params.ratePerSecond.unwrap(), i)))))
+            );
 
             // Make sure that fuzzed users don't overlap with Flow address.
             checkUsers(params.recipient, params.sender);
@@ -133,7 +135,7 @@ contract Flow_Fork_Test is Fork_Test {
     function _executeFunc(
         FlowFunc flowFunc,
         uint256 streamId,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         uint128 depositAmount,
         uint128 refundAmount,
         uint40 withdrawAtTime
@@ -173,17 +175,19 @@ contract Flow_Fork_Test is Fork_Test {
                                ADJUST-RATE-PER-SECOND
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _test_AdjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) private {
+    function _test_AdjustRatePerSecond(uint256 streamId, UD21x18 newRatePerSecond) private {
         // Create unique values by hashing the fuzzed params with index.
-        newRatePerSecond = boundRatePerSecond(uint128(uint256(keccak256(abi.encodePacked(newRatePerSecond, streamId)))));
+        newRatePerSecond = boundRatePerSecond(
+            ud21x18(uint128(uint256(keccak256(abi.encodePacked(newRatePerSecond.unwrap(), streamId)))))
+        );
 
         // Make sure the requirements are respected.
         resetPrank({ msgSender: flow.getSender(streamId) });
         if (flow.isPaused(streamId)) {
             flow.restart(streamId, RATE_PER_SECOND);
         }
-        if (newRatePerSecond == flow.getRatePerSecond(streamId)) {
-            newRatePerSecond += 1;
+        if (newRatePerSecond.unwrap() == flow.getRatePerSecond(streamId).unwrap()) {
+            newRatePerSecond = ud21x18(newRatePerSecond.unwrap() + 1);
         }
 
         uint128 beforeSnapshotAmount = flow.getSnapshotDebt(streamId);
@@ -210,8 +214,8 @@ contract Flow_Fork_Test is Fork_Test {
         assertEq(actualSnapshotDebt, expectedSnapshotDebt, "snapshot debt");
 
         // It should set the new rate per second
-        uint128 actualRatePerSecond = flow.getRatePerSecond(streamId);
-        uint128 expectedRatePerSecond = newRatePerSecond;
+        UD21x18 actualRatePerSecond = flow.getRatePerSecond(streamId);
+        UD21x18 expectedRatePerSecond = newRatePerSecond;
         assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
 
         // It should update snapshot time
@@ -224,7 +228,7 @@ contract Flow_Fork_Test is Fork_Test {
                                        CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _test_Create(address recipient, address sender, uint128 ratePerSecond, bool transferable) private {
+    function _test_Create(address recipient, address sender, UD21x18 ratePerSecond, bool transferable) private {
         uint256 expectedStreamId = flow.nextStreamId();
 
         vm.expectEmit({ emitter: address(flow) });
@@ -289,8 +293,9 @@ contract Flow_Fork_Test is Fork_Test {
         uint256 initialTokenBalance = token.balanceOf(address(flow));
         uint128 initialStreamBalance = flow.getBalance(streamId);
 
-        uint128 depositAmountSeed = uint128(uint256(keccak256(abi.encodePacked(depositAmount, streamId))));
-        depositAmount = boundDepositAmount(depositAmountSeed, initialStreamBalance, tokenDecimals);
+        depositAmount = boundDepositAmount(
+            uint128(uint256(keccak256(abi.encodePacked(depositAmount, streamId)))), initialStreamBalance, tokenDecimals
+        );
 
         address sender = flow.getSender(streamId);
         resetPrank({ msgSender: sender });
@@ -407,7 +412,7 @@ contract Flow_Fork_Test is Fork_Test {
                                       RESTART
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _test_Restart(uint256 streamId, uint128 ratePerSecond) private {
+    function _test_Restart(uint256 streamId, UD21x18 ratePerSecond) private {
         // Make sure the requirements are respected.
         address sender = flow.getSender(streamId);
         resetPrank({ msgSender: sender });
@@ -415,8 +420,8 @@ contract Flow_Fork_Test is Fork_Test {
             flow.pause(streamId);
         }
 
-        uint256 ratePerSecondSeed = uint256(keccak256(abi.encodePacked(ratePerSecond, streamId)));
-        ratePerSecond = boundRatePerSecond(uint128(ratePerSecondSeed));
+        ratePerSecond =
+            boundRatePerSecond(ud21x18(uint128(uint256(keccak256(abi.encodePacked(ratePerSecond.unwrap(), streamId))))));
 
         // It should emit 1 {RestartFlowStream}, 1 {MetadataUpdate} event.
         vm.expectEmit({ emitter: address(flow) });
@@ -431,7 +436,7 @@ contract Flow_Fork_Test is Fork_Test {
         assertFalse(flow.isPaused(streamId));
 
         // It should update rate per second.
-        uint128 actualRatePerSecond = flow.getRatePerSecond(streamId);
+        UD21x18 actualRatePerSecond = flow.getRatePerSecond(streamId);
         assertEq(actualRatePerSecond, ratePerSecond, "ratePerSecond");
 
         // It should update snapshot time.
@@ -504,8 +509,11 @@ contract Flow_Fork_Test is Fork_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _test_WithdrawAt(uint256 streamId, uint40 withdrawTime) private {
-        uint256 withdrawTimeSeed = uint256(keccak256(abi.encodePacked(withdrawTime, streamId)));
-        withdrawTime = boundUint40(uint40(withdrawTimeSeed), flow.getSnapshotTime(streamId), getBlockTimestamp());
+        withdrawTime = boundUint40(
+            uint40(uint256(keccak256(abi.encodePacked(withdrawTime, streamId)))),
+            flow.getSnapshotTime(streamId),
+            getBlockTimestamp()
+        );
 
         uint8 tokenDecimals = flow.getTokenDecimals(streamId);
 
@@ -518,7 +526,7 @@ contract Flow_Fork_Test is Fork_Test {
 
         uint128 totalDebt = flow.getSnapshotDebt(streamId)
             + getDenormalizedAmount(
-                flow.getRatePerSecond(streamId) * (withdrawTime - flow.getSnapshotTime(streamId)),
+                flow.getRatePerSecond(streamId).unwrap() * (withdrawTime - flow.getSnapshotTime(streamId)),
                 flow.getTokenDecimals(streamId)
             );
         uint128 withdrawAmount = streamBalance < totalDebt ? streamBalance : totalDebt;
@@ -554,7 +562,7 @@ contract Flow_Fork_Test is Fork_Test {
         // It should decrease the total debt by withdrawn amount.
         uint128 actualTotalDebt = flow.getSnapshotDebt(streamId)
             + getDenormalizedAmount(
-                flow.getRatePerSecond(streamId) * (withdrawTime - flow.getSnapshotTime(streamId)),
+                flow.getRatePerSecond(streamId).unwrap() * (withdrawTime - flow.getSnapshotTime(streamId)),
                 flow.getTokenDecimals(streamId)
             );
         uint128 expectedTotalDebt = totalDebt - withdrawAmount;

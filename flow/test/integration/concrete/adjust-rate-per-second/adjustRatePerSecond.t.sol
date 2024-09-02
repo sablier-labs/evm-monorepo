@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
-
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "./../../Integration.t.sol";
 
 contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_DelegateCall() external {
@@ -51,7 +51,7 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
         whenCallerSender
     {
         vm.expectRevert(Errors.SablierFlow_RatePerSecondZero.selector);
-        flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: 0 });
+        flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: ud21x18(0) });
     }
 
     function test_RevertWhen_NewRatePerSecondEqualsCurrentRatePerSecond()
@@ -80,8 +80,8 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
     {
         flow.deposit(defaultStreamId, DEPOSIT_AMOUNT_6D);
 
-        uint128 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
-        uint128 expectedRatePerSecond = RATE_PER_SECOND;
+        UD21x18 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
+        UD21x18 expectedRatePerSecond = RATE_PER_SECOND;
         assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
 
         uint40 actualSnapshotTime = flow.getSnapshotTime(defaultStreamId);
@@ -92,7 +92,7 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
         uint128 expectedSnapshotDebt = 0;
         assertEq(actualSnapshotDebt, expectedSnapshotDebt, "snapshot debt");
 
-        uint128 newRatePerSecond = RATE_PER_SECOND / 2;
+        UD21x18 newRatePerSecond = ud21x18(RATE_PER_SECOND.unwrap() / 2);
 
         // It should emit 1 {AdjustFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });

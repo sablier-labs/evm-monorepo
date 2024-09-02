@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlowNFTDescriptor } from "../../src/interfaces/ISablierFlowNFTDescriptor.sol";
 
@@ -33,14 +34,14 @@ abstract contract Events {
     //////////////////////////////////////////////////////////////////////////*/
 
     event AdjustFlowStream(
-        uint256 indexed streamId, uint128 totalDebt, uint128 oldRatePerSecond, uint128 newRatePerSecond
+        uint256 indexed streamId, uint128 totalDebt, UD21x18 oldRatePerSecond, UD21x18 newRatePerSecond
     );
 
     event CreateFlowStream(
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
-        uint128 ratePerSecond,
+        UD21x18 ratePerSecond,
         IERC20 indexed token,
         bool transferable
     );
@@ -53,7 +54,7 @@ abstract contract Events {
 
     event RefundFromFlowStream(uint256 indexed streamId, address indexed sender, uint128 amount);
 
-    event RestartFlowStream(uint256 indexed streamId, address indexed sender, uint128 ratePerSecond);
+    event RestartFlowStream(uint256 indexed streamId, address indexed sender, UD21x18 ratePerSecond);
 
     event VoidFlowStream(
         uint256 indexed streamId,

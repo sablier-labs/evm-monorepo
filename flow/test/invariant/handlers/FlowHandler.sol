@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
@@ -71,7 +72,7 @@ contract FlowHandler is BaseHandler {
     function adjustRatePerSecond(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        uint128 newRatePerSecond
+        UD21x18 newRatePerSecond
     )
         external
         instrument("adjustRatePerSecond")
@@ -87,8 +88,8 @@ contract FlowHandler is BaseHandler {
         newRatePerSecond = boundRatePerSecond(newRatePerSecond);
 
         // The rate per second must be different from the current rate per second.
-        if (newRatePerSecond == flow.getRatePerSecond(currentStreamId)) {
-            newRatePerSecond += 1;
+        if (newRatePerSecond.unwrap() == flow.getRatePerSecond(currentStreamId).unwrap()) {
+            newRatePerSecond = ud21x18(newRatePerSecond.unwrap() + 1);
         }
 
         // Adjust the rate per second.
@@ -179,7 +180,7 @@ contract FlowHandler is BaseHandler {
     function restart(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        uint128 ratePerSecond
+        UD21x18 ratePerSecond
     )
         external
         instrument("restart")
@@ -192,7 +193,7 @@ contract FlowHandler is BaseHandler {
         vm.assume(flow.isPaused(currentStreamId));
 
         // Bound the stream parameter.
-        ratePerSecond = uint128(_bound(ratePerSecond, 0.0001e18, 1e18));
+        ratePerSecond = boundRatePerSecond(ratePerSecond);
 
         // Restart the stream.
         flow.restart(currentStreamId, ratePerSecond);
@@ -251,7 +252,7 @@ contract FlowHandler is BaseHandler {
         // with `block.timestamp` as the time reference.
         uint128 totalDebt = flow.getSnapshotDebt(currentStreamId)
             + getDenormalizedAmount({
-                amount: flow.getRatePerSecond(currentStreamId) * (time - flow.getSnapshotTime(currentStreamId)),
+                amount: flow.getRatePerSecond(currentStreamId).unwrap() * (time - flow.getSnapshotTime(currentStreamId)),
                 decimals: flow.getTokenDecimals(currentStreamId)
             });
         uint128 uncoveredDebt = initialBalance < totalDebt ? totalDebt - initialBalance : 0;

@@ -24,7 +24,7 @@ contract DepletionTimeOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Calculate the solvency period based on the stream deposit.
         uint40 solvencyPeriod =
-            uint40(getNormalizedAmount(flow.getBalance(streamId), decimals) / flow.getRatePerSecond(streamId));
+            uint40(getNormalizedAmount(flow.getBalance(streamId), decimals) / flow.getRatePerSecond(streamId).unwrap());
 
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);

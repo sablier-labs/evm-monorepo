@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 abstract contract Constants {
@@ -28,7 +29,7 @@ abstract contract Constants {
     // Time
     uint40 internal constant MAY_1_2024 = 1_714_518_000;
     uint40 internal constant ONE_MONTH = 30 days; // "30/360" convention
-    uint40 internal constant SOLVENCY_PERIOD = uint40(DEPOSIT_AMOUNT_18D / RATE_PER_SECOND); // 578 days
+    uint40 internal constant SOLVENCY_PERIOD = uint40(DEPOSIT_AMOUNT_18D / RATE_PER_SECOND_U128); // 578 days
     uint40 internal constant WARP_ONE_MONTH = MAY_1_2024 + ONE_MONTH;
     uint40 internal constant WARP_SOLVENCY_PERIOD = MAY_1_2024 + SOLVENCY_PERIOD;
     uint40 internal constant WITHDRAW_TIME = MAY_1_2024 + 2_500_000;
@@ -40,5 +41,6 @@ abstract contract Constants {
     // Misc
     uint8 internal constant DECIMALS = 6;
     bool internal constant TRANSFERABLE = true;
-    uint128 internal constant RATE_PER_SECOND = 0.001e18; // 86.4 daily
+    UD21x18 internal constant RATE_PER_SECOND = UD21x18.wrap(0.001e18); // 86.4 daily
+    uint128 internal constant RATE_PER_SECOND_U128 = 0.001e18; // 86.4 daily
 }

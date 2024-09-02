@@ -118,7 +118,7 @@ contract Flow_Invariant_Test is Base_Test {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
-            if (flow.getRatePerSecond(streamId) > 0 && flowHandler.calls("deposit") == 0) {
+            if (flow.getRatePerSecond(streamId).unwrap() > 0 && flowHandler.calls("deposit") == 0) {
                 assertGe(
                     flow.uncoveredDebtOf(streamId),
                     flowHandler.previousUncoveredDebtOf(streamId),
@@ -203,7 +203,7 @@ contract Flow_Invariant_Test is Base_Test {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
-            if (flow.getRatePerSecond(streamId) != 0 && flowHandler.calls("withdrawAt") == 0) {
+            if (flow.getRatePerSecond(streamId).unwrap() != 0 && flowHandler.calls("withdrawAt") == 0) {
                 assertGe(
                     flow.totalDebtOf(streamId),
                     flowHandler.previousTotalDebtOf(streamId),
@@ -233,7 +233,7 @@ contract Flow_Invariant_Test is Base_Test {
             uint256 streamId = flowStore.streamIds(i);
             if (flow.isPaused(streamId)) {
                 assertEq(
-                    flow.getRatePerSecond(streamId),
+                    flow.getRatePerSecond(streamId).unwrap(),
                     0,
                     "Invariant violation: paused stream with a non-zero rate per second"
                 );

@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -62,7 +63,7 @@ contract RestartAndDeposit_Integration_Concrete_Test is Integration_Test {
         assertFalse(isPaused);
 
         // It should update the rate per second.
-        uint128 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
+        UD21x18 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         assertEq(actualRatePerSecond, RATE_PER_SECOND, "ratePerSecond");
 
         // It should update snapshot time.
