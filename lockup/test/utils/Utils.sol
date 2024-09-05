@@ -24,9 +24,7 @@ abstract contract Utils is CommonBase, PRBMathUtils {
     }
 
     /// @dev Turns the segments with durations into canonical segments, which have timestamps.
-    function getSegmentsWithTimestamps(
-        LockupDynamic.SegmentWithDuration[] memory segments
-    )
+    function getSegmentsWithTimestamps(LockupDynamic.SegmentWithDuration[] memory segments)
         internal
         view
         returns (LockupDynamic.Segment[] memory segmentsWithTimestamps)
@@ -49,9 +47,7 @@ abstract contract Utils is CommonBase, PRBMathUtils {
     }
 
     /// @dev Turns the tranches with durations into canonical tranches, which have timestamps.
-    function getTranchesWithTimestamps(
-        LockupTranched.TrancheWithDuration[] memory tranches
-    )
+    function getTranchesWithTimestamps(LockupTranched.TrancheWithDuration[] memory tranches)
         internal
         view
         returns (LockupTranched.Tranche[] memory tranchesWithTimestamps)

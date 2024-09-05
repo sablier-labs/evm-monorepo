@@ -80,9 +80,7 @@ abstract contract SablierLockup is
     }
 
     /// @inheritdoc ISablierLockup
-    function getDepositedAmount(
-        uint256 streamId
-    )
+    function getDepositedAmount(uint256 streamId)
         external
         view
         override
@@ -104,9 +102,7 @@ abstract contract SablierLockup is
     }
 
     /// @inheritdoc ISablierLockup
-    function getRefundedAmount(
-        uint256 streamId
-    )
+    function getRefundedAmount(uint256 streamId)
         external
         view
         override
@@ -127,9 +123,7 @@ abstract contract SablierLockup is
     }
 
     /// @inheritdoc ISablierLockup
-    function getWithdrawnAmount(
-        uint256 streamId
-    )
+    function getWithdrawnAmount(uint256 streamId)
         external
         view
         override
@@ -179,9 +173,7 @@ abstract contract SablierLockup is
     }
 
     /// @inheritdoc ISablierLockup
-    function refundableAmountOf(
-        uint256 streamId
-    )
+    function refundableAmountOf(uint256 streamId)
         external
         view
         override
@@ -203,9 +195,7 @@ abstract contract SablierLockup is
     }
 
     /// @inheritdoc ISablierLockup
-    function streamedAmountOf(
-        uint256 streamId
-    )
+    function streamedAmountOf(uint256 streamId)
         public
         view
         override
@@ -236,9 +226,7 @@ abstract contract SablierLockup is
     }
 
     /// @inheritdoc ISablierLockup
-    function withdrawableAmountOf(
-        uint256 streamId
-    )
+    function withdrawableAmountOf(uint256 streamId)
         external
         view
         override

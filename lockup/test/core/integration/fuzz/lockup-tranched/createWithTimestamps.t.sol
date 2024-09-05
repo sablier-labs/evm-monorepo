@@ -23,9 +23,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         CreateWithTimestamps_Integration_Shared_Test.setUp();
     }
 
-    function testFuzz_RevertWhen_TrancheCountTooHigh(
-        uint256 trancheCount
-    )
+    function testFuzz_RevertWhen_TrancheCountTooHigh(uint256 trancheCount)
         external
         whenNoDelegateCall
         whenSenderNotZeroAddress
@@ -61,9 +59,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         createDefaultStreamWithTranches(tranches);
     }
 
-    function testFuzz_RevertWhen_StartTimeNotLessThanFirstTrancheTimestamp(
-        uint40 firstTimestamp
-    )
+    function testFuzz_RevertWhen_StartTimeNotLessThanFirstTrancheTimestamp(uint40 firstTimestamp)
         external
         whenNoDelegateCall
         whenSenderNotZeroAddress
@@ -92,9 +88,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         createDefaultStreamWithTranches(tranches);
     }
 
-    function testFuzz_RevertWhen_DepositAmountNotEqualToTrancheAmountsSum(
-        uint128 depositDiff
-    )
+    function testFuzz_RevertWhen_DepositAmountNotEqualToTrancheAmountsSum(uint128 depositDiff)
         external
         whenNoDelegateCall
         whenSenderNotZeroAddress
@@ -131,9 +125,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         lockupTranched.createWithTimestamps(params);
     }
 
-    function testFuzz_RevertWhen_BrokerFeeTooHigh(
-        Broker memory broker
-    )
+    function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNoDelegateCall
         whenSenderNotZeroAddress

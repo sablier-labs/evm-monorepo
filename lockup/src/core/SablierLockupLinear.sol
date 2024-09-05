@@ -73,9 +73,7 @@ contract SablierLockupLinear is
     }
 
     /// @inheritdoc ISablierLockupLinear
-    function getStream(
-        uint256 streamId
-    )
+    function getStream(uint256 streamId)
         external
         view
         override
@@ -107,9 +105,7 @@ contract SablierLockupLinear is
     }
 
     /// @inheritdoc ISablierLockupLinear
-    function getTimestamps(
-        uint256 streamId
-    )
+    function getTimestamps(uint256 streamId)
         external
         view
         override
@@ -128,9 +124,7 @@ contract SablierLockupLinear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierLockupLinear
-    function createWithDurations(
-        LockupLinear.CreateWithDurations calldata params
-    )
+    function createWithDurations(LockupLinear.CreateWithDurations calldata params)
         external
         override
         noDelegateCall
@@ -166,9 +160,7 @@ contract SablierLockupLinear is
     }
 
     /// @inheritdoc ISablierLockupLinear
-    function createWithTimestamps(
-        LockupLinear.CreateWithTimestamps calldata params
-    )
+    function createWithTimestamps(LockupLinear.CreateWithTimestamps calldata params)
         external
         override
         noDelegateCall

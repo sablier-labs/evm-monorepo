@@ -128,9 +128,7 @@ contract SablierMerkleLT is
 
     /// @dev Calculates the start time, and the tranches based on the claim amount and the unlock percentages for each
     /// tranche.
-    function _calculateStartTimeAndTranches(
-        uint128 claimAmount
-    )
+    function _calculateStartTimeAndTranches(uint128 claimAmount)
         internal
         view
         returns (uint40 startTime, LockupTranched.Tranche[] memory tranches)

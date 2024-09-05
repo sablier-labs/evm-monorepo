@@ -23,9 +23,7 @@ contract SablierMerkleFactory is ISablierMerkleFactory {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleFactory
-    function isPercentagesSum100(
-        MerkleLT.TrancheWithPercentage[] calldata tranches
-    )
+    function isPercentagesSum100(MerkleLT.TrancheWithPercentage[] calldata tranches)
         external
         pure
         override

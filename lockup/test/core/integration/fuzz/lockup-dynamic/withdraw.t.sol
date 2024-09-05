@@ -40,9 +40,7 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         uint128 withdrawableAmount;
     }
 
-    function testFuzz_Withdraw_SegmentFuzing(
-        Params memory params
-    )
+    function testFuzz_Withdraw_SegmentFuzing(Params memory params)
         external
         whenNoDelegateCall
         givenNotNull

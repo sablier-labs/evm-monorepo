@@ -11,9 +11,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         Cancel_Integration_Shared_Test.setUp();
     }
 
-    function testFuzz_Cancel_StatusPending(
-        uint256 timeJump
-    )
+    function testFuzz_Cancel_StatusPending(uint256 timeJump)
         external
         whenNoDelegateCall
         givenNotNull

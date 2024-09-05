@@ -166,8 +166,9 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         if (leaves.length == 1) {
             // If there is only one leaf, the Merkle proof should be an empty array as no proof is needed because the
             // leaf is the root.
+        } else {
+            vars.merkleProof = getProof(leaves.toBytes32(), vars.leafPos);
         }
-        else vars.merkleProof = getProof(leaves.toBytes32(), vars.leafPos);
 
         vars.merkleLL.claim({
             index: vars.indexes[params.posBeforeSort],

@@ -22,9 +22,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
         resetPrank({ msgSender: users.sender });
     }
 
-    function testFuzz_StreamedAmountOf_CliffTimeInFuture(
-        uint40 timeJump
-    )
+    function testFuzz_StreamedAmountOf_CliffTimeInFuture(uint40 timeJump)
         external
         givenNotNull
         givenNotCanceledStream

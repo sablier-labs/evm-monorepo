@@ -19,9 +19,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         WithdrawableAmountOf_Integration_Shared_Test.setUp();
     }
 
-    function testFuzz_WithdrawableAmountOf_CliffTimeInFuture(
-        uint40 timeJump
-    )
+    function testFuzz_WithdrawableAmountOf_CliffTimeInFuture(uint40 timeJump)
         external
         givenNotNull
         givenNotCanceledStream

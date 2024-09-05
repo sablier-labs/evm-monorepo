@@ -13,9 +13,7 @@ import { BaseScript } from "./Base.s.sol";
 /// @notice Deploys the Lockup Protocol.
 contract DeployProtocol is BaseScript {
     /// @dev Deploy via Forge.
-    function run(
-        address initialAdmin
-    )
+    function run(address initialAdmin)
         public
         virtual
         broadcast
