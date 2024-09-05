@@ -26,10 +26,11 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ERC20Mock internal tokenWithoutDecimals = createToken("Token without Decimals", "TWD", 0);
-    ERC20Mock internal dai = createToken("Dai stablecoin", "DAI", 18);
-    ERC20Mock internal usdc = createToken("USD Coin", "USDC", 6);
-    ERC20MissingReturn internal usdt = new ERC20MissingReturn("USDT stablecoin", "USDT", 6);
+    ERC20Mock internal tokenWithoutDecimals;
+    ERC20Mock internal tokenWithProtocolFee;
+    ERC20Mock internal dai;
+    ERC20Mock internal usdc;
+    ERC20MissingReturn internal usdt;
 
     SablierFlow internal flow;
     SablierFlowNFTDescriptor internal nftDescriptor;
@@ -54,6 +55,10 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
         // Create new tokens and label them.
         createAndLabelTokens();
 
+        // Turn on the protocol fee for tokenWithProtocolFee.
+        resetPrank(users.admin);
+        flow.setProtocolFee(tokenWithProtocolFee, PROTOCOL_FEE);
+
         // Create the users.
         users.broker = createUser("broker");
         users.eve = createUser("eve");
@@ -75,12 +80,14 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
     function createAndLabelTokens() internal {
         // Deploy the tokens.
         tokenWithoutDecimals = createToken("Token without Decimals", "TWD", 0);
+        tokenWithProtocolFee = createToken("Token with Protocol Fee", "APF", 6);
         dai = createToken("Dai stablecoin", "DAI", 18);
         usdc = createToken("USD Coin", "USDC", 6);
         usdt = new ERC20MissingReturn("Tether", "USDT", 6);
 
         // Label the tokens.
         vm.label(address(tokenWithoutDecimals), "AWD");
+        vm.label(address(tokenWithProtocolFee), "APF");
         vm.label(address(dai), "DAI");
         vm.label(address(usdc), "USDC");
         vm.label(address(usdt), "USDT");
@@ -100,6 +107,7 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
         deal({ token: address(tokenWithoutDecimals), to: user, give: 1_000_000 });
+        deal({ token: address(tokenWithProtocolFee), to: user, give: 1_000_000e6 });
         deal({ token: address(dai), to: user, give: 1_000_000e18 });
         deal({ token: address(usdc), to: user, give: 1_000_000e6 });
         deal({ token: address(usdt), to: user, give: 1_000_000e6 });

@@ -3,37 +3,45 @@ pragma solidity >=0.8.22;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
-
+import { ISablierFlowBase } from "./../interfaces/ISablierFlowBase.sol";
 import { ISablierFlowNFTDescriptor } from "./../interfaces/ISablierFlowNFTDescriptor.sol";
-import { ISablierFlowState } from "./../interfaces/ISablierFlowState.sol";
 import { Errors } from "./../libraries/Errors.sol";
 import { Flow } from "./../types/DataTypes.sol";
 import { Adminable } from "./Adminable.sol";
 
-/// @title SablierFlowState
-/// @notice See the documentation in {ISablierFlowState}.
-abstract contract SablierFlowState is
+/// @title SablierFlowBase
+/// @notice See the documentation in {ISablierFlowBase}.
+abstract contract SablierFlowBase is
     Adminable, // 1 inherited component
     IERC4906, // 2 inherited components
-    ISablierFlowState, // 3 inherited component
+    ISablierFlowBase, // 3 inherited component
     ERC721 // 6 inherited components
 {
+    using SafeERC20 for IERC20;
+
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierFlowState
-    UD60x18 public constant override MAX_BROKER_FEE = UD60x18.wrap(0.1e18);
+    /// @inheritdoc ISablierFlowBase
+    UD60x18 public constant override MAX_FEE = UD60x18.wrap(0.1e18);
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     uint256 public override nextStreamId;
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     ISablierFlowNFTDescriptor public override nftDescriptor;
+
+    /// @inheritdoc ISablierFlowBase
+    mapping(IERC20 token => UD60x18 fee) public override protocolFee;
+
+    /// @inheritdoc ISablierFlowBase
+    mapping(IERC20 token => uint128 revenue) public override protocolRevenue;
 
     /// @dev Sablier Flow streams mapped by unsigned integers.
     mapping(uint256 id => Flow.Stream stream) internal _streams;
@@ -97,12 +105,12 @@ abstract contract SablierFlowState is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function getBalance(uint256 streamId) external view override notNull(streamId) returns (uint128 balance) {
         balance = _streams[streamId].balance;
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function getRatePerSecond(uint256 streamId)
         external
         view
@@ -113,17 +121,17 @@ abstract contract SablierFlowState is
         ratePerSecond = _streams[streamId].ratePerSecond;
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function getRecipient(uint256 streamId) external view override notNull(streamId) returns (address recipient) {
         recipient = _ownerOf(streamId);
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function getSender(uint256 streamId) external view override notNull(streamId) returns (address sender) {
         sender = _streams[streamId].sender;
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function getSnapshotDebt(uint256 streamId)
         external
         view
@@ -134,22 +142,22 @@ abstract contract SablierFlowState is
         snapshotDebt = _streams[streamId].snapshotDebt;
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function getSnapshotTime(uint256 streamId) external view override notNull(streamId) returns (uint40 snapshotTime) {
         snapshotTime = _streams[streamId].snapshotTime;
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function getStream(uint256 streamId) external view override notNull(streamId) returns (Flow.Stream memory stream) {
         stream = _streams[streamId];
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function getToken(uint256 streamId) external view override notNull(streamId) returns (IERC20 token) {
         token = _streams[streamId].token;
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function getTokenDecimals(uint256 streamId)
         external
         view
@@ -160,22 +168,22 @@ abstract contract SablierFlowState is
         tokenDecimals = _streams[streamId].tokenDecimals;
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function isPaused(uint256 streamId) external view override notNull(streamId) returns (bool result) {
         result = _streams[streamId].isPaused;
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function isStream(uint256 streamId) external view override returns (bool result) {
         result = _streams[streamId].isStream;
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function isTransferable(uint256 streamId) external view override returns (bool result) {
         result = _streams[streamId].isTransferable;
     }
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
     function isVoided(uint256 streamId) external view override notNull(streamId) returns (bool result) {
         result = _streams[streamId].isVoided;
     }
@@ -193,14 +201,32 @@ abstract contract SablierFlowState is
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierFlowState
+    /// @inheritdoc ISablierFlowBase
+    function collectProtocolRevenue(IERC20 token, address to) external override onlyAdmin {
+        uint128 revenue = protocolRevenue[token];
+
+        // Check: there is protocol revenue to collect.
+        if (revenue == 0) {
+            revert Errors.SablierFlowBase_NoProtocolRevenue(address(token));
+        }
+
+        // Effect: reset the protocol revenue.
+        protocolRevenue[token] = 0;
+
+        // Interaction: transfer the protocol revenue to the provided address.
+        token.safeTransfer({ to: to, value: revenue });
+
+        emit ISablierFlowBase.CollectProtocolRevenue({ admin: msg.sender, token: token, to: to, revenue: revenue });
+    }
+
+    /// @inheritdoc ISablierFlowBase
     function setNFTDescriptor(ISablierFlowNFTDescriptor newNFTDescriptor) external override onlyAdmin {
         // Effect: set the NFT descriptor.
         ISablierFlowNFTDescriptor oldNftDescriptor = nftDescriptor;
         nftDescriptor = newNFTDescriptor;
 
         // Log the change of the NFT descriptor.
-        emit ISablierFlowState.SetNFTDescriptor({
+        emit ISablierFlowBase.SetNFTDescriptor({
             admin: msg.sender,
             oldNFTDescriptor: oldNftDescriptor,
             newNFTDescriptor: newNFTDescriptor
@@ -208,6 +234,27 @@ abstract contract SablierFlowState is
 
         // Refresh the NFT metadata for all streams.
         emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
+    }
+
+    /// @inheritdoc ISablierFlowBase
+    function setProtocolFee(IERC20 token, UD60x18 newProtocolFee) external override onlyAdmin {
+        // Check: the new protocol fee is not greater than the maximum allowed.
+        if (newProtocolFee > MAX_FEE) {
+            revert Errors.SablierFlowBase_ProtocolFeeTooHigh(newProtocolFee, MAX_FEE);
+        }
+
+        UD60x18 oldProtocolFee = protocolFee[token];
+
+        // Effects: set the new protocol fee.
+        protocolFee[token] = newProtocolFee;
+
+        // Log the change of the protocol fee.
+        emit ISablierFlowBase.SetProtocolFee({
+            admin: msg.sender,
+            token: token,
+            oldProtocolFee: oldProtocolFee,
+            newProtocolFee: newProtocolFee
+        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -250,7 +297,7 @@ abstract contract SablierFlowState is
         address from = _ownerOf(streamId);
 
         if (from != address(0) && !_streams[streamId].isTransferable) {
-            revert Errors.SablierFlowState_NotTransferable(streamId);
+            revert Errors.SablierFlowBase_NotTransferable(streamId);
         }
 
         return super._update(to, streamId, auth);

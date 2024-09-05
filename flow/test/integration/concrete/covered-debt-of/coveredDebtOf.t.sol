@@ -29,7 +29,7 @@ contract CoveredDebtOf_Integration_Concrete_Test is Integration_Test {
         assertEq(coveredDebt, balance, "covered debt");
     }
 
-    function test_WhenTotalDebtDoesNotExceedBalance() external givenNotNull givenBalanceNotZero {
+    function test_WhenTotalDebtNotExceedBalance() external givenNotNull givenBalanceNotZero {
         // It should return the correct covered debt.
         uint128 coveredDebt = flow.coveredDebtOf(defaultStreamId);
         assertEq(coveredDebt, ONE_MONTH_DEBT_6D, "covered debt");

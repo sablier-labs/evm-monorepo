@@ -28,7 +28,7 @@ library Errors {
     error SablierFlow_BrokerAddressZero();
 
     /// @notice Thrown when trying to create a stream with a broker fee more than the allowed.
-    error SablierFlow_BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxBrokerFee);
+    error SablierFlow_BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxFee);
 
     /// @notice Thrown when trying to create a stream with a zero deposit amount.
     error SablierFlow_DepositAmountZero(uint256 streamId);
@@ -38,10 +38,6 @@ library Errors {
 
     /// @notice Thrown when an unexpected error occurs during the calculation of an amount.
     error SablierFlow_InvalidCalculation(uint256 streamId, uint128 availableAmount, uint128 amount);
-
-    /// @notice Thrown when trying to withdraw tokens with a withdrawal time not greater than or equal to
-    /// `snapshotTime`.
-    error SablierFlow_WithdrawTimeLessThanSnapshotTime(uint256 streamId, uint40 snapshotTime, uint40 withdrawTime);
 
     /// @notice Thrown when the ID references a null stream.
     error SablierFlow_Null(uint256 streamId);
@@ -85,13 +81,23 @@ library Errors {
     /// @notice Thrown when trying to withdraw but the stream no funds available.
     error SablierFlow_WithdrawNoFundsAvailable(uint256 streamId);
 
+    /// @notice Thrown when trying to withdraw tokens with a withdrawal time not greater than or equal to
+    /// `snapshotTime`.
+    error SablierFlow_WithdrawTimeLessThanSnapshotTime(uint256 streamId, uint40 snapshotTime, uint40 withdrawTime);
+
     /// @notice Thrown when trying to withdraw to the zero address.
     error SablierFlow_WithdrawToZeroAddress(uint256 streamId);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-FLOW-STATE
+                                 SABLIER-FLOW-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when trying to claim protocol revenue when the accrued amount is zero.
+    error SablierFlowBase_NoProtocolRevenue(address token);
+
     /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
-    error SablierFlowState_NotTransferable(uint256 streamId);
+    error SablierFlowBase_NotTransferable(uint256 streamId);
+
+    /// @notice Thrown when trying to set protocol fee more than the allowed.
+    error SablierFlowBase_ProtocolFeeTooHigh(UD60x18 newProtocolFee, UD60x18 maxFee);
 }

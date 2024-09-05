@@ -5,12 +5,12 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Broker, Flow } from "./../types/DataTypes.sol";
-import { ISablierFlowState } from "./ISablierFlowState.sol";
+import { ISablierFlowBase } from "./ISablierFlowBase.sol";
 
 /// @title ISablierFlow
 /// @notice Creates and manages Flow streams with linear streaming functions.
 interface ISablierFlow is
-    ISablierFlowState // 3 inherited component
+    ISablierFlowBase // 3 inherited component
 {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
@@ -93,13 +93,17 @@ interface ISablierFlow is
     /// @param to The address that received the withdrawn tokens.
     /// @param token The contract address of the ERC-20 token that was withdrawn.
     /// @param caller The address that performed the withdrawal, which can be the recipient or an approved operator.
-    /// @param withdrawAmount The amount withdrawn, denoted in token's decimals.
+    /// @param protocolFeeAmount The amount of protocol fee deducted from the withdrawn amount, denoted in token's
+    /// decimals.
+    /// @param withdrawAmount The amount withdrawn to the recipient after subtracting the protocol fee, denoted in
+    /// token's decimals.
     /// @param withdrawTime The Unix timestamp up to which ongoing debt was calculated from the snapshot time.
     event WithdrawFromFlowStream(
         uint256 indexed streamId,
         address indexed to,
         IERC20 indexed token,
         address caller,
+        uint128 protocolFeeAmount,
         uint128 withdrawAmount,
         uint40 withdrawTime
     );
@@ -255,8 +259,7 @@ interface ISablierFlow is
     /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the token's
     /// decimals.
     /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
-    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set
-    /// to zero.
+    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point percentage.
     ///
     /// @return streamId The ID of the newly created stream.
     function createAndDepositViaBroker(
@@ -310,12 +313,12 @@ interface ISablierFlow is
     /// - `streamId` must not reference a null stream.
     /// - `totalAmount` must be greater than zero. Otherwise it will revert inside {deposit}.
     /// - `broker.account` must not be 0 address.
-    /// - `broker.fee` must not be greater than `MAX_BROKER_FEE`. It can be zero.
+    /// - `broker.fee` must not be greater than `MAX_FEE`. It can be zero.
     ///
     /// @param streamId The ID of the stream to deposit on.
     /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in token's decimals.
     /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
-    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
+    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point percentage.
     function depositViaBroker(uint256 streamId, uint128 totalAmount, Broker calldata broker) external;
 
     /// @notice Pauses the stream.
@@ -430,6 +433,7 @@ interface ISablierFlow is
     /// - If stream balance is greater than the total debt at `time`:
     ///   - It withdraws the total debt at `time`.
     ///   - It sets the snapshot debt to zero.
+    /// - If the protocol fee is enabled for the streaming token, the amount withdrawn is adjusted by the protocol fee.
     ///
     /// Requirements:
     /// - Must not be delegate called.

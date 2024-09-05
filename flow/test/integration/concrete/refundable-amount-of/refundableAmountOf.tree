@@ -10,5 +10,5 @@ RefundableAmountOf_Integration_Concrete_Test
       └── given not paused
          ├── when total debt exceeds balance
          │  └── it should return zero
-         └── when total debt does not exceed balance
+         └── when total debt not exceed balance
             └── it should return correct refundable amount

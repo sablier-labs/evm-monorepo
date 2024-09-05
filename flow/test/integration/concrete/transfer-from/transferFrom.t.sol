@@ -24,7 +24,7 @@ contract TransferFrom_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierFlowState_NotTransferable.selector, notTransferableStreamId)
+            abi.encodeWithSelector(Errors.SablierFlowBase_NotTransferable.selector, notTransferableStreamId)
         );
         flow.transferFrom({ from: users.recipient, to: users.eve, tokenId: notTransferableStreamId });
     }

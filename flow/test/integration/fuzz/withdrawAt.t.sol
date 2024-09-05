@@ -2,6 +2,8 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ud, UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
+
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
 contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
@@ -16,6 +18,7 @@ contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         external
         whenNoDelegateCall
         givenNotNull
+        givenProtocolFeeZero
     {
         vm.assume(caller != address(0));
 
@@ -40,7 +43,15 @@ contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: 0 });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit WithdrawFromFlowStream(streamId, users.recipient, token, caller, 0, withdrawTime);
+        emit WithdrawFromFlowStream({
+            streamId: streamId,
+            to: users.recipient,
+            token: token,
+            caller: caller,
+            protocolFeeAmount: 0,
+            withdrawAmount: 0,
+            withdrawTime: withdrawTime
+        });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: streamId });
@@ -75,8 +86,7 @@ contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// - Only two values for caller (stream owner and approved operator).
     /// - Multiple non-zero values for to address.
     /// - Multiple streams to withdraw from, each with different token decimals and rps.
-    /// - Multiple values for withdraw time in the range (snapshotTime, currentTime). It could also be before or
-    /// after
+    /// - Multiple values for withdraw time in the range (snapshotTime, currentTime). It could also be before or after
     /// depletion time.
     /// - Multiple points in time.
     function testFuzz_WithdrawalAddressNotOwner(
@@ -90,6 +100,7 @@ contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         whenNoDelegateCall
         givenNotNull
         givenNotPaused
+        givenProtocolFeeZero
     {
         vm.assume(to != address(0) && to != address(flow));
 
@@ -101,6 +112,47 @@ contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Withdraw the tokens.
         _test_WithdrawAt(caller, to, streamId, timeJump, withdrawTime);
+    }
+
+    /// @dev Checklist:
+    /// - It should increase protocol revenue for the token.
+    /// - It should withdraw token amount after deducting protocol fee from the stream.
+    /// - It should emit the following events: {Transfer}, {MetadataUpdate}, {WithdrawFromFlowStream}
+    ///
+    /// Given enough runs, all of the following scenarios should be fuzzed:
+    /// - Multiple non-zero values for callers.
+    /// - Multiple non-zero values for protocol fee not exceeding max allowed.
+    /// - Multiple streams to withdraw from, each with different token decimals and rps.
+    /// - Multiple values for withdraw time in the range (snapshotTime, currentTime). It could also be before or after
+    /// depletion time.
+    /// - Multiple points in time.
+    function testFuzz_ProtocolFeeNotZero(
+        address caller,
+        UD60x18 protocolFee,
+        uint256 streamId,
+        uint40 timeJump,
+        uint40 withdrawTime,
+        uint8 decimals
+    )
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotPaused
+        whenWithdrawalAddressIsOwner
+    {
+        vm.assume(caller != address(0));
+
+        protocolFee = bound(protocolFee, ZERO, MAX_FEE);
+
+        (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
+
+        // Set protocol fee.
+        resetPrank(users.admin);
+        flow.setProtocolFee(token, protocolFee);
+
+        // Prank the caller and withdraw the tokens.
+        resetPrank(caller);
+        _test_WithdrawAt(caller, users.recipient, streamId, timeJump, withdrawTime);
     }
 
     /// @dev Checklist:
@@ -126,6 +178,7 @@ contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         givenNotNull
         givenNotPaused
         whenWithdrawalAddressIsOwner
+        givenProtocolFeeZero
     {
         vm.assume(caller != address(0));
 
@@ -166,12 +219,29 @@ contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint128 streamBalance = flow.getBalance(streamId);
         uint128 withdrawAmount = streamBalance < totalDebt ? streamBalance : totalDebt;
 
+        uint128 expectedProtocolRevenue = flow.protocolRevenue(token);
+
+        uint128 feeAmount;
+        if (flow.protocolFee(token) > ZERO) {
+            feeAmount = uint128(ud(withdrawAmount).mul(flow.protocolFee(token)).unwrap());
+            withdrawAmount -= feeAmount;
+            expectedProtocolRevenue += feeAmount;
+        }
+
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(token) });
         emit IERC20.Transfer({ from: address(flow), to: to, value: withdrawAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit WithdrawFromFlowStream(streamId, to, token, caller, withdrawAmount, withdrawTime);
+        emit WithdrawFromFlowStream({
+            streamId: streamId,
+            to: to,
+            token: token,
+            caller: caller,
+            protocolFeeAmount: feeAmount,
+            withdrawAmount: withdrawAmount,
+            withdrawTime: withdrawTime
+        });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: streamId });
@@ -179,26 +249,27 @@ contract WithdrawAt_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Withdraw the tokens.
         flow.withdrawAt(streamId, to, withdrawTime);
 
+        // Assert the protocol revenue.
+        assertEq(flow.protocolRevenue(token), expectedProtocolRevenue, "protocol revenue");
+
         // It should update snapshot time.
         assertEq(flow.getSnapshotTime(streamId), withdrawTime, "snapshot time");
 
-        // It should decrease the full total debt by withdrawn value.
+        // It should decrease the full total debt by withdrawn amount and fee amount.
         uint128 actualTotalDebt = flow.getSnapshotDebt(streamId)
             + getDenormalizedAmount({
                 amount: flow.getRatePerSecond(streamId).unwrap() * (withdrawTime - flow.getSnapshotTime(streamId)),
                 decimals: flow.getTokenDecimals(streamId)
             });
-        uint128 expectedTotalDebt = totalDebt - withdrawAmount;
+        uint128 expectedTotalDebt = totalDebt - withdrawAmount - feeAmount;
         assertEq(actualTotalDebt, expectedTotalDebt, "total debt");
 
-        // It should reduce the stream balance by the withdrawn amount.
-        uint128 actualStreamBalance = flow.getBalance(streamId);
-        uint128 expectedStreamBalance = streamBalance - withdrawAmount;
-        assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
+        // It should reduce the stream balance by the withdrawn amount and fee amount.
+        uint128 expectedStreamBalance = streamBalance - withdrawAmount - feeAmount;
+        assertEq(flow.getBalance(streamId), expectedStreamBalance, "stream balance");
 
-        // It should reduce the token balance of stream.
-        uint256 actualTokenBalance = token.balanceOf(address(flow));
+        // It should reduce the token balance of stream by net withdrawn amount.
         uint256 expectedTokenBalance = tokenBalance - withdrawAmount;
-        assertEq(actualTokenBalance, expectedTokenBalance, "token balance");
+        assertEq(token.balanceOf(address(flow)), expectedTokenBalance, "token balance");
     }
 }

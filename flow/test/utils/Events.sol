@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierFlowNFTDescriptor } from "../../src/interfaces/ISablierFlowNFTDescriptor.sol";
 
@@ -22,12 +23,16 @@ abstract contract Events {
     event MetadataUpdate(uint256 _tokenId);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-FLOW-STATE
+                                 SABLIER-FLOW-BASE
     //////////////////////////////////////////////////////////////////////////*/
+
+    event CollectProtocolRevenue(address indexed admin, IERC20 indexed token, address to, uint128 revenue);
 
     event SetNFTDescriptor(
         address indexed admin, ISablierFlowNFTDescriptor oldNFTDescriptor, ISablierFlowNFTDescriptor newNFTDescriptor
     );
+
+    event SetProtocolFee(address indexed admin, IERC20 indexed token, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
 
     /*//////////////////////////////////////////////////////////////////////////
                                     SABLIER-FLOW
@@ -70,6 +75,7 @@ abstract contract Events {
         address indexed to,
         IERC20 indexed token,
         address caller,
+        uint128 protocolFeeAmount,
         uint128 withdrawAmount,
         uint40 withdrawTime
     );

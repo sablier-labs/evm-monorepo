@@ -43,6 +43,11 @@ abstract contract Integration_Test is Base_Test {
         _;
     }
 
+    modifier whenCallerAdmin() override {
+        resetPrank({ msgSender: users.admin });
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/

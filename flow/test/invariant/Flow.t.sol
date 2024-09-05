@@ -28,6 +28,7 @@ contract Flow_Invariant_Test is Base_Test {
 
         // Declare the default tokens.
         tokens.push(tokenWithoutDecimals);
+        tokens.push(tokenWithProtocolFee);
         tokens.push(dai);
         tokens.push(usdc);
         tokens.push(IERC20(address(usdt)));
@@ -72,15 +73,16 @@ contract Flow_Invariant_Test is Base_Test {
         }
     }
 
-    /// @dev For a given token, the sum of all stream balances should equal the token balance of the flow contract.
-    function invariant_ContractBalanceEqStreamBalances() external view {
+    /// @dev For a given token, token balance of the flow contract should equal to the sum of all stream balances and
+    /// protocol revenue accrued for that token.
+    function invariant_ContractBalanceEqStreamBalancesAndProtocolRevenue() external view {
         // Check the invariant for each token.
         for (uint256 i = 0; i < tokens.length; ++i) {
-            contractBalanceEqStreamBalances(tokens[i]);
+            contractBalanceEqStreamBalancesAndProtocolRevenue(tokens[i]);
         }
     }
 
-    function contractBalanceEqStreamBalances(IERC20 token) internal view {
+    function contractBalanceEqStreamBalancesAndProtocolRevenue(IERC20 token) internal view {
         uint256 contractBalance = token.balanceOf(address(flow));
         uint128 streamBalancesSum;
 
@@ -94,7 +96,9 @@ contract Flow_Invariant_Test is Base_Test {
         }
 
         assertEq(
-            contractBalance, streamBalancesSum, unicode"Invariant violation: contract balance != Σ stream balances"
+            contractBalance,
+            streamBalancesSum + flow.protocolRevenue(token),
+            unicode"Invariant violation: contract balance != Σ stream balances + protocol revenue"
         );
     }
 

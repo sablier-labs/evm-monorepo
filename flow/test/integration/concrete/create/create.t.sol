@@ -40,7 +40,7 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_TokenDoesNotImplementDecimals()
+    function test_RevertWhen_TokenNotImplementDecimals()
         external
         whenNoDelegateCall
         whenSenderNotAddressZero
@@ -85,7 +85,7 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         whenSenderNotAddressZero
         whenRatePerSecondNotZero
         whenTokenImplementsDecimals
-        whenTokenDecimalsDoesNotExceed18
+        whenTokenDecimalsNotExceed18
     {
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, address(0)));
         flow.create({
@@ -103,7 +103,7 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         whenSenderNotAddressZero
         whenRatePerSecondNotZero
         whenTokenImplementsDecimals
-        whenTokenDecimalsDoesNotExceed18
+        whenTokenDecimalsNotExceed18
     {
         uint256 expectedStreamId = flow.nextStreamId();
 

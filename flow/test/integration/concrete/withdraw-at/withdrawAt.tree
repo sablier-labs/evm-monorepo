@@ -25,27 +25,18 @@ WithdrawAt_Integration_Concrete_Test
                 │  └── it should revert
                 └── given balance not zero
                    ├── when total debt exceeds balance
-                   │  ├── it should withdraw the balance
-                   │  ├── it should update snapshot time
-                   │  ├── it should decrease the total debt by balance
-                   │  ├── it should update the stream balance to 0
-                   │  ├── it should perform the ERC20 transfer
-                   │  ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdated} events
-                   │  └── it should return the transfer amount
-                   └── when total debt does not exceed balance
-                      ├── given token does not have 18 decimals
-                      │  ├── it should withdraw the total debt
-                      │  ├── it should update snapshot time
-                      │  ├── it should decrease the total debt by withdrawn value
-                      │  ├── it should reduce the stream balance by the withdrawn amount
-                      │  ├── it should perform the ERC20 transfer
-                      │  └── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
-                      │  └── it should return the transfer amount
-                      └── given token has 18 decimals
-                         ├── it should withdraw the total debt
-                         ├── it should update snapshot time
-                         ├── it should decrease the total debt by withdrawn value
-                         ├── it should reduce the stream balance by the withdrawn amount
-                         ├── it should perform the ERC20 transfer
-                         ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
-                         └── it should return the transfer amount
+                   │  └── it should withdraw the balance
+                   └── when total debt not exceed balance
+                      ├── given protocol fee not zero
+                      │  ├── it should update the protocol revenue
+                      │  └── it should withdraw the net amount
+                      └── given protocol fee zero
+                         ├── given token has 18 decimals
+                         │  └── it should make the withdrawal
+                         └── given token not have 18 decimals
+                            ├── it should withdraw the withdrawable amount
+                            ├── it should decrease the total debt by withdrawn value
+                            ├── it should reduce the stream balance by the withdrawn amount
+                            ├── it should update snapshot time
+                            ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+                            └── it should return the withdrawn amount

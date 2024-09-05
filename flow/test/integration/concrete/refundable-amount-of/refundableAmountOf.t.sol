@@ -33,7 +33,7 @@ contract RefundableAmountOf_Integration_Concrete_Test is Integration_Test {
         assertEq(actualRefundableAmount, 0, "refundable amount");
     }
 
-    function test_WhenTotalDebtDoesNotExceedBalance() external givenNotNull givenBalanceNotZero givenNotPaused {
+    function test_WhenTotalDebtNotExceedBalance() external givenNotNull givenBalanceNotZero givenNotPaused {
         // It should return the correct refundable amount.
         uint128 actualRefundableAmount = flow.refundableAmountOf(defaultStreamId);
         assertEq(actualRefundableAmount, ONE_MONTH_REFUNDABLE_AMOUNT_6D, "refundable amount");

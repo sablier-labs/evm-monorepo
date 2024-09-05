@@ -47,20 +47,20 @@ contract Deposit_Integration_Concrete_Test is Integration_Test {
         givenNotNull
         givenNotVoided
         whenDepositAmountNotZero
-        whenTokenDoesNotMissERC20Return
+        whenTokenNotMissERC20Return
     {
         // It should make the deposit.
         uint256 streamId = createDefaultStream(IERC20(address(dai)));
         _test_Deposit({ streamId: streamId, token: dai, depositAmount: DEPOSIT_AMOUNT_18D });
     }
 
-    function test_GivenTokenDoesNotHave18Decimals()
+    function test_GivenTokenNotHave18Decimals()
         external
         whenNoDelegateCall
         givenNotNull
         givenNotVoided
         whenDepositAmountNotZero
-        whenTokenDoesNotMissERC20Return
+        whenTokenNotMissERC20Return
     {
         // It should make the deposit.
         _test_Deposit({ streamId: defaultStreamId, token: usdc, depositAmount: DEPOSIT_AMOUNT_6D });

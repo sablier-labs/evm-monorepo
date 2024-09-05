@@ -6,10 +6,11 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
 
 import { Batch } from "./abstracts/Batch.sol";
 import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
-import { SablierFlowState } from "./abstracts/SablierFlowState.sol";
+import { SablierFlowBase } from "./abstracts/SablierFlowBase.sol";
 import { ISablierFlow } from "./interfaces/ISablierFlow.sol";
 import { ISablierFlowNFTDescriptor } from "./interfaces/ISablierFlowNFTDescriptor.sol";
 import { Errors } from "./libraries/Errors.sol";
@@ -22,7 +23,7 @@ contract SablierFlow is
     Batch, // 0 inherited components
     NoDelegateCall, // 0 inherited components
     ISablierFlow, // 4 inherited components
-    SablierFlowState // 8 inherited components
+    SablierFlowBase // 8 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -38,7 +39,7 @@ contract SablierFlow is
         ISablierFlowNFTDescriptor initialNFTDescriptor
     )
         ERC721("Sablier Flow NFT", "SAB-FLOW")
-        SablierFlowState(initialAdmin, initialNFTDescriptor)
+        SablierFlowBase(initialAdmin, initialNFTDescriptor)
     { }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -636,7 +637,7 @@ contract SablierFlow is
     function _depositViaBroker(uint256 streamId, uint128 totalAmount, Broker memory broker) internal {
         // Check: verify the `broker` and calculate the amounts.
         (uint128 brokerFeeAmount, uint128 depositAmount) =
-            Helpers.checkAndCalculateBrokerFee(totalAmount, broker, MAX_BROKER_FEE);
+            Helpers.checkAndCalculateBrokerFee(totalAmount, broker, MAX_FEE);
 
         // Checks, Effects, and Interactions: deposit on stream.
         _deposit(streamId, depositAmount);
@@ -688,8 +689,11 @@ contract SablierFlow is
 
         address sender = _streams[streamId].sender;
 
-        // Effect and Interaction: update the stream's balance and perform the ERC-20 transfer to the sender.
-        _updateBalanceAndTransfer(streamId, sender, amount);
+        // Effect: update the stream balance.
+        _streams[streamId].balance -= amount;
+
+        // Interaction: perform the ERC-20 transfer.
+        _streams[streamId].token.safeTransfer({ to: sender, value: amount });
 
         // Log the refund.
         emit ISablierFlow.RefundFromFlowStream(streamId, sender, amount);
@@ -718,18 +722,6 @@ contract SablierFlow is
 
         // Log the restart.
         emit ISablierFlow.RestartFlowStream(streamId, msg.sender, ratePerSecond);
-    }
-
-    /// @dev Helper function to update the stream balance and transfer the amount to the provided address.
-    /// @param streamId The ID of the stream.
-    /// @param to The address to receive the transfer.
-    /// @param amount The amount of tokens to transfer, denoted in token's decimals.
-    function _updateBalanceAndTransfer(uint256 streamId, address to, uint128 amount) internal {
-        // Effect: update the stream balance.
-        _streams[streamId].balance -= amount;
-
-        // Interaction: perform the ERC-20 transfer.
-        _streams[streamId].token.safeTransfer(to, amount);
     }
 
     /// @dev Update the snapshot debt by adding the ongoing debt streamed since the snapshot time.
@@ -826,15 +818,37 @@ contract SablierFlow is
         // Effect: update the stream time.
         _updateSnapshotTime(streamId, time);
 
-        // Effect and Interaction: update the balance and perform the ERC-20 transfer to the recipient.
-        _updateBalanceAndTransfer(streamId, to, withdrawAmount);
+        // Load the variables in memory.
+        IERC20 token = _streams[streamId].token;
+        UD60x18 protocolFee = protocolFee[token];
+        uint128 totalWithdrawAmount = withdrawAmount;
+        uint128 feeAmount;
+
+        if (protocolFee > ZERO) {
+            // Calculate the protocol fee amount and the net withdraw amount.
+            (feeAmount, withdrawAmount) =
+                Helpers.calculateAmountsFromFee({ totalAmount: totalWithdrawAmount, fee: protocolFee });
+
+            // Safe to use unchecked because addition cannot overflow.
+            unchecked {
+                // Effect: update the protocol revenue.
+                protocolRevenue[token] += feeAmount;
+            }
+        }
+
+        // Effect: update the stream balance.
+        _streams[streamId].balance -= totalWithdrawAmount;
+
+        // Interaction: perform the ERC-20 transfer.
+        _streams[streamId].token.safeTransfer({ to: to, value: withdrawAmount });
 
         // Log the withdrawal.
         emit ISablierFlow.WithdrawFromFlowStream({
             streamId: streamId,
             to: to,
-            token: _streams[streamId].token,
+            token: token,
             caller: msg.sender,
+            protocolFeeAmount: feeAmount,
             withdrawAmount: withdrawAmount,
             withdrawTime: time
         });

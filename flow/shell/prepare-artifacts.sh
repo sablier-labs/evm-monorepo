@@ -27,7 +27,7 @@ cp out-optimized/SablierFlowNFTDescriptor.sol/SablierFlowNFTDescriptor.json $art
 
 interfaces=./artifacts/interfaces
 cp out-optimized/ISablierFlow.sol/ISablierFlow.json $interfaces
-cp out-optimized/ISablierFlowState.sol/ISablierFlowState.json $interfaces
+cp out-optimized/ISablierFlowBase.sol/ISablierFlowBase.json $interfaces
 cp out-optimized/ISablierFlowNFTDescriptor.sol/ISablierFlowNFTDescriptor.json $interfaces
 
 erc20=./artifacts/interfaces/erc20

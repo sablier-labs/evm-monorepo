@@ -22,6 +22,10 @@ abstract contract Modifiers {
         _;
     }
 
+    modifier whenCallerAdmin() virtual {
+        _;
+    }
+
     modifier whenCallerNotSender() {
         _;
     }
@@ -34,9 +38,10 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenTokenDoesNotMissERC20Return() {
+    modifier whenTokenNotMissERC20Return() {
         _;
     }
+
     /*//////////////////////////////////////////////////////////////////////////
                               ADJUST-AMOUNT-PER-SECOND
     //////////////////////////////////////////////////////////////////////////*/
@@ -49,19 +54,19 @@ abstract contract Modifiers {
                                        CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenTokenDecimalsDoesNotExceed18() {
-        _;
-    }
-
-    modifier whenTokenImplementsDecimals() {
-        _;
-    }
-
     modifier whenRatePerSecondNotZero() {
         _;
     }
 
     modifier whenSenderNotAddressZero() {
+        _;
+    }
+
+    modifier whenTokenDecimalsNotExceed18() {
+        _;
+    }
+
+    modifier whenTokenImplementsDecimals() {
         _;
     }
 
@@ -117,15 +122,19 @@ abstract contract Modifiers {
                                     WITHDRAW-AT
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier givenProtocolFeeZero() {
+        _;
+    }
+
+    modifier whenWithdrawalAddressIsOwner() {
+        _;
+    }
+
     modifier whenWithdrawalAddressNotOwner() {
         _;
     }
 
     modifier whenWithdrawalAddressNotZero() {
-        _;
-    }
-
-    modifier whenWithdrawalAddressIsOwner() {
         _;
     }
 }

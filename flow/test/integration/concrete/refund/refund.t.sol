@@ -124,7 +124,7 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_GivenTokenDoesNotHave18Decimals()
+    function test_GivenTokenNotHave18Decimals()
         external
         whenNoDelegateCall
         givenNotNull
@@ -133,7 +133,7 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         whenRefundAmountNotZero
         whenNoOverRefund
         givenNotPaused
-        whenTokenDoesNotMissERC20Return
+        whenTokenNotMissERC20Return
     {
         // It should make the refund.
         _test_Refund({
@@ -153,7 +153,7 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         whenRefundAmountNotZero
         whenNoOverRefund
         givenNotPaused
-        whenTokenDoesNotMissERC20Return
+        whenTokenNotMissERC20Return
     {
         uint256 streamId = createDefaultStream(IERC20(address(dai)));
         depositDefaultAmount(streamId);

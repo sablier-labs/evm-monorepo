@@ -28,9 +28,9 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertWhen_BrokerFeeGreaterThanMaxFee() external whenNoDelegateCall givenNotNull givenNotVoided {
-        defaultBroker.fee = MAX_BROKER_FEE.add(ud(1));
+        defaultBroker.fee = MAX_FEE.add(ud(1));
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierFlow_BrokerFeeTooHigh.selector, defaultBroker.fee, MAX_BROKER_FEE)
+            abi.encodeWithSelector(Errors.SablierFlow_BrokerFeeTooHigh.selector, defaultBroker.fee, MAX_FEE)
         );
         flow.depositViaBroker(defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, defaultBroker);
     }
@@ -87,7 +87,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressNotZero
         whenTotalAmountNotZero
-        whenTokenDoesNotMissERC20Return
+        whenTokenNotMissERC20Return
     {
         uint256 streamId = createDefaultStream(IERC20(address(dai)));
         _test_DepositViaBroker({
@@ -99,7 +99,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_GivenTokenDoesNotHave18Decimals()
+    function test_GivenTokenNotHave18Decimals()
         external
         whenNoDelegateCall
         givenNotNull
@@ -107,7 +107,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressNotZero
         whenTotalAmountNotZero
-        whenTokenDoesNotMissERC20Return
+        whenTokenNotMissERC20Return
     {
         uint256 streamId = createDefaultStream(IERC20(address(usdc)));
         _test_DepositViaBroker({

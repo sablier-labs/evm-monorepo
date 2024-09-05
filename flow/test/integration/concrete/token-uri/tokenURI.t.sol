@@ -6,7 +6,7 @@ import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract TokenURI_Integration_Concrete_Test is Integration_Test {
-    function test_RevertGiven_NFTDoesNotExist() external {
+    function test_RevertGiven_NFTNotExist() external {
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, nullStreamId));
         flow.tokenURI({ streamId: nullStreamId });
     }

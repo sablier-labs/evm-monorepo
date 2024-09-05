@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { ud, UD60x18, UNIT, ZERO } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
@@ -96,24 +97,6 @@ contract FlowHandler is BaseHandler {
         flow.adjustRatePerSecond(currentStreamId, newRatePerSecond);
     }
 
-    function pause(
-        uint256 timeJumpSeed,
-        uint256 streamIndexSeed
-    )
-        external
-        instrument("pause")
-        useFuzzedStream(streamIndexSeed)
-        useFuzzedStreamSender
-        adjustTimestamp(timeJumpSeed)
-        updateFlowHandlerStates
-    {
-        // Paused streams cannot be paused again.
-        vm.assume(!flow.isPaused(currentStreamId));
-
-        // Pause the stream.
-        flow.pause(currentStreamId);
-    }
-
     function deposit(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
@@ -152,6 +135,24 @@ contract FlowHandler is BaseHandler {
 
     /// @dev A function that does nothing but warp the time into the future.
     function passTime(uint256 timeJumpSeed) external instrument("passTime") adjustTimestamp(timeJumpSeed) { }
+
+    function pause(
+        uint256 timeJumpSeed,
+        uint256 streamIndexSeed
+    )
+        external
+        instrument("pause")
+        useFuzzedStream(streamIndexSeed)
+        useFuzzedStreamSender
+        adjustTimestamp(timeJumpSeed)
+        updateFlowHandlerStates
+    {
+        // Paused streams cannot be paused again.
+        vm.assume(!flow.isPaused(currentStreamId));
+
+        // Pause the stream.
+        flow.pause(currentStreamId);
+    }
 
     function refund(
         uint256 timeJumpSeed,
@@ -275,6 +276,11 @@ contract FlowHandler is BaseHandler {
         flow.withdrawAt({ streamId: currentStreamId, to: to, time: time });
 
         uint128 amountWithdrawn = initialBalance - flow.getBalance(currentStreamId);
+
+        UD60x18 protocolFee = flow.protocolFee(flow.getToken(currentStreamId));
+        if (protocolFee > ZERO) {
+            amountWithdrawn -= uint128((ud(amountWithdrawn).mul(UNIT - protocolFee)).unwrap());
+        }
 
         // Update the withdrawn amount.
         flowStore.updateStreamWithdrawnAmountsSum(currentStreamId, amountWithdrawn);

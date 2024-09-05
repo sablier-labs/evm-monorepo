@@ -2,7 +2,7 @@ UncoveredDebtOf_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
-   ├── when total debt does not exceed balance
+   ├── when total debt not exceed balance
    │  └── it should return zero
    └── when total debt exceeds balance
       └── it should return non-zero value

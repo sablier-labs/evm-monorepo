@@ -7,7 +7,7 @@ Refund_Integration_Concrete_Test
    └── given not null
       ├── given voided
       │  └── it should revert
-      └── given not voided   
+      └── given not voided
          ├── when caller not sender
          │  ├── when caller recipient
          │  │  └── it should revert
@@ -32,8 +32,8 @@ Refund_Integration_Concrete_Test
                      │  ├── it should update the stream balance
                      │  ├── it should perform the ERC20 transfer
                      │  └── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
-                     └── when token does not miss ERC20 return
-                        ├── given token does not have 18 decimals
+                     └── when token not miss ERC20 return
+                        ├── given token not have 18 decimals
                         │  ├── it should make the refund
                         │  ├── it should update the stream balance
                         │  ├── it should perform the ERC20 transfer

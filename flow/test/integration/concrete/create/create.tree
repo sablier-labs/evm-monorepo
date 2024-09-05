@@ -9,12 +9,12 @@ Create_Integration_Concrete_Test
       ├── when rate per second zero
       │  └── it should revert
       └── when rate per second not zero
-         ├── when token does not implement decimals
+         ├── when token not implement decimals
          │  └── it should revert
          └── when token implements decimals
             ├── when token decimals exceeds 18
             │  └── it should revert
-            └── when token decimals does not exceed 18
+            └── when token decimals not exceed 18
                ├── when recipient address zero
                │  └── it should revert
                └── when recipient not address zero

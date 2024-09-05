@@ -151,10 +151,11 @@ Currently, it's not possible to address this precision problem entirely.
 
 1. for any stream, $st \le now$
 
-2. for a given token, $\sum$ stream balances = token.balanceOf(SablierFlow)
+2. for a given token, token.balanceOf(SablierFlow) = $\sum$ stream balances + flow.protocolRevenue(token)
 
-   Note: In the code, this invariant is tested with equality, as we don't implement the `ERC20.transferFrom` handlers.
-   In real life, someone can transfer tokens to the contract.
+   Note: In the code, this invariant is tested with equality, as we don't implement the `ERC20.transferFrom` and
+   `flow.collectProtocolRevenue` handlers. In real life, someone can transfer tokens to the contract or admin can
+   withdraw revenue from the contract.
 
 3. for any stream, if $ud > 0 \implies cd = bal$
 

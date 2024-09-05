@@ -8,7 +8,7 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 /// @notice Struct encapsulating the broker parameters.
 ///
 /// @param account The address receiving the broker's fee.
-/// @param fee The broker's percentage fee charged from the deposit amount, denoted as a fixed-point number where
+/// @param fee The broker's percentage fee charged from the deposit amount, denoted as a fixed-point percentage where
 /// 1e18 is 100%.
 struct Broker {
     address account;

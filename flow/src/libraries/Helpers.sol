@@ -12,20 +12,36 @@ import { Errors } from "./Errors.sol";
 library Helpers {
     using SafeCast for uint256;
 
+    /// @dev Calculate the fee amount and the net amount after subtracting the fee, based on the `fee` percentage.
+    function calculateAmountsFromFee(
+        uint128 totalAmount,
+        UD60x18 fee
+    )
+        internal
+        pure
+        returns (uint128 feeAmount, uint128 netAmount)
+    {
+        // Calculate the fee amount based on the fee percentage.
+        feeAmount = ud(totalAmount).mul(fee).intoUint128();
+
+        // Calculate the net amount after subtracting the fee from the total amount.
+        netAmount = totalAmount - feeAmount;
+    }
+
     /// @dev Checks the `Broker` parameter, and then calculates the broker fee amount and the deposit amount from the
     /// total amount.
     function checkAndCalculateBrokerFee(
         uint128 totalAmount,
         Broker memory broker,
-        UD60x18 maxBrokerFee
+        UD60x18 maxFee
     )
         internal
         pure
         returns (uint128 brokerFeeAmount, uint128 depositAmount)
     {
-        // Check: the broker's fee is not greater than `MAX_BROKER_FEE`.
-        if (broker.fee.gt(maxBrokerFee)) {
-            revert Errors.SablierFlow_BrokerFeeTooHigh(broker.fee, maxBrokerFee);
+        // Check: the broker's fee is not greater than `MAX_FEE`.
+        if (broker.fee.gt(maxFee)) {
+            revert Errors.SablierFlow_BrokerFeeTooHigh(broker.fee, maxFee);
         }
 
         // Check: the broker recipient is not the zero address.
@@ -34,11 +50,7 @@ library Helpers {
         }
 
         // Calculate the broker fee amount that is going to be transferred to the `broker.account`.
-        // The cast to uint128 is safe because the maximum fee is hard coded.
-        brokerFeeAmount = ud(totalAmount).mul(broker.fee).intoUint256().toUint128();
-
-        // Calculate the deposit amount to the Flow contract.
-        depositAmount = totalAmount - brokerFeeAmount;
+        (brokerFeeAmount, depositAmount) = calculateAmountsFromFee(totalAmount, broker.fee);
     }
 
     /// @notice Denormalizes the provided amount to be denoted in the token's decimals.

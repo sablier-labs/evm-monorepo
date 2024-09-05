@@ -16,7 +16,7 @@ contract UncoveredDebtOf_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(callData);
     }
 
-    function test_WhenTotalDebtDoesNotExceedBalance() external view givenNotNull {
+    function test_WhenTotalDebtNotExceedBalance() external view givenNotNull {
         // It should return zero.
         uint128 actualUncoveredDebt = flow.uncoveredDebtOf(defaultStreamId);
         assertEq(actualUncoveredDebt, 0, "uncovered debt");

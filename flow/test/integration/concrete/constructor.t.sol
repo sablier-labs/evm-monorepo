@@ -11,12 +11,12 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
         // Construct the contract.
         SablierFlow constructedFlow = new SablierFlow(users.admin, nftDescriptor);
 
-        // {SablierFlowState.MAX_BROKER_FEE}
-        UD60x18 actualMaxBrokerFee = constructedFlow.MAX_BROKER_FEE();
-        UD60x18 expectedMaxBrokerFee = UD60x18.wrap(0.1e18);
-        assertEq(actualMaxBrokerFee, expectedMaxBrokerFee, "MAX_BROKER_FEE");
+        // {SablierFlowBase.MAX_FEE}
+        UD60x18 actualMaxFee = constructedFlow.MAX_FEE();
+        UD60x18 expectedMaxFee = UD60x18.wrap(0.1e18);
+        assertEq(actualMaxFee, expectedMaxFee, "MAX_FEE");
 
-        // {SablierFlowState.nextStreamId}
+        // {SablierFlowBase.nextStreamId}
         uint256 actualStreamId = constructedFlow.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");
