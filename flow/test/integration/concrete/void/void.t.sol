@@ -26,7 +26,12 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(callData);
     }
 
-    function test_RevertGiven_StreamHasNoUncoveredDebt() external whenNoDelegateCall givenNotNull {
+    function test_RevertGiven_Voided() external whenNoDelegateCall givenNotNull {
+        bytes memory callData = abi.encodeCall(flow.void, (defaultStreamId));
+        expectRevert_Voided(callData);
+    }
+
+    function test_RevertGiven_StreamHasNoUncoveredDebt() external whenNoDelegateCall givenNotNull givenNotVoided {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_UncoveredDebtZero.selector, defaultStreamId));
         flow.void(defaultStreamId);
     }
@@ -42,6 +47,7 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
+        givenNotVoided
         givenStreamHasUncoveredDebt
     {
         bytes memory callData = abi.encodeCall(flow.void, (defaultStreamId));
@@ -52,6 +58,7 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
+        givenNotVoided
         givenStreamHasUncoveredDebt
         whenCallerAuthorized
     {
@@ -66,6 +73,7 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
+        givenNotVoided
         givenStreamHasUncoveredDebt
         whenCallerAuthorized
     {
@@ -83,6 +91,7 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
+        givenNotVoided
         givenStreamHasUncoveredDebt
         whenCallerAuthorized
     {
@@ -115,6 +124,9 @@ contract Void_Integration_Concrete_Test is Integration_Test {
 
         // It should pause the stream.
         assertTrue(flow.isPaused(defaultStreamId), "paused");
+
+        // It should void the stream.
+        assertTrue(flow.isVoided(defaultStreamId), "voided");
 
         // It should set the total debt to the stream balance.
         assertEq(flow.totalDebtOf(defaultStreamId), streamBalance, "total debt");

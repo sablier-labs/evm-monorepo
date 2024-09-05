@@ -26,19 +26,37 @@ contract RestartAndDeposit_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(callData);
     }
 
-    function test_RevertWhen_CallerRecipient() external whenNoDelegateCall givenNotNull whenCallerNotSender {
+    function test_RevertGiven_Voided() external whenNoDelegateCall givenNotNull {
+        bytes memory callData =
+            abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT_6D));
+        expectRevert_Voided(callData);
+    }
+
+    function test_RevertWhen_CallerRecipient()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotVoided
+        whenCallerNotSender
+    {
         bytes memory callData =
             abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT_6D));
         expectRevert_CallerRecipient(callData);
     }
 
-    function test_RevertWhen_CallerMaliciousThirdParty() external whenNoDelegateCall givenNotNull whenCallerNotSender {
+    function test_RevertWhen_CallerMaliciousThirdParty()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotVoided
+        whenCallerNotSender
+    {
         bytes memory callData =
             abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT_6D));
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
-    function test_WhenCallerSender() external whenNoDelegateCall givenNotNull {
+    function test_WhenCallerSender() external whenNoDelegateCall givenNotNull givenNotVoided {
         // It should perform the ERC-20 transfer.
         // It should emit 1 {RestartFlowStream}, 1 {Transfer}, 1 {DepositFlowStream} and 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });

@@ -34,6 +34,16 @@ abstract contract Integration_Test is Base_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                     MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenBalanceNotZero() override {
+        // Deposit into the stream.
+        depositToDefaultStream();
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -78,6 +88,7 @@ abstract contract Integration_Test is Base_Test {
             isPaused: false,
             isStream: true,
             isTransferable: TRANSFERABLE,
+            isVoided: false,
             ratePerSecond: RATE_PER_SECOND,
             snapshotDebt: 0,
             sender: users.sender,
@@ -171,6 +182,20 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "null call success");
         assertEq(
             returnData, abi.encodeWithSelector(Errors.SablierFlow_Null.selector, nullStreamId), "null call return data"
+        );
+    }
+
+    function expectRevert_Voided(bytes memory callData) internal {
+        // Simulate the passage of time to accumulate uncovered debt for one month.
+        vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD + ONE_MONTH });
+        flow.void(defaultStreamId);
+
+        (bool success, bytes memory returnData) = address(flow).call(callData);
+        assertFalse(success, "voided call success");
+        assertEq(
+            returnData,
+            abi.encodeWithSelector(Errors.SablierFlow_StreamVoided.selector, defaultStreamId),
+            "voided call return data"
         );
     }
 

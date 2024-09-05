@@ -72,6 +72,13 @@ abstract contract SablierFlowState is
         _;
     }
 
+    modifier notVoided(uint256 streamId) {
+        if (_streams[streamId].isVoided) {
+            revert Errors.SablierFlow_StreamVoided(streamId);
+        }
+        _;
+    }
+
     /// @dev Checks the `msg.sender` is the stream's sender.
     modifier onlySender(uint256 streamId) {
         if (msg.sender != _streams[streamId].sender) {
@@ -166,6 +173,11 @@ abstract contract SablierFlowState is
     /// @inheritdoc ISablierFlowState
     function isTransferable(uint256 streamId) external view override returns (bool result) {
         result = _streams[streamId].isTransferable;
+    }
+
+    /// @inheritdoc ISablierFlowState
+    function isVoided(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        result = _streams[streamId].isVoided;
     }
 
     /// @inheritdoc ERC721

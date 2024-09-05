@@ -25,17 +25,34 @@ contract Restart_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(callData);
     }
 
-    function test_RevertWhen_CallerRecipient() external whenNoDelegateCall givenNotNull whenCallerNotSender {
+    function test_RevertGiven_Voided() external whenNoDelegateCall givenNotNull {
+        bytes memory callData = abi.encodeCall(flow.restart, (defaultStreamId, RATE_PER_SECOND));
+        expectRevert_Voided(callData);
+    }
+
+    function test_RevertWhen_CallerRecipient()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotVoided
+        whenCallerNotSender
+    {
         bytes memory callData = abi.encodeCall(flow.restart, (defaultStreamId, RATE_PER_SECOND));
         expectRevert_CallerRecipient(callData);
     }
 
-    function test_RevertWhen_CallerMaliciousThirdParty() external whenNoDelegateCall givenNotNull whenCallerNotSender {
+    function test_RevertWhen_CallerMaliciousThirdParty()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotVoided
+        whenCallerNotSender
+    {
         bytes memory callData = abi.encodeCall(flow.restart, (defaultStreamId, RATE_PER_SECOND));
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
-    function test_RevertGiven_NotPaused() external whenNoDelegateCall givenNotNull whenCallerSender {
+    function test_RevertGiven_NotPaused() external whenNoDelegateCall givenNotNull givenNotVoided whenCallerSender {
         uint256 streamId = createDefaultStream();
 
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamNotPaused.selector, streamId));
@@ -46,6 +63,7 @@ contract Restart_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
+        givenNotVoided
         whenCallerSender
         givenPaused
     {
@@ -53,7 +71,14 @@ contract Restart_Integration_Concrete_Test is Integration_Test {
         flow.restart({ streamId: defaultStreamId, ratePerSecond: ud21x18(0) });
     }
 
-    function test_WhenNewRatePerSecondNotZero() external whenNoDelegateCall givenNotNull whenCallerSender givenPaused {
+    function test_WhenNewRatePerSecondNotZero()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotVoided
+        whenCallerSender
+        givenPaused
+    {
         // It should emit 1 {RestartFlowStream}, 1 {MetadataUpdate} event.
         vm.expectEmit({ emitter: address(flow) });
         emit RestartFlowStream({ streamId: defaultStreamId, sender: users.sender, ratePerSecond: RATE_PER_SECOND });

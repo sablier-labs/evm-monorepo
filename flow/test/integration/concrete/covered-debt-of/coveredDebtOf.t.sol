@@ -18,15 +18,6 @@ contract CoveredDebtOf_Integration_Concrete_Test is Integration_Test {
         assertEq(coveredDebt, 0, "covered debt");
     }
 
-    modifier givenBalanceNotZero() override {
-        // Deposit into stream.
-        depositToDefaultStream();
-
-        // Simulate one month of streaming.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
-        _;
-    }
-
     function test_WhenTotalDebtExceedsBalance() external givenNotNull givenBalanceNotZero {
         // Simulate the passage of time until debt becomes uncovered.
         vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD });

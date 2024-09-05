@@ -67,6 +67,9 @@ library Errors {
     /// @notice Thrown when trying to restart a stream that is not paused.
     error SablierFlow_StreamNotPaused(uint256 streamId);
 
+    /// @notice Thrown when trying to perform an action with a voided stream.
+    error SablierFlow_StreamVoided(uint256 streamId);
+
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierFlow_Unauthorized(uint256 streamId, address caller);
 

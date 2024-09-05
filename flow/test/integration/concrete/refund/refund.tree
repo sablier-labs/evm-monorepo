@@ -5,40 +5,43 @@ Refund_Integration_Concrete_Test
    ├── given null
    │  └── it should revert
    └── given not null
-      ├── when caller not sender
-      │  ├── when caller recipient
-      │  │  └── it should revert
-      │  └── when caller malicious third party
-      │     └── it should revert
-      └── when caller sender
-         ├── when refund amount zero
-         │  └── it should revert
-         └── when refund amount not zero
-            ├── when over refund
+      ├── given voided
+      │  └── it should revert
+      └── given not voided   
+         ├── when caller not sender
+         │  ├── when caller recipient
+         │  │  └── it should revert
+         │  └── when caller malicious third party
+         │     └── it should revert
+         └── when caller sender
+            ├── when refund amount zero
             │  └── it should revert
-            └── when no over refund
-               ├── given paused
-               │  ├── it should make the refund
-               │  ├── it should update the stream balance
-               │  ├── it should perform the ERC20 transfer
-               │  ├── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
-               │  └── it should return the transfer amount
-               └── given not paused
-                  ├── when token misses ERC20 return
+            └── when refund amount not zero
+               ├── when over refund
+               │  └── it should revert
+               └── when no over refund
+                  ├── given paused
                   │  ├── it should make the refund
                   │  ├── it should update the stream balance
                   │  ├── it should perform the ERC20 transfer
-                  │  └── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
-                  └── when token does not miss ERC20 return
-                     ├── given token does not have 18 decimals
+                  │  ├── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
+                  │  └── it should return the transfer amount
+                  └── given not paused
+                     ├── when token misses ERC20 return
                      │  ├── it should make the refund
                      │  ├── it should update the stream balance
                      │  ├── it should perform the ERC20 transfer
-                     │  ├── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
-                     │  └── it should return the transfer amount
-                     └── given token has 18 decimals
-                        ├── it should make the refund
-                        ├── it should update the stream balance
-                        ├── it should perform the ERC20 transfer
-                        ├── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
-                        └── it should return the transfer amount
+                     │  └── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
+                     └── when token does not miss ERC20 return
+                        ├── given token does not have 18 decimals
+                        │  ├── it should make the refund
+                        │  ├── it should update the stream balance
+                        │  ├── it should perform the ERC20 transfer
+                        │  ├── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
+                        │  └── it should return the transfer amount
+                        └── given token has 18 decimals
+                           ├── it should make the refund
+                           ├── it should update the stream balance
+                           ├── it should perform the ERC20 transfer
+                           ├── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
+                           └── it should return the transfer amount

@@ -21,7 +21,13 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(callData);
     }
 
-    function test_RevertWhen_BrokerFeeGreaterThanMaxFee() external whenNoDelegateCall givenNotNull {
+    function test_RevertGiven_Voided() external whenNoDelegateCall givenNotNull {
+        bytes memory callData =
+            abi.encodeCall(flow.depositViaBroker, (defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, defaultBroker));
+        expectRevert_Voided(callData);
+    }
+
+    function test_RevertWhen_BrokerFeeGreaterThanMaxFee() external whenNoDelegateCall givenNotNull givenNotVoided {
         defaultBroker.fee = MAX_BROKER_FEE.add(ud(1));
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFlow_BrokerFeeTooHigh.selector, defaultBroker.fee, MAX_BROKER_FEE)
@@ -33,6 +39,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
+        givenNotVoided
         whenBrokerFeeNotGreaterThanMaxFee
     {
         defaultBroker.account = address(0);
@@ -44,6 +51,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
+        givenNotVoided
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressNotZero
     {
@@ -55,6 +63,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
+        givenNotVoided
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressNotZero
         whenTotalAmountNotZero
@@ -74,6 +83,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
+        givenNotVoided
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressNotZero
         whenTotalAmountNotZero
@@ -93,6 +103,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
+        givenNotVoided
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressNotZero
         whenTotalAmountNotZero

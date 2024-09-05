@@ -18,7 +18,7 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenTokenDoesNotMissERC20Return() {
+    modifier givenNotVoided() {
         _;
     }
 
@@ -34,6 +34,9 @@ abstract contract Modifiers {
         _;
     }
 
+    modifier whenTokenDoesNotMissERC20Return() {
+        _;
+    }
     /*//////////////////////////////////////////////////////////////////////////
                               ADJUST-AMOUNT-PER-SECOND
     //////////////////////////////////////////////////////////////////////////*/

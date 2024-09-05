@@ -101,6 +101,11 @@ contract SablierFlow is
 
     /// @inheritdoc ISablierFlow
     function statusOf(uint256 streamId) external view override notNull(streamId) returns (Flow.Status status) {
+        // Check: the stream is voided.
+        if (_streams[streamId].isVoided) {
+            return Flow.Status.VOIDED;
+        }
+
         // See whether the stream has uncovered debt.
         bool hasDebt = _uncoveredDebtOf(streamId) > 0;
 
@@ -240,6 +245,7 @@ contract SablierFlow is
         override
         noDelegateCall
         notNull(streamId)
+        notVoided(streamId)
         updateMetadata(streamId)
     {
         // Checks, Effects, and Interactions: deposit on stream.
@@ -276,6 +282,7 @@ contract SablierFlow is
         override
         noDelegateCall
         notNull(streamId)
+        notVoided(streamId)
         updateMetadata(streamId)
     {
         // Checks, Effects, and Interactions: deposit on stream through broker.
@@ -305,6 +312,7 @@ contract SablierFlow is
         override
         noDelegateCall
         notNull(streamId)
+        notVoided(streamId)
         onlySender(streamId)
         updateMetadata(streamId)
     {
@@ -341,6 +349,7 @@ contract SablierFlow is
         override
         noDelegateCall
         notNull(streamId)
+        notVoided(streamId)
         onlySender(streamId)
         updateMetadata(streamId)
     {
@@ -358,6 +367,7 @@ contract SablierFlow is
         override
         noDelegateCall
         notNull(streamId)
+        notVoided(streamId)
         onlySender(streamId)
         updateMetadata(streamId)
     {
@@ -369,7 +379,14 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function void(uint256 streamId) external override noDelegateCall notNull(streamId) updateMetadata(streamId) {
+    function void(uint256 streamId)
+        external
+        override
+        noDelegateCall
+        notNull(streamId)
+        notVoided(streamId)
+        updateMetadata(streamId)
+    {
         // Checks, Effects, and Interactions: void the stream.
         _void(streamId);
     }
@@ -569,6 +586,7 @@ contract SablierFlow is
             isPaused: false,
             isStream: true,
             isTransferable: transferable,
+            isVoided: false,
             ratePerSecond: ratePerSecond,
             sender: sender,
             snapshotDebt: 0,
@@ -749,6 +767,9 @@ contract SablierFlow is
 
         // Effect: set the stream as paused. This also sets the ongoing debt to zero.
         _streams[streamId].isPaused = true;
+
+        // Effect: set the stream as voided.
+        _streams[streamId].isVoided = true;
 
         // Log the void.
         emit ISablierFlow.VoidFlowStream({

@@ -15,12 +15,6 @@ contract RefundableAmountOf_Integration_Concrete_Test is Integration_Test {
         assertEq(actualRefundableAmount, 0, "refundable amount");
     }
 
-    modifier givenBalanceNotZero() override {
-        // Deposit into the stream.
-        depositToDefaultStream();
-        _;
-    }
-
     function test_GivenPaused() external givenNotNull givenBalanceNotZero {
         // Pause the stream.
         flow.pause(defaultStreamId);

@@ -17,6 +17,17 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(callData);
     }
 
+    function test_GivenVoided() external givenNotNull {
+        // Simulate the passage of time to accumulate uncovered debt for one month.
+        vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD + ONE_MONTH });
+        flow.void(defaultStreamId);
+
+        // it should return VOIDED
+        uint8 actualStatus = uint8(flow.statusOf(defaultStreamId));
+        uint8 expectedStatus = uint8(Flow.Status.VOIDED);
+        assertEq(actualStatus, expectedStatus);
+    }
+
     function test_GivenPausedAndNoUncoveredDebt() external givenNotNull {
         flow.pause(defaultStreamId);
 

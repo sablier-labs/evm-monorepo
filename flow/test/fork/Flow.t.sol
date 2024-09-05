@@ -113,6 +113,9 @@ contract Flow_Fork_Test is Fork_Test {
             // Bound the stream id to lie within the range of newly created streams.
             streamId = _bound(streamId, initialStreamId, finalStreamId - 1);
 
+            // For certain functions, we need to find a non-voided stream ID.
+            streamId = _findNonVoidedStreamId(streamId);
+
             // Execute the flow function mentioned in flowFunc[i].
             _executeFunc(
                 flowFunc[i],
@@ -157,6 +160,35 @@ contract Flow_Fork_Test is Fork_Test {
         } else if (flowFunc == FlowFunc.withdrawAt) {
             _test_WithdrawAt(streamId, withdrawAtTime);
         }
+    }
+
+    /// @notice Find the first non-voided stream ID with the same token.
+    /// @dev If no non-voided stream is found, it will create a new stream.
+    function _findNonVoidedStreamId(uint256 streamId) private returns (uint256) {
+        // Check if the current stream ID is voided.
+        if (flow.isVoided(streamId)) {
+            bool found = false;
+            for (uint256 i = 1; i < flow.nextStreamId(); ++i) {
+                if (!flow.isVoided(i) && token == flow.getToken(i)) {
+                    streamId = i;
+                    found = true;
+                    break;
+                }
+            }
+
+            // If no non-voided stream is found, create a stream.
+            if (!found) {
+                streamId = flow.create({
+                    sender: users.sender,
+                    recipient: users.recipient,
+                    ratePerSecond: RATE_PER_SECOND,
+                    token: token,
+                    transferable: TRANSFERABLE
+                });
+            }
+        }
+
+        return streamId;
     }
 
     /// @notice Simulate passage of time.
@@ -260,6 +292,7 @@ contract Flow_Fork_Test is Fork_Test {
             balance: 0,
             isPaused: false,
             isStream: true,
+            isVoided: false,
             isTransferable: transferable,
             snapshotTime: getBlockTimestamp(),
             ratePerSecond: ratePerSecond,

@@ -11,9 +11,6 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
 
-        // Deposit to the default stream.
-        depositToDefaultStream();
-
         // Set recipient as the caller for this test.
         resetPrank({ msgSender: users.recipient });
     }
@@ -114,6 +111,7 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
         whenTimeBetweenSnapshotTimeAndCurrentTime
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressNotOwner
+        givenBalanceNotZero
     {
         // It should withdraw.
         _test_Withdraw({

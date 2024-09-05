@@ -121,9 +121,9 @@ flowchart LR
 | ------------------- | :--------------------: | :-------: | :---------: | :--------------------: |
 | AdjustRatePerSecond |           ✅           |    ❌     |     ❌      |           ❌           |
 | Deposit             |           ✅           |    ✅     |     ✅      |           ✅           |
+| Pause               |           ✅           |    ❌     |     ❌      |           ❌           |
 | Refund              |           ✅           |    ❌     |     ❌      |           ❌           |
 | Restart             |           ✅           |    ❌     |     ❌      |           ❌           |
-| Pause               |           ✅           |    ❌     |     ❌      |           ❌           |
 | Transfer NFT        |           ❌           |    ✅     |     ✅      |           ❌           |
 | Void                |           ✅           |    ✅     |     ✅      |           ❌           |
 | Withdraw            | ✅ (only to Recipient) |    ✅     |     ✅      | ✅ (only to Recipient) |

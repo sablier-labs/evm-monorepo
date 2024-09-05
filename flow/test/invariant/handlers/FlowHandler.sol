@@ -126,6 +126,9 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         updateFlowHandlerStates
     {
+        // Voided streams cannot be deposited on.
+        vm.assume(!flow.isVoided(currentStreamId));
+
         // Calculate the upper bound, based on the token decimals, for the deposit amount.
         uint128 upperBound = getDenormalizedAmount(1_000_000e18, flow.getTokenDecimals(currentStreamId));
 
@@ -162,6 +165,9 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         updateFlowHandlerStates
     {
+        // Voided streams cannot be refunded.
+        vm.assume(!flow.isVoided(currentStreamId));
+
         uint128 refundableAmount = flow.refundableAmountOf(currentStreamId);
 
         // The protocol doesn't allow zero refund amounts.
@@ -189,6 +195,9 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         updateFlowHandlerStates
     {
+        // Voided streams cannot be restarted.
+        vm.assume(!flow.isVoided(currentStreamId));
+
         // Only paused streams can be restarted.
         vm.assume(flow.isPaused(currentStreamId));
 
@@ -210,6 +219,9 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         updateFlowHandlerStates
     {
+        // Voided streams cannot be voided again.
+        vm.assume(!flow.isVoided(currentStreamId));
+
         // Check if the uncovered debt is greater than zero.
         vm.assume(flow.uncoveredDebtOf(currentStreamId) > 0);
 

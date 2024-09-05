@@ -5,18 +5,21 @@ Deposit_Integration_Concrete_Test
    ├── given null
    │  └── it should revert
    └── given not null
-      ├── when deposit amount zero
+      ├── given voided
       │  └── it should revert
-      └── when deposit amount not zero
-         ├── when token misses ERC20 return
-         │  └── it should make the deposit
-         └── when token does not miss ERC20 return
-            ├── given token has 18 decimals
-            │  ├── it should update the stream balance
-            │  ├── it should perform the ERC20 transfer
-            │  └── it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
-            └── given token does not have 18 decimals
-               ├── it should update the stream balance
-               ├── it should perform the ERC20 transfer
-               └── it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
+      └── given not voided
+         ├── when deposit amount zero
+         │  └── it should revert
+         └── when deposit amount not zero
+            ├── when token misses ERC20 return
+            │  └── it should make the deposit
+            └── when token does not miss ERC20 return
+               ├── given token has 18 decimals
+               │  ├── it should update the stream balance
+               │  ├── it should perform the ERC20 transfer
+               │  └── it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
+               └── given token does not have 18 decimals
+                  ├── it should update the stream balance
+                  ├── it should perform the ERC20 transfer
+                  └── it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
 

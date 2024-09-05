@@ -149,9 +149,9 @@ Currently, it's not possible to address this precision problem entirely.
 
 ## Invariants
 
-1. for any stream, $lst \le now$
+1. for any stream, $st \le now$
 
-2. for a given token, $\sum$ stream balances $\eq$ token.balanceOf(SablierFlow)
+2. for a given token, $\sum$ stream balances = token.balanceOf(SablierFlow)
 
    Note: In the code, this invariant is tested with equality, as we don't implement the `ERC20.transferFrom` handlers.
    In real life, someone can transfer tokens to the contract.
@@ -175,3 +175,5 @@ Currently, it's not possible to address this precision problem entirely.
 11. $bal = ra + cd$
 
 12. if $isPaused = true \implies rps = 0$
+
+13. if $isVoided = true \implies isPaused = true$, $ra = 0$ and $ud = 0$

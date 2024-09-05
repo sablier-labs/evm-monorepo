@@ -20,11 +20,6 @@ contract DepletionTimeOf_Integration_Concrete_Test is Integration_Test {
         assertEq(depletionTime, 0, "depletion time");
     }
 
-    modifier givenBalanceNotZero() override {
-        depositToDefaultStream();
-        _;
-    }
-
     function test_GivenUncoveredDebt() external givenNotNull givenNotPaused givenBalanceNotZero {
         vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD });
         // It should return 0
