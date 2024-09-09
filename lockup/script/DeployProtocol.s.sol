@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupNFTDescriptor } from "../src/core/LockupNFTDescriptor.sol";
-import { SablierLockupDynamic } from "../src/core/SablierLockupDynamic.sol";
-import { SablierLockupLinear } from "../src/core/SablierLockupLinear.sol";
-import { SablierLockupTranched } from "../src/core/SablierLockupTranched.sol";
-import { SablierMerkleFactory } from "../src/periphery/SablierMerkleFactory.sol";
-import { SablierBatchLockup } from "../src/periphery/SablierBatchLockup.sol";
-
+import { LockupNFTDescriptor } from "./../src/core/LockupNFTDescriptor.sol";
+import { SablierLockupDynamic } from "./../src/core/SablierLockupDynamic.sol";
+import { SablierLockupLinear } from "./../src/core/SablierLockupLinear.sol";
+import { SablierLockupTranched } from "./../src/core/SablierLockupTranched.sol";
+import { SablierBatchLockup } from "./../src/periphery/SablierBatchLockup.sol";
+import { SablierMerkleFactory } from "./../src/periphery/SablierMerkleFactory.sol";
 import { BaseScript } from "./Base.s.sol";
 
 /// @notice Deploys the Lockup Protocol.

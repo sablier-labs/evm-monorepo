@@ -5,12 +5,10 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import { BitMaps } from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
-
-import { Adminable } from "../../core/abstracts/Adminable.sol";
-
-import { ISablierMerkleBase } from "../interfaces/ISablierMerkleBase.sol";
-import { MerkleBase } from "../types/DataTypes.sol";
-import { Errors } from "../libraries/Errors.sol";
+import { Adminable } from "./../../core/abstracts/Adminable.sol";
+import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
+import { Errors } from "./../libraries/Errors.sol";
+import { MerkleBase } from "./../types/DataTypes.sol";
 
 /// @title SablierMerkleBase
 /// @notice See the documentation in {ISablierMerkleBase}.

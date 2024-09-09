@@ -6,14 +6,12 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-
 import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockup } from "./interfaces/ISablierLockup.sol";
-import { Lockup } from "./types/DataTypes.sol";
-
 import { Errors } from "./libraries/Errors.sol";
 import { NFTSVG } from "./libraries/NFTSVG.sol";
 import { SVGElements } from "./libraries/SVGElements.sol";
+import { Lockup } from "./types/DataTypes.sol";
 
 /*
 

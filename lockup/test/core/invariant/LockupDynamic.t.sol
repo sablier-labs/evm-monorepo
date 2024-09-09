@@ -2,10 +2,9 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
-
-import { Lockup_Invariant_Test } from "./Lockup.t.sol";
 import { LockupDynamicCreateHandler } from "./handlers/LockupDynamicCreateHandler.sol";
 import { LockupDynamicHandler } from "./handlers/LockupDynamicHandler.sol";
+import { Lockup_Invariant_Test } from "./Lockup.t.sol";
 
 /// @dev Invariant tests for {SablierLockupDynamic}.
 contract LockupDynamic_Invariant_Test is Lockup_Invariant_Test {

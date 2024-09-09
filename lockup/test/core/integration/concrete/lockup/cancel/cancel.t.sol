@@ -4,11 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { ISablierLockupRecipient } from "src/core/interfaces/ISablierLockupRecipient.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
-
 import { Lockup } from "src/core/types/DataTypes.sol";
-
-import { Cancel_Integration_Shared_Test } from "../../../shared/lockup/cancel.t.sol";
-import { Integration_Test } from "../../../Integration.t.sol";
+import { Integration_Test } from "./../../../Integration.t.sol";
+import { Cancel_Integration_Shared_Test } from "./../../../shared/lockup/cancel.t.sol";
 
 abstract contract Cancel_Integration_Concrete_Test is Integration_Test, Cancel_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, Cancel_Integration_Shared_Test) {

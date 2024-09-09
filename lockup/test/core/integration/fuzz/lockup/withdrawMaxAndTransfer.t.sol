@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { WithdrawMaxAndTransfer_Integration_Shared_Test } from "../../shared/lockup/withdrawMaxAndTransfer.t.sol";
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "./../../Integration.t.sol";
+import { WithdrawMaxAndTransfer_Integration_Shared_Test } from "./../../shared/lockup/withdrawMaxAndTransfer.t.sol";
 
 abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
     Integration_Test,

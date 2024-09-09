@@ -2,40 +2,39 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
-
-import { LockupTranched_Integration_Shared_Test } from "../../shared/lockup-tranched/LockupTranched.t.sol";
-import { Integration_Test } from "../../Integration.t.sol";
-import { AllowToHook_Integration_Concrete_Test } from "../lockup/allow-to-hook/allowToHook.t.sol";
-import { Burn_Integration_Concrete_Test } from "../lockup/burn/burn.t.sol";
-import { Cancel_Integration_Concrete_Test } from "../lockup/cancel/cancel.t.sol";
-import { CancelMultiple_Integration_Concrete_Test } from "../lockup/cancel-multiple/cancelMultiple.t.sol";
-import { GetAsset_Integration_Concrete_Test } from "../lockup/get-asset/getAsset.t.sol";
-import { GetDepositedAmount_Integration_Concrete_Test } from "../lockup/get-deposited-amount/getDepositedAmount.t.sol";
-import { GetEndTime_Integration_Concrete_Test } from "../lockup/get-end-time/getEndTime.t.sol";
-import { GetRecipient_Integration_Concrete_Test } from "../lockup/get-recipient/getRecipient.t.sol";
-import { GetRefundedAmount_Integration_Concrete_Test } from "../lockup/get-refunded-amount/getRefundedAmount.t.sol";
-import { GetSender_Integration_Concrete_Test } from "../lockup/get-sender/getSender.t.sol";
-import { GetStartTime_Integration_Concrete_Test } from "../lockup/get-start-time/getStartTime.t.sol";
-import { GetWithdrawnAmount_Integration_Concrete_Test } from "../lockup/get-withdrawn-amount/getWithdrawnAmount.t.sol";
-import { IsAllowedToHook_Integration_Concrete_Test } from "../lockup/is-allowed-to-hook/isAllowedToHook.t.sol";
-import { IsCancelable_Integration_Concrete_Test } from "../lockup/is-cancelable/isCancelable.t.sol";
-import { IsCold_Integration_Concrete_Test } from "../lockup/is-cold/isCold.t.sol";
-import { IsDepleted_Integration_Concrete_Test } from "../lockup/is-depleted/isDepleted.t.sol";
-import { IsStream_Integration_Concrete_Test } from "../lockup/is-stream/isStream.t.sol";
-import { IsTransferable_Integration_Concrete_Test } from "../lockup/is-transferable/isTransferable.t.sol";
-import { IsWarm_Integration_Concrete_Test } from "../lockup/is-warm/isWarm.t.sol";
-import { RefundableAmountOf_Integration_Concrete_Test } from "../lockup/refundable-amount-of/refundableAmountOf.t.sol";
-import { Renounce_Integration_Concrete_Test } from "../lockup/renounce/renounce.t.sol";
-import { SetNFTDescriptor_Integration_Concrete_Test } from "../lockup/set-nft-descriptor/setNFTDescriptor.t.sol";
-import { StatusOf_Integration_Concrete_Test } from "../lockup/status-of/statusOf.t.sol";
-import { TransferFrom_Integration_Concrete_Test } from "../lockup/transfer-from/transferFrom.t.sol";
-import { WasCanceled_Integration_Concrete_Test } from "../lockup/was-canceled/wasCanceled.t.sol";
-import { Withdraw_Integration_Concrete_Test } from "../lockup/withdraw/withdraw.t.sol";
-import { WithdrawHooks_Integration_Concrete_Test } from "../lockup/withdraw-hooks/withdrawHooks.t.sol";
-import { WithdrawMax_Integration_Concrete_Test } from "../lockup/withdraw-max/withdrawMax.t.sol";
+import { Integration_Test } from "./../../Integration.t.sol";
+import { LockupTranched_Integration_Shared_Test } from "./../../shared/lockup-tranched/LockupTranched.t.sol";
+import { AllowToHook_Integration_Concrete_Test } from "./../lockup/allow-to-hook/allowToHook.t.sol";
+import { Burn_Integration_Concrete_Test } from "./../lockup/burn/burn.t.sol";
+import { CancelMultiple_Integration_Concrete_Test } from "./../lockup/cancel-multiple/cancelMultiple.t.sol";
+import { Cancel_Integration_Concrete_Test } from "./../lockup/cancel/cancel.t.sol";
+import { GetAsset_Integration_Concrete_Test } from "./../lockup/get-asset/getAsset.t.sol";
+import { GetDepositedAmount_Integration_Concrete_Test } from "./../lockup/get-deposited-amount/getDepositedAmount.t.sol";
+import { GetEndTime_Integration_Concrete_Test } from "./../lockup/get-end-time/getEndTime.t.sol";
+import { GetRecipient_Integration_Concrete_Test } from "./../lockup/get-recipient/getRecipient.t.sol";
+import { GetRefundedAmount_Integration_Concrete_Test } from "./../lockup/get-refunded-amount/getRefundedAmount.t.sol";
+import { GetSender_Integration_Concrete_Test } from "./../lockup/get-sender/getSender.t.sol";
+import { GetStartTime_Integration_Concrete_Test } from "./../lockup/get-start-time/getStartTime.t.sol";
+import { GetWithdrawnAmount_Integration_Concrete_Test } from "./../lockup/get-withdrawn-amount/getWithdrawnAmount.t.sol";
+import { IsAllowedToHook_Integration_Concrete_Test } from "./../lockup/is-allowed-to-hook/isAllowedToHook.t.sol";
+import { IsCancelable_Integration_Concrete_Test } from "./../lockup/is-cancelable/isCancelable.t.sol";
+import { IsCold_Integration_Concrete_Test } from "./../lockup/is-cold/isCold.t.sol";
+import { IsDepleted_Integration_Concrete_Test } from "./../lockup/is-depleted/isDepleted.t.sol";
+import { IsStream_Integration_Concrete_Test } from "./../lockup/is-stream/isStream.t.sol";
+import { IsTransferable_Integration_Concrete_Test } from "./../lockup/is-transferable/isTransferable.t.sol";
+import { IsWarm_Integration_Concrete_Test } from "./../lockup/is-warm/isWarm.t.sol";
+import { RefundableAmountOf_Integration_Concrete_Test } from "./../lockup/refundable-amount-of/refundableAmountOf.t.sol";
+import { Renounce_Integration_Concrete_Test } from "./../lockup/renounce/renounce.t.sol";
+import { SetNFTDescriptor_Integration_Concrete_Test } from "./../lockup/set-nft-descriptor/setNFTDescriptor.t.sol";
+import { StatusOf_Integration_Concrete_Test } from "./../lockup/status-of/statusOf.t.sol";
+import { TransferFrom_Integration_Concrete_Test } from "./../lockup/transfer-from/transferFrom.t.sol";
+import { WasCanceled_Integration_Concrete_Test } from "./../lockup/was-canceled/wasCanceled.t.sol";
+import { WithdrawHooks_Integration_Concrete_Test } from "./../lockup/withdraw-hooks/withdrawHooks.t.sol";
 import { WithdrawMaxAndTransfer_Integration_Concrete_Test } from
-    "../lockup/withdraw-max-and-transfer/withdrawMaxAndTransfer.t.sol";
-import { WithdrawMultiple_Integration_Concrete_Test } from "../lockup/withdraw-multiple/withdrawMultiple.t.sol";
+    "./../lockup/withdraw-max-and-transfer/withdrawMaxAndTransfer.t.sol";
+import { WithdrawMax_Integration_Concrete_Test } from "./../lockup/withdraw-max/withdrawMax.t.sol";
+import { WithdrawMultiple_Integration_Concrete_Test } from "./../lockup/withdraw-multiple/withdrawMultiple.t.sol";
+import { Withdraw_Integration_Concrete_Test } from "./../lockup/withdraw/withdraw.t.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
                             NON-SHARED ABSTRACT TEST

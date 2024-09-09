@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { ISablierLockupTranched } from "../../core/interfaces/ISablierLockupTranched.sol";
-
+import { ISablierLockupTranched } from "./../../core/interfaces/ISablierLockupTranched.sol";
+import { MerkleLT } from "./../types/DataTypes.sol";
 import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
-import { MerkleLT } from "../types/DataTypes.sol";
 
 /// @title ISablierMerkleLT
 /// @notice Merkle Lockup campaign that creates LockupTranched streams.

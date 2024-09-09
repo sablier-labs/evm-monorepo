@@ -2,9 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupLinear } from "src/core/types/DataTypes.sol";
-
+import { WithdrawableAmountOf_Integration_Shared_Test } from "./../../shared/lockup/withdrawableAmountOf.t.sol";
 import { LockupLinear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
-import { WithdrawableAmountOf_Integration_Shared_Test } from "../../shared/lockup/withdrawableAmountOf.t.sol";
 
 contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
     LockupLinear_Integration_Fuzz_Test,

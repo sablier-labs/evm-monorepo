@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
 import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
@@ -19,11 +18,10 @@ import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol"
 import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
 import { SablierBatchLockup } from "src/periphery/SablierBatchLockup.sol";
 import { SablierMerkleFactory } from "src/periphery/SablierMerkleFactory.sol";
-
-import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
-import { Noop } from "./mocks/Noop.sol";
+import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { RecipientGood } from "./mocks/Hooks.sol";
+import { Noop } from "./mocks/Noop.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Calculations } from "./utils/Calculations.sol";
 import { Constants } from "./utils/Constants.sol";

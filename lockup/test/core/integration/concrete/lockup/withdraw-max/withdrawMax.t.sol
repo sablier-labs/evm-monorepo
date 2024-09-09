@@ -2,9 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup } from "src/core/types/DataTypes.sol";
-
-import { WithdrawMax_Integration_Shared_Test } from "../../../shared/lockup/withdrawMax.t.sol";
-import { Integration_Test } from "../../../Integration.t.sol";
+import { Integration_Test } from "./../../../Integration.t.sol";
+import { WithdrawMax_Integration_Shared_Test } from "./../../../shared/lockup/withdrawMax.t.sol";
 
 abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, WithdrawMax_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, WithdrawMax_Integration_Shared_Test) {

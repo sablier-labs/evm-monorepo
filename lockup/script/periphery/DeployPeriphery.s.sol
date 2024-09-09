@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
-import { SablierMerkleFactory } from "../../src/periphery/SablierMerkleFactory.sol";
-import { SablierBatchLockup } from "../../src/periphery/SablierBatchLockup.sol";
-
-import { BaseScript } from "../Base.s.sol";
+import { SablierBatchLockup } from "./../../src/periphery/SablierBatchLockup.sol";
+import { SablierMerkleFactory } from "./../../src/periphery/SablierMerkleFactory.sol";
+import { BaseScript } from "./../Base.s.sol";
 
 /// @notice Deploys all Periphery contract in the following order:
 ///

@@ -4,8 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
 import { MerkleLL } from "src/periphery/types/DataTypes.sol";
 
-import { MerkleLL_Integration_Shared_Test } from "../MerkleLL.t.sol";
 import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
+import { MerkleLL_Integration_Shared_Test } from "../MerkleLL.t.sol";
 
 contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Integration_Shared_Test {
     MerkleLL.Schedule internal schedule;

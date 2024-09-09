@@ -1,7 +1,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupTranched_Integration_Concrete_Test } from "../LockupTranched.t.sol";
-import { StreamedAmountOf_Integration_Concrete_Test } from "../../lockup/streamed-amount-of/streamedAmountOf.t.sol";
+import { StreamedAmountOf_Integration_Concrete_Test } from "./../../lockup/streamed-amount-of/streamedAmountOf.t.sol";
+import { LockupTranched_Integration_Concrete_Test } from "./../LockupTranched.t.sol";
 
 contract StreamedAmountOf_LockupTranched_Integration_Concrete_Test is
     LockupTranched_Integration_Concrete_Test,

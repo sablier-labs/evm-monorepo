@@ -2,11 +2,9 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Solarray } from "solarray/src/Solarray.sol";
-
 import { Lockup } from "src/core/types/DataTypes.sol";
-
-import { WithdrawMultiple_Integration_Shared_Test } from "../../shared/lockup/withdrawMultiple.t.sol";
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "./../../Integration.t.sol";
+import { WithdrawMultiple_Integration_Shared_Test } from "./../../shared/lockup/withdrawMultiple.t.sol";
 
 abstract contract WithdrawMultiple_Integration_Fuzz_Test is
     Integration_Test,

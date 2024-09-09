@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LibString } from "solady/src/utils/LibString.sol";
-
 import { Precompiles } from "precompiles/Precompiles.sol";
+import { LibString } from "solady/src/utils/LibString.sol";
 import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
 import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
 import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
 import { ISablierBatchLockup } from "src/periphery/interfaces/ISablierBatchLockup.sol";
 import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
-
-import { Base_Test } from "../Base.t.sol";
+import { Base_Test } from "./../Base.t.sol";
 
 contract Precompiles_Test is Base_Test {
     using LibString for address;

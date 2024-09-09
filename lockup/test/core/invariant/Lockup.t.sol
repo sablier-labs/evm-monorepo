@@ -3,9 +3,8 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Lockup } from "src/core/types/DataTypes.sol";
-
-import { Invariant_Test } from "./Invariant.t.sol";
 import { LockupHandler } from "./handlers/LockupHandler.sol";
+import { Invariant_Test } from "./Invariant.t.sol";
 import { LockupStore } from "./stores/LockupStore.sol";
 
 /// @notice Common invariant test logic needed across contracts that inherit from {SablierLockup}.

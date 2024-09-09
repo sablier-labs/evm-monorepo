@@ -2,17 +2,16 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
-
-import { LockupLinear_Integration_Shared_Test } from "../../shared/lockup-linear/LockupLinear.t.sol";
-import { Integration_Test } from "../../Integration.t.sol";
-import { Cancel_Integration_Fuzz_Test } from "../lockup/cancel.t.sol";
-import { CancelMultiple_Integration_Fuzz_Test } from "../lockup/cancelMultiple.t.sol";
-import { GetWithdrawnAmount_Integration_Fuzz_Test } from "../lockup/getWithdrawnAmount.t.sol";
-import { RefundableAmountOf_Integration_Fuzz_Test } from "../lockup/refundableAmountOf.t.sol";
-import { Withdraw_Integration_Fuzz_Test } from "../lockup/withdraw.t.sol";
-import { WithdrawMax_Integration_Fuzz_Test } from "../lockup/withdrawMax.t.sol";
-import { WithdrawMaxAndTransfer_Integration_Fuzz_Test } from "../lockup/withdrawMaxAndTransfer.t.sol";
-import { WithdrawMultiple_Integration_Fuzz_Test } from "../lockup/withdrawMultiple.t.sol";
+import { Integration_Test } from "./../../Integration.t.sol";
+import { LockupLinear_Integration_Shared_Test } from "./../../shared/lockup-linear/LockupLinear.t.sol";
+import { Cancel_Integration_Fuzz_Test } from "./../lockup/cancel.t.sol";
+import { CancelMultiple_Integration_Fuzz_Test } from "./../lockup/cancelMultiple.t.sol";
+import { GetWithdrawnAmount_Integration_Fuzz_Test } from "./../lockup/getWithdrawnAmount.t.sol";
+import { RefundableAmountOf_Integration_Fuzz_Test } from "./../lockup/refundableAmountOf.t.sol";
+import { Withdraw_Integration_Fuzz_Test } from "./../lockup/withdraw.t.sol";
+import { WithdrawMax_Integration_Fuzz_Test } from "./../lockup/withdrawMax.t.sol";
+import { WithdrawMaxAndTransfer_Integration_Fuzz_Test } from "./../lockup/withdrawMaxAndTransfer.t.sol";
+import { WithdrawMultiple_Integration_Fuzz_Test } from "./../lockup/withdrawMultiple.t.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
                             NON-SHARED ABSTRACT TEST

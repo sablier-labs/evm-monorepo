@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ud2x18, uUNIT } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud, ZERO } from "@prb/math/src/UD60x18.sol";
 
@@ -10,10 +10,10 @@ import { Broker, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../
 import { BatchLockup, MerkleBase, MerkleLL, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
 
 import { ArrayBuilder } from "./ArrayBuilder.sol";
-import { Constants } from "./Constants.sol";
 import { BatchLockupBuilder } from "./BatchLockupBuilder.sol";
-import { Merkle } from "./Murky.sol";
+import { Constants } from "./Constants.sol";
 import { MerkleBuilder } from "./MerkleBuilder.sol";
+import { Merkle } from "./Murky.sol";
 import { Users } from "./Types.sol";
 
 /// @notice Contract with default values used throughout the tests.

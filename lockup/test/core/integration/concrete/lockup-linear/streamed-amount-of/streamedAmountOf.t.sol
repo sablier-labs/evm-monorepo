@@ -2,9 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupLinear } from "src/core/types/DataTypes.sol";
-
-import { LockupLinear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
-import { StreamedAmountOf_Integration_Concrete_Test } from "../../lockup/streamed-amount-of/streamedAmountOf.t.sol";
+import { StreamedAmountOf_Integration_Concrete_Test } from "./../../lockup/streamed-amount-of/streamedAmountOf.t.sol";
+import { LockupLinear_Integration_Concrete_Test } from "./../LockupLinear.t.sol";
 
 contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
     LockupLinear_Integration_Concrete_Test,

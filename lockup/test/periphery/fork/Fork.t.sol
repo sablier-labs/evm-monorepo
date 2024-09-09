@@ -2,13 +2,11 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
 import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
 import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
-
-import { Periphery_Test } from "../Periphery.t.sol";
-import { Merkle } from "../../utils/Murky.sol";
+import { Merkle } from "./../../utils/Murky.sol";
+import { Periphery_Test } from "./../Periphery.t.sol";
 
 /// @notice Common logic needed by all fork tests.
 abstract contract Fork_Test is Periphery_Test, Merkle {

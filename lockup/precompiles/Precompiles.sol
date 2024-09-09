@@ -2,13 +2,13 @@
 // solhint-disable max-line-length,no-inline-assembly,reason-string
 pragma solidity >=0.8.22;
 
-import { ILockupNFTDescriptor } from "../src/core/interfaces/ILockupNFTDescriptor.sol";
-import { LockupNFTDescriptor } from "../src/core/LockupNFTDescriptor.sol";
-import { ISablierLockupDynamic } from "../src/core/interfaces/ISablierLockupDynamic.sol";
-import { ISablierLockupLinear } from "../src/core/interfaces/ISablierLockupLinear.sol";
-import { ISablierLockupTranched } from "../src/core/interfaces/ISablierLockupTranched.sol";
-import { ISablierBatchLockup } from "../src/periphery/interfaces/ISablierBatchLockup.sol";
-import { ISablierMerkleFactory } from "../src/periphery/interfaces/ISablierMerkleFactory.sol";
+import { ILockupNFTDescriptor } from "./../src/core/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierLockupDynamic } from "./../src/core/interfaces/ISablierLockupDynamic.sol";
+import { ISablierLockupLinear } from "./../src/core/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockupTranched } from "./../src/core/interfaces/ISablierLockupTranched.sol";
+import { LockupNFTDescriptor } from "./../src/core/LockupNFTDescriptor.sol";
+import { ISablierBatchLockup } from "./../src/periphery/interfaces/ISablierBatchLockup.sol";
+import { ISablierMerkleFactory } from "./../src/periphery/interfaces/ISablierMerkleFactory.sol";
 
 /// @notice This is useful for external integrations seeking to test against the exact deployed bytecode, as recompiling
 /// with via IR enabled would be time-consuming.
@@ -182,7 +182,9 @@ contract Precompiles {
     }
 
     /// @notice Deploys all Core contracts.
-    function deployCore(address initialAdmin)
+    function deployCore(
+        address initialAdmin
+    )
         public
         returns (
             ILockupNFTDescriptor nftDescriptor,
@@ -236,7 +238,9 @@ contract Precompiles {
     /// 4. {SablierLockupTranched}
     /// 5. {SablierBatchLockup}
     /// 6. {SablierMerkleFactory}
-    function deployProtocol(address initialAdmin)
+    function deployProtocol(
+        address initialAdmin
+    )
         public
         returns (
             ILockupNFTDescriptor nftDescriptor,

@@ -2,9 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup } from "src/core/types/DataTypes.sol";
-
-import { Withdraw_Integration_Shared_Test } from "../../shared/lockup/withdraw.t.sol";
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "./../../Integration.t.sol";
+import { Withdraw_Integration_Shared_Test } from "./../../shared/lockup/withdraw.t.sol";
 
 abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, Withdraw_Integration_Shared_Test) {

@@ -2,12 +2,10 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
-
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
-
-import { Lockup_Integration_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
-import { Integration_Test } from "../../../Integration.t.sol";
+import { Integration_Test } from "./../../../Integration.t.sol";
+import { Lockup_Integration_Shared_Test } from "./../../../shared/lockup/Lockup.t.sol";
 
 abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
     uint256 internal streamId;

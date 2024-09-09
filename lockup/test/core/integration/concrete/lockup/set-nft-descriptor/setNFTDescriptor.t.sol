@@ -4,9 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { LockupNFTDescriptor } from "src/core/LockupNFTDescriptor.sol";
-
-import { Lockup_Integration_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
-import { Integration_Test } from "../../../Integration.t.sol";
+import { Integration_Test } from "./../../../Integration.t.sol";
+import { Lockup_Integration_Shared_Test } from "./../../../shared/lockup/Lockup.t.sol";
 
 abstract contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
     uint256 internal defaultStreamId;

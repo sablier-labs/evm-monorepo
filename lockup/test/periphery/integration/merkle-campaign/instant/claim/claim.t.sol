@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { MerkleInstant_Integration_Shared_Test } from "../MerkleInstant.t.sol";
-import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
+import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
+import { MerkleInstant_Integration_Shared_Test } from "./../MerkleInstant.t.sol";
 
 contract Claim_MerkleInstant_Integration_Test is Claim_Integration_Test, MerkleInstant_Integration_Shared_Test {
     function setUp() public override(Claim_Integration_Test, MerkleInstant_Integration_Shared_Test) {

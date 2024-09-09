@@ -2,9 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/core/libraries/Errors.sol";
-
-import { GetWithdrawnAmount_Integration_Shared_Test } from "../../../shared/lockup/getWithdrawnAmount.t.sol";
-import { Integration_Test } from "../../../Integration.t.sol";
+import { Integration_Test } from "./../../../Integration.t.sol";
+import { GetWithdrawnAmount_Integration_Shared_Test } from "./../../../shared/lockup/getWithdrawnAmount.t.sol";
 
 abstract contract GetWithdrawnAmount_Integration_Concrete_Test is
     Integration_Test,

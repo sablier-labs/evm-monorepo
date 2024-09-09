@@ -2,9 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
-
-import { Lockup_Integration_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
-import { Integration_Test } from "../../../Integration.t.sol";
+import { Integration_Test } from "./../../../Integration.t.sol";
+import { Lockup_Integration_Shared_Test } from "./../../../shared/lockup/Lockup.t.sol";
 
 abstract contract GetRecipient_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
     uint256 internal defaultStreamId;
