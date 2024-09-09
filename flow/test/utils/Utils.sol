@@ -6,7 +6,6 @@ import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
 import { CommonBase } from "forge-std/src/Base.sol";
 import { SafeCastLib } from "solady/src/utils/SafeCastLib.sol";
-import { Helpers } from "src/libraries/Helpers.sol";
 import { Constants } from "./Constants.sol";
 
 abstract contract Utils is CommonBase, Constants, PRBMathUtils {
@@ -33,7 +32,7 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
 
     /// @dev Bounds the rate per second between a realistic range.
     function boundRatePerSecond(UD21x18 ratePerSecond) internal pure returns (UD21x18) {
-        return ud21x18(boundUint128(ratePerSecond.unwrap(), 0.00001e18, 10e18));
+        return ud21x18(boundUint128(ratePerSecond.unwrap(), 0.0000001e18, 10e18));
     }
 
     /// @dev Bounds a `uint128` number.
@@ -61,14 +60,24 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
         return TRANSFER_VALUE * (10 ** decimals).toUint128();
     }
 
-    /// @dev Mirror function for {Helpers.denormalizeAmount}.
+    /// @dev Denormalizes the amount to denote it in token's decimals.
     function getDenormalizedAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
-        return Helpers.denormalizeAmount(amount, decimals);
+        if (decimals == 18) {
+            return amount;
+        }
+
+        uint8 factor = 18 - decimals;
+        return (amount / (10 ** factor)).toUint128();
     }
 
-    /// @dev Mirror function for {Helpers.normalizeAmount}.
+    /// @dev Normalizes the amount to denote it in 18 decimals.
     function getNormalizedAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
-        return Helpers.normalizeAmount(amount, decimals);
+        if (decimals == 18) {
+            return amount;
+        }
+
+        uint8 factor = 18 - decimals;
+        return (amount * (10 ** factor)).toUint128();
     }
 
     /// @dev Checks if the Foundry profile is "benchmark".

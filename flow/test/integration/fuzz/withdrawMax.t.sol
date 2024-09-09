@@ -136,6 +136,16 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint128 streamBalance = flow.getBalance(streamId);
         uint128 withdrawAmount = flow.coveredDebtOf(streamId);
 
+        uint40 expectedCorrectedAmount = uint40(
+            getNormalizedAmount(flow.ongoingDebtOf(streamId), flow.getTokenDecimals(streamId))
+                / flow.getRatePerSecond(streamId).unwrap() + flow.getSnapshotTime(streamId)
+        );
+
+        uint128 residualDebt = getDenormalizedAmount({
+            amount: flow.getRatePerSecond(streamId).unwrap() * (getBlockTimestamp() - expectedCorrectedAmount),
+            decimals: flow.getTokenDecimals(streamId)
+        });
+
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(token) });
         emit IERC20.Transfer({ from: address(flow), to: withdrawTo, value: withdrawAmount });
@@ -148,7 +158,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             caller: caller,
             protocolFeeAmount: 0,
             withdrawAmount: withdrawAmount,
-            withdrawTime: getBlockTimestamp()
+            snapshotTime: expectedCorrectedAmount
         });
 
         vm.expectEmit({ emitter: address(flow) });
@@ -158,12 +168,20 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         flow.withdrawMax(streamId, withdrawTo);
 
         // It should update snapshot time.
-        assertEq(flow.getSnapshotTime(streamId), getBlockTimestamp(), "snapshot time");
+        assertEq(flow.getSnapshotTime(streamId), expectedCorrectedAmount, "snapshot time");
 
         // It should decrease the total debt by the withdrawn value.
         uint128 actualTotalDebt = flow.totalDebtOf(streamId);
-        uint128 expectedTotalDebt = totalDebt - withdrawAmount;
+        uint128 expectedTotalDebt = totalDebt - withdrawAmount + residualDebt;
         assertEq(actualTotalDebt, expectedTotalDebt, "total debt");
+
+        // Assert that snapshot time is updated correctly.
+        assertEq(flow.getSnapshotTime(streamId), expectedCorrectedAmount, "snapshot time");
+
+        // Assert that total debt equals snapshot debt and ongoing debt
+        assertEq(
+            flow.totalDebtOf(streamId), flow.getSnapshotDebt(streamId) + flow.ongoingDebtOf(streamId), "snapshot debt"
+        );
 
         // It should reduce the stream balance by the withdrawn amount.
         uint128 actualStreamBalance = flow.getBalance(streamId);

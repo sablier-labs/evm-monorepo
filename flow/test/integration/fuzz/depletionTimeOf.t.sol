@@ -23,8 +23,9 @@ contract DepletionTimeOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId, decimals,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Calculate the solvency period based on the stream deposit.
-        uint40 solvencyPeriod =
-            uint40(getNormalizedAmount(flow.getBalance(streamId), decimals) / flow.getRatePerSecond(streamId).unwrap());
+        uint40 solvencyPeriod = uint40(
+            getNormalizedAmount(flow.getBalance(streamId) + 1, decimals) / flow.getRatePerSecond(streamId).unwrap()
+        );
 
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
@@ -36,8 +37,19 @@ contract DepletionTimeOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint40 actualDepletionTime = flow.depletionTimeOf(streamId);
         if (getBlockTimestamp() > MAY_1_2024 + solvencyPeriod) {
             assertEq(actualDepletionTime, 0, "depletion time");
+
+            // Assert that uncovered debt is greater than 0.
+            assertGt(flow.uncoveredDebtOf(streamId), 0, "uncovered debt post depletion time");
         } else {
             assertEq(actualDepletionTime, MAY_1_2024 + solvencyPeriod, "depletion time");
+
+            // Assert that uncovered debt is zero at depletion time.
+            vm.warp({ newTimestamp: actualDepletionTime });
+            assertEq(flow.uncoveredDebtOf(streamId), 0, "uncovered debt before depletion time");
+
+            // Assert that uncovered debt is greater than 0 right after depletion time.
+            vm.warp({ newTimestamp: actualDepletionTime + 1 });
+            assertGt(flow.uncoveredDebtOf(streamId), 0, "uncovered debt after depletion time");
         }
     }
 }

@@ -77,6 +77,6 @@ abstract contract Events {
         address caller,
         uint128 protocolFeeAmount,
         uint128 withdrawAmount,
-        uint40 withdrawTime
+        uint40 snapshotTime
     );
 }

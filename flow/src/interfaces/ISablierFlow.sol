@@ -97,7 +97,7 @@ interface ISablierFlow is
     /// decimals.
     /// @param withdrawAmount The amount withdrawn to the recipient after subtracting the protocol fee, denoted in
     /// token's decimals.
-    /// @param withdrawTime The Unix timestamp up to which ongoing debt was calculated from the snapshot time.
+    /// @param snapshotTime The Unix timestamp representing the updated snapshot time.
     event WithdrawFromFlowStream(
         uint256 indexed streamId,
         address indexed to,
@@ -105,7 +105,7 @@ interface ISablierFlow is
         address caller,
         uint128 protocolFeeAmount,
         uint128 withdrawAmount,
-        uint40 withdrawTime
+        uint40 snapshotTime
     );
 
     /*//////////////////////////////////////////////////////////////////////////

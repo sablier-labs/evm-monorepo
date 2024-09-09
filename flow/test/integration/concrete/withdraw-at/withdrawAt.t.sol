@@ -27,8 +27,8 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertWhen_TimeLessThanSnapshotTime() external whenNoDelegateCall givenNotNull {
-        // Set the snapshot time to the current block timestamp.
-        updateSnapshotTimeToBlockTimestamp(defaultStreamId);
+        // Update the snapshot time and warp the current block timestamp to it.
+        updateSnapshotTimeAndWarp(defaultStreamId);
 
         uint40 snapshotTime = flow.getSnapshotTime(defaultStreamId);
 
@@ -269,7 +269,7 @@ contract WithdrawAt_Integration_Concrete_Test is Integration_Test {
             caller: users.recipient,
             protocolFeeAmount: feeAmount,
             withdrawAmount: withdrawAmount,
-            withdrawTime: WITHDRAW_TIME
+            snapshotTime: WITHDRAW_TIME
         });
 
         vm.expectEmit({ emitter: address(flow) });

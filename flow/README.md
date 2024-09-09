@@ -178,3 +178,5 @@ Currently, it's not possible to address this precision problem entirely.
 12. if $isPaused = true \implies rps = 0$
 
 13. if $isVoided = true \implies isPaused = true$, $ra = 0$ and $ud = 0$
+
+14. snapshot time should never decrease

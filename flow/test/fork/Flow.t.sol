@@ -13,6 +13,8 @@ contract Flow_Fork_Test is Fork_Test {
     /// @dev Total number of streams to create for each token.
     uint256 internal constant TOTAL_STREAMS = 20;
 
+    Vars internal vars;
+
     /// @dev An enum to represent functions from the Flow contract.
     enum FlowFunc {
         adjustRatePerSecond,
@@ -36,6 +38,26 @@ contract Flow_Fork_Test is Fork_Test {
         uint128 depositAmount;
         uint128 refundAmount;
         uint40 withdrawAtTime;
+    }
+
+    /// @dev A struct to hold the actual and expected values, this prevents stack overflow.
+    struct Vars {
+        // Actual values.
+        UD21x18 actualRatePerSecond;
+        uint40 actualSnapshotTime;
+        uint128 actualSnapshotDebt;
+        uint128 actualStreamBalance;
+        uint256 actualStreamId;
+        uint256 actualTokenBalance;
+        uint128 actualTotalDebt;
+        // Expected values.
+        UD21x18 expectedRatePerSecond;
+        uint40 expectedSnapshotTime;
+        uint128 expectedSnapshotDebt;
+        uint128 expectedStreamBalance;
+        uint256 expectedStreamId;
+        uint256 expectedTokenBalance;
+        uint128 expectedTotalDebt;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -218,20 +240,30 @@ contract Flow_Fork_Test is Fork_Test {
         if (flow.isPaused(streamId)) {
             flow.restart(streamId, RATE_PER_SECOND);
         }
-        if (newRatePerSecond.unwrap() == flow.getRatePerSecond(streamId).unwrap()) {
+
+        UD21x18 oldRatePerSecond = flow.getRatePerSecond(streamId);
+        if (newRatePerSecond.unwrap() == oldRatePerSecond.unwrap()) {
             newRatePerSecond = ud21x18(newRatePerSecond.unwrap() + 1);
         }
 
         uint128 beforeSnapshotAmount = flow.getSnapshotDebt(streamId);
         uint128 totalDebt = flow.totalDebtOf(streamId);
         uint128 ongoingDebt = flow.ongoingDebtOf(streamId);
+        if (ongoingDebt != 0) {
+            vars.expectedSnapshotTime = uint40(
+                flow.getSnapshotTime(streamId)
+                    + getNormalizedAmount(ongoingDebt, flow.getTokenDecimals(streamId)) / oldRatePerSecond.unwrap()
+            );
+        } else {
+            vars.expectedSnapshotTime = getBlockTimestamp();
+        }
 
         // It should emit 1 {AdjustFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
         emit AdjustFlowStream({
             streamId: streamId,
             totalDebt: totalDebt,
-            oldRatePerSecond: flow.getRatePerSecond(streamId),
+            oldRatePerSecond: oldRatePerSecond,
             newRatePerSecond: newRatePerSecond
         });
 
@@ -241,19 +273,18 @@ contract Flow_Fork_Test is Fork_Test {
         flow.adjustRatePerSecond({ streamId: streamId, newRatePerSecond: newRatePerSecond });
 
         // It should update snapshot debt.
-        uint128 actualSnapshotDebt = flow.getSnapshotDebt(streamId);
-        uint128 expectedSnapshotDebt = ongoingDebt + beforeSnapshotAmount;
-        assertEq(actualSnapshotDebt, expectedSnapshotDebt, "snapshot debt");
+        vars.actualSnapshotDebt = flow.getSnapshotDebt(streamId);
+        vars.expectedSnapshotDebt = ongoingDebt + beforeSnapshotAmount;
+        assertEq(vars.actualSnapshotDebt, vars.expectedSnapshotDebt, "AdjustRatePerSecond: snapshot debt");
 
         // It should set the new rate per second
-        UD21x18 actualRatePerSecond = flow.getRatePerSecond(streamId);
-        UD21x18 expectedRatePerSecond = newRatePerSecond;
-        assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
+        vars.actualRatePerSecond = flow.getRatePerSecond(streamId);
+        vars.expectedRatePerSecond = newRatePerSecond;
+        assertEq(vars.actualRatePerSecond, vars.expectedRatePerSecond, "AdjustRatePerSecond: rate per second");
 
         // It should update snapshot time
-        uint128 actualSnapshotTime = flow.getSnapshotTime(streamId);
-        uint128 expectedSnapshotTime = getBlockTimestamp();
-        assertEq(actualSnapshotTime, expectedSnapshotTime, "snapshot time");
+        vars.actualSnapshotTime = flow.getSnapshotTime(streamId);
+        assertEq(vars.actualSnapshotTime, vars.expectedSnapshotTime, "AdjustRatePerSecond: snapshot time");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -261,17 +292,17 @@ contract Flow_Fork_Test is Fork_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _test_Create(address recipient, address sender, UD21x18 ratePerSecond, bool transferable) private {
-        uint256 expectedStreamId = flow.nextStreamId();
+        vars.expectedStreamId = flow.nextStreamId();
 
         vm.expectEmit({ emitter: address(flow) });
-        emit Transfer({ from: address(0), to: recipient, tokenId: expectedStreamId });
+        emit Transfer({ from: address(0), to: recipient, tokenId: vars.expectedStreamId });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: expectedStreamId });
+        emit MetadataUpdate({ _tokenId: vars.expectedStreamId });
 
         vm.expectEmit({ emitter: address(flow) });
         emit CreateFlowStream({
-            streamId: expectedStreamId,
+            streamId: vars.expectedStreamId,
             token: token,
             sender: sender,
             recipient: recipient,
@@ -279,7 +310,7 @@ contract Flow_Fork_Test is Fork_Test {
             transferable: transferable
         });
 
-        uint256 actualStreamId = flow.create({
+        vars.actualStreamId = flow.create({
             recipient: recipient,
             sender: sender,
             ratePerSecond: ratePerSecond,
@@ -287,7 +318,7 @@ contract Flow_Fork_Test is Fork_Test {
             transferable: transferable
         });
 
-        Flow.Stream memory actualStream = flow.getStream(actualStreamId);
+        Flow.Stream memory actualStream = flow.getStream(vars.actualStreamId);
         Flow.Stream memory expectedStream = Flow.Stream({
             balance: 0,
             isPaused: false,
@@ -303,16 +334,16 @@ contract Flow_Fork_Test is Fork_Test {
         });
 
         // It should create the stream.
-        assertEq(actualStreamId, expectedStreamId, "stream ID");
+        assertEq(vars.actualStreamId, vars.expectedStreamId, "Create: stream ID");
         assertEq(actualStream, expectedStream);
 
         // It should bump the next stream id.
-        assertEq(flow.nextStreamId(), expectedStreamId + 1, "next stream ID");
+        assertEq(flow.nextStreamId(), vars.expectedStreamId + 1, "Create: next stream ID");
 
         // It should mint the NFT.
-        address actualNFTOwner = flow.ownerOf({ tokenId: actualStreamId });
+        address actualNFTOwner = flow.ownerOf({ tokenId: vars.actualStreamId });
         address expectedNFTOwner = recipient;
-        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
+        assertEq(actualNFTOwner, expectedNFTOwner, "Create: NFT owner");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -352,14 +383,14 @@ contract Flow_Fork_Test is Fork_Test {
         flow.deposit(streamId, depositAmount);
 
         // Assert that the token balance of stream has been updated.
-        uint256 actualTokenBalance = token.balanceOf(address(flow));
-        uint256 expectedTokenBalance = initialTokenBalance + depositAmount;
-        assertEq(actualTokenBalance, expectedTokenBalance, "token balanceOf");
+        vars.actualTokenBalance = token.balanceOf(address(flow));
+        vars.expectedTokenBalance = initialTokenBalance + depositAmount;
+        assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "Deposit: token balance");
 
         // Assert that stored balance in stream has been updated.
-        uint256 actualStreamBalance = flow.getBalance(streamId);
-        uint256 expectedStreamBalance = initialStreamBalance + depositAmount;
-        assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
+        vars.actualStreamBalance = flow.getBalance(streamId);
+        vars.expectedStreamBalance = initialStreamBalance + depositAmount;
+        assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "Deposit: stream balance");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -389,10 +420,10 @@ contract Flow_Fork_Test is Fork_Test {
         flow.pause(streamId);
 
         // Assert that the stream is paused.
-        assertTrue(flow.isPaused(streamId), "paused");
+        assertTrue(flow.isPaused(streamId), "Pause: paused");
 
         // Assert that the rate per second is 0.
-        assertEq(flow.getRatePerSecond(streamId), 0, "rate per second");
+        assertEq(flow.getRatePerSecond(streamId), 0, "Pause: rate per second");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -431,14 +462,14 @@ contract Flow_Fork_Test is Fork_Test {
         flow.refund(streamId, refundAmount);
 
         // Assert that the token balance of stream has been updated.
-        uint256 actualTokenBalance = token.balanceOf(address(flow));
-        uint256 expectedTokenBalance = initialTokenBalance - refundAmount;
-        assertEq(actualTokenBalance, expectedTokenBalance, "token balanceOf");
+        vars.actualTokenBalance = token.balanceOf(address(flow));
+        vars.expectedTokenBalance = initialTokenBalance - refundAmount;
+        assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "Refund: token balance");
 
         // Assert that stored balance in stream has been updated.
-        uint256 actualStreamBalance = flow.getBalance(streamId);
-        uint256 expectedStreamBalance = initialStreamBalance - refundAmount;
-        assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
+        vars.actualStreamBalance = flow.getBalance(streamId);
+        vars.expectedStreamBalance = initialStreamBalance - refundAmount;
+        assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "Refund: stream balance");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -469,12 +500,12 @@ contract Flow_Fork_Test is Fork_Test {
         assertFalse(flow.isPaused(streamId));
 
         // It should update rate per second.
-        UD21x18 actualRatePerSecond = flow.getRatePerSecond(streamId);
-        assertEq(actualRatePerSecond, ratePerSecond, "ratePerSecond");
+        vars.actualRatePerSecond = flow.getRatePerSecond(streamId);
+        assertEq(vars.actualRatePerSecond, ratePerSecond, "Restart: rate per second");
 
         // It should update snapshot time.
-        uint40 actualSnapshotTime = flow.getSnapshotTime(streamId);
-        assertEq(actualSnapshotTime, getBlockTimestamp(), "snapshotTime");
+        vars.actualSnapshotTime = flow.getSnapshotTime(streamId);
+        assertEq(vars.actualSnapshotTime, getBlockTimestamp(), "Restart: snapshot time");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -528,13 +559,13 @@ contract Flow_Fork_Test is Fork_Test {
         flow.void(streamId);
 
         // It should set the rate per second to zero.
-        assertEq(flow.getRatePerSecond(streamId), 0, "rate per second");
+        assertEq(flow.getRatePerSecond(streamId), 0, "Void: rate per second");
 
         // It should pause the stream.
-        assertTrue(flow.isPaused(streamId), "paused");
+        assertTrue(flow.isPaused(streamId), "Void: paused");
 
         // It should set the total debt to stream balance.
-        assertEq(flow.totalDebtOf(streamId), beforeVoidBalance, "total debt");
+        assertEq(flow.totalDebtOf(streamId), beforeVoidBalance, "Void: total debt");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -549,25 +580,30 @@ contract Flow_Fork_Test is Fork_Test {
         );
 
         uint8 tokenDecimals = flow.getTokenDecimals(streamId);
-
+        uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
         uint128 streamBalance = flow.getBalance(streamId);
         if (streamBalance == 0) {
-            uint128 depositAmount = getDefaultDepositAmount(tokenDecimals);
-            depositOnStream(streamId, depositAmount);
+            depositOnStream(streamId, getDefaultDepositAmount(tokenDecimals));
             streamBalance = flow.getBalance(streamId);
         }
 
-        uint128 totalDebt = flow.getSnapshotDebt(streamId)
-            + getDenormalizedAmount(
-                flow.getRatePerSecond(streamId).unwrap() * (withdrawTime - flow.getSnapshotTime(streamId)),
-                flow.getTokenDecimals(streamId)
-            );
+        uint128 ongoingDebt =
+            getDenormalizedAmount(ratePerSecond * (withdrawTime - flow.getSnapshotTime(streamId)), tokenDecimals);
+        uint128 totalDebt = flow.getSnapshotDebt(streamId) + ongoingDebt;
         uint128 withdrawAmount = streamBalance < totalDebt ? streamBalance : totalDebt;
 
         (, address caller,) = vm.readCallers();
         address recipient = flow.getRecipient(streamId);
 
-        uint256 tokenBalance = token.balanceOf(address(flow));
+        uint256 initialTokenBalance = token.balanceOf(address(flow));
+
+        // Compute the snapshot time that will be stored post withdraw.
+        if (!flow.isPaused(streamId) && withdrawTime > flow.getSnapshotTime(streamId)) {
+            vars.expectedSnapshotTime =
+                uint40(getNormalizedAmount(ongoingDebt, tokenDecimals) / ratePerSecond + flow.getSnapshotTime(streamId));
+        } else {
+            vars.expectedSnapshotTime = withdrawTime;
+        }
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(token) });
@@ -581,7 +617,7 @@ contract Flow_Fork_Test is Fork_Test {
             caller: caller,
             protocolFeeAmount: 0,
             withdrawAmount: withdrawAmount,
-            withdrawTime: withdrawTime
+            snapshotTime: vars.expectedSnapshotTime
         });
 
         vm.expectEmit({ emitter: address(flow) });
@@ -591,25 +627,25 @@ contract Flow_Fork_Test is Fork_Test {
         flow.withdrawAt(streamId, recipient, withdrawTime);
 
         // It should update snapshot time.
-        assertEq(flow.getSnapshotTime(streamId), withdrawTime, "snapshot time");
+        vars.actualSnapshotTime = flow.getSnapshotTime(streamId);
+        assertEq(vars.actualSnapshotTime, vars.expectedSnapshotTime, "WithdrawAt: snapshot time");
 
         // It should decrease the total debt by withdrawn amount.
-        uint128 actualTotalDebt = flow.getSnapshotDebt(streamId)
+        vars.actualTotalDebt = flow.getSnapshotDebt(streamId)
             + getDenormalizedAmount(
-                flow.getRatePerSecond(streamId).unwrap() * (withdrawTime - flow.getSnapshotTime(streamId)),
-                flow.getTokenDecimals(streamId)
+                ratePerSecond * (vars.expectedSnapshotTime - flow.getSnapshotTime(streamId)), tokenDecimals
             );
-        uint128 expectedTotalDebt = totalDebt - withdrawAmount;
-        assertEq(actualTotalDebt, expectedTotalDebt, "total debt");
+        vars.expectedTotalDebt = totalDebt - withdrawAmount;
+        assertEq(vars.actualTotalDebt, vars.expectedTotalDebt, "WithdrawAt: total debt");
 
         // It should reduce the stream balance by the withdrawn amount.
-        uint128 actualStreamBalance = flow.getBalance(streamId);
-        uint128 expectedStreamBalance = streamBalance - withdrawAmount;
-        assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
+        vars.actualStreamBalance = flow.getBalance(streamId);
+        vars.expectedStreamBalance = streamBalance - withdrawAmount;
+        assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "WithdrawAt: stream balance");
 
         // It should reduce the token balance of stream.
-        uint256 actualTokenBalance = token.balanceOf(address(flow));
-        uint256 expectedTokenBalance = tokenBalance - withdrawAmount;
-        assertEq(actualTokenBalance, expectedTokenBalance, "token balance");
+        vars.actualTokenBalance = token.balanceOf(address(flow));
+        vars.expectedTokenBalance = initialTokenBalance - withdrawAmount;
+        assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "WithdrawAt: token balance");
     }
 }

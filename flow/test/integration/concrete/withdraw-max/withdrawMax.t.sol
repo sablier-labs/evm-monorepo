@@ -51,7 +51,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
             caller: users.sender,
             protocolFeeAmount: 0,
             withdrawAmount: withdrawAmount,
-            withdrawTime: getBlockTimestamp()
+            snapshotTime: getBlockTimestamp()
         });
 
         vm.expectEmit({ emitter: address(flow) });

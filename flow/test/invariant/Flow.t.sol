@@ -102,6 +102,19 @@ contract Flow_Invariant_Test is Base_Test {
         );
     }
 
+    /// @dev For any stream, the snapshot time should be greater than or equal to the previous snapshot time.
+    function invariant_SnapshotTimeAlwaysIncreases() external view {
+        uint256 lastStreamId = flowStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = flowStore.streamIds(i);
+            assertGe(
+                flow.getSnapshotTime(streamId),
+                flowHandler.previousSnapshotTime(streamId),
+                "Invariant violation: snapshot time should never decrease"
+            );
+        }
+    }
+
     /// @dev For any stream, if uncovered debt > 0, then the covered debt should equal the stream balance.
     function invariant_UncoveredDebt_CoveredDebtEqBalance() external view {
         uint256 lastStreamId = flowStore.lastStreamId();

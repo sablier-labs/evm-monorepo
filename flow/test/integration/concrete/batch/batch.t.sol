@@ -350,7 +350,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
             caller: users.sender,
             protocolFeeAmount: 0,
             withdrawAmount: WITHDRAW_AMOUNT_6D,
-            withdrawTime: WITHDRAW_TIME
+            snapshotTime: WITHDRAW_TIME
         });
 
         vm.expectEmit({ emitter: address(flow) });
@@ -368,7 +368,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
             protocolFeeAmount: 0,
             caller: users.sender,
             withdrawAmount: WITHDRAW_AMOUNT_6D,
-            withdrawTime: WITHDRAW_TIME
+            snapshotTime: WITHDRAW_TIME
         });
 
         vm.expectEmit({ emitter: address(flow) });
