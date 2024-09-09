@@ -216,28 +216,6 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function createAndDepositViaBroker(
-        address sender,
-        address recipient,
-        UD21x18 ratePerSecond,
-        IERC20 token,
-        bool transferable,
-        uint128 totalAmount,
-        Broker calldata broker
-    )
-        external
-        override
-        noDelegateCall
-        returns (uint256 streamId)
-    {
-        // Checks, Effects, and Interactions: create the stream.
-        streamId = _create(sender, recipient, ratePerSecond, token, transferable);
-
-        // Checks, Effects, and Interactions: deposit into stream through {depositViaBroker}.
-        _depositViaBroker(streamId, totalAmount, broker);
-    }
-
-    /// @inheritdoc ISablierFlow
     function deposit(
         uint256 streamId,
         uint128 amount

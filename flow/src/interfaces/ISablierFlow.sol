@@ -239,41 +239,6 @@ interface ISablierFlow is
         external
         returns (uint256 streamId);
 
-    /// @notice Creates a new Flow stream by setting the snapshot time to `block.timestamp` and the balance to
-    /// `totalAmount` minus the broker fee. The stream is wrapped in an ERC-721 NFT.
-    ///
-    /// @dev Emits a {Transfer}, {CreateFlowStream}, and {DepositFlowStream} events.
-    ///
-    /// Notes:
-    /// - Refer to the notes in {depositViaBroker}.
-    ///
-    /// Requirements:
-    /// - Refer to the requirements in {create} and {depositViaBroker}.
-    ///
-    /// @param sender The address streaming the tokens. It doesn't have to be the same as `msg.sender`.
-    /// @param recipient The address receiving the tokens.
-    /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
-    /// where 1e18 is 1 token per second.
-    /// @param token The contract address of the ERC-20 token to be streamed.
-    /// @param transferable Boolean indicating if the stream NFT is transferable.
-    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the token's
-    /// decimals.
-    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
-    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point percentage.
-    ///
-    /// @return streamId The ID of the newly created stream.
-    function createAndDepositViaBroker(
-        address sender,
-        address recipient,
-        UD21x18 ratePerSecond,
-        IERC20 token,
-        bool transferable,
-        uint128 totalAmount,
-        Broker calldata broker
-    )
-        external
-        returns (uint256 streamId);
-
     /// @notice Makes a deposit in a stream.
     ///
     /// @dev Emits a {Transfer} and {DepositFlowStream} event.
