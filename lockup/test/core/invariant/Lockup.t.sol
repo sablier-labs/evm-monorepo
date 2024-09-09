@@ -261,7 +261,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    /// @dev See diagram at https://i.postimg.cc/sfHsBkWB/mermaid-diagram-2023-04-25-190035.png.
+    /// @dev See diagram at https://docs.sablier.com/concepts/protocol/statuses#diagram
     function invariant_StatusTransitions() external {
         uint256 lastStreamId = lockupStore.lastStreamId();
         if (lastStreamId == 0) {
