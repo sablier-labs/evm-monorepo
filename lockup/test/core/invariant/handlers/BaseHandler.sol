@@ -52,15 +52,10 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
     /// @dev Checks user assumptions.
     modifier checkUsers(address sender, address recipient, address broker) {
         // Prevent the sender, recipient and broker to be the zero address.
-        if (sender == address(0) || recipient == address(0) || broker == address(0)) {
-            return;
-        }
+        vm.assume(sender != address(0) && recipient != address(0) && broker != address(0));
 
         // Prevent the contract itself from playing the role of any user.
-        if (sender == address(this) || recipient == address(this) || broker == address(this)) {
-            return;
-        }
-
+        vm.assume(sender != address(this) && recipient != address(this) && broker != address(this));
         _;
     }
 

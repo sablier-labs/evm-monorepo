@@ -43,14 +43,10 @@ contract LockupDynamicCreateHandler is BaseHandler {
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        if (lockupStore.lastStreamId() > MAX_STREAM_COUNT) {
-            return;
-        }
+        vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
 
         // The protocol doesn't allow empty segment arrays.
-        if (params.segments.length == 0) {
-            return;
-        }
+        vm.assume(params.segments.length != 0);
 
         // Bound the broker fee.
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
@@ -90,14 +86,10 @@ contract LockupDynamicCreateHandler is BaseHandler {
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        if (lockupStore.lastStreamId() >= MAX_STREAM_COUNT) {
-            return;
-        }
+        vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
 
         // The protocol doesn't allow empty segment arrays.
-        if (params.segments.length == 0) {
-            return;
-        }
+        vm.assume(params.segments.length != 0);
 
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.startTime = boundUint40(params.startTime, 1, getBlockTimestamp());
