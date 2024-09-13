@@ -69,7 +69,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
     }
 
     /// @dev Helper function to return the address of either recipient or operator depending on the value of `timeJump`.
-    /// This function is used to prank the caller in {withdrawAt}, {withdrawMax} and {void} calls.
+    /// This function is used to prank the caller in {withdraw}, {withdrawMax} and {void} calls.
     function useRecipientOrOperator(uint256 streamId, uint40 timeJump) internal returns (address) {
         if (timeJump % 2 != 0) {
             return users.recipient;

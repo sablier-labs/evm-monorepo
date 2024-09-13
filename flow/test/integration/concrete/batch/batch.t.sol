@@ -29,13 +29,10 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CustomError() external {
         // The calls declared as bytes
         bytes[] memory calls = new bytes[](1);
-        calls[0] = abi.encodeCall(flow.withdrawMax, (1, users.sender));
+        calls[0] = abi.encodeCall(flow.withdrawMax, (1, users.recipient));
 
         bytes memory expectedRevertData = abi.encodeWithSelector(
-            Errors.BatchError.selector,
-            abi.encodeWithSelector(
-                Errors.SablierFlow_WithdrawalAddressNotRecipient.selector, 1, users.sender, users.sender
-            )
+            Errors.BatchError.selector, abi.encodeWithSelector(Errors.SablierFlow_WithdrawAmountZero.selector, 1)
         );
 
         vm.expectRevert(expectedRevertData);
@@ -333,8 +330,8 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
 
         // The calls declared as bytes
         bytes[] memory calls = new bytes[](2);
-        calls[0] = abi.encodeCall(flow.withdrawAt, (defaultStreamIds[0], users.recipient, WITHDRAW_TIME));
-        calls[1] = abi.encodeCall(flow.withdrawAt, (defaultStreamIds[1], users.recipient, WITHDRAW_TIME));
+        calls[0] = abi.encodeCall(flow.withdraw, (defaultStreamIds[0], users.recipient, WITHDRAW_AMOUNT_6D));
+        calls[1] = abi.encodeCall(flow.withdraw, (defaultStreamIds[1], users.recipient, WITHDRAW_AMOUNT_6D));
 
         // It should emit 2 {Transfer}, 2 {WithdrawFromFlowStream} and 2 {MetadataUpdated} events.
 
@@ -346,11 +343,10 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         emit WithdrawFromFlowStream({
             streamId: defaultStreamIds[0],
             to: users.recipient,
-            token: IERC20(address(usdc)),
+            token: usdc,
             caller: users.sender,
             protocolFeeAmount: 0,
-            withdrawAmount: WITHDRAW_AMOUNT_6D,
-            snapshotTime: WITHDRAW_TIME
+            withdrawAmount: WITHDRAW_AMOUNT_6D
         });
 
         vm.expectEmit({ emitter: address(flow) });
@@ -364,11 +360,10 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         emit WithdrawFromFlowStream({
             streamId: defaultStreamIds[1],
             to: users.recipient,
-            token: IERC20(address(usdc)),
+            token: usdc,
             protocolFeeAmount: 0,
             caller: users.sender,
-            withdrawAmount: WITHDRAW_AMOUNT_6D,
-            snapshotTime: WITHDRAW_TIME
+            withdrawAmount: WITHDRAW_AMOUNT_6D
         });
 
         vm.expectEmit({ emitter: address(flow) });

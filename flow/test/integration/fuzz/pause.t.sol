@@ -26,7 +26,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         flow.pause(streamId);
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
+        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
@@ -59,7 +59,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
+        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
@@ -81,6 +81,8 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Assert that the stream is paused.
         assertTrue(flow.isPaused(streamId), "paused");
+
+        assertEq(flow.ongoingDebtOf(streamId), 0, "ongoing debt");
 
         // Assert that the rate per second is 0.
         assertEq(flow.getRatePerSecond(streamId), 0, "rate per second");

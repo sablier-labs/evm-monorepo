@@ -37,7 +37,7 @@ contract CollectProtocolRevenue_Integration_Concrete_Test is Integration_Test {
 
     function test_GivenProtocolRevenueNotZero() external whenCallerAdmin {
         // Withdraw to generate protocol revenue.
-        flow.withdrawAt({ streamId: streamIdWithProtocolFee, to: users.recipient, time: WITHDRAW_TIME });
+        flow.withdraw({ streamId: streamIdWithProtocolFee, to: users.recipient, amount: WITHDRAW_AMOUNT_6D });
 
         // It should transfer protocol revenue to provided address.
         expectCallToTransfer({ token: tokenWithProtocolFee, to: users.admin, amount: PROTOCOL_FEE_AMOUNT_6D });

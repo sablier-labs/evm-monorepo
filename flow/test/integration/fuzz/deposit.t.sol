@@ -38,7 +38,7 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         depositAmount = boundDepositAmount(depositAmount, initialStreamBalance, decimals);
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
+        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
         // Change prank to caller and deal some tokens to him.
         deal({ token: address(token), to: caller, give: depositAmount });

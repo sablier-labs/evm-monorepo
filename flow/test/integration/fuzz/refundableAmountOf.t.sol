@@ -9,7 +9,14 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Multiple paused streams, each with different token decimals and rps.
     /// - Multiple points in time prior to depletion period.
-    function testFuzz_PreDepletion_Paused(uint256 streamId, uint40 timeJump, uint8 decimals) external givenNotNull {
+    function testFuzz_PreDepletion_Paused(
+        uint256 streamId,
+        uint40 warpTimestamp,
+        uint8 decimals
+    )
+        external
+        givenNotNull
+    {
         (streamId,, depositedAmount) = useFuzzedStreamOrCreate(streamId, decimals);
 
         uint40 depletionPeriod = flow.depletionTimeOf(streamId);
@@ -20,10 +27,10 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
         uint128 previousStreamBalance = flow.getBalance(streamId);
 
         // Bound the time jump so that it is less than the depletion timestamp.
-        timeJump = boundUint40(timeJump, getBlockTimestamp(), depletionPeriod - 1);
+        warpTimestamp = boundUint40(warpTimestamp, getBlockTimestamp(), depletionPeriod - 1);
 
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: timeJump });
+        vm.warp({ newTimestamp: warpTimestamp });
 
         // Assert that the refundable amount equals the stream balance before the time warp.
         uint128 actualRefundableAmount = flow.refundableAmountOf(streamId);
@@ -40,7 +47,7 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
     /// - Multiple points in time prior to depletion period.
     function testFuzz_PreDepletion(
         uint256 streamId,
-        uint40 timeJump,
+        uint40 warpTimestamp,
         uint8 decimals
     )
         external
@@ -50,16 +57,17 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
         (streamId, decimals, depositedAmount) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump so that it is less than the depletion timestamp.
-        uint40 depletionPeriod = flow.depletionTimeOf(streamId);
-        timeJump = boundUint40(timeJump, getBlockTimestamp(), depletionPeriod - 1);
+        warpTimestamp = boundUint40(warpTimestamp, getBlockTimestamp(), flow.depletionTimeOf(streamId) - 1);
 
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: timeJump });
+        vm.warp({ newTimestamp: warpTimestamp });
+
+        uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
 
         // Assert that the refundable amount same as the deposited amount minus streamed amount.
         uint128 actualRefundableAmount = flow.refundableAmountOf(streamId);
-        uint128 expectedRefundableAmount = depositedAmount
-            - getDenormalizedAmount(flow.getRatePerSecond(streamId).unwrap() * (timeJump - MAY_1_2024), decimals);
+        uint128 expectedRefundableAmount =
+            depositedAmount - getDenormalizedAmount(ratePerSecond * (warpTimestamp - MAY_1_2024), decimals);
         assertEq(actualRefundableAmount, expectedRefundableAmount);
     }
 
@@ -68,15 +76,15 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Multiple streams, each with different token decimals and rps.
     /// - Multiple points in time post depletion period.
-    function testFuzz_PostDepletion(uint256 streamId, uint40 timeJump, uint8 decimals) external givenNotNull {
+    function testFuzz_PostDepletion(uint256 streamId, uint40 warpTimestamp, uint8 decimals) external givenNotNull {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump so it is greater than depletion timestamp.
         uint40 depletionPeriod = flow.depletionTimeOf(streamId);
-        timeJump = boundUint40(timeJump, depletionPeriod + 1, UINT40_MAX);
+        warpTimestamp = boundUint40(warpTimestamp, depletionPeriod + 1, UINT40_MAX);
 
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: timeJump });
+        vm.warp({ newTimestamp: warpTimestamp });
 
         // Assert that the refundable amount is zero.
         uint128 actualRefundableAmount = flow.refundableAmountOf(streamId);

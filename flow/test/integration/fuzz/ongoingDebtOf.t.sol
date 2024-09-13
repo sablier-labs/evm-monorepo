@@ -13,7 +13,7 @@ contract OngoingDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
+        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
@@ -47,7 +47,7 @@ contract OngoingDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
+        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
@@ -80,17 +80,16 @@ contract OngoingDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         updateSnapshotTimeAndWarp(streamId);
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
-
-        uint40 warpTimestamp = getBlockTimestamp() + timeJump;
+        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: warpTimestamp });
+        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
-        // Assert that total debt is zero.
+        uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
+
+        // Assert that the ongoing debt equals the expected value.
         uint128 actualOngoingDebt = flow.ongoingDebtOf(streamId);
-        uint128 expectedOngoingDebt =
-            getDenormalizedAmount(flow.getRatePerSecond(streamId).unwrap() * (warpTimestamp - MAY_1_2024), decimals);
+        uint128 expectedOngoingDebt = getDenormalizedAmount(ratePerSecond * timeJump, decimals);
         assertEq(actualOngoingDebt, expectedOngoingDebt, "ongoing debt");
     }
 }

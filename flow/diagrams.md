@@ -65,7 +65,7 @@ stateDiagram-v2
 
 1. The arrows point to the status on which the function can be called
 2. The "update" comments refer only to the internal state
-3. `st` is always updated to `block.timestamp`, expect for `withdrawAt`
+3. `st` is always updated to `block.timestamp`, except for `withdraw`
 4. Red lines refers to the function that are doing an ERC-20 transfer
 
 ```mermaid

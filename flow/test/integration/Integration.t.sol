@@ -138,8 +138,7 @@ abstract contract Integration_Test is Base_Test {
         // Restores the rate per second.
         flow.adjustRatePerSecond(streamId, ratePerSecond);
 
-        // Warp to make block.timestamp match the snapshot time. This is necessary as the correct snapshot time can
-        // deviate from the block.timestamp due to precision loss.
+        // Warp to the snapshot time.
         vm.warp({ newTimestamp: flow.getSnapshotTime(streamId) });
     }
 

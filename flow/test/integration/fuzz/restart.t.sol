@@ -33,7 +33,7 @@ contract Restart_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         flow.pause(streamId);
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
+        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
         uint40 warpTimestamp = getBlockTimestamp() + timeJump;
 

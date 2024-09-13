@@ -42,6 +42,9 @@ library Errors {
     /// @notice Thrown when the ID references a null stream.
     error SablierFlow_Null(uint256 streamId);
 
+    /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
+    error SablierFlow_Overdraw(uint256 streamId, uint128 amount, uint128 withdrawableAmount);
+
     /// @notice Thrown when trying to change the rate per second with the same rate per second.
     error SablierFlow_RatePerSecondNotDifferent(uint256 streamId, UD21x18 ratePerSecond);
 
@@ -75,15 +78,8 @@ library Errors {
     /// @notice Thrown when trying to withdraw to an address other than the recipient's.
     error SablierFlow_WithdrawalAddressNotRecipient(uint256 streamId, address caller, address to);
 
-    /// @notice Thrown when trying to withdraw tokens with a withdrawal time in the future.
-    error SablierFlow_WithdrawalTimeInTheFuture(uint256 streamId, uint40 time, uint256 currentTime);
-
-    /// @notice Thrown when trying to withdraw but the stream no funds available.
-    error SablierFlow_WithdrawNoFundsAvailable(uint256 streamId);
-
-    /// @notice Thrown when trying to withdraw tokens with a withdrawal time not greater than or equal to
-    /// `snapshotTime`.
-    error SablierFlow_WithdrawTimeLessThanSnapshotTime(uint256 streamId, uint40 snapshotTime, uint40 withdrawTime);
+    /// @notice Thrown when trying to withdraw zero tokens from a stream.
+    error SablierFlow_WithdrawAmountZero(uint256 streamId);
 
     /// @notice Thrown when trying to withdraw to the zero address.
     error SablierFlow_WithdrawToZeroAddress(uint256 streamId);

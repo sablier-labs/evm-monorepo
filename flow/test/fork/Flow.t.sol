@@ -23,7 +23,7 @@ contract Flow_Fork_Test is Fork_Test {
         refund,
         restart,
         void,
-        withdrawAt
+        withdraw
     }
 
     /// @dev A struct to hold the fuzzed parameters to be used during fork tests.
@@ -37,7 +37,7 @@ contract Flow_Fork_Test is Fork_Test {
         // Amounts
         uint128 depositAmount;
         uint128 refundAmount;
-        uint40 withdrawAtTime;
+        uint128 withdrawAmount;
     }
 
     /// @dev A struct to hold the actual and expected values, this prevents stack overflow.
@@ -145,7 +145,7 @@ contract Flow_Fork_Test is Fork_Test {
                 params.ratePerSecond,
                 params.depositAmount,
                 params.refundAmount,
-                params.withdrawAtTime
+                params.withdrawAmount
             );
         }
     }
@@ -156,14 +156,14 @@ contract Flow_Fork_Test is Fork_Test {
     /// @param ratePerSecond The rate per second.
     /// @param depositAmount The deposit amount.
     /// @param refundAmount The refund amount.
-    /// @param withdrawAtTime The time to withdraw at.
+    /// @param withdrawAmount The withdraw amount.
     function _executeFunc(
         FlowFunc flowFunc,
         uint256 streamId,
         UD21x18 ratePerSecond,
         uint128 depositAmount,
         uint128 refundAmount,
-        uint40 withdrawAtTime
+        uint128 withdrawAmount
     )
         private
     {
@@ -179,8 +179,8 @@ contract Flow_Fork_Test is Fork_Test {
             _test_Restart(streamId, ratePerSecond);
         } else if (flowFunc == FlowFunc.void) {
             _test_Void(streamId);
-        } else if (flowFunc == FlowFunc.withdrawAt) {
-            _test_WithdrawAt(streamId, withdrawAtTime);
+        } else if (flowFunc == FlowFunc.withdraw) {
+            _test_Withdraw(streamId, withdrawAmount);
         }
     }
 
@@ -249,14 +249,9 @@ contract Flow_Fork_Test is Fork_Test {
         uint128 beforeSnapshotAmount = flow.getSnapshotDebt(streamId);
         uint128 totalDebt = flow.totalDebtOf(streamId);
         uint128 ongoingDebt = flow.ongoingDebtOf(streamId);
-        if (ongoingDebt != 0) {
-            vars.expectedSnapshotTime = uint40(
-                flow.getSnapshotTime(streamId)
-                    + getNormalizedAmount(ongoingDebt, flow.getTokenDecimals(streamId)) / oldRatePerSecond.unwrap()
-            );
-        } else {
-            vars.expectedSnapshotTime = getBlockTimestamp();
-        }
+
+        // Compute the snapshot time that will be stored post withdraw.
+        vars.expectedSnapshotTime = getBlockTimestamp();
 
         // It should emit 1 {AdjustFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
@@ -569,41 +564,34 @@ contract Flow_Fork_Test is Fork_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    WITHDRAW-AT
+                                      WITHDRAW
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _test_WithdrawAt(uint256 streamId, uint40 withdrawTime) private {
-        withdrawTime = boundUint40(
-            uint40(uint256(keccak256(abi.encodePacked(withdrawTime, streamId)))),
-            flow.getSnapshotTime(streamId),
-            getBlockTimestamp()
-        );
-
+    function _test_Withdraw(uint256 streamId, uint128 withdrawAmount) private {
         uint8 tokenDecimals = flow.getTokenDecimals(streamId);
-        uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
         uint128 streamBalance = flow.getBalance(streamId);
         if (streamBalance == 0) {
             depositOnStream(streamId, getDefaultDepositAmount(tokenDecimals));
             streamBalance = flow.getBalance(streamId);
         }
 
-        uint128 ongoingDebt =
-            getDenormalizedAmount(ratePerSecond * (withdrawTime - flow.getSnapshotTime(streamId)), tokenDecimals);
-        uint128 totalDebt = flow.getSnapshotDebt(streamId) + ongoingDebt;
-        uint128 withdrawAmount = streamBalance < totalDebt ? streamBalance : totalDebt;
+        withdrawAmount = boundUint128(
+            uint128(uint256(keccak256(abi.encodePacked(withdrawAmount, streamId)))),
+            1,
+            flow.withdrawableAmountOf(streamId)
+        );
+
+        uint256 initialTokenBalance = token.balanceOf(address(flow));
+        uint128 totalDebt = flow.totalDebtOf(streamId);
+
+        uint128 ongoingDebtNormalized = getNormalizedAmount(flow.ongoingDebtOf(streamId), tokenDecimals);
+        uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
+        uint40 snapshotTime = flow.getSnapshotTime(streamId);
+
+        vars.expectedSnapshotTime = getBlockTimestamp();
 
         (, address caller,) = vm.readCallers();
         address recipient = flow.getRecipient(streamId);
-
-        uint256 initialTokenBalance = token.balanceOf(address(flow));
-
-        // Compute the snapshot time that will be stored post withdraw.
-        if (!flow.isPaused(streamId) && withdrawTime > flow.getSnapshotTime(streamId)) {
-            vars.expectedSnapshotTime =
-                uint40(getNormalizedAmount(ongoingDebt, tokenDecimals) / ratePerSecond + flow.getSnapshotTime(streamId));
-        } else {
-            vars.expectedSnapshotTime = withdrawTime;
-        }
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(token) });
@@ -616,36 +604,32 @@ contract Flow_Fork_Test is Fork_Test {
             token: token,
             caller: caller,
             protocolFeeAmount: 0,
-            withdrawAmount: withdrawAmount,
-            snapshotTime: vars.expectedSnapshotTime
+            withdrawAmount: withdrawAmount
         });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: streamId });
 
         // Withdraw the tokens.
-        flow.withdrawAt(streamId, recipient, withdrawTime);
+        flow.withdraw(streamId, recipient, withdrawAmount);
 
         // It should update snapshot time.
         vars.actualSnapshotTime = flow.getSnapshotTime(streamId);
-        assertEq(vars.actualSnapshotTime, vars.expectedSnapshotTime, "WithdrawAt: snapshot time");
+        assertEq(vars.actualSnapshotTime, vars.expectedSnapshotTime, "Withdraw: snapshot time");
 
         // It should decrease the total debt by withdrawn amount.
-        vars.actualTotalDebt = flow.getSnapshotDebt(streamId)
-            + getDenormalizedAmount(
-                ratePerSecond * (vars.expectedSnapshotTime - flow.getSnapshotTime(streamId)), tokenDecimals
-            );
+        vars.actualTotalDebt = flow.totalDebtOf(streamId);
         vars.expectedTotalDebt = totalDebt - withdrawAmount;
-        assertEq(vars.actualTotalDebt, vars.expectedTotalDebt, "WithdrawAt: total debt");
+        assertEq(vars.actualTotalDebt, vars.expectedTotalDebt, "Withdraw: total debt");
 
         // It should reduce the stream balance by the withdrawn amount.
         vars.actualStreamBalance = flow.getBalance(streamId);
         vars.expectedStreamBalance = streamBalance - withdrawAmount;
-        assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "WithdrawAt: stream balance");
+        assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "Withdraw: stream balance");
 
         // It should reduce the token balance of stream.
         vars.actualTokenBalance = token.balanceOf(address(flow));
         vars.expectedTokenBalance = initialTokenBalance - withdrawAmount;
-        assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "WithdrawAt: token balance");
+        assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "Withdraw: token balance");
     }
 }

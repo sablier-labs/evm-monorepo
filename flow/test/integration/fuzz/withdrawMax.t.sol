@@ -6,56 +6,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
 contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
-    /// @dev It should withdraw 0 amount from a stream.
-    function testFuzz_Paused(
-        address caller,
-        uint256 streamId,
-        uint40 timeJump,
-        uint8 decimals
-    )
-        external
-        whenNoDelegateCall
-        givenNotNull
-    {
-        vm.assume(caller != address(0));
-
-        (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
-
-        // Pause the stream.
-        flow.pause(streamId);
-
-        // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
-
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
-
-        // Ensure no value is transferred.
-        vm.expectEmit({ emitter: address(token) });
-        emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: 0 });
-
-        uint128 expectedTotalDebt = flow.totalDebtOf(streamId);
-        uint128 expectedStreamBalance = flow.getBalance(streamId);
-        uint256 expectedTokenBalance = token.balanceOf(address(flow));
-
-        // Prank the caller and withdraw the tokens.
-        resetPrank(caller);
-        flow.withdrawMax(streamId, users.recipient);
-
-        // Assert that all states are unchanged except for snapshotTime.
-        uint128 actualSnapshotTime = flow.getSnapshotTime(streamId);
-        assertEq(actualSnapshotTime, getBlockTimestamp(), "snapshot time");
-
-        uint128 actualTotalDebt = flow.totalDebtOf(streamId);
-        assertEq(actualTotalDebt, expectedTotalDebt, "total debt");
-
-        uint128 actualStreamBalance = flow.getBalance(streamId);
-        assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
-
-        uint256 actualTokenBalance = token.balanceOf(address(flow));
-        assertEq(actualTokenBalance, expectedTokenBalance, "token balance");
-    }
-
     /// @dev Checklist:
     /// - It should withdraw the max covered debt from a stream.
     /// - It should emit the following events: {Transfer}, {MetadataUpdate}, {WithdrawFromFlowStream}
@@ -81,7 +31,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
+        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
@@ -112,14 +62,14 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         whenNoDelegateCall
         givenNotNull
         givenNotPaused
-        whenWithdrawalAddressIsOwner
+        whenWithdrawalAddressOwner
     {
         vm.assume(caller != address(0));
 
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
+        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
@@ -131,20 +81,18 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
     // Shared private function.
     function _test_WithdrawMax(address caller, address withdrawTo, uint256 streamId) private {
+        // If the withdrawable amount is still zero, warp closely to depletion time.
+        if (flow.withdrawableAmountOf(streamId) == 0) {
+            vm.warp({ newTimestamp: flow.depletionTimeOf(streamId) - 1 });
+        }
+
         uint128 totalDebt = flow.totalDebtOf(streamId);
         uint256 tokenBalance = token.balanceOf(address(flow));
         uint128 streamBalance = flow.getBalance(streamId);
-        uint128 withdrawAmount = flow.coveredDebtOf(streamId);
 
-        uint40 expectedCorrectedAmount = uint40(
-            getNormalizedAmount(flow.ongoingDebtOf(streamId), flow.getTokenDecimals(streamId))
-                / flow.getRatePerSecond(streamId).unwrap() + flow.getSnapshotTime(streamId)
-        );
+        uint128 withdrawAmount = flow.withdrawableAmountOf(streamId);
 
-        uint128 residualDebt = getDenormalizedAmount({
-            amount: flow.getRatePerSecond(streamId).unwrap() * (getBlockTimestamp() - expectedCorrectedAmount),
-            decimals: flow.getTokenDecimals(streamId)
-        });
+        uint40 expectedSnapshotTime = getBlockTimestamp();
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(token) });
@@ -157,8 +105,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             token: token,
             caller: caller,
             protocolFeeAmount: 0,
-            withdrawAmount: withdrawAmount,
-            snapshotTime: expectedCorrectedAmount
+            withdrawAmount: withdrawAmount
         });
 
         vm.expectEmit({ emitter: address(flow) });
@@ -167,26 +114,28 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Withdraw the tokens.
         flow.withdrawMax(streamId, withdrawTo);
 
+        assertEq(flow.ongoingDebtOf(streamId), 0, "ongoing debt");
+
         // It should update snapshot time.
-        assertEq(flow.getSnapshotTime(streamId), expectedCorrectedAmount, "snapshot time");
+        assertEq(flow.getSnapshotTime(streamId), expectedSnapshotTime, "snapshot time");
 
         // It should decrease the total debt by the withdrawn value.
         uint128 actualTotalDebt = flow.totalDebtOf(streamId);
-        uint128 expectedTotalDebt = totalDebt - withdrawAmount + residualDebt;
+        uint128 expectedTotalDebt = totalDebt - withdrawAmount;
         assertEq(actualTotalDebt, expectedTotalDebt, "total debt");
-
-        // Assert that snapshot time is updated correctly.
-        assertEq(flow.getSnapshotTime(streamId), expectedCorrectedAmount, "snapshot time");
-
-        // Assert that total debt equals snapshot debt and ongoing debt
-        assertEq(
-            flow.totalDebtOf(streamId), flow.getSnapshotDebt(streamId) + flow.ongoingDebtOf(streamId), "snapshot debt"
-        );
 
         // It should reduce the stream balance by the withdrawn amount.
         uint128 actualStreamBalance = flow.getBalance(streamId);
         uint128 expectedStreamBalance = streamBalance - withdrawAmount;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
+
+        // Assert that snapshot time is updated correctly.
+        assertEq(flow.getSnapshotTime(streamId), expectedSnapshotTime, "snapshot time");
+
+        // Assert that total debt equals snapshot debt and ongoing debt
+        assertEq(
+            flow.totalDebtOf(streamId), flow.getSnapshotDebt(streamId) + flow.ongoingDebtOf(streamId), "snapshot debt"
+        );
 
         // It should reduce the token balance of stream.
         uint256 actualTokenBalance = token.balanceOf(address(flow));

@@ -80,14 +80,14 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
     function createAndLabelTokens() internal {
         // Deploy the tokens.
         tokenWithoutDecimals = createToken("Token without Decimals", "TWD", 0);
-        tokenWithProtocolFee = createToken("Token with Protocol Fee", "APF", 6);
+        tokenWithProtocolFee = createToken("Token with Protocol Fee", "TPF", 6);
         dai = createToken("Dai stablecoin", "DAI", 18);
         usdc = createToken("USD Coin", "USDC", 6);
         usdt = new ERC20MissingReturn("Tether", "USDT", 6);
 
         // Label the tokens.
-        vm.label(address(tokenWithoutDecimals), "AWD");
-        vm.label(address(tokenWithProtocolFee), "APF");
+        vm.label(address(tokenWithoutDecimals), "TWD");
+        vm.label(address(tokenWithProtocolFee), "TPF");
         vm.label(address(dai), "DAI");
         vm.label(address(usdc), "USDC");
         vm.label(address(usdt), "USDT");

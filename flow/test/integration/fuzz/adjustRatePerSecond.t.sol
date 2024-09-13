@@ -32,16 +32,22 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
         flow.pause(streamId);
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
+        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+
+        uint128 previousTotalDebt = flow.totalDebtOf(streamId);
 
         // Expect the relevant error.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamPaused.selector, streamId));
 
         // Adjust the rate per second.
         flow.adjustRatePerSecond(streamId, newRatePerSecond);
+
+        assertEq(flow.ongoingDebtOf(streamId), 0, "ongoing debt");
+
+        assertEq(previousTotalDebt, flow.totalDebtOf(streamId), "rate per second");
     }
 
     /// @dev Checklist:
@@ -68,10 +74,12 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
         newRatePerSecond = ud21x18(boundUint128(newRatePerSecond.unwrap(), 1, UINT128_MAX));
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 1 seconds, 100 weeks);
+        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+
+        uint128 previousTotalDebt = flow.totalDebtOf(streamId);
 
         UD21x18 currentRatePerSecond = flow.getRatePerSecond(streamId);
         if (newRatePerSecond.unwrap() == currentRatePerSecond.unwrap()) {
@@ -97,5 +105,9 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
 
         // Adjust the rate per second.
         flow.adjustRatePerSecond(streamId, newRatePerSecond);
+
+        assertEq(flow.ongoingDebtOf(streamId), 0, "ongoing debt");
+
+        assertEq(previousTotalDebt, flow.totalDebtOf(streamId), "rate per second");
     }
 }

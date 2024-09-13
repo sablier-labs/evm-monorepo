@@ -119,14 +119,30 @@ abstract contract Modifiers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    WITHDRAW-AT
+                                      WITHDRAW
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier givenProtocolFeeZero() {
         _;
     }
 
-    modifier whenWithdrawalAddressIsOwner() {
+    modifier whenAmountEqualTotalDebt() {
+        _;
+    }
+
+    modifier whenAmountNotOverdraw() {
+        _;
+    }
+
+    modifier whenAmountNotZero() {
+        _;
+    }
+
+    modifier whenAmountOverdraws() {
+        _;
+    }
+
+    modifier whenWithdrawalAddressOwner() {
         _;
     }
 

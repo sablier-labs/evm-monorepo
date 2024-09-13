@@ -32,7 +32,7 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
 
     /// @dev Bounds the rate per second between a realistic range.
     function boundRatePerSecond(UD21x18 ratePerSecond) internal pure returns (UD21x18) {
-        return ud21x18(boundUint128(ratePerSecond.unwrap(), 0.0000001e18, 10e18));
+        return ud21x18(boundUint128(ratePerSecond.unwrap(), 0.0000000001e18, 10e18));
     }
 
     /// @dev Bounds a `uint128` number.

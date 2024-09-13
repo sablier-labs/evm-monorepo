@@ -220,7 +220,7 @@ contract Flow_Invariant_Test is Base_Test {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
-            if (flow.getRatePerSecond(streamId).unwrap() != 0 && flowHandler.calls("withdrawAt") == 0) {
+            if (flow.getRatePerSecond(streamId).unwrap() != 0 && flowHandler.calls("withdraw") == 0) {
                 assertGe(
                     flow.totalDebtOf(streamId),
                     flowHandler.previousTotalDebtOf(streamId),

@@ -37,11 +37,11 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
     }
 
     function _test_WithdrawMax() private {
-        uint128 withdrawAmount = ONE_MONTH_DEBT_6D;
+        uint128 expectedWithdrawAmount = ONE_MONTH_DEBT_6D;
 
         // It should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdated} events.
         vm.expectEmit({ emitter: address(usdc) });
-        emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: withdrawAmount });
+        emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: expectedWithdrawAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit WithdrawFromFlowStream({
@@ -50,17 +50,16 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
             token: IERC20(address(usdc)),
             caller: users.sender,
             protocolFeeAmount: 0,
-            withdrawAmount: withdrawAmount,
-            snapshotTime: getBlockTimestamp()
+            withdrawAmount: expectedWithdrawAmount
         });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransfer({ token: usdc, to: users.recipient, amount: withdrawAmount });
+        expectCallToTransfer({ token: usdc, to: users.recipient, amount: expectedWithdrawAmount });
 
-        uint128 actualWithdrawAmount = flow.withdrawMax(defaultStreamId, users.recipient);
+        uint128 actualWithdrawnAmount = flow.withdrawMax(defaultStreamId, users.recipient);
 
         // It should update the stream balance.
         uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
@@ -75,7 +74,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         uint128 actualSnapshotTime = flow.getSnapshotTime(defaultStreamId);
         assertEq(actualSnapshotTime, getBlockTimestamp(), "snapshot time");
 
-        // Assert that the withdraw amounts match.
-        assertEq(actualWithdrawAmount, withdrawAmount);
+        // It should return the actual withdrawn amount.
+        assertEq(actualWithdrawnAmount, expectedWithdrawAmount, "withdrawn amount");
     }
 }
