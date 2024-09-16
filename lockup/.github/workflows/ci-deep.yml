@@ -74,3 +74,15 @@ jobs:
       foundry-profile: "test-optimized"
       match-path: "test/fork/**/*.sol"
       name: "Fork tests"
+
+  notify-on-failure:
+    if: failure() # Runs only if a failure occurs in any previous jobs
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Send Slack notification"
+        uses: "rtCamp/action-slack-notify@v2"
+        env:
+          SLACK_CHANNEL: "#ci-notifications"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "GitHub CI"
+          SLACK_MESSAGE: "CI Workflow failed for ${{ github.repository }} on branch ${{ github.ref }} at job ${{ github.job }}."
