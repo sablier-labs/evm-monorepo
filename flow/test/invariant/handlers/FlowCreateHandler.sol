@@ -26,9 +26,9 @@ contract FlowCreateHandler is BaseHandler {
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier useFuzzedToken(uint256 tokenIndexSeed) {
-        tokenIndexSeed = _bound(tokenIndexSeed, 0, tokens.length - 1);
-        currentToken = tokens[tokenIndexSeed];
+    modifier useFuzzedToken(uint256 tokenIndex) {
+        vm.assume(tokenIndex < tokens.length);
+        currentToken = tokens[tokenIndex];
         _;
     }
 
@@ -60,8 +60,8 @@ contract FlowCreateHandler is BaseHandler {
 
     /// @dev Struct to prevent stack too deep error.
     struct CreateParams {
-        uint256 timeJumpSeed;
-        uint256 tokenIndexSeed;
+        uint256 timeJump;
+        uint256 tokenIndex;
         address sender;
         address recipient;
         UD21x18 ratePerSecond;
@@ -72,13 +72,13 @@ contract FlowCreateHandler is BaseHandler {
         public
         instrument("create")
         checkUsers(params)
-        useFuzzedToken(params.tokenIndexSeed)
-        adjustTimestamp(params.timeJumpSeed)
+        useFuzzedToken(params.tokenIndex)
+        adjustTimestamp(params.timeJump)
     {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
-        // Bound the stream parameters.
-        params.ratePerSecond = boundRatePerSecond(params.ratePerSecond);
+        // Use a realistic range for the rate per second.
+        vm.assume(params.ratePerSecond.unwrap() >= 0.0000000001e18 && params.ratePerSecond.unwrap() <= 10e18);
 
         // Create the stream.
         uint256 streamId =
@@ -95,8 +95,8 @@ contract FlowCreateHandler is BaseHandler {
         public
         instrument("createAndDeposit")
         checkUsers(params)
-        useFuzzedToken(params.tokenIndexSeed)
-        adjustTimestamp(params.timeJumpSeed)
+        useFuzzedToken(params.tokenIndex)
+        adjustTimestamp(params.timeJump)
     {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
@@ -105,9 +105,11 @@ contract FlowCreateHandler is BaseHandler {
         // Calculate the upper bound, based on the token decimals, for the deposit amount.
         uint128 upperBound = getDenormalizedAmount(1_000_000e18, decimals);
 
-        // Bound the stream parameters.
-        params.ratePerSecond = boundRatePerSecond(params.ratePerSecond);
-        depositAmount = uint128(_bound(depositAmount, 100, upperBound));
+        // Make sure the deposit amount is non-zero and less than values that could cause an overflow.
+        vm.assume(depositAmount >= 100 && depositAmount <= upperBound);
+
+        // Use a realistic range for the rate per second.
+        vm.assume(params.ratePerSecond.unwrap() >= 0.0000000001e18 && params.ratePerSecond.unwrap() <= 10e18);
 
         // Mint enough tokens to the Sender.
         deal({
