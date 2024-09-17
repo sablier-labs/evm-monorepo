@@ -17,8 +17,8 @@ abstract contract BaseHandler is StdCheats, Utils {
     /// @dev Maximum number of streams that can be created during an invariant campaign.
     uint256 internal constant MAX_STREAM_COUNT = 100;
 
-    /// @dev Maps function names to the number of times they have been called.
-    mapping(string func => uint256 calls) public calls;
+    /// @dev Maps function names and the number of times they have been called by the stream ID.
+    mapping(uint256 streamId => mapping(string func => uint256 calls)) public calls;
 
     /// @dev The total number of calls made to this contract.
     uint256 public totalCalls;
@@ -53,8 +53,8 @@ abstract contract BaseHandler is StdCheats, Utils {
     }
 
     /// @dev Records a function call for instrumentation purposes.
-    modifier instrument(string memory functionName) {
-        calls[functionName]++;
+    modifier instrument(uint256 streamId, string memory functionName) {
+        calls[streamId][functionName]++;
         totalCalls++;
         _;
     }

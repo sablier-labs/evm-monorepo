@@ -60,6 +60,7 @@ contract FlowCreateHandler is BaseHandler {
 
     /// @dev Struct to prevent stack too deep error.
     struct CreateParams {
+        uint128 depositAmount;
         uint256 timeJump;
         uint256 tokenIndex;
         address sender;
@@ -70,10 +71,10 @@ contract FlowCreateHandler is BaseHandler {
 
     function create(CreateParams memory params)
         public
-        instrument("create")
         checkUsers(params)
         useFuzzedToken(params.tokenIndex)
         adjustTimestamp(params.timeJump)
+        instrument(flow.nextStreamId(), "create")
     {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
@@ -88,15 +89,12 @@ contract FlowCreateHandler is BaseHandler {
         flowStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 
-    function createAndDeposit(
-        CreateParams memory params,
-        uint128 depositAmount
-    )
+    function createAndDeposit(CreateParams memory params)
         public
-        instrument("createAndDeposit")
         checkUsers(params)
         useFuzzedToken(params.tokenIndex)
         adjustTimestamp(params.timeJump)
+        instrument(flow.nextStreamId(), "createAndDeposit")
     {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
@@ -106,7 +104,7 @@ contract FlowCreateHandler is BaseHandler {
         uint128 upperBound = getDenormalizedAmount(1_000_000e18, decimals);
 
         // Make sure the deposit amount is non-zero and less than values that could cause an overflow.
-        vm.assume(depositAmount >= 100 && depositAmount <= upperBound);
+        vm.assume(params.depositAmount >= 100 && params.depositAmount <= upperBound);
 
         // Use a realistic range for the rate per second.
         vm.assume(params.ratePerSecond.unwrap() >= 0.0000000001e18 && params.ratePerSecond.unwrap() <= 10e18);
@@ -115,21 +113,26 @@ contract FlowCreateHandler is BaseHandler {
         deal({
             token: address(currentToken),
             to: params.sender,
-            give: currentToken.balanceOf(params.sender) + depositAmount
+            give: currentToken.balanceOf(params.sender) + params.depositAmount
         });
 
         // Approve {SablierFlow} to spend the tokens.
-        currentToken.approve({ spender: address(flow), value: depositAmount });
+        currentToken.approve({ spender: address(flow), value: params.depositAmount });
 
         // Create the stream.
         uint256 streamId = flow.createAndDeposit(
-            params.sender, params.recipient, params.ratePerSecond, currentToken, params.transferable, depositAmount
+            params.sender,
+            params.recipient,
+            params.ratePerSecond,
+            currentToken,
+            params.transferable,
+            params.depositAmount
         );
 
         // Store the stream id.
         flowStore.pushStreamId(streamId, params.sender, params.recipient);
 
         // Store the deposited amount.
-        flowStore.updateStreamDepositedAmountsSum(streamId, depositAmount);
+        flowStore.updateStreamDepositedAmountsSum(streamId, params.depositAmount);
     }
 }

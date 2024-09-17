@@ -22,7 +22,6 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
         returns (uint128 depositAmount)
     {
         uint128 maxDepositAmount = (UINT128_MAX - balance);
-
         if (decimals < 18) {
             maxDepositAmount = maxDepositAmount / uint128(10 ** (18 - decimals));
         }

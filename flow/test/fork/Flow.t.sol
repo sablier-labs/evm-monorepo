@@ -584,10 +584,6 @@ contract Flow_Fork_Test is Fork_Test {
         uint256 initialTokenBalance = token.balanceOf(address(flow));
         uint128 totalDebt = flow.totalDebtOf(streamId);
 
-        uint128 ongoingDebtNormalized = getNormalizedAmount(flow.ongoingDebtOf(streamId), tokenDecimals);
-        uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
-        uint40 snapshotTime = flow.getSnapshotTime(streamId);
-
         vars.expectedSnapshotTime = getBlockTimestamp();
 
         (, address caller,) = vm.readCallers();

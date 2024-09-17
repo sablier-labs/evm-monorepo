@@ -157,26 +157,24 @@ Currently, it's not possible to address this precision problem entirely.
    `flow.collectProtocolRevenue` handlers. In real life, someone can transfer tokens to the contract or admin can
    withdraw revenue from the contract.
 
-3. for any stream, if $ud > 0 \implies cd = bal$
+3. snapshot time should never decrease
 
-4. if $rps \gt 0$ and no deposits are made $\implies \frac{d(ud)}{dt} \ge 0$
+4. for any stream, if $ud > 0 \implies cd = bal$
 
-5. if $rps \gt 0$, and no withdraw is made $\implies \frac{d(td)}{dt} \ge 0$
+5. if $rps \gt 0$ and no deposits are made $\implies \frac{d(ud)}{dt} \ge 0$
 
-6. for any stream, sum of deposited amounts $\ge$ sum of withdrawn amounts + sum of refunded
+6. if $rps \gt 0$, and no withdraw is made $\implies \frac{d(td)}{dt} \ge 0$
 
-7. sum of all deposited amounts $\ge$ sum of all withdrawn amounts + sum of all refunded
+7. for any stream, sum of deposited amounts $\ge$ sum of withdrawn amounts + sum of refunded
 
-8. next stream id = current stream id + 1
+8. sum of all deposited amounts $\ge$ sum of all withdrawn amounts + sum of all refunded
 
-9. if $ud = 0$ and $isPaused = true \implies cd = sa$
+9. next stream id = current stream id + 1
 
-10. if $ud = 0$ and $isPaused = false \implies cd = sa + oa$
+10. if $ud = 0$ \implies cd = td$
 
 11. $bal = ra + cd$
 
 12. if $isPaused = true \implies rps = 0$
 
 13. if $isVoided = true \implies isPaused = true$, $ra = 0$ and $ud = 0$
-
-14. snapshot time should never decrease

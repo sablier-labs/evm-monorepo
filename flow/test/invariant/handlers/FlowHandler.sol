@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
@@ -79,11 +79,11 @@ contract FlowHandler is BaseHandler {
         UD21x18 newRatePerSecond
     )
         external
-        instrument("adjustRatePerSecond")
         useFuzzedStream(streamIndex)
         useFuzzedStreamSender
         adjustTimestamp(timeJump)
         updateFlowHandlerStates
+        instrument(currentStreamId, "adjustRatePerSecond")
     {
         // Only non paused streams can have their rate per second adjusted.
         vm.assume(!flow.isPaused(currentStreamId));
@@ -104,11 +104,11 @@ contract FlowHandler is BaseHandler {
         uint128 depositAmount
     )
         external
-        instrument("deposit")
         useFuzzedStream(streamIndex)
         useFuzzedStreamSender
         adjustTimestamp(timeJump)
         updateFlowHandlerStates
+        instrument(currentStreamId, "deposit")
     {
         // Voided streams cannot be deposited on.
         vm.assume(!flow.isVoided(currentStreamId));
@@ -135,18 +135,18 @@ contract FlowHandler is BaseHandler {
     }
 
     /// @dev A function that does nothing but warp the time into the future.
-    function passTime(uint256 timeJump) external instrument("passTime") adjustTimestamp(timeJump) { }
+    function passTime(uint256 timeJump) external adjustTimestamp(timeJump) { }
 
     function pause(
         uint256 timeJump,
         uint256 streamIndex
     )
         external
-        instrument("pause")
         useFuzzedStream(streamIndex)
         useFuzzedStreamSender
         adjustTimestamp(timeJump)
         updateFlowHandlerStates
+        instrument(currentStreamId, "pause")
     {
         // Paused streams cannot be paused again.
         vm.assume(!flow.isPaused(currentStreamId));
@@ -161,11 +161,11 @@ contract FlowHandler is BaseHandler {
         uint128 refundAmount
     )
         external
-        instrument("refund")
         useFuzzedStream(streamIndex)
         useFuzzedStreamSender
         adjustTimestamp(timeJump)
         updateFlowHandlerStates
+        instrument(currentStreamId, "refund")
     {
         // Voided streams cannot be refunded.
         vm.assume(!flow.isVoided(currentStreamId));
@@ -191,11 +191,11 @@ contract FlowHandler is BaseHandler {
         UD21x18 ratePerSecond
     )
         external
-        instrument("restart")
         useFuzzedStream(streamIndex)
         useFuzzedStreamSender
         adjustTimestamp(timeJump)
         updateFlowHandlerStates
+        instrument(currentStreamId, "restart")
     {
         // Voided streams cannot be restarted.
         vm.assume(!flow.isVoided(currentStreamId));
@@ -215,11 +215,11 @@ contract FlowHandler is BaseHandler {
         uint256 streamIndex
     )
         external
-        instrument("void")
         useFuzzedStream(streamIndex)
         useFuzzedStreamRecipient
         adjustTimestamp(timeJump)
         updateFlowHandlerStates
+        instrument(currentStreamId, "void")
     {
         // Voided streams cannot be voided again.
         vm.assume(!flow.isVoided(currentStreamId));
@@ -238,11 +238,11 @@ contract FlowHandler is BaseHandler {
         uint128 amount
     )
         external
-        instrument("withdraw")
         useFuzzedStream(streamIndex)
         useFuzzedStreamRecipient
         adjustTimestamp(timeJump)
         updateFlowHandlerStates
+        instrument(currentStreamId, "withdraw")
     {
         // The protocol doesn't allow the withdrawal address to be the zero address.
         vm.assume(to != address(0));

@@ -131,15 +131,30 @@ contract Flow_Invariant_Test is Base_Test {
     }
 
     /// @dev If rps > 0, and no additional deposits are made, then the uncovered debt should never decrease.
-    function invariant_UncoveredDebtGt0_RpsGt0_UncoveredDebtIncrease() external view {
+    function invariant_RpsGt0_UncoveredDebtGt0_UncoveredDebtIncrease() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
-            if (flow.getRatePerSecond(streamId).unwrap() > 0 && flowHandler.calls("deposit") == 0) {
+            if (flow.getRatePerSecond(streamId).unwrap() > 0 && flowHandler.calls(streamId, "deposit") == 0) {
                 assertGe(
                     flow.uncoveredDebtOf(streamId),
                     flowHandler.previousUncoveredDebtOf(streamId),
                     "Invariant violation: uncovered debt should never decrease"
+                );
+            }
+        }
+    }
+
+    /// @dev If rps > 0, no withdraw is made, the total debt should always increase.
+    function invariant_RpsGt0_TotalDebtAlwaysIncreases() external view {
+        uint256 lastStreamId = flowStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = flowStore.streamIds(i);
+            if (flow.getRatePerSecond(streamId).unwrap() != 0 && flowHandler.calls(streamId, "withdraw") == 0) {
+                assertGe(
+                    flow.totalDebtOf(streamId),
+                    flowHandler.previousTotalDebtOf(streamId),
+                    "Invariant violation: total debt should be monotonically increasing"
                 );
             }
         }
@@ -183,48 +198,17 @@ contract Flow_Invariant_Test is Base_Test {
         }
     }
 
-    /// @dev If there is no uncovered debt and the stream is paused, the covered debt should always be equal to
-    /// the snapshot debt.
-    function invariant_NoUncoveredDebt_StreamedPaused_CoveredDebtEqSnapshotAmount() external view {
+    /// @dev If there is no uncovered debt, the covered debt should always be equal to
+    /// the total debt.
+    function invariant_NoUncoveredDebt_StreamedPaused_CoveredDebtEqTotalDebt() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
-            if (flow.isPaused(streamId) && flow.uncoveredDebtOf(streamId) == 0) {
+            if (flow.uncoveredDebtOf(streamId) == 0) {
                 assertEq(
                     flow.coveredDebtOf(streamId),
-                    flow.getSnapshotDebt(streamId),
-                    "Invariant violation: paused stream covered debt != snapshot debt"
-                );
-            }
-        }
-    }
-
-    /// @dev If there is no uncovered debt and the stream is not paused, the covered debt should always be equal
-    /// to the sum of snapshot debt and ongoing debt.
-    function invariant_NoDebt_CoveredDebtEqOngoingDebtPlusSnapshotAmount() external view {
-        uint256 lastStreamId = flowStore.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = flowStore.streamIds(i);
-            if (!flow.isPaused(streamId) && flow.uncoveredDebtOf(streamId) == 0) {
-                assertEq(
-                    flow.coveredDebtOf(streamId),
-                    flow.ongoingDebtOf(streamId) + flow.getSnapshotDebt(streamId),
-                    "Invariant violation: covered debt != ongoing debt + snapshot debt"
-                );
-            }
-        }
-    }
-
-    /// @dev If rps > 0, no withdraw is made, the total debt should always increase.
-    function invariant_RpsGt0_TotalDebtAlwaysIncreases() external view {
-        uint256 lastStreamId = flowStore.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = flowStore.streamIds(i);
-            if (flow.getRatePerSecond(streamId).unwrap() != 0 && flowHandler.calls("withdraw") == 0) {
-                assertGe(
                     flow.totalDebtOf(streamId),
-                    flowHandler.previousTotalDebtOf(streamId),
-                    "Invariant violation: total debt should be monotonically increasing"
+                    "Invariant violation: paused stream covered debt != snapshot debt"
                 );
             }
         }

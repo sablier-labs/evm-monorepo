@@ -825,6 +825,9 @@ contract SablierFlow is
         // Interaction: perform the ERC-20 transfer.
         token.safeTransfer({ to: to, value: amount });
 
+        // Protocol Invariant: the difference in total debt should be equal to the difference in the stream balance.
+        assert(totalDebt - _totalDebtOf(streamId) == balance - _streams[streamId].balance);
+
         // Log the withdrawal.
         emit ISablierFlow.WithdrawFromFlowStream({
             streamId: streamId,
