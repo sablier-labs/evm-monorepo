@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 /// @dev Storage variables needed for handlers.
 contract FlowStore {
     /*//////////////////////////////////////////////////////////////////////////
@@ -8,42 +10,39 @@ contract FlowStore {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 public lastStreamId;
-    mapping(uint256 streamId => address recipient) public recipients;
-    mapping(uint256 streamId => address sender) public senders;
+    uint256[] public streamIds;
+
     mapping(uint256 streamId => uint128 depositedAmount) public depositedAmounts;
     mapping(uint256 streamId => uint128 refundedAmount) public refundedAmounts;
     mapping(uint256 streamId => uint128 withdrawnAmount) public withdrawnAmounts;
-    uint256[] public streamIds;
-    uint256 public streamDepositedAmountsSum;
-    uint256 public streamRefundedAmountsSum;
-    uint256 public streamWithdrawnAmountsSum;
+    mapping(IERC20 token => uint256 sum) public depositedAmountsSum;
+    mapping(IERC20 token => uint256 sum) public refundedAmountsSum;
+    mapping(IERC20 token => uint256 sum) public withdrawnAmountsSum;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function pushStreamId(uint256 streamId, address sender, address recipient) external {
+    function pushStreamId(uint256 streamId) external {
         // Store the stream ids, the senders, and the recipients.
         streamIds.push(streamId);
-        senders[streamId] = sender;
-        recipients[streamId] = recipient;
 
         // Update the last stream id.
         lastStreamId = streamId;
     }
 
-    function updateStreamDepositedAmountsSum(uint256 streamId, uint128 amount) external {
+    function updateStreamDepositedAmountsSum(uint256 streamId, IERC20 token, uint128 amount) external {
         depositedAmounts[streamId] += amount;
-        streamDepositedAmountsSum += amount;
+        depositedAmountsSum[token] += amount;
     }
 
-    function updateStreamRefundedAmountsSum(uint256 streamId, uint128 amount) external {
+    function updateStreamRefundedAmountsSum(uint256 streamId, IERC20 token, uint128 amount) external {
         refundedAmounts[streamId] += amount;
-        streamRefundedAmountsSum += amount;
+        refundedAmountsSum[token] += amount;
     }
 
-    function updateStreamWithdrawnAmountsSum(uint256 streamId, uint128 amount) external {
+    function updateStreamWithdrawnAmountsSum(uint256 streamId, IERC20 token, uint128 amount) external {
         withdrawnAmounts[streamId] += amount;
-        streamWithdrawnAmountsSum += amount;
+        withdrawnAmountsSum[token] += amount;
     }
 }

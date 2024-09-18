@@ -178,15 +178,17 @@ contract Flow_Invariant_Test is Base_Test {
     /// @dev The sum of all deposited amounts should always be greater than or equal to the sum of withdrawn and
     /// refunded amounts.
     function invariant_InflowsSumGeOutflowsSum() external view {
-        uint256 streamDepositedAmountsSum = flowStore.streamDepositedAmountsSum();
-        uint256 streamRefundedAmountsSum = flowStore.streamRefundedAmountsSum();
-        uint256 streamWithdrawnAmountsSum = flowStore.streamWithdrawnAmountsSum();
+        for (uint256 i = 0; i < tokens.length; ++i) {
+            uint256 depositedAmountsSum = flowStore.depositedAmountsSum(tokens[i]);
+            uint256 refundedAmountsSum = flowStore.refundedAmountsSum(tokens[i]);
+            uint256 withdrawnAmountsSum = flowStore.withdrawnAmountsSum(tokens[i]);
 
-        assertGe(
-            streamDepositedAmountsSum,
-            streamRefundedAmountsSum + streamWithdrawnAmountsSum,
-            "Invariant violation: stream deposited amounts sum < refunded amounts sum + withdrawn amounts sum"
-        );
+            assertGe(
+                depositedAmountsSum,
+                refundedAmountsSum + withdrawnAmountsSum,
+                "Invariant violation: deposited amounts sum < refunded amounts sum + withdrawn amounts sum"
+            );
+        }
     }
 
     /// @dev The next stream ID should always be incremented by 1.
