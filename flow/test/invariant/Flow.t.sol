@@ -73,8 +73,11 @@ contract Flow_Invariant_Test is Base_Test {
         }
     }
 
-    /// @dev For a given token, token balance of the flow contract should equal to the sum of all stream balances and
+    /// @dev For a given token,
+    /// - token balance of the flow contract should equal to the sum of all stream balances and
     /// protocol revenue accrued for that token.
+    /// - sum of all stream balances should equal to the sum of all deposited amounts minus the sum of all refunded and
+    /// sum of all withdrawn.
     function invariant_ContractBalanceEqStreamBalancesAndProtocolRevenue() external view {
         // Check the invariant for each token.
         for (uint256 i = 0; i < tokens.length; ++i) {
@@ -99,6 +102,13 @@ contract Flow_Invariant_Test is Base_Test {
             contractBalance,
             streamBalancesSum + flow.protocolRevenue(token),
             unicode"Invariant violation: contract balance != Σ stream balances + protocol revenue"
+        );
+
+        assertEq(
+            streamBalancesSum,
+            flowStore.depositedAmountsSum(token) - flowStore.refundedAmountsSum(token)
+                - flowStore.withdrawnAmountsSum(token),
+            "Invariant violation: streamBalancesSum != depositedAmountsSum - refundedAmountsSum - withdrawnAmountsSum"
         );
     }
 
@@ -245,7 +255,7 @@ contract Flow_Invariant_Test is Base_Test {
     }
 
     /// @dev If the stream is voided, it should be paused, and refundable amount and uncovered debt should be zero.
-    function invariant_StreamVoided_StreamPaused_RefunadbleAmountZero_UncoveredDebtZero() external view {
+    function invariant_StreamVoided_StreamPaused_RefundableAmountZero_UncoveredDebtZero() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
@@ -261,5 +271,50 @@ contract Flow_Invariant_Test is Base_Test {
                 );
             }
         }
+    }
+
+    /// @dev For non-voided streams, the difference between the total amount streamed and the sum of total debt and
+    /// total withdrawn should never exceed 1. This is indirectly checking that withdrawals do not cause the streamed
+    /// amount to deviate from the theoretical streamed amount by more than 1.
+    function invariant_TotalStreamedApproxEqTotalDebtPlusWithdrawn() external view {
+        uint256 lastStreamId = flowStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = flowStore.streamIds(i);
+
+            // Skip the voided streams.
+            if (!flow.isVoided(streamId)) {
+                uint256 totalStreamedAmount =
+                    calculateTotalStreamedAmount(flowStore.streamIds(i), flow.getTokenDecimals(streamId));
+
+                assertLe(
+                    totalStreamedAmount - flow.totalDebtOf(streamId) - flowStore.withdrawnAmounts(streamId),
+                    1,
+                    "Invariant violation: total debt - streamed amount - withdrawn amount > 1"
+                );
+            }
+        }
+    }
+
+    /// @dev Calculates the total streamed amount iterating over each period.
+    function calculateTotalStreamedAmount(
+        uint256 streamId,
+        uint8 decimals
+    )
+        internal
+        view
+        returns (uint256 totalStreamedAmount)
+    {
+        uint256 periodsCount = flowStore.getPeriods(streamId).length;
+
+        for (uint256 i = 0; i < periodsCount; ++i) {
+            FlowStore.Period memory period = flowStore.getPeriod(streamId, i);
+
+            // If end time is 0, it means the current period is still active.
+            uint40 elapsed = period.end > 0 ? period.end - period.start : uint40(block.timestamp) - period.start;
+
+            totalStreamedAmount += period.ratePerSecond * elapsed;
+        }
+
+        return totalStreamedAmount / 10 ** (18 - decimals);
     }
 }

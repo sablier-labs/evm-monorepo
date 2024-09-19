@@ -151,7 +151,10 @@ Currently, it's not possible to address this precision problem entirely.
 
 1. for any stream, $st \le now$
 
-2. for a given token, token.balanceOf(SablierFlow) = $\sum$ stream balances + flow.protocolRevenue(token)
+2. for a given token,
+
+   - token.balanceOf(SablierFlow) = $\sum$ stream balances + flow.protocolRevenue(token)
+   - $\sum$ stream balances = $\sum$ deposited amount - $\sum$ refunded amount - $\sum$ withdrawn amount
 
    Note: In the code, this invariant is tested with equality, as we don't implement the `ERC20.transferFrom` and
    `flow.collectProtocolRevenue` handlers. In real life, someone can transfer tokens to the contract or admin can
@@ -178,3 +181,5 @@ Currently, it's not possible to address this precision problem entirely.
 12. if $isPaused = true \implies rps = 0$
 
 13. if $isVoided = true \implies isPaused = true$, $ra = 0$ and $ud = 0$
+
+14. if $isVoided = false \implies \text{amount streamed} - (td + \text{amount withdrawn}) \le 1$.

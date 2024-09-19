@@ -20,13 +20,16 @@
 
 [profile.default.fuzz]
   max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
-  runs = 5000
+  runs = 50000
+  show_logs = true     # Display console logs
 
 [profile.default.invariant]
   call_override = false # Override unsafe external calls to perform reentrancy checks
-  depth = 50            # Number of calls executed in one run
+  dictionary_weight = 50
+  depth = 100           # Number of calls executed in one run
   fail_on_revert = true
-  runs = 50
+  runs = 5000
+  shrink_run_limit = 0 # Disable shrinking of a failed sequence
 
 # Run only the code inside benchmark directory
 [profile.benchmark]
@@ -35,6 +38,13 @@
 # Speed up compilation and tests during development
 [profile.lite]
   optimizer = false
+
+[profile.lite.invariant]
+  depth = 50
+  runs = 50
+
+[profile.lite.fuzz]
+  runs = 200
 
 # Compile only the production code and the test mocks with via IR and 10,000 optimizer runs
 [profile.optimized]

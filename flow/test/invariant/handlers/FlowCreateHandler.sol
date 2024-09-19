@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { ud21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
@@ -32,18 +32,6 @@ contract FlowCreateHandler is BaseHandler {
         _;
     }
 
-    modifier checkUsers(CreateParams memory params) {
-        // The protocol doesn't allow the sender or recipient to be the zero address.
-        vm.assume(params.sender != address(0) && params.recipient != address(0));
-
-        // Prevent the contract itself from playing the role of any user.
-        vm.assume(params.sender != address(this) && params.recipient != address(this));
-
-        // Reset the caller.
-        resetPrank(params.sender);
-        _;
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -65,49 +53,44 @@ contract FlowCreateHandler is BaseHandler {
         uint256 tokenIndex;
         address sender;
         address recipient;
-        UD21x18 ratePerSecond;
+        uint128 ratePerSecond;
         bool transferable;
     }
 
     function create(CreateParams memory params)
         public
-        checkUsers(params)
         useFuzzedToken(params.tokenIndex)
         adjustTimestamp(params.timeJump)
         instrument(flow.nextStreamId(), "create")
     {
+        _checkParams(params);
+
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
-        // Use a realistic range for the rate per second.
-        vm.assume(params.ratePerSecond.unwrap() >= 0.0000000001e18 && params.ratePerSecond.unwrap() <= 10e18);
-
         // Create the stream.
-        uint256 streamId =
-            flow.create(params.sender, params.recipient, params.ratePerSecond, currentToken, params.transferable);
+        uint256 streamId = flow.create(
+            params.sender, params.recipient, ud21x18(params.ratePerSecond), currentToken, params.transferable
+        );
 
-        // Store the stream id.
-        flowStore.pushStreamId(streamId);
+        // Store the stream id and rate per second.
+        flowStore.initStreamId(streamId, params.ratePerSecond);
     }
 
     function createAndDeposit(CreateParams memory params)
         public
-        checkUsers(params)
         useFuzzedToken(params.tokenIndex)
         adjustTimestamp(params.timeJump)
         instrument(flow.nextStreamId(), "createAndDeposit")
     {
+        _checkParams(params);
+
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
-        uint8 decimals = IERC20Metadata(address(currentToken)).decimals();
-
         // Calculate the upper bound, based on the token decimals, for the deposit amount.
-        uint128 upperBound = getDenormalizedAmount(1_000_000e18, decimals);
+        uint128 upperBound = getDenormalizedAmount(1_000_000e18, IERC20Metadata(address(currentToken)).decimals());
 
         // Make sure the deposit amount is non-zero and less than values that could cause an overflow.
         vm.assume(params.depositAmount >= 100 && params.depositAmount <= upperBound);
-
-        // Use a realistic range for the rate per second.
-        vm.assume(params.ratePerSecond.unwrap() >= 0.0000000001e18 && params.ratePerSecond.unwrap() <= 10e18);
 
         // Mint enough tokens to the Sender.
         deal({
@@ -123,16 +106,44 @@ contract FlowCreateHandler is BaseHandler {
         uint256 streamId = flow.createAndDeposit(
             params.sender,
             params.recipient,
-            params.ratePerSecond,
+            ud21x18(params.ratePerSecond),
             currentToken,
             params.transferable,
             params.depositAmount
         );
 
-        // Store the stream id.
-        flowStore.pushStreamId(streamId);
+        // Store the stream id and rate per second.
+        flowStore.initStreamId(streamId, params.ratePerSecond);
 
         // Store the deposited amount.
         flowStore.updateStreamDepositedAmountsSum(streamId, currentToken, params.depositAmount);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                      HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Check the relevant parameters fuzzed for create.
+    function _checkParams(CreateParams memory params) private {
+        // The protocol doesn't allow the sender or recipient to be the zero address.
+        vm.assume(params.sender != address(0) && params.recipient != address(0));
+
+        // Prevent the contract itself from playing the role of any user.
+        vm.assume(params.sender != address(this) && params.recipient != address(this));
+
+        // Reset the caller.
+        resetPrank(params.sender);
+
+        uint8 decimals = IERC20Metadata(address(currentToken)).decimals();
+
+        // Calculate the minimum value in normalized version that can be withdrawn for this token.
+        uint128 mvt = getNormalizedAmount(1, decimals);
+
+        // Check the rate per second is within a realistic range such that it can also be smaller than mvt.
+        if (decimals == 18) {
+            vm.assume(params.ratePerSecond > 0.00001e18 && params.ratePerSecond <= 1e18);
+        } else {
+            vm.assume(params.ratePerSecond > mvt / 100 && params.ratePerSecond <= 1e18);
+        }
     }
 }

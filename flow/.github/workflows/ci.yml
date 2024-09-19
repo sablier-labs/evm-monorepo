@@ -29,7 +29,7 @@ jobs:
     needs: ["lint", "build"]
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
     with:
-      foundry-fuzz-runs: 50000
+      foundry-fuzz-runs: 100000
       foundry-profile: "test-optimized"
       match-path: "test/integration/**/*.sol"
       name: "Integration tests"
@@ -38,8 +38,8 @@ jobs:
     needs: ["lint", "build"]
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
     with:
-      foundry-invariant-depth: 100
-      foundry-invariant-runs: 500
+      foundry-invariant-depth: 200
+      foundry-invariant-runs: 50000
       foundry-profile: "test-optimized"
       match-path: "test/invariant/**/*.sol"
       name: "Invariant tests"

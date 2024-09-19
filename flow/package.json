@@ -70,7 +70,7 @@
     "prettier:check": "prettier --check \"**/*.{json,md,svg,yml}\"",
     "prettier:write": "prettier --write \"**/*.{json,md,svg,yml}\"",
     "test": "forge test",
-    "test:lite": "FOUNDRY_PROFILE=lite forge test",
+    "test:lite": "FOUNDRY_PROFILE=lite forge test --nmt \"testFork\"",
     "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   }
 }
