@@ -9,15 +9,22 @@ contract FlowStore {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
+    // Stream IDs
     uint256 public lastStreamId;
     uint256[] public streamIds;
 
+    // Amounts
     mapping(uint256 streamId => uint128 amount) public depositedAmounts;
     mapping(uint256 streamId => uint128 amount) public refundedAmounts;
     mapping(uint256 streamId => uint128 amount) public withdrawnAmounts;
     mapping(IERC20 token => uint256 amount) public depositedAmountsSum;
     mapping(IERC20 token => uint256 amount) public refundedAmountsSum;
     mapping(IERC20 token => uint256 amount) public withdrawnAmountsSum;
+
+    // Previous values
+    mapping(uint256 streamId => uint40 snapshotTime) public previousSnapshotTime;
+    mapping(uint256 streamId => uint128 amount) public previousTotalDebtOf;
+    mapping(uint256 streamId => uint128 amount) public previousUncoveredDebtOf;
 
     /// @dev This struct represents a time period during which rate per second remains constant.
     /// @param ratePerSecond The rate per second for this period.
@@ -59,6 +66,19 @@ contract FlowStore {
 
         // Push the new period with the provided rate per second.
         periods[streamId].push(Period({ ratePerSecond: ratePerSecond, start: uint40(block.timestamp), end: 0 }));
+    }
+
+    function updatePreviousValues(
+        uint256 streamId,
+        uint40 snapshotTime,
+        uint128 totalDebtOf,
+        uint128 uncoveredDebtOf
+    )
+        external
+    {
+        previousSnapshotTime[streamId] = snapshotTime;
+        previousTotalDebtOf[streamId] = totalDebtOf;
+        previousUncoveredDebtOf[streamId] = uncoveredDebtOf;
     }
 
     function updateStreamDepositedAmountsSum(uint256 streamId, IERC20 token, uint128 amount) external {

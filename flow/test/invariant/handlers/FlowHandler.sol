@@ -18,15 +18,6 @@ contract FlowHandler is BaseHandler {
     address internal currentSender;
     uint256 internal currentStreamId;
 
-    /// @dev Snapshot times mapped by stream IDs.
-    mapping(uint256 streamId => uint40 snapshotTime) public previousSnapshotTime;
-
-    /// @dev Total debts mapped by stream IDs.
-    mapping(uint256 streamId => uint128 amount) public previousTotalDebtOf;
-
-    /// @dev Uncovered debts mapped by stream IDs.
-    mapping(uint256 streamId => uint128 amount) public previousUncoveredDebtOf;
-
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -39,9 +30,13 @@ contract FlowHandler is BaseHandler {
 
     /// @dev Updates the states of handler right before calling each Flow function.
     modifier updateFlowHandlerStates() {
-        previousSnapshotTime[currentStreamId] = flow.getSnapshotTime(currentStreamId);
-        previousTotalDebtOf[currentStreamId] = flow.totalDebtOf(currentStreamId);
-        previousUncoveredDebtOf[currentStreamId] = flow.uncoveredDebtOf(currentStreamId);
+        flowStore.updatePreviousValues(
+            currentStreamId,
+            flow.getSnapshotTime(currentStreamId),
+            flow.totalDebtOf(currentStreamId),
+            flow.uncoveredDebtOf(currentStreamId)
+        );
+
         _;
     }
 

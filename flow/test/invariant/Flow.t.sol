@@ -119,7 +119,7 @@ contract Flow_Invariant_Test is Base_Test {
             uint256 streamId = flowStore.streamIds(i);
             assertGe(
                 flow.getSnapshotTime(streamId),
-                flowHandler.previousSnapshotTime(streamId),
+                flowStore.previousSnapshotTime(streamId),
                 "Invariant violation: snapshot time should never decrease"
             );
         }
@@ -148,7 +148,7 @@ contract Flow_Invariant_Test is Base_Test {
             if (flow.getRatePerSecond(streamId).unwrap() > 0 && flowHandler.calls(streamId, "deposit") == 0) {
                 assertGe(
                     flow.uncoveredDebtOf(streamId),
-                    flowHandler.previousUncoveredDebtOf(streamId),
+                    flowStore.previousUncoveredDebtOf(streamId),
                     "Invariant violation: uncovered debt should never decrease"
                 );
             }
@@ -163,7 +163,7 @@ contract Flow_Invariant_Test is Base_Test {
             if (flow.getRatePerSecond(streamId).unwrap() != 0 && flowHandler.calls(streamId, "withdraw") == 0) {
                 assertGe(
                     flow.totalDebtOf(streamId),
-                    flowHandler.previousTotalDebtOf(streamId),
+                    flowStore.previousTotalDebtOf(streamId),
                     "Invariant violation: total debt should be monotonically increasing"
                 );
             }
