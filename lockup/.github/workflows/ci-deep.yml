@@ -83,6 +83,6 @@ jobs:
         uses: "rtCamp/action-slack-notify@v2"
         env:
           SLACK_CHANNEL: "#ci-notifications"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_USERNAME: "GitHub CI"
           SLACK_MESSAGE: "CI Workflow failed for ${{ github.repository }} on branch ${{ github.ref }} at job ${{ github.job }}."
+          SLACK_USERNAME: "GitHub CI"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
