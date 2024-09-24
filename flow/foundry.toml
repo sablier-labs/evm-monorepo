@@ -16,7 +16,7 @@
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
   solc = "0.8.26"
   src = "src"
-  test = "test"
+  test = "tests"
 
 [profile.default.fuzz]
   max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
@@ -50,12 +50,12 @@
   optimizer = true
   optimizer_runs = 10_000
   out = "out-optimized"
-  test = "test/mocks"
+  test = "tests/mocks"
   via_ir = true
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
-  src = "test"
+  src = "tests"
 
 [doc]
   ignore = ["**/*.t.sol"]

@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { ud21x18 } from "@prb/math/src/UD21x18.sol";
 
-import { Integration_Test } from "./../test/integration/Integration.t.sol";
+import { Integration_Test } from "./../tests/integration/Integration.t.sol";
 
 /// @notice A contract to benchmark Flow functions.
 /// @dev This contract creates a Markdown file with the gas usage of each function.

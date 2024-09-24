@@ -20,7 +20,7 @@ jobs:
     uses: "sablier-labs/reusable-workflows/.github/workflows/bulloak-check.yml@main"
     with:
       skip-modifiers: true
-      tree-path: "test/integration"
+      tree-path: "tests/integration"
 
   build:
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@main"
@@ -31,7 +31,7 @@ jobs:
     with:
       foundry-fuzz-runs: 10000
       foundry-profile: "test-optimized"
-      match-path: "test/integration/**/*.sol"
+      match-path: "tests/integration/**/*.sol"
       name: "Integration tests"
 
   test-invariant:
@@ -41,7 +41,7 @@ jobs:
       foundry-invariant-depth: 100
       foundry-invariant-runs: 1000
       foundry-profile: "test-optimized"
-      match-path: "test/invariant/**/*.sol"
+      match-path: "tests/invariant/**/*.sol"
       name: "Invariant tests"
 
   test-fork:
@@ -52,7 +52,7 @@ jobs:
     with:
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
-      match-path: "test/fork/**/*.sol"
+      match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
 
   coverage:
@@ -61,4 +61,4 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-coverage.yml@main"
     with:
-      match-path: "test/{integration}/**/*.sol"
+      match-path: "tests/{integration}/**/*.sol"
