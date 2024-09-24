@@ -285,9 +285,9 @@ contract Flow_Invariant_Test is Base_Test {
         }
     }
 
-    /// @dev For non-voided streams, the difference between the total amount streamed adjusted including the delay and the
-    /// sum of total debt and total withdrawn should be equal. Also, total streamed amount with delay must never exceed total
-    /// streamed amount without delay.
+    /// @dev For non-voided streams, the difference between the total amount streamed adjusted including the delay and
+    /// the sum of total debt and total withdrawn should be equal. Also, total streamed amount with delay must never
+    /// exceed total streamed amount without delay.
     function invariant_TotalStreamedWithDelayEqTotalDebtPlusWithdrawn() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
