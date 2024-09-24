@@ -87,7 +87,7 @@ contract FlowCreateHandler is BaseHandler {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
         // Calculate the upper bound, based on the token decimals, for the deposit amount.
-        uint128 upperBound = getDenormalizedAmount(1_000_000e18, IERC20Metadata(address(currentToken)).decimals());
+        uint128 upperBound = getDescaledAmount(1_000_000e18, IERC20Metadata(address(currentToken)).decimals());
 
         // Make sure the deposit amount is non-zero and less than values that could cause an overflow.
         vm.assume(params.depositAmount >= 100 && params.depositAmount <= upperBound);
@@ -136,8 +136,8 @@ contract FlowCreateHandler is BaseHandler {
 
         uint8 decimals = IERC20Metadata(address(currentToken)).decimals();
 
-        // Calculate the minimum value in normalized version that can be withdrawn for this token.
-        uint128 mvt = getNormalizedAmount(1, decimals);
+        // Calculate the minimum value in scaled version that can be withdrawn for this token.
+        uint128 mvt = getScaledAmount(1, decimals);
 
         // Check the rate per second is within a realistic range such that it can also be smaller than mvt.
         if (decimals == 18) {

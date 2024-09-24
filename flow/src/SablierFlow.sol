@@ -89,7 +89,8 @@ contract SablierFlow is
             if (tokenDecimals == 18) {
                 solvencyAmount = (balance - snapshotDebt + 1);
             } else {
-                solvencyAmount = ((balance - snapshotDebt + 1) * (10 ** (18 - tokenDecimals))).toUint128();
+                uint128 scaleFactor = (10 ** (18 - tokenDecimals)).toUint128();
+                solvencyAmount = (balance - snapshotDebt + 1) * scaleFactor;
             }
             uint128 solvencyPeriod = solvencyAmount / _streams[streamId].ratePerSecond.unwrap();
             return _streams[streamId].snapshotTime + uint40(solvencyPeriod);
@@ -408,10 +409,12 @@ contract SablierFlow is
         noDelegateCall
         notNull(streamId)
         updateMetadata(streamId)
-        returns (uint128 withdrawAmount)
+        returns (uint128 amountWithdrawn)
     {
-        withdrawAmount = _coveredDebtOf(streamId);
-        _withdraw(streamId, to, withdrawAmount);
+        amountWithdrawn = _coveredDebtOf(streamId);
+
+        // Checks, Effects, and Interactions: make the withdrawal.
+        _withdraw(streamId, to, amountWithdrawn);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -459,18 +462,18 @@ contract SablierFlow is
         uint8 tokenDecimals = _streams[streamId].tokenDecimals;
 
         // Calculate the ongoing debt accrued by multiplying the elapsed time by the rate per second.
-        uint128 normalizedOngoingDebt = elapsedTime * _streams[streamId].ratePerSecond.unwrap();
+        uint128 scaledOngoingDebt = elapsedTime * _streams[streamId].ratePerSecond.unwrap();
 
-        // If the token decimals are 18, return the normalized ongoing debt and the `block.timestamp`.
+        // If the token decimals are 18, return the scaled ongoing debt and the `block.timestamp`.
         if (tokenDecimals == 18) {
-            return normalizedOngoingDebt;
+            return scaledOngoingDebt;
         }
 
         // Safe to use unchecked because we use {SafeCast}.
         unchecked {
-            uint8 factor = 18 - tokenDecimals;
-            // Since debt is denoted in token decimals, denormalize the amount.
-            ongoingDebt = (normalizedOngoingDebt / (10 ** factor)).toUint128();
+            uint128 scaleFactor = (10 ** (18 - tokenDecimals)).toUint128();
+            // Since debt is denoted in token decimals, descale the amount.
+            ongoingDebt = scaledOngoingDebt / scaleFactor;
         }
     }
 
@@ -853,8 +856,8 @@ contract SablierFlow is
             to: to,
             token: token,
             caller: msg.sender,
-            protocolFeeAmount: feeAmount,
-            withdrawAmount: amount
+            withdrawAmount: amount,
+            protocolFeeAmount: feeAmount
         });
     }
 }

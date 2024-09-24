@@ -123,7 +123,7 @@ $0.064000$ USDC per day, which is problematic.
 
 ### Solution
 
-In the contracts, we normalize the rate per second to 18 decimals. While this doesn't completely solve the issue, it
+In the contracts, we scale the rate per second to 18 decimals. While this doesn't completely solve the issue, it
 significantly minimizes it.
 
 Using the same example (streaming 10 USDC per day), if _rps_ has 18 decimals, the end-of-day result would be:

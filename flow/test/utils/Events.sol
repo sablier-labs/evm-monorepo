@@ -77,7 +77,7 @@ abstract contract Events {
         address indexed to,
         IERC20 indexed token,
         address caller,
-        uint128 protocolFeeAmount,
-        uint128 withdrawAmount
+        uint128 withdrawAmount,
+        uint128 protocolFeeAmount
     );
 }

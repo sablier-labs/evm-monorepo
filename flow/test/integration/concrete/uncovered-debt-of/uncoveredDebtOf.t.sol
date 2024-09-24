@@ -26,7 +26,7 @@ contract UncoveredDebtOf_Integration_Concrete_Test is Integration_Test {
         // Simulate the passage of time to accumulate uncovered debt for one month.
         vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD + ONE_MONTH });
 
-        uint128 totalStreamed = getDenormalizedAmount(RATE_PER_SECOND_U128 * (SOLVENCY_PERIOD + ONE_MONTH), 6);
+        uint128 totalStreamed = getDescaledAmount(RATE_PER_SECOND_U128 * (SOLVENCY_PERIOD + ONE_MONTH), 6);
 
         // It should return non-zero value.
         uint128 actualUncoveredDebt = flow.uncoveredDebtOf(defaultStreamId);

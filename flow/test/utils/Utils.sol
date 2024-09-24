@@ -59,8 +59,8 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
         return TRANSFER_VALUE * (10 ** decimals).toUint128();
     }
 
-    /// @dev Denormalizes the amount to denote it in token's decimals.
-    function getDenormalizedAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
+    /// @dev Descales the amount to denote it in token's decimals.
+    function getDescaledAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
         if (decimals == 18) {
             return amount;
         }
@@ -69,8 +69,8 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
         return (amount / (10 ** factor)).toUint128();
     }
 
-    /// @dev Normalizes the amount to denote it in 18 decimals.
-    function getNormalizedAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
+    /// @dev Scales the amount to denote it in 18 decimals.
+    function getScaledAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
         if (decimals == 18) {
             return amount;
         }

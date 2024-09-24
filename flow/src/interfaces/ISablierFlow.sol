@@ -93,17 +93,17 @@ interface ISablierFlow is
     /// @param to The address that received the withdrawn tokens.
     /// @param token The contract address of the ERC-20 token that was withdrawn.
     /// @param caller The address that performed the withdrawal, which can be the recipient or an approved operator.
-    /// @param protocolFeeAmount The amount of protocol fee deducted from the withdrawn amount, denoted in token's
-    /// decimals.
     /// @param withdrawAmount The amount withdrawn to the recipient after subtracting the protocol fee, denoted in
     /// token's decimals.
+    /// @param protocolFeeAmount The amount of protocol fee deducted from the withdrawn amount, denoted in token's
+    /// decimals.
     event WithdrawFromFlowStream(
         uint256 indexed streamId,
         address indexed to,
         IERC20 indexed token,
         address caller,
-        uint128 protocolFeeAmount,
-        uint128 withdrawAmount
+        uint128 withdrawAmount,
+        uint128 protocolFeeAmount
     );
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -389,8 +389,8 @@ interface ISablierFlow is
     /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
     ///
     /// Notes:
-    /// - It sets the snapshot time to the `block.timestamp` function.
-    /// - If the protocol fee is enabled for the streaming token, the amount withdrawn is adjusted by the protocol fee.
+    /// - It sets the snapshot time to the `block.timestamp`.
+    /// - A protocol fee may be charged on the withdrawn amount if the protocol fee is enabled for the streaming token.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -417,6 +417,6 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn tokens.
     ///
-    /// @return withdrawAmount The amount withdrawn to the recipient, denoted in token's decimals.
-    function withdrawMax(uint256 streamId, address to) external returns (uint128 withdrawAmount);
+    /// @return amountWithdrawn The amount withdrawn to the recipient, denoted in token's decimals.
+    function withdrawMax(uint256 streamId, address to) external returns (uint128 amountWithdrawn);
 }
