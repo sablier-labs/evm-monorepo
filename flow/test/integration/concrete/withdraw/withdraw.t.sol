@@ -246,6 +246,7 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
     {
         IERC20 token = flow.getToken(streamId);
         uint128 previousTotalDebt = flow.totalDebtOf(streamId);
+        uint256 previousAggregateAmount = flow.aggregateBalance(token);
 
         uint128 expectedProtocolRevenue = flow.protocolRevenue(token) + feeAmount;
 
@@ -288,7 +289,12 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
         assertEq(flow.getBalance(streamId), expectedStreamBalance, "stream balance");
 
         // It should reduce the token balance of stream.
-        uint256 expectedTokenBalance = initialTokenBalance - withdrawAmount + feeAmount;
+        uint256 expectedTokenBalance = initialTokenBalance - (withdrawAmount - feeAmount);
         assertEq(token.balanceOf(address(flow)), expectedTokenBalance, "token balance");
+
+        // It should decrease the aggregate amount.
+        assertEq(
+            flow.aggregateBalance(token), previousAggregateAmount - (withdrawAmount - feeAmount), "aggregate amount"
+        );
     }
 }

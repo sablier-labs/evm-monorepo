@@ -1,0 +1,10 @@
+Recover_Integration_Concrete_Test
+├── when caller not admin
+│  └── it should revert
+└── when caller admin
+   ├── when token balance not exceed aggregate amount
+   │  └── it should revert
+   └── when token balance exceed aggregate amount
+      ├── it should transfer the surplus to provided address
+      ├── it should emit {Recover} and {Transfer} events
+      └── it should lead to token balance same as aggregate amount

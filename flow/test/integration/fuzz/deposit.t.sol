@@ -31,6 +31,7 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Following variables are used during assertions.
+        uint256 initialAggregateAmount = flow.aggregateBalance(token);
         uint256 initialTokenBalance = token.balanceOf(address(flow));
         uint128 initialStreamBalance = flow.getBalance(streamId);
 
@@ -75,5 +76,10 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint256 actualStreamBalance = flow.getBalance(streamId);
         uint256 expectedStreamBalance = initialStreamBalance + depositAmount;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
+
+        // Assert that aggregate amount has been updated.
+        uint256 actualAggregateAmount = flow.aggregateBalance(token);
+        uint256 expectedAggregateAmount = initialAggregateAmount + depositAmount;
+        assertEq(actualAggregateAmount, expectedAggregateAmount, "aggregate amount");
     }
 }

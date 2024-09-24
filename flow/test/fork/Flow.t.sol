@@ -43,6 +43,7 @@ contract Flow_Fork_Test is Fork_Test {
     /// @dev A struct to hold the actual and expected values, this prevents stack overflow.
     struct Vars {
         // Actual values.
+        uint256 actualAggregateAmount;
         UD21x18 actualRatePerSecond;
         uint40 actualSnapshotTime;
         uint128 actualSnapshotDebt;
@@ -51,6 +52,7 @@ contract Flow_Fork_Test is Fork_Test {
         uint256 actualTokenBalance;
         uint128 actualTotalDebt;
         // Expected values.
+        uint256 expectedAggregateAmount;
         UD21x18 expectedRatePerSecond;
         uint40 expectedSnapshotTime;
         uint128 expectedSnapshotDebt;
@@ -349,6 +351,7 @@ contract Flow_Fork_Test is Fork_Test {
         uint8 tokenDecimals = flow.getTokenDecimals(streamId);
 
         // Following variables are used during assertions.
+        uint256 initialAggregateAmount = flow.aggregateBalance(token);
         uint256 initialTokenBalance = token.balanceOf(address(flow));
         uint128 initialStreamBalance = flow.getBalance(streamId);
 
@@ -386,6 +389,11 @@ contract Flow_Fork_Test is Fork_Test {
         vars.actualStreamBalance = flow.getBalance(streamId);
         vars.expectedStreamBalance = initialStreamBalance + depositAmount;
         assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "Deposit: stream balance");
+
+        // Assert that aggregate amount has been updated.
+        vars.actualAggregateAmount = flow.aggregateBalance(token);
+        vars.expectedAggregateAmount = initialAggregateAmount + depositAmount;
+        assertEq(vars.actualAggregateAmount, vars.expectedAggregateAmount, "Deposit: aggregate amount");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -440,6 +448,7 @@ contract Flow_Fork_Test is Fork_Test {
         // Bound the refund amount to avoid error.
         refundAmount = boundUint128(refundAmount, 1, flow.refundableAmountOf(streamId));
 
+        uint256 initialAggregateAmount = flow.aggregateBalance(token);
         uint256 initialTokenBalance = token.balanceOf(address(flow));
         uint128 initialStreamBalance = flow.getBalance(streamId);
 
@@ -465,6 +474,11 @@ contract Flow_Fork_Test is Fork_Test {
         vars.actualStreamBalance = flow.getBalance(streamId);
         vars.expectedStreamBalance = initialStreamBalance - refundAmount;
         assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "Refund: stream balance");
+
+        // Assert that aggregate amount has been updated.
+        vars.actualAggregateAmount = flow.aggregateBalance(token);
+        vars.expectedAggregateAmount = initialAggregateAmount - refundAmount;
+        assertEq(vars.actualAggregateAmount, vars.expectedAggregateAmount, "Refund: aggregate amount");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -589,6 +603,8 @@ contract Flow_Fork_Test is Fork_Test {
         (, address caller,) = vm.readCallers();
         address recipient = flow.getRecipient(streamId);
 
+        vars.expectedAggregateAmount = flow.aggregateBalance(token) - withdrawAmount;
+
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(token) });
         emit IERC20.Transfer({ from: address(flow), to: recipient, value: withdrawAmount });
@@ -627,5 +643,9 @@ contract Flow_Fork_Test is Fork_Test {
         vars.actualTokenBalance = token.balanceOf(address(flow));
         vars.expectedTokenBalance = initialTokenBalance - withdrawAmount;
         assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "Withdraw: token balance");
+
+        // It should reduce the aggregate amount by the withdrawn amount.
+        vars.actualAggregateAmount = flow.aggregateBalance(token);
+        assertEq(vars.actualAggregateAmount, vars.expectedAggregateAmount, "Withdraw: aggregate amount");
     }
 }

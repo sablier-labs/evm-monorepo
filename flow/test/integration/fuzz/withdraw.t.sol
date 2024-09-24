@@ -119,13 +119,16 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
     /// @dev A struct to hold the variables used in the test below, this prevents stack error.
     struct Vars {
+        uint128 feeAmount;
+        uint256 previousAggregateAmount;
         uint256 previousTokenBalance;
         uint128 previousOngoingDebt;
         uint128 previousTotalDebt;
         uint128 previousStreamBalance;
-        uint128 expectedProtocolRevenue;
-        uint128 feeAmount;
+        uint256 actualAggregateAmount;
+        uint256 expectedAggregateAmount;
         uint128 actualProtocolRevenue;
+        uint128 expectedProtocolRevenue;
         uint40 actualSnapshotTime;
         uint40 expectedSnapshotTime;
         uint128 actualTotalDebt;
@@ -162,6 +165,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the withdraw amount between the allowed range.
         withdrawAmount = boundUint128(withdrawAmount, 1, flow.withdrawableAmountOf(streamId));
 
+        vars.previousAggregateAmount = flow.aggregateBalance(token);
         vars.previousTokenBalance = token.balanceOf(address(flow));
         vars.previousOngoingDebt = flow.totalDebtOf(streamId);
         vars.previousTotalDebt = flow.getSnapshotDebt(streamId) + vars.previousOngoingDebt;
@@ -220,5 +224,10 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vars.actualTokenBalance = token.balanceOf(address(flow));
         vars.expectedTokenBalance = vars.previousTokenBalance - withdrawAmount + vars.feeAmount;
         assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "token balance");
+
+        // Assert that aggregate amount has been updated.
+        vars.actualAggregateAmount = flow.aggregateBalance(token);
+        vars.expectedAggregateAmount = vars.previousAggregateAmount - withdrawAmount + vars.feeAmount;
+        assertEq(vars.actualAggregateAmount, vars.expectedAggregateAmount, "aggregate amount");
     }
 }

@@ -21,7 +21,6 @@
 [profile.default.fuzz]
   max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
   runs = 50000
-  show_logs = true     # Display console logs
 
 [profile.default.invariant]
   call_override = false # Override unsafe external calls to perform reentrancy checks

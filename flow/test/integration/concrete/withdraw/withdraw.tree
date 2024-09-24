@@ -28,7 +28,7 @@ Withdraw_Integration_Concrete_Test
                   ├── when amount not equal total debt
                   │  ├── it should update snapshot debt
                   │  └── it should make the withdrawal
-                  └── when amount equal total debt 
+                  └── when amount equal total debt
                      ├── given protocol fee not zero
                      │  ├── it should update the protocol revenue
                      │  └── it should withdraw the net amount
@@ -38,6 +38,7 @@ Withdraw_Integration_Concrete_Test
                         └── given token not have 18 decimals
                            ├── it should withdraw the withdrawable amount
                            ├── it should reduce the stream balance by the withdrawn amount
+                           ├── it should reduce the aggregate amount by the withdrawn amount
                            ├── it should update snapshot debt to zero
                            ├── it should update snapshot time
                            ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events

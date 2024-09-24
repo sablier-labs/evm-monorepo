@@ -57,6 +57,8 @@ abstract contract Events {
         uint256 indexed streamId, address indexed sender, address indexed recipient, uint128 totalDebt
     );
 
+    event Recover(address indexed admin, IERC20 indexed token, address to, uint256 surplus);
+
     event RefundFromFlowStream(uint256 indexed streamId, address indexed sender, uint128 amount);
 
     event RestartFlowStream(uint256 indexed streamId, address indexed sender, UD21x18 ratePerSecond);

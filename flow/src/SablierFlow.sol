@@ -615,11 +615,18 @@ contract SablierFlow is
             revert Errors.SablierFlow_DepositAmountZero(streamId);
         }
 
+        IERC20 token = _streams[streamId].token;
+
         // Effect: update the stream balance.
         _streams[streamId].balance += amount;
 
+        unchecked {
+            // Effect: update the aggregate balance.
+            aggregateBalance[token] += amount;
+        }
+
         // Interaction: transfer the amount.
-        _streams[streamId].token.safeTransferFrom({ from: msg.sender, to: address(this), value: amount });
+        token.safeTransferFrom({ from: msg.sender, to: address(this), value: amount });
 
         // Log the deposit.
         emit ISablierFlow.DepositFlowStream({ streamId: streamId, funder: msg.sender, amount: amount });
@@ -681,12 +688,19 @@ contract SablierFlow is
         }
 
         address sender = _streams[streamId].sender;
+        IERC20 token = _streams[streamId].token;
 
-        // Effect: update the stream balance.
-        _streams[streamId].balance -= amount;
+        // Safe to use unchecked because at this point, the amount cannot exceed the balance.
+        unchecked {
+            // Effect: update the stream balance.
+            _streams[streamId].balance -= amount;
+
+            // Effect: update the aggregate balance.
+            aggregateBalance[token] -= amount;
+        }
 
         // Interaction: perform the ERC-20 transfer.
-        _streams[streamId].token.safeTransfer({ to: sender, value: amount });
+        token.safeTransfer({ to: sender, value: amount });
 
         // Log the refund.
         emit ISablierFlow.RefundFromFlowStream(streamId, sender, amount);
@@ -820,6 +834,11 @@ contract SablierFlow is
                 // Effect: update the protocol revenue.
                 protocolRevenue[token] += feeAmount;
             }
+        }
+
+        unchecked {
+            // Effect: update the aggregate balance.
+            aggregateBalance[token] -= amount;
         }
 
         // Interaction: perform the ERC-20 transfer.

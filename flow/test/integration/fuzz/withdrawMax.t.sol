@@ -86,6 +86,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             vm.warp({ newTimestamp: flow.depletionTimeOf(streamId) - 1 });
         }
 
+        uint256 previousAggregateAmount = flow.aggregateBalance(token);
         uint128 totalDebt = flow.totalDebtOf(streamId);
         uint256 tokenBalance = token.balanceOf(address(flow));
         uint128 streamBalance = flow.getBalance(streamId);
@@ -141,5 +142,10 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint256 actualTokenBalance = token.balanceOf(address(flow));
         uint256 expectedTokenBalance = tokenBalance - withdrawAmount;
         assertEq(actualTokenBalance, expectedTokenBalance, "token balance");
+
+        // Assert that aggregate amount has been updated.
+        uint256 actualAggregateAmount = flow.aggregateBalance(token);
+        uint256 expectedAggregateAmount = previousAggregateAmount - withdrawAmount;
+        assertEq(actualAggregateAmount, expectedAggregateAmount, "aggregate amount");
     }
 }

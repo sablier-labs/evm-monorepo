@@ -21,27 +21,22 @@ Refund_Integration_Concrete_Test
                │  └── it should revert
                └── when no over refund
                   ├── given paused
-                  │  ├── it should make the refund
-                  │  ├── it should update the stream balance
-                  │  ├── it should perform the ERC20 transfer
-                  │  ├── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
-                  │  └── it should return the transfer amount
+                  │  └── it should make the refund
                   └── given not paused
                      ├── when token misses ERC20 return
-                     │  ├── it should make the refund
-                     │  ├── it should update the stream balance
-                     │  ├── it should perform the ERC20 transfer
-                     │  └── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
+                     │  └── it should make the refund
                      └── when token not miss ERC20 return
                         ├── given token not have 18 decimals
                         │  ├── it should make the refund
                         │  ├── it should update the stream balance
+                        │  ├── it should decrease the aggregate amount
                         │  ├── it should perform the ERC20 transfer
                         │  ├── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
                         │  └── it should return the transfer amount
                         └── given token has 18 decimals
                            ├── it should make the refund
                            ├── it should update the stream balance
+                           ├── it should decrease the aggregate amount
                            ├── it should perform the ERC20 transfer
                            ├── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
                            └── it should return the transfer amount

@@ -32,6 +32,9 @@ abstract contract SablierFlowBase is
     UD60x18 public constant override MAX_FEE = UD60x18.wrap(0.1e18);
 
     /// @inheritdoc ISablierFlowBase
+    mapping(IERC20 token => uint256 amount) public override aggregateBalance;
+
+    /// @inheritdoc ISablierFlowBase
     uint256 public override nextStreamId;
 
     /// @inheritdoc ISablierFlowBase
@@ -213,10 +216,30 @@ abstract contract SablierFlowBase is
         // Effect: reset the protocol revenue.
         protocolRevenue[token] = 0;
 
+        unchecked {
+            // Effect: update the aggregate balance.
+            aggregateBalance[token] -= revenue;
+        }
+
         // Interaction: transfer the protocol revenue to the provided address.
         token.safeTransfer({ to: to, value: revenue });
 
         emit ISablierFlowBase.CollectProtocolRevenue({ admin: msg.sender, token: token, to: to, revenue: revenue });
+    }
+
+    /// @inheritdoc ISablierFlowBase
+    function recover(IERC20 token, address to) external override onlyAdmin {
+        uint256 surplus = token.balanceOf(address(this)) - aggregateBalance[token];
+
+        // Check: there is a surplus to recover.
+        if (surplus == 0) {
+            revert Errors.SablierFlowBase_SurplusZero(address(token));
+        }
+
+        // Interaction: transfer the surplus to the provided address.
+        token.safeTransfer(to, surplus);
+
+        emit Recover(msg.sender, token, to, surplus);
     }
 
     /// @inheritdoc ISablierFlowBase

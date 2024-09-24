@@ -16,10 +16,12 @@ Deposit_Integration_Concrete_Test
             └── when token not miss ERC20 return
                ├── given token has 18 decimals
                │  ├── it should update the stream balance
+               │  ├── it should increase the aggregate amount
                │  ├── it should perform the ERC20 transfer
                │  └── it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
                └── given token not have 18 decimals
                   ├── it should update the stream balance
+                  ├── it should increase the aggregate amount
                   ├── it should perform the ERC20 transfer
                   └── it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
 

@@ -38,6 +38,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
 
     function _test_WithdrawMax() private {
         uint128 expectedWithdrawAmount = ONE_MONTH_DEBT_6D;
+        uint256 previousAggregateAmount = flow.aggregateBalance(usdc);
 
         // It should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdated} events.
         vm.expectEmit({ emitter: address(usdc) });
@@ -76,5 +77,8 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
 
         // It should return the actual withdrawn amount.
         assertEq(actualWithdrawnAmount, expectedWithdrawAmount, "withdrawn amount");
+
+        // It should decrease the aggregate amount.
+        assertEq(flow.aggregateBalance(usdc), previousAggregateAmount - expectedWithdrawAmount, "aggregate amount");
     }
 }

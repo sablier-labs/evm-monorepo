@@ -112,6 +112,18 @@ contract Flow_Invariant_Test is Base_Test {
         );
     }
 
+    /// @dev For a given token, token balance of the flow contract should equal to the stored value of aggregate
+    /// balance.
+    function invariant_ContractBalanceEqAggregateBalance() external view {
+        for (uint256 i = 0; i < tokens.length; ++i) {
+            assertEq(
+                tokens[i].balanceOf(address(flow)),
+                flow.aggregateBalance(tokens[i]),
+                unicode"Invariant violation: contract balance != aggregate balance"
+            );
+        }
+    }
+
     /// @dev For any stream, the snapshot time should be greater than or equal to the previous snapshot time.
     function invariant_SnapshotTimeAlwaysIncreases() external view {
         uint256 lastStreamId = flowStore.lastStreamId();

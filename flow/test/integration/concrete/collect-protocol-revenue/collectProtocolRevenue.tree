@@ -6,5 +6,6 @@ CollectProtocolRevenue_Integration_Concrete_Test
    │  └── it should revert
    └── given protocol revenue not zero
       ├── it should transfer protocol revenue to provided address
+      ├── it should reduce the aggregate amount
       ├── it should set protocol revenue to zero
       └── it should emit {CollectProtocolRevenue} and {Transfer} events

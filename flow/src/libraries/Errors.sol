@@ -96,4 +96,7 @@ library Errors {
 
     /// @notice Thrown when trying to set protocol fee more than the allowed.
     error SablierFlowBase_ProtocolFeeTooHigh(UD60x18 newProtocolFee, UD60x18 maxFee);
+
+    /// @notice Thrown when trying to recover for a token with zero surplus.
+    error SablierFlowBase_SurplusZero(address token);
 }

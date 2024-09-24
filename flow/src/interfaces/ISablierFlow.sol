@@ -10,7 +10,7 @@ import { ISablierFlowBase } from "./ISablierFlowBase.sol";
 /// @title ISablierFlow
 /// @notice Creates and manages Flow streams with linear streaming functions.
 interface ISablierFlow is
-    ISablierFlowBase // 3 inherited component
+    ISablierFlowBase // 4 inherited component
 {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS

@@ -39,6 +39,8 @@ contract CollectProtocolRevenue_Integration_Concrete_Test is Integration_Test {
         // Withdraw to generate protocol revenue.
         flow.withdraw({ streamId: streamIdWithProtocolFee, to: users.recipient, amount: WITHDRAW_AMOUNT_6D });
 
+        uint256 previousAggregateAmount = flow.aggregateBalance(tokenWithProtocolFee);
+
         // It should transfer protocol revenue to provided address.
         expectCallToTransfer({ token: tokenWithProtocolFee, to: users.admin, amount: PROTOCOL_FEE_AMOUNT_6D });
 
@@ -50,7 +52,14 @@ contract CollectProtocolRevenue_Integration_Concrete_Test is Integration_Test {
 
         flow.collectProtocolRevenue(tokenWithProtocolFee, users.admin);
 
+        // It should reduce the aggregate amount.
+        assertEq(
+            flow.aggregateBalance(tokenWithProtocolFee),
+            previousAggregateAmount - PROTOCOL_FEE_AMOUNT_6D,
+            "aggregate amount"
+        );
+
         // It should set protocol revenue to zero.
-        assertEq(flow.protocolRevenue(tokenWithProtocolFee), 0);
+        assertEq(flow.protocolRevenue(tokenWithProtocolFee), 0, "protocol revenue");
     }
 }

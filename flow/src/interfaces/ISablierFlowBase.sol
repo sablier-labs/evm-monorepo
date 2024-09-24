@@ -7,6 +7,7 @@ import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Flow } from "./../types/DataTypes.sol";
+import { IAdminable } from "./IAdminable.sol";
 import { ISablierFlowNFTDescriptor } from "./ISablierFlowNFTDescriptor.sol";
 
 /// @title ISablierFlowBase
@@ -14,7 +15,8 @@ import { ISablierFlowNFTDescriptor } from "./ISablierFlowNFTDescriptor.sol";
 /// their respective getters, helpful modifiers, and helper functions.
 /// @dev This contract also includes admin control functions.
 interface ISablierFlowBase is
-    IERC721Metadata // 2 inherited components
+    IERC721Metadata, // 2 inherited components
+    IAdminable // 0 inherited components
 {
     /// @notice Emitted when the contract admin collects protocol revenue accrued.
     /// @param admin The address of the contract admin.
@@ -22,6 +24,13 @@ interface ISablierFlowBase is
     /// @param to The address the protocol revenue has been sent to.
     /// @param revenue The amount of protocol revenue collected.
     event CollectProtocolRevenue(address indexed admin, IERC20 indexed token, address to, uint128 revenue);
+
+    /// @notice Emitted when the contract admin recovers the surplus amount of token.
+    /// @param admin The address of the contract admin.
+    /// @param token The address of the ERC-20 token the surplus amount has been recovered for.
+    /// @param to The address the surplus amount has been sent to.
+    /// @param surplus The amount of surplus tokens recovered.
+    event Recover(address indexed admin, IERC20 indexed token, address to, uint256 surplus);
 
     /// @notice Emitted when the contract admin sets a new NFT descriptor contract.
     /// @param admin The address of the contract admin.
@@ -46,6 +55,10 @@ interface ISablierFlowBase is
     /// percentage where 1e18 is 100%.
     /// @dev This value is hard coded as a constant.
     function MAX_FEE() external view returns (UD60x18 fee);
+
+    /// @notice Retrieves the sum of balances of all streams.
+    /// @param token The ERC-20 token for the query.
+    function aggregateBalance(IERC20 token) external view returns (uint256);
 
     /// @notice Retrieves the balance of the stream, i.e. the total deposited amounts subtracted by the total withdrawn
     /// amounts, denoted in token's decimals.
@@ -142,6 +155,22 @@ interface ISablierFlowBase is
     /// @param token The contract address of the ERC-20 token for which to claim protocol revenue.
     /// @param to The address to send the protocol revenue.
     function collectProtocolRevenue(IERC20 token, address to) external;
+
+    /// @notice Recover the surplus amount of tokens.
+    ///
+    /// @dev Emits a {Recover} event.
+    ///
+    /// Notes:
+    /// - The surplus amount is defined as the difference between the total balance of the contract for the provided
+    /// ERC-20 token and the sum of balances of all streams created using the same ERC-20 token.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the contract admin.
+    /// - The surplus amount must be greater than zero.
+    ///
+    /// @param token The contract address of the ERC-20 token to recover for.
+    /// @param to The address to send the surplus amount.
+    function recover(IERC20 token, address to) external;
 
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
     ///
