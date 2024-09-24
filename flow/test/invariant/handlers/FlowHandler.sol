@@ -95,13 +95,16 @@ contract FlowHandler is BaseHandler {
             vm.assume(newRatePerSecond.unwrap() > mvt / 100 && newRatePerSecond.unwrap() <= 1e18);
         }
 
+        uint128 previousRatePerSecond = flow.getRatePerSecond(currentStreamId).unwrap();
+
         // The rate per second must be different from the current rate per second.
-        vm.assume(newRatePerSecond.unwrap() != flow.getRatePerSecond(currentStreamId).unwrap());
+        vm.assume(newRatePerSecond.unwrap() != previousRatePerSecond);
 
         // Adjust the rate per second.
         flow.adjustRatePerSecond(currentStreamId, newRatePerSecond);
 
-        flowStore.updatePeriods(currentStreamId, newRatePerSecond.unwrap(), "adjustRatePerSecond");
+        flowStore.updateDelay(currentStreamId, previousRatePerSecond, decimals);
+        flowStore.pushPeriod(currentStreamId, newRatePerSecond.unwrap(), "adjustRatePerSecond");
     }
 
     function deposit(
@@ -157,10 +160,14 @@ contract FlowHandler is BaseHandler {
         // Paused streams cannot be paused again.
         vm.assume(!flow.isPaused(currentStreamId));
 
+        flowStore.updateDelay(
+            currentStreamId, flow.getRatePerSecond(currentStreamId).unwrap(), flow.getTokenDecimals(currentStreamId)
+        );
+
         // Pause the stream.
         flow.pause(currentStreamId);
 
-        flowStore.updatePeriods(currentStreamId, 0, "pause");
+        flowStore.pushPeriod(currentStreamId, 0, "pause");
     }
 
     function refund(
@@ -226,7 +233,7 @@ contract FlowHandler is BaseHandler {
         // Restart the stream.
         flow.restart(currentStreamId, ratePerSecond);
 
-        flowStore.updatePeriods(currentStreamId, ratePerSecond.unwrap(), "restart");
+        flowStore.pushPeriod(currentStreamId, ratePerSecond.unwrap(), "restart");
     }
 
     function void(
@@ -249,7 +256,7 @@ contract FlowHandler is BaseHandler {
         // Void the stream.
         flow.void(currentStreamId);
 
-        flowStore.updatePeriods(currentStreamId, 0, "void");
+        flowStore.pushPeriod(currentStreamId, 0, "void");
     }
 
     function withdraw(
@@ -285,5 +292,12 @@ contract FlowHandler is BaseHandler {
 
         // Update the withdrawn amount.
         flowStore.updateStreamWithdrawnAmountsSum(currentStreamId, flow.getToken(currentStreamId), amount);
+
+        // If the stream isn't paused, update the delay:
+        uint128 ratePerSecond = flow.getRatePerSecond(currentStreamId).unwrap();
+        if (ratePerSecond > 0) {
+            flowStore.updateDelay(currentStreamId, ratePerSecond, flow.getTokenDecimals(currentStreamId));
+            flowStore.pushPeriod(currentStreamId, ratePerSecond, "withdraw");
+        }
     }
 }

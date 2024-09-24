@@ -31,11 +31,13 @@ contract FlowStore {
     /// @param ratePerSecond The rate per second for this period.
     /// @param start The start time of the period.
     /// @param end The end time of the period.
+    /// @param delay The delay for the period.
     struct Period {
         string typeOfPeriod;
         uint128 ratePerSecond;
         uint40 start;
         uint40 end;
+        uint40 delay;
     }
 
     /// @dev Each stream is mapped to an array of periods. This is used to calculate the total streamed amount.
@@ -57,21 +59,57 @@ contract FlowStore {
         // Store the stream id and the period during which provided ratePerSecond applies.
         streamIds.push(streamId);
         periods[streamId].push(
-            Period({ typeOfPeriod: "create", ratePerSecond: ratePerSecond, start: uint40(block.timestamp), end: 0 })
+            Period({
+                typeOfPeriod: "create",
+                ratePerSecond: ratePerSecond,
+                start: uint40(block.timestamp),
+                end: 0,
+                delay: 0
+            })
         );
 
         // Update the last stream id.
         lastStreamId = streamId;
     }
 
-    function updatePeriods(uint256 streamId, uint128 ratePerSecond, string memory typeOfPeriod) external {
+    function pushPeriod(uint256 streamId, uint128 ratePerSecond, string memory typeOfPeriod) external {
         // Update the end time of the previous period.
         periods[streamId][periods[streamId].length - 1].end = uint40(block.timestamp);
 
         // Push the new period with the provided rate per second.
         periods[streamId].push(
-            Period({ typeOfPeriod: typeOfPeriod, ratePerSecond: ratePerSecond, start: uint40(block.timestamp), end: 0 })
+            Period({
+                ratePerSecond: ratePerSecond,
+                start: uint40(block.timestamp),
+                end: 0,
+                delay: 0,
+                typeOfPeriod: typeOfPeriod
+            })
         );
+    }
+
+    function updateDelay(uint256 streamId, uint128 ratePerSecond, uint8 decimals) external {
+        // Skip the delay update if the decimals are 18.
+        if (decimals == 18) {
+            return;
+        }
+
+        uint256 periodCount = periods[streamId].length - 1;
+        uint128 factor = uint128(10 ** (18 - decimals));
+        uint40 blockTimestamp = uint40(block.timestamp);
+        uint40 start = periods[streamId][periodCount].start;
+
+        uint128 rescaledStreamedAmount = ratePerSecond * (blockTimestamp - start) / factor * factor;
+
+        uint40 delay;
+        if (rescaledStreamedAmount > ratePerSecond) {
+            delay = blockTimestamp - start - uint40(rescaledStreamedAmount / ratePerSecond);
+            // Since we are reverse engineering the delay, we need to subtract 1 from the delay, which would normally be
+            // added in the constant interval calculation
+            delay = delay > 1 ? delay - 1 : 0;
+        }
+
+        periods[streamId][periodCount].delay += delay;
     }
 
     function updatePreviousValues(

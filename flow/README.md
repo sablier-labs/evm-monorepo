@@ -184,4 +184,4 @@ Currently, it's not possible to address this precision problem entirely.
 
 14. if $isVoided = true \implies isPaused = true$, $ra = 0$ and $ud = 0$
 
-15. if $isVoided = false \implies \text{amount streamed} - (td + \text{amount withdrawn}) \le 1$.
+15. if $isVoided = false \implies \text{amount streamed with delay} = td + \text{amount withdrawn}$.

@@ -285,37 +285,44 @@ contract Flow_Invariant_Test is Base_Test {
         }
     }
 
-    /// @dev For non-voided streams, the difference between the total amount streamed and the sum of total debt and
-    /// total withdrawn should never exceed 1. This is indirectly checking that withdrawals do not cause the streamed
-    /// amount to deviate from the theoretical streamed amount by more than 1.
-    function invariant_TotalStreamedApproxEqTotalDebtPlusWithdrawn() external view {
+    /// @dev For non-voided streams, the difference between the total amount streamed adjusted including the delay and the
+    /// sum of total debt and total withdrawn should be equal. Also, total streamed amount with delay must never exceed total
+    /// streamed amount without delay.
+    function invariant_TotalStreamedWithDelayEqTotalDebtPlusWithdrawn() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
 
             // Skip the voided streams.
             if (!flow.isVoided(streamId)) {
-                uint256 totalStreamedAmount =
-                    calculateTotalStreamedAmount(flowStore.streamIds(i), flow.getTokenDecimals(streamId));
+                (uint256 totalStreamedAmount, uint256 totalStreamedAmountWithDelay) =
+                    calculateTotalStreamedAmounts(flowStore.streamIds(i), flow.getTokenDecimals(streamId));
 
-                assertLe(
-                    totalStreamedAmount - flow.totalDebtOf(streamId) - flowStore.withdrawnAmounts(streamId),
-                    1,
-                    "Invariant violation: total debt - streamed amount - withdrawn amount > 1"
+                assertGe(
+                    totalStreamedAmount,
+                    totalStreamedAmountWithDelay,
+                    "Invariant violation: total streamed amount without delay >= total streamed amount with delay"
+                );
+
+                assertEq(
+                    totalStreamedAmountWithDelay,
+                    flow.totalDebtOf(streamId) + flowStore.withdrawnAmounts(streamId),
+                    "Invariant violation: total streamed amount with delay = total debt + withdrawn amount"
                 );
             }
         }
     }
 
-    /// @dev Calculates the total streamed amount iterating over each period.
-    function calculateTotalStreamedAmount(
+    /// @dev Calculates the total streamed amounts by iterating over each period.
+    function calculateTotalStreamedAmounts(
         uint256 streamId,
         uint8 decimals
     )
         internal
         view
-        returns (uint256 totalStreamedAmount)
+        returns (uint256 totalStreamedAmount, uint256 totalStreamedAmountWithDelay)
     {
+        uint256 totalDelayedAmount;
         uint256 periodsCount = flowStore.getPeriods(streamId).length;
 
         for (uint256 i = 0; i < periodsCount; ++i) {
@@ -324,9 +331,14 @@ contract Flow_Invariant_Test is Base_Test {
             // If end time is 0, it means the current period is still active.
             uint40 elapsed = period.end > 0 ? period.end - period.start : uint40(block.timestamp) - period.start;
 
-            totalStreamedAmount += period.ratePerSecond * elapsed;
+            // Calculate the total streamed amount for the current period.
+            totalStreamedAmount += getDescaledAmount(period.ratePerSecond * elapsed, decimals);
+
+            // Calculate the total delayed amount for the current period.
+            totalDelayedAmount += getDescaledAmount(period.delay * period.ratePerSecond, decimals);
         }
 
-        return totalStreamedAmount / 10 ** (18 - decimals);
+        // Calculate the total streamed amount with delay.
+        totalStreamedAmountWithDelay = totalStreamedAmount - totalDelayedAmount;
     }
 }
