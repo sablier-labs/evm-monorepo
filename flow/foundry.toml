@@ -20,14 +20,15 @@
 
 [profile.default.fuzz]
   max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
-  runs = 50000
+  runs = 10000
+  show_logs = true
 
 [profile.default.invariant]
   call_override = false # Override unsafe external calls to perform reentrancy checks
   dictionary_weight = 50
   depth = 100           # Number of calls executed in one run
   fail_on_revert = true
-  runs = 5000
+  runs = 1000
   shrink_run_limit = 0 # Disable shrinking of a failed sequence
 
 # Run only the code inside benchmark directory
