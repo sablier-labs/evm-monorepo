@@ -33,6 +33,7 @@ abstract contract Constants {
     uint8 internal constant DECIMALS = 6;
     UD21x18 internal constant RATE_PER_SECOND = UD21x18.wrap(0.001e18); // 86.4 daily
     uint128 internal constant RATE_PER_SECOND_U128 = 0.001e18; // 86.4 daily
+    uint256 internal constant SCALE_FACTOR = 10 ** 12;
     bool internal constant TRANSFERABLE = true;
 
     // Streaming amounts
