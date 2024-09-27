@@ -30,7 +30,7 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.assume(sender != address(0) && recipient != address(0));
 
         // Bound the variables.
-        ratePerSecond = ud21x18(boundUint128(ratePerSecond.unwrap(), 1, UINT128_MAX - 1));
+        ratePerSecond = boundRatePerSecond(ratePerSecond);
         decimals = boundUint8(decimals, 0, 18);
 
         // Create a new token.

@@ -92,8 +92,8 @@ contract SablierFlow is
                 uint128 scaleFactor = (10 ** (18 - tokenDecimals)).toUint128();
                 solvencyAmount = (balance - snapshotDebt + 1) * scaleFactor;
             }
-            uint128 solvencyPeriod = solvencyAmount / _streams[streamId].ratePerSecond.unwrap();
-            return _streams[streamId].snapshotTime + uint40(solvencyPeriod);
+            uint256 solvencyPeriod = solvencyAmount / _streams[streamId].ratePerSecond.unwrap();
+            return _streams[streamId].snapshotTime + solvencyPeriod.toUint40();
         }
     }
 

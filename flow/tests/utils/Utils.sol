@@ -29,9 +29,9 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
         depositAmount = boundUint128(amount, 1, maxDepositAmount - 1);
     }
 
-    /// @dev Bounds the rate per second between a realistic range.
+    /// @dev Bounds the rate per second between a realistic range i.e. for USDC [$50/month $5000/month].
     function boundRatePerSecond(UD21x18 ratePerSecond) internal pure returns (UD21x18) {
-        return ud21x18(boundUint128(ratePerSecond.unwrap(), 0.0000000001e18, 10e18));
+        return ud21x18(boundUint128(ratePerSecond.unwrap(), 0.00002e18, 0.002e18));
     }
 
     /// @dev Bounds a `uint128` number.

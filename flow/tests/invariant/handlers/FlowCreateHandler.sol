@@ -88,9 +88,10 @@ contract FlowCreateHandler is BaseHandler {
 
         // Calculate the upper bound, based on the token decimals, for the deposit amount.
         uint128 upperBound = getDescaledAmount(1_000_000e18, IERC20Metadata(address(currentToken)).decimals());
+        uint128 lowerBound = getDescaledAmount(1e18, IERC20Metadata(address(currentToken)).decimals());
 
         // Make sure the deposit amount is non-zero and less than values that could cause an overflow.
-        vm.assume(params.depositAmount >= 100 && params.depositAmount <= upperBound);
+        vm.assume(params.depositAmount >= lowerBound && params.depositAmount <= upperBound);
 
         // Mint enough tokens to the Sender.
         deal({
@@ -139,10 +140,12 @@ contract FlowCreateHandler is BaseHandler {
         // Calculate the minimum value in scaled version that can be withdrawn for this token.
         uint128 mvt = getScaledAmount(1, decimals);
 
-        // Check the rate per second is within a realistic range such that it can also be smaller than mvt.
+        // For 18 decimal, check the rate per second is within a realistic range.
         if (decimals == 18) {
             vm.assume(params.ratePerSecond > 0.00001e18 && params.ratePerSecond <= 1e18);
-        } else {
+        }
+        // For all other decimals, choose the minimum rps such that it takes 100 seconds to stream 1 token.
+        else {
             vm.assume(params.ratePerSecond > mvt / 100 && params.ratePerSecond <= 1e18);
         }
     }

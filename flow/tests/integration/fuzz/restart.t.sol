@@ -27,7 +27,7 @@ contract Restart_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
-        ratePerSecond = ud21x18(boundUint128(ratePerSecond.unwrap(), 1, UINT128_MAX));
+        ratePerSecond = boundRatePerSecond(ratePerSecond);
 
         // Pause the stream.
         flow.pause(streamId);
