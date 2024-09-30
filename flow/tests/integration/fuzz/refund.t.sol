@@ -72,6 +72,10 @@ contract Refund_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: timeJump });
 
+        // Ensure refundable amount is not zero. It could be zero for a small time range upto the depletion time due to
+        // precision error.
+        vm.assume(flow.refundableAmountOf(streamId) != 0);
+
         // Bound the refund amount to avoid error.
         refundAmount = boundUint128(refundAmount, 1, flow.refundableAmountOf(streamId));
 
