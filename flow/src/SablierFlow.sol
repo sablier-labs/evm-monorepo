@@ -811,17 +811,25 @@ contract SablierFlow is
             revert Errors.SablierFlow_Overdraw(streamId, amount, withdrawableAmount);
         }
 
-        // Safe to use unchecked, the balance or total debt cannot be less than `amount` at this point.
+        // Safe to use unchecked, `amount` cannot be greater than the balance or total debt at this point.
         unchecked {
+            // If the amount is less than the snapshot debt, reduce it from the snapshot debt and leave the snapshot
+            // time unchanged.
+            if (amount <= _streams[streamId].snapshotDebt) {
+                _streams[streamId].snapshotDebt -= amount;
+            }
+            // Else reduce the amount from the ongoing debt by setting snapshot time to `block.timestamp` and set the
+            // snapshot debt to the remaining total debt.
+            else {
+                _streams[streamId].snapshotDebt = totalDebt - amount;
+
+                // Effect: update the stream time.
+                _streams[streamId].snapshotTime = uint40(block.timestamp);
+            }
+
             // Effect: update the stream balance.
             _streams[streamId].balance -= amount;
-
-            // Effect: update the snapshot debt.
-            _streams[streamId].snapshotDebt = totalDebt - amount;
         }
-
-        // Effect: update the stream time.
-        _streams[streamId].snapshotTime = uint40(block.timestamp);
 
         // Load the variables in memory.
         IERC20 token = _streams[streamId].token;

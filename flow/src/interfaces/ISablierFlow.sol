@@ -389,7 +389,7 @@ interface ISablierFlow is
     /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
     ///
     /// Notes:
-    /// - It sets the snapshot time to the `block.timestamp`.
+    /// - It sets the snapshot time to the `block.timestamp` if `amount` is greater than snapshot debt.
     /// - A protocol fee may be charged on the withdrawn amount if the protocol fee is enabled for the streaming token.
     ///
     /// Requirements:

@@ -29,17 +29,21 @@ Withdraw_Integration_Concrete_Test
                   │  ├── it should update snapshot debt
                   │  └── it should make the withdrawal
                   └── when amount equal total debt
-                     ├── given protocol fee not zero
-                     │  ├── it should update the protocol revenue
-                     │  └── it should withdraw the net amount
-                     └── given protocol fee zero
-                        ├── given token has 18 decimals
-                        │  └── it should make the withdrawal
-                        └── given token not have 18 decimals
-                           ├── it should withdraw the withdrawable amount
-                           ├── it should reduce the stream balance by the withdrawn amount
-                           ├── it should reduce the aggregate amount by the withdrawn amount
-                           ├── it should update snapshot debt to zero
-                           ├── it should update snapshot time
-                           ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
-                           └── it should return the withdrawn amount
+                     ├── when amount not exceed snapshot debt
+                     │   ├── it should not update snapshot time
+                     │   └── it should make the withdrawal
+                     └── when amount exceed snapshot debt
+                        ├── given protocol fee not zero
+                        │  ├── it should update the protocol revenue
+                        │  └── it should withdraw the net amount
+                        └── given protocol fee zero
+                           ├── given token has 18 decimals
+                           │  └── it should make the withdrawal
+                           └── given token not have 18 decimals
+                              ├── it should withdraw the withdrawable amount
+                              ├── it should reduce the stream balance by the withdrawn amount
+                              ├── it should reduce the aggregate amount by the withdrawn amount
+                              ├── it should update snapshot debt to zero
+                              ├── it should update snapshot time
+                              ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+                              └── it should return the withdrawn amount
