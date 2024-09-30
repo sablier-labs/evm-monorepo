@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
+
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
@@ -66,7 +69,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(flow) });
-        emit PauseFlowStream({
+        emit ISablierFlow.PauseFlowStream({
             streamId: streamId,
             sender: users.sender,
             recipient: users.recipient,
@@ -74,7 +77,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Pause the stream.
         flow.pause(streamId);

@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
@@ -92,7 +94,7 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
         } else {
             // Expect the relevant events to be emitted.
             vm.expectEmit({ emitter: address(flow) });
-            emit AdjustFlowStream({
+            emit ISablierFlow.AdjustFlowStream({
                 streamId: streamId,
                 totalDebt: flow.totalDebtOf(streamId),
                 oldRatePerSecond: currentRatePerSecond,
@@ -100,7 +102,7 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
             });
 
             vm.expectEmit({ emitter: address(flow) });
-            emit MetadataUpdate({ _tokenId: streamId });
+            emit IERC4906.MetadataUpdate({ _tokenId: streamId });
         }
 
         // Adjust the rate per second.

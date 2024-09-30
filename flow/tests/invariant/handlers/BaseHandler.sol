@@ -20,8 +20,8 @@ abstract contract BaseHandler is StdCheats, Utils {
     /// @dev Maps function names and the number of times they have been called by the stream ID.
     mapping(uint256 streamId => mapping(string func => uint256 calls)) public calls;
 
-    /// @dev The total number of calls made to this contract.
-    uint256 public totalCalls;
+    /// @dev The total number of calls made to a specific function.
+    mapping(string func => uint256 calls) public totalCalls;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
@@ -54,8 +54,10 @@ abstract contract BaseHandler is StdCheats, Utils {
 
     /// @dev Records a function call for instrumentation purposes.
     modifier instrument(uint256 streamId, string memory functionName) {
-        calls[streamId][functionName]++;
-        totalCalls++;
+        if (streamId > 0) {
+            calls[streamId][functionName]++;
+        }
+        totalCalls[functionName]++;
         _;
     }
 }

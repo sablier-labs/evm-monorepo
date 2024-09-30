@@ -18,8 +18,6 @@ contract FlowCreateHandler is BaseHandler {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Default ERC-20 tokens used for testing.
-    IERC20[] public tokens;
     IERC20 public currentToken;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -27,6 +25,7 @@ contract FlowCreateHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier useFuzzedToken(uint256 tokenIndex) {
+        IERC20[] memory tokens = flowStore.getTokens();
         vm.assume(tokenIndex < tokens.length);
         currentToken = tokens[tokenIndex];
         _;
@@ -36,11 +35,7 @@ contract FlowCreateHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(FlowStore flowStore_, ISablierFlow flow_, IERC20[] memory tokens_) BaseHandler(flowStore_, flow_) {
-        for (uint256 i = 0; i < tokens_.length; ++i) {
-            tokens.push(tokens_[i]);
-        }
-    }
+    constructor(FlowStore flowStore_, ISablierFlow flow_) BaseHandler(flowStore_, flow_) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                  HANDLER FUNCTIONS

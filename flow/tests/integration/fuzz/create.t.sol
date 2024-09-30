@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
@@ -40,13 +44,13 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(flow) });
-        emit Transfer({ from: address(0), to: recipient, tokenId: expectedStreamId });
+        emit IERC721.Transfer({ from: address(0), to: recipient, tokenId: expectedStreamId });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: expectedStreamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit CreateFlowStream({
+        emit ISablierFlow.CreateFlowStream({
             streamId: expectedStreamId,
             sender: sender,
             recipient: recipient,

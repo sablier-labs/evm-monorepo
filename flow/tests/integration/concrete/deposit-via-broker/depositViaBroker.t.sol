@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
 
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
@@ -134,13 +136,13 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         emit IERC20.Transfer({ from: users.sender, to: address(flow), value: depositAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit DepositFlowStream({ streamId: streamId, funder: users.sender, amount: depositAmount });
+        emit ISablierFlow.DepositFlowStream({ streamId: streamId, funder: users.sender, amount: depositAmount });
 
         vm.expectEmit({ emitter: address(token) });
         emit IERC20.Transfer({ from: users.sender, to: users.broker, value: brokerFeeAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC-20 transfers
         expectCallToTransferFrom({ token: token, from: users.sender, to: address(flow), amount: depositAmount });

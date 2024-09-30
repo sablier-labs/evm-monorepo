@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
+
 import { Integration_Test } from "./../../Integration.t.sol";
 
 contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
@@ -96,7 +100,7 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
 
         // It should emit 1 {AdjustFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
-        emit AdjustFlowStream({
+        emit ISablierFlow.AdjustFlowStream({
             streamId: defaultStreamId,
             totalDebt: ONE_MONTH_DEBT_6D,
             oldRatePerSecond: RATE_PER_SECOND,
@@ -104,7 +108,7 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: newRatePerSecond });
 

@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
+
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -67,7 +70,7 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
 
         // It should emit 1 {PauseFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
-        emit PauseFlowStream({
+        emit ISablierFlow.PauseFlowStream({
             streamId: defaultStreamId,
             sender: users.sender,
             recipient: users.recipient,
@@ -75,7 +78,7 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         flow.pause(defaultStreamId);
 

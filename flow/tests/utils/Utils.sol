@@ -65,8 +65,8 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
             return amount;
         }
 
-        uint8 factor = 18 - decimals;
-        return (amount / (10 ** factor)).toUint128();
+        uint128 scaleFactor = (10 ** (18 - decimals)).toUint128();
+        return amount / scaleFactor;
     }
 
     /// @dev Scales the amount to denote it in 18 decimals.
@@ -75,8 +75,8 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
             return amount;
         }
 
-        uint8 factor = 18 - decimals;
-        return (amount * (10 ** factor)).toUint128();
+        uint128 scaleFactor = (10 ** (18 - decimals)).toUint128();
+        return amount * scaleFactor;
     }
 
     /// @dev Checks if the Foundry profile is "benchmark".

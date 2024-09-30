@@ -2,8 +2,8 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
-
 import { Integration_Test } from "./../../Integration.t.sol";
 
 contract Recover_Integration_Concrete_Test is Integration_Test {
@@ -35,7 +35,7 @@ contract Recover_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: address(flow), to: users.admin, value: surplusAmount });
         vm.expectEmit({ emitter: address(flow) });
-        emit Recover(users.admin, usdc, users.admin, surplusAmount);
+        emit ISablierFlowBase.Recover(users.admin, usdc, users.admin, surplusAmount);
 
         // Recover the surplus.
         flow.recover(usdc, users.admin);

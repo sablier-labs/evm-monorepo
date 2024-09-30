@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
@@ -15,6 +16,7 @@ import { ISablierFlowNFTDescriptor } from "./ISablierFlowNFTDescriptor.sol";
 /// their respective getters, helpful modifiers, and helper functions.
 /// @dev This contract also includes admin control functions.
 interface ISablierFlowBase is
+    IERC4906, // 2 inherited components
     IERC721Metadata, // 2 inherited components
     IAdminable // 0 inherited components
 {

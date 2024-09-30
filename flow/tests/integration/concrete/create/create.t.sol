@@ -2,13 +2,14 @@
 pragma solidity >=0.8.22;
 
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { ud21x18 } from "@prb/math/src/UD21x18.sol";
-
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Flow } from "src/types/DataTypes.sol";
-
-import { ERC20Mock } from "../../../mocks/ERC20Mock.sol";
+import { ERC20Mock } from "./../../../mocks/ERC20Mock.sol";
 import { Integration_Test } from "./../../Integration.t.sol";
 
 contract Create_Integration_Concrete_Test is Integration_Test {
@@ -109,13 +110,13 @@ contract Create_Integration_Concrete_Test is Integration_Test {
 
         // It should emit 1 {MetadataUpdate}, 1 {CreateFlowStream} and 1 {Transfer} events.
         vm.expectEmit({ emitter: address(flow) });
-        emit Transfer({ from: address(0), to: users.recipient, tokenId: expectedStreamId });
+        emit IERC721.Transfer({ from: address(0), to: users.recipient, tokenId: expectedStreamId });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: expectedStreamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit CreateFlowStream({
+        emit ISablierFlow.CreateFlowStream({
             streamId: expectedStreamId,
             sender: users.sender,
             recipient: users.recipient,

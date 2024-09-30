@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud, UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
+
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
+
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
 contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
@@ -185,7 +189,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         emit IERC20.Transfer({ from: address(flow), to: to, value: withdrawAmount - vars.feeAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit WithdrawFromFlowStream({
+        emit ISablierFlow.WithdrawFromFlowStream({
             streamId: streamId,
             to: to,
             token: token,
@@ -195,7 +199,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Withdraw the tokens.
         flow.withdraw(streamId, to, withdrawAmount);

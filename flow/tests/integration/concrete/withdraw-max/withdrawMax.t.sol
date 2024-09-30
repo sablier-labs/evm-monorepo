@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -45,7 +48,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: expectedWithdrawAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit WithdrawFromFlowStream({
+        emit ISablierFlow.WithdrawFromFlowStream({
             streamId: defaultStreamId,
             to: users.recipient,
             token: IERC20(address(usdc)),
@@ -55,7 +58,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         // It should perform the ERC-20 transfer.
         expectCallToTransfer({ token: usdc, to: users.recipient, amount: expectedWithdrawAmount });

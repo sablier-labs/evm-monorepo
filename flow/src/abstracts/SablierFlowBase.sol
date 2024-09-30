@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -18,8 +17,7 @@ import { Adminable } from "./Adminable.sol";
 /// @notice See the documentation in {ISablierFlowBase}.
 abstract contract SablierFlowBase is
     Adminable, // 1 inherited component
-    IERC4906, // 2 inherited components
-    ISablierFlowBase, // 3 inherited component
+    ISablierFlowBase, // 5 inherited component
     ERC721 // 6 inherited components
 {
     using SafeERC20 for IERC20;

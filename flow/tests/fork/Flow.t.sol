@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Flow } from "src/types/DataTypes.sol";
 
 import { Fork_Test } from "./Fork.t.sol";
@@ -257,7 +260,7 @@ contract Flow_Fork_Test is Fork_Test {
 
         // It should emit 1 {AdjustFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
-        emit AdjustFlowStream({
+        emit ISablierFlow.AdjustFlowStream({
             streamId: streamId,
             totalDebt: totalDebt,
             oldRatePerSecond: oldRatePerSecond,
@@ -265,7 +268,7 @@ contract Flow_Fork_Test is Fork_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         flow.adjustRatePerSecond({ streamId: streamId, newRatePerSecond: newRatePerSecond });
 
@@ -292,13 +295,13 @@ contract Flow_Fork_Test is Fork_Test {
         vars.expectedStreamId = flow.nextStreamId();
 
         vm.expectEmit({ emitter: address(flow) });
-        emit Transfer({ from: address(0), to: recipient, tokenId: vars.expectedStreamId });
+        emit IERC721.Transfer({ from: address(0), to: recipient, tokenId: vars.expectedStreamId });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: vars.expectedStreamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: vars.expectedStreamId });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit CreateFlowStream({
+        emit ISablierFlow.CreateFlowStream({
             streamId: vars.expectedStreamId,
             token: token,
             sender: sender,
@@ -369,10 +372,10 @@ contract Flow_Fork_Test is Fork_Test {
         emit IERC20.Transfer({ from: sender, to: address(flow), value: depositAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit DepositFlowStream({ streamId: streamId, funder: sender, amount: depositAmount });
+        emit ISablierFlow.DepositFlowStream({ streamId: streamId, funder: sender, amount: depositAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC-20 transfer.
         expectCallToTransferFrom({ token: token, from: sender, to: address(flow), amount: depositAmount });
@@ -409,7 +412,7 @@ contract Flow_Fork_Test is Fork_Test {
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(flow) });
-        emit PauseFlowStream({
+        emit ISablierFlow.PauseFlowStream({
             streamId: streamId,
             sender: flow.getSender(streamId),
             recipient: flow.getRecipient(streamId),
@@ -417,7 +420,7 @@ contract Flow_Fork_Test is Fork_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Pause the stream.
         flow.pause(streamId);
@@ -457,10 +460,10 @@ contract Flow_Fork_Test is Fork_Test {
         emit IERC20.Transfer({ from: address(flow), to: sender, value: refundAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit RefundFromFlowStream({ streamId: streamId, sender: sender, amount: refundAmount });
+        emit ISablierFlow.RefundFromFlowStream({ streamId: streamId, sender: sender, amount: refundAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Request the refund.
         flow.refund(streamId, refundAmount);
@@ -498,10 +501,10 @@ contract Flow_Fork_Test is Fork_Test {
 
         // It should emit 1 {RestartFlowStream}, 1 {MetadataUpdate} event.
         vm.expectEmit({ emitter: address(flow) });
-        emit RestartFlowStream({ streamId: streamId, sender: sender, ratePerSecond: ratePerSecond });
+        emit ISablierFlow.RestartFlowStream({ streamId: streamId, sender: sender, ratePerSecond: ratePerSecond });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         flow.restart({ streamId: streamId, ratePerSecond: ratePerSecond });
 
@@ -553,7 +556,7 @@ contract Flow_Fork_Test is Fork_Test {
 
         // It should emit 1 {VoidFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
-        emit VoidFlowStream({
+        emit ISablierFlow.VoidFlowStream({
             streamId: streamId,
             recipient: recipient,
             sender: sender,
@@ -563,7 +566,7 @@ contract Flow_Fork_Test is Fork_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         flow.void(streamId);
 
@@ -611,7 +614,7 @@ contract Flow_Fork_Test is Fork_Test {
         emit IERC20.Transfer({ from: address(flow), to: recipient, value: withdrawAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit WithdrawFromFlowStream({
+        emit ISablierFlow.WithdrawFromFlowStream({
             streamId: streamId,
             to: recipient,
             token: token,
@@ -621,7 +624,7 @@ contract Flow_Fork_Test is Fork_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Withdraw the tokens.
         flow.withdraw(streamId, recipient, withdrawAmount);

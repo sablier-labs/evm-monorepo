@@ -9,6 +9,8 @@ contract FlowStore {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
+    IERC20[] public tokens;
+
     // Stream IDs
     uint256 public lastStreamId;
     uint256[] public streamIds;
@@ -44,6 +46,16 @@ contract FlowStore {
     mapping(uint256 streamId => Period[] period) public periods;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    constructor(IERC20[] memory tokens_) {
+        for (uint256 i = 0; i < tokens_.length; ++i) {
+            tokens.push(tokens_[i]);
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -53,6 +65,10 @@ contract FlowStore {
 
     function getPeriods(uint256 streamId) public view returns (Period[] memory) {
         return periods[streamId];
+    }
+
+    function getTokens() public view returns (IERC20[] memory) {
+        return tokens;
     }
 
     function initStreamId(uint256 streamId, uint128 ratePerSecond) external {

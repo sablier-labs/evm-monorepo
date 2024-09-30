@@ -2,6 +2,8 @@
 pragma solidity >=0.8.22;
 
 import { UD60x18, UNIT } from "@prb/math/src/UD60x18.sol";
+
+import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "./../../Integration.t.sol";
@@ -28,7 +30,7 @@ contract SetProtocolFee_Integration_Concrete_Test is Integration_Test {
     function test_WhenNewAndOldProtocolFeeAreSame() external whenCallerAdmin whenNewProtocolFeeNotExceedMaxFee {
         // It should emit {SetProtocolFee} event.
         vm.expectEmit({ emitter: address(flow) });
-        emit SetProtocolFee(users.admin, tokenWithProtocolFee, PROTOCOL_FEE, PROTOCOL_FEE);
+        emit ISablierFlowBase.SetProtocolFee(users.admin, tokenWithProtocolFee, PROTOCOL_FEE, PROTOCOL_FEE);
 
         flow.setProtocolFee(tokenWithProtocolFee, PROTOCOL_FEE);
 
@@ -41,7 +43,7 @@ contract SetProtocolFee_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {SetProtocolFee} event.
         vm.expectEmit({ emitter: address(flow) });
-        emit SetProtocolFee(users.admin, tokenWithProtocolFee, PROTOCOL_FEE, newProtocolFee);
+        emit ISablierFlowBase.SetProtocolFee(users.admin, tokenWithProtocolFee, PROTOCOL_FEE, newProtocolFee);
 
         flow.setProtocolFee(tokenWithProtocolFee, newProtocolFee);
 

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
-
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
-
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "./../../Integration.t.sol";
 
 contract Batch_Integration_Concrete_Test is Integration_Test {
     uint256[] internal defaultStreamIds;
@@ -95,7 +95,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
 
         // First stream to adjust rate per second
         vm.expectEmit({ emitter: address(flow) });
-        emit AdjustFlowStream({
+        emit ISablierFlow.AdjustFlowStream({
             streamId: defaultStreamIds[0],
             totalDebt: ONE_MONTH_DEBT_6D,
             oldRatePerSecond: RATE_PER_SECOND,
@@ -103,11 +103,11 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamIds[0] });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[0] });
 
         // Second stream to adjust rate per second
         vm.expectEmit({ emitter: address(flow) });
-        emit AdjustFlowStream({
+        emit ISablierFlow.AdjustFlowStream({
             streamId: defaultStreamIds[1],
             totalDebt: ONE_MONTH_DEBT_6D,
             oldRatePerSecond: RATE_PER_SECOND,
@@ -115,7 +115,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamIds[1] });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[1] });
 
         // Call the batch function.
         flow.batch(calls);
@@ -139,10 +139,10 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
 
         // First stream to create
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: expectedStreamIds[0] });
+        emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamIds[0] });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit CreateFlowStream({
+        emit ISablierFlow.CreateFlowStream({
             streamId: expectedStreamIds[0],
             sender: users.sender,
             recipient: users.recipient,
@@ -153,10 +153,10 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
 
         // Second stream to create
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: expectedStreamIds[1] });
+        emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamIds[1] });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit CreateFlowStream({
+        emit ISablierFlow.CreateFlowStream({
             streamId: expectedStreamIds[1],
             sender: users.sender,
             recipient: users.recipient,
@@ -186,20 +186,28 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         emit IERC20.Transfer({ from: users.sender, to: address(flow), value: DEPOSIT_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit DepositFlowStream({ streamId: defaultStreamIds[0], funder: users.sender, amount: DEPOSIT_AMOUNT_6D });
+        emit ISablierFlow.DepositFlowStream({
+            streamId: defaultStreamIds[0],
+            funder: users.sender,
+            amount: DEPOSIT_AMOUNT_6D
+        });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamIds[0] });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[0] });
 
         // Second stream to deposit
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: users.sender, to: address(flow), value: DEPOSIT_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit DepositFlowStream({ streamId: defaultStreamIds[1], funder: users.sender, amount: DEPOSIT_AMOUNT_6D });
+        emit ISablierFlow.DepositFlowStream({
+            streamId: defaultStreamIds[1],
+            funder: users.sender,
+            amount: DEPOSIT_AMOUNT_6D
+        });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamIds[1] });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[1] });
 
         // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), amount: DEPOSIT_AMOUNT_6D });
@@ -226,7 +234,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
 
         // First stream pause
         vm.expectEmit({ emitter: address(flow) });
-        emit PauseFlowStream({
+        emit ISablierFlow.PauseFlowStream({
             streamId: defaultStreamIds[0],
             recipient: users.recipient,
             sender: users.sender,
@@ -234,11 +242,11 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamIds[0] });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[0] });
 
         // Second stream pause
         vm.expectEmit({ emitter: address(flow) });
-        emit PauseFlowStream({
+        emit ISablierFlow.PauseFlowStream({
             streamId: defaultStreamIds[1],
             sender: users.sender,
             recipient: users.recipient,
@@ -246,7 +254,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamIds[1] });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[1] });
 
         // Call the batch function.
         flow.batch(calls);
@@ -270,14 +278,22 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         emit IERC20.Transfer({ from: address(flow), to: users.sender, value: REFUND_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit RefundFromFlowStream({ streamId: defaultStreamIds[0], sender: users.sender, amount: REFUND_AMOUNT_6D });
+        emit ISablierFlow.RefundFromFlowStream({
+            streamId: defaultStreamIds[0],
+            sender: users.sender,
+            amount: REFUND_AMOUNT_6D
+        });
 
         // Second stream refund
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: address(flow), to: users.sender, value: REFUND_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit RefundFromFlowStream({ streamId: defaultStreamIds[1], sender: users.sender, amount: REFUND_AMOUNT_6D });
+        emit ISablierFlow.RefundFromFlowStream({
+            streamId: defaultStreamIds[1],
+            sender: users.sender,
+            amount: REFUND_AMOUNT_6D
+        });
 
         // It should perform the ERC-20 transfers.
         expectCallToTransfer({ token: usdc, to: users.sender, amount: REFUND_AMOUNT_6D });
@@ -304,17 +320,25 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
 
         // First stream restart
         vm.expectEmit({ emitter: address(flow) });
-        emit RestartFlowStream({ streamId: defaultStreamIds[0], sender: users.sender, ratePerSecond: RATE_PER_SECOND });
+        emit ISablierFlow.RestartFlowStream({
+            streamId: defaultStreamIds[0],
+            sender: users.sender,
+            ratePerSecond: RATE_PER_SECOND
+        });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamIds[0] });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[0] });
 
         // Second stream restart
         vm.expectEmit({ emitter: address(flow) });
-        emit RestartFlowStream({ streamId: defaultStreamIds[1], sender: users.sender, ratePerSecond: RATE_PER_SECOND });
+        emit ISablierFlow.RestartFlowStream({
+            streamId: defaultStreamIds[1],
+            sender: users.sender,
+            ratePerSecond: RATE_PER_SECOND
+        });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamIds[1] });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[1] });
 
         // Call the batch function.
         flow.batch(calls);
@@ -340,7 +364,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: WITHDRAW_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit WithdrawFromFlowStream({
+        emit ISablierFlow.WithdrawFromFlowStream({
             streamId: defaultStreamIds[0],
             to: users.recipient,
             token: usdc,
@@ -350,14 +374,14 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamIds[0] });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[0] });
 
         // Second stream withdraw
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: WITHDRAW_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit WithdrawFromFlowStream({
+        emit ISablierFlow.WithdrawFromFlowStream({
             streamId: defaultStreamIds[1],
             to: users.recipient,
             token: usdc,
@@ -367,7 +391,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamIds[1] });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[1] });
 
         // It should perform the ERC-20 transfers.
         expectCallToTransfer({ token: usdc, to: users.recipient, amount: WITHDRAW_AMOUNT_6D });

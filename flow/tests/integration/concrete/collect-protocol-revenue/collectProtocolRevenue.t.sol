@@ -2,6 +2,8 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "./../../Integration.t.sol";
@@ -48,7 +50,9 @@ contract CollectProtocolRevenue_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(tokenWithProtocolFee) });
         emit IERC20.Transfer({ from: address(flow), to: users.admin, value: PROTOCOL_FEE_AMOUNT_6D });
         vm.expectEmit({ emitter: address(flow) });
-        emit CollectProtocolRevenue(users.admin, tokenWithProtocolFee, users.admin, PROTOCOL_FEE_AMOUNT_6D);
+        emit ISablierFlowBase.CollectProtocolRevenue(
+            users.admin, tokenWithProtocolFee, users.admin, PROTOCOL_FEE_AMOUNT_6D
+        );
 
         flow.collectProtocolRevenue(tokenWithProtocolFee, users.admin);
 

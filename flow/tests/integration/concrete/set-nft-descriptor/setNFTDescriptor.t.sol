@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
+
+import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { SablierFlowNFTDescriptor } from "src/SablierFlowNFTDescriptor.sol";
 
@@ -16,9 +19,9 @@ contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
     function test_WhenNewAndOldNFTDescriptorsAreSame() external whenCallerAdmin {
         // It should emit 1 {SetNFTDescriptor} and 1 {BatchMetadataUpdate} events
         vm.expectEmit({ emitter: address(flow) });
-        emit SetNFTDescriptor(users.admin, nftDescriptor, nftDescriptor);
+        emit ISablierFlowBase.SetNFTDescriptor(users.admin, nftDescriptor, nftDescriptor);
         vm.expectEmit({ emitter: address(flow) });
-        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: flow.nextStreamId() - 1 });
+        emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: flow.nextStreamId() - 1 });
 
         // It should re-set the NFT descriptor
         flow.setNFTDescriptor(nftDescriptor);
@@ -32,9 +35,9 @@ contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
 
         // It should emit 1 {SetNFTDescriptor} and 1 {BatchMetadataUpdate} events
         vm.expectEmit({ emitter: address(flow) });
-        emit SetNFTDescriptor(users.admin, nftDescriptor, newNFTDescriptor);
+        emit ISablierFlowBase.SetNFTDescriptor(users.admin, nftDescriptor, newNFTDescriptor);
         vm.expectEmit({ emitter: address(flow) });
-        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: flow.nextStreamId() - 1 });
+        emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: flow.nextStreamId() - 1 });
 
         // It should set the new NFT descriptor
         flow.setNFTDescriptor(newNFTDescriptor);

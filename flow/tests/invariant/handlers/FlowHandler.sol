@@ -274,7 +274,7 @@ contract FlowHandler is BaseHandler {
         instrument(currentStreamId, "withdraw")
     {
         // The protocol doesn't allow the withdrawal address to be the zero address.
-        vm.assume(to != address(0));
+        vm.assume(to != address(0) && to != address(flow));
 
         // Check if there is anything to withdraw.
         vm.assume(flow.coveredDebtOf(currentStreamId) > 0);

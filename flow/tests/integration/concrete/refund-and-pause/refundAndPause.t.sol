@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
+
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -58,10 +61,14 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
         emit IERC20.Transfer({ from: address(flow), to: users.sender, value: REFUND_AMOUNT_6D });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit RefundFromFlowStream({ streamId: defaultStreamId, sender: users.sender, amount: REFUND_AMOUNT_6D });
+        emit ISablierFlow.RefundFromFlowStream({
+            streamId: defaultStreamId,
+            sender: users.sender,
+            amount: REFUND_AMOUNT_6D
+        });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit PauseFlowStream({
+        emit ISablierFlow.PauseFlowStream({
             streamId: defaultStreamId,
             sender: users.sender,
             recipient: users.recipient,
@@ -69,7 +76,7 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit MetadataUpdate({ _tokenId: defaultStreamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         // It should perform the ERC-20 transfer
         expectCallToTransfer({ token: usdc, to: users.sender, amount: REFUND_AMOUNT_6D });
