@@ -321,7 +321,6 @@ contract Flow_Fork_Test is Fork_Test {
         Flow.Stream memory actualStream = flow.getStream(vars.actualStreamId);
         Flow.Stream memory expectedStream = Flow.Stream({
             balance: 0,
-            isPaused: false,
             isStream: true,
             isVoided: false,
             isTransferable: transferable,

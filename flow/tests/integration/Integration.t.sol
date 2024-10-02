@@ -90,7 +90,6 @@ abstract contract Integration_Test is Base_Test {
         return Flow.Stream({
             balance: 0,
             snapshotTime: getBlockTimestamp(),
-            isPaused: false,
             isStream: true,
             isTransferable: TRANSFERABLE,
             isVoided: false,

@@ -109,7 +109,7 @@ interface ISablierFlowBase is
     /// @param streamId The ID of the stream to make the query for.
     function getTokenDecimals(uint256 streamId) external view returns (uint8 tokenDecimals);
 
-    /// @notice Retrieves a flag indicating whether the stream is paused.
+    /// @notice Returns whether a stream is paused.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function isPaused(uint256 streamId) external view returns (bool result);

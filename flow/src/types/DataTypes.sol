@@ -49,7 +49,6 @@ library Flow {
     /// days in seconds)$.
     /// @param sender The address streaming the tokens, with the ability to pause the stream.
     /// @param snapshotTime The Unix timestamp used for the ongoing debt calculation.
-    /// @param isPaused Boolean indicating if the stream is paused.
     /// @param isStream Boolean indicating if the struct entity exists.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
     /// @param isVoided Boolean indicating if the stream is voided. Voiding a stream is a non reversible step. When a
@@ -66,7 +65,6 @@ library Flow {
         // slot 1
         address sender;
         uint40 snapshotTime;
-        bool isPaused;
         bool isStream;
         bool isTransferable;
         bool isVoided;

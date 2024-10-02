@@ -74,7 +74,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         uint128 actualSnapshotDebt = flow.getSnapshotDebt(defaultStreamId);
         assertEq(actualSnapshotDebt, 0, "snapshot debt");
 
-        if (!flow.isPaused(defaultStreamId)) {
+        if (flow.getRatePerSecond(defaultStreamId).unwrap() > 0) {
             // It should update snapshot time.
             uint128 actualSnapshotTime = flow.getSnapshotTime(defaultStreamId);
             assertEq(actualSnapshotTime, getBlockTimestamp(), "snapshot time");

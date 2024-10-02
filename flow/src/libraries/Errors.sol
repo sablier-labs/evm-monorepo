@@ -48,9 +48,6 @@ library Errors {
     /// @notice Thrown when trying to change the rate per second with the same rate per second.
     error SablierFlow_RatePerSecondNotDifferent(uint256 streamId, UD21x18 ratePerSecond);
 
-    /// @notice Thrown when trying to set the rate per second of a stream to zero.
-    error SablierFlow_RatePerSecondZero();
-
     /// @notice Thrown when trying to refund zero tokens from a stream.
     error SablierFlow_RefundAmountZero(uint256 streamId);
 

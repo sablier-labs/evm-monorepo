@@ -17,7 +17,8 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// - It should emit the following events: {Transfer}, {MetadataUpdate}, {CreateFlowStream}
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
-    /// - Multiple non-zero values for the sender, recipient and ratePerSecond.
+    /// - Multiple non-zero values for the sender and recipient.
+    /// - Multiple values for the rate per second.
     /// - Multiple values for token decimals less than or equal to 18.
     /// - Both transferable and non-transferable streams.
     function testFuzz_Create(
@@ -34,7 +35,6 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.assume(sender != address(0) && recipient != address(0));
 
         // Bound the variables.
-        ratePerSecond = boundRatePerSecond(ratePerSecond);
         decimals = boundUint8(decimals, 0, 18);
 
         // Create a new token.
@@ -77,9 +77,14 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         assertEq(flow.getSender(actualStreamId), sender);
         assertEq(flow.getToken(actualStreamId), token);
         assertEq(flow.getTokenDecimals(actualStreamId), decimals);
-        assertEq(flow.isPaused(actualStreamId), false);
         assertEq(flow.isStream(actualStreamId), true);
         assertEq(flow.isTransferable(actualStreamId), transferable);
+
+        if (flow.getRatePerSecond(actualStreamId).unwrap() == 0) {
+            assertEq(flow.isPaused(actualStreamId), true);
+        } else {
+            assertEq(flow.isPaused(actualStreamId), false);
+        }
 
         // Assert that the next stream ID has been bumped.
         uint256 actualNextStreamId = flow.nextStreamId();

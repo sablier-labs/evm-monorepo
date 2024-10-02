@@ -2,6 +2,8 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Flow } from "src/types/DataTypes.sol";
+
 import { Base_Test } from "./../Base.t.sol";
 import { FlowAdminHandler } from "./handlers/FlowAdminHandler.sol";
 import { FlowCreateHandler } from "./handlers/FlowCreateHandler.sol";
@@ -260,6 +262,44 @@ contract Flow_Invariant_Test is Base_Test {
                 flow.coveredDebtOf(streamId) + flow.refundableAmountOf(streamId),
                 "Invariant violation: stream balance == covered debt + refundable amount"
             );
+        }
+    }
+
+    /// @dev For non-voided streams, if the rate per second is non-zero, then it must imply that the status must be
+    /// either `STREAMING_SOLVENT` or `STREAMING_INSOLVENT`.
+    function invariant_RatePerSecondNotZero_Streaming_Status() external view {
+        uint256 lastStreamId = flowStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = flowStore.streamIds(i);
+            if (!flow.isVoided(streamId) && flow.getRatePerSecond(streamId).unwrap() > 0) {
+                assertTrue(
+                    flow.isPaused(streamId) == false, "Invariant violation: rate per second not zero but stream paused"
+                );
+                assertTrue(
+                    flow.statusOf(streamId) == Flow.Status.STREAMING_SOLVENT
+                        || flow.statusOf(streamId) == Flow.Status.STREAMING_INSOLVENT,
+                    "Invariant violation: rate per second not zero but stream status not correct"
+                );
+            }
+        }
+    }
+
+    /// @dev For non-voided streams, if the rate per second is zero, then it must imply that the stream is paused and
+    /// the status must be either `PAUSED_SOLVENT` or `PAUSED_INSOLVENT`.
+    function invariant_RatePerSecondZero_StreamPaused_Status() external view {
+        uint256 lastStreamId = flowStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = flowStore.streamIds(i);
+            if (!flow.isVoided(streamId) && flow.getRatePerSecond(streamId).unwrap() == 0) {
+                assertTrue(
+                    flow.isPaused(streamId) == true, "Invariant violation: rate per second zero but stream not paused"
+                );
+                assertTrue(
+                    flow.statusOf(streamId) == Flow.Status.PAUSED_SOLVENT
+                        || flow.statusOf(streamId) == Flow.Status.PAUSED_INSOLVENT,
+                    "Invariant violation: rate per second zero but stream status not correct"
+                );
+            }
         }
     }
 

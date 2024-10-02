@@ -75,7 +75,7 @@ abstract contract SablierFlowBase is
 
     /// @dev Checks that `streamId` does not reference a paused stream.
     modifier notPaused(uint256 streamId) {
-        if (_streams[streamId].isPaused) {
+        if (_streams[streamId].ratePerSecond.unwrap() == 0) {
             revert Errors.SablierFlow_StreamPaused(streamId);
         }
         _;
@@ -171,7 +171,7 @@ abstract contract SablierFlowBase is
 
     /// @inheritdoc ISablierFlowBase
     function isPaused(uint256 streamId) external view override notNull(streamId) returns (bool result) {
-        result = _streams[streamId].isPaused;
+        result = _streams[streamId].ratePerSecond.unwrap() == 0;
     }
 
     /// @inheritdoc ISablierFlowBase

@@ -69,7 +69,9 @@ contract Restart_Integration_Concrete_Test is Integration_Test {
         whenCallerSender
         givenPaused
     {
-        vm.expectRevert(Errors.SablierFlow_RatePerSecondZero.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierFlow_RatePerSecondNotDifferent.selector, defaultStreamId, ud21x18(0))
+        );
         flow.restart({ streamId: defaultStreamId, ratePerSecond: ud21x18(0) });
     }
 

@@ -25,7 +25,6 @@ abstract contract Assertions is PRBMathAssertions {
         assertEq(a.ratePerSecond, b.ratePerSecond, "ratePerSecond");
         assertEq(a.balance, b.balance, "balance");
         assertEq(a.snapshotTime, b.snapshotTime, "snapshotTime");
-        assertEq(a.isPaused, b.isPaused, "isPaused");
         assertEq(a.isStream, b.isStream, "isStream");
         assertEq(a.isTransferable, b.isTransferable, "isTransferable");
         assertEq(a.isVoided, b.isVoided, "isVoided");

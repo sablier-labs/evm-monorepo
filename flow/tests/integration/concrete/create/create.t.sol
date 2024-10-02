@@ -30,23 +30,7 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_RatePerSecondZero() external whenNoDelegateCall whenSenderNotAddressZero {
-        vm.expectRevert(Errors.SablierFlow_RatePerSecondZero.selector);
-        flow.create({
-            sender: users.sender,
-            recipient: users.recipient,
-            ratePerSecond: ud21x18(0),
-            token: dai,
-            transferable: TRANSFERABLE
-        });
-    }
-
-    function test_RevertWhen_TokenNotImplementDecimals()
-        external
-        whenNoDelegateCall
-        whenSenderNotAddressZero
-        whenRatePerSecondNotZero
-    {
+    function test_RevertWhen_TokenNotImplementDecimals() external whenNoDelegateCall whenSenderNotAddressZero {
         address invalidToken = address(8128);
         vm.expectRevert(bytes(""));
         flow.create({
@@ -62,7 +46,6 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         whenSenderNotAddressZero
-        whenRatePerSecondNotZero
         whenTokenImplementsDecimals
     {
         IERC20 tokenWith24Decimals = new ERC20Mock("Token With More Decimals", "TWMD", 24);
@@ -84,7 +67,6 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         whenSenderNotAddressZero
-        whenRatePerSecondNotZero
         whenTokenImplementsDecimals
         whenTokenDecimalsNotExceed18
     {
@@ -98,11 +80,32 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_WhenRecipientNotAddressZero()
+    function test_WhenRatePerSecondZero()
         external
         whenNoDelegateCall
         whenSenderNotAddressZero
-        whenRatePerSecondNotZero
+        whenTokenImplementsDecimals
+        whenTokenDecimalsNotExceed18
+        whenRecipientNotAddressZero
+    {
+        // it should create a paused stream
+
+        uint256 streamId = flow.create({
+            sender: users.sender,
+            recipient: users.recipient,
+            ratePerSecond: ud21x18(0),
+            token: dai,
+            transferable: TRANSFERABLE
+        });
+
+        assertTrue(flow.isStream(streamId));
+        assertEq(uint8(flow.statusOf(streamId)), uint8(Flow.Status.PAUSED_SOLVENT));
+    }
+
+    function test_WhenRatePerSecondNotZero()
+        external
+        whenNoDelegateCall
+        whenSenderNotAddressZero
         whenTokenImplementsDecimals
         whenTokenDecimalsNotExceed18
     {
@@ -137,9 +140,10 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         Flow.Stream memory actualStream = flow.getStream(actualStreamId);
         Flow.Stream memory expectedStream = defaultStream();
 
-        // It should create the stream.
+        // It should create the `STREAMING` stream.
         assertEq(actualStreamId, expectedStreamId, "stream id");
         assertEq(actualStream, expectedStream);
+        assertEq(uint8(flow.statusOf(actualStreamId)), uint8(Flow.Status.STREAMING_SOLVENT));
 
         // It should bump the next stream id.
         assertEq(flow.nextStreamId(), expectedStreamId + 1, "next stream id");
