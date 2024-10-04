@@ -23,12 +23,12 @@ FOUNDRY_PROFILE=optimized forge build
 
 # Copy the production artifacts
 cp out-optimized/SablierFlow.sol/SablierFlow.json $artifacts
-cp out-optimized/SablierFlowNFTDescriptor.sol/SablierFlowNFTDescriptor.json $artifacts
+cp out-optimized/FlowNFTDescriptor.sol/FlowNFTDescriptor.json $artifacts
 
 interfaces=./artifacts/interfaces
 cp out-optimized/ISablierFlow.sol/ISablierFlow.json $interfaces
 cp out-optimized/ISablierFlowBase.sol/ISablierFlowBase.json $interfaces
-cp out-optimized/ISablierFlowNFTDescriptor.sol/ISablierFlowNFTDescriptor.json $interfaces
+cp out-optimized/IFlowNFTDescriptor.sol/IFlowNFTDescriptor.json $interfaces
 
 erc20=./artifacts/interfaces/erc20
 cp out-optimized/IERC20.sol/IERC20.json $erc20

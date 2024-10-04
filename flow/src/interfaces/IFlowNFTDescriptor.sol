@@ -3,12 +3,12 @@ pragma solidity >=0.8.22;
 
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
-/// @title ISablierFlowNFTDescriptor
+/// @title IFlowNFTDescriptor
 /// @notice This contract generates the URI describing the Sablier Flow stream NFTs.
-interface ISablierFlowNFTDescriptor {
+interface IFlowNFTDescriptor {
     /// @notice Produces the URI describing a particular stream NFT.
     ///
-    /// @dev This is a data URI with the JSON contents directly inlined.
+    /// @dev Currently it returns the Sablier logo as an SVG. In the future, it will return an NFT SVG.
     ///
     /// @param sablierFlow The address of the Sablier Flow the stream was created in.
     /// @param streamId The ID of the stream for which to produce a description.

@@ -8,12 +8,11 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
-
 import { Batch } from "./abstracts/Batch.sol";
 import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
 import { SablierFlowBase } from "./abstracts/SablierFlowBase.sol";
+import { IFlowNFTDescriptor } from "./interfaces/IFlowNFTDescriptor.sol";
 import { ISablierFlow } from "./interfaces/ISablierFlow.sol";
-import { ISablierFlowNFTDescriptor } from "./interfaces/ISablierFlowNFTDescriptor.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Broker, Flow } from "./types/DataTypes.sol";
@@ -38,7 +37,7 @@ contract SablierFlow is
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
     constructor(
         address initialAdmin,
-        ISablierFlowNFTDescriptor initialNFTDescriptor
+        IFlowNFTDescriptor initialNFTDescriptor
     )
         ERC721("Sablier Flow NFT", "SAB-FLOW")
         SablierFlowBase(initialAdmin, initialNFTDescriptor)

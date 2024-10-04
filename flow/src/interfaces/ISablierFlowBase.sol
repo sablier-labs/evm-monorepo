@@ -9,7 +9,7 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Flow } from "./../types/DataTypes.sol";
 import { IAdminable } from "./IAdminable.sol";
-import { ISablierFlowNFTDescriptor } from "./ISablierFlowNFTDescriptor.sol";
+import { IFlowNFTDescriptor } from "./IFlowNFTDescriptor.sol";
 
 /// @title ISablierFlowBase
 /// @notice Base contract that includes state variables (storage and constants) for the {SablierFlow} contract,
@@ -39,7 +39,7 @@ interface ISablierFlowBase is
     /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     event SetNFTDescriptor(
-        address indexed admin, ISablierFlowNFTDescriptor oldNFTDescriptor, ISablierFlowNFTDescriptor newNFTDescriptor
+        address indexed admin, IFlowNFTDescriptor oldNFTDescriptor, IFlowNFTDescriptor newNFTDescriptor
     );
 
     /// @notice Emitted when the contract admin sets a new protocol fee for the provided ERC-20 token.
@@ -134,7 +134,7 @@ interface ISablierFlowBase is
     function nextStreamId() external view returns (uint256);
 
     /// @notice Contract that generates the non-fungible token URI.
-    function nftDescriptor() external view returns (ISablierFlowNFTDescriptor);
+    function nftDescriptor() external view returns (IFlowNFTDescriptor);
 
     /// @notice Protocol fee for the provided ERC-20 token, denoted as a fixed-point percentage where 1e18 is 100%.
     function protocolFee(IERC20 token) external view returns (UD60x18);
@@ -185,7 +185,7 @@ interface ISablierFlowBase is
     /// - `msg.sender` must be the contract admin.
     ///
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
-    function setNFTDescriptor(ISablierFlowNFTDescriptor newNFTDescriptor) external;
+    function setNFTDescriptor(IFlowNFTDescriptor newNFTDescriptor) external;
 
     /// @notice Sets a new protocol fee that will be charged on all the withdrawals from streams created with the
     /// provided ERC-20 token.

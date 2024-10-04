@@ -7,8 +7,8 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { IFlowNFTDescriptor } from "./../interfaces/IFlowNFTDescriptor.sol";
 import { ISablierFlowBase } from "./../interfaces/ISablierFlowBase.sol";
-import { ISablierFlowNFTDescriptor } from "./../interfaces/ISablierFlowNFTDescriptor.sol";
 import { Errors } from "./../libraries/Errors.sol";
 import { Flow } from "./../types/DataTypes.sol";
 import { Adminable } from "./Adminable.sol";
@@ -36,7 +36,7 @@ abstract contract SablierFlowBase is
     uint256 public override nextStreamId;
 
     /// @inheritdoc ISablierFlowBase
-    ISablierFlowNFTDescriptor public override nftDescriptor;
+    IFlowNFTDescriptor public override nftDescriptor;
 
     /// @inheritdoc ISablierFlowBase
     mapping(IERC20 token => UD60x18 fee) public override protocolFee;
@@ -54,7 +54,7 @@ abstract contract SablierFlowBase is
     /// @dev Emits a {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
-    constructor(address initialAdmin, ISablierFlowNFTDescriptor initialNFTDescriptor) {
+    constructor(address initialAdmin, IFlowNFTDescriptor initialNFTDescriptor) {
         nextStreamId = 1;
         admin = initialAdmin;
         nftDescriptor = initialNFTDescriptor;
@@ -241,9 +241,9 @@ abstract contract SablierFlowBase is
     }
 
     /// @inheritdoc ISablierFlowBase
-    function setNFTDescriptor(ISablierFlowNFTDescriptor newNFTDescriptor) external override onlyAdmin {
+    function setNFTDescriptor(IFlowNFTDescriptor newNFTDescriptor) external override onlyAdmin {
         // Effect: set the NFT descriptor.
-        ISablierFlowNFTDescriptor oldNftDescriptor = nftDescriptor;
+        IFlowNFTDescriptor oldNftDescriptor = nftDescriptor;
         nftDescriptor = newNFTDescriptor;
 
         // Log the change of the NFT descriptor.
