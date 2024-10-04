@@ -134,7 +134,7 @@ if [ -f .env.deployment ]; then
     # initialize chains with all the configurations
     initialize
 else
-    # Set bool to enter intaractive mode
+    # Set bool to enter interactive mode
     INTERACTIVE=true
 
     # load values from the terminal prompt
