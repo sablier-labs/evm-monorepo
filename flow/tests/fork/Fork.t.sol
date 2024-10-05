@@ -37,8 +37,8 @@ abstract contract Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        // Fork Ethereum Mainnet at a specific block number. The block number is for the `MAY_1_2024` date.
-        vm.createSelectFork({ blockNumber: 19_771_260, urlOrAlias: "mainnet" });
+        // Fork Ethereum Mainnet at a specific block number. The block number is for the `OCT_1_2024` date.
+        vm.createSelectFork({ blockNumber: 20_866_919, urlOrAlias: "mainnet" });
 
         // The base is set up after the fork is selected so that the base test contracts are deployed on the fork.
         Base_Test.setUp();

@@ -15,7 +15,7 @@ contract CollectProtocolRevenue_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Go back in time to create a stream with a protocol fee.
-        vm.warp({ newTimestamp: MAY_1_2024 });
+        vm.warp({ newTimestamp: OCT_1_2024 });
 
         streamIdWithProtocolFee = createDefaultStream(tokenWithProtocolFee);
         depositDefaultAmount(streamIdWithProtocolFee);

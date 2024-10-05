@@ -11,19 +11,7 @@ One of the most requested features from users is the ability to create streams w
 the protocol to manage _"debt"_, which is the amount the sender owes the recipient but is not yet available in the
 stream. The following struct defines a Flow stream:
 
-```solidity
-struct Stream {
-  uint128 balance;
-  UD21x18 ratePerSecond;
-  address sender;
-  uint40 snapshotTime;
-  bool isStream;
-  bool isTransferable;
-  IERC20 token;
-  uint8 tokenDecimals;
-  uint128 snapshotDebt;
-}
-```
+https://github.com/sablier-labs/flow/blob/main/src/types/DataTypes.sol#L41-L76
 
 ## Features
 
@@ -50,18 +38,19 @@ recipient can only withdraw the available balance.
 
 ## Abbreviations
 
-| Variable         | Abbreviation |
-| ---------------- | ------------ |
-| totalDebt        | td           |
-| ongoingDebt      | od           |
-| snapshotDebt     | sd           |
-| snapshotTime     | st           |
-| uncoveredDebt    | ud           |
-| refundableAmount | ra           |
-| coveredDebt      | cd           |
-| balance          | bal          |
-| block.timestamp  | now          |
-| ratePerSecond    | rps          |
+| Terms                       | Abbreviation |
+| --------------------------- | ------------ |
+| Total Debt                  | td           |
+| Ongoing Debt                | od           |
+| Snapshot Debt               | sd           |
+| Snapshot Time               | st           |
+| Uncovered Debt              | ud           |
+| Refundable Amount           | ra           |
+| Covered Debt                | cd           |
+| Stream Balance              | bal          |
+| block timestamp             | now          |
+| Rate per second             | rps          |
+| Time elapsed since snapshot | elt          |
 
 ## Core components
 
@@ -77,7 +66,7 @@ $td = sd + od$
 The ongoing debt (od) is calculated as the rate per second (rps) multiplied by the delta between the current time and
 `snapshotTime`.
 
-$od = rps \times (now - lst)$
+$od = rps \cdot (now - st) = rps \cdot elt$
 
 ### 3. Snapshot debt
 
@@ -117,7 +106,7 @@ Let's consider an example: if a user wants to stream 10 USDC per day, the _rps_ 
 $rps = 0.000115740740740740740740...$ (infinite decimals)
 
 But since USDC only has 6 decimals, the _rps_ would be limited to $0.000115$, leading to
-$0.000115 \times \text{seconds in one day} = 9.936000$ USDC streamed in one day. This results in a shortfall of
+$0.000115 \cdot \text{seconds in one day} = 9.936000$ USDC streamed in one day. This results in a shortfall of
 $0.064000$ USDC per day, which is problematic.
 
 ### Solution
@@ -127,7 +116,7 @@ significantly minimizes it.
 
 Using the same example (streaming 10 USDC per day), if _rps_ has 18 decimals, the end-of-day result would be:
 
-$0.000115740740740740 \times \text{seconds in one day} = 9.999999999999936000$
+$0.000115740740740740 \cdot \text{seconds in one day} = 9.999999999999936000$
 
 The difference would be:
 
@@ -138,9 +127,11 @@ This is an improvement by $\approx 10^{11}$. While not perfect, it is clearly mu
 The funds will never be stuck in the contract; the recipient may have to wait a bit longer to receive the full 10 USDC
 per day. Using the 18 decimals format would delay it by just 1 more second:
 
-$0.000115740740740740 \times (\text{seconds in one day} + 1 second) = 10.000115740740677000$
+$0.000115740740740740 \cdot (\text{seconds in one day} + 1 second) = 10.000115740740677000$
 
 Currently, it's not possible to address this precision problem entirely.
+
+To see a in depth explanation of the precision issue, please refer to the [Precision File](./precision.md)
 
 ### Limitations
 

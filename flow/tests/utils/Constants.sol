@@ -41,10 +41,10 @@ abstract contract Constants {
     uint128 internal constant ONE_MONTH_REFUNDABLE_AMOUNT_6D = DEPOSIT_AMOUNT_6D - ONE_MONTH_DEBT_6D;
 
     // Time
-    uint40 internal constant MAY_1_2024 = 1_714_518_000;
+    uint40 internal constant OCT_1_2024 = 1_727_740_800;
     uint40 internal constant ONE_MONTH = 30 days; // "30/360" convention
     uint40 internal constant SOLVENCY_PERIOD = uint40(DEPOSIT_AMOUNT_18D / RATE_PER_SECOND_U128); // 578 days
-    uint40 internal constant WARP_ONE_MONTH = MAY_1_2024 + ONE_MONTH;
-    uint40 internal constant WARP_SOLVENCY_PERIOD = MAY_1_2024 + SOLVENCY_PERIOD;
-    uint40 internal constant WITHDRAW_TIME = MAY_1_2024 + 2_500_000;
+    uint40 internal constant WARP_ONE_MONTH = OCT_1_2024 + ONE_MONTH;
+    uint40 internal constant WARP_SOLVENCY_PERIOD = OCT_1_2024 + SOLVENCY_PERIOD;
+    uint40 internal constant WITHDRAW_TIME = OCT_1_2024 + 2_500_000;
 }
