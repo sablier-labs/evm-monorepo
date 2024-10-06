@@ -14,7 +14,7 @@ tokens owed between two parties, enabling indefinite token streaming. A Flow str
 second (rps). The relationship between the amount owed and time elapsed is linear and can be defined as:
 
 ```math
-\text{amount owed} = rps \times \text{elapsed time}
+\text{amount owed} = rps \cdot \text{elapsed time}
 ```
 
 Flow protocol can be used in several areas of everyday finance, such as payroll, distributing grants, insurance
@@ -79,7 +79,8 @@ Finally, add these to your `remappings.txt` file:
 
 ## Usage
 
-This is just a glimpse of Sablier Flow. For more guides and examples, see the [documentation](https://docs.sablier.com).
+This is just a glimpse of Sablier Flow. For more guides and examples, see the [documentation](https://docs.sablier.com)
+and the [technical file](./TECHNICAL-DOC.md).
 
 ```solidity
 import { ISablierFlow } from "@sablier/flow/src/interfaces/ISablierFlow.sol";
@@ -87,7 +88,8 @@ import { ISablierFlow } from "@sablier/flow/src/interfaces/ISablierFlow.sol";
 contract MyContract {
   ISablierFlow immutable flow;
 
-  function StreamWithFlow() external {
+  function doSomethingWithFlow(uint256 streamId) external {
+    uint128 totalDebt = flow.totalDebtOf(streamId);
     // ...
   }
 }
