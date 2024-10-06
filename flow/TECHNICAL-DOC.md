@@ -10,8 +10,8 @@ One can also start a stream without setting an rps. If rps is set to non-zero at
 soon as the transaction is confirmed on the blockchain. These streams have no end date, but it allows the sender to
 pause it or void it at a later date.
 
-A stream is represented by a struct that can be found in
-[Datatypes.sol](https://github.com/sablier-labs/flow/blob/docs/move-readme-content/src/types/DataTypes.sol#L61-L76).
+A stream is represented by a struct, which can be found in
+[`DataTypes.sol`](https://github.com/sablier-labs/flow/blob/ba1c9ba64907200c82ccfaeaa6ab91f6229c433d/src/types/DataTypes.sol#L41-L76).
 
 The debt is tracked using `snapshotDebt` and `snapshotTime`. At snapshot, the following events are taking place:
 
