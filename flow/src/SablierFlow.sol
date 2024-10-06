@@ -491,7 +491,7 @@ contract SablierFlow is
         return _streams[streamId].balance - _coveredDebtOf(streamId);
     }
 
-    /// @notice Calculates the total debt at the provided time.
+    /// @notice Calculates the total debt.
     /// @dev The total debt is the sum of the snapshot debt and the ongoing debt. This value is independent of the
     /// stream's balance.
     function _totalDebtOf(uint256 streamId) internal view returns (uint128) {
