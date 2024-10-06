@@ -1,180 +1,113 @@
-# Sablier Flow
+# Sablier Flow [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
 
-This repository contains the smart contracts for Sablier Flow. Streams created with Sablier Flow have no end time and
-require no upfront deposit. This is ideal for regular payments such as salaries and subscriptions, where an end time is
-not specified. For vesting or airdrops, refer to the [Sablier Lockup](https://github.com/sablier-labs/v2-core/)
-protocol.
+[gha]: https://github.com/sablier-labs/flow/actions
+[gha-badge]: https://github.com/sablier-labs/flow/actions/workflows/ci.yml/badge.svg
+[codecov]: https://codecov.io/gh/sablier-labs/flow
+[codecov-badge]: https://codecov.io/gh/sablier-labs/flow/branch/main/graph/badge.svg
+[discord]: https://discord.gg/bSwRCwWRsT
+[discord-badge]: https://dcbadge.vercel.app/api/server/bSwRCwWRsT?style=flat
+[foundry]: https://getfoundry.sh
+[foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
-## Motivation
+This repository contains the smart contracts for Sablier Flow protocol. Flow is a debt tracking protocol that tracks
+tokens owed between two parties, enabling indefinite token streaming. A Flow stream is characterized by its rate per
+second (rps). The relationship between the amount owed and time elapsed is linear and can be defined as:
 
-One of the most requested features from users is the ability to create streams without an upfront deposit. This requires
-the protocol to manage _"debt"_, which is the amount the sender owes the recipient but is not yet available in the
-stream. The following struct defines a Flow stream:
+```math
+\text{amount owed} = rps \times \text{elapsed time}
+```
 
-https://github.com/sablier-labs/flow/blob/main/src/types/DataTypes.sol#L41-L76
+Flow protocol can be used in several areas of everyday finance, such as payroll, distributing grants, insurance
+premiums, loans interest, token ESOPs etc. If you are looking for vesting and airdrops, please refer to our
+[Lockup](https://github.com/sablier-labs/v2-core/) protocol.
 
 ## Features
 
-- Streams can be created indefinitely.
-- No deposits are required at creation; thus, creation and deposit are separate operations.
-- Anyone can deposit into a stream, allowing others to fund your streams.
-- No limit on deposits; any amount can be deposited or refunded if not yet streamed to recipients.
-- Streams without sufficient balance will accumulate debt until paused or sufficiently funded.
-- Senders can pause and restart streams without losing track of previously accrued debt.
+1. **Flexible deposit:** A stream can be funded with any amount, at any time, by anyone, in full or in parts.
+2. **Flexible duration:** A stream can be created with no specific start or end time. It can run indefinitely.
+3. **Pause:** A stream can be paused by the sender and can later be restarted without losing track of previously accrued
+   debt.
+4. **Refund:** Unstreamed amount can be refunded back to the sender at any time.
+5. **Void:** Voiding a stream forfeits the uncovered debt and, thus, cannot be restarted anymore. Only streams with
+   non-zero uncovered debt can be voided by any part (either the sender or the recipient).
+6. **Withdraw:** it is publicly callable as long as `to` is set to the recipient. However, a stream’s recipient is
+   allowed to withdraw funds to any address.
 
-## How it works
+## Install
 
-When a stream is created, no deposit is required, so the initial stream balance can be zero. The sender can deposit any
-amount into the stream at any time. To improve experience for some users, a `createAndDeposit` function has been
-implemented to allow both create and deposit operations in a single transaction.
+### Node.js
 
-Streams begin streaming as soon as the transaction is confirmed on the blockchain. They have no end date, but the sender
-can pause the stream at any time. This stops the streaming of tokens but retains the record of the accrued debt up to
-that point.
+This is the recommended approach.
 
-The `snapshotTime` value, set to `block.timestamp` when the stream is created, is crucial for tracking the debt over
-time. The recipient can withdraw the streamed amount at any point. However, if there aren't sufficient funds, the
-recipient can only withdraw the available balance.
+Install Flow using your favorite package manager, e.g. with Bun:
 
-## Abbreviations
+```shell
+bun add @sablier/flow
+```
 
-| Terms                       | Abbreviation |
-| --------------------------- | ------------ |
-| Total Debt                  | td           |
-| Ongoing Debt                | od           |
-| Snapshot Debt               | sd           |
-| Snapshot Time               | st           |
-| Uncovered Debt              | ud           |
-| Refundable Amount           | ra           |
-| Covered Debt                | cd           |
-| Stream Balance              | bal          |
-| block timestamp             | now          |
-| Rate per second             | rps          |
-| Time elapsed since snapshot | elt          |
+Then, if you are using Foundry, you need to add these to your `remappings.txt` file:
 
-## Core components
+```text
+@sablier/flow/=node_modules/@sablier/flow/
+@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
+@prb/math/=node_modules/@prb/math/
+```
 
-### 1. Total debt
+### Git Submodules
 
-The total debt (td) is the total amount the sender owes to the recipient. It is calculated as the sum of the snapshot
-debt and the ongoing debt.
+This installation method is not recommended, but it is available for those who prefer it.
 
-$td = sd + od$
+Install the submodule using Forge:
 
-### 2. Ongoing debt
+```shell
+forge install --no-commit sablier-labs/flow
+```
 
-The ongoing debt (od) is calculated as the rate per second (rps) multiplied by the delta between the current time and
-`snapshotTime`.
+Then, install the project's dependencies:
 
-$od = rps \cdot (now - st) = rps \cdot elt$
+```shell
+forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math#95f00b2
+```
 
-### 3. Snapshot debt
+Finally, add these to your `remappings.txt` file:
 
-The snapshot debt (sd) is the amount that the sender owed the recipient at snapshot time. When `snapshotTime` is
-updated, the snapshot debt increases by the ongoing debt.
+```text
+@sablier/flow/=lib/flow/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@prb/math/=lib/prb-math/
+```
 
-$sd = \sum od_t$
+## Usage
 
-### 4. Uncovered debt
+This is just a glimpse of Sablier Flow. For more guides and examples, see the [documentation](https://docs.sablier.com).
 
-The uncovered debt (ud) is the difference between the total debt and the actual balance, applicable when the total debt
-exceeds the balance.
+```solidity
+import { ISablierFlow } from "@sablier/flow/src/interfaces/ISablierFlow.sol";
 
-$`ud = \begin{cases} td - bal & \text{if } td \gt bal \\ 0 & \text{if } td \le bal \end{cases}`$
+contract MyContract {
+  ISablierFlow immutable flow;
 
-### 5. Refundable amount
+  function StreamWithFlow() external {
+    // ...
+  }
+}
+```
 
-The refundable amount (ra) is the amount that the sender can be refunded. It is the difference between the stream
-balance and the total debt.
+## Contributing
 
-$`ra = \begin{cases} bal - td & \text{if } ud = 0 \\ 0 & \text{if } ud > 0 \end{cases}`$
+Feel free to dive in! [Open](https://github.com/sablier-labs/flow/issues/new) an issue,
+[start](https://github.com/sablier-labs/flow/discussions/new) a discussion or submit
+[a PR](https://github.com/sablier-labs/flow/compare). For any concerns or feedback, please join our
+[Discord server](https://discord.gg/bSwRCwWRsT).
 
-### 6. Covered debt
+Refer to [CONTRIBUTING](./CONTRIBUTING.md) guidelines if you wish to create a PR.
 
-The covered debt (cd) is the total debt when there is no uncovered debt. But if there is uncovered debt, the covered
-debt is capped to the stream balance.
+## License
 
-$`cd = \begin{cases} td & \text{if } ud = 0 \\ bal & \text{if } ud \gt 0 \end{cases}`$
+The primary license for Sablier Flow is the Business Source License 1.1 (`BUSL-1.1`), see [`LICENSE.md`](./LICENSE.md).
+However, there are exceptions:
 
-## Precision issues
-
-The `rps` introduces a precision problem for tokens with fewer decimals (e.g.
-[USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s), which has 6 decimals).
-
-Let's consider an example: if a user wants to stream 10 USDC per day, the _rps_ should be
-
-$rps = 0.000115740740740740740740...$ (infinite decimals)
-
-But since USDC only has 6 decimals, the _rps_ would be limited to $0.000115$, leading to
-$0.000115 \cdot \text{seconds in one day} = 9.936000$ USDC streamed in one day. This results in a shortfall of
-$0.064000$ USDC per day, which is problematic.
-
-### Solution
-
-In the contracts, we scale the rate per second to 18 decimals. While this doesn't completely solve the issue, it
-significantly minimizes it.
-
-Using the same example (streaming 10 USDC per day), if _rps_ has 18 decimals, the end-of-day result would be:
-
-$0.000115740740740740 \cdot \text{seconds in one day} = 9.999999999999936000$
-
-The difference would be:
-
-$10.000000000000000000 - 9.999999999999936000 = 0.000000000000006400$
-
-This is an improvement by $\approx 10^{11}$. While not perfect, it is clearly much better.
-
-The funds will never be stuck in the contract; the recipient may have to wait a bit longer to receive the full 10 USDC
-per day. Using the 18 decimals format would delay it by just 1 more second:
-
-$0.000115740740740740 \cdot (\text{seconds in one day} + 1 second) = 10.000115740740677000$
-
-Currently, it's not possible to address this precision problem entirely.
-
-To see a in depth explanation of the precision issue, please refer to the [Precision File](./precision.md)
-
-### Limitations
-
-- ERC-20 tokens with decimals higher than 18 are not supported.
-
-## Invariants
-
-1. for any stream, $st \le now$
-
-2. for a given token:
-
-   - $\sum$ stream balances + protocol revenue = aggregate balance
-   - token.balanceOf(SablierFlow) $`\ge \sum`$ stream balances + flow.protocolRevenue(token)
-   - $\sum$ stream balances = $\sum$ deposited amount - $\sum$ refunded amount - $\sum$ withdrawn amount
-
-3. For a given token, token.balanceOf(SablierFlow) $\ge$ flow.aggregateBalance(token)
-
-4. snapshot time should never decrease
-
-5. for any stream, if $ud > 0 \implies cd = bal$
-
-6. if $rps \gt 0$ and no deposits are made $\implies \frac{d(ud)}{dt} \ge 0$
-
-7. if $rps \gt 0$, and no withdraw is made $\implies \frac{d(td)}{dt} \ge 0$
-
-8. for any stream, sum of deposited amounts $\ge$ sum of withdrawn amounts + sum of refunded
-
-9. sum of all deposited amounts $\ge$ sum of all withdrawn amounts + sum of all refunded
-
-10. next stream id = current stream id + 1
-
-11. if $` ud = 0 \implies cd = td`$
-
-12. $bal = ra + cd$
-
-13. for any non-voided stream, if $rps \gt 0 \implies isPaused = false$ and Flow.Status is either STREAMING_SOLVENT or
-    STREAMING_INSOLVENT.
-
-14. for any non-voided stream, if $rps = 0 \implies isPaused = true$ and Flow.Status is either PAUSED_SOLVENT or
-    PAUSED_INSOLVENT.
-
-15. if $isPaused = true \implies rps = 0$
-
-16. if $isVoided = true \implies isPaused = true$, $ra = 0$ and $ud = 0$
-
-17. if $isVoided = false \implies \text{amount streamed with delay} = td + \text{amount withdrawn}$.
+- All files in `src/` with the exception of `SablierFlow.sol` are licensed under `GPL-3.0-or-later`. Refer to
+  [`LICENSE-GPL.md`](./LICENSE-GPL.md) for preamble.
+- All files in `script/` are licensed under `GPL-3.0-or-later`.
+- All files in `tests/` are unlicensed (as indicated in their SPDX headers).

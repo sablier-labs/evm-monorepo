@@ -1,8 +1,7 @@
 > [!NOTE]
 >
-> Below sections assume you've gone through the
-> [abbreviations table](https://github.com/sablier-labs/flow/?tab=readme-ov-file#abbreviations) and
-> [core components](https://github.com/sablier-labs/flow/?tab=readme-ov-file#core-components)
+> Below sections assume you've gone through the [abbreviations table](./TECHNICAL-DOC.md#abbreviations) and
+> [core components](./TECHNICAL-DOC.md#core-components)
 
 ## Statuses
 

@@ -1,26 +1,190 @@
-# Precision issue
+# Technical documentation
 
-Please review the [corresponding section](https://github.com/sablier-labs/flow/?tab=readme-ov-file#precision-issues) in
-the README first, as here, we will build on top of that information.
+## How Flow works
 
-<!-- prettier-ignore -->
-> [!IMPORTANT]
-> The issues described below would not lead to loss of funds, but can affect the streaming experience for users.
+One can create a flow stream without any upfront deposit, so the initial stream balance begins at zero. The sender can
+later deposit any amount into the stream at any time. To improve the experience, a `createAndDeposit` function has also
+been implemented to allow both create and deposit in a single transaction.
+
+One can also start a stream without setting an rps. If rps is set to non-zero at the beginning, it begins streaming as
+soon as the transaction is confirmed on the blockchain. These streams have no end date, but it allows the sender to
+pause it or void it at a later date.
+
+A stream is represented by a struct that can be found in
+[Datatypes.sol](https://github.com/sablier-labs/flow/blob/docs/move-readme-content/src/types/DataTypes.sol#L61-L76).
+
+The debt is tracked using `snapshotDebt` and `snapshotTime`. At snapshot, the following events are taking place:
+
+1. `snapshotDebt` is incremented by `ongoingDebt` where `ongoingDebt = rps * (block.timestamp - snapshotTime)`.
+2. `snapshotTime` is updated to `block.timestamp`.
+
+The recipient can withdraw the streamed amount at any point. However, if there aren't sufficient funds, the recipient
+can only withdraw the available balance.
+
+## Abbreviations
+
+| Terms                       | Abbreviations |
+| --------------------------- | ------------- |
+| Block Timestamp             | now           |
+| Covered Debt                | cd            |
+| Ongoing Debt                | od            |
+| Rate per second             | rps           |
+| Refundable Amount           | ra            |
+| Scale Factor                | sf            |
+| Snapshot Debt               | sd            |
+| Snapshot Time               | st            |
+| Stream Balance              | bal           |
+| Time elapsed since snapshot | elt           |
+| Total Debt                  | td            |
+| Uncovered Debt              | ud            |
+
+## Invariants
+
+1. for any stream, $st \le now$
+
+2. for a given token:
+
+   - $\sum$ stream balances + protocol revenue = aggregate balance
+   - token.balanceOf(SablierFlow) $`\ge \sum`$ stream balances + flow.protocolRevenue(token)
+   - $\sum$ stream balances = $\sum$ deposited amount - $\sum$ refunded amount - $\sum$ withdrawn amount
+
+3. For a given token, token.balanceOf(SablierFlow) $\ge$ flow.aggregateBalance(token)
+
+4. snapshot time should never decrease
+
+5. for any stream, if $ud > 0 \implies cd = bal$
+
+6. if $rps \gt 0$ and no deposits are made $\implies \frac{d(ud)}{dt} \ge 0$
+
+7. if $rps \gt 0$, and no withdraw is made $\implies \frac{d(td)}{dt} \ge 0$
+
+8. for any stream, sum of deposited amounts $\ge$ sum of withdrawn amounts + sum of refunded
+
+9. sum of all deposited amounts $\ge$ sum of all withdrawn amounts + sum of all refunded
+
+10. next stream id = current stream id + 1
+
+11. if $` ud = 0 \implies cd = td`$
+
+12. $bal = ra + cd$
+
+13. for any non-voided stream, if $rps \gt 0 \implies isPaused = false$ and Flow.Status is either STREAMING_SOLVENT or
+    STREAMING_INSOLVENT.
+
+14. for any non-voided stream, if $rps = 0 \implies isPaused = true$ and Flow.Status is either PAUSED_SOLVENT or
+    PAUSED_INSOLVENT.
+
+15. if $isPaused = true \implies rps = 0$
+
+16. if $isVoided = true \implies isPaused = true$, $ra = 0$ and $ud = 0$
+
+17. if $isVoided = false \implies \text{amount streamed with delay} = td + \text{amount withdrawn}$.
+
+## Limitation
+
+- ERC-20 tokens with decimals higher than 18 are not supported.
+
+## Core components
+
+### 1. Ongoing debt
+
+The ongoing debt (od) is the debt accrued since the last snapshot. It is defined as the rate per second (rps) multiplied
+by the time elapsed since the snapshot time.
+
+$od = rps \cdot elt = rps \cdot (now - st)$
+
+### 2. Snapshot debt
+
+The snapshot debt (sd) is the amount that the sender owed to the recipient at the snapshot time. During a snapshot, the
+snapshot debt increases by the ongoing debt.
+
+$sd = sd + od$
+
+### 3. Total debt
+
+The total debt (td) is the total amount the sender owes to the recipient. It is calculated as the sum of the snapshot
+debt and the ongoing debt.
+
+$td = sd + od$
+
+### 4. Covered debt
+
+The part of the total debt that covered by the stream balance. This is the same as the withdrawable amount, which is an
+alias.
+
+The covered debt (cd) is defined as the minimum of the total debt and the stream balance.
+
+$`cd = \begin{cases} td & \text{if } td \le bal \\ bal & \text{if } td \gt bal \end{cases}`$
+
+### 5. Uncovered debt
+
+The part of the total debt that is not covered by the stream balance. This is what the sender owes to the stream.
+
+The uncovered debt (ud) is defined as the difference between the total debt and the stream balance, applicable only when
+the total debt exceeds the balance.
+
+$`ud = \begin{cases} td - bal & \text{if } td \gt bal \\ 0 & \text{if } td \le bal \end{cases}`$
+
+Together, covered debt and uncovered debt make up the total debt.
+
+### 6. Refundable amount
+
+The refundable amount (ra) is the amount that can be refunded to the sender. It is defined as the difference between the
+stream balance and the total debt.
+
+$`ra = \begin{cases} bal - td & \text{if } ud = 0 \\ 0 & \text{if } ud > 0 \end{cases}`$
+
+## About precision
+
+The `rps` introduces a precision problem for tokens with fewer decimals (e.g.
+[USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s), which has 6 decimals).
+
+Let's consider an example: if a user wants to stream 10 USDC per day, the _rps_ should be
+
+$rps = 0.000115740740740740740740...$ (infinite decimals)
+
+But since USDC only has 6 decimals, the _rps_ would be limited to $0.000115$, leading to
+$0.000115 \cdot \text{seconds in one day} = 9.936000$ USDC streamed in one day. This results in a shortfall of
+$0.064000$ USDC per day, which is problematic.
 
 ## Defining rps as 18 decimal number
 
+In the contracts, we scale the rate per second to 18 decimals. While this doesn't completely solve the issue, it
+significantly minimizes it.
+
+<a name="10-per-day-example"></a> Using the same example (streaming 10 USDC per day), if _rps_ has 18 decimals, the
+end-of-day result would be:
+
+$0.000115740740740740 \cdot \text{seconds in one day} = 9.999999999999936000$
+
+The difference would be:
+
+$10.000000000000000000 - 9.999999999999936000 = 0.000000000000006400$
+
+This is an improvement by $\approx 10^{11}$. While not perfect, it is clearly much better as the recipient may have to
+wait just a bit longer to receive the full 10 USDC per day. Using the 18 decimals format would delay it by just 1 more
+second:
+
+$0.000115740740740740 \cdot (\text{seconds in one day} + 1 second) = 10.000115740740677000$
+
+Currently, it's not possible to address this precision problem entirely.
+
+<!-- prettier-ignore -->
+> [!IMPORTANT]
+> The issues described in this section, as well as those discussed below,
+> will not lead to a loss of funds but may affect the streaming experience for users.
+
 ### Problem 1: Relative delay
 
-From the aforementioned `README` section, we define the **Relative Delay** as the minimum period (in seconds) that a
-N-decimal rps system would require to stream the same amount of tokens that the 18-decimal rps system would.
+From the previous section, we can define the **Relative Delay** as the minimum period (in seconds) that a N-decimal
+`rps` system would require to stream the same amount of tokens that the 18-decimal `rps` system would.
 
 ```math
 \text{relative\_delay}_N = \frac{ (rps_{18} - rps_N) }{rps_N} \cdot T_{\text{interval}}
 ```
 
-For example, in a 6-decimal rps system, to stream 10e6 tokens, the corresponding $rps_{18}$ and $rps_6$ would be
-$0.000115740740740740$ and $0.000115$, respectively. And therefore, we can calculate the relative delay for a one day
-period as follows:
+In a 6-decimal `rps` system, for the `rps` values provided in the example [above](#10-per-day-example), we can calculate
+the relative delay over a one-day period as follows:
 
 ```math
 \text{relative\_delay}_6 = \frac{ (0.000115740740740740 - 0.000115)}{0.000115} \cdot 86400 \approx 556 \, \text{seconds}
@@ -31,8 +195,6 @@ Similarly, relative delays for other time intervals can be calculated:
 - 7 days: ~1 hour, 5 minutes
 - 30 days: ~4 hours, 38 minutes
 - 1 year: ~2 days, 8 hours
-
-Using an 18-decimal rps system would not cause relative delay to the streamed amount.
 
 ### Problem 2: Minimum Transferable Value
 
@@ -51,10 +213,10 @@ rectify, the above two problems.
 ## Delay due to Descaling (unlock interval)
 
 Even though `rps` is defined as an 18-decimal number, to properly transfer tokens, the amount calculated in the ongoing
-debt function must be descaled by dividing by $`10^{18 - N}`$. This means the function becomes:
+debt function must be descaled by dividing by $` sf = 10^{18 - N}`$. This means the [function](#1-ongoing-debt) becomes:
 
 ```math
-\text{od} = \frac{rps_{18} \cdot \text{elt}}{10^{18-N}}
+\text{od} = \frac{rps_{18} \cdot \text{elt}}{sf}
 ```
 
 Descaling, therefore, reintroduces the delay problem mentioned in the previous section, but to a much lesser extent, and
@@ -65,7 +227,7 @@ only when the following conditions are met:
 
 <!-- prettier-ignore -->
 > [!NOTE]
-> $2^{nd}$ condition is crucial in this problem.
+> 2nd condition is crucial in this problem.
 
 A simple example to demonstrate the issue is to choose an `rps` such that it is less than the `mvt`:
 `rps = 0.000000_011574e18` (i.e. ~ `0.000010e6` tokens / day).
@@ -86,9 +248,9 @@ Let us now calculate `unlock_interval` for the previous example:
 \left.
 \begin{aligned}
 
-\text{rps} &= 1.11574 \cdot 10^{-8} \cdot 10^{18} = 1.11574 \cdot 10^{10} \\
-\text{factor} &= 10^{18 - \text{decimals}} = 10^{12} \\
-\text{unlock\_interval} &= \frac{\text{factor}}{\text{rps}} \\
+rps &= 1.11574 \cdot 10^{-8} \cdot 10^{18} = 1.11574 \cdot 10^{10} \\
+sf &= 10^{18 - \text{decimals}} = 10^{12} \\
+\text{unlock\_interval} &= \frac{sf}{rps} \\
 
 \end{aligned}
 \right\}
@@ -241,9 +403,9 @@ In case 2, the snapshot time is updated to $(st + 172)$, which represents a maxi
 less than the unlock interval from its time range. In this case, the user would experience a delay of
 $`uis - 1 = \{85, 86\}`$.
 
-As a result, the ongoing debt function is shifted to the right, so that the unlock intervals occur in the same sequence
-as the initial ones. If the first unlock occurred after 87 seconds, after withdrawal, the next unlock will also occur
-after 87 seconds.
+As a result, the ongoing debt function is _shifted to the right_, so that the unlock intervals occur in the same
+sequence as the initial ones. If the first unlock occurred after 87 seconds, after withdrawal, the next unlock will also
+occur after 87 seconds.
 
 This is illustrated in the following graph, where the red line represents the ongoing debt before the withdrawal, and
 the green line represents the ongoing debt function after the withdrawal. Additionally, notice the green points, which
@@ -251,8 +413,8 @@ indicate the new unlocks.
 
 ```math
 \begin{align*}
-\text{withdraw\_time} + uis_1 &= 172 + 87 = 259 \\
-\text{withdraw\_time} + uis_2 &= 172 + 173 = 345
+\text{withdraw\_time} + uis_1 &= 172 + 87 &= 259 \\
+\text{withdraw\_time} + uis_2 &= 172 + 173 &= 345
 \end{align*}
 ```
 
