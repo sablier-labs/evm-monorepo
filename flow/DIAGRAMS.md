@@ -124,19 +124,6 @@ flowchart LR
     linkStyle 2,3,4,10,11 stroke:#ff0000,stroke-width:2px
 ```
 
-## Access Control
-
-| Action              |         Sender         | Recipient | Operator(s) |      Unknown User      |
-| ------------------- | :--------------------: | :-------: | :---------: | :--------------------: |
-| AdjustRatePerSecond |           ✅           |    ❌     |     ❌      |           ❌           |
-| Deposit             |           ✅           |    ✅     |     ✅      |           ✅           |
-| Pause               |           ✅           |    ❌     |     ❌      |           ❌           |
-| Refund              |           ✅           |    ❌     |     ❌      |           ❌           |
-| Restart             |           ✅           |    ❌     |     ❌      |           ❌           |
-| Transfer NFT        |           ❌           |    ✅     |     ✅      |           ❌           |
-| Void                |           ✅           |    ✅     |     ✅      |           ❌           |
-| Withdraw            | ✅ (only to Recipient) |    ✅     |     ✅      | ✅ (only to Recipient) |
-
 ### Internal State
 
 The

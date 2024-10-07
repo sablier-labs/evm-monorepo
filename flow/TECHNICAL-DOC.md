@@ -38,6 +38,19 @@ can only withdraw the available balance.
 | Total Debt                  | td            |
 | Uncovered Debt              | ud            |
 
+## Access Control
+
+| Action              |         Sender         | Recipient | Operator(s) |      Unknown User      |
+| ------------------- | :--------------------: | :-------: | :---------: | :--------------------: |
+| AdjustRatePerSecond |           ✅           |    ❌     |     ❌      |           ❌           |
+| Deposit             |           ✅           |    ✅     |     ✅      |           ✅           |
+| Pause               |           ✅           |    ❌     |     ❌      |           ❌           |
+| Refund              |           ✅           |    ❌     |     ❌      |           ❌           |
+| Restart             |           ✅           |    ❌     |     ❌      |           ❌           |
+| Transfer NFT        |           ❌           |    ✅     |     ✅      |           ❌           |
+| Void                |           ✅           |    ✅     |     ✅      |           ❌           |
+| Withdraw            | ✅ (only to Recipient) |    ✅     |     ✅      | ✅ (only to Recipient) |
+
 ## Invariants
 
 1. for any stream, $st \le now$

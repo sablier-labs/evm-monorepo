@@ -71,7 +71,7 @@ contract SablierFlow is
 
         uint128 snapshotDebt = _streams[streamId].snapshotDebt;
 
-        // If the stream has debt, return zero.
+        // If the stream has uncovered debt, return zero.
         if (snapshotDebt + _ongoingDebtOf(streamId) >= balance) {
             return 0;
         }
