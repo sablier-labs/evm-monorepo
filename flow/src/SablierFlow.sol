@@ -312,7 +312,6 @@ contract SablierFlow is
         override
         noDelegateCall
         notNull(streamId)
-        notVoided(streamId)
         onlySender(streamId)
         updateMetadata(streamId)
     {
@@ -703,24 +702,28 @@ contract SablierFlow is
         emit ISablierFlow.RestartFlowStream(streamId, msg.sender, ratePerSecond);
     }
 
-    /// @dev Voids a stream that has uncovered debt.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _void(uint256 streamId) internal {
-        uint128 debtToWriteOff = _uncoveredDebtOf(streamId);
-
-        // Check: the stream has debt.
-        if (debtToWriteOff == 0) {
-            revert Errors.SablierFlow_UncoveredDebtZero(streamId);
-        }
-
         // Check: `msg.sender` is either the stream's sender, recipient or an approved third party.
         if (msg.sender != _streams[streamId].sender && !_isCallerStreamRecipientOrApproved(streamId)) {
             revert Errors.SablierFlow_Unauthorized({ streamId: streamId, caller: msg.sender });
         }
 
-        uint128 balance = _streams[streamId].balance;
+        uint128 debtToWriteOff = _uncoveredDebtOf(streamId);
 
-        // Effect: update the total debt by setting snapshot debt to the stream balance.
-        _streams[streamId].snapshotDebt = balance;
+        // If the stream is solvent, update the total debt normally.
+        if (debtToWriteOff == 0) {
+            uint128 ongoingDebt = _ongoingDebtOf(streamId);
+            if (ongoingDebt > 0) {
+                // Effect: Update the snapshot debt by adding the ongoing debt.
+                _streams[streamId].snapshotDebt += ongoingDebt;
+            }
+        }
+        // If the stream is insolvent, write off the uncovered debt.
+        else {
+            // Effect: update the total debt by setting snapshot debt to the stream balance.
+            _streams[streamId].snapshotDebt = _streams[streamId].balance;
+        }
 
         // Effect: update the snapshot time.
         _streams[streamId].snapshotTime = uint40(block.timestamp);
@@ -737,7 +740,7 @@ contract SablierFlow is
             sender: _streams[streamId].sender,
             recipient: _ownerOf(streamId),
             caller: msg.sender,
-            newTotalDebt: balance,
+            newTotalDebt: _streams[streamId].snapshotDebt,
             writtenOffDebt: debtToWriteOff
         });
     }

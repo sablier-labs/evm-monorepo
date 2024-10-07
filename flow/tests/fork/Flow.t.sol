@@ -528,30 +528,15 @@ contract Flow_Fork_Test is Fork_Test {
         address sender = flow.getSender(streamId);
         address recipient = flow.getRecipient(streamId);
         uint128 uncoveredDebt = flow.uncoveredDebtOf(streamId);
+        uint128 expectedTotalDebt;
 
         resetPrank({ msgSender: sender });
 
-        if (uncoveredDebt == 0) {
-            if (flow.isPaused(streamId)) {
-                flow.restart(streamId, RATE_PER_SECOND);
-            }
-
-            // In case of a big depletion time, refund and withdraw all the funds, and then warp for one second. Warping
-            // too much in the future would affect the other tests.
-            uint128 refundableAmount = flow.refundableAmountOf(streamId);
-            if (refundableAmount > 0) {
-                // Refund and withdraw all the funds.
-                flow.refund(streamId, refundableAmount);
-            }
-            if (flow.coveredDebtOf(streamId) > 0) {
-                flow.withdrawMax(streamId, recipient);
-            }
-
-            vm.warp({ newTimestamp: getBlockTimestamp() + 100 seconds });
-            uncoveredDebt = flow.uncoveredDebtOf(streamId);
+        if (uncoveredDebt > 0) {
+            expectedTotalDebt = flow.getBalance(streamId);
+        } else {
+            expectedTotalDebt = flow.totalDebtOf(streamId);
         }
-
-        uint128 beforeVoidBalance = flow.getBalance(streamId);
 
         // It should emit 1 {VoidFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
@@ -560,7 +545,7 @@ contract Flow_Fork_Test is Fork_Test {
             recipient: recipient,
             sender: sender,
             caller: sender,
-            newTotalDebt: beforeVoidBalance,
+            newTotalDebt: expectedTotalDebt,
             writtenOffDebt: uncoveredDebt
         });
 
@@ -576,7 +561,7 @@ contract Flow_Fork_Test is Fork_Test {
         assertTrue(flow.isPaused(streamId), "Void: paused");
 
         // It should set the total debt to stream balance.
-        assertEq(flow.totalDebtOf(streamId), beforeVoidBalance, "Void: total debt");
+        assertEq(flow.totalDebtOf(streamId), expectedTotalDebt, "Void: total debt");
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -4,7 +4,6 @@ pragma solidity >=0.8.22;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
-import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -34,9 +33,22 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         expectRevert_Voided(callData);
     }
 
-    function test_RevertGiven_StreamHasNoUncoveredDebt() external whenNoDelegateCall givenNotNull givenNotVoided {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_UncoveredDebtZero.selector, defaultStreamId));
-        flow.void(defaultStreamId);
+    function test_RevertWhen_CallerNotAuthorized() external whenNoDelegateCall givenNotNull givenNotVoided {
+        bytes memory callData = abi.encodeCall(flow.void, (defaultStreamId));
+        expectRevert_CallerMaliciousThirdParty(callData);
+    }
+
+    function test_GivenStreamHasNoUncoveredDebt()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotVoided
+        whenCallerAuthorized
+    {
+        // It should void the stream.
+        // It should set the rate per second to zero.
+        // It should not change the total debt.
+        _test_Void(users.recipient);
     }
 
     modifier givenStreamHasUncoveredDebt() {
@@ -46,29 +58,20 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         _;
     }
 
-    function test_RevertWhen_CallerNotAuthorized()
-        external
-        whenNoDelegateCall
-        givenNotNull
-        givenNotVoided
-        givenStreamHasUncoveredDebt
-    {
-        bytes memory callData = abi.encodeCall(flow.void, (defaultStreamId));
-        expectRevert_CallerMaliciousThirdParty(callData);
-    }
-
     function test_WhenCallerSender()
         external
         whenNoDelegateCall
         givenNotNull
         givenNotVoided
-        givenStreamHasUncoveredDebt
         whenCallerAuthorized
+        givenStreamHasUncoveredDebt
     {
         // Make the sender the caller in this test.
         resetPrank({ msgSender: users.sender });
 
         // It should void the stream.
+        // It should set the rate per second to zero.
+        // It should update the total debt to stream balance.
         _test_Void(users.sender);
     }
 
@@ -77,8 +80,8 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         whenNoDelegateCall
         givenNotNull
         givenNotVoided
-        givenStreamHasUncoveredDebt
         whenCallerAuthorized
+        givenStreamHasUncoveredDebt
     {
         // Approve the operator to handle the stream.
         flow.approve({ to: users.operator, tokenId: defaultStreamId });
@@ -87,6 +90,8 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         resetPrank({ msgSender: users.operator });
 
         // It should void the stream.
+        // It should set the rate per second to zero.
+        // It should update the total debt to stream balance.
         _test_Void(users.operator);
     }
 
@@ -95,16 +100,26 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         whenNoDelegateCall
         givenNotNull
         givenNotVoided
-        givenStreamHasUncoveredDebt
         whenCallerAuthorized
+        givenStreamHasUncoveredDebt
     {
         // It should void the stream.
+        // It should set the rate per second to zero.
+        // It should update the total debt to stream balance.
         _test_Void(users.recipient);
     }
 
     function _test_Void(address caller) private {
-        uint128 streamBalance = flow.getBalance(defaultStreamId);
+        uint128 expectedTotalDebt;
         uint128 uncoveredDebt = flow.uncoveredDebtOf(defaultStreamId);
+
+        if (uncoveredDebt > 0) {
+            // Expect the total debt to be stream balance if there is uncovered debt.
+            expectedTotalDebt = flow.getBalance(defaultStreamId);
+        } else {
+            // Otherwise, expect the total debt to remain the same.
+            expectedTotalDebt = flow.totalDebtOf(defaultStreamId);
+        }
 
         // It should emit 1 {VoidFlowStream} and 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
@@ -113,7 +128,7 @@ contract Void_Integration_Concrete_Test is Integration_Test {
             recipient: users.recipient,
             sender: users.sender,
             caller: caller,
-            newTotalDebt: streamBalance,
+            newTotalDebt: expectedTotalDebt,
             writtenOffDebt: uncoveredDebt
         });
 
@@ -131,7 +146,10 @@ contract Void_Integration_Concrete_Test is Integration_Test {
         // It should void the stream.
         assertTrue(flow.isVoided(defaultStreamId), "voided");
 
-        // It should set the total debt to the stream balance.
-        assertEq(flow.totalDebtOf(defaultStreamId), streamBalance, "total debt");
+        // Check the new total debt.
+        assertEq(flow.totalDebtOf(defaultStreamId), expectedTotalDebt, "total debt");
+
+        // Check the new snapshot time.
+        assertEq(flow.getSnapshotTime(defaultStreamId), getBlockTimestamp(), "snapshot time");
     }
 }

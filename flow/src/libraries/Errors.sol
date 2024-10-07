@@ -69,9 +69,6 @@ library Errors {
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierFlow_Unauthorized(uint256 streamId, address caller);
 
-    /// @notice Thrown when voiding a stream with zero uncovered debt.
-    error SablierFlow_UncoveredDebtZero(uint256 streamId);
-
     /// @notice Thrown when trying to withdraw to an address other than the recipient's.
     error SablierFlow_WithdrawalAddressNotRecipient(uint256 streamId, address caller, address to);
 

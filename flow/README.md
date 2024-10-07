@@ -28,8 +28,8 @@ premiums, loans interest, token ESOPs etc. If you are looking for vesting and ai
 3. **Pause:** A stream can be paused by the sender and can later be restarted without losing track of previously accrued
    debt.
 4. **Refund:** Unstreamed amount can be refunded back to the sender at any time.
-5. **Void:** Voiding a stream forfeits the uncovered debt and, thus, cannot be restarted anymore. Only streams with
-   non-zero uncovered debt can be voided by any part (either the sender or the recipient).
+5. **Void:** Voiding a stream implies it cannot be restarted anymore. Voiding an insolvent stream forfeits the uncovered
+   debt. Either party can void a stream at any time.
 6. **Withdraw:** it is publicly callable as long as `to` is set to the recipient. However, a stream’s recipient is
    allowed to withdraw funds to any address.
 

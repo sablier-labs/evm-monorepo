@@ -27,40 +27,17 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(callData);
     }
 
-    function test_RevertGiven_Voided() external whenNoDelegateCall givenNotNull {
-        bytes memory callData = abi.encodeCall(flow.refund, (defaultStreamId, REFUND_AMOUNT_6D));
-        expectRevert_Voided(callData);
-    }
-
-    function test_RevertWhen_CallerRecipient()
-        external
-        whenNoDelegateCall
-        givenNotNull
-        givenNotVoided
-        whenCallerNotSender
-    {
+    function test_RevertWhen_CallerRecipient() external whenNoDelegateCall givenNotNull whenCallerNotSender {
         bytes memory callData = abi.encodeCall(flow.refund, (defaultStreamId, REFUND_AMOUNT_6D));
         expectRevert_CallerRecipient(callData);
     }
 
-    function test_RevertWhen_CallerMaliciousThirdParty()
-        external
-        whenNoDelegateCall
-        givenNotNull
-        givenNotVoided
-        whenCallerNotSender
-    {
+    function test_RevertWhen_CallerMaliciousThirdParty() external whenNoDelegateCall givenNotNull whenCallerNotSender {
         bytes memory callData = abi.encodeCall(flow.refund, (defaultStreamId, REFUND_AMOUNT_6D));
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
-    function test_RevertWhen_RefundAmountZero()
-        external
-        whenNoDelegateCall
-        givenNotNull
-        givenNotVoided
-        whenCallerSender
-    {
+    function test_RevertWhen_RefundAmountZero() external whenNoDelegateCall givenNotNull whenCallerSender {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_RefundAmountZero.selector, defaultStreamId));
         flow.refund({ streamId: defaultStreamId, amount: 0 });
     }
@@ -69,7 +46,6 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
-        givenNotVoided
         whenCallerSender
         whenRefundAmountNotZero
     {
@@ -88,7 +64,6 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
-        givenNotVoided
         whenCallerSender
         whenRefundAmountNotZero
         whenNoOverRefund
@@ -108,7 +83,6 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
-        givenNotVoided
         whenCallerSender
         whenRefundAmountNotZero
         whenNoOverRefund
@@ -130,7 +104,6 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
-        givenNotVoided
         whenCallerSender
         whenRefundAmountNotZero
         whenNoOverRefund
@@ -150,7 +123,6 @@ contract Refund_Integration_Concrete_Test is Integration_Test {
         external
         whenNoDelegateCall
         givenNotNull
-        givenNotVoided
         whenCallerSender
         whenRefundAmountNotZero
         whenNoOverRefund

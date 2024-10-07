@@ -8,12 +8,14 @@ Void_Integration_Concrete_Test
       ├── given voided
       │  └── it should revert
       └── given not voided
-         ├── given stream has no uncovered debt
+         ├── when caller not authorized
          │  └── it should revert
-         └── given stream has uncovered debt
-            ├── when caller not authorized
-            │  └── it should revert
-            └── when caller authorized
+         └── when caller authorized
+            ├── given stream has no uncovered debt
+            │  ├── it should void the stream
+            │  ├── it should set the rate per second to zero
+            │  └── it should not change the total debt
+            └── given stream has uncovered debt
                ├── when caller sender
                │  └── it should void the stream
                ├── when caller approved third party

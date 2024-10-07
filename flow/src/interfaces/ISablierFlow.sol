@@ -16,12 +16,12 @@ interface ISablierFlow is
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the payment rate per second is updated by the sender.
+    /// @notice Emitted when the rate per second is updated by the sender.
     /// @param streamId The ID of the stream.
     /// @param totalDebt The total debt at the time of the update, denoted in token's decimals.
-    /// @param oldRatePerSecond The old payment rate per second, denoted as a fixed-point number where 1e18 is 1 token
+    /// @param oldRatePerSecond The old rate per second, denoted as a fixed-point number where 1e18 is 1 token
     /// per second.
-    /// @param newRatePerSecond The new payment rate per second, denoted as a fixed-point number where 1e18 is 1 token
+    /// @param newRatePerSecond The new rate per second, denoted as a fixed-point number where 1e18 is 1 token
     /// per second.
     event AdjustFlowStream(
         uint256 indexed streamId, uint128 totalDebt, UD21x18 oldRatePerSecond, UD21x18 newRatePerSecond
@@ -157,7 +157,7 @@ interface ISablierFlow is
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Changes the stream's payment rate per second.
+    /// @notice Changes the stream's rate per second.
     ///
     /// @dev Emits an {AdjustFlowStream} and {MetadataUpdate} event.
     ///
@@ -171,7 +171,7 @@ interface ISablierFlow is
     /// - `newRatePerSecond` must not equal to the current rate per second.
     ///
     /// @param streamId The ID of the stream to adjust.
-    /// @param newRatePerSecond The new payment rate per second, denoted as a fixed-point number where 1e18 is 1 token
+    /// @param newRatePerSecond The new rate per second, denoted as a fixed-point number where 1e18 is 1 token
     /// per second.
     function adjustRatePerSecond(uint256 streamId, UD21x18 newRatePerSecond) external;
 
@@ -306,7 +306,7 @@ interface ISablierFlow is
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null or a voided stream.
+    /// - `streamId` must not reference a null stream.
     /// - `msg.sender` must be the sender.
     /// - `amount` must be greater than zero and must not exceed the refundable amount.
     ///
@@ -364,21 +364,22 @@ interface ISablierFlow is
     /// @param amount The deposit amount, denoted in token's decimals.
     function restartAndDeposit(uint256 streamId, UD21x18 ratePerSecond, uint128 amount) external;
 
-    /// @notice Voids the uncovered debt, and ends the stream.
+    /// @notice Voids a stream.
     ///
     /// @dev Emits a {VoidFlowStream} event.
     ///
     /// Notes:
-    /// - It sets the snapshot debt to the stream's balance so that the uncovered debt becomes zero.
-    /// - It sets the payment rate per second to zero.
-    /// - A paused stream can be voided only if its uncovered debt is not zero.
+    /// - It sets snapshot time to the `block.timestamp`
+    /// - Voiding an insolvent stream sets the snapshot debt to the stream's balance making the uncovered debt to become
+    /// zero.
+    /// - Voiding a solvent stream updates the snapshot debt by adding up ongoing debt.
+    /// - It sets the rate per second to zero.
     /// - A voided stream cannot be restarted.
     ///
     /// Requirements:
     /// - Must not be delegate called.
     /// - `streamId` must not reference a null or a voided stream.
     /// - `msg.sender` must either be the stream's sender, recipient or an approved third party.
-    /// - The uncovered debt must be greater than zero.
     ///
     /// @param streamId The ID of the stream to void.
     function void(uint256 streamId) external;

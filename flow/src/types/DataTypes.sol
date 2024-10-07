@@ -51,8 +51,8 @@ library Flow {
     /// @param snapshotTime The Unix timestamp used for the ongoing debt calculation.
     /// @param isStream Boolean indicating if the struct entity exists.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
-    /// @param isVoided Boolean indicating if the stream is voided. Voiding a stream is a non reversible step. When a
-    /// stream is voided, its uncovered debt is set to zero and it can not be restarted.
+    /// @param isVoided Boolean indicating if the stream is voided. Voiding any stream is non-reversible and it cannot
+    /// be restarted. Voiding an insolvent stream sets its uncovered debt to zero.
     /// @param token The contract address of the ERC-20 token to stream.
     /// @param tokenDecimals The decimals of the ERC-20 token to stream.
     /// @param snapshotDebt The amount of tokens that the sender owed to the recipient at snapshot time, denoted in

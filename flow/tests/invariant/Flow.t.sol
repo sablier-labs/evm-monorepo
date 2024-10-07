@@ -318,18 +318,13 @@ contract Flow_Invariant_Test is Base_Test {
         }
     }
 
-    /// @dev If the stream is voided, it should be paused, and refundable amount and uncovered debt should be zero.
+    /// @dev If the stream is voided, it should be paused, and uncovered debt should be zero.
     function invariant_StreamVoided_StreamPaused_RefundableAmountZero_UncoveredDebtZero() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
             if (flow.isVoided(streamId)) {
                 assertTrue(flow.isPaused(streamId), "Invariant violation: voided stream is not paused");
-                assertEq(
-                    flow.refundableAmountOf(streamId),
-                    0,
-                    "Invariant violation: voided stream with non-zero refundable amount"
-                );
                 assertEq(
                     flow.uncoveredDebtOf(streamId), 0, "Invariant violation: voided stream with non-zero uncovered debt"
                 );

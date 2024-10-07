@@ -73,11 +73,14 @@ contract Flow_Gas_Test is Integration_Test {
         // {flow.restart}
         computeGas("restart", abi.encodeCall(flow.restart, (streamId, RATE_PER_SECOND)));
 
-        // Warp time to accrue uncovered debt for the next call.
-        vm.warp(flow.depletionTimeOf(streamId) + 2 days);
+        // {flow.void} (on a solvent stream)
+        computeGas("void (solvent stream)", abi.encodeCall(flow.void, (streamId)));
 
-        // {flow.void}
-        computeGas("void", abi.encodeCall(flow.void, (streamId)));
+        // Warp time to accrue uncovered debt for the next call on an incremented stream ID..
+        vm.warp(flow.depletionTimeOf(++streamId) + 2 days);
+
+        // {flow.void} (on an insolvent stream)
+        computeGas("void (insolvent stream)", abi.encodeCall(flow.void, (streamId)));
 
         // {flow.withdraw} (on an insolvent stream) on an incremented stream ID.
         computeGas(

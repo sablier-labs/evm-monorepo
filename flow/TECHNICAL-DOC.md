@@ -76,7 +76,7 @@ can only withdraw the available balance.
 
 15. if $isPaused = true \implies rps = 0$
 
-16. if $isVoided = true \implies isPaused = true$, $ra = 0$ and $ud = 0$
+16. if $isVoided = true \implies isPaused = true$ and $ud = 0$
 
 17. if $isVoided = false \implies \text{amount streamed with delay} = td + \text{amount withdrawn}$.
 

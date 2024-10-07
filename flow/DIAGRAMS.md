@@ -7,13 +7,13 @@
 
 There are two types of streams: `STREAMING`, when debt is actively accruing, and `PAUSED`, when debt is not accruing:
 
-| Type        | Status                | Description                                                             |
-| ----------- | --------------------- | ----------------------------------------------------------------------- |
-| `STREAMING` | `STREAMING_SOLVENT`   | Streaming stream when there is no uncovered debt.                       |
-| `STREAMING` | `STREAMING_INSOLVENT` | Streaming stream when there is uncovered debt.                          |
-| `PAUSED`    | `PAUSED_SOLVENT`      | Paused stream when there is no uncovered debt.                          |
-| `PAUSED`    | `PAUSED_INSOLVENT`    | Paused stream when there is uncovered debt.                             |
-| `PAUSED`    | `VOIDED`              | Paused stream with forfeited uncovered debt and it cannot be restarted. |
+| Type        | Status                | Description                                                                             |
+| ----------- | --------------------- | --------------------------------------------------------------------------------------- |
+| `STREAMING` | `STREAMING_SOLVENT`   | Streaming stream when there is no uncovered debt.                                       |
+| `STREAMING` | `STREAMING_INSOLVENT` | Streaming stream when there is uncovered debt.                                          |
+| `PAUSED`    | `PAUSED_SOLVENT`      | Paused stream when there is no uncovered debt.                                          |
+| `PAUSED`    | `PAUSED_INSOLVENT`    | Paused stream when there is uncovered debt.                                             |
+| `PAUSED`    | `VOIDED`              | Paused stream that cannot be restarted. Sets uncovered debt to 0 for insolvent streams. |
 
 ### Statuses diagram
 
@@ -25,43 +25,42 @@ stateDiagram-v2
     direction LR
 
     state Streaming {
+        direction LR
         STREAMING_SOLVENT
         STREAMING_INSOLVENT --> STREAMING_SOLVENT : deposit
         STREAMING_SOLVENT --> STREAMING_INSOLVENT : time
     }
 
     state Paused {
-        # direction BT
+        direction RL
         PAUSED_SOLVENT
-        PAUSED_INSOLVENT
         PAUSED_INSOLVENT --> PAUSED_SOLVENT : deposit
-        PAUSED_INSOLVENT --> VOIDED : void
-        VOIDED
+        PAUSED_INSOLVENT
     }
 
-    STREAMING_SOLVENT --> PAUSED_SOLVENT : pause
-    STREAMING_INSOLVENT --> PAUSED_INSOLVENT : pause
-    PAUSED_SOLVENT --> STREAMING_SOLVENT : restart
-    STREAMING_INSOLVENT --> VOIDED : void
-    PAUSED_INSOLVENT --> STREAMING_INSOLVENT : restart
+    Streaming --> Paused : pause
+    Paused --> Streaming : restart
+    Paused --> VOIDED : void
+    Streaming --> VOIDED : void
 
-    NULL --> STREAMING_SOLVENT : create (rps > 0)
-    NULL --> PAUSED_SOLVENT : create (rps = 0)
+    NULL --> Streaming : create (rps > 0)
+    NULL --> Paused : create (rps = 0)
 
     NULL:::grey
-    Streaming:::lightGreen
     Paused:::lightYellow
-    STREAMING_SOLVENT:::intenseGreen
-    STREAMING_INSOLVENT:::intenseGreen
     PAUSED_INSOLVENT:::intenseYellow
     PAUSED_SOLVENT:::intenseYellow
-    VOIDED:::intenseYellow
+    Streaming:::lightGreen
+    STREAMING_INSOLVENT:::intenseGreen
+    STREAMING_SOLVENT:::intenseGreen
+    VOIDED:::red
 
     classDef grey fill:#b0b0b0,stroke:#333,stroke-width:2px,color:#000,font-weight:bold;
-    classDef lightGreen fill:#98FB98,color:#000,font-weight:bold;
     classDef intenseGreen fill:#32cd32,stroke:#333,stroke-width:2px,color:#000,font-weight:bold;
-    classDef lightYellow fill:#ffff99,color:#000,font-weight:bold;
     classDef intenseYellow fill:#ffd700,color:#000,font-weight:bold;
+    classDef lightGreen fill:#98FB98,color:#000,font-weight:bold;
+    classDef lightYellow fill:#ffff99,color:#000,font-weight:bold;
+    classDef red fill:#ff4e4e,stroke:#333,stroke-width:2px;
 ```
 
 ### Function calls
@@ -86,10 +85,10 @@ flowchart LR
         CR([CREATE])
         ADJRPS([ADJUST_RPS])
         DP([DEPOSIT])
-        RFD([REFUND])
         PS([PAUSE])
         RST([RESTART])
         VD([VOID])
+        RFD([REFUND])
         WTD([WITHDRAW])
     end
 
@@ -109,6 +108,7 @@ flowchart LR
     DP -- "update bal (+)" --> BOTH
 
     RFD -- "update bal (-)" --> BOTH
+    RFD -- "update bal (-)" --> VOID
 
     PS -- "update sd (+od)<br/>update rps (0)<br/>update st" --> STR
 
@@ -116,12 +116,12 @@ flowchart LR
 
     RST -- "update rps<br/>update st" --> PSED
 
-    VD -- "update sd (bal)<br/>update rps (0)<br/>update st" --> BOTH
+    VD -- "update sd (bal || +od)<br/>update rps (0)<br/>update st" --> BOTH
 
     WTD -- "update sd (-)<br/>update st<br/>update bal (-)" --> BOTH
     WTD -- "update sd (-)" --> VOID
 
-    linkStyle 2,3,9,10 stroke:#ff0000,stroke-width:2px
+    linkStyle 2,3,4,10,11 stroke:#ff0000,stroke-width:2px
 ```
 
 ## Access Control
@@ -211,7 +211,7 @@ classDef green1 fill:#32cd32,stroke:#333,stroke-width:2px;
 flowchart TD
     di0{ }:::red1
     sd([Uncovered Debt - ud]):::red0
-    res_sd(["td- bal"]):::red1
+    res_sd(["td - bal"]):::red1
     res_zero([0]):::red1
 
     sd --> di0

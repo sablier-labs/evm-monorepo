@@ -183,9 +183,6 @@ contract FlowHandler is BaseHandler {
         updateFlowHandlerStates
         instrument(currentStreamId, "refund")
     {
-        // Voided streams cannot be refunded.
-        vm.assume(!flow.isVoided(currentStreamId));
-
         uint128 refundableAmount = flow.refundableAmountOf(currentStreamId);
 
         // The protocol doesn't allow zero refund amounts.
@@ -250,9 +247,6 @@ contract FlowHandler is BaseHandler {
     {
         // Voided streams cannot be voided again.
         vm.assume(!flow.isVoided(currentStreamId));
-
-        // Check if the uncovered debt is greater than zero.
-        vm.assume(flow.uncoveredDebtOf(currentStreamId) > 0);
 
         // Void the stream.
         flow.void(currentStreamId);

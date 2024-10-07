@@ -4,12 +4,15 @@ pragma solidity >=0.8.22;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
-import { Errors } from "src/libraries/Errors.sol";
 
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
 contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// @dev It should revert.
+    /// - It should pause the stream.
+    /// - It should set rate per second to 0.
+    /// - It should set ongoing debt to 0 and keep the total debt unchanged.
+    /// - It should emit the following events: {MetadataUpdate}, {VoidFlowStream}
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Only two values for caller (stream owner and approved operator).
@@ -36,9 +39,6 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Prank to either recipient or operator.
         resetPrank({ msgSender: useRecipientOrOperator(streamId, timeJump) });
-
-        // Expect the relevant error.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_UncoveredDebtZero.selector, streamId));
 
         // Void the stream.
         flow.void(streamId);
@@ -123,6 +123,15 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     // Shared private function.
     function _test_Void(address caller, uint256 streamId) private {
         uint128 debtToWriteOff = flow.uncoveredDebtOf(streamId);
+        uint128 expectedTotalDebt;
+
+        if (debtToWriteOff > 0) {
+            // Expect the total debt to be the stream balance if there is uncovered debt.
+            expectedTotalDebt = flow.getBalance(streamId);
+        } else {
+            // Otherwise, expect the total debt to remain same.
+            expectedTotalDebt = flow.totalDebtOf(streamId);
+        }
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(flow) });
@@ -131,7 +140,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             recipient: users.recipient,
             sender: users.sender,
             caller: caller,
-            newTotalDebt: flow.getBalance(streamId),
+            newTotalDebt: expectedTotalDebt,
             writtenOffDebt: debtToWriteOff
         });
 
@@ -142,11 +151,11 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         flow.void(streamId);
 
         // Assert the checklist.
+        assertTrue(flow.isVoided(streamId), "voided");
         assertTrue(flow.isPaused(streamId), "paused");
         assertEq(flow.getRatePerSecond(streamId), 0, "rate per second");
         assertEq(flow.ongoingDebtOf(streamId), 0, "ongoing debt");
         assertEq(flow.uncoveredDebtOf(streamId), 0, "uncovered debt");
-        assertEq(flow.totalDebtOf(streamId), flow.getBalance(streamId), "total debt");
-        assertEq(flow.totalDebtOf(streamId), depositedAmount);
+        assertEq(flow.totalDebtOf(streamId), expectedTotalDebt, "total debt");
     }
 }
