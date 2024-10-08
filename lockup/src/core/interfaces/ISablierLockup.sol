@@ -325,7 +325,7 @@ interface ISablierLockup is
     /// - Refer to the notes in {withdraw}.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the stream's recipient.
+    /// - `msg.sender` must be either the NFT owner or an approved third party.
     /// - Refer to the requirements in {withdraw}.
     /// - Refer to the requirements in {IERC721.transferFrom}.
     ///

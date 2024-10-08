@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
@@ -41,10 +42,8 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         // Burn the NFT.
         lockup.burn({ streamId: defaultStreamId });
 
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, defaultStreamId, users.recipient)
-        );
+        // Run the test.
+        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, defaultStreamId));
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
     }
 
@@ -82,6 +81,53 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, defaultStreamId, users.eve));
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.eve });
+    }
+
+    function test_WhenCallerApprovedThirdParty()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenTransferableStream
+        givenNotBurnedNFT
+        givenNonZeroWithdrawableAmount
+    {
+        // Approve the operator to handle the stream.
+        lockup.approve({ to: users.operator, tokenId: defaultStreamId });
+
+        // Make the operator the caller in this test.
+        resetPrank({ msgSender: users.operator });
+
+        // Simulate the passage of time.
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
+
+        // Get the withdraw amount.
+        uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(defaultStreamId);
+
+        // Expect the assets to be transferred to the Recipient.
+        expectCallToTransfer({ to: users.recipient, value: expectedWithdrawnAmount });
+
+        // It should emit {Transfer} and {WithdrawFromLockupStream} events.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit WithdrawFromLockupStream({
+            streamId: defaultStreamId,
+            to: users.recipient,
+            amount: expectedWithdrawnAmount,
+            asset: dai
+        });
+        vm.expectEmit({ emitter: address(lockup) });
+        emit Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
+
+        // Make the max withdrawal and transfer the NFT.
+        uint128 actualWithdrawnAmount =
+            lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
+
+        // Assert that the withdrawn amount has been updated.
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the operator is the new stream recipient (and NFT owner).
+        address actualRecipient = lockup.getRecipient(defaultStreamId);
+        address expectedRecipient = users.alice;
+        assertEq(actualRecipient, expectedRecipient, "recipient");
     }
 
     function test_WhenCallerCurrentRecipient()
