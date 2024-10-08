@@ -33,6 +33,12 @@ $ bun install
 $ bun run build
 ```
 
+Switch to the `staging` branch, where all development work should be done:
+
+```shell
+$ git switch staging
+```
+
 Now you can start making changes.
 
 To see a list of all available scripts:
@@ -45,6 +51,7 @@ $ bun run
 
 When making a pull request, ensure that:
 
+- The base branch is `staging`.
 - All tests pass.
   - Fork testing requires environment variables to be set up in the forked repo.
 - Code coverage remains the same or greater.
