@@ -51,12 +51,11 @@ it must adhere to the following assumptions:
 - An address' ERC-20 balance can only change as a result of a `transfer` call by the sender or a `transferFrom` call by
   an approved address. This excludes rebase tokens and interest-bearing tokens.
 - The token contract does not allow callbacks (e.g. ERC-777 is not supported).
-- As explained in [Technical Documentation](https://github.com/sablier-labs/flow/blob/main/TECHNICAL-DOC.md), there
-  could be delays in streamed amounts if `rps` is extremely small. The definition of "extremely small rps" is subjective
-  and depends on the token decimals and its dollar value. For example, a streams of USDC less than 50 USDC per month
-  would be considered to have extremely small `rps`, but for WBTC, it would be defined as a value that streams less than
-  0.001 WBTC a month. Any `rps` value that takes more than 1 second to stream 1 unit of token is also considered
-  extremely small.
+- As explained in the [Technical Documentation](https://github.com/sablier-labs/flow/blob/main/TECHNICAL-DOC.md), there
+  can be delays in streamed amounts if the `rps` is extremely small. The definition of "extremely small rps" is relative
+  to the token's decimals and dollar value. For example, streaming less than 50 USDC per month would be considered to
+  have an extremely small rps. For WBTC, that would amount to something like 0.001 WBTC a month. More generally, any rps
+  that takes more than 1 second to stream 1 wei of the token is considered extremely small.
 
 ### Rewards
 
