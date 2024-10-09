@@ -53,7 +53,10 @@ When making a pull request, ensure that:
 
 - The base branch is `staging`.
 - All tests pass.
-  - Fork testing requires environment variables to be set up in the forked repo.
+- Concrete tests are generated using Bulloak and the Branching Tree Technique (BTT).
+  - You can learn more about this on the [Bulloak website](https://bulloak.dev).
+  - If you modify a test tree, use this command to generate the corresponding test contract that complies with BTT:
+    `bulloak scaffold -wf /path/to/file.tree`
 - Code coverage remains the same or greater.
 - All new code adheres to the style guide:
   - All lint checks pass.
