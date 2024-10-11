@@ -6,6 +6,7 @@
     { access = "read", path = "./out-optimized" },
     { access = "read", path = "package.json" },
     { access = "read-write", path = "./benchmark/results" },
+    { access = "read-write", path = "./script/protocol"}
   ]
   gas_limit = 9223372036854775807
   optimizer = true
@@ -88,22 +89,16 @@
   avalanche = { key = "${SNOWTRACE_API_KEY}" }
   base = { key = "${BASESCAN_API_KEY}" }
   base_sepolia = { key = "${BASESCAN_API_KEY}" }
-  berachain_artio = { key = "verifyContract", url = "https://api.routescan.io/v2/network/testnet/evm/80085/etherscan" }
   bnb = { key = "${BSCSCAN_API_KEY}" }
   gnosis = { key = "${GNOSISSCAN_API_KEY}" }
   linea = { key = "${LINEASCAN_API_KEY}" }
   linea_sepolia = { key = "${LINEASCAN_API_KEY}" }
   mainnet = { key = "${ETHERSCAN_API_KEY}" }
-  mode = { key = "verifyContract", url = "https://explorer.mode.network/api?" }
-  mode_sepolia = { key = "verifyContract", url = "https://sepolia.explorer.mode.network/api?" }
   optimism = { key = "${OPTIMISTIC_API_KEY}" }
   optimism_sepolia = { key = "${OPTIMISTIC_API_KEY}" }
   polygon = { key = "${POLYGONSCAN_API_KEY}" }
   scroll = { key = "${SCROLLSCAN_API_KEY}" }
-  sei = { key = "verifyContract", url = "https://seitrace/pacific-1/api?" }
-  sei_testnet = { key = "verifyContract", url = "https://blockscout.com/poa/core/api?" }
   sepolia = { key = "${SEPOLIASCAN_KEY}" }
-  taiko_hekla = { key = "verifyContract", url = "https://blockscoutapi.hekla.taiko.xyz/api?" }
   taiko_mainnet = { key = "${TAIKO_MAINNET_API_KEY}" }
   
 [fmt]

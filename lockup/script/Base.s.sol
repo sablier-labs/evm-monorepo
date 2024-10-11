@@ -72,14 +72,18 @@ contract BaseScript is Script {
     ///
     /// Notes:
     /// - The salt format is "ChainID <chainid>, Version <version>".
-    /// - The version is obtained from `package.json`.
     function constructCreate2Salt() public view returns (bytes32) {
         string memory chainId = block.chainid.toString();
-        string memory json = vm.readFile("package.json");
-        string memory version = json.readString(".version");
+        string memory version = getVersion();
         string memory create2Salt = string.concat("ChainID ", chainId, ", Version ", version);
         console2.log("The CREATE2 salt is \"%s\"", create2Salt);
         return bytes32(abi.encodePacked(create2Salt));
+    }
+
+    /// @dev The version is obtained from `package.json`.
+    function getVersion() internal view returns (string memory) {
+        string memory json = vm.readFile("package.json");
+        return json.readString(".version");
     }
 
     /// @dev Populates the segment & tranche count map. Values can be updated using the `update-counts.sh` script.
