@@ -33,7 +33,7 @@ contract DepletionTimeOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
         // Assert that depletion time equals expected value.
-        uint40 actualDepletionTime = flow.depletionTimeOf(streamId);
+        uint256 actualDepletionTime = flow.depletionTimeOf(streamId);
         if (getBlockTimestamp() > OCT_1_2024 + solvencyPeriod) {
             assertEq(actualDepletionTime, 0, "depletion time");
 

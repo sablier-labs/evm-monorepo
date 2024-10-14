@@ -183,7 +183,7 @@ contract FlowHandler is BaseHandler {
         updateFlowHandlerStates
         instrument(currentStreamId, "refund")
     {
-        uint128 refundableAmount = flow.refundableAmountOf(currentStreamId);
+        uint256 refundableAmount = flow.refundableAmountOf(currentStreamId);
 
         // The protocol doesn't allow zero refund amounts.
         vm.assume(refundableAmount > 0);

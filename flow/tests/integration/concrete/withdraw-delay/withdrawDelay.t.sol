@@ -96,9 +96,9 @@ contract WithdrawDelay_Integration_Concrete_Test is Integration_Test {
             vm.warp(getBlockTimestamp() + 1 days - 10);
 
             // Find the time when the ongoing debt has increased by 38
-            uint128 diff;
+            uint256 diff;
             while (diff != 39) {
-                uint128 beforeWarpOd = flow.ongoingDebtOf(streamId);
+                uint256 beforeWarpOd = flow.ongoingDebtOf(streamId);
                 vm.warp(getBlockTimestamp() + 1 seconds);
                 diff = flow.ongoingDebtOf(streamId) - beforeWarpOd;
             }

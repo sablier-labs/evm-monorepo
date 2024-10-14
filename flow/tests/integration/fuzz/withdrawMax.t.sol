@@ -86,11 +86,11 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     function _test_WithdrawMax(address caller, address withdrawTo, uint256 streamId) private {
         // If the withdrawable amount is still zero, warp closely to depletion time.
         if (flow.withdrawableAmountOf(streamId) == 0) {
-            vm.warp({ newTimestamp: flow.depletionTimeOf(streamId) - 1 });
+            vm.warp({ newTimestamp: uint40(flow.depletionTimeOf(streamId)) - 1 });
         }
 
         uint256 previousAggregateAmount = flow.aggregateBalance(token);
-        uint128 totalDebt = flow.totalDebtOf(streamId);
+        uint256 totalDebt = flow.totalDebtOf(streamId);
         uint256 tokenBalance = token.balanceOf(address(flow));
         uint128 streamBalance = flow.getBalance(streamId);
 
@@ -124,8 +124,8 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         assertEq(flow.getSnapshotTime(streamId), expectedSnapshotTime, "snapshot time");
 
         // It should decrease the total debt by the withdrawn value.
-        uint128 actualTotalDebt = flow.totalDebtOf(streamId);
-        uint128 expectedTotalDebt = totalDebt - withdrawAmount;
+        uint256 actualTotalDebt = flow.totalDebtOf(streamId);
+        uint256 expectedTotalDebt = totalDebt - withdrawAmount;
         assertEq(actualTotalDebt, expectedTotalDebt, "total debt");
 
         // It should reduce the stream balance by the withdrawn amount.

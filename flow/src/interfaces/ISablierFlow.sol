@@ -24,7 +24,7 @@ interface ISablierFlow is
     /// @param newRatePerSecond The new rate per second, denoted as a fixed-point number where 1e18 is 1 token
     /// per second.
     event AdjustFlowStream(
-        uint256 indexed streamId, uint128 totalDebt, UD21x18 oldRatePerSecond, UD21x18 newRatePerSecond
+        uint256 indexed streamId, uint256 totalDebt, UD21x18 oldRatePerSecond, UD21x18 newRatePerSecond
     );
 
     /// @notice Emitted when a Flow stream is created.
@@ -56,7 +56,7 @@ interface ISablierFlow is
     /// @param recipient The address of the stream's recipient.
     /// @param totalDebt The amount of tokens owed by the sender to the recipient, denoted in token's decimals.
     event PauseFlowStream(
-        uint256 indexed streamId, address indexed sender, address indexed recipient, uint128 totalDebt
+        uint256 indexed streamId, address indexed sender, address indexed recipient, uint256 totalDebt
     );
 
     /// @notice Emitted when a sender is refunded from a stream.
@@ -84,8 +84,8 @@ interface ISablierFlow is
         address indexed sender,
         address indexed recipient,
         address caller,
-        uint128 newTotalDebt,
-        uint128 writtenOffDebt
+        uint256 newTotalDebt,
+        uint256 writtenOffDebt
     );
 
     /// @notice Emitted when tokens are withdrawn from a stream by a recipient or an approved operator.
@@ -119,12 +119,12 @@ interface ISablierFlow is
     /// there already is uncovered debt, it returns zero.
     /// @dev Reverts if `streamId` references a paused or a null stream.
     /// @param streamId The stream ID for the query.
-    function depletionTimeOf(uint256 streamId) external view returns (uint40 depletionTime);
+    function depletionTimeOf(uint256 streamId) external view returns (uint256 depletionTime);
 
     /// @notice Returns the amount of debt accrued since the snapshot time until now, denoted in token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    function ongoingDebtOf(uint256 streamId) external view returns (uint128 ongoingDebt);
+    function ongoingDebtOf(uint256 streamId) external view returns (uint256 ongoingDebt);
 
     /// @notice Returns the amount that the sender can be refunded from the stream, denoted in token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
@@ -139,12 +139,12 @@ interface ISablierFlow is
     /// @notice Returns the total amount owed by the sender to the recipient, denoted in token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    function totalDebtOf(uint256 streamId) external view returns (uint128 totalDebt);
+    function totalDebtOf(uint256 streamId) external view returns (uint256 totalDebt);
 
     /// @notice Returns the amount of debt not covered by the stream balance, denoted in token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    function uncoveredDebtOf(uint256 streamId) external view returns (uint128 uncoveredDebt);
+    function uncoveredDebtOf(uint256 streamId) external view returns (uint256 uncoveredDebt);
 
     /// @notice Calculates the amount that the recipient can withdraw from the stream, denoted in token decimals. This
     /// is an alias for `coveredDebtOf`.

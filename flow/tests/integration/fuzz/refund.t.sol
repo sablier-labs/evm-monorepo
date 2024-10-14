@@ -32,7 +32,7 @@ contract Refund_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump so it is greater than depletion timestamp.
-        uint40 depletionPeriod = flow.depletionTimeOf(streamId);
+        uint40 depletionPeriod = uint40(flow.depletionTimeOf(streamId));
         timeJump = boundUint40(timeJump, depletionPeriod + 1, UINT40_MAX);
 
         // Simulate the passage of time.
@@ -66,7 +66,7 @@ contract Refund_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump so that it is less than the depletion timestamp.
-        uint40 depletionPeriod = flow.depletionTimeOf(streamId);
+        uint40 depletionPeriod = uint40(flow.depletionTimeOf(streamId));
         timeJump = boundUint40(timeJump, getBlockTimestamp(), depletionPeriod - 1);
 
         // Simulate the passage of time.

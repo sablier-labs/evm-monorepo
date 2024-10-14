@@ -376,7 +376,7 @@ contract Flow_Invariant_Test is Base_Test {
             FlowStore.Period memory period = flowStore.getPeriod(streamId, i);
 
             // If end time is 0, it means the current period is still active.
-            uint40 elapsed = period.end > 0 ? period.end - period.start : uint40(block.timestamp) - period.start;
+            uint128 elapsed = period.end > 0 ? period.end - period.start : uint40(block.timestamp) - period.start;
 
             // Calculate the total streamed amount for the current period.
             totalStreamedAmount += getDescaledAmount(period.ratePerSecond * elapsed, decimals);

@@ -126,8 +126,8 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint128 feeAmount;
         uint256 previousAggregateAmount;
         uint256 previousTokenBalance;
-        uint128 previousOngoingDebt;
-        uint128 previousTotalDebt;
+        uint256 previousOngoingDebt;
+        uint256 previousTotalDebt;
         uint128 previousStreamBalance;
         uint256 actualAggregateAmount;
         uint256 expectedAggregateAmount;
@@ -135,8 +135,8 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint128 expectedProtocolRevenue;
         uint40 actualSnapshotTime;
         uint40 expectedSnapshotTime;
-        uint128 actualTotalDebt;
-        uint128 expectedTotalDebt;
+        uint256 actualTotalDebt;
+        uint256 expectedTotalDebt;
         uint128 actualStreamBalance;
         uint128 expectedStreamBalance;
         uint256 actualTokenBalance;
@@ -163,7 +163,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // If the withdrawable amount is still zero, warp closely to depletion time.
         if (flow.withdrawableAmountOf(streamId) == 0) {
-            vm.warp({ newTimestamp: flow.depletionTimeOf(streamId) - 1 });
+            vm.warp({ newTimestamp: uint40(flow.depletionTimeOf(streamId)) - 1 });
         }
 
         // Bound the withdraw amount between the allowed range.

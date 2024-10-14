@@ -72,6 +72,6 @@ library Flow {
         IERC20 token;
         uint8 tokenDecimals;
         // slot 3
-        uint128 snapshotDebt;
+        uint256 snapshotDebt;
     }
 }

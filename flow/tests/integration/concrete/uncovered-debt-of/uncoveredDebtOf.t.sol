@@ -18,7 +18,7 @@ contract UncoveredDebtOf_Integration_Concrete_Test is Integration_Test {
 
     function test_WhenTotalDebtNotExceedBalance() external view givenNotNull {
         // It should return zero.
-        uint128 actualUncoveredDebt = flow.uncoveredDebtOf(defaultStreamId);
+        uint256 actualUncoveredDebt = flow.uncoveredDebtOf(defaultStreamId);
         assertEq(actualUncoveredDebt, 0, "uncovered debt");
     }
 
@@ -29,8 +29,8 @@ contract UncoveredDebtOf_Integration_Concrete_Test is Integration_Test {
         uint128 totalStreamed = getDescaledAmount(RATE_PER_SECOND_U128 * (SOLVENCY_PERIOD + ONE_MONTH), 6);
 
         // It should return non-zero value.
-        uint128 actualUncoveredDebt = flow.uncoveredDebtOf(defaultStreamId);
-        uint128 expectedUncoveredDebt = totalStreamed - DEPOSIT_AMOUNT_6D;
+        uint256 actualUncoveredDebt = flow.uncoveredDebtOf(defaultStreamId);
+        uint256 expectedUncoveredDebt = totalStreamed - DEPOSIT_AMOUNT_6D;
         assertEq(actualUncoveredDebt, expectedUncoveredDebt, "uncovered debt");
     }
 }

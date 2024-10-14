@@ -25,8 +25,8 @@ contract FlowStore {
 
     // Previous values
     mapping(uint256 streamId => uint40 snapshotTime) public previousSnapshotTime;
-    mapping(uint256 streamId => uint128 amount) public previousTotalDebtOf;
-    mapping(uint256 streamId => uint128 amount) public previousUncoveredDebtOf;
+    mapping(uint256 streamId => uint256 amount) public previousTotalDebtOf;
+    mapping(uint256 streamId => uint256 amount) public previousUncoveredDebtOf;
 
     /// @dev This struct represents a time period during which rate per second remains constant.
     /// @param typeOfPeriod The type of the period, which is the function name.
@@ -111,15 +111,15 @@ contract FlowStore {
         }
 
         uint256 periodCount = periods[streamId].length - 1;
-        uint128 factor = uint128(10 ** (18 - decimals));
-        uint40 blockTimestamp = uint40(block.timestamp);
-        uint40 start = periods[streamId][periodCount].start;
+        uint256 factor = uint128(10 ** (18 - decimals));
+        uint256 blockTimestamp = uint40(block.timestamp);
+        uint256 start = periods[streamId][periodCount].start;
 
-        uint128 rescaledStreamedAmount = ratePerSecond * (blockTimestamp - start) / factor * factor;
+        uint256 rescaledStreamedAmount = ratePerSecond * (blockTimestamp - start) / factor * factor;
 
         uint40 delay;
         if (rescaledStreamedAmount > ratePerSecond) {
-            delay = blockTimestamp - start - uint40(rescaledStreamedAmount / ratePerSecond);
+            delay = uint40(blockTimestamp - start - (rescaledStreamedAmount / ratePerSecond));
             // Since we are reverse engineering the delay, we need to subtract 1 from the delay, which would normally be
             // added in the constant interval calculation
             delay = delay > 1 ? delay - 1 : 0;
@@ -131,8 +131,8 @@ contract FlowStore {
     function updatePreviousValues(
         uint256 streamId,
         uint40 snapshotTime,
-        uint128 totalDebtOf,
-        uint128 uncoveredDebtOf
+        uint256 totalDebtOf,
+        uint256 uncoveredDebtOf
     )
         external
     {

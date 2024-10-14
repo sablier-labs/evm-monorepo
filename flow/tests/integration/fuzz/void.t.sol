@@ -31,7 +31,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump so that it does not exceed depletion timestamp.
-        uint40 depletionTime = flow.depletionTimeOf(streamId);
+        uint40 depletionTime = uint40(flow.depletionTimeOf(streamId));
         timeJump = boundUint40(timeJump, getBlockTimestamp(), depletionTime);
 
         // Simulate the passage of time.
@@ -66,7 +66,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,, depositedAmount) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump so that it exceeds depletion timestamp.
-        uint40 depletionTime = flow.depletionTimeOf(streamId);
+        uint40 depletionTime = uint40(flow.depletionTimeOf(streamId));
         timeJump = boundUint40(timeJump, depletionTime + 1, UINT40_MAX);
 
         // Simulate the passage of time.
@@ -106,7 +106,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,, depositedAmount) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump so that it exceeds depletion timestamp.
-        uint40 depletionTime = flow.depletionTimeOf(streamId);
+        uint40 depletionTime = uint40(flow.depletionTimeOf(streamId));
         timeJump = boundUint40(timeJump, depletionTime + 1, UINT40_MAX);
 
         // Simulate the passage of time.
@@ -122,7 +122,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
     // Shared private function.
     function _test_Void(address caller, uint256 streamId) private {
-        uint128 debtToWriteOff = flow.uncoveredDebtOf(streamId);
+        uint256 debtToWriteOff = flow.uncoveredDebtOf(streamId);
         uint128 expectedTotalDebt;
 
         if (debtToWriteOff > 0) {
@@ -130,7 +130,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             expectedTotalDebt = flow.getBalance(streamId);
         } else {
             // Otherwise, expect the total debt to remain same.
-            expectedTotalDebt = flow.totalDebtOf(streamId);
+            expectedTotalDebt = uint128(flow.totalDebtOf(streamId));
         }
 
         // Expect the relevant events to be emitted.

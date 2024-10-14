@@ -110,8 +110,8 @@ contract Void_Integration_Concrete_Test is Integration_Test {
     }
 
     function _test_Void(address caller) private {
-        uint128 expectedTotalDebt;
-        uint128 uncoveredDebt = flow.uncoveredDebtOf(defaultStreamId);
+        uint256 expectedTotalDebt;
+        uint256 uncoveredDebt = flow.uncoveredDebtOf(defaultStreamId);
 
         if (uncoveredDebt > 0) {
             // Expect the total debt to be stream balance if there is uncovered debt.

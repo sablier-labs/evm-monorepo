@@ -103,7 +103,7 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
         whenAmountOverdraws
     {
         // Warp to the moment when stream accumulates uncovered debt.
-        vm.warp({ newTimestamp: flow.depletionTimeOf(defaultStreamId) });
+        vm.warp({ newTimestamp: uint40(flow.depletionTimeOf(defaultStreamId)) });
 
         uint128 overdrawAmount = flow.getBalance(defaultStreamId) + 1;
         vm.expectRevert(
@@ -148,7 +148,7 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
             to: users.recipient,
             depositAmount: DEPOSIT_AMOUNT_6D,
             feeAmount: 0,
-            withdrawAmount: flow.totalDebtOf(defaultStreamId) - 1
+            withdrawAmount: uint128(flow.totalDebtOf(defaultStreamId)) - 1
         });
     }
 
@@ -267,12 +267,12 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
     struct Vars {
         IERC20 token;
         uint40 previousSnapshotTime;
-        uint128 previousTotalDebt;
+        uint256 previousTotalDebt;
         uint256 previousAggregateAmount;
         uint128 expectedProtocolRevenue;
         uint256 initialTokenBalance;
         uint40 expectedSnapshotTime;
-        uint128 expectedTotalDebt;
+        uint256 expectedTotalDebt;
         uint128 expectedStreamBalance;
         uint256 expectedTokenBalance;
     }

@@ -89,7 +89,7 @@ contract Flow_Gas_Test is Integration_Test {
         );
 
         // Deposit amount on an incremented stream ID to make stream solvent.
-        deposit(++streamId, flow.uncoveredDebtOf(streamId) + DEPOSIT_AMOUNT_6D);
+        deposit(++streamId, uint128(flow.uncoveredDebtOf(streamId)) + DEPOSIT_AMOUNT_6D);
 
         // {flow.withdraw} (on a solvent stream).
         computeGas(

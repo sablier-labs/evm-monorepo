@@ -95,7 +95,7 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
         uint40 expectedSnapshotTime = getBlockTimestamp() - ONE_MONTH;
         assertEq(actualSnapshotTime, expectedSnapshotTime, "snapshot time");
 
-        uint128 actualSnapshotDebt = flow.getSnapshotDebt(defaultStreamId);
+        uint256 actualSnapshotDebt = flow.getSnapshotDebt(defaultStreamId);
         uint128 expectedSnapshotDebt = 0;
         assertEq(actualSnapshotDebt, expectedSnapshotDebt, "snapshot debt");
 

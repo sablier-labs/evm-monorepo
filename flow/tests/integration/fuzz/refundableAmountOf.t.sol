@@ -19,7 +19,7 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
     {
         (streamId,, depositedAmount) = useFuzzedStreamOrCreate(streamId, decimals);
 
-        uint40 depletionPeriod = flow.depletionTimeOf(streamId);
+        uint40 depletionPeriod = uint40(flow.depletionTimeOf(streamId));
 
         // Pause the stream.
         flow.pause(streamId);
@@ -57,7 +57,7 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
         (streamId, decimals, depositedAmount) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump so that it is less than the depletion timestamp.
-        warpTimestamp = boundUint40(warpTimestamp, getBlockTimestamp(), flow.depletionTimeOf(streamId) - 1);
+        warpTimestamp = boundUint40(warpTimestamp, getBlockTimestamp(), uint40(flow.depletionTimeOf(streamId)) - 1);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: warpTimestamp });
@@ -80,7 +80,7 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump so it is greater than depletion timestamp.
-        uint40 depletionPeriod = flow.depletionTimeOf(streamId);
+        uint40 depletionPeriod = uint40(flow.depletionTimeOf(streamId));
         warpTimestamp = boundUint40(warpTimestamp, depletionPeriod + 1, UINT40_MAX);
 
         // Simulate the passage of time.

@@ -13,7 +13,7 @@ contract OngoingDebtOf_Integration_Concrete_Test is Integration_Test {
         flow.pause(defaultStreamId);
 
         // It should return zero.
-        uint128 ongoingDebt = flow.ongoingDebtOf(defaultStreamId);
+        uint256 ongoingDebt = flow.ongoingDebtOf(defaultStreamId);
         assertEq(ongoingDebt, 0, "ongoing debt");
     }
 
@@ -22,13 +22,13 @@ contract OngoingDebtOf_Integration_Concrete_Test is Integration_Test {
         updateSnapshotTimeAndWarp(defaultStreamId);
 
         // It should return zero.
-        uint128 ongoingDebt = flow.ongoingDebtOf(defaultStreamId);
+        uint256 ongoingDebt = flow.ongoingDebtOf(defaultStreamId);
         assertEq(ongoingDebt, 0, "ongoing debt");
     }
 
     function test_WhenSnapshotTimeInPast() external view givenNotNull givenNotPaused {
         // It should return the correct ongoing debt.
-        uint128 ongoingDebt = flow.ongoingDebtOf(defaultStreamId);
+        uint256 ongoingDebt = flow.ongoingDebtOf(defaultStreamId);
         assertEq(ongoingDebt, ONE_MONTH_DEBT_6D, "ongoing debt");
     }
 }
