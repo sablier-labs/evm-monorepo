@@ -40,12 +40,12 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
     }
 
     function _test_WithdrawMax() private {
-        uint128 expectedWithdrawAmount = ONE_MONTH_DEBT_6D;
-        uint256 previousAggregateAmount = flow.aggregateBalance(usdc);
+        vars.expectedWithdrawAmount = ONE_MONTH_DEBT_6D;
+        vars.previousAggregateAmount = flow.aggregateBalance(usdc);
 
         // It should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdated} events.
         vm.expectEmit({ emitter: address(usdc) });
-        emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: expectedWithdrawAmount });
+        emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: vars.expectedWithdrawAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.WithdrawFromFlowStream({
@@ -54,36 +54,39 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
             token: IERC20(address(usdc)),
             caller: users.sender,
             protocolFeeAmount: 0,
-            withdrawAmount: expectedWithdrawAmount
+            withdrawAmount: vars.expectedWithdrawAmount
         });
 
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransfer({ token: usdc, to: users.recipient, amount: expectedWithdrawAmount });
+        expectCallToTransfer({ token: usdc, to: users.recipient, amount: vars.expectedWithdrawAmount });
 
-        uint128 actualWithdrawnAmount = flow.withdrawMax(defaultStreamId, users.recipient);
+        (vars.actualWithdrawnAmount, vars.actualProtocolFeeAmount) = flow.withdrawMax(defaultStreamId, users.recipient);
 
         // It should update the stream balance.
-        uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
-        uint128 expectedStreamBalance = DEPOSIT_AMOUNT_6D - ONE_MONTH_DEBT_6D;
-        assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
+        vars.actualStreamBalance = flow.getBalance(defaultStreamId);
+        vars.expectedStreamBalance = DEPOSIT_AMOUNT_6D - ONE_MONTH_DEBT_6D;
+        assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "stream balance");
 
         // It should set the snapshot debt to zero.
-        uint256 actualSnapshotDebt = flow.getSnapshotDebt(defaultStreamId);
-        assertEq(actualSnapshotDebt, 0, "snapshot debt");
+        vars.actualSnapshotDebt = flow.getSnapshotDebt(defaultStreamId);
+        assertEq(vars.actualSnapshotDebt, 0, "snapshot debt");
 
         if (flow.getRatePerSecond(defaultStreamId).unwrap() > 0) {
             // It should update snapshot time.
-            uint128 actualSnapshotTime = flow.getSnapshotTime(defaultStreamId);
-            assertEq(actualSnapshotTime, getBlockTimestamp(), "snapshot time");
+            vars.actualSnapshotTime = flow.getSnapshotTime(defaultStreamId);
+            assertEq(vars.actualSnapshotTime, getBlockTimestamp(), "snapshot time");
         }
 
         // It should return the actual withdrawn amount.
-        assertEq(actualWithdrawnAmount, expectedWithdrawAmount, "withdrawn amount");
+        assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawAmount, "withdrawn amount");
+        assertEq(vars.actualProtocolFeeAmount, 0, "protocol fee amount");
 
         // It should decrease the aggregate amount.
-        assertEq(flow.aggregateBalance(usdc), previousAggregateAmount - expectedWithdrawAmount, "aggregate amount");
+        assertEq(
+            flow.aggregateBalance(usdc), vars.previousAggregateAmount - vars.expectedWithdrawAmount, "aggregate amount"
+        );
     }
 }

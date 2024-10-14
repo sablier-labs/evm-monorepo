@@ -11,6 +11,7 @@ import { Assertions } from "./utils/Assertions.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
 import { Users } from "./utils/Types.sol";
 import { Utils } from "./utils/Utils.sol";
+import { Vars } from "./utils/Vars.sol";
 
 abstract contract Base_Test is Assertions, Modifiers, Test, Utils {
     /*//////////////////////////////////////////////////////////////////////////
@@ -18,6 +19,7 @@ abstract contract Base_Test is Assertions, Modifiers, Test, Utils {
     //////////////////////////////////////////////////////////////////////////*/
 
     Users internal users;
+    Vars internal vars;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS

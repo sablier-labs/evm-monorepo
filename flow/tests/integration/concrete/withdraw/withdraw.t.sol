@@ -88,7 +88,7 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
             streamId: defaultStreamId,
             to: users.eve,
             depositAmount: DEPOSIT_AMOUNT_6D,
-            feeAmount: 0,
+            protocolFeeAmount: 0,
             withdrawAmount: WITHDRAW_AMOUNT_6D
         });
     }
@@ -147,7 +147,7 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
             streamId: defaultStreamId,
             to: users.recipient,
             depositAmount: DEPOSIT_AMOUNT_6D,
-            feeAmount: 0,
+            protocolFeeAmount: 0,
             withdrawAmount: uint128(flow.totalDebtOf(defaultStreamId)) - 1
         });
     }
@@ -174,7 +174,7 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
             streamId: defaultStreamId,
             to: users.recipient,
             depositAmount: DEPOSIT_AMOUNT_6D,
-            feeAmount: 0,
+            protocolFeeAmount: 0,
             withdrawAmount: WITHDRAW_AMOUNT_6D
         });
     }
@@ -209,7 +209,7 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
             streamId: streamId,
             to: users.recipient,
             depositAmount: DEPOSIT_AMOUNT_6D,
-            feeAmount: PROTOCOL_FEE_AMOUNT_6D,
+            protocolFeeAmount: PROTOCOL_FEE_AMOUNT_6D,
             withdrawAmount: WITHDRAW_AMOUNT_6D
         });
     }
@@ -239,7 +239,7 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
             streamId: streamId,
             to: users.recipient,
             depositAmount: DEPOSIT_AMOUNT_18D,
-            feeAmount: 0,
+            protocolFeeAmount: 0,
             withdrawAmount: WITHDRAW_AMOUNT_18D
         });
     }
@@ -259,44 +259,30 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
             streamId: defaultStreamId,
             to: users.recipient,
             depositAmount: DEPOSIT_AMOUNT_6D,
-            feeAmount: 0,
+            protocolFeeAmount: 0,
             withdrawAmount: WITHDRAW_AMOUNT_6D
         });
-    }
-
-    struct Vars {
-        IERC20 token;
-        uint40 previousSnapshotTime;
-        uint256 previousTotalDebt;
-        uint256 previousAggregateAmount;
-        uint128 expectedProtocolRevenue;
-        uint256 initialTokenBalance;
-        uint40 expectedSnapshotTime;
-        uint256 expectedTotalDebt;
-        uint128 expectedStreamBalance;
-        uint256 expectedTokenBalance;
     }
 
     function _test_Withdraw(
         uint256 streamId,
         address to,
         uint128 depositAmount,
-        uint128 feeAmount,
+        uint128 protocolFeeAmount,
         uint128 withdrawAmount
     )
         private
     {
-        Vars memory vars;
         vars.token = flow.getToken(streamId);
         vars.previousSnapshotTime = flow.getSnapshotTime(streamId);
         vars.previousTotalDebt = flow.totalDebtOf(streamId);
         vars.previousAggregateAmount = flow.aggregateBalance(vars.token);
 
-        vars.expectedProtocolRevenue = flow.protocolRevenue(vars.token) + feeAmount;
+        vars.expectedProtocolRevenue = flow.protocolRevenue(vars.token) + protocolFeeAmount;
 
         // It should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdated} events.
         vm.expectEmit({ emitter: address(vars.token) });
-        emit IERC20.Transfer({ from: address(flow), to: to, value: withdrawAmount - feeAmount });
+        emit IERC20.Transfer({ from: address(flow), to: to, value: withdrawAmount - protocolFeeAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.WithdrawFromFlowStream({
@@ -304,19 +290,24 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
             to: to,
             token: vars.token,
             caller: users.recipient,
-            protocolFeeAmount: feeAmount,
-            withdrawAmount: withdrawAmount - feeAmount
+            protocolFeeAmount: protocolFeeAmount,
+            withdrawAmount: withdrawAmount - protocolFeeAmount
         });
 
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransfer({ token: vars.token, to: to, amount: withdrawAmount - feeAmount });
+        expectCallToTransfer({ token: vars.token, to: to, amount: withdrawAmount - protocolFeeAmount });
 
-        vars.initialTokenBalance = vars.token.balanceOf(address(flow));
+        vars.previousTokenBalance = vars.token.balanceOf(address(flow));
 
-        flow.withdraw({ streamId: streamId, to: to, amount: withdrawAmount });
+        (vars.actualWithdrawnAmount, vars.actualProtocolFeeAmount) =
+            flow.withdraw({ streamId: streamId, to: to, amount: withdrawAmount });
+
+        // Check the returned values.
+        assertEq(vars.actualProtocolFeeAmount, protocolFeeAmount, "protocol fee amount");
+        assertEq(vars.actualWithdrawnAmount, withdrawAmount - protocolFeeAmount, "withdrawn amount");
 
         // Assert the protocol revenue.
         assertEq(flow.protocolRevenue(vars.token), vars.expectedProtocolRevenue, "protocol revenue");
@@ -334,13 +325,13 @@ contract Withdraw_Integration_Concrete_Test is Integration_Test {
         assertEq(flow.getBalance(streamId), vars.expectedStreamBalance, "stream balance");
 
         // It should reduce the token balance of stream.
-        vars.expectedTokenBalance = vars.initialTokenBalance - (withdrawAmount - feeAmount);
+        vars.expectedTokenBalance = vars.previousTokenBalance - vars.actualWithdrawnAmount;
         assertEq(vars.token.balanceOf(address(flow)), vars.expectedTokenBalance, "token balance");
 
         // It should decrease the aggregate amount.
         assertEq(
             flow.aggregateBalance(vars.token),
-            vars.previousAggregateAmount - (withdrawAmount - feeAmount),
+            vars.previousAggregateAmount - vars.actualWithdrawnAmount,
             "aggregate amount"
         );
     }

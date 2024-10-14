@@ -89,14 +89,14 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             vm.warp({ newTimestamp: uint40(flow.depletionTimeOf(streamId)) - 1 });
         }
 
-        uint256 previousAggregateAmount = flow.aggregateBalance(token);
-        uint256 totalDebt = flow.totalDebtOf(streamId);
-        uint256 tokenBalance = token.balanceOf(address(flow));
-        uint128 streamBalance = flow.getBalance(streamId);
+        vars.previousAggregateAmount = flow.aggregateBalance(token);
+        vars.previousTotalDebt = flow.totalDebtOf(streamId);
+        vars.previousTokenBalance = token.balanceOf(address(flow));
+        vars.previousStreamBalance = flow.getBalance(streamId);
 
         uint128 withdrawAmount = flow.withdrawableAmountOf(streamId);
 
-        uint40 expectedSnapshotTime = getBlockTimestamp();
+        vars.expectedSnapshotTime = getBlockTimestamp();
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(token) });
@@ -116,25 +116,29 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Withdraw the tokens.
-        flow.withdrawMax(streamId, withdrawTo);
+        (vars.actualWithdrawnAmount, vars.actualProtocolFeeAmount) = flow.withdrawMax(streamId, withdrawTo);
+
+        // Check the return values.
+        assertEq(vars.actualWithdrawnAmount, withdrawAmount, "withdrawn amount");
+        assertEq(vars.actualProtocolFeeAmount, 0, "protocol fee amount");
 
         assertEq(flow.ongoingDebtOf(streamId), 0, "ongoing debt");
 
         // It should update snapshot time.
-        assertEq(flow.getSnapshotTime(streamId), expectedSnapshotTime, "snapshot time");
+        assertEq(flow.getSnapshotTime(streamId), vars.expectedSnapshotTime, "snapshot time");
 
         // It should decrease the total debt by the withdrawn value.
-        uint256 actualTotalDebt = flow.totalDebtOf(streamId);
-        uint256 expectedTotalDebt = totalDebt - withdrawAmount;
-        assertEq(actualTotalDebt, expectedTotalDebt, "total debt");
+        vars.actualTotalDebt = flow.totalDebtOf(streamId);
+        vars.expectedTotalDebt = vars.previousTotalDebt - withdrawAmount;
+        assertEq(vars.actualTotalDebt, vars.expectedTotalDebt, "total debt");
 
         // It should reduce the stream balance by the withdrawn amount.
-        uint128 actualStreamBalance = flow.getBalance(streamId);
-        uint128 expectedStreamBalance = streamBalance - withdrawAmount;
-        assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
+        vars.actualStreamBalance = flow.getBalance(streamId);
+        vars.expectedStreamBalance = vars.previousStreamBalance - withdrawAmount;
+        assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "stream balance");
 
         // Assert that snapshot time is updated correctly.
-        assertEq(flow.getSnapshotTime(streamId), expectedSnapshotTime, "snapshot time");
+        assertEq(flow.getSnapshotTime(streamId), vars.expectedSnapshotTime, "snapshot time");
 
         // Assert that total debt equals snapshot debt and ongoing debt
         assertEq(
@@ -142,13 +146,13 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         );
 
         // It should reduce the token balance of stream.
-        uint256 actualTokenBalance = token.balanceOf(address(flow));
-        uint256 expectedTokenBalance = tokenBalance - withdrawAmount;
-        assertEq(actualTokenBalance, expectedTokenBalance, "token balance");
+        vars.actualTokenBalance = token.balanceOf(address(flow));
+        vars.expectedTokenBalance = vars.previousTokenBalance - withdrawAmount;
+        assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "token balance");
 
         // Assert that aggregate amount has been updated.
-        uint256 actualAggregateAmount = flow.aggregateBalance(token);
-        uint256 expectedAggregateAmount = previousAggregateAmount - withdrawAmount;
-        assertEq(actualAggregateAmount, expectedAggregateAmount, "aggregate amount");
+        vars.actualAggregateAmount = flow.aggregateBalance(token);
+        vars.expectedAggregateAmount = vars.previousAggregateAmount - withdrawAmount;
+        assertEq(vars.actualAggregateAmount, vars.expectedAggregateAmount, "aggregate amount");
     }
 }

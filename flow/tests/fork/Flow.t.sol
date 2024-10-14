@@ -16,8 +16,6 @@ contract Flow_Fork_Test is Fork_Test {
     /// @dev Total number of streams to create for each token.
     uint256 internal constant TOTAL_STREAMS = 20;
 
-    Vars internal vars;
-
     /// @dev An enum to represent functions from the Flow contract.
     enum FlowFunc {
         adjustRatePerSecond,
@@ -41,28 +39,6 @@ contract Flow_Fork_Test is Fork_Test {
         uint128 depositAmount;
         uint128 refundAmount;
         uint128 withdrawAmount;
-    }
-
-    /// @dev A struct to hold the actual and expected values, this prevents stack overflow.
-    struct Vars {
-        // Actual values.
-        uint256 actualAggregateAmount;
-        UD21x18 actualRatePerSecond;
-        uint40 actualSnapshotTime;
-        uint256 actualSnapshotDebt;
-        uint128 actualStreamBalance;
-        uint256 actualStreamId;
-        uint256 actualTokenBalance;
-        uint256 actualTotalDebt;
-        // Expected values.
-        uint256 expectedAggregateAmount;
-        UD21x18 expectedRatePerSecond;
-        uint40 expectedSnapshotTime;
-        uint256 expectedSnapshotDebt;
-        uint128 expectedStreamBalance;
-        uint256 expectedStreamId;
-        uint256 expectedTokenBalance;
-        uint256 expectedTotalDebt;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

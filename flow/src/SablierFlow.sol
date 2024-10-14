@@ -401,9 +401,10 @@ contract SablierFlow is
         noDelegateCall
         notNull(streamId)
         updateMetadata(streamId)
+        returns (uint128 withdrawnAmount, uint128 protocolFeeAmount)
     {
         // Checks, Effects, and Interactions: make the withdrawal.
-        _withdraw(streamId, to, amount);
+        (withdrawnAmount, protocolFeeAmount) = _withdraw(streamId, to, amount);
     }
 
     /// @inheritdoc ISablierFlow
@@ -416,12 +417,12 @@ contract SablierFlow is
         noDelegateCall
         notNull(streamId)
         updateMetadata(streamId)
-        returns (uint128 amountWithdrawn)
+        returns (uint128 withdrawnAmount, uint128 protocolFeeAmount)
     {
-        amountWithdrawn = _coveredDebtOf(streamId);
+        uint128 coveredDebt = _coveredDebtOf(streamId);
 
         // Checks, Effects, and Interactions: make the withdrawal.
-        _withdraw(streamId, to, amountWithdrawn);
+        (withdrawnAmount, protocolFeeAmount) = _withdraw(streamId, to, coveredDebt);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -747,7 +748,14 @@ contract SablierFlow is
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdraw(uint256 streamId, address to, uint128 amount) internal {
+    function _withdraw(
+        uint256 streamId,
+        address to,
+        uint128 amount
+    )
+        internal
+        returns (uint128 withdrawnAmount, uint128 protocolFeeAmount)
+    {
         // Check: the withdraw amount is not zero.
         if (amount == 0) {
             revert Errors.SablierFlow_WithdrawAmountZero(streamId);
@@ -807,16 +815,15 @@ contract SablierFlow is
         // Load the variables in memory.
         IERC20 token = _streams[streamId].token;
         UD60x18 protocolFee = protocolFee[token];
-        uint128 feeAmount;
 
         if (protocolFee > ZERO) {
             // Calculate the protocol fee amount and the net withdraw amount.
-            (feeAmount, amount) = Helpers.calculateAmountsFromFee({ totalAmount: amount, fee: protocolFee });
+            (protocolFeeAmount, amount) = Helpers.calculateAmountsFromFee({ totalAmount: amount, fee: protocolFee });
 
             // Safe to use unchecked because addition cannot overflow.
             unchecked {
                 // Effect: update the protocol revenue.
-                protocolRevenue[token] += feeAmount;
+                protocolRevenue[token] += protocolFeeAmount;
             }
         }
 
@@ -838,7 +845,9 @@ contract SablierFlow is
             token: token,
             caller: msg.sender,
             withdrawAmount: amount,
-            protocolFeeAmount: feeAmount
+            protocolFeeAmount: protocolFeeAmount
         });
+
+        return (amount, protocolFeeAmount);
     }
 }

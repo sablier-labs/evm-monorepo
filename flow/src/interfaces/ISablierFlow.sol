@@ -384,7 +384,7 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to void.
     function void(uint256 streamId) external;
 
-    /// @notice Withdraws the provided amount of tokens from the stream to the `to` address.
+    /// @notice Withdraws the provided `amount` minus the protocol fee to the provided `to` address.
     ///
     /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
     ///
@@ -402,9 +402,18 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn tokens.
     /// @param amount The amount to withdraw, denoted in token's decimals.
-    function withdraw(uint256 streamId, address to, uint128 amount) external;
+    /// @return withdrawnAmount The amount withdrawn to the recipient, denoted in token's decimals. This is input amount
+    /// minus the protocol fee.
+    /// @return protocolFeeAmount The protocol fee amount, denoted in the token's decimals.
+    function withdraw(
+        uint256 streamId,
+        address to,
+        uint128 amount
+    )
+        external
+        returns (uint128 withdrawnAmount, uint128 protocolFeeAmount);
 
-    /// @notice Withdraws the entire withdrawable amount from the stream to the provided address `to`.
+    /// @notice Withdraws the entire withdrawable amount minus the protocol fee to the provided `to` address.
     ///
     /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
     ///
@@ -417,6 +426,12 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn tokens.
     ///
-    /// @return amountWithdrawn The amount withdrawn to the recipient, denoted in token's decimals.
-    function withdrawMax(uint256 streamId, address to) external returns (uint128 amountWithdrawn);
+    /// @return withdrawnAmount The amount withdrawn to the recipient, denoted in token's decimals.
+    /// @return protocolFeeAmount The protocol fee amount, denoted in the token's decimals.
+    function withdrawMax(
+        uint256 streamId,
+        address to
+    )
+        external
+        returns (uint128 withdrawnAmount, uint128 protocolFeeAmount);
 }

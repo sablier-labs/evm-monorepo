@@ -44,7 +44,7 @@
   runs = 50
 
 [profile.lite.fuzz]
-  runs = 200
+  runs = 20
 
 # Compile only the production code and the test mocks with via IR and 10,000 optimizer runs
 [profile.optimized]

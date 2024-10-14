@@ -24,7 +24,7 @@ contract WithdrawDelay_Integration_Concrete_Test is Integration_Test {
         assertEq(flow.ongoingDebtOf(streamId), 1);
 
         // Withdraw the token.
-        uint128 withdrawnAmount = flow.withdrawMax(streamId, users.recipient);
+        (uint128 withdrawnAmount,) = flow.withdrawMax(streamId, users.recipient);
         assertEq(withdrawnAmount, 1, "withdrawn amount");
 
         // Now warp to the expected third token unlock.
@@ -48,7 +48,7 @@ contract WithdrawDelay_Integration_Concrete_Test is Integration_Test {
         assertEq(flow.ongoingDebtOf(streamId), 1);
 
         // Withdraw the token.
-        uint128 withdrawnAmount = flow.withdrawMax(streamId, users.recipient);
+        (uint128 withdrawnAmount,) = flow.withdrawMax(streamId, users.recipient);
         assertEq(withdrawnAmount, 1, "withdrawn amount");
 
         // Warp to a second before second token unlock so that we prove the delay.
@@ -103,7 +103,8 @@ contract WithdrawDelay_Integration_Concrete_Test is Integration_Test {
                 diff = flow.ongoingDebtOf(streamId) - beforeWarpOd;
             }
 
-            sumWithdrawn += flow.withdrawMax(streamId, users.recipient);
+            (uint128 withdrawnAmount,) = flow.withdrawMax(streamId, users.recipient);
+            sumWithdrawn += withdrawnAmount;
         }
 
         // Warp again to 1 month + 1 second to check if there is a delay that occured.

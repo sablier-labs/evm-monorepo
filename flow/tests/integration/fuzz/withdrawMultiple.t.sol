@@ -10,7 +10,7 @@ import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 contract WithdrawMultiple_Delay_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// @dev Checklist:
     /// - It should test multiple withdrawals from the stream using `withdrawMax`.
-    /// - It should assert that the actual amount withdrawn is less than the desired amount.
+    /// - It should assert that the actual withdrawn amount is less than the desired amount.
     /// - It should check that stream delay and deviation are within acceptable limits for realistic values of rps.
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed for USDC:
@@ -29,7 +29,7 @@ contract WithdrawMultiple_Delay_Fuzz_Test is Shared_Integration_Fuzz_Test {
         deposit(streamId, sufficientDepositAmount);
 
         // Actual total amount withdrawn in a given run.
-        uint256 actualTotalAmountWithdrawn;
+        uint256 actualTotalWithdrawnAmount;
 
         uint40 timeBeforeFirstWithdraw = getBlockTimestamp();
 
@@ -40,17 +40,18 @@ contract WithdrawMultiple_Delay_Fuzz_Test is Shared_Integration_Fuzz_Test {
             vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
             // Withdraw the tokens.
-            actualTotalAmountWithdrawn += flow.withdrawMax(streamId, users.recipient);
+            (uint128 withdrawnAmount,) = flow.withdrawMax(streamId, users.recipient);
+            actualTotalWithdrawnAmount += withdrawnAmount;
         }
 
         // Calculate the total stream period.
         uint40 totalStreamPeriod = getBlockTimestamp() - timeBeforeFirstWithdraw;
 
         // Calculate the desired amount.
-        uint256 desiredTotalAmountWithdrawn = (rps * totalStreamPeriod) / SCALE_FACTOR;
+        uint256 desiredTotalWithdrawnAmount = (rps * totalStreamPeriod) / SCALE_FACTOR;
 
         // Calculate the deviation.
-        uint256 deviationAmount = desiredTotalAmountWithdrawn - actualTotalAmountWithdrawn;
+        uint256 deviationAmount = desiredTotalWithdrawnAmount - actualTotalWithdrawnAmount;
 
         // Calculate the stream delay.
         uint256 streamDelay = (deviationAmount * SCALE_FACTOR) / rps;
@@ -61,13 +62,13 @@ contract WithdrawMultiple_Delay_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Assert that the deviation is less than 0.01e6 USDC.
         assertLe(deviationAmount, 0.01e6);
 
-        // Assert that actual amount withdrawn is always less than the desired amount.
-        assertLe(actualTotalAmountWithdrawn, desiredTotalAmountWithdrawn);
+        // Assert that actual withdrawn amount is always less than the desired amount.
+        assertLe(actualTotalWithdrawnAmount, desiredTotalWithdrawnAmount);
     }
 
     /// @dev Checklist:
     /// - It should test multiple withdrawals from the stream using `withdrawMax`.
-    /// - It should assert that the actual amount withdrawn is always less than the desired amount.
+    /// - It should assert that the actual withdrawn amount is always less than the desired amount.
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Multiple values for decimals
@@ -86,7 +87,7 @@ contract WithdrawMultiple_Delay_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
     /// @dev Checklist:
     /// - It should test multiple withdrawals from the stream using `withdraw`.
-    /// - It should assert that the actual amount withdrawn is always less than the desired amount.
+    /// - It should assert that the actual withdrawn amount is always less than the desired amount.
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Multiple values for decimals
@@ -137,7 +138,7 @@ contract WithdrawMultiple_Delay_Fuzz_Test is Shared_Integration_Fuzz_Test {
         deposit(streamId, uint128(sufficientDepositAmount));
 
         // Actual total amount withdrawn in a given run.
-        uint256 actualTotalAmountWithdrawn;
+        uint256 actualTotalWithdrawnAmount;
 
         uint40 timeBeforeFirstWithdraw = getBlockTimestamp();
 
@@ -154,17 +155,17 @@ contract WithdrawMultiple_Delay_Fuzz_Test is Shared_Integration_Fuzz_Test {
             }
             // ISablierFlow.withdrawMax
             else if (selector == ISablierFlow.withdrawMax.selector) {
-                withdrawAmount = flow.withdrawMax(streamId, users.recipient);
+                (withdrawAmount,) = flow.withdrawMax(streamId, users.recipient);
             }
 
             // Update the actual total amount withdrawn.
-            actualTotalAmountWithdrawn += withdrawAmount;
+            actualTotalWithdrawnAmount += withdrawAmount;
         }
 
         uint40 totalStreamPeriod = getBlockTimestamp() - timeBeforeFirstWithdraw;
-        uint256 desiredTotalAmountWithdrawn = getDescaledAmount(rps * totalStreamPeriod, decimals);
+        uint256 desiredTotalWithdrawnAmount = getDescaledAmount(rps * totalStreamPeriod, decimals);
 
-        // Assert that actual amount withdrawn is always less than the desired amount.
-        assertLe(actualTotalAmountWithdrawn, desiredTotalAmountWithdrawn);
+        // Assert that actual withdrawn amount is always less than the desired amount.
+        assertLe(actualTotalWithdrawnAmount, desiredTotalWithdrawnAmount);
     }
 }
