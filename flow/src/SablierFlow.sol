@@ -33,7 +33,7 @@ contract SablierFlow is
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Emits a {TransferAdmin} event.
+    /// @dev Emits {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
     constructor(

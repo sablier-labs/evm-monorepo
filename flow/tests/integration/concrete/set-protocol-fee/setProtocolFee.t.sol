@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { UD60x18, UNIT } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
@@ -28,9 +29,11 @@ contract SetProtocolFee_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenNewAndOldProtocolFeeAreSame() external whenCallerAdmin whenNewProtocolFeeNotExceedMaxFee {
-        // It should emit {SetProtocolFee} event.
+        // It should emit {SetProtocolFee} and {BatchMetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlowBase.SetProtocolFee(users.admin, tokenWithProtocolFee, PROTOCOL_FEE, PROTOCOL_FEE);
+        vm.expectEmit({ emitter: address(flow) });
+        emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: flow.nextStreamId() - 1 });
 
         flow.setProtocolFee(tokenWithProtocolFee, PROTOCOL_FEE);
 
@@ -41,9 +44,11 @@ contract SetProtocolFee_Integration_Concrete_Test is Integration_Test {
     function test_WhenNewAndOldProtocolFeeAreNotSame() external whenCallerAdmin whenNewProtocolFeeNotExceedMaxFee {
         UD60x18 newProtocolFee = PROTOCOL_FEE + UD60x18.wrap(0.01e18);
 
-        // It should emit {SetProtocolFee} event.
+        // It should emit {SetProtocolFee} and {BatchMetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlowBase.SetProtocolFee(users.admin, tokenWithProtocolFee, PROTOCOL_FEE, newProtocolFee);
+        vm.expectEmit({ emitter: address(flow) });
+        emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: flow.nextStreamId() - 1 });
 
         flow.setProtocolFee(tokenWithProtocolFee, newProtocolFee);
 

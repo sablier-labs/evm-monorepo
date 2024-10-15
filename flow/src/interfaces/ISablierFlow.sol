@@ -159,7 +159,7 @@ interface ISablierFlow is
 
     /// @notice Changes the stream's rate per second.
     ///
-    /// @dev Emits an {AdjustFlowStream} and {MetadataUpdate} event.
+    /// @dev Emits {AdjustFlowStream} and {MetadataUpdate} events.
     ///
     /// Notes:
     /// - Performs a debt snapshot.
@@ -178,7 +178,7 @@ interface ISablierFlow is
     /// @notice Creates a new Flow stream by setting the snapshot time to `block.timestamp` and leaving the balance to
     /// zero. The stream is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {CreateFlowStream} event.
+    /// @dev Emits {CreateFlowStream} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -208,7 +208,7 @@ interface ISablierFlow is
     /// @notice Creates a new Flow stream by setting the snapshot time to `block.timestamp` and the balance to `amount`.
     /// The stream is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {Transfer}, {CreateFlowStream}, and {DepositFlowStream} event.
+    /// @dev Emits {Transfer}, {CreateFlowStream}, and {DepositFlowStream} events.
     ///
     /// Notes:
     /// - Refer to the notes in {deposit}.
@@ -238,7 +238,7 @@ interface ISablierFlow is
 
     /// @notice Makes a deposit in a stream.
     ///
-    /// @dev Emits a {Transfer} and {DepositFlowStream} event.
+    /// @dev Emits {Transfer} and {DepositFlowStream} events.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -251,7 +251,7 @@ interface ISablierFlow is
 
     /// @notice Deposits tokens in a stream and pauses it.
     ///
-    /// @dev Emits a {Transfer}, {DepositFlowStream} and {PauseFlowStream} event.
+    /// @dev Emits {Transfer}, {DepositFlowStream} and {PauseFlowStream} events.
     ///
     /// Notes:
     /// - Refer to the notes in {deposit} and {pause}.
@@ -265,7 +265,7 @@ interface ISablierFlow is
 
     /// @notice Deposits tokens in a stream.
     ///
-    /// @dev Emits a {Transfer} and {DepositFlowStream} event.
+    /// @dev Emits {Transfer} and {DepositFlowStream} events.
     ///
     /// Notes:
     /// - Refer to the notes in {deposit}.
@@ -285,7 +285,7 @@ interface ISablierFlow is
 
     /// @notice Pauses the stream.
     ///
-    /// @dev Emits a {PauseFlowStream} event.
+    /// @dev Emits {PauseFlowStream} event.
     ///
     /// Notes:
     /// - It does not set the snapshot time to the current block timestamp.
@@ -302,7 +302,7 @@ interface ISablierFlow is
 
     /// @notice Refunds the provided amount of tokens from the stream to the sender's address.
     ///
-    /// @dev Emits a {Transfer} and {RefundFromFlowStream} event.
+    /// @dev Emits {Transfer} and {RefundFromFlowStream} events.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -316,7 +316,7 @@ interface ISablierFlow is
 
     /// @notice Refunds the provided amount of tokens from the stream to the sender's address.
     ///
-    /// @dev Emits a {Transfer}, {RefundFromFlowStream} and {PauseFlowStream} event.
+    /// @dev Emits {Transfer}, {RefundFromFlowStream} and {PauseFlowStream} events.
     ///
     /// Notes:
     /// - Refer to the notes in {pause}.
@@ -330,7 +330,7 @@ interface ISablierFlow is
 
     /// @notice Restarts the stream with the provided rate per second.
     ///
-    /// @dev Emits a {RestartFlowStream} event.
+    /// @dev Emits {RestartFlowStream} event.
     /// - This function updates stream's `snapshotTime` to the current block timestamp.
     ///
     /// Notes:
@@ -349,7 +349,7 @@ interface ISablierFlow is
 
     /// @notice Restarts the stream with the provided rate per second, and makes a deposit.
     ///
-    /// @dev Emits a {RestartFlowStream}, {Transfer}, and {DepositFlowStream} event.
+    /// @dev Emits {RestartFlowStream}, {Transfer}, and {DepositFlowStream} events.
     ///
     /// Notes:
     /// - Refer to the notes in {restart} and {deposit}.
@@ -366,7 +366,7 @@ interface ISablierFlow is
 
     /// @notice Voids a stream.
     ///
-    /// @dev Emits a {VoidFlowStream} event.
+    /// @dev Emits {VoidFlowStream} event.
     ///
     /// Notes:
     /// - It sets snapshot time to the `block.timestamp`
@@ -386,7 +386,7 @@ interface ISablierFlow is
 
     /// @notice Withdraws the provided `amount` minus the protocol fee to the provided `to` address.
     ///
-    /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
+    /// @dev Emits {Transfer} and {WithdrawFromFlowStream} events.
     ///
     /// Notes:
     /// - It sets the snapshot time to the `block.timestamp` if `amount` is greater than snapshot debt.
@@ -415,7 +415,7 @@ interface ISablierFlow is
 
     /// @notice Withdraws the entire withdrawable amount minus the protocol fee to the provided `to` address.
     ///
-    /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
+    /// @dev Emits {Transfer} and {WithdrawFromFlowStream} events.
     ///
     /// Notes:
     /// - Refer to the notes in {withdraw}.

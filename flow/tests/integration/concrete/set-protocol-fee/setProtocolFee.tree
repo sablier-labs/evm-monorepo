@@ -7,7 +7,7 @@ SetProtocolFee_Integration_Concrete_Test
    └── when new protocol fee not exceed max fee
       ├── when new and old protocol fee are same
       │  ├── it should re-set the protocol fee
-      │  └── it should emit {SetProtocolFee} event
+      │  └── it should emit {SetProtocolFee} and {BatchMetadataUpdate} events
       └── when new and old protocol fee are not same
          ├── it should set the new protocol fee
-         └── it should emit {SetProtocolFee} event
+         └── it should emit {SetProtocolFee} and {BatchMetadataUpdate} events

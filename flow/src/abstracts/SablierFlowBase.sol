@@ -52,7 +52,7 @@ abstract contract SablierFlowBase is
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Emits a {TransferAdmin} event.
+    /// @dev Emits {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
     constructor(address initialAdmin, IFlowNFTDescriptor initialNFTDescriptor) {
@@ -277,6 +277,9 @@ abstract contract SablierFlowBase is
             oldProtocolFee: oldProtocolFee,
             newProtocolFee: newProtocolFee
         });
+
+        // Refresh the NFT metadata for all streams.
+        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
