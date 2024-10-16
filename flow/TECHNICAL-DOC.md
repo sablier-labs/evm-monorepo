@@ -13,9 +13,10 @@ pause it or void it at a later date.
 A stream is represented by a struct, which can be found in
 [`DataTypes.sol`](https://github.com/sablier-labs/flow/blob/ba1c9ba64907200c82ccfaeaa6ab91f6229c433d/src/types/DataTypes.sol#L41-L76).
 
-The debt is tracked using `snapshotDebt` and `snapshotTime`. At snapshot, the following events are taking place:
+The debt is tracked using `snapshotDebtScaled` and `snapshotTime`. At snapshot, the following events are taking place:
 
-1. `snapshotDebt` is incremented by `ongoingDebt` where `ongoingDebt = rps * (block.timestamp - snapshotTime)`.
+1. `snapshotDebtScaled` is incremented by `ongoingDebtScaled` where
+   `ongoingDebtScaled = rps * (block.timestamp - snapshotTime)`.
 2. `snapshotTime` is updated to `block.timestamp`.
 
 The recipient can withdraw the streamed amount at any point. However, if there aren't sufficient funds, the recipient

@@ -121,10 +121,11 @@ interface ISablierFlow is
     /// @param streamId The stream ID for the query.
     function depletionTimeOf(uint256 streamId) external view returns (uint256 depletionTime);
 
-    /// @notice Returns the amount of debt accrued since the snapshot time until now, denoted in token's decimals.
+    /// @notice Returns the amount of debt accrued since the snapshot time until now, denoted as a fixed-point number
+    /// where 1e18 is 1 token.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    function ongoingDebtOf(uint256 streamId) external view returns (uint256 ongoingDebt);
+    function ongoingDebtScaledOf(uint256 streamId) external view returns (uint256 ongoingDebtScaled);
 
     /// @notice Returns the amount that the sender can be refunded from the stream, denoted in token's decimals.
     /// @dev Reverts if `streamId` references a null stream.

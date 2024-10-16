@@ -73,7 +73,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             streamId: streamId,
             sender: users.sender,
             recipient: users.recipient,
-            totalDebt: uint128(flow.totalDebtOf(streamId))
+            totalDebt: flow.totalDebtOf(streamId)
         });
 
         vm.expectEmit({ emitter: address(flow) });
@@ -85,7 +85,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Assert that the stream is paused.
         assertTrue(flow.isPaused(streamId), "paused");
 
-        assertEq(flow.ongoingDebtOf(streamId), 0, "ongoing debt");
+        assertEq(flow.ongoingDebtScaledOf(streamId), 0, "ongoing debt");
 
         // Assert that the rate per second is 0.
         assertEq(flow.getRatePerSecond(streamId), 0, "rate per second");

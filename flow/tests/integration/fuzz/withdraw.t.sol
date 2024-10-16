@@ -147,8 +147,10 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         vars.previousAggregateAmount = flow.aggregateBalance(token);
         vars.previousTokenBalance = token.balanceOf(address(flow));
-        vars.previousOngoingDebt = flow.totalDebtOf(streamId);
-        vars.previousTotalDebt = flow.getSnapshotDebt(streamId) + vars.previousOngoingDebt;
+        vars.previousOngoingDebtScaled = flow.totalDebtOf(streamId);
+        vars.previousTotalDebt = getDescaledAmount(
+            flow.getSnapshotDebtScaled(streamId), flow.getTokenDecimals(streamId)
+        ) + vars.previousOngoingDebtScaled;
         vars.previousStreamBalance = flow.getBalance(streamId);
 
         vars.expectedProtocolRevenue = flow.protocolRevenue(token);
@@ -184,7 +186,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         assertEq(vars.actualWithdrawnAmount, withdrawAmount - vars.protocolFeeAmount, "withdrawn amount");
         assertEq(vars.actualProtocolFeeAmount, vars.protocolFeeAmount, "protocol fee amount");
 
-        assertEq(flow.ongoingDebtOf(streamId), 0, "ongoing debt");
+        assertEq(flow.ongoingDebtScaledOf(streamId), 0, "ongoing debt");
 
         // Assert the protocol revenue.
         vars.actualProtocolRevenue = flow.protocolRevenue(token);

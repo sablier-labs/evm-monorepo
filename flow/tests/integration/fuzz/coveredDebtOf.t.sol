@@ -25,7 +25,7 @@ contract CoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: warpTimestamp });
 
-        uint128 expectedCoveredDebt = flow.coveredDebtOf(streamId);
+        uint256 expectedCoveredDebt = flow.coveredDebtOf(streamId);
 
         // Pause the stream.
         flow.pause(streamId);
@@ -34,7 +34,7 @@ contract CoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.warp({ newTimestamp: boundUint40(warpTimestamp, getBlockTimestamp() + 1, UINT40_MAX) });
 
         // Assert that the covered debt did not change.
-        uint128 actualCoveredDebt = flow.coveredDebtOf(streamId);
+        uint256 actualCoveredDebt = flow.coveredDebtOf(streamId);
         assertEq(actualCoveredDebt, expectedCoveredDebt);
     }
 
@@ -63,8 +63,8 @@ contract CoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
 
         // Assert that the covered debt equals the ongoing debt.
-        uint128 actualCoveredDebt = flow.coveredDebtOf(streamId);
-        uint128 expectedCoveredDebt = getDescaledAmount(ratePerSecond * (warpTimestamp - OCT_1_2024), decimals);
+        uint256 actualCoveredDebt = flow.coveredDebtOf(streamId);
+        uint256 expectedCoveredDebt = getDescaledAmount(ratePerSecond * (warpTimestamp - OCT_1_2024), decimals);
         assertEq(actualCoveredDebt, expectedCoveredDebt);
     }
 
@@ -84,7 +84,7 @@ contract CoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.warp({ newTimestamp: warpTimestamp });
 
         // Assert that the covered debt equals the stream balance.
-        uint128 actualCoveredDebt = flow.coveredDebtOf(streamId);
+        uint256 actualCoveredDebt = flow.coveredDebtOf(streamId);
         assertEq(actualCoveredDebt, flow.getBalance(streamId), "covered debt vs stream balance");
 
         // Assert that the covered debt is same as the deposited amount.

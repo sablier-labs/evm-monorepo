@@ -55,7 +55,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
             uint128 amountSeed = uint128(uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals))));
             // Bound the amount between a realistic range.
             uint128 amount = boundUint128(amountSeed, 1e18, 200_000e18);
-            uint128 depositAmount = getDescaledAmount(amount, decimals);
+            uint128 depositAmount = uint128(getDescaledAmount(amount, decimals));
 
             // Deposit into the stream.
             deposit(streamId, depositAmount);

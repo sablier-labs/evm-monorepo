@@ -54,8 +54,6 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenCallerSender() external whenNoDelegateCall givenNotNull givenNotPaused {
-        uint256 previousTotalDebt = flow.totalDebtOf(defaultStreamId);
-
         // It should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: address(flow), to: users.sender, value: REFUND_AMOUNT_6D });
@@ -72,7 +70,7 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
             streamId: defaultStreamId,
             sender: users.sender,
             recipient: users.recipient,
-            totalDebt: previousTotalDebt
+            totalDebt: flow.totalDebtOf(defaultStreamId)
         });
 
         vm.expectEmit({ emitter: address(flow) });
@@ -96,7 +94,7 @@ contract RefundAndPause_Integration_Concrete_Test is Integration_Test {
         assertEq(actualRatePerSecond, 0, "rate per second");
 
         // It should update the snapshot debt
-        uint256 actualSnapshotDebt = flow.getSnapshotDebt(defaultStreamId);
-        assertEq(actualSnapshotDebt, previousTotalDebt, "snapshot debt");
+        uint256 actualSnapshotDebtScaled = flow.getSnapshotDebtScaled(defaultStreamId);
+        assertEq(actualSnapshotDebtScaled, ONE_MONTH_DEBT_18D, "snapshot debt");
     }
 }

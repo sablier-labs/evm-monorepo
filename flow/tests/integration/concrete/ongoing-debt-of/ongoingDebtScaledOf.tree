@@ -1,4 +1,4 @@
-OngoingDebtOf_Integration_Concrete_Test
+OngoingDebtScaledOf_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null

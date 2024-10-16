@@ -65,8 +65,8 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
         uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
 
         // Assert that the refundable amount same as the deposited amount minus streamed amount.
-        uint128 actualRefundableAmount = flow.refundableAmountOf(streamId);
-        uint128 expectedRefundableAmount =
+        uint256 actualRefundableAmount = flow.refundableAmountOf(streamId);
+        uint256 expectedRefundableAmount =
             depositedAmount - getDescaledAmount(ratePerSecond * (warpTimestamp - OCT_1_2024), decimals);
         assertEq(actualRefundableAmount, expectedRefundableAmount);
     }
@@ -87,7 +87,7 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
         vm.warp({ newTimestamp: warpTimestamp });
 
         // Assert that the refundable amount is zero.
-        uint128 actualRefundableAmount = flow.refundableAmountOf(streamId);
+        uint256 actualRefundableAmount = flow.refundableAmountOf(streamId);
         assertEq(actualRefundableAmount, 0);
     }
 }

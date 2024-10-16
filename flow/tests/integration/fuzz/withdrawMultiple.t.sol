@@ -126,7 +126,7 @@ contract WithdrawMultiple_Delay_Fuzz_Test is Shared_Integration_Fuzz_Test {
         }
         // For all other decimals, choose the minimum rps such that it takes 1 minute to stream 1 token.
         else {
-            rps = boundUint128(rps, getScaledAmount(1, decimals) / 60 + 1, 1e18);
+            rps = boundUint128(rps, uint128(getScaledAmount(1, decimals)) / 60 + 1, 1e18);
         }
 
         uint256 streamId = createDefaultStream(ud21x18(rps), token);

@@ -227,12 +227,13 @@ contract Flow_Fork_Test is Fork_Test {
             newRatePerSecond = ud21x18(newRatePerSecond.unwrap() + 1);
         }
 
-        uint256 beforeSnapshotAmount = flow.getSnapshotDebt(streamId);
+        uint256 beforeSnapshotAmount = flow.getSnapshotDebtScaled(streamId);
         uint256 totalDebt = flow.totalDebtOf(streamId);
-        uint256 ongoingDebt = flow.ongoingDebtOf(streamId);
 
         // Compute the snapshot time that will be stored post withdraw.
         vars.expectedSnapshotTime = getBlockTimestamp();
+
+        uint256 ongoingDebtScaled = flow.ongoingDebtScaledOf(streamId);
 
         // It should emit 1 {AdjustFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
@@ -249,9 +250,9 @@ contract Flow_Fork_Test is Fork_Test {
         flow.adjustRatePerSecond({ streamId: streamId, newRatePerSecond: newRatePerSecond });
 
         // It should update snapshot debt.
-        vars.actualSnapshotDebt = flow.getSnapshotDebt(streamId);
-        vars.expectedSnapshotDebt = ongoingDebt + beforeSnapshotAmount;
-        assertEq(vars.actualSnapshotDebt, vars.expectedSnapshotDebt, "AdjustRatePerSecond: snapshot debt");
+        vars.actualSnapshotDebtScaled = flow.getSnapshotDebtScaled(streamId);
+        vars.expectedSnapshotDebtScaled = ongoingDebtScaled + beforeSnapshotAmount;
+        assertEq(vars.actualSnapshotDebtScaled, vars.expectedSnapshotDebtScaled, "AdjustRatePerSecond: snapshot debt");
 
         // It should set the new rate per second
         vars.actualRatePerSecond = flow.getRatePerSecond(streamId);
@@ -302,7 +303,7 @@ contract Flow_Fork_Test is Fork_Test {
             isTransferable: transferable,
             snapshotTime: getBlockTimestamp(),
             ratePerSecond: ratePerSecond,
-            snapshotDebt: 0,
+            snapshotDebtScaled: 0,
             sender: sender,
             token: token,
             tokenDecimals: IERC20Metadata(address(token)).decimals()
@@ -561,8 +562,10 @@ contract Flow_Fork_Test is Fork_Test {
         uint256 initialTokenBalance = token.balanceOf(address(flow));
         uint256 totalDebt = flow.totalDebtOf(streamId);
 
-        vars.expectedSnapshotTime =
-            withdrawAmount <= flow.getSnapshotDebt(streamId) ? flow.getSnapshotTime(streamId) : getBlockTimestamp();
+        vars.expectedSnapshotTime = withdrawAmount
+            <= getDescaledAmount(flow.getSnapshotDebtScaled(streamId), flow.getTokenDecimals(streamId))
+            ? flow.getSnapshotTime(streamId)
+            : getBlockTimestamp();
 
         (, address caller,) = vm.readCallers();
         address recipient = flow.getRecipient(streamId);

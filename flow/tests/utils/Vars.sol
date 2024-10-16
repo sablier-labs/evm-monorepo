@@ -10,7 +10,7 @@ struct Vars {
     IERC20 token;
     // previous values.
     uint256 previousAggregateAmount;
-    uint256 previousOngoingDebt;
+    uint256 previousOngoingDebtScaled;
     uint40 previousSnapshotTime;
     uint128 previousStreamBalance;
     uint256 previousTokenBalance;
@@ -20,7 +20,7 @@ struct Vars {
     uint128 actualProtocolFeeAmount;
     uint128 actualProtocolRevenue;
     UD21x18 actualRatePerSecond;
-    uint256 actualSnapshotDebt;
+    uint256 actualSnapshotDebtScaled;
     uint40 actualSnapshotTime;
     uint128 actualStreamBalance;
     uint256 actualStreamId;
@@ -32,7 +32,7 @@ struct Vars {
     uint128 expectedProtocolFeeAmount;
     uint128 expectedProtocolRevenue;
     UD21x18 expectedRatePerSecond;
-    uint256 expectedSnapshotDebt;
+    uint256 expectedSnapshotDebtScaled;
     uint40 expectedSnapshotTime;
     uint128 expectedStreamBalance;
     uint256 expectedStreamId;

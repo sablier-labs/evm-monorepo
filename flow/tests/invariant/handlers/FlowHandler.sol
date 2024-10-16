@@ -86,7 +86,7 @@ contract FlowHandler is BaseHandler {
         uint8 decimals = flow.getTokenDecimals(currentStreamId);
 
         // Calculate the minimum value in scaled version that can be withdrawn for this token.
-        uint128 mvt = getScaledAmount(1, decimals);
+        uint256 mvt = getScaledAmount(1, decimals);
 
         // Check the rate per second is within a realistic range such that it can also be smaller than mvt.
         if (decimals == 18) {
@@ -123,8 +123,8 @@ contract FlowHandler is BaseHandler {
         vm.assume(!flow.isVoided(currentStreamId));
 
         // Calculate the upper bound, based on the token decimals, for the deposit amount.
-        uint128 upperBound = getDescaledAmount(1_000_000e18, flow.getTokenDecimals(currentStreamId));
-        uint128 lowerBound = getDescaledAmount(1e18, flow.getTokenDecimals(currentStreamId));
+        uint256 upperBound = getDescaledAmount(1_000_000e18, flow.getTokenDecimals(currentStreamId));
+        uint256 lowerBound = getDescaledAmount(1e18, flow.getTokenDecimals(currentStreamId));
 
         // Make sure the deposit amount is non-zero and less than values that could cause an overflow.
         vm.assume(depositAmount >= lowerBound && depositAmount <= upperBound);
@@ -219,7 +219,7 @@ contract FlowHandler is BaseHandler {
         uint8 decimals = flow.getTokenDecimals(currentStreamId);
 
         // Calculate the minimum value in scaled version that can be withdrawn for this token.
-        uint128 mvt = getScaledAmount(1, decimals);
+        uint256 mvt = getScaledAmount(1, decimals);
 
         // Check the rate per second is within a realistic range such that it can also be smaller than mvt.
         if (decimals == 18) {

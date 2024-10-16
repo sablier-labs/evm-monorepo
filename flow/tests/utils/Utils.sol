@@ -60,22 +60,22 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
     }
 
     /// @dev Descales the amount to denote it in token's decimals.
-    function getDescaledAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
+    function getDescaledAmount(uint256 amount, uint8 decimals) internal pure returns (uint256) {
         if (decimals == 18) {
             return amount;
         }
 
-        uint128 scaleFactor = (10 ** (18 - decimals)).toUint128();
+        uint256 scaleFactor = (10 ** (18 - decimals));
         return amount / scaleFactor;
     }
 
     /// @dev Scales the amount to denote it in 18 decimals.
-    function getScaledAmount(uint128 amount, uint8 decimals) internal pure returns (uint128) {
+    function getScaledAmount(uint256 amount, uint8 decimals) internal pure returns (uint256) {
         if (decimals == 18) {
             return amount;
         }
 
-        uint128 scaleFactor = (10 ** (18 - decimals)).toUint128();
+        uint256 scaleFactor = (10 ** (18 - decimals));
         return amount * scaleFactor;
     }
 

@@ -38,6 +38,7 @@ abstract contract Constants {
 
     // Streaming amounts
     uint128 internal constant ONE_MONTH_DEBT_6D = 2592e6; // 86.4 * 30
+    uint128 internal constant ONE_MONTH_DEBT_18D = 2592e18; // 86.4 * 30
     uint128 internal constant ONE_MONTH_REFUNDABLE_AMOUNT_6D = DEPOSIT_AMOUNT_6D - ONE_MONTH_DEBT_6D;
 
     // Time

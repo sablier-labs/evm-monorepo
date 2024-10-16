@@ -47,7 +47,7 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
         // Adjust the rate per second.
         flow.adjustRatePerSecond(streamId, newRatePerSecond);
 
-        assertEq(flow.ongoingDebtOf(streamId), 0, "ongoing debt");
+        assertEq(flow.ongoingDebtScaledOf(streamId), 0, "ongoing debt");
 
         assertEq(previousTotalDebt, flow.totalDebtOf(streamId), "rate per second");
     }
@@ -108,7 +108,7 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
         // Adjust the rate per second.
         flow.adjustRatePerSecond(streamId, newRatePerSecond);
 
-        assertEq(flow.ongoingDebtOf(streamId), 0, "ongoing debt");
+        assertEq(flow.ongoingDebtScaledOf(streamId), 0, "ongoing debt");
 
         assertEq(previousTotalDebt, flow.totalDebtOf(streamId), "rate per second");
     }

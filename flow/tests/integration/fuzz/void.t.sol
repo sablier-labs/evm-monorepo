@@ -154,7 +154,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         assertTrue(flow.isVoided(streamId), "voided");
         assertTrue(flow.isPaused(streamId), "paused");
         assertEq(flow.getRatePerSecond(streamId), 0, "rate per second");
-        assertEq(flow.ongoingDebtOf(streamId), 0, "ongoing debt");
+        assertEq(flow.ongoingDebtScaledOf(streamId), 0, "ongoing debt");
         assertEq(flow.uncoveredDebtOf(streamId), 0, "uncovered debt");
         assertEq(flow.totalDebtOf(streamId), expectedTotalDebt, "total debt");
     }

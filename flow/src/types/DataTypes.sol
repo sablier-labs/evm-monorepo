@@ -55,9 +55,9 @@ library Flow {
     /// be restarted. Voiding an insolvent stream sets its uncovered debt to zero.
     /// @param token The contract address of the ERC-20 token to stream.
     /// @param tokenDecimals The decimals of the ERC-20 token to stream.
-    /// @param snapshotDebt The amount of tokens that the sender owed to the recipient at snapshot time, denoted in
-    /// token's decimals. This, along with the ongoing debt, can be used to calculate the total debt at any given point
-    /// in time.
+    /// @param snapshotDebtScaled The amount of tokens that the sender owed to the recipient at snapshot time, denoted
+    /// as a 18-decimals fixed-point number. This, along with the ongoing debt, can be used to calculate the total debt
+    /// at any given point in time.
     struct Stream {
         // slot 0
         uint128 balance;
@@ -72,6 +72,6 @@ library Flow {
         IERC20 token;
         uint8 tokenDecimals;
         // slot 3
-        uint256 snapshotDebt;
+        uint256 snapshotDebtScaled;
     }
 }

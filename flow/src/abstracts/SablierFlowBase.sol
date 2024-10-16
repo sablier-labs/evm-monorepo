@@ -134,14 +134,14 @@ abstract contract SablierFlowBase is
     }
 
     /// @inheritdoc ISablierFlowBase
-    function getSnapshotDebt(uint256 streamId)
+    function getSnapshotDebtScaled(uint256 streamId)
         external
         view
         override
         notNull(streamId)
-        returns (uint256 snapshotDebt)
+        returns (uint256 snapshotDebtScaled)
     {
-        snapshotDebt = _streams[streamId].snapshotDebt;
+        snapshotDebtScaled = _streams[streamId].snapshotDebtScaled;
     }
 
     /// @inheritdoc ISablierFlowBase

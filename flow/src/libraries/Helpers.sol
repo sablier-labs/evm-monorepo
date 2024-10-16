@@ -49,4 +49,28 @@ library Helpers {
         // Calculate the broker fee amount that is going to be transferred to the `broker.account`.
         (brokerFeeAmount, depositAmount) = calculateAmountsFromFee(totalAmount, broker.fee);
     }
+
+    /// @notice Descales the provided `amount` from 18 decimals fixed-point number to token's decimals number.
+    function descaleAmount(uint256 amount, uint8 decimals) internal pure returns (uint256) {
+        if (decimals == 18) {
+            return amount;
+        }
+
+        unchecked {
+            uint256 scaleFactor = 10 ** (18 - decimals);
+            return amount / scaleFactor;
+        }
+    }
+
+    /// @notice Scales the provided `amount` from 18 decimals fixed-point number to token's decimals number.
+    function scaleAmount(uint256 amount, uint8 decimals) internal pure returns (uint256) {
+        if (decimals == 18) {
+            return amount;
+        }
+
+        unchecked {
+            uint256 scaleFactor = 10 ** (18 - decimals);
+            return amount * scaleFactor;
+        }
+    }
 }

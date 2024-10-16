@@ -51,7 +51,7 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
         assertGt(flow.uncoveredDebtOf(defaultStreamId), 0, "uncovered debt");
 
         // It should pause the stream.
-        test_Pause();
+        _test_Pause();
     }
 
     function test_GivenNoUncoveredDebt() external whenNoDelegateCall givenNotNull givenNotPaused whenCallerSender {
@@ -62,19 +62,17 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
         assertEq(flow.uncoveredDebtOf(defaultStreamId), 0, "uncovered debt");
 
         // It should pause the stream.
-        test_Pause();
+        _test_Pause();
     }
 
-    function test_Pause() internal {
-        uint256 initialTotalDebt = flow.totalDebtOf(defaultStreamId);
-
+    function _test_Pause() private {
         // It should emit 1 {PauseFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.PauseFlowStream({
             streamId: defaultStreamId,
             sender: users.sender,
             recipient: users.recipient,
-            totalDebt: initialTotalDebt
+            totalDebt: flow.totalDebtOf(defaultStreamId)
         });
 
         vm.expectEmit({ emitter: address(flow) });
@@ -90,7 +88,7 @@ contract Pause_Integration_Concrete_Test is Integration_Test {
         assertEq(actualRatePerSecond, 0, "rate per second");
 
         // It should update the snapshot debt.
-        uint256 actualSnapshotDebt = flow.getSnapshotDebt(defaultStreamId);
-        assertEq(actualSnapshotDebt, initialTotalDebt, "snapshot debt");
+        uint256 actualSnapshotDebtScaled = flow.getSnapshotDebtScaled(defaultStreamId);
+        assertEq(actualSnapshotDebtScaled, ONE_MONTH_DEBT_18D, "snapshot debt");
     }
 }

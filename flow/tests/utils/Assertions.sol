@@ -28,7 +28,7 @@ abstract contract Assertions is PRBMathAssertions {
         assertEq(a.isStream, b.isStream, "isStream");
         assertEq(a.isTransferable, b.isTransferable, "isTransferable");
         assertEq(a.isVoided, b.isVoided, "isVoided");
-        assertEq(a.snapshotDebt, b.snapshotDebt, "snapshotDebt");
+        assertEq(a.snapshotDebtScaled, b.snapshotDebtScaled, "snapshotDebtScaled");
         assertEq(a.sender, b.sender, "sender");
         assertEq(a.token, b.token, "token");
         assertEq(a.tokenDecimals, b.tokenDecimals, "tokenDecimals");

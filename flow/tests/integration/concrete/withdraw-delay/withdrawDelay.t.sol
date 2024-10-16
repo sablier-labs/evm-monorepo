@@ -21,7 +21,7 @@ contract WithdrawDelay_Integration_Concrete_Test is Integration_Test {
 
         // Assert that one token has been unlocked.
         vm.warp(initialSnapshotTime + 87 seconds);
-        assertEq(flow.ongoingDebtOf(streamId), 1);
+        assertEq(getDescaledAmount(flow.ongoingDebtScaledOf(streamId), flow.getTokenDecimals(streamId)), 1);
 
         // Withdraw the token.
         (uint128 withdrawnAmount,) = flow.withdrawMax(streamId, users.recipient);
@@ -29,7 +29,9 @@ contract WithdrawDelay_Integration_Concrete_Test is Integration_Test {
 
         // Now warp to the expected third token unlock.
         vm.warp(initialSnapshotTime + 260 seconds);
-        assertEq(withdrawnAmount + flow.ongoingDebtOf(streamId), 3);
+        assertEq(
+            withdrawnAmount + getDescaledAmount(flow.ongoingDebtScaledOf(streamId), flow.getTokenDecimals(streamId)), 3
+        );
     }
 
     function test_Withdraw_LongestDelay() external {
@@ -45,7 +47,7 @@ contract WithdrawDelay_Integration_Concrete_Test is Integration_Test {
 
         // Assert that there is still only one token unlocked.
         vm.warp(initialSnapshotTime + 172 seconds);
-        assertEq(flow.ongoingDebtOf(streamId), 1);
+        assertEq(getDescaledAmount(flow.ongoingDebtScaledOf(streamId), flow.getTokenDecimals(streamId)), 1);
 
         // Withdraw the token.
         (uint128 withdrawnAmount,) = flow.withdrawMax(streamId, users.recipient);
@@ -53,15 +55,21 @@ contract WithdrawDelay_Integration_Concrete_Test is Integration_Test {
 
         // Warp to a second before second token unlock so that we prove the delay.
         vm.warp(initialSnapshotTime + 258 seconds);
-        assertEq(withdrawnAmount + flow.ongoingDebtOf(streamId), 1);
+        assertEq(
+            withdrawnAmount + getDescaledAmount(flow.ongoingDebtScaledOf(streamId), flow.getTokenDecimals(streamId)), 1
+        );
 
         // Warp to the expected second token unlock.
         vm.warp(initialSnapshotTime + 259 seconds);
-        assertEq(withdrawnAmount + flow.ongoingDebtOf(streamId), 2);
+        assertEq(
+            withdrawnAmount + getDescaledAmount(flow.ongoingDebtScaledOf(streamId), flow.getTokenDecimals(streamId)), 2
+        );
 
         // Warp to the expected third token unlock.
         vm.warp(initialSnapshotTime + 345 seconds);
-        assertEq(withdrawnAmount + flow.ongoingDebtOf(streamId), 3);
+        assertEq(
+            withdrawnAmount + getDescaledAmount(flow.ongoingDebtScaledOf(streamId), flow.getTokenDecimals(streamId)), 3
+        );
     }
 
     /// @dev A test that demonstrates there is no delay when the rate per second is greater than the scale scaleFactor,
@@ -98,9 +106,11 @@ contract WithdrawDelay_Integration_Concrete_Test is Integration_Test {
             // Find the time when the ongoing debt has increased by 38
             uint256 diff;
             while (diff != 39) {
-                uint256 beforeWarpOd = flow.ongoingDebtOf(streamId);
+                uint256 beforeWarpOd =
+                    getDescaledAmount(flow.ongoingDebtScaledOf(streamId), flow.getTokenDecimals(streamId));
                 vm.warp(getBlockTimestamp() + 1 seconds);
-                diff = flow.ongoingDebtOf(streamId) - beforeWarpOd;
+                diff = getDescaledAmount(flow.ongoingDebtScaledOf(streamId), flow.getTokenDecimals(streamId))
+                    - beforeWarpOd;
             }
 
             (uint128 withdrawnAmount,) = flow.withdrawMax(streamId, users.recipient);

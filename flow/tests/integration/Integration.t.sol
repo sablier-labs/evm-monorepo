@@ -94,7 +94,7 @@ abstract contract Integration_Test is Base_Test {
             isTransferable: TRANSFERABLE,
             isVoided: false,
             ratePerSecond: RATE_PER_SECOND,
-            snapshotDebt: 0,
+            snapshotDebtScaled: 0,
             sender: users.sender,
             token: usdc,
             tokenDecimals: DECIMALS
