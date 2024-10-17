@@ -44,18 +44,23 @@ Vulnerabilities contingent upon the occurrence of any of the following also are 
 Flow has been developed with a number of technical assumptions in mind. For a disclosure to qualify as a vulnerability,
 it must adhere to the following assumptions:
 
-- The total supply of any ERC-20 token remains below 2<sup>128</sup> - 1, i.e., `type(uint128).max`.
+- The total supply of any ERC-20 token remains below $(2^{128} - 1)$, i.e., `type(uint128).max`.
 - The `transfer` and `transferFrom` methods of any ERC-20 token strictly reduce the sender's balance by the transfer
   amount and increase the recipient's balance by the same amount. In other words, tokens that charge fees on transfers
   are not supported.
 - An address' ERC-20 balance can only change as a result of a `transfer` call by the sender or a `transferFrom` call by
-  an approved address. This excludes rebase tokens and interest-bearing tokens.
-- The token contract does not allow callbacks (e.g. ERC-777 is not supported).
-- As explained in the [Technical Documentation](https://github.com/sablier-labs/flow/blob/main/TECHNICAL-DOC.md), there
-  can be delays in streamed amounts if the `rps` is extremely small. The definition of "extremely small rps" is relative
-  to the token's decimals and dollar value. For example, streaming less than 50 USDC per month would be considered to
-  have an extremely small rps. For WBTC, that would amount to something like 0.001 WBTC a month. More generally, any rps
-  that takes more than 1 second to stream 1 wei of the token is considered extremely small.
+  an approved address. This excludes rebase tokens, interest-bearing tokens, and permissioned tokens where the admin can
+  arbitrarily change balances.
+- The token contract does not allow callbacks (e.g., ERC-777 is not supported).
+- A trust relationship is formed between the sender, recipient, and depositors participating in a stream. The recipient
+  depends on the sender to fulfill their obligation to repay any debts incurred by the Flow stream. Likewise, depositors
+  trust that the sender will not abuse the refund function to reclaim tokens.
+- The `depletionTimeOf` function depends on the stream's rate per second. Therefore, any change in the rate per second
+  will result in a new depletion time.
+- As explained in the [Technical Documentation](https://github.com/sablier-labs/flow/blob/main/TECHNICAL-DOC.md),
+  recipients cannot withdraw the exact amount of debt streamed due to precision errors. This discrepancy is minor, with
+  the maximum potential loss (in USDC) being just $0.01 per withdraw. Typically, this loss ranges from 0 to 1 unit of
+  the token (in its native decimal format), depending on the timing of the recipient's withdrawal.
 
 ### Rewards
 
