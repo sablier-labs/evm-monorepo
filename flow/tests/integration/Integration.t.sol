@@ -112,7 +112,7 @@ abstract contract Integration_Test is Base_Test {
         deal({ token: address(token), to: users.sender, give: UINT128_MAX });
         token.approve(address(flow), UINT128_MAX);
 
-        flow.deposit(streamId, amount);
+        flow.deposit(streamId, amount, users.sender, users.recipient);
     }
 
     function depositDefaultAmount(uint256 streamId) internal {

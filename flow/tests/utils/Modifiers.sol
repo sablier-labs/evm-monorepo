@@ -86,6 +86,14 @@ abstract contract Modifiers {
         _;
     }
 
+    modifier whenRecipientMatches() {
+        _;
+    }
+
+    modifier whenSenderMatches() {
+        _;
+    }
+
     modifier whenTotalAmountNotZero() {
         _;
     }

@@ -34,7 +34,7 @@ contract DepletionTimeOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Assert that depletion time equals expected value.
         uint256 actualDepletionTime = flow.depletionTimeOf(streamId);
-        if (getBlockTimestamp() > OCT_1_2024 + solvencyPeriod) {
+        if (getBlockTimestamp() >= OCT_1_2024 + solvencyPeriod) {
             assertEq(actualDepletionTime, 0, "depletion time");
 
             // Assert that uncovered debt is greater than 0.

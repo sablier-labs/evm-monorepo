@@ -8,23 +8,29 @@ DepositViaBroker_Integration_Concrete_Test
       ├── given voided
       │  └── it should revert
       └── given not voided
-         ├── when broker fee greater than max fee
+         ├── when sender not match
          │  └── it should revert
-         └── when broker fee not greater than max fee
-            ├── when broke address zero
+         └── when sender matches
+            ├── when recipient not match
             │  └── it should revert
-            └── when broker address not zero
-               ├── when total amount zero
+            └── when recipient matches
+               ├── when broker fee greater than max fee
                │  └── it should revert
-               └── when total amount not zero
-                  ├── when token misses ERC20 return
-                  │  └── it should make the deposit
-                  └── when token not miss ERC20 return
-                     ├── given token has 18 decimals
-                     │  ├── it should update the stream balance
-                     │  ├── it should perform the ERC20 transfers
-                     │  └── it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
-                     └── given token not have 18 decimals
-                        ├── it should update the stream balance
-                        ├── it should perform the ERC20 transfers
-                        └── it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
+               └── when broker fee not greater than max fee
+                  ├── when broke address zero
+                  │  └── it should revert
+                  └── when broker address not zero
+                     ├── when total amount zero
+                     │  └── it should revert
+                     └── when total amount not zero
+                        ├── when token misses ERC20 return
+                        │  └── it should make the deposit
+                        └── when token not miss ERC20 return
+                           ├── given token has 18 decimals
+                           │  ├── it should update the stream balance
+                           │  ├── it should perform the ERC20 transfers
+                           │  └── it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
+                           └── given token not have 18 decimals
+                              ├── it should update the stream balance
+                              ├── it should perform the ERC20 transfers
+                              └── it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events

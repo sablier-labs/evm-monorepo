@@ -85,7 +85,7 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Integration_Test {
         whenCallerSender
         whenNewRatePerSecondNotEqualsCurrentRatePerSecond
     {
-        flow.deposit(defaultStreamId, DEPOSIT_AMOUNT_6D);
+        flow.deposit(defaultStreamId, DEPOSIT_AMOUNT_6D, users.sender, users.recipient);
 
         UD21x18 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         UD21x18 expectedRatePerSecond = RATE_PER_SECOND;

@@ -357,7 +357,7 @@ contract Flow_Fork_Test is Fork_Test {
         expectCallToTransferFrom({ token: token, from: sender, to: address(flow), amount: depositAmount });
 
         // Make the deposit.
-        flow.deposit(streamId, depositAmount);
+        flow.deposit(streamId, depositAmount, sender, flow.getRecipient(streamId));
 
         // Assert that the token balance of stream has been updated.
         vars.actualTokenBalance = token.balanceOf(address(flow));

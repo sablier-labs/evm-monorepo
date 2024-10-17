@@ -12,29 +12,73 @@ import { Integration_Test } from "../../Integration.t.sol";
 
 contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData =
-            abi.encodeCall(flow.depositViaBroker, (defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, defaultBroker));
+        bytes memory callData = abi.encodeCall(
+            flow.depositViaBroker,
+            (defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, users.sender, users.recipient, defaultBroker)
+        );
         expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNoDelegateCall {
-        bytes memory callData =
-            abi.encodeCall(flow.depositViaBroker, (nullStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, defaultBroker));
+        bytes memory callData = abi.encodeCall(
+            flow.depositViaBroker,
+            (nullStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, users.sender, users.recipient, defaultBroker)
+        );
         expectRevert_Null(callData);
     }
 
     function test_RevertGiven_Voided() external whenNoDelegateCall givenNotNull {
-        bytes memory callData =
-            abi.encodeCall(flow.depositViaBroker, (defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, defaultBroker));
+        bytes memory callData = abi.encodeCall(
+            flow.depositViaBroker,
+            (defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, users.sender, users.recipient, defaultBroker)
+        );
         expectRevert_Voided(callData);
     }
 
-    function test_RevertWhen_BrokerFeeGreaterThanMaxFee() external whenNoDelegateCall givenNotNull givenNotVoided {
+    function test_RevertWhen_SenderNotMatch(address otherSender)
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotVoided
+    {
+        vm.assume(otherSender != users.sender);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_NotStreamSender.selector, otherSender, users.sender));
+        flow.depositViaBroker(
+            defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, otherSender, users.recipient, defaultBroker
+        );
+    }
+
+    function test_RevertWhen_RecipientNotMatch(address otherRecipient)
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotVoided
+        whenSenderMatches
+    {
+        vm.assume(otherRecipient != users.recipient);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierFlow_NotStreamRecipient.selector, otherRecipient, users.recipient)
+        );
+        flow.depositViaBroker(
+            defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, users.sender, otherRecipient, defaultBroker
+        );
+    }
+
+    function test_RevertWhen_BrokerFeeGreaterThanMaxFee()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotVoided
+        whenSenderMatches
+        whenRecipientMatches
+    {
         defaultBroker.fee = MAX_FEE.add(ud(1));
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFlow_BrokerFeeTooHigh.selector, defaultBroker.fee, MAX_FEE)
         );
-        flow.depositViaBroker(defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, defaultBroker);
+        flow.depositViaBroker(
+            defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, users.sender, users.recipient, defaultBroker
+        );
     }
 
     function test_RevertWhen_BrokeAddressZero()
@@ -42,11 +86,15 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         whenNoDelegateCall
         givenNotNull
         givenNotVoided
+        whenSenderMatches
+        whenRecipientMatches
         whenBrokerFeeNotGreaterThanMaxFee
     {
         defaultBroker.account = address(0);
         vm.expectRevert(Errors.SablierFlow_BrokerAddressZero.selector);
-        flow.depositViaBroker(defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, defaultBroker);
+        flow.depositViaBroker(
+            defaultStreamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, users.sender, users.recipient, defaultBroker
+        );
     }
 
     function test_RevertWhen_TotalAmountZero()
@@ -54,12 +102,14 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         whenNoDelegateCall
         givenNotNull
         givenNotVoided
+        whenSenderMatches
+        whenRecipientMatches
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressNotZero
     {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_DepositAmountZero.selector, defaultStreamId));
 
-        flow.depositViaBroker(defaultStreamId, 0, defaultBroker);
+        flow.depositViaBroker(defaultStreamId, 0, users.sender, users.recipient, defaultBroker);
     }
 
     function test_WhenTokenMissesERC20Return()
@@ -67,6 +117,8 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         whenNoDelegateCall
         givenNotNull
         givenNotVoided
+        whenSenderMatches
+        whenRecipientMatches
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressNotZero
         whenTotalAmountNotZero
@@ -87,6 +139,8 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         whenNoDelegateCall
         givenNotNull
         givenNotVoided
+        whenSenderMatches
+        whenRecipientMatches
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressNotZero
         whenTotalAmountNotZero
@@ -107,6 +161,8 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         whenNoDelegateCall
         givenNotNull
         givenNotVoided
+        whenSenderMatches
+        whenRecipientMatches
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressNotZero
         whenTotalAmountNotZero
@@ -148,7 +204,7 @@ contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
         expectCallToTransferFrom({ token: token, from: users.sender, to: address(flow), amount: depositAmount });
         expectCallToTransferFrom({ token: token, from: users.sender, to: users.broker, amount: brokerFeeAmount });
 
-        flow.depositViaBroker(streamId, totalAmount, defaultBroker);
+        flow.depositViaBroker(streamId, totalAmount, users.sender, users.recipient, defaultBroker);
 
         // It should update the stream balance
         uint128 actualStreamBalance = flow.getBalance(streamId);

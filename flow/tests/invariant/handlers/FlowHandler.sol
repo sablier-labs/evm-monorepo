@@ -138,7 +138,12 @@ contract FlowHandler is BaseHandler {
         token.approve({ spender: address(flow), value: depositAmount });
 
         // Deposit into the stream.
-        flow.deposit({ streamId: currentStreamId, amount: depositAmount });
+        flow.deposit({
+            streamId: currentStreamId,
+            amount: depositAmount,
+            sender: currentSender,
+            recipient: flow.getRecipient(currentStreamId)
+        });
 
         // Update the deposited amount.
         flowStore.updateStreamDepositedAmountsSum(currentStreamId, token, depositAmount);

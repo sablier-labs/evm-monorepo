@@ -52,8 +52,8 @@ interface ISablierFlow is
 
     /// @notice Emitted when a stream is paused by the sender.
     /// @param streamId The ID of the stream.
-    /// @param sender The address of the stream's sender.
-    /// @param recipient The address of the stream's recipient.
+    /// @param sender The stream's sender address.
+    /// @param recipient The stream's recipient address.
     /// @param totalDebt The amount of tokens owed by the sender to the recipient, denoted in token's decimals.
     event PauseFlowStream(
         uint256 indexed streamId, address indexed sender, address indexed recipient, uint256 totalDebt
@@ -61,21 +61,21 @@ interface ISablierFlow is
 
     /// @notice Emitted when a sender is refunded from a stream.
     /// @param streamId The ID of the stream.
-    /// @param sender The address of the stream's sender.
+    /// @param sender The stream's sender address.
     /// @param amount The amount of tokens refunded to the sender, denoted in token's decimals.
     event RefundFromFlowStream(uint256 indexed streamId, address indexed sender, uint128 amount);
 
     /// @notice Emitted when a stream is restarted by the sender.
     /// @param streamId The ID of the stream.
-    /// @param sender The address of the stream's sender.
+    /// @param sender The stream's sender address.
     /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
     /// where 1e18 is 1 token per second.
     event RestartFlowStream(uint256 indexed streamId, address indexed sender, UD21x18 ratePerSecond);
 
     /// @notice Emitted when a stream is voided by the sender, recipient or an approved operator.
     /// @param streamId The ID of the stream.
-    /// @param sender The address of the stream's sender.
-    /// @param recipient The address of the stream's recipient.
+    /// @param sender The stream's sender address.
+    /// @param recipient The stream's recipient address.
     /// @param caller The address that performed the void, which can be the sender, recipient or an approved operator.
     /// @param newTotalDebt The new total debt, denoted in token's decimals.
     /// @param writtenOffDebt The amount of debt written off by the caller, denoted in token's decimals.
@@ -245,10 +245,13 @@ interface ISablierFlow is
     /// - Must not be delegate called.
     /// - `streamId` must not reference a null or a voided stream.
     /// - `amount` must be greater than zero.
+    /// - `sender` and `recipient` must match the stream's sender and recipient addresses.
     ///
     /// @param streamId The ID of the stream to deposit to.
     /// @param amount The deposit amount, denoted in token's decimals.
-    function deposit(uint256 streamId, uint128 amount) external;
+    /// @param sender The stream's sender address.
+    /// @param recipient The stream's recipient address.
+    function deposit(uint256 streamId, uint128 amount, address sender, address recipient) external;
 
     /// @notice Deposits tokens in a stream and pauses it.
     ///
@@ -280,9 +283,18 @@ interface ISablierFlow is
     ///
     /// @param streamId The ID of the stream to deposit on.
     /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in token's decimals.
+    /// @param sender The stream's sender address.
+    /// @param recipient The stream's recipient address.
     /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point percentage.
-    function depositViaBroker(uint256 streamId, uint128 totalAmount, Broker calldata broker) external;
+    function depositViaBroker(
+        uint256 streamId,
+        uint128 totalAmount,
+        address sender,
+        address recipient,
+        Broker calldata broker
+    )
+        external;
 
     /// @notice Pauses the stream.
     ///

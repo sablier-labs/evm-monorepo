@@ -53,7 +53,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
 
         // The calls declared as bytes
         bytes[] memory calls = new bytes[](1);
-        calls[0] = abi.encodeCall(flow.deposit, (streamId, DEPOSIT_AMOUNT_6D));
+        calls[0] = abi.encodeCall(flow.deposit, (streamId, DEPOSIT_AMOUNT_6D, users.sender, users.recipient));
 
         bytes memory expectedRevertData = abi.encodeWithSelector(
             Errors.BatchError.selector, abi.encodeWithSignature("Error(string)", "ERC20: insufficient allowance")
@@ -176,8 +176,8 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
     function test_Batch_DepositMultiple() external {
         // The calls declared as bytes
         bytes[] memory calls = new bytes[](2);
-        calls[0] = abi.encodeCall(flow.deposit, (defaultStreamIds[0], DEPOSIT_AMOUNT_6D));
-        calls[1] = abi.encodeCall(flow.deposit, (defaultStreamIds[1], DEPOSIT_AMOUNT_6D));
+        calls[0] = abi.encodeCall(flow.deposit, (defaultStreamIds[0], DEPOSIT_AMOUNT_6D, users.sender, users.recipient));
+        calls[1] = abi.encodeCall(flow.deposit, (defaultStreamIds[1], DEPOSIT_AMOUNT_6D, users.sender, users.recipient));
 
         // It should emit 2 {Transfer}, 2 {DepositFlowStream}, 2 {MetadataUpdate} events.
 

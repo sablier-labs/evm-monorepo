@@ -68,7 +68,7 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         expectCallToTransferFrom({ token: token, from: caller, to: address(flow), amount: depositAmount });
 
         // Make the deposit.
-        flow.deposit(streamId, depositAmount);
+        flow.deposit(streamId, depositAmount, users.sender, users.recipient);
 
         // Assert that the token balance of stream has been updated.
         uint256 actualTokenBalance = token.balanceOf(address(flow));

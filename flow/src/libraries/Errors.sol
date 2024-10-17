@@ -39,6 +39,12 @@ library Errors {
     /// @notice Thrown when an unexpected error occurs during the calculation of an amount.
     error SablierFlow_InvalidCalculation(uint256 streamId, uint128 availableAmount, uint128 amount);
 
+    /// @notice Thrown when the recipient address does not match the stream's recipient.
+    error SablierFlow_NotStreamRecipient(address recipient, address streamRecipient);
+
+    /// @notice Thrown when the sender address does not match the stream's sender.
+    error SablierFlow_NotStreamSender(address sender, address streamSender);
+
     /// @notice Thrown when the ID references a null stream.
     error SablierFlow_Null(uint256 streamId);
 
