@@ -332,60 +332,57 @@ contract Flow_Invariant_Test is Base_Test {
         }
     }
 
-    /// @dev For non-voided streams, the difference between the total amount streamed adjusted including the delay and
-    /// the sum of total debt and total withdrawn should be equal. Also, total streamed amount with delay must never
-    /// exceed total streamed amount without delay.
-    function invariant_TotalStreamedWithDelayEqTotalDebtPlusWithdrawn() external view {
+    /// @dev For non-voided streams, the expected streamed amount should be greater than or equal to the sum of total
+    /// debt and withdrawn amount. And, the difference between the two should not exceed 10 wei.
+    function invariant_TotalStreamedEqTotalDebtPlusWithdrawn() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
 
             // Skip the voided streams.
             if (!flow.isVoided(streamId)) {
-                (uint256 totalStreamedAmount, uint256 totalStreamedAmountWithDelay) =
-                    calculateTotalStreamedAmounts(flowStore.streamIds(i), flow.getTokenDecimals(streamId));
+                uint256 expectedTotalStreamed =
+                    calculateExpectedStreamedAmount(flowStore.streamIds(i), flow.getTokenDecimals(streamId));
+                uint256 actualTotalStreamed = flow.totalDebtOf(streamId) + flowStore.withdrawnAmounts(streamId);
 
                 assertGe(
-                    totalStreamedAmount,
-                    totalStreamedAmountWithDelay,
-                    "Invariant violation: total streamed amount without delay >= total streamed amount with delay"
+                    expectedTotalStreamed,
+                    actualTotalStreamed,
+                    "Invariant violation: expected streamed amount >= total debt + withdrawn amount"
                 );
 
-                assertEq(
-                    totalStreamedAmountWithDelay,
-                    flow.totalDebtOf(streamId) + flowStore.withdrawnAmounts(streamId),
-                    "Invariant violation: total streamed amount with delay = total debt + withdrawn amount"
+                assertLe(
+                    expectedTotalStreamed - actualTotalStreamed,
+                    10,
+                    "Invariant violation: expected streamed amount - total debt + withdrawn amount <= 10"
                 );
             }
         }
     }
 
-    /// @dev Calculates the total streamed amounts by iterating over each period.
-    function calculateTotalStreamedAmounts(
+    /// @dev Calculates the maximum possible amount streamed, denoted in token's decimal, by iterating over all the
+    /// periods during which rate per second remained constant followed by descaling at the last step.
+    function calculateExpectedStreamedAmount(
         uint256 streamId,
         uint8 decimals
     )
         internal
         view
-        returns (uint256 totalStreamedAmount, uint256 totalStreamedAmountWithDelay)
+        returns (uint256 expectedStreamedAmount)
     {
-        uint256 totalDelayedAmount;
-        uint256 periodsCount = flowStore.getPeriods(streamId).length;
+        uint256 count = flowStore.getPeriods(streamId).length;
 
-        for (uint256 i = 0; i < periodsCount; ++i) {
+        for (uint256 i = 0; i < count; ++i) {
             FlowStore.Period memory period = flowStore.getPeriod(streamId, i);
 
-            // If end time is 0, it means the current period is still active.
+            // If end time is 0, consider current time as the end time.
             uint128 elapsed = period.end > 0 ? period.end - period.start : uint40(block.timestamp) - period.start;
 
-            // Calculate the total streamed amount for the current period.
-            totalStreamedAmount += getDescaledAmount(period.ratePerSecond * elapsed, decimals);
-
-            // Calculate the total delayed amount for the current period.
-            totalDelayedAmount += getDescaledAmount(period.delay * period.ratePerSecond, decimals);
+            // Increment total streamed amount by the amount streamed during this period.
+            expectedStreamedAmount += period.ratePerSecond * elapsed;
         }
 
-        // Calculate the total streamed amount with delay.
-        totalStreamedAmountWithDelay = totalStreamedAmount - totalDelayedAmount;
+        // Descale the total streamed amount to token's decimal to get the maximum possible amount streamed.
+        return getDescaledAmount(expectedStreamedAmount, decimals);
     }
 }

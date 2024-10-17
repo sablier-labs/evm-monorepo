@@ -92,7 +92,8 @@ can only withdraw the available balance.
 
 16. if $isVoided = true \implies isPaused = true$ and $ud = 0$
 
-17. if $isVoided = false \implies \text{amount streamed with delay} = td + \text{amount withdrawn}$.
+17. if $isVoided = false \implies \text{expected amount streamed} \ge td + \text{amount withdrawn}$ and
+    $\text{expected amount streamed} - (td + \text{amount withdrawn}) \le 10$
 
 ## Limitation
 

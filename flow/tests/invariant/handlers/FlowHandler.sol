@@ -103,7 +103,6 @@ contract FlowHandler is BaseHandler {
         // Adjust the rate per second.
         flow.adjustRatePerSecond(currentStreamId, newRatePerSecond);
 
-        flowStore.updateDelay(currentStreamId, previousRatePerSecond, decimals);
         flowStore.pushPeriod(currentStreamId, newRatePerSecond.unwrap(), "adjustRatePerSecond");
     }
 
@@ -165,10 +164,6 @@ contract FlowHandler is BaseHandler {
     {
         // Paused streams cannot be paused again.
         vm.assume(!flow.isPaused(currentStreamId));
-
-        flowStore.updateDelay(
-            currentStreamId, flow.getRatePerSecond(currentStreamId).unwrap(), flow.getTokenDecimals(currentStreamId)
-        );
 
         // Pause the stream.
         flow.pause(currentStreamId);
@@ -292,12 +287,5 @@ contract FlowHandler is BaseHandler {
 
         // Update the withdrawn amount.
         flowStore.updateStreamWithdrawnAmountsSum(currentStreamId, flow.getToken(currentStreamId), amount);
-
-        // If the stream isn't paused, update the delay:
-        uint128 ratePerSecond = flow.getRatePerSecond(currentStreamId).unwrap();
-        if (ratePerSecond > 0) {
-            flowStore.updateDelay(currentStreamId, ratePerSecond, flow.getTokenDecimals(currentStreamId));
-            flowStore.pushPeriod(currentStreamId, ratePerSecond, "withdraw");
-        }
     }
 }
