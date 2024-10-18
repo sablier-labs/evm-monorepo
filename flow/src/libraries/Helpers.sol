@@ -50,7 +50,7 @@ library Helpers {
         (brokerFeeAmount, depositAmount) = calculateAmountsFromFee(totalAmount, broker.fee);
     }
 
-    /// @notice Descales the provided `amount` from 18 decimals fixed-point number to token's decimals number.
+    /// @dev Descales the provided `amount` from 18 decimals fixed-point number to token's decimals number.
     function descaleAmount(uint256 amount, uint8 decimals) internal pure returns (uint256) {
         if (decimals == 18) {
             return amount;
@@ -62,7 +62,7 @@ library Helpers {
         }
     }
 
-    /// @notice Scales the provided `amount` from 18 decimals fixed-point number to token's decimals number.
+    /// @dev Scales the provided `amount` from token's decimals number to 18 decimals fixed-point number.
     function scaleAmount(uint256 amount, uint8 decimals) internal pure returns (uint256) {
         if (decimals == 18) {
             return amount;
