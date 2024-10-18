@@ -56,12 +56,17 @@ contract Flow_Gas_Test is Integration_Test {
         );
 
         // {flow.deposit}
-        computeGas("deposit", abi.encodeCall(flow.deposit, (streamId, DEPOSIT_AMOUNT_6D)));
+        computeGas(
+            "deposit", abi.encodeCall(flow.deposit, (streamId, DEPOSIT_AMOUNT_6D, users.sender, users.recipient))
+        );
 
         // {flow.depositViaBroker}
         computeGas(
             "depositViaBroker",
-            abi.encodeCall(flow.depositViaBroker, (streamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, defaultBroker))
+            abi.encodeCall(
+                flow.depositViaBroker,
+                (streamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, users.sender, users.recipient, defaultBroker)
+            )
         );
 
         // {flow.pause}
