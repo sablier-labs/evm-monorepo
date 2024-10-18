@@ -333,7 +333,7 @@ contract Flow_Invariant_Test is Base_Test {
     }
 
     /// @dev For non-voided streams, the expected streamed amount should be greater than or equal to the sum of total
-    /// debt and withdrawn amount. And, the difference between the two should not exceed 10 wei.
+    /// debt and withdrawn amount. And, the difference between the two should not exceed 10 mvt.
     function invariant_TotalStreamedEqTotalDebtPlusWithdrawn() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {

@@ -11,4 +11,7 @@ DepletionTimeOf_Integration_Concrete_Test
          ├── given uncovered debt
          │  └── it should return 0
          └── given no uncovered debt
-            └── it should return the time at which the stream depletes its balance
+            ├── when exact division
+            │  └── it should return the time at which the total debt exceeds the balance
+            └── when not exact division
+               └── it should return the time at which the total debt exceeds the balance

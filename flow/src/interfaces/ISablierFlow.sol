@@ -115,8 +115,8 @@ interface ISablierFlow is
     /// @param streamId The stream ID for the query.
     function coveredDebtOf(uint256 streamId) external view returns (uint128 coveredDebt);
 
-    /// @notice Returns the time at which the stream will deplete its balance and start to accumulate uncovered debt. If
-    /// there already is uncovered debt, it returns zero.
+    /// @notice Returns the time at which the total debt exceeds stream balance. If the total debt is less than
+    /// or equal to stream balance, it returns 0.
     /// @dev Reverts if `streamId` references a paused or a null stream.
     /// @param streamId The stream ID for the query.
     function depletionTimeOf(uint256 streamId) external view returns (uint256 depletionTime);
