@@ -13,11 +13,11 @@ pause it or void it at a later date.
 A stream is represented by a struct, which can be found in
 [`DataTypes.sol`](https://github.com/sablier-labs/flow/blob/ba1c9ba64907200c82ccfaeaa6ab91f6229c433d/src/types/DataTypes.sol#L41-L76).
 
-The debt is tracked using `snapshotDebtScaled` and `snapshotTime`. At snapshot, the following events are taking place:
+The debt is tracked using "snapshot debt" and "snapshot time". At snapshot, the following events are taking place:
 
-1. `snapshotDebtScaled` is incremented by `ongoingDebtScaled` where
-   `ongoingDebtScaled = rps * (block.timestamp - snapshotTime)`.
-2. `snapshotTime` is updated to `block.timestamp`.
+1. snapshot debt is incremented by ongoing debt where
+   $\text{ongoing debt} = rps \cdot (\text{block timestamp} - \text{snapshot time})$.
+2. snapshot time is updated to block timestamp.
 
 The recipient can withdraw the streamed amount at any point. However, if there aren't sufficient funds, the recipient
 can only withdraw the available balance.
@@ -38,6 +38,7 @@ can only withdraw the available balance.
 | Time elapsed since snapshot | elt           |
 | Total Debt                  | td            |
 | Uncovered Debt              | ud            |
+| Witdrawable Amount          | wa            |
 
 ## Access Control
 
@@ -154,15 +155,15 @@ $`ra = \begin{cases} bal - td & \text{if } ud = 0 \\ 0 & \text{if } ud > 0 \end{
 The `rps` introduces a precision problem for tokens with fewer decimals (e.g.
 [USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s), which has 6 decimals).
 
-Let's consider an example: if a user wants to stream 10 USDC per day, the _rps_ should be
+Let's consider an example: if a user wants to stream 10 USDC per day, the _rps_ should be:
 
-$rps = 0.000115740740740740740740...$ (infinite decimals)
+$rps = 0.000115740740740740740740 \text{...}$ (infinite decimals)
 
 But since USDC only has 6 decimals, the _rps_ would be limited to $0.000115$, leading to
 $0.000115 \cdot \text{seconds in one day} = 9.936000$ USDC streamed in one day. This results in a shortfall of
 $0.064000$ USDC per day, which is problematic.
 
-## Defining rps as 18 decimal number
+## Defining rps as 18-decimal fixed point number
 
 In the contracts, we scale the rate per second to 18 decimals. While this doesn't completely solve the issue, it
 significantly minimizes it.
@@ -221,250 +222,12 @@ at $60,000 per BTC).
 
 By using an 18-decimal `rps` system, we can allow streaming of amount less than Minimum Transferable Value.
 
-The above issues are inherent to **all** decimal systems, and get worse as the number of decimals used to represent rps
-decreases. Therefore, we took the decision to define `rps` as an 18-decimal number so that it can minimize, if not
-rectify, the above two problems.
-
-## Delay due to Descaling (unlock interval)
-
-Even though `rps` is defined as an 18-decimal number, to properly transfer tokens, the amount calculated in the ongoing
-debt function must be descaled by dividing by $` sf = 10^{18 - N}`$. This means the [function](#1-ongoing-debt) becomes:
-
-```math
-\text{od} = \frac{rps_{18} \cdot \text{elt}}{sf}
-```
-
-Descaling, therefore, reintroduces the delay problem mentioned in the previous section, but to a much lesser extent, and
-only when the following conditions are met:
-
-1. Streamed token has less than 18 decimals.
-2. `rps` has more significant digits than `mvt`. [^1]
-
-<!-- prettier-ignore -->
-> [!NOTE]
-> 2nd condition is crucial in this problem.
-
-A simple example to demonstrate the issue is to choose an `rps` such that it is less than the `mvt`:
-`rps = 0.000000_011574e18` (i.e. ~ `0.000010e6` tokens / day).
-
-For this `rps` we will have time ranges $`[t_0,t_1]`$ during which the ongoing debt remains _constant_. These values of
-$t_0$ and $t_1$ are represented as _UNIX timestamps_.
-
-Thus, we can now define the **unlock interval** as the number of seconds that would need to pass for ongoing debt to
-increment by `mvt`.
-
-```math
-\text{unlock\_interval} = (t_1 + 1) - t_0
-```
-
-Let us now calculate `unlock_interval` for the previous example:
-
-```math
-\left.
-\begin{aligned}
-
-rps &= 1.11574 \cdot 10^{-8} \cdot 10^{18} = 1.11574 \cdot 10^{10} \\
-sf &= 10^{18 - \text{decimals}} = 10^{12} \\
-\text{unlock\_interval} &= \frac{sf}{rps} \\
-
-\end{aligned}
-\right\}
-\Rightarrow
-```
-
-```math
-\text{unlock\_interval} = \frac{10^{12}}{1.11574 \cdot 10^{10}} \approx 86.4 \, \text{seconds}
-```
-
-Because the smallest unit of time in Solidity is seconds and it has no concept of _rational numbers_, for this example,
-there exist two possible solutions for unlock interval:
-
-```math
-\text{unlock\_intervals}_\text{solidity} \in \left\{ \left\lfloor \text{unlock\_interval} \right\rfloor, \left\lceil \text{unlock\_interval} \right\rceil \right\} = \{86, 87\}
-```
-
-The following Python code can be used to test the above calculation for `unlock_interval`, as its values are not less
-than 86 seconds and not greater than 87 seconds.
-
-<details><summary> Click to expand Python code</summary>
-<p>
-
-```python
-# 0.001e6 tokens per day
-rps = 0.000000011574e18
-sf = 1e12
-
-# the ongoing debt will be unlocking 1 token per [unlock_interval, unlock_interval + 1] seconds
-# i.e. floor(sf / rps) && ceil(sf / rps)
-unlock_interval = sf // rps
-
-
-def ongoing_debt(elt):
-    return elt * rps // sf
-
-
-# track the seconds when ongoing debt increases and the intervals between those seconds
-seconds_with_od_increase = []
-time_between_increases = []
-
-# test run for 30 days, which should be suffice
-for i in range(1, 86400 * 30):
-    curr_od = ongoing_debt(i)
-    prev_od = ongoing_debt(i - 1)
-
-    diff = curr_od - prev_od
-    assert diff in [0, 1]
-
-    # if the diff is 1, it means the ongoing debt has increased with one token
-    if diff > 0:
-        seconds_with_od_increase.append(i)
-        if len(seconds_with_od_increase) > 1:
-            time_between_increases.append(
-                seconds_with_od_increase[-1] - seconds_with_od_increase[-2]
-            )
-
-            assert time_between_increases[-1] in [
-                unlock_interval,
-                unlock_interval + 1,
-            ]
-
-
-print(
-    "time_between_increases 86 seconds",
-    time_between_increases.count(unlock_interval),
-)
-print(
-    "time_between_increases 87 seconds",
-    time_between_increases.count(unlock_interval + 1),
-)
-
-```
-
-</p>
-</details>
-
-<!-- prettier-ignore -->
-> [!NOTE]
-> From now on, "unlock interval" will be used only in the context of solidity. The abbreviation $uis$ will be used to represent it.
-
-### Ongoing debt as a discrete function of time
-
-By now, it should be clear that the ongoing debt is no longer a _continuous_ function with respect to time. Rather, it
-displays a discrete behaviour that changes its value after only after $uis$ has passed.
-
-As can be seen in the graph below, for the same `rps`, the red line represents the ongoing debt for a token with 6
-decimals, whereas the blue line represents the same for a token with 18 decimals.
-
-| <img src="./images/continuous_vs_discrete.png" width="700" /> |
-| :-----------------------------------------------------------: |
-|                         **Figure 1**                          |
-
-The following Python function takes rate per second and elapsed time as inputs and returns all the consecutive
-timestamps, during the provided elapsed period, at which tokens are unlocked.
-
-```python
-def find_unlock_timestamp(rps, elt):
-    unlock_timestamps = []
-    for i in range(1, elt):
-        curr_od = od(rps, i)
-        prev_od = od(rps, i-1)
-        if curr_od > prev_od:
-            unlock_timestamps.append(st + i)
-    return unlock_timestamps
-```
-
-<a name="unlock-interval-results"></a> For `rps = 0.000000011574e18` and `elt = 300`, it returns three consecutive
-timestamps $(st + 87), (st + 173), (st + 260)$ at which tokens are unlocked.
-
-### Understanding delay with a concrete example
-
-In the Flow contract, the following functions update the snapshot time to `block.timestamp` therefore can cause the
-delay.
-
-1. `adjustRatePerSecond`
-2. `pause`
-3. `withdraw`
-
-We will now explain delay using an example of `withdraw` function. As defined previously, $[t_0,t_1]$ represents the
-timestamps during which ongoing debt remains constant. Let $t$ be the time at which the `withdraw` function is called.
-
-For [this example](#unlock-interval-results), we will have the following constant intervals for ongoing debt:
-
-1. $[st, st + 86]$
-2. $[st + 87, st + 172]$
-3. $[st + 173, st + 259]$
-
-#### Case 1: when $t = t_0$
-
-In this case, the snapshot time is updated to $(st + 87)$, which represents a no-delay scenario. This is because the
-first token is unlocked exactly after 87 seconds of elapsed time. Therefore, we can say that the ongoing debt is
-synchronized with the initial "scheduled" ongoing debt (Figure 3).
-
-| <img src="./images/no_delay.png" width="700" /> |
-| :---------------------------------------------: |
-|                  **Figure 2**                   |
-
-| <img src="./images/initial_function.png" width="700" /> |
-| :-----------------------------------------------------: |
-|                      **Figure 3**                       |
-
-An example test contract, `test_Withdraw_NoDelay`, can be found
-[here](./tests/integration/concrete/withdraw-delay/withdrawDelay.t.sol) that can be used to validate the results used in
-the above graph.
-
-#### Case 2: when $t = t_1$
-
-In case 2, the snapshot time is updated to $(st + 172)$, which represents a maximum-delay scenario, as it is 1 second
-less than the unlock interval from its time range. In this case, the user would experience a delay of
-$`uis - 1 = \{85, 86\}`$.
-
-As a result, the ongoing debt function is _shifted to the right_, so that the unlock intervals occur in the same
-sequence as the initial ones. If the first unlock occurred after 87 seconds, after withdrawal, the next unlock will also
-occur after 87 seconds.
-
-This is illustrated in the following graph, where the red line represents the ongoing debt before the withdrawal, and
-the green line represents the ongoing debt function after the withdrawal. Additionally, notice the green points, which
-indicate the new unlocks.
-
-```math
-\begin{align*}
-\text{withdraw\_time} + uis_1 &= 172 + 87 &= 259 \\
-\text{withdraw\_time} + uis_2 &= 172 + 173 &= 345
-\end{align*}
-```
-
-| <img src="./images/longest_delay.png" width="700" /> |
-| :--------------------------------------------------: |
-|                     **Figure 4**                     |
-
-To check the contract works as expected, we have the `test_Withdraw_LongestDelay` Solidity test for the above graph
-[here](./tests/integration/concrete/withdraw-delay/withdrawDelay.t.sol).
-
-#### Case 3: $t_0 < t < t_1$
-
-This case is similar to case 2, where a user would experience a delay but less than the longest delay.
-
-Using the above explanations, we can now say that for any given interval $[t_0, t_1]$ , where $t \le t_1$ the delay can
-be calculated as:
-
-```math
-\begin{aligned}
-delay = t - (st + uis_i - 1)
-\end{aligned}
-```
-
-### Reverse engineering the delay from the rescaled ongoing debt
-
-We can also reverse engineer the delay from the _rescaled_ ongoing debt:
-
-```math
-\begin{aligned}
-\text{od} &= \frac{rps \cdot (t - \text{st})}{sf} \\
-R_\text{od} &= od \cdot sf \\
-delay &= t - st - \frac{R_\text{od}}{rps} - 1 \\
-\end{aligned}
-```
-
-[^1]:
-    By more significant digits, we mean that `rps` has non-zero digits right to the `mvt`. For example 1.
-    `0.000000_011574e18` and 2. `0.100000_011574e18`. (notice the digits after underscore "\_")
+### Conclusion
+
+The above issues are inherent to **all** decimal systems, and get worse as the number of decimals used to represent
+`rps` decreases. Therefore, we took the decision to define `rps` as an 18-decimal number so that it can minimize, if not
+rectify, the above two problems. Along with this, we also need to consider the following:
+
+- Store snapshot debt in 18-decimals fixed point number.
+- Calculate ongoing debt in 18-decimals fixed point number.
+- Convert the total debt from 18-decimals to the token's decimals before calculating the withdrawable amount.
