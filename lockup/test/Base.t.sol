@@ -10,7 +10,6 @@ import { LockupNFTDescriptor } from "src/core/LockupNFTDescriptor.sol";
 import { SablierLockupDynamic } from "src/core/SablierLockupDynamic.sol";
 import { SablierLockupLinear } from "src/core/SablierLockupLinear.sol";
 import { SablierLockupTranched } from "src/core/SablierLockupTranched.sol";
-import { LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
 import { ISablierBatchLockup } from "src/periphery/interfaces/ISablierBatchLockup.sol";
 import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleInstant } from "src/periphery/interfaces/ISablierMerkleInstant.sol";
@@ -86,9 +85,13 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
         // Deploy the protocol.
         deployProtocolConditionally();
 
+        // Set the Sablier fee on the Merkle factory.
+        merkleFactory.setDefaultSablierFee(defaults.DEFAULT_SABLIER_FEE());
+
         // Create users for testing.
         users.alice = createUser("Alice");
         users.broker = createUser("Broker");
+        users.campaignOwner = createUser("CampaignOwner");
         users.eve = createUser("Eve");
         users.operator = createUser("Operator");
         users.recipient = createUser("Recipient");
@@ -153,7 +156,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
             lockupDynamic = new SablierLockupDynamic(users.admin, nftDescriptor, defaults.MAX_SEGMENT_COUNT());
             lockupLinear = new SablierLockupLinear(users.admin, nftDescriptor);
             lockupTranched = new SablierLockupTranched(users.admin, nftDescriptor, defaults.MAX_TRANCHE_COUNT());
-            merkleFactory = new SablierMerkleFactory();
+            merkleFactory = new SablierMerkleFactory(users.admin);
         } else {
             (nftDescriptor, lockupDynamic, lockupLinear, lockupTranched, batchLockup, merkleFactory) =
                 deployOptimizedProtocol(users.admin, defaults.MAX_SEGMENT_COUNT(), defaults.MAX_TRANCHE_COUNT());
@@ -215,100 +218,6 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
             callee: address(asset),
             count: count,
             data: abi.encodeCall(IERC20.transferFrom, (from, to, value))
-        });
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                CALL EXPECTS - LOCKUP
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithDurations}, each with the specified
-    /// `params`.
-    function expectMultipleCallsToCreateWithDurationsLD(
-        uint64 count,
-        LockupDynamic.CreateWithDurations memory params
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockupDynamic),
-            count: count,
-            data: abi.encodeCall(ISablierLockupDynamic.createWithDurations, (params))
-        });
-    }
-
-    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithDurations}, each with the specified
-    /// `params`.
-    function expectMultipleCallsToCreateWithDurationsLL(
-        uint64 count,
-        LockupLinear.CreateWithDurations memory params
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockupLinear),
-            count: count,
-            data: abi.encodeCall(ISablierLockupLinear.createWithDurations, (params))
-        });
-    }
-
-    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithDurations}, each with the specified
-    /// `params`.
-    function expectMultipleCallsToCreateWithDurationsLT(
-        uint64 count,
-        LockupTranched.CreateWithDurations memory params
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockupTranched),
-            count: count,
-            data: abi.encodeCall(ISablierLockupTranched.createWithDurations, (params))
-        });
-    }
-
-    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithTimestamps}, each with the specified
-    /// `params`.
-    function expectMultipleCallsToCreateWithTimestampsLD(
-        uint64 count,
-        LockupDynamic.CreateWithTimestamps memory params
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockupDynamic),
-            count: count,
-            data: abi.encodeCall(ISablierLockupDynamic.createWithTimestamps, (params))
-        });
-    }
-
-    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithTimestamps}, each with the specified
-    /// `params`.
-    function expectMultipleCallsToCreateWithTimestampsLL(
-        uint64 count,
-        LockupLinear.CreateWithTimestamps memory params
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockupLinear),
-            count: count,
-            data: abi.encodeCall(ISablierLockupLinear.createWithTimestamps, (params))
-        });
-    }
-
-    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithTimestamps}, each with the specified
-    /// `params`.
-    function expectMultipleCallsToCreateWithTimestampsLT(
-        uint64 count,
-        LockupTranched.CreateWithTimestamps memory params
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockupTranched),
-            count: count,
-            data: abi.encodeCall(ISablierLockupTranched.createWithTimestamps, (params))
         });
     }
 }

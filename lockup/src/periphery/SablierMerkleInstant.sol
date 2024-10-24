@@ -21,7 +21,12 @@ contract SablierMerkleInstant is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Constructs the contract by initializing the immutable state variables.
-    constructor(MerkleBase.ConstructorParams memory baseParams) SablierMerkleBase(baseParams) { }
+    constructor(
+        MerkleBase.ConstructorParams memory baseParams,
+        uint256 sablierFee
+    )
+        SablierMerkleBase(baseParams, sablierFee)
+    { }
 
     /*//////////////////////////////////////////////////////////////////////////
                           INTERNAL NON-CONSTANT FUNCTIONS

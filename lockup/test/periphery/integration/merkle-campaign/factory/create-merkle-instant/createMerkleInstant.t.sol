@@ -47,27 +47,93 @@ contract CreateMerkleInstant_Integration_Test is MerkleCampaign_Integration_Test
         });
     }
 
-    function test_GivenCampaignNotExists(address admin, uint40 expiration) external whenNameNotTooLong {
-        vm.assume(admin != users.admin);
-        address expectedMerkleInstant = computeMerkleInstantAddress(admin, expiration);
+    modifier givenCampaignNotExists() {
+        _;
+    }
+
+    function test_GivenCustomFeeSet(
+        address campaignOwner,
+        uint40 expiration,
+        uint256 customFee
+    )
+        external
+        whenNameNotTooLong
+        givenCampaignNotExists
+    {
+        // Set the Sablier fee to 0 for this test.
+        resetPrank(users.admin);
+        merkleFactory.setSablierFeeByUser(users.campaignOwner, customFee);
+
+        resetPrank(users.campaignOwner);
+        address expectedMerkleInstant = computeMerkleInstantAddress(campaignOwner, expiration, customFee);
 
         MerkleBase.ConstructorParams memory baseParams = defaults.baseParams({
-            admin: admin,
+            campaignOwner: campaignOwner,
             asset_: dai,
             merkleRoot: defaults.MERKLE_ROOT(),
             expiration: expiration
         });
 
+        // It should emit a {CreateMerkleInstant} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
         emit CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(expectedMerkleInstant),
             baseParams: baseParams,
             aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT()
+            recipientCount: defaults.RECIPIENT_COUNT(),
+            sablierFee: customFee
         });
 
-        address actualInstant = address(createMerkleInstant(admin, expiration));
-        assertGt(actualInstant.code.length, 0, "MerkleInstant contract not created");
-        assertEq(actualInstant, expectedMerkleInstant, "MerkleInstant contract does not match computed address");
+        ISablierMerkleInstant actualInstant = createMerkleInstant(campaignOwner, expiration);
+        assertGt(address(actualInstant).code.length, 0, "MerkleInstant contract not created");
+        assertEq(
+            address(actualInstant), expectedMerkleInstant, "MerkleInstant contract does not match computed address"
+        );
+
+        // It should create the campaign with custom fee.
+        assertEq(actualInstant.SABLIER_FEE(), customFee, "sablier fee");
+
+        // It should set the current factory address.
+        assertEq(actualInstant.FACTORY(), address(merkleFactory), "factory");
+    }
+
+    function test_GivenCustomFeeNotSet(
+        address campaignOwner,
+        uint40 expiration
+    )
+        external
+        whenNameNotTooLong
+        givenCampaignNotExists
+    {
+        address expectedMerkleInstant = computeMerkleInstantAddress(campaignOwner, expiration);
+
+        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams({
+            campaignOwner: campaignOwner,
+            asset_: dai,
+            merkleRoot: defaults.MERKLE_ROOT(),
+            expiration: expiration
+        });
+
+        // It should emit a {CreateMerkleInstant} event.
+        vm.expectEmit({ emitter: address(merkleFactory) });
+        emit CreateMerkleInstant({
+            merkleInstant: ISablierMerkleInstant(expectedMerkleInstant),
+            baseParams: baseParams,
+            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
+            recipientCount: defaults.RECIPIENT_COUNT(),
+            sablierFee: defaults.DEFAULT_SABLIER_FEE()
+        });
+
+        ISablierMerkleInstant actualInstant = createMerkleInstant(campaignOwner, expiration);
+        assertGt(address(actualInstant).code.length, 0, "MerkleInstant contract not created");
+        assertEq(
+            address(actualInstant), expectedMerkleInstant, "MerkleInstant contract does not match computed address"
+        );
+
+        // It should create the campaign with custom fee.
+        assertEq(actualInstant.SABLIER_FEE(), defaults.DEFAULT_SABLIER_FEE(), "default sablier fee");
+
+        // It should set the current factory address.
+        assertEq(actualInstant.FACTORY(), address(merkleFactory), "factory");
     }
 }

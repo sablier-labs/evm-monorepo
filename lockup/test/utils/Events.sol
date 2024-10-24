@@ -7,6 +7,7 @@ import { ILockupNFTDescriptor } from "../../src/core/interfaces/ILockupNFTDescri
 import { ISablierLockupLinear } from "../../src/core/interfaces/ISablierLockupLinear.sol";
 import { ISablierLockupTranched } from "../../src/core/interfaces/ISablierLockupTranched.sol";
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/core/types/DataTypes.sol";
+import { ISablierMerkleBase } from "../../src/periphery/interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleInstant } from "../../src/periphery/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "../../src/periphery/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "../../src/periphery/interfaces/ISablierMerkleLT.sol";
@@ -111,7 +112,8 @@ abstract contract Events {
         ISablierMerkleInstant indexed merkleInstant,
         MerkleBase.ConstructorParams baseParams,
         uint256 aggregateAmount,
-        uint256 recipientCount
+        uint256 recipientCount,
+        uint256 sablierFee
     );
 
     event CreateMerkleLL(
@@ -122,7 +124,8 @@ abstract contract Events {
         bool transferable,
         MerkleLL.Schedule schedule,
         uint256 aggregateAmount,
-        uint256 recipientCount
+        uint256 recipientCount,
+        uint256 sablierFee
     );
 
     event CreateMerkleLT(
@@ -135,6 +138,17 @@ abstract contract Events {
         MerkleLT.TrancheWithPercentage[] tranchesWithPercentages,
         uint256 totalDuration,
         uint256 aggregateAmount,
-        uint256 recipientCount
+        uint256 recipientCount,
+        uint256 sablierFee
+    );
+
+    event ResetSablierFee(address indexed admin, address indexed campaignCreator);
+
+    event SetDefaultSablierFee(address indexed admin, uint256 sablierFee);
+
+    event SetSablierFeeForUser(address indexed admin, address indexed campaignCreator, uint256 sablierFee);
+
+    event WithdrawSablierFees(
+        address indexed admin, ISablierMerkleBase indexed merkleBase, address to, uint256 sablierFees
     );
 }

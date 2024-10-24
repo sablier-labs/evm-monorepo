@@ -5,8 +5,8 @@ import { LockupNFTDescriptor } from "../../src/core/LockupNFTDescriptor.sol";
 import { SablierLockupDynamic } from "../../src/core/SablierLockupDynamic.sol";
 import { SablierLockupLinear } from "../../src/core/SablierLockupLinear.sol";
 import { SablierLockupTranched } from "../../src/core/SablierLockupTranched.sol";
-import { SablierMerkleFactory } from "../../src/periphery/SablierMerkleFactory.sol";
 import { SablierBatchLockup } from "../../src/periphery/SablierBatchLockup.sol";
+import { SablierMerkleFactory } from "../../src/periphery/SablierMerkleFactory.sol";
 
 import { DeploymentLogger } from "./DeploymentLogger.s.sol";
 
@@ -72,7 +72,7 @@ contract DeployDeterministicProtocol is DeploymentLogger("deterministic") {
 
         // Deploy Periphery.
         batchLockup = new SablierBatchLockup{ salt: salt }();
-        merkleLockupFactory = new SablierMerkleFactory{ salt: salt }();
+        merkleLockupFactory = new SablierMerkleFactory{ salt: salt }(initialAdmin);
 
         appendToFileDeployedAddresses(
             address(lockupDynamic),

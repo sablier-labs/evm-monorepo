@@ -182,9 +182,7 @@ contract Precompiles {
     }
 
     /// @notice Deploys all Core contracts.
-    function deployCore(
-        address initialAdmin
-    )
+    function deployCore(address initialAdmin)
         public
         returns (
             ILockupNFTDescriptor nftDescriptor,
@@ -213,8 +211,8 @@ contract Precompiles {
     }
 
     /// @notice Deploys {SablierMerkleFactory} from precompiled bytecode.
-    function deployMerkleFactory() public returns (ISablierMerkleFactory factory) {
-        bytes memory creationBytecode = BYTECODE_MERKLE_FACTORY;
+    function deployMerkleFactory(address initialAdmin) public returns (ISablierMerkleFactory factory) {
+        bytes memory creationBytecode = bytes.concat(BYTECODE_MERKLE_FACTORY, abi.encode(initialAdmin));
         assembly {
             factory := create(0, add(creationBytecode, 0x20), mload(creationBytecode))
         }
@@ -225,9 +223,12 @@ contract Precompiles {
     ///
     /// 1. {SablierBatchLockup}
     /// 2. {SablierMerkleFactory}
-    function deployPeriphery() public returns (ISablierBatchLockup batchLockup, ISablierMerkleFactory merkleFactory) {
+    function deployPeriphery(address initialAdmin)
+        public
+        returns (ISablierBatchLockup batchLockup, ISablierMerkleFactory merkleFactory)
+    {
         batchLockup = deployBatchLockup();
-        merkleFactory = deployMerkleFactory();
+        merkleFactory = deployMerkleFactory(initialAdmin);
     }
 
     /// @notice Deploys the entire Lockup Protocol from precompiled bytecode.
@@ -238,9 +239,7 @@ contract Precompiles {
     /// 4. {SablierLockupTranched}
     /// 5. {SablierBatchLockup}
     /// 6. {SablierMerkleFactory}
-    function deployProtocol(
-        address initialAdmin
-    )
+    function deployProtocol(address initialAdmin)
         public
         returns (
             ILockupNFTDescriptor nftDescriptor,
@@ -255,6 +254,6 @@ contract Precompiles {
         (nftDescriptor, lockupDynamic, lockupLinear, lockupTranched) = deployCore(initialAdmin);
 
         // Deploy Periphery.
-        (batchLockup, merkleFactory) = deployPeriphery();
+        (batchLockup, merkleFactory) = deployPeriphery(initialAdmin);
     }
 }

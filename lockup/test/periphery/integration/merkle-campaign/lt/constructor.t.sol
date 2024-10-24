@@ -12,12 +12,14 @@ contract Constructor_MerkleLT_Integration_Test is MerkleCampaign_Integration_Tes
         address actualAdmin;
         uint256 actualAllowance;
         address actualAsset;
-        string actualIpfsCID;
-        string actualName;
         bool actualCancelable;
         uint40 actualExpiration;
+        address actualFactory;
+        string actualIpfsCID;
         address actualLockupTranched;
         bytes32 actualMerkleRoot;
+        string actualName;
+        uint256 actualSablierFee;
         uint40 actualStreamStartTime;
         uint64 actualTotalPercentage;
         MerkleLT.TrancheWithPercentage[] actualTranchesWithPercentages;
@@ -26,11 +28,13 @@ contract Constructor_MerkleLT_Integration_Test is MerkleCampaign_Integration_Tes
         uint256 expectedAllowance;
         address expectedAsset;
         bool expectedCancelable;
-        string expectedIpfsCID;
         uint40 expectedExpiration;
+        address expectedFactory;
+        string expectedIpfsCID;
         address expectedLockupTranched;
         bytes32 expectedMerkleRoot;
         bytes32 expectedName;
+        uint256 expectedSablierFee;
         uint40 expectedStreamStartTime;
         uint64 expectedTotalPercentage;
         MerkleLT.TrancheWithPercentage[] expectedTranchesWithPercentages;
@@ -38,32 +42,52 @@ contract Constructor_MerkleLT_Integration_Test is MerkleCampaign_Integration_Tes
     }
 
     function test_Constructor() external {
+        // Make Factory the caller for the constructor test.
+        resetPrank(address(merkleFactory));
+
         SablierMerkleLT constructedLT = new SablierMerkleLT(
             defaults.baseParams(),
             lockupTranched,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
             defaults.STREAM_START_TIME_ZERO(),
-            defaults.tranchesWithPercentages()
+            defaults.tranchesWithPercentages(),
+            defaults.DEFAULT_SABLIER_FEE()
         );
 
         Vars memory vars;
+
+        vars.actualAdmin = constructedLT.admin();
+        vars.expectedAdmin = users.campaignOwner;
+        assertEq(vars.actualAdmin, vars.expectedAdmin, "admin");
+
+        vars.actualAllowance = dai.allowance(address(constructedLT), address(lockupTranched));
+        vars.expectedAllowance = MAX_UINT256;
+        assertEq(vars.actualAllowance, vars.expectedAllowance, "allowance");
 
         vars.actualAsset = address(constructedLT.ASSET());
         vars.expectedAsset = address(dai);
         assertEq(vars.actualAsset, vars.expectedAsset, "asset");
 
+        vars.actualCancelable = constructedLT.CANCELABLE();
+        vars.expectedCancelable = defaults.CANCELABLE();
+        assertEq(vars.actualCancelable, vars.expectedCancelable, "cancelable");
+
         vars.actualExpiration = constructedLT.EXPIRATION();
         vars.expectedExpiration = defaults.EXPIRATION();
         assertEq(vars.actualExpiration, vars.expectedExpiration, "expiration");
 
-        vars.actualAdmin = constructedLT.admin();
-        vars.expectedAdmin = users.admin;
-        assertEq(vars.actualAdmin, vars.expectedAdmin, "admin");
+        vars.actualFactory = constructedLT.FACTORY();
+        vars.expectedFactory = address(merkleFactory);
+        assertEq(vars.actualFactory, vars.expectedFactory, "factory");
 
         vars.actualIpfsCID = constructedLT.ipfsCID();
         vars.expectedIpfsCID = defaults.IPFS_CID();
         assertEq(vars.actualIpfsCID, vars.expectedIpfsCID, "ipfsCID");
+
+        vars.actualLockupTranched = address(constructedLT.LOCKUP_TRANCHED());
+        vars.expectedLockupTranched = address(lockupTranched);
+        assertEq(vars.actualLockupTranched, vars.expectedLockupTranched, "lockupTranched");
 
         vars.actualMerkleRoot = constructedLT.MERKLE_ROOT();
         vars.expectedMerkleRoot = defaults.MERKLE_ROOT();
@@ -73,13 +97,9 @@ contract Constructor_MerkleLT_Integration_Test is MerkleCampaign_Integration_Tes
         vars.expectedName = defaults.NAME_BYTES32();
         assertEq(bytes32(abi.encodePacked(vars.actualName)), vars.expectedName, "name");
 
-        vars.actualCancelable = constructedLT.CANCELABLE();
-        vars.expectedCancelable = defaults.CANCELABLE();
-        assertEq(vars.actualCancelable, vars.expectedCancelable, "cancelable");
-
-        vars.actualLockupTranched = address(constructedLT.LOCKUP_TRANCHED());
-        vars.expectedLockupTranched = address(lockupTranched);
-        assertEq(vars.actualLockupTranched, vars.expectedLockupTranched, "lockupTranched");
+        vars.actualSablierFee = constructedLT.SABLIER_FEE();
+        vars.expectedSablierFee = defaults.DEFAULT_SABLIER_FEE();
+        assertEq(vars.actualSablierFee, vars.expectedSablierFee, "sablierFee");
 
         vars.actualStreamStartTime = constructedLT.STREAM_START_TIME();
         vars.expectedStreamStartTime = defaults.STREAM_START_TIME_ZERO();
@@ -96,9 +116,5 @@ contract Constructor_MerkleLT_Integration_Test is MerkleCampaign_Integration_Tes
         vars.actualTranchesWithPercentages = constructedLT.getTranchesWithPercentages();
         vars.expectedTranchesWithPercentages = defaults.tranchesWithPercentages();
         assertEq(vars.actualTranchesWithPercentages, vars.expectedTranchesWithPercentages, "tranchesWithPercentages");
-
-        vars.actualAllowance = dai.allowance(address(constructedLT), address(lockupTranched));
-        vars.expectedAllowance = MAX_UINT256;
-        assertEq(vars.actualAllowance, vars.expectedAllowance, "allowance");
     }
 }

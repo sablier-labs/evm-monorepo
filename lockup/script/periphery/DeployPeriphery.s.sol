@@ -11,13 +11,13 @@ import { BaseScript } from "./../Base.s.sol";
 /// 2. {SablierMerkleFactory}
 contract DeployPeriphery is BaseScript {
     /// @dev Deploy via Forge.
-    function run()
+    function run(address initialAdmin)
         public
         virtual
         broadcast
         returns (SablierBatchLockup batchLockup, SablierMerkleFactory merkleFactory)
     {
         batchLockup = new SablierBatchLockup();
-        merkleFactory = new SablierMerkleFactory();
+        merkleFactory = new SablierMerkleFactory(initialAdmin);
     }
 }

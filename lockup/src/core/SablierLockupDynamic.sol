@@ -56,7 +56,6 @@ contract SablierLockupDynamic is
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Emits a {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the NFT descriptor contract.
     /// @param maxSegmentCount The maximum number of segments allowed in a stream.

@@ -105,16 +105,21 @@ abstract contract DeployOptimized is StdCheats {
     }
 
     /// @dev Deploys {SablierMerkleFactory} from an optimized source compiled with `--via-ir`.
-    function deployOptimizedMerkleFactory() internal returns (ISablierMerkleFactory) {
-        return ISablierMerkleFactory(deployCode("out-optimized/SablierMerkleFactory.sol/SablierMerkleFactory.json"));
+    function deployOptimizedMerkleFactory(address initialAdmin) internal returns (ISablierMerkleFactory) {
+        return ISablierMerkleFactory(
+            deployCode("out-optimized/SablierMerkleFactory.sol/SablierMerkleFactory.json", abi.encode(initialAdmin))
+        );
     }
 
     /// @notice Deploys all  Periphery contracts from an optimized source in the following order:
     ///
     /// 1. {SablierBatchLockup}
     /// 2. {SablierMerkleFactory}
-    function deployOptimizedPeriphery() internal returns (ISablierBatchLockup, ISablierMerkleFactory) {
-        return (deployOptimizedBatchLockup(), deployOptimizedMerkleFactory());
+    function deployOptimizedPeriphery(address initialAdmin)
+        internal
+        returns (ISablierBatchLockup, ISablierMerkleFactory)
+    {
+        return (deployOptimizedBatchLockup(), deployOptimizedMerkleFactory(initialAdmin));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -146,6 +151,6 @@ abstract contract DeployOptimized is StdCheats {
     {
         (nftDescriptor_, lockupDynamic_, lockupLinear_, lockupTranched_) =
             deployOptimizedCore(initialAdmin, maxSegmentCount, maxTrancheCount);
-        (batchLockup_, merkleFactory_) = deployOptimizedPeriphery();
+        (batchLockup_, merkleFactory_) = deployOptimizedPeriphery(initialAdmin);
     }
 }

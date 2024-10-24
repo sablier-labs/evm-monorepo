@@ -11,22 +11,27 @@ abstract contract Clawback_Integration_Test is MerkleCampaign_Integration_Shared
         MerkleCampaign_Integration_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_CallerNotAdmin() external {
+    function test_RevertWhen_CallerNotCampaignOwner() external {
         resetPrank({ msgSender: users.eve });
-        vm.expectRevert(abi.encodeWithSelector(CoreErrors.CallerNotAdmin.selector, users.admin, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(CoreErrors.CallerNotAdmin.selector, users.campaignOwner, users.eve));
         merkleBase.clawback({ to: users.eve, amount: 1 });
     }
 
-    function test_WhenFirstClaimNotMade() external whenCallerAdmin {
-        test_Clawback(users.admin);
+    function test_WhenFirstClaimNotMade() external whenCallerCampaignOwner {
+        test_Clawback(users.campaignOwner);
     }
 
-    function test_GivenSevenDaysNotPassed() external whenCallerAdmin whenFirstClaimMade {
+    function test_GivenSevenDaysNotPassed() external whenCallerCampaignOwner whenFirstClaimMade {
         vm.warp({ newTimestamp: getBlockTimestamp() + 6 days });
-        test_Clawback(users.admin);
+        test_Clawback(users.campaignOwner);
     }
 
-    function test_RevertGiven_CampaignNotExpired() external whenCallerAdmin whenFirstClaimMade givenSevenDaysPassed {
+    function test_RevertGiven_CampaignNotExpired()
+        external
+        whenCallerCampaignOwner
+        whenFirstClaimMade
+        givenSevenDaysPassed
+    {
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierMerkleBase_ClawbackNotAllowed.selector,
@@ -35,10 +40,15 @@ abstract contract Clawback_Integration_Test is MerkleCampaign_Integration_Shared
                 defaults.FIRST_CLAIM_TIME()
             )
         );
-        merkleBase.clawback({ to: users.admin, amount: 1 });
+        merkleBase.clawback({ to: users.campaignOwner, amount: 1 });
     }
 
-    function test_GivenCampaignExpired(address to) external whenCallerAdmin whenFirstClaimMade givenSevenDaysPassed {
+    function test_GivenCampaignExpired(address to)
+        external
+        whenCallerCampaignOwner
+        whenFirstClaimMade
+        givenSevenDaysPassed
+    {
         vm.warp({ newTimestamp: defaults.EXPIRATION() + 1 seconds });
         vm.assume(to != address(0));
         test_Clawback(to);
@@ -50,7 +60,7 @@ abstract contract Clawback_Integration_Test is MerkleCampaign_Integration_Shared
         expectCallToTransfer({ to: to, value: clawbackAmount });
         // It should emit a {Clawback} event.
         vm.expectEmit({ emitter: address(merkleBase) });
-        emit Clawback({ admin: users.admin, to: to, amount: clawbackAmount });
+        emit Clawback({ admin: users.campaignOwner, to: to, amount: clawbackAmount });
         merkleBase.clawback({ to: to, amount: clawbackAmount });
     }
 }

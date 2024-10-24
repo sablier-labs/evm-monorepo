@@ -56,9 +56,10 @@ contract SablierMerkleLT is
         bool cancelable,
         bool transferable,
         uint40 streamStartTime,
-        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages
+        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages,
+        uint256 sablierFee
     )
-        SablierMerkleBase(baseParams)
+        SablierMerkleBase(baseParams, sablierFee)
     {
         CANCELABLE = cancelable;
         LOCKUP_TRANCHED = lockupTranched;

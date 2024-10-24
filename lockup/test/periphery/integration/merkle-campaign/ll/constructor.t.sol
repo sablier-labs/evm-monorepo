@@ -12,36 +12,48 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         address actualAdmin;
         uint256 actualAllowance;
         address actualAsset;
-        string actualIpfsCID;
-        string actualName;
         bool actualCancelable;
-        MerkleLL.Schedule actualSchedule;
         uint40 actualExpiration;
+        address actualFactory;
+        string actualIpfsCID;
         address actualLockupLinear;
         bytes32 actualMerkleRoot;
+        string actualName;
+        uint256 actualSablierFee;
+        MerkleLL.Schedule actualSchedule;
         bool actualTransferable;
         address expectedAdmin;
         uint256 expectedAllowance;
         address expectedAsset;
         bool expectedCancelable;
-        MerkleLL.Schedule expectedSchedule;
         uint40 expectedExpiration;
+        address expectedFactory;
         string expectedIpfsCID;
         address expectedLockupLinear;
         bytes32 expectedMerkleRoot;
         bytes32 expectedName;
+        uint256 expectedSablierFee;
+        MerkleLL.Schedule expectedSchedule;
         bool expectedTransferable;
     }
 
     function test_Constructor() external {
+        // Make Factory the caller for the constructor test.
+        resetPrank(address(merkleFactory));
+
         SablierMerkleLL constructedLL = new SablierMerkleLL(
-            defaults.baseParams(), lockupLinear, defaults.CANCELABLE(), defaults.TRANSFERABLE(), defaults.schedule()
+            defaults.baseParams(),
+            lockupLinear,
+            defaults.CANCELABLE(),
+            defaults.TRANSFERABLE(),
+            defaults.schedule(),
+            defaults.DEFAULT_SABLIER_FEE()
         );
 
         Vars memory vars;
 
         vars.actualAdmin = constructedLL.admin();
-        vars.expectedAdmin = users.admin;
+        vars.expectedAdmin = users.campaignOwner;
         assertEq(vars.actualAdmin, vars.expectedAdmin, "admin");
 
         vars.actualAllowance = dai.allowance(address(constructedLL), address(lockupLinear));
@@ -59,6 +71,10 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         vars.actualExpiration = constructedLL.EXPIRATION();
         vars.expectedExpiration = defaults.EXPIRATION();
         assertEq(vars.actualExpiration, vars.expectedExpiration, "expiration");
+
+        vars.actualFactory = constructedLL.FACTORY();
+        vars.expectedFactory = address(merkleFactory);
+        assertEq(vars.actualFactory, vars.expectedFactory, "factory");
 
         vars.actualIpfsCID = constructedLL.ipfsCID();
         vars.expectedIpfsCID = defaults.IPFS_CID();
@@ -86,5 +102,9 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         vars.actualTransferable = constructedLL.TRANSFERABLE();
         vars.expectedTransferable = defaults.TRANSFERABLE();
         assertEq(vars.actualTransferable, vars.expectedTransferable, "transferable");
+
+        vars.actualSablierFee = constructedLL.SABLIER_FEE();
+        vars.expectedSablierFee = defaults.DEFAULT_SABLIER_FEE();
+        assertEq(vars.actualSablierFee, vars.expectedSablierFee, "sablierFee");
     }
 }

@@ -65,16 +65,23 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
     /// @dev Helper function to test claim.
     function _test_Claim(uint40 startTime, uint40 cliffTime) private {
+        uint256 sablierFee = defaults.DEFAULT_SABLIER_FEE();
         deal({ token: address(dai), to: address(merkleLL), give: defaults.AGGREGATE_AMOUNT() });
 
         uint256 expectedStreamId = lockupLinear.nextStreamId();
+        uint256 previousFeeAccrued = address(merkleLL).balance;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
         emit Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
 
+        expectCallToTransferFrom({ from: address(merkleLL), to: address(lockupLinear), value: defaults.CLAIM_AMOUNT() });
+        expectCallToClaimWithMsgValue(address(merkleLL), sablierFee);
+
         // Claim the airstream.
-        merkleLL.claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), defaults.index1Proof());
+        merkleLL.claim{ value: sablierFee }(
+            defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), defaults.index1Proof()
+        );
 
         LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(expectedStreamId);
         LockupLinear.StreamLL memory expectedStream = LockupLinear.StreamLL({
@@ -87,12 +94,14 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
             isStream: true,
             isTransferable: defaults.TRANSFERABLE(),
             recipient: users.recipient1,
-            sender: users.admin,
+            sender: users.campaignOwner,
             startTime: startTime,
             wasCanceled: false
         });
 
         assertEq(actualStream, expectedStream);
         assertTrue(merkleLL.hasClaimed(defaults.INDEX1()), "not claimed");
+
+        assertEq(address(merkleLL).balance, previousFeeAccrued + defaults.DEFAULT_SABLIER_FEE(), "fee collected");
     }
 }

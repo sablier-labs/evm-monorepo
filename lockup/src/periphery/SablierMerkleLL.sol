@@ -47,9 +47,10 @@ contract SablierMerkleLL is
         ISablierLockupLinear lockupLinear,
         bool cancelable,
         bool transferable,
-        MerkleLL.Schedule memory schedule_
+        MerkleLL.Schedule memory schedule_,
+        uint256 sablierFee
     )
-        SablierMerkleBase(baseParams)
+        SablierMerkleBase(baseParams, sablierFee)
     {
         CANCELABLE = cancelable;
         LOCKUP_LINEAR = lockupLinear;

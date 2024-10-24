@@ -2,12 +2,12 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleBase } from "src/periphery/interfaces/ISablierMerkleBase.sol";
-
-import { Clawback_Integration_Test } from "../shared/clawback/clawback.t.sol";
-import { GetFirstClaimTime_Integration_Test } from "../shared/get-first-claim-time/getFirstClaimTime.t.sol";
-import { HasClaimed_Integration_Test } from "../shared/has-claimed/hasClaimed.t.sol";
-import { HasExpired_Integration_Test } from "../shared/has-expired/hasExpired.t.sol";
-import { MerkleCampaign_Integration_Shared_Test } from "../shared/MerkleCampaign.t.sol";
+import { Clawback_Integration_Test } from "./../shared/clawback/clawback.t.sol";
+import { GetFirstClaimTime_Integration_Test } from "./../shared/get-first-claim-time/getFirstClaimTime.t.sol";
+import { HasClaimed_Integration_Test } from "./../shared/has-claimed/hasClaimed.t.sol";
+import { HasExpired_Integration_Test } from "./../shared/has-expired/hasExpired.t.sol";
+import { MerkleCampaign_Integration_Shared_Test } from "./../shared/MerkleCampaign.t.sol";
+import { WithdrawFees_Integration_Test } from "./../shared/withdraw-fees/withdrawFees.t.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
                              NON-SHARED TESTS
@@ -53,6 +53,13 @@ contract HasClaimed_MerkleLL_Integration_Test is HasClaimed_Integration_Test, Me
 contract HasExpired_MerkleLL_Integration_Test is HasExpired_Integration_Test, MerkleLL_Integration_Shared_Test {
     function setUp() public override(HasExpired_Integration_Test, MerkleLL_Integration_Shared_Test) {
         HasExpired_Integration_Test.setUp();
+        MerkleLL_Integration_Shared_Test.setUp();
+    }
+}
+
+contract WithdrawFees_MerkleLL_Integration_Test is WithdrawFees_Integration_Test, MerkleLL_Integration_Shared_Test {
+    function setUp() public override(WithdrawFees_Integration_Test, MerkleLL_Integration_Shared_Test) {
+        WithdrawFees_Integration_Test.setUp();
         MerkleLL_Integration_Shared_Test.setUp();
     }
 }

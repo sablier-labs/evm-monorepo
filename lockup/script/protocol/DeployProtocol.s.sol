@@ -5,8 +5,8 @@ import { LockupNFTDescriptor } from "../../src/core/LockupNFTDescriptor.sol";
 import { SablierLockupDynamic } from "../../src/core/SablierLockupDynamic.sol";
 import { SablierLockupLinear } from "../../src/core/SablierLockupLinear.sol";
 import { SablierLockupTranched } from "../../src/core/SablierLockupTranched.sol";
-import { SablierMerkleFactory } from "../../src/periphery/SablierMerkleFactory.sol";
 import { SablierBatchLockup } from "../../src/periphery/SablierBatchLockup.sol";
+import { SablierMerkleFactory } from "../../src/periphery/SablierMerkleFactory.sol";
 
 import { DeploymentLogger } from "./DeploymentLogger.s.sol";
 
@@ -65,7 +65,7 @@ contract DeployProtocol is DeploymentLogger("non_deterministic") {
         lockupLinear = new SablierLockupLinear(initialAdmin, nftDescriptor);
         lockupTranched = new SablierLockupTranched(initialAdmin, nftDescriptor, trancheCountMap[block.chainid]);
         batchLockup = new SablierBatchLockup();
-        merkleLockupFactory = new SablierMerkleFactory();
+        merkleLockupFactory = new SablierMerkleFactory(initialAdmin);
 
         appendToFileDeployedAddresses(
             address(lockupDynamic),

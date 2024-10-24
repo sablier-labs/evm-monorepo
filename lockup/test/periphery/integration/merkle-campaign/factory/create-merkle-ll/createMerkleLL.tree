@@ -5,5 +5,11 @@ CreateMerkleLL_Integration_Test
    ├── given campaign already exists
    │  └── it should revert
    └── given campaign not exists
-      ├── it should create the campaign
-      └── it should emit a {CreateMerkleLL} event
+      ├── given custom fee set
+      │  ├── it should create the campaign with custom fee
+      │  ├── it should set the current factory address
+      │  └── it should emit a {CreateMerkleLL} event
+      └── given custom fee not set
+         ├── it should create the campaign with default fee
+         ├── it should set the current factory address
+         └── it should emit a {CreateMerkleLL} event

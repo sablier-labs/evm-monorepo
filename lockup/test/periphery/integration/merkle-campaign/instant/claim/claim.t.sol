@@ -12,18 +12,24 @@ contract Claim_MerkleInstant_Integration_Test is Claim_Integration_Test, MerkleI
     function test_Claim()
         external
         givenCampaignNotExpired
+        givenMsgValueNotLessThanSablierFee
         givenRecipientNotClaimed
         whenIndexValid
         whenRecipientValid
         whenAmountValid
         whenMerkleProofValid
     {
-        vm.expectEmit({ emitter: address(merkleBase) });
+        uint256 previousFeeAccrued = address(merkleInstant).balance;
+
+        vm.expectEmit({ emitter: address(merkleInstant) });
         emit Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT());
 
         expectCallToTransfer({ to: users.recipient1, value: defaults.CLAIM_AMOUNT() });
+        expectCallToClaimWithMsgValue(address(merkleInstant), defaults.DEFAULT_SABLIER_FEE());
         claim();
 
-        assertTrue(merkleBase.hasClaimed(defaults.INDEX1()), "not claimed");
+        assertTrue(merkleInstant.hasClaimed(defaults.INDEX1()), "not claimed");
+
+        assertEq(address(merkleInstant).balance, previousFeeAccrued + defaults.DEFAULT_SABLIER_FEE(), "fee collected");
     }
 }

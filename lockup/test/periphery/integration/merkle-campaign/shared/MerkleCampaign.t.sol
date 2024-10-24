@@ -19,7 +19,7 @@ abstract contract MerkleCampaign_Integration_Shared_Test is MerkleCampaign_Integ
     //////////////////////////////////////////////////////////////////////////*/
 
     function claim() internal {
-        merkleBase.claim({
+        merkleBase.claim{ value: defaults.DEFAULT_SABLIER_FEE() }({
             index: defaults.INDEX1(),
             recipient: users.recipient1,
             amount: defaults.CLAIM_AMOUNT(),
@@ -45,13 +45,23 @@ abstract contract MerkleCampaign_Integration_Shared_Test is MerkleCampaign_Integ
         _;
     }
 
+    modifier whenCallerCampaignOwner() {
+        resetPrank({ msgSender: users.campaignOwner });
+        _;
+    }
+
     modifier whenExpirationNotZero() {
         _;
     }
 
     modifier whenFirstClaimMade() {
+        // Reset the prank to the recipient to make the first claim.
+        resetPrank({ msgSender: users.recipient });
         // Make the first claim to set `_firstClaimTime`.
         claim();
+
+        // Reset the prank back to the campaign owner.
+        resetPrank(users.campaignOwner);
         _;
     }
 

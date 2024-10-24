@@ -8,6 +8,8 @@ struct Users {
     address payable alice;
     // Default stream broker.
     address payable broker;
+    // Default campaign owner.
+    address payable campaignOwner;
     // Malicious user.
     address payable eve;
     // Default NFT operator.

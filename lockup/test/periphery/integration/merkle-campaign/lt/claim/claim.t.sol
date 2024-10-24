@@ -20,6 +20,8 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
     }
 
     function test_RevertWhen_TotalPercentageLessThan100() external whenMerkleProofValid whenTotalPercentageNot100 {
+        uint256 sablierFee = defaults.DEFAULT_SABLIER_FEE();
+
         // Create a MerkleLT campaign with a total percentage less than 100.
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
         tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);
@@ -46,10 +48,16 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
             abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
         );
 
-        merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 10_000e18, merkleProof: merkleProof });
+        merkleLT.claim{ value: sablierFee }({
+            index: 1,
+            recipient: users.recipient1,
+            amount: 10_000e18,
+            merkleProof: merkleProof
+        });
     }
 
     function test_RevertWhen_TotalPercentageGreaterThan100() external whenMerkleProofValid whenTotalPercentageNot100 {
+        uint256 sablierFee = defaults.DEFAULT_SABLIER_FEE();
         // Create a MerkleLT campaign with a total percentage less than 100.
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
         tranchesWithPercentages[0].unlockPercentage = ud2x18(0.75e18);
@@ -76,7 +84,12 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
             abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
         );
 
-        merkleLT.claim({ index: 1, recipient: users.recipient1, amount: 10_000e18, merkleProof: merkleProof });
+        merkleLT.claim{ value: sablierFee }({
+            index: 1,
+            recipient: users.recipient1,
+            amount: 10_000e18,
+            merkleProof: merkleProof
+        });
     }
 
     modifier whenTotalPercentage100() {
@@ -109,16 +122,24 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
     /// @dev Helper function to test claim.
     function _test_Claim(uint40 streamStartTime, uint40 startTime) private {
+        uint256 sablierFee = defaults.DEFAULT_SABLIER_FEE();
+
         deal({ token: address(dai), to: address(merkleLT), give: defaults.AGGREGATE_AMOUNT() });
 
         uint256 expectedStreamId = lockupTranched.nextStreamId();
+        uint256 previousFeeAccrued = address(merkleLL).balance;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
         emit Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
 
+        expectCallToTransferFrom({ from: address(merkleLT), to: address(lockupTranched), value: defaults.CLAIM_AMOUNT() });
+        expectCallToClaimWithMsgValue(address(merkleLT), sablierFee);
+
         // Claim the airstream.
-        merkleLT.claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), defaults.index1Proof());
+        merkleLT.claim{ value: sablierFee }(
+            defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), defaults.index1Proof()
+        );
 
         // It should create a stream with `STREAM_START_TIME` as start time.
         LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(expectedStreamId);
@@ -131,7 +152,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
             isStream: true,
             isTransferable: defaults.TRANSFERABLE(),
             recipient: users.recipient1,
-            sender: users.admin,
+            sender: users.campaignOwner,
             startTime: startTime,
             tranches: defaults.tranchesMerkleLT({ streamStartTime: streamStartTime, totalAmount: defaults.CLAIM_AMOUNT() }),
             wasCanceled: false
@@ -139,5 +160,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         assertEq(actualStream, expectedStream);
         assertTrue(merkleLT.hasClaimed(defaults.INDEX1()), "not claimed");
+
+        assertEq(address(merkleLT).balance, previousFeeAccrued + defaults.DEFAULT_SABLIER_FEE(), "fee collected");
     }
 }

@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { stdJson } from "forge-std/src/StdJson.sol";
 
 import { BaseScript } from "../Base.s.sol";
 

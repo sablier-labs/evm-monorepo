@@ -61,17 +61,34 @@ contract CreateMerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
         });
     }
 
-    function test_GivenCampaignNotExists(address admin, uint40 expiration) external whenNameNotTooLong {
-        vm.assume(admin != users.admin);
-        address expectedLL = computeMerkleLLAddress(admin, expiration);
+    modifier givenCampaignNotExists() {
+        _;
+    }
+
+    function test_GivenCustomFeeSet(
+        address campaignOwner,
+        uint40 expiration,
+        uint256 customFee
+    )
+        external
+        whenNameNotTooLong
+        givenCampaignNotExists
+    {
+        // Set the Sablier fee to 0 for this test.
+        resetPrank(users.admin);
+        merkleFactory.setSablierFeeByUser(users.campaignOwner, customFee);
+
+        resetPrank(users.campaignOwner);
+        address expectedLL = computeMerkleLLAddress(campaignOwner, expiration, customFee);
 
         MerkleBase.ConstructorParams memory baseParams = defaults.baseParams({
-            admin: admin,
+            campaignOwner: campaignOwner,
             asset_: dai,
             merkleRoot: defaults.MERKLE_ROOT(),
             expiration: expiration
         });
 
+        // It should emit a {CreateMerkleLL} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
         emit CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
@@ -81,11 +98,60 @@ contract CreateMerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
             transferable: defaults.TRANSFERABLE(),
             schedule: defaults.schedule(),
             aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT()
+            recipientCount: defaults.RECIPIENT_COUNT(),
+            sablierFee: customFee
         });
 
-        address actualLL = address(createMerkleLL(admin, expiration));
-        assertGt(actualLL.code.length, 0, "MerkleLL contract not created");
-        assertEq(actualLL, expectedLL, "MerkleLL contract does not match computed address");
+        ISablierMerkleLL actualLL = createMerkleLL(campaignOwner, expiration);
+        assertGt(address(actualLL).code.length, 0, "MerkleLL contract not created");
+        assertEq(address(actualLL), expectedLL, "MerkleLL contract does not match computed address");
+
+        // It should create the campaign with custom fee.
+        assertEq(actualLL.SABLIER_FEE(), customFee, "sablier fee");
+
+        // It should set the current factory address.
+        assertEq(actualLL.FACTORY(), address(merkleFactory), "factory");
+    }
+
+    function test_GivenCustomFeeNotSet(
+        address campaignOwner,
+        uint40 expiration
+    )
+        external
+        whenNameNotTooLong
+        givenCampaignNotExists
+    {
+        address expectedLL = computeMerkleLLAddress(campaignOwner, expiration);
+
+        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams({
+            campaignOwner: campaignOwner,
+            asset_: dai,
+            merkleRoot: defaults.MERKLE_ROOT(),
+            expiration: expiration
+        });
+
+        // It should emit a {CreateMerkleInstant} event.
+        vm.expectEmit({ emitter: address(merkleFactory) });
+        emit CreateMerkleLL({
+            merkleLL: ISablierMerkleLL(expectedLL),
+            baseParams: baseParams,
+            lockupLinear: lockupLinear,
+            cancelable: defaults.CANCELABLE(),
+            transferable: defaults.TRANSFERABLE(),
+            schedule: defaults.schedule(),
+            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
+            recipientCount: defaults.RECIPIENT_COUNT(),
+            sablierFee: defaults.DEFAULT_SABLIER_FEE()
+        });
+
+        ISablierMerkleLL actualLL = createMerkleLL(campaignOwner, expiration);
+        assertGt(address(actualLL).code.length, 0, "MerkleLL contract not created");
+        assertEq(address(actualLL), expectedLL, "MerkleLL contract does not match computed address");
+
+        // It should create the campaign with custom fee.
+        assertEq(actualLL.SABLIER_FEE(), defaults.DEFAULT_SABLIER_FEE(), "default sablier fee");
+
+        // It should set the current factory address.
+        assertEq(actualLL.FACTORY(), address(merkleFactory), "factory");
     }
 }

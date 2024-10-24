@@ -3,15 +3,164 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
+import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
+import { LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
+
+import { ISablierMerkleBase } from "src/periphery/interfaces/ISablierMerkleBase.sol";
 import { SablierMerkleInstant } from "src/periphery/SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "src/periphery/SablierMerkleLL.sol";
 import { SablierMerkleLT } from "src/periphery/SablierMerkleLT.sol";
 
 import { Base_Test } from "../Base.t.sol";
+import { ContractWithoutReceiveEth, ContractWithReceiveEth } from "../mocks/ReceiveEth.sol";
 
 contract Periphery_Test is Base_Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                   TEST CONTRACTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    ContractWithoutReceiveEth internal contractWithoutReceiveEth;
+    ContractWithReceiveEth internal contractWithReceiveEth;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  SET-UP FUNCTION
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
         Base_Test.setUp();
+
+        contractWithoutReceiveEth = new ContractWithoutReceiveEth();
+        contractWithReceiveEth = new ContractWithReceiveEth();
+        vm.label({ account: address(contractWithoutReceiveEth), newLabel: "Contract Without Receive Eth" });
+        vm.label({ account: address(contractWithReceiveEth), newLabel: "Contract With Receive Eth" });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                CALL EXPECTS - LOCKUP
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithDurations}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithDurationsLD(
+        uint64 count,
+        LockupDynamic.CreateWithDurations memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupDynamic),
+            count: count,
+            data: abi.encodeCall(ISablierLockupDynamic.createWithDurations, (params))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithDurations}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithDurationsLL(
+        uint64 count,
+        LockupLinear.CreateWithDurations memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupLinear),
+            count: count,
+            data: abi.encodeCall(ISablierLockupLinear.createWithDurations, (params))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithDurations}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithDurationsLT(
+        uint64 count,
+        LockupTranched.CreateWithDurations memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupTranched),
+            count: count,
+            data: abi.encodeCall(ISablierLockupTranched.createWithDurations, (params))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithTimestamps}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithTimestampsLD(
+        uint64 count,
+        LockupDynamic.CreateWithTimestamps memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupDynamic),
+            count: count,
+            data: abi.encodeCall(ISablierLockupDynamic.createWithTimestamps, (params))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithTimestamps}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithTimestampsLL(
+        uint64 count,
+        LockupLinear.CreateWithTimestamps memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupLinear),
+            count: count,
+            data: abi.encodeCall(ISablierLockupLinear.createWithTimestamps, (params))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithTimestamps}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithTimestampsLT(
+        uint64 count,
+        LockupTranched.CreateWithTimestamps memory params
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockupTranched),
+            count: count,
+            data: abi.encodeCall(ISablierLockupTranched.createWithTimestamps, (params))
+        });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            CALL EXPECTS - MERKLE LOCKUP
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Expects a call to {ISablierMerkleBase.claim} with data provided.
+    function expectCallToClaimWithData(
+        address merkleLockup,
+        uint256 sablierFee,
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] memory merkleProof
+    )
+        internal
+    {
+        vm.expectCall(
+            merkleLockup, sablierFee, abi.encodeCall(ISablierMerkleBase.claim, (index, recipient, amount, merkleProof))
+        );
+    }
+
+    /// @dev Expects a call to {ISablierMerkleBase.claim} with msgValue as `msg.value`.
+    function expectCallToClaimWithMsgValue(address merkleLockup, uint256 msgValue) internal {
+        vm.expectCall(
+            merkleLockup,
+            msgValue,
+            abi.encodeCall(
+                ISablierMerkleBase.claim,
+                (defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), defaults.index1Proof())
+            )
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -20,10 +169,11 @@ contract Periphery_Test is Base_Test {
 
     function computeMerkleInstantAddress(
         address caller,
-        address admin,
+        address campaignOwner,
         IERC20 asset_,
         bytes32 merkleRoot,
-        uint40 expiration
+        uint40 expiration,
+        uint256 sablierFee
     )
         internal
         view
@@ -34,13 +184,14 @@ contract Periphery_Test is Base_Test {
                 caller,
                 address(asset_),
                 expiration,
-                admin,
+                campaignOwner,
                 abi.encode(defaults.IPFS_CID()),
                 merkleRoot,
                 defaults.NAME_BYTES32()
             )
         );
-        bytes32 creationBytecodeHash = keccak256(getMerkleInstantBytecode(admin, asset_, merkleRoot, expiration));
+        bytes32 creationBytecodeHash =
+            keccak256(getMerkleInstantBytecode(campaignOwner, asset_, merkleRoot, expiration, sablierFee));
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
@@ -50,10 +201,11 @@ contract Periphery_Test is Base_Test {
 
     function computeMerkleLLAddress(
         address caller,
-        address admin,
+        address campaignOwner,
         IERC20 asset_,
         bytes32 merkleRoot,
-        uint40 expiration
+        uint40 expiration,
+        uint256 sablierFee
     )
         internal
         view
@@ -64,7 +216,7 @@ contract Periphery_Test is Base_Test {
                 caller,
                 address(asset_),
                 expiration,
-                admin,
+                campaignOwner,
                 abi.encode(defaults.IPFS_CID()),
                 merkleRoot,
                 defaults.NAME_BYTES32(),
@@ -74,7 +226,8 @@ contract Periphery_Test is Base_Test {
                 abi.encode(defaults.schedule())
             )
         );
-        bytes32 creationBytecodeHash = keccak256(getMerkleLLBytecode(admin, asset_, merkleRoot, expiration));
+        bytes32 creationBytecodeHash =
+            keccak256(getMerkleLLBytecode(campaignOwner, asset_, merkleRoot, expiration, sablierFee));
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
@@ -84,10 +237,11 @@ contract Periphery_Test is Base_Test {
 
     function computeMerkleLTAddress(
         address caller,
-        address admin,
+        address campaignOwner,
         IERC20 asset_,
         bytes32 merkleRoot,
-        uint40 expiration
+        uint40 expiration,
+        uint256 sablierFee
     )
         internal
         view
@@ -98,7 +252,7 @@ contract Periphery_Test is Base_Test {
                 caller,
                 address(asset_),
                 expiration,
-                admin,
+                campaignOwner,
                 abi.encode(defaults.IPFS_CID()),
                 merkleRoot,
                 defaults.NAME_BYTES32(),
@@ -109,7 +263,8 @@ contract Periphery_Test is Base_Test {
                 abi.encode(defaults.tranchesWithPercentages())
             )
         );
-        bytes32 creationBytecodeHash = keccak256(getMerkleLTBytecode(admin, asset_, merkleRoot, expiration));
+        bytes32 creationBytecodeHash =
+            keccak256(getMerkleLTBytecode(campaignOwner, asset_, merkleRoot, expiration, sablierFee));
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
@@ -118,16 +273,18 @@ contract Periphery_Test is Base_Test {
     }
 
     function getMerkleInstantBytecode(
-        address admin,
+        address campaignOwner,
         IERC20 asset_,
         bytes32 merkleRoot,
-        uint40 expiration
+        uint40 expiration,
+        uint256 sablierFee
     )
         internal
         view
         returns (bytes memory)
     {
-        bytes memory constructorArgs = abi.encode(defaults.baseParams(admin, asset_, expiration, merkleRoot));
+        bytes memory constructorArgs =
+            abi.encode(defaults.baseParams(campaignOwner, asset_, expiration, merkleRoot), sablierFee);
         if (!isTestOptimizedProfile()) {
             return bytes.concat(type(SablierMerkleInstant).creationCode, constructorArgs);
         } else {
@@ -138,21 +295,23 @@ contract Periphery_Test is Base_Test {
     }
 
     function getMerkleLLBytecode(
-        address admin,
+        address campaignOwner,
         IERC20 asset_,
         bytes32 merkleRoot,
-        uint40 expiration
+        uint40 expiration,
+        uint256 sablierFee
     )
         internal
         view
         returns (bytes memory)
     {
         bytes memory constructorArgs = abi.encode(
-            defaults.baseParams(admin, asset_, expiration, merkleRoot),
+            defaults.baseParams(campaignOwner, asset_, expiration, merkleRoot),
             lockupLinear,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
-            defaults.schedule()
+            defaults.schedule(),
+            sablierFee
         );
         if (!isTestOptimizedProfile()) {
             return bytes.concat(type(SablierMerkleLL).creationCode, constructorArgs);
@@ -162,22 +321,24 @@ contract Periphery_Test is Base_Test {
     }
 
     function getMerkleLTBytecode(
-        address admin,
+        address campaignOwner,
         IERC20 asset_,
         bytes32 merkleRoot,
-        uint40 expiration
+        uint40 expiration,
+        uint256 sablierFee
     )
         internal
         view
         returns (bytes memory)
     {
         bytes memory constructorArgs = abi.encode(
-            defaults.baseParams(admin, asset_, expiration, merkleRoot),
+            defaults.baseParams(campaignOwner, asset_, expiration, merkleRoot),
             lockupTranched,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
             defaults.STREAM_START_TIME_ZERO(),
-            defaults.tranchesWithPercentages()
+            defaults.tranchesWithPercentages(),
+            sablierFee
         );
         if (!isTestOptimizedProfile()) {
             return bytes.concat(type(SablierMerkleLT).creationCode, constructorArgs);

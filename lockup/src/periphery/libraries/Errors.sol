@@ -11,8 +11,17 @@ library Errors {
     error SablierBatchLockup_BatchSizeZero();
 
     /*//////////////////////////////////////////////////////////////////////////
+                              SABLIER-MERKLE-FACTORY
+    //////////////////////////////////////////////////////////////////////////*/
+
+    error SablierMerkleFactory_WithdrawToZeroAddress();
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER-MERKLE-BASE
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when caller is not the factory contract.
+    error SablierMerkleBase_CallerNotFactory(address factory, address caller);
 
     /// @notice Thrown when trying to claim after the campaign has expired.
     error SablierMerkleBase_CampaignExpired(uint256 blockTimestamp, uint40 expiration);
@@ -23,6 +32,12 @@ library Errors {
     /// @notice Thrown when trying to clawback when the current timestamp is over the grace period and the campaign has
     /// not expired.
     error SablierMerkleBase_ClawbackNotAllowed(uint256 blockTimestamp, uint40 expiration, uint40 firstClaimTime);
+
+    /// @notice Thrown if the Sablier fees withdraw failed.
+    error SablierMerkleBase_FeeWithdrawFailed(address to, uint256 amount);
+
+    /// @notice Thrown when trying to claim with an insufficient fee payment.
+    error SablierMerkleBase_InsufficientFeePayment(uint256 feePaid, uint256 sablierFee);
 
     /// @notice Thrown when trying to claim with an invalid Merkle proof.
     error SablierMerkleBase_InvalidProof();

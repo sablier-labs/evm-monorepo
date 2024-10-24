@@ -14,7 +14,7 @@ import { BaseScript } from "../Base.s.sol";
 /// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicPeriphery is BaseScript {
     /// @dev Deploy via Forge.
-    function run()
+    function run(address initialAdmin)
         public
         virtual
         broadcast
@@ -22,6 +22,6 @@ contract DeployDeterministicPeriphery is BaseScript {
     {
         bytes32 salt = constructCreate2Salt();
         batchLockup = new SablierBatchLockup{ salt: salt }();
-        merkleFactory = new SablierMerkleFactory{ salt: salt }();
+        merkleFactory = new SablierMerkleFactory{ salt: salt }(initialAdmin);
     }
 }

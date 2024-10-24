@@ -1,0 +1,6 @@
+SetDefaultSablierFee_Integration_Test
+├── when caller not admin
+│   └── it should revert
+└── when caller admin
+    ├── it should set the default Sablier fee
+    └── it should emit a {SetDefaultSablierFee} event

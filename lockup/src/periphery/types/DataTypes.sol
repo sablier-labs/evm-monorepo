@@ -100,6 +100,17 @@ library MerkleBase {
     }
 }
 
+library MerkleFactory {
+    /// @notice Struct encapsulating the custom fee details for a given campaign creator.
+    /// @param enabled Whether the fee is enabled. If false, the default fee will be applied for campaigns created by
+    /// the given creator.
+    /// @param fee The fee amount.
+    struct SablierFeeByUser {
+        bool enabled;
+        uint256 fee;
+    }
+}
+
 library MerkleLL {
     /// @notice Struct encapsulating the start time, cliff duration and the end duration used to construct the time
     /// variables in `LockupLinear.CreateWithTimestamps`.

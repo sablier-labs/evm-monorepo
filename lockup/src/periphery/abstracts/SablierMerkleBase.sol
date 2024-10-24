@@ -30,13 +30,19 @@ abstract contract SablierMerkleBase is
     uint40 public immutable override EXPIRATION;
 
     /// @inheritdoc ISablierMerkleBase
+    address public immutable override FACTORY;
+
+    /// @inheritdoc ISablierMerkleBase
     bytes32 public immutable override MERKLE_ROOT;
 
     /// @dev The name of the campaign stored as bytes32.
     bytes32 internal immutable NAME;
 
     /// @inheritdoc ISablierMerkleBase
-    string public ipfsCID;
+    uint256 public immutable override SABLIER_FEE;
+
+    /// @inheritdoc ISablierMerkleBase
+    string public override ipfsCID;
 
     /// @dev Packed booleans that record the history of claims.
     BitMaps.BitMap internal _claimedBitMap;
@@ -48,19 +54,20 @@ abstract contract SablierMerkleBase is
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Constructs the contract by initializing the immutable state variables.
-    constructor(MerkleBase.ConstructorParams memory params) {
+    /// @notice Constructs the contract by initializing the immutable state variables.
+    constructor(MerkleBase.ConstructorParams memory params, uint256 sablierFee) Adminable(params.initialAdmin) {
         // Check: the campaign name is not greater than 32 bytes
         if (bytes(params.name).length > 32) {
             revert Errors.SablierMerkleBase_CampaignNameTooLong({ nameLength: bytes(params.name).length, maxLength: 32 });
         }
 
-        admin = params.initialAdmin;
         ASSET = params.asset;
         EXPIRATION = params.expiration;
+        FACTORY = msg.sender;
         ipfsCID = params.ipfsCID;
         MERKLE_ROOT = params.merkleRoot;
         NAME = bytes32(abi.encodePacked(params.name));
+        SABLIER_FEE = sablierFee;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -99,11 +106,17 @@ abstract contract SablierMerkleBase is
         bytes32[] calldata merkleProof
     )
         external
+        payable
         override
     {
         // Check: the campaign has not expired.
         if (hasExpired()) {
             revert Errors.SablierMerkleBase_CampaignExpired({ blockTimestamp: block.timestamp, expiration: EXPIRATION });
+        }
+
+        // Check: `msg.value` is not less than the Sablier fee.
+        if (msg.value < SABLIER_FEE) {
+            revert Errors.SablierMerkleBase_InsufficientFeePayment(msg.value, SABLIER_FEE);
         }
 
         // Check: the index has not been claimed.
@@ -148,6 +161,24 @@ abstract contract SablierMerkleBase is
 
         // Log the clawback.
         emit Clawback(admin, to, amount);
+    }
+
+    /// @inheritdoc ISablierMerkleBase
+    function withdrawFees(address payable to) external override returns (uint256 feeAmount) {
+        // Check: the msg.sender is the FACTORY.
+        if (msg.sender != FACTORY) {
+            revert Errors.SablierMerkleBase_CallerNotFactory(FACTORY, msg.sender);
+        }
+
+        feeAmount = address(this).balance;
+
+        // Effect: transfer the fees to the provided address.
+        (bool success,) = to.call{ value: feeAmount }("");
+
+        // Revert if the call failed.
+        if (!success) {
+            revert Errors.SablierMerkleBase_FeeWithdrawFailed(to, feeAmount);
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

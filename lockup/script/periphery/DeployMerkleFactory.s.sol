@@ -7,7 +7,7 @@ import { BaseScript } from "../Base.s.sol";
 
 contract DeployMerkleFactory is BaseScript {
     /// @dev Deploy via Forge.
-    function run() public virtual broadcast returns (SablierMerkleFactory merkleFactory) {
-        merkleFactory = new SablierMerkleFactory();
+    function run(address initialAdmin) public virtual broadcast returns (SablierMerkleFactory merkleFactory) {
+        merkleFactory = new SablierMerkleFactory(initialAdmin);
     }
 }
