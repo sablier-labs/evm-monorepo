@@ -163,7 +163,7 @@ interface ISablierFlow is
     /// @dev Emits {AdjustFlowStream} and {MetadataUpdate} events.
     ///
     /// Notes:
-    /// - Performs a debt snapshot.
+    /// - It updates snapshot debt and snapshot time.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -301,8 +301,7 @@ interface ISablierFlow is
     /// @dev Emits {PauseFlowStream} event.
     ///
     /// Notes:
-    /// - It does not set the snapshot time to the current block timestamp.
-    /// - It updates the snapshot debt by adding up ongoing debt.
+    /// - It updates snapshot debt and snapshot time.
     /// - It sets the rate per second to zero.
     ///
     /// Requirements:
@@ -344,10 +343,9 @@ interface ISablierFlow is
     /// @notice Restarts the stream with the provided rate per second.
     ///
     /// @dev Emits {RestartFlowStream} event.
-    /// - This function updates stream's `snapshotTime` to the current block timestamp.
     ///
     /// Notes:
-    /// - It sets the snapshot time to the current block timestamp.
+    /// - It updates snapshot debt and snapshot time.
     ///
     /// Requirements:
     /// - Must not be delegate called.
