@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
-import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
