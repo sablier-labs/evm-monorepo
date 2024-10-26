@@ -28,12 +28,10 @@ Refund_Integration_Concrete_Test
                      │  ├── it should update the stream balance
                      │  ├── it should decrease the aggregate amount
                      │  ├── it should perform the ERC20 transfer
-                     │  ├── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
-                     │  └── it should return the transfer amount
+                     │  └── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
                      └── given token has 18 decimals
                         ├── it should make the refund
                         ├── it should update the stream balance
                         ├── it should decrease the aggregate amount
                         ├── it should perform the ERC20 transfer
-                        ├── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
-                        └── it should return the transfer amount
+                        └── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event
