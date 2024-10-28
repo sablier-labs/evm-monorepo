@@ -364,6 +364,21 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
+    function refundMax(uint256 streamId)
+        external
+        override
+        noDelegateCall
+        notNull(streamId)
+        onlySender(streamId)
+        updateMetadata(streamId)
+    {
+        uint128 refundableAmount = _refundableAmountOf(streamId);
+
+        // Checks, Effects, and Interactions: make the refund.
+        _refund(streamId, refundableAmount);
+    }
+
+    /// @inheritdoc ISablierFlow
     function restart(
         uint256 streamId,
         UD21x18 ratePerSecond

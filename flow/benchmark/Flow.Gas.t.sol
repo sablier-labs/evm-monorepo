@@ -72,8 +72,14 @@ contract Flow_Gas_Test is Integration_Test {
         // {flow.pause}
         computeGas("pause", abi.encodeCall(flow.pause, (streamId)));
 
-        // {flow.refund}
-        computeGas("refund", abi.encodeCall(flow.refund, (streamId, REFUND_AMOUNT_6D)));
+        // {flow.refund} on an incremented stream ID
+        computeGas("refund", abi.encodeCall(flow.refund, (++streamId, REFUND_AMOUNT_6D)));
+
+        // {flow.refundMax} on an incremented stream ID.
+        computeGas("refundMax", abi.encodeCall(flow.refundMax, (++streamId)));
+
+        // Pause the current stream to test the restart function.
+        flow.pause(streamId);
 
         // {flow.restart}
         computeGas("restart", abi.encodeCall(flow.restart, (streamId, RATE_PER_SECOND)));

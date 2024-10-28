@@ -2,15 +2,16 @@
 
 | Function                      | Gas Usage |
 | ----------------------------- | --------- |
-| `adjustRatePerSecond`         | 44171     |
-| `create`                      | 113681    |
-| `deposit`                     | 32975     |
-| `depositViaBroker`            | 22732     |
-| `pause`                       | 7522      |
-| `refund`                      | 11939     |
-| `restart`                     | 7036      |
-| `void (solvent stream)`       | 10060     |
-| `void (insolvent stream)`     | 37460     |
-| `withdraw (insolvent stream)` | 57688     |
-| `withdraw (solvent stream)`   | 38156     |
-| `withdrawMax`                 | 51988     |
+| `adjustRatePerSecond`         | 44193     |
+| `create`                      | 113703    |
+| `deposit`                     | 32997     |
+| `depositViaBroker`            | 22754     |
+| `pause`                       | 7544      |
+| `refund`                      | 22842     |
+| `refundMax`                   | 23840     |
+| `restart`                     | 7058      |
+| `void (solvent stream)`       | 9982      |
+| `void (insolvent stream)`     | 37482     |
+| `withdraw (insolvent stream)` | 57711     |
+| `withdraw (solvent stream)`   | 38178     |
+| `withdrawMax`                 | 52010     |

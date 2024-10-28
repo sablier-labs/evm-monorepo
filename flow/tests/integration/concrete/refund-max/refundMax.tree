@@ -1,0 +1,21 @@
+RefundMax_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      ├── when caller not sender
+      │  ├── when caller recipient
+      │  │  └── it should revert
+      │  └── when caller malicious third party
+      │     └── it should revert
+      └── when caller sender
+         ├── given paused
+         │  └── it should make the refund
+         └── given not paused
+            ├── it should make the refund
+            ├── it should update the stream balance
+            ├── it should decrease the aggregate amount
+            ├── it should perform the ERC20 transfer
+            └── it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} event

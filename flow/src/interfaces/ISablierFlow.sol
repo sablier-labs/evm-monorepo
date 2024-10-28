@@ -340,6 +340,16 @@ interface ISablierFlow is
     /// @param amount The amount to refund, denoted in token's decimals.
     function refundAndPause(uint256 streamId, uint128 amount) external;
 
+    /// @notice Refunds the entire refundable amount of tokens from the stream to the sender's address.
+    ///
+    /// @dev Emits {Transfer} and {RefundFromFlowStream} events.
+    ///
+    /// Requirements:
+    /// - Refer to the requirements in {refund}.
+    ///
+    /// @param streamId The ID of the stream to refund from.
+    function refundMax(uint256 streamId) external;
+
     /// @notice Restarts the stream with the provided rate per second.
     ///
     /// @dev Emits {RestartFlowStream} event.
