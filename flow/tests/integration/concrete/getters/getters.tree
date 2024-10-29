@@ -1,0 +1,89 @@
+Getters_Integration_Concrete_Test::getBalance
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given zero
+   │  └── it should return zero value
+   └── given not zero
+      └── it should return non-zero value
+
+Getters_Integration_Concrete_Test::getRatePerSecond
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given zero
+   │  └── it should return zero value
+   └── given not zero
+      └── it should return non-zero value
+
+Getters_Integration_Concrete_Test::getRecipient
+├── given null
+│  └── it should revert
+└── given not null
+   └── it should return the correct recipient
+
+Getters_Integration_Concrete_Test::getSender
+├── given null
+│  └── it should revert
+└── given not null
+   └── it should return the correct sender
+
+Getters_Integration_Concrete_Test::getSnapshotDebtScaled
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given zero
+   │  └── it should return zero value
+   └── given not zero
+      └── it should return non-zero value
+
+Getters_Integration_Concrete_Test::getSnapshotTime
+├── given null
+│  └── it should revert
+└── given not null
+   └── it should return the correct snapshot time
+
+Getters_Integration_Concrete_Test::getStream
+├── given null
+│  └── it should revert
+└── given not null
+   └── it should return the stream
+
+Getters_Integration_Concrete_Test::getTokenDecimals
+├── given null
+│  └── it should revert
+└── given not null
+   └── it should return token decimals
+
+Getters_Integration_Concrete_Test::isPaused
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given true
+   │  └── it should return true
+   └── given not true
+      └── it should return false
+
+Getters_Integration_Concrete_Test::isStream
+├── given null
+│  └── it should return false
+└── given not null
+   └── it should return true
+
+Getters_Integration_Concrete_Test::isTransferable
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given true
+   │  └── it should return true
+   └── given false
+      └── it should return false
+
+Getters_Integration_Concrete_Test::isVoided
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given true
+   │  └── it should return true
+   └── given false
+      └── it should return false
