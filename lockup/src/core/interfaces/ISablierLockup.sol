@@ -8,12 +8,14 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Lockup } from "../types/DataTypes.sol";
 import { IAdminable } from "./IAdminable.sol";
+import { IBatch } from "./IBatch.sol";
 import { ILockupNFTDescriptor } from "./ILockupNFTDescriptor.sol";
 
 /// @title ISablierLockup
 /// @notice Common logic between all Sablier Lockup contracts.
 interface ISablierLockup is
     IAdminable, // 0 inherited components
+    IBatch, // 0 inherited components
     IERC4906, // 2 inherited components
     IERC721Metadata // 2 inherited components
 {

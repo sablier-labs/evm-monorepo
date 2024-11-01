@@ -13,11 +13,13 @@ import { ISablierLockupRecipient } from "./../interfaces/ISablierLockupRecipient
 import { Errors } from "./../libraries/Errors.sol";
 import { Lockup } from "./../types/DataTypes.sol";
 import { Adminable } from "./Adminable.sol";
+import { Batch } from "./Batch.sol";
 import { NoDelegateCall } from "./NoDelegateCall.sol";
 
 /// @title SablierLockup
 /// @notice See the documentation in {ISablierLockup}.
 abstract contract SablierLockup is
+    Batch, // 0 inherited components
     NoDelegateCall, // 0 inherited components
     Adminable, // 1 inherited components
     ISablierLockup, // 7 inherited components

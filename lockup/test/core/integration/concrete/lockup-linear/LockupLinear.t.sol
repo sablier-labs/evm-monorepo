@@ -4,6 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Integration_Test } from "./../../Integration.t.sol";
 import { LockupLinear_Integration_Shared_Test } from "./../../shared/lockup-linear/LockupLinear.t.sol";
 import { AllowToHook_Integration_Concrete_Test } from "./../lockup/allow-to-hook/allowToHook.t.sol";
+import { Batch_Integration_Concrete_Test } from "./../lockup/batch/batch.t.sol";
 import { Burn_Integration_Concrete_Test } from "./../lockup/burn/burn.t.sol";
 import { CancelMultiple_Integration_Concrete_Test } from "./../lockup/cancel-multiple/cancelMultiple.t.sol";
 import { Cancel_Integration_Concrete_Test } from "./../lockup/cancel/cancel.t.sol";
@@ -42,6 +43,15 @@ import { Withdraw_Integration_Concrete_Test } from "./../lockup/withdraw/withdra
 contract AllowToHook_LockupLinear_Integration_Concrete_Test is
     LockupLinear_Integration_Shared_Test,
     AllowToHook_Integration_Concrete_Test
+{
+    function setUp() public virtual override(LockupLinear_Integration_Shared_Test, Integration_Test) {
+        LockupLinear_Integration_Shared_Test.setUp();
+    }
+}
+
+contract Batch_LockupLinear_Integration_Concrete_Test is
+    LockupLinear_Integration_Shared_Test,
+    Batch_Integration_Concrete_Test
 {
     function setUp() public virtual override(LockupLinear_Integration_Shared_Test, Integration_Test) {
         LockupLinear_Integration_Shared_Test.setUp();
