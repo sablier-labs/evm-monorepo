@@ -1,21 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
+
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
 
 import { Withdraw_Integration_Fuzz_Test } from "../lockup/withdraw.t.sol";
-import { LockupDynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
+import { LockupDynamic_Integration_Shared_Test, Integration_Test } from "./LockupDynamic.t.sol";
 
 /// @dev This contract complements the tests in {Withdraw_Integration_Fuzz_Test} by testing the withdraw function
 /// against
 /// streams created with fuzzed segments.
 contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
-    LockupDynamic_Integration_Fuzz_Test,
+    LockupDynamic_Integration_Shared_Test,
     Withdraw_Integration_Fuzz_Test
 {
-    function setUp() public virtual override(LockupDynamic_Integration_Fuzz_Test, Withdraw_Integration_Fuzz_Test) {
-        LockupDynamic_Integration_Fuzz_Test.setUp();
-        Withdraw_Integration_Fuzz_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 
     struct Params {
@@ -97,9 +99,14 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockupDynamic) });
-        emit WithdrawFromLockupStream({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount, asset: dai });
+        emit ISablierLockup.WithdrawFromLockupStream({
+            streamId: vars.streamId,
+            to: params.to,
+            amount: vars.withdrawAmount,
+            asset: dai
+        });
         vm.expectEmit({ emitter: address(lockupDynamic) });
-        emit MetadataUpdate({ _tokenId: vars.streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
 
         // Make the Recipient the caller.
         resetPrank({ msgSender: users.recipient });

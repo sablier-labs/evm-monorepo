@@ -3,19 +3,14 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupLinear } from "src/core/types/DataTypes.sol";
 import { StreamedAmountOf_Integration_Concrete_Test } from "./../../lockup/streamed-amount-of/streamedAmountOf.t.sol";
-import { LockupLinear_Integration_Concrete_Test } from "./../LockupLinear.t.sol";
+import { LockupLinear_Integration_Shared_Test, Integration_Test } from "./../LockupLinear.t.sol";
 
 contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
-    LockupLinear_Integration_Concrete_Test,
+    LockupLinear_Integration_Shared_Test,
     StreamedAmountOf_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupLinear_Integration_Concrete_Test, StreamedAmountOf_Integration_Concrete_Test)
-    {
-        LockupLinear_Integration_Concrete_Test.setUp();
-        StreamedAmountOf_Integration_Concrete_Test.setUp();
+    function setUp() public override(LockupLinear_Integration_Shared_Test, Integration_Test) {
+        LockupLinear_Integration_Shared_Test.setUp();
     }
 
     function test_GivenCliffTimeZero() external givenPENDINGStatus {
@@ -42,7 +37,8 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    function test_GivenCliffTimeInFuture() external view givenSTREAMINGStatus {
+    function test_GivenCliffTimeInFuture() external givenSTREAMINGStatus {
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() - 1 });
         uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -63,7 +59,6 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
     }
 
     function test_GivenEndTimeInFuture() external givenSTREAMINGStatus givenCliffTimeInPast {
-        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 2600e18;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");

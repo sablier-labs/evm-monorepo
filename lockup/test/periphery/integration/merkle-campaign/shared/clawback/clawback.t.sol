@@ -2,15 +2,12 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as CoreErrors } from "src/core/libraries/Errors.sol";
+import { ISablierMerkleBase } from "src/periphery/interfaces/ISablierMerkleBase.sol";
 import { Errors } from "src/periphery/libraries/Errors.sol";
 
-import { MerkleCampaign_Integration_Shared_Test } from "../../shared/MerkleCampaign.t.sol";
+import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
 
-abstract contract Clawback_Integration_Test is MerkleCampaign_Integration_Shared_Test {
-    function setUp() public virtual override {
-        MerkleCampaign_Integration_Shared_Test.setUp();
-    }
-
+abstract contract Clawback_Integration_Test is MerkleCampaign_Integration_Test {
     function test_RevertWhen_CallerNotCampaignOwner() external {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(CoreErrors.CallerNotAdmin.selector, users.campaignOwner, users.eve));
@@ -19,6 +16,15 @@ abstract contract Clawback_Integration_Test is MerkleCampaign_Integration_Shared
 
     function test_WhenFirstClaimNotMade() external whenCallerCampaignOwner {
         test_Clawback(users.campaignOwner);
+    }
+
+    modifier whenFirstClaimMade() {
+        // Make the first claim to set `_firstClaimTime`.
+        claim();
+
+        // Reset the prank back to the campaign owner.
+        resetPrank(users.campaignOwner);
+        _;
     }
 
     function test_GivenSevenDaysNotPassed() external whenCallerCampaignOwner whenFirstClaimMade {
@@ -60,7 +66,7 @@ abstract contract Clawback_Integration_Test is MerkleCampaign_Integration_Shared
         expectCallToTransfer({ to: to, value: clawbackAmount });
         // It should emit a {Clawback} event.
         vm.expectEmit({ emitter: address(merkleBase) });
-        emit Clawback({ admin: users.campaignOwner, to: to, amount: clawbackAmount });
+        emit ISablierMerkleBase.Clawback({ admin: users.campaignOwner, to: to, amount: clawbackAmount });
         merkleBase.clawback({ to: to, amount: clawbackAmount });
     }
 }

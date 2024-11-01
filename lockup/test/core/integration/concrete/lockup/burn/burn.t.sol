@@ -2,31 +2,16 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
-import { Lockup_Integration_Shared_Test } from "./../../../shared/lockup/Lockup.t.sol";
 
-abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
-    uint256 internal streamId;
-    uint256 internal notTransferableStreamId;
-
-    function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) {
-        streamId = createDefaultStream();
-        notTransferableStreamId = createDefaultStreamNotTransferable();
-
-        // Make the Recipient (owner of the NFT) the caller in this test suite.
-        resetPrank({ msgSender: users.recipient });
-    }
-
+abstract contract Burn_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(ISablierLockup.burn, streamId);
+        bytes memory callData = abi.encodeCall(ISablierLockup.burn, defaultStreamId);
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
     }
 
     function test_RevertGiven_Null() external whenNoDelegateCall {
@@ -35,144 +20,114 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         lockup.burn(nullStreamId);
     }
 
-    modifier givenNotNull() {
-        _;
-    }
-
-    modifier givenNotDepletedStream() {
-        _;
-    }
-
     function test_RevertGiven_PENDINGStatus() external whenNoDelegateCall givenNotNull givenNotDepletedStream {
         vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, streamId));
-        lockup.burn(streamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, defaultStreamId));
+        lockup.burn(defaultStreamId);
     }
 
     function test_RevertGiven_STREAMINGStatus() external whenNoDelegateCall givenNotNull givenNotDepletedStream {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, streamId));
-        lockup.burn(streamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, defaultStreamId));
+        lockup.burn(defaultStreamId);
     }
 
     function test_RevertGiven_SETTLEDStatus() external whenNoDelegateCall givenNotNull givenNotDepletedStream {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, streamId));
-        lockup.burn(streamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, defaultStreamId));
+        lockup.burn(defaultStreamId);
     }
 
     function test_RevertGiven_CANCELEDStatus() external whenNoDelegateCall givenNotNull givenNotDepletedStream {
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         resetPrank({ msgSender: users.sender });
-        lockup.cancel(streamId);
+        lockup.cancel(defaultStreamId);
         resetPrank({ msgSender: users.recipient });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, streamId));
-        lockup.burn(streamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, defaultStreamId));
+        lockup.burn(defaultStreamId);
     }
 
-    modifier givenDepletedStream(uint256 streamId_) {
-        vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: streamId_, to: users.recipient });
-        _;
-    }
-
-    function test_RevertWhen_UnauthorizedCaller()
+    function test_RevertWhen_CallerMaliciousThirdParty()
         external
         whenNoDelegateCall
         givenNotNull
-        givenDepletedStream(streamId)
+        givenDepletedStream(lockup, defaultStreamId)
+        whenCallerNotRecipient
     {
         resetPrank({ msgSender: users.eve });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, streamId, users.eve));
-        lockup.burn(streamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, defaultStreamId, users.eve));
+        lockup.burn(defaultStreamId);
     }
 
-    modifier whenAuthorizedCaller() {
-        _;
-    }
-
-    function test_RevertGiven_NFTNotExist()
+    function test_RevertWhen_CallerSender()
         external
         whenNoDelegateCall
         givenNotNull
-        givenDepletedStream(streamId)
-        whenAuthorizedCaller
+        givenDepletedStream(lockup, defaultStreamId)
+        whenCallerNotRecipient
     {
-        // Burn the NFT so that it no longer exists.
-        lockup.burn(streamId);
-
-        // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, streamId));
-        lockup.burn(streamId);
-    }
-
-    modifier givenNFTExists() {
-        _;
-    }
-
-    function test_GivenNonTransferableNFT()
-        external
-        whenNoDelegateCall
-        givenNotNull
-        givenDepletedStream(notTransferableStreamId)
-        whenAuthorizedCaller
-        givenNFTExists
-    {
-        // It should emit a {MetadataUpdate} event.
-        vm.expectEmit({ emitter: address(lockup) });
-        emit MetadataUpdate({ _tokenId: notTransferableStreamId });
-
-        // Burn the NFT.
-        lockup.burn(notTransferableStreamId);
-
-        // It should burn the NFT.
-        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, notTransferableStreamId));
-        lockup.getRecipient(notTransferableStreamId);
-    }
-
-    modifier givenTransferableNFT() {
-        _;
+        resetPrank({ msgSender: users.sender });
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, defaultStreamId, users.sender)
+        );
+        lockup.burn(defaultStreamId);
     }
 
     function test_WhenCallerApprovedThirdParty()
         external
         whenNoDelegateCall
         givenNotNull
-        givenDepletedStream(streamId)
-        whenAuthorizedCaller
-        givenNFTExists
-        givenTransferableNFT
+        givenDepletedStream(lockup, defaultStreamId)
+        whenCallerNotRecipient
     {
-        // Approve the operator to handle the stream.
-        lockup.approve({ to: users.operator, tokenId: streamId });
-
-        // Make the approved operator the caller in this test.
+        // Make the third party the caller in this test.
         resetPrank({ msgSender: users.operator });
 
-        // It should emit a {MetadataUpdate} event.
-        vm.expectEmit({ emitter: address(lockup) });
-        emit MetadataUpdate({ _tokenId: streamId });
-
-        // Burn the NFT.
-        lockup.burn(streamId);
-
         // It should burn the NFT.
-        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, streamId));
-        lockup.getRecipient(streamId);
+        _test_Burn(defaultStreamId);
     }
 
-    function test_WhenCallerNFTOwner()
+    function test_RevertGiven_NFTNotExist()
         external
         whenNoDelegateCall
         givenNotNull
-        givenDepletedStream(streamId)
-        whenAuthorizedCaller
-        givenNFTExists
-        givenTransferableNFT
+        givenDepletedStream(lockup, defaultStreamId)
+        whenCallerRecipient
     {
+        // Burn the NFT so that it no longer exists.
+        lockup.burn(defaultStreamId);
+
+        // Run the test.
+        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, defaultStreamId));
+        lockup.burn(defaultStreamId);
+    }
+
+    function test_GivenNonTransferableNFT()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenDepletedStream(lockup, notTransferableStreamId)
+        whenCallerRecipient
+        givenNFTExists
+    {
+        _test_Burn(notTransferableStreamId);
+    }
+
+    function test_GivenTransferableNFT()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenDepletedStream(lockup, defaultStreamId)
+        whenCallerRecipient
+        givenNFTExists
+    {
+        _test_Burn(defaultStreamId);
+    }
+
+    function _test_Burn(uint256 streamId) private {
         // It should emit a {MetadataUpdate} event.
         vm.expectEmit({ emitter: address(lockup) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Burn the NFT.
         lockup.burn(streamId);

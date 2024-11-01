@@ -1,24 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
+
 import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 
-import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup/createWithDurations.t.sol";
-import { LockupTranched_Integration_Concrete_Test } from "../LockupTranched.t.sol";
+import { LockupTranched_Integration_Shared_Test } from "../LockupTranched.t.sol";
 
-contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
-    LockupTranched_Integration_Concrete_Test,
-    CreateWithDurations_Integration_Shared_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupTranched_Integration_Concrete_Test, CreateWithDurations_Integration_Shared_Test)
-    {
-        LockupTranched_Integration_Concrete_Test.setUp();
-        CreateWithDurations_Integration_Shared_Test.setUp();
+contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is LockupTranched_Integration_Shared_Test {
+    uint256 internal streamId;
+
+    function setUp() public virtual override {
+        LockupTranched_Integration_Shared_Test.setUp();
         streamId = lockupTranched.nextStreamId();
     }
 
@@ -138,9 +133,9 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
 
         // It should emit {MetadataUpdate} and {CreateLockupTranchedStream} events.
         vm.expectEmit({ emitter: address(lockupTranched) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
         vm.expectEmit({ emitter: address(lockupTranched) });
-        emit CreateLockupTranchedStream({
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: streamId,
             funder: funder,
             sender: users.sender,

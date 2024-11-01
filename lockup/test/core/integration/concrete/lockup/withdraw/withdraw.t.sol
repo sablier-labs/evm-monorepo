@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
+
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { ISablierLockupRecipient } from "src/core/interfaces/ISablierLockupRecipient.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Lockup } from "src/core/types/DataTypes.sol";
-import { Integration_Test } from "./../../../Integration.t.sol";
-import { Withdraw_Integration_Shared_Test } from "./../../../shared/lockup/withdraw.t.sol";
 
-abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdraw_Integration_Shared_Test {
-    function setUp() public virtual override(Integration_Test, Withdraw_Integration_Shared_Test) {
-        Withdraw_Integration_Shared_Test.setUp();
-    }
+import { Integration_Test } from "../../../Integration.t.sol";
+
+abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
+    address internal caller;
 
     function test_RevertWhen_DelegateCall() external {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
@@ -91,7 +91,6 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         } else {
             // When caller is approved third party.
             caller = users.operator;
-            lockup.approve({ to: caller, tokenId: defaultStreamId });
             resetPrank({ msgSender: caller });
             _;
 
@@ -147,9 +146,14 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
 
         // It should emit {WithdrawFromLockupStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.alice, asset: dai, amount: withdrawAmount });
+        emit ISablierLockup.WithdrawFromLockupStream({
+            streamId: defaultStreamId,
+            to: users.alice,
+            asset: dai,
+            amount: withdrawAmount
+        });
         vm.expectEmit({ emitter: address(lockup) });
-        emit MetadataUpdate({ _tokenId: defaultStreamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.alice, amount: withdrawAmount });
@@ -195,6 +199,8 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressRecipient
     {
+        resetPrank({ msgSender: users.recipient });
+
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
@@ -259,14 +265,14 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
 
         // It should emit {WithdrawFromLockupStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: defaultStreamId,
             to: users.recipient,
             asset: dai,
             amount: withdrawAmount
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit MetadataUpdate({ _tokenId: defaultStreamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
@@ -477,14 +483,14 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
 
         // It should emit {WithdrawFromLockupStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: streamId,
             to: address(recipientGood),
             asset: dai,
             amount: withdrawAmount
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(recipientGood), amount: withdrawAmount });

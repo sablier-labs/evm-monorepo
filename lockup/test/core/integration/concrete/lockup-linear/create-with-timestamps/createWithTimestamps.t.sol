@@ -2,26 +2,21 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Broker, Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
-import { CreateWithTimestamps_Integration_Shared_Test } from "./../../../shared/lockup/createWithTimestamps.t.sol";
-import { LockupLinear_Integration_Concrete_Test } from "./../LockupLinear.t.sol";
+import { LockupLinear_Integration_Shared_Test } from "./../LockupLinear.t.sol";
 
-contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
-    LockupLinear_Integration_Concrete_Test,
-    CreateWithTimestamps_Integration_Shared_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupLinear_Integration_Concrete_Test, CreateWithTimestamps_Integration_Shared_Test)
-    {
-        LockupLinear_Integration_Concrete_Test.setUp();
-        CreateWithTimestamps_Integration_Shared_Test.setUp();
+contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is LockupLinear_Integration_Shared_Test {
+    uint256 internal streamId;
+
+    function setUp() public override {
+        LockupLinear_Integration_Shared_Test.setUp();
+        streamId = lockupLinear.nextStreamId();
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -243,9 +238,9 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
 
         // It should emit {MetadataUpdate} and {CreateLockupLinearStream} events.
         vm.expectEmit({ emitter: address(lockupLinear) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
         vm.expectEmit({ emitter: address(lockupLinear) });
-        emit CreateLockupLinearStream({
+        emit ISablierLockupLinear.CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,
             sender: users.sender,

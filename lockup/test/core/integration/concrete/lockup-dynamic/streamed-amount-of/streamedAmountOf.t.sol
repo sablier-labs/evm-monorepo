@@ -3,19 +3,14 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupDynamic } from "src/core/types/DataTypes.sol";
 import { StreamedAmountOf_Integration_Concrete_Test } from "./../../lockup/streamed-amount-of/streamedAmountOf.t.sol";
-import { LockupDynamic_Integration_Concrete_Test } from "./../LockupDynamic.t.sol";
+import { LockupDynamic_Integration_Shared_Test, Integration_Test } from "./../LockupDynamic.t.sol";
 
 contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     StreamedAmountOf_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, StreamedAmountOf_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        StreamedAmountOf_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 
     function test_GivenStartTimeInPresent() external givenSTREAMINGStatus {

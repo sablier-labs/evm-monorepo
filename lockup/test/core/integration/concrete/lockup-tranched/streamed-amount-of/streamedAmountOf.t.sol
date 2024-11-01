@@ -1,19 +1,15 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
 import { StreamedAmountOf_Integration_Concrete_Test } from "./../../lockup/streamed-amount-of/streamedAmountOf.t.sol";
-import { LockupTranched_Integration_Concrete_Test } from "./../LockupTranched.t.sol";
+import { LockupTranched_Integration_Shared_Test, Integration_Test } from "./../LockupTranched.t.sol";
 
 contract StreamedAmountOf_LockupTranched_Integration_Concrete_Test is
-    LockupTranched_Integration_Concrete_Test,
+    LockupTranched_Integration_Shared_Test,
     StreamedAmountOf_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupTranched_Integration_Concrete_Test, StreamedAmountOf_Integration_Concrete_Test)
-    {
-        LockupTranched_Integration_Concrete_Test.setUp();
-        StreamedAmountOf_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupTranched_Integration_Shared_Test, Integration_Test) {
+        LockupTranched_Integration_Shared_Test.setUp();
     }
 
     function test_GivenStartTimeInPresent() external givenSTREAMINGStatus {

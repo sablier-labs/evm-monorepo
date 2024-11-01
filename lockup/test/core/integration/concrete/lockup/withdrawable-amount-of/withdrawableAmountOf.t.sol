@@ -2,17 +2,10 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/core/libraries/Errors.sol";
-import { Integration_Test } from "./../../../Integration.t.sol";
-import { WithdrawableAmountOf_Integration_Shared_Test } from "./../../../shared/lockup/withdrawableAmountOf.t.sol";
 
-abstract contract WithdrawableAmountOf_Integration_Concrete_Test is
-    Integration_Test,
-    WithdrawableAmountOf_Integration_Shared_Test
-{
-    function setUp() public virtual override(Integration_Test, WithdrawableAmountOf_Integration_Shared_Test) {
-        WithdrawableAmountOf_Integration_Shared_Test.setUp();
-    }
+import { Integration_Test } from "../../../Integration.t.sol";
 
+abstract contract WithdrawableAmountOf_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));

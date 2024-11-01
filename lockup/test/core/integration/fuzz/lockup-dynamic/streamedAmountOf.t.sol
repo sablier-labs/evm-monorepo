@@ -4,24 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ZERO } from "@prb/math/src/UD60x18.sol";
 import { LockupDynamic } from "src/core/types/DataTypes.sol";
 
-import { StreamedAmountOf_Integration_Shared_Test } from "../../shared/lockup/streamedAmountOf.t.sol";
-import { LockupDynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
+import { LockupDynamic_Integration_Shared_Test } from "./LockupDynamic.t.sol";
 
-contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
-    LockupDynamic_Integration_Fuzz_Test,
-    StreamedAmountOf_Integration_Shared_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Fuzz_Test, StreamedAmountOf_Integration_Shared_Test)
-    {
-        LockupDynamic_Integration_Fuzz_Test.setUp();
-        StreamedAmountOf_Integration_Shared_Test.setUp();
-
-        resetPrank({ msgSender: users.sender });
-    }
-
+contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is LockupDynamic_Integration_Shared_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
@@ -62,14 +47,6 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount = calculateStreamedAmountForOneSegment(segment, defaults.START_TIME());
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
-    }
-
-    modifier givenMultipleSegments() {
-        _;
-    }
-
-    modifier whenCurrentTimestampNot1st() {
-        _;
     }
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:

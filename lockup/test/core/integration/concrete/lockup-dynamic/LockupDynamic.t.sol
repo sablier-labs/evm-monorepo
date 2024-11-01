@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Integration_Test } from "./../../Integration.t.sol";
 import { LockupDynamic_Integration_Shared_Test } from "./../../shared/lockup-dynamic/LockupDynamic.t.sol";
 import { AllowToHook_Integration_Concrete_Test } from "./../lockup/allow-to-hook/allowToHook.t.sol";
@@ -37,438 +36,295 @@ import { WithdrawMultiple_Integration_Concrete_Test } from "./../lockup/withdraw
 import { Withdraw_Integration_Concrete_Test } from "./../lockup/withdraw/withdraw.t.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
-                            NON-SHARED ABSTRACT TEST
-//////////////////////////////////////////////////////////////////////////*/
-
-/// @notice Common testing logic needed across {SablierLockupDynamic} integration concrete tests.
-abstract contract LockupDynamic_Integration_Concrete_Test is Integration_Test, LockupDynamic_Integration_Shared_Test {
-    function setUp() public virtual override(Integration_Test, LockupDynamic_Integration_Shared_Test) {
-        // Both of these contracts inherit from {Base_Test}, which is fine because multiple inheritance is
-        // allowed in Solidity, and {Base_Test-setUp} will only be called once.
-        Integration_Test.setUp();
-        LockupDynamic_Integration_Shared_Test.setUp();
-
-        // Cast the {LockupDynamic} contract as {ISablierLockup}.
-        lockup = ISablierLockup(lockupDynamic);
-    }
-}
-
-/*//////////////////////////////////////////////////////////////////////////
                                 SHARED TESTS
 //////////////////////////////////////////////////////////////////////////*/
 
 contract AllowToHook_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     AllowToHook_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, AllowToHook_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        AllowToHook_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract Burn_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     Burn_Integration_Concrete_Test
 {
-    function setUp() public virtual override(LockupDynamic_Integration_Concrete_Test, Burn_Integration_Concrete_Test) {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        Burn_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract Cancel_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     Cancel_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, Cancel_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        Cancel_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract CancelMultiple_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     CancelMultiple_Integration_Concrete_Test
 {
     function setUp()
         public
         virtual
-        override(LockupDynamic_Integration_Concrete_Test, CancelMultiple_Integration_Concrete_Test)
+        override(LockupDynamic_Integration_Shared_Test, CancelMultiple_Integration_Concrete_Test)
     {
-        LockupDynamic_Integration_Concrete_Test.setUp();
+        LockupDynamic_Integration_Shared_Test.setUp();
         CancelMultiple_Integration_Concrete_Test.setUp();
     }
 }
 
 contract GetAsset_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     GetAsset_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, GetAsset_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        GetAsset_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract GetDepositedAmount_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     GetDepositedAmount_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, GetDepositedAmount_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        GetDepositedAmount_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract GetEndTime_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     GetEndTime_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, GetEndTime_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        GetEndTime_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract GetRecipient_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     GetRecipient_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, GetRecipient_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        GetRecipient_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract GetRefundedAmount_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     GetRefundedAmount_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, GetRefundedAmount_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        GetRefundedAmount_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract GetSender_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     GetSender_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, GetSender_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        GetSender_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract GetStartTime_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     GetStartTime_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, GetStartTime_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        GetStartTime_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract GetWithdrawnAmount_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     GetWithdrawnAmount_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, GetWithdrawnAmount_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        GetWithdrawnAmount_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract IsAllowedToHook_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     IsAllowedToHook_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, IsAllowedToHook_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        IsAllowedToHook_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract IsCancelable_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     IsCancelable_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, IsCancelable_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        IsCancelable_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract IsCold_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     IsCold_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, IsCold_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        IsCold_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract IsDepleted_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     IsDepleted_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, IsDepleted_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        IsDepleted_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract IsStream_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     IsStream_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, IsStream_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        IsStream_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract IsTransferable_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     IsTransferable_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, IsTransferable_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        IsTransferable_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract IsWarm_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     IsWarm_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, IsWarm_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        IsWarm_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract RefundableAmountOf_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     RefundableAmountOf_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, RefundableAmountOf_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        RefundableAmountOf_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract Renounce_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     Renounce_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, Renounce_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        Renounce_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract SetNFTDescriptor_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     SetNFTDescriptor_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, SetNFTDescriptor_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        SetNFTDescriptor_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract StatusOf_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     StatusOf_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, StatusOf_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        StatusOf_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract TransferFrom_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     TransferFrom_Integration_Concrete_Test
 {
     function setUp()
         public
         virtual
-        override(LockupDynamic_Integration_Concrete_Test, TransferFrom_Integration_Concrete_Test)
+        override(LockupDynamic_Integration_Shared_Test, TransferFrom_Integration_Concrete_Test)
     {
-        LockupDynamic_Integration_Concrete_Test.setUp();
+        LockupDynamic_Integration_Shared_Test.setUp();
         TransferFrom_Integration_Concrete_Test.setUp();
     }
 }
 
 contract WasCanceled_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     WasCanceled_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, WasCanceled_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        WasCanceled_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract Withdraw_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     Withdraw_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, Withdraw_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        Withdraw_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract WithdrawHooks_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     WithdrawHooks_Integration_Concrete_Test
 {
     function setUp()
         public
         virtual
-        override(LockupDynamic_Integration_Concrete_Test, WithdrawHooks_Integration_Concrete_Test)
+        override(LockupDynamic_Integration_Shared_Test, WithdrawHooks_Integration_Concrete_Test)
     {
-        LockupDynamic_Integration_Concrete_Test.setUp();
+        LockupDynamic_Integration_Shared_Test.setUp();
         WithdrawHooks_Integration_Concrete_Test.setUp();
     }
 }
 
 contract WithdrawMax_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     WithdrawMax_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, WithdrawMax_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        WithdrawMax_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract WithdrawMaxAndTransfer_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     WithdrawMaxAndTransfer_Integration_Concrete_Test
 {
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Concrete_Test, WithdrawMaxAndTransfer_Integration_Concrete_Test)
-    {
-        LockupDynamic_Integration_Concrete_Test.setUp();
-        WithdrawMaxAndTransfer_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(LockupDynamic_Integration_Shared_Test, Integration_Test) {
+        LockupDynamic_Integration_Shared_Test.setUp();
     }
 }
 
 contract WithdrawMultiple_LockupDynamic_Integration_Concrete_Test is
-    LockupDynamic_Integration_Concrete_Test,
+    LockupDynamic_Integration_Shared_Test,
     WithdrawMultiple_Integration_Concrete_Test
 {
     function setUp()
         public
         virtual
-        override(LockupDynamic_Integration_Concrete_Test, WithdrawMultiple_Integration_Concrete_Test)
+        override(LockupDynamic_Integration_Shared_Test, WithdrawMultiple_Integration_Concrete_Test)
     {
-        LockupDynamic_Integration_Concrete_Test.setUp();
+        LockupDynamic_Integration_Shared_Test.setUp();
         WithdrawMultiple_Integration_Concrete_Test.setUp();
     }
 }

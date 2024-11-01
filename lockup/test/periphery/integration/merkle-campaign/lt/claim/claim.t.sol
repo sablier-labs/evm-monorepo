@@ -4,19 +4,16 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
 import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
+import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
 import { Errors } from "src/periphery/libraries/Errors.sol";
 import { MerkleLT } from "src/periphery/types/DataTypes.sol";
 
 import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
-import { MerkleLT_Integration_Shared_Test } from "../MerkleLT.t.sol";
+import { MerkleLT_Integration_Shared_Test, MerkleCampaign_Integration_Test } from "../MerkleLT.t.sol";
 
 contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Integration_Shared_Test {
-    function setUp() public override(Claim_Integration_Test, MerkleLT_Integration_Shared_Test) {
-        super.setUp();
-    }
-
-    modifier whenTotalPercentageNot100() {
-        _;
+    function setUp() public virtual override(MerkleLT_Integration_Shared_Test, MerkleCampaign_Integration_Test) {
+        MerkleLT_Integration_Shared_Test.setUp();
     }
 
     function test_RevertWhen_TotalPercentageLessThan100() external whenMerkleProofValid whenTotalPercentageNot100 {
@@ -92,10 +89,6 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         });
     }
 
-    modifier whenTotalPercentage100() {
-        _;
-    }
-
     function test_WhenStreamStartTimeZero() external whenMerkleProofValid whenTotalPercentage100 {
         // It should create a stream with block.timestamp as start time.
         _test_Claim({ streamStartTime: 0, startTime: getBlockTimestamp() });
@@ -131,7 +124,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
-        emit Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
+        emit ISablierMerkleLT.Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockupTranched), value: defaults.CLAIM_AMOUNT() });
         expectCallToClaimWithMsgValue(address(merkleLT), sablierFee);

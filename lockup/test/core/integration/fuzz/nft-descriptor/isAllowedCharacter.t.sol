@@ -13,10 +13,6 @@ contract IsAllowedCharacter_Integration_Fuzz_Test is NFTDescriptor_Integration_S
     bytes1 internal constant a = 0x61; // ASCII 97
     bytes1 internal constant z = 0x7A; // ASCII 122
 
-    modifier whenNotEmptyString() {
-        _;
-    }
-
     /// @dev Given enough fuzz runs, all the following scenarios will be fuzzed:
     ///
     /// - String with only alphanumerical characters

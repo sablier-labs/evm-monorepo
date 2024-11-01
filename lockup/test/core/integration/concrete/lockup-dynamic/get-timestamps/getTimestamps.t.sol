@@ -4,9 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Errors } from "src/core/libraries/Errors.sol";
 import { LockupDynamic } from "src/core/types/DataTypes.sol";
 
-import { LockupDynamic_Integration_Concrete_Test } from "../LockupDynamic.t.sol";
+import { LockupDynamic_Integration_Shared_Test } from "../LockupDynamic.t.sol";
 
-contract GetTimestamps_LockupDynamic_Integration_Concrete_Test is LockupDynamic_Integration_Concrete_Test {
+contract GetTimestamps_LockupDynamic_Integration_Concrete_Test is LockupDynamic_Integration_Shared_Test {
     function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));

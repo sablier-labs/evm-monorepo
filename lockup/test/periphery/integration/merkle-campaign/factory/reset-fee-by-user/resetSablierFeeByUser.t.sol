@@ -3,11 +3,12 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as CoreErrors } from "src/core/libraries/Errors.sol";
 
+import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
 import { MerkleFactory } from "src/periphery/types/DataTypes.sol";
 
-import { MerkleCampaign_Integration_Shared_Test } from "../../shared/MerkleCampaign.t.sol";
+import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
 
-contract ResetSablierFeeByUser_Integration_Test is MerkleCampaign_Integration_Shared_Test {
+contract ResetSablierFeeByUser_Integration_Test is MerkleCampaign_Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(CoreErrors.CallerNotAdmin.selector, users.admin, users.eve));
@@ -17,7 +18,7 @@ contract ResetSablierFeeByUser_Integration_Test is MerkleCampaign_Integration_Sh
     function test_WhenNotEnabled() external whenCallerAdmin {
         // It should emit a {ResetSablierFee} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ResetSablierFee({ admin: users.admin, campaignCreator: users.campaignOwner });
+        emit ISablierMerkleFactory.ResetSablierFee({ admin: users.admin, campaignCreator: users.campaignOwner });
 
         // Reset the Sablier fee.
         merkleFactory.resetSablierFeeByUser({ campaignCreator: users.campaignOwner });
@@ -43,7 +44,7 @@ contract ResetSablierFeeByUser_Integration_Test is MerkleCampaign_Integration_Sh
 
         // It should emit a {ResetSablierFee} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ResetSablierFee({ admin: users.admin, campaignCreator: users.campaignOwner });
+        emit ISablierMerkleFactory.ResetSablierFee({ admin: users.admin, campaignCreator: users.campaignOwner });
 
         // Reset the Sablier fee.
         merkleFactory.resetSablierFeeByUser({ campaignCreator: users.campaignOwner });

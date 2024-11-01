@@ -3,25 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupLinear } from "src/core/types/DataTypes.sol";
 
-import { StreamedAmountOf_Integration_Shared_Test } from "../../shared/lockup/streamedAmountOf.t.sol";
-import { LockupLinear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
+import { LockupLinear_Integration_Shared_Test } from "./LockupLinear.t.sol";
 
-contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
-    LockupLinear_Integration_Fuzz_Test,
-    StreamedAmountOf_Integration_Shared_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupLinear_Integration_Fuzz_Test, StreamedAmountOf_Integration_Shared_Test)
-    {
-        LockupLinear_Integration_Fuzz_Test.setUp();
-        StreamedAmountOf_Integration_Shared_Test.setUp();
-        defaultStreamId = createDefaultStream();
-
-        resetPrank({ msgSender: users.sender });
-    }
-
+contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is LockupLinear_Integration_Shared_Test {
     function testFuzz_StreamedAmountOf_CliffTimeInFuture(uint40 timeJump)
         external
         givenNotNull
@@ -32,10 +16,6 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
         uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
-    }
-
-    modifier whenCliffTimeNotInFuture() {
-        _;
     }
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
@@ -53,7 +33,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
         external
         givenNotNull
         givenNotCanceledStream
-        whenCliffTimeNotInFuture
+        givenCliffTimeNotInFuture
     {
         vm.assume(depositAmount != 0);
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
@@ -85,7 +65,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
         external
         givenNotNull
         givenNotCanceledStream
-        whenCliffTimeNotInFuture
+        givenCliffTimeNotInFuture
     {
         vm.assume(depositAmount != 0);
         timeWarp0 = boundUint40(timeWarp0, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);

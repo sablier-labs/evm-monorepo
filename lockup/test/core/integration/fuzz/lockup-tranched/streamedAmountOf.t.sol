@@ -4,32 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ZERO } from "@prb/math/src/UD60x18.sol";
 import { Broker, LockupTranched } from "src/core/types/DataTypes.sol";
 
-import { StreamedAmountOf_Integration_Shared_Test } from "../../shared/lockup/streamedAmountOf.t.sol";
-import { LockupTranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
+import { LockupTranched_Integration_Shared_Test } from "./LockupTranched.t.sol";
 
-contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is
-    LockupTranched_Integration_Fuzz_Test,
-    StreamedAmountOf_Integration_Shared_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupTranched_Integration_Fuzz_Test, StreamedAmountOf_Integration_Shared_Test)
-    {
-        LockupTranched_Integration_Fuzz_Test.setUp();
-        StreamedAmountOf_Integration_Shared_Test.setUp();
-
-        resetPrank({ msgSender: users.sender });
-    }
-
-    modifier givenMultipleTranches() {
-        _;
-    }
-
-    modifier whenCurrentTimestampNot1st() {
-        _;
-    }
-
+contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is LockupTranched_Integration_Shared_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past

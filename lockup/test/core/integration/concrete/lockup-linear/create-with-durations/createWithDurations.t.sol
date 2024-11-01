@@ -1,24 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
+
 import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
 
-import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup/createWithDurations.t.sol";
-import { LockupLinear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
+import { LockupLinear_Integration_Shared_Test } from "../LockupLinear.t.sol";
 
-contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
-    LockupLinear_Integration_Concrete_Test,
-    CreateWithDurations_Integration_Shared_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupLinear_Integration_Concrete_Test, CreateWithDurations_Integration_Shared_Test)
-    {
-        LockupLinear_Integration_Concrete_Test.setUp();
-        CreateWithDurations_Integration_Shared_Test.setUp();
+contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is LockupLinear_Integration_Shared_Test {
+    uint256 internal streamId;
+
+    function setUp() public virtual override {
+        LockupLinear_Integration_Shared_Test.setUp();
+        streamId = lockupLinear.nextStreamId();
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -105,9 +101,9 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
 
         // It should emit {CreateLockupLinearStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockupLinear) });
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
         vm.expectEmit({ emitter: address(lockupLinear) });
-        emit CreateLockupLinearStream({
+        emit ISablierLockupLinear.CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,
             sender: users.sender,

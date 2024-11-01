@@ -2,24 +2,14 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
-import { Integration_Test } from "./../../../Integration.t.sol";
-import { Lockup_Integration_Shared_Test } from "./../../../shared/lockup/Lockup.t.sol";
 
-abstract contract GetRecipient_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
-    uint256 internal defaultStreamId;
+import { Integration_Test } from "../../../Integration.t.sol";
 
-    function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) {
-        defaultStreamId = createDefaultStream();
-    }
-
+abstract contract GetRecipient_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, nullStreamId));
         lockup.getRecipient(nullStreamId);
-    }
-
-    modifier givenNotNull() {
-        _;
     }
 
     function test_RevertGiven_BurnedNFT() external givenNotNull {

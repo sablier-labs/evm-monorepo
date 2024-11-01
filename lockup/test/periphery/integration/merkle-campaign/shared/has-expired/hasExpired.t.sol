@@ -3,13 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleBase } from "src/periphery/interfaces/ISablierMerkleBase.sol";
 
-import { MerkleCampaign_Integration_Shared_Test } from "../../shared/MerkleCampaign.t.sol";
+import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
 
-abstract contract HasExpired_Integration_Test is MerkleCampaign_Integration_Shared_Test {
-    function setUp() public virtual override {
-        MerkleCampaign_Integration_Shared_Test.setUp();
-    }
-
+abstract contract HasExpired_Integration_Test is MerkleCampaign_Integration_Test {
     function test_WhenExpirationZero() external {
         ISablierMerkleBase campaignWithZeroExpiry = ISablierMerkleBase(createMerkleLT({ expiration: 0 }));
         assertFalse(campaignWithZeroExpiry.hasExpired(), "campaign expired");

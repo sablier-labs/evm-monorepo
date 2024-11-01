@@ -3,12 +3,13 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Broker, LockupTranched } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Integration_Shared_Test } from "../lockup/Lockup.t.sol";
+import { Integration_Test } from "../../Integration.t.sol";
 
 /// @notice Common testing logic needed across {SablierLockupTranched} integration tests.
-abstract contract LockupTranched_Integration_Shared_Test is Lockup_Integration_Shared_Test {
+abstract contract LockupTranched_Integration_Shared_Test is Integration_Test {
     struct CreateParams {
         LockupTranched.CreateWithDurations createWithDurations;
         LockupTranched.CreateWithTimestamps createWithTimestamps;
@@ -19,7 +20,7 @@ abstract contract LockupTranched_Integration_Shared_Test is Lockup_Integration_S
     CreateParams private _params;
 
     function setUp() public virtual override {
-        Lockup_Integration_Shared_Test.setUp();
+        Integration_Test.setUp();
 
         _params.createWithDurations.sender = users.sender;
         _params.createWithDurations.recipient = users.recipient;
@@ -45,21 +46,30 @@ abstract contract LockupTranched_Integration_Shared_Test is Lockup_Integration_S
             _params.createWithDurations.tranches.push(tranchesWithDurations[i]);
             _params.createWithTimestamps.tranches.push(tranches[i]);
         }
+
+        // Cast the LockupTranched contract as {ISablierLockup}.
+        lockup = ISablierLockup(lockupTranched);
+
+        // Create the default stream.
+        defaultStreamId = createDefaultStream();
+
+        // Create a non-transferable stream.
+        notTransferableStreamId = createDefaultStreamNotTransferable();
     }
 
-    /// @dev Creates the default stream.
+    /// @inheritdoc Integration_Test
     function createDefaultStream() internal override returns (uint256 streamId) {
         streamId = lockupTranched.createWithTimestamps(_params.createWithTimestamps);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithAsset(IERC20 asset) internal override returns (uint256 streamId) {
         LockupTranched.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.asset = asset;
         streamId = lockupTranched.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithBroker(Broker memory broker) internal override returns (uint256 streamId) {
         LockupTranched.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.broker = broker;
@@ -81,7 +91,7 @@ abstract contract LockupTranched_Integration_Shared_Test is Lockup_Integration_S
         streamId = lockupTranched.createWithDurations(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
         LockupTranched.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.tranches[2].timestamp = endTime;
@@ -97,14 +107,14 @@ abstract contract LockupTranched_Integration_Shared_Test is Lockup_Integration_S
         streamId = lockupTranched.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamNotCancelable() internal override returns (uint256 streamId) {
         LockupTranched.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.cancelable = false;
         streamId = lockupTranched.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamNotTransferable() internal override returns (uint256 streamId) {
         LockupTranched.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.transferable = false;
@@ -122,7 +132,7 @@ abstract contract LockupTranched_Integration_Shared_Test is Lockup_Integration_S
         streamId = lockupTranched.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
         LockupTranched.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.recipient = recipient;
@@ -139,28 +149,28 @@ abstract contract LockupTranched_Integration_Shared_Test is Lockup_Integration_S
         streamId = lockupTranched.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
         LockupTranched.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.sender = sender;
         streamId = lockupTranched.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithStartTime(uint40 startTime) internal override returns (uint256 streamId) {
         LockupTranched.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.startTime = startTime;
         streamId = lockupTranched.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal override returns (uint256 streamId) {
         LockupTranched.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.totalAmount = totalAmount;
         streamId = lockupTranched.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithUsers(
         address recipient,
         address sender

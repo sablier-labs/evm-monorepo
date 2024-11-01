@@ -3,9 +3,11 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as CoreErrors } from "src/core/libraries/Errors.sol";
 
-import { MerkleCampaign_Integration_Shared_Test } from "../../shared/MerkleCampaign.t.sol";
+import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
 
-contract SetDefaultSablierFee_Integration_Test is MerkleCampaign_Integration_Shared_Test {
+import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
+
+contract SetDefaultSablierFee_Integration_Test is MerkleCampaign_Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         uint256 sablierFee = defaults.DEFAULT_SABLIER_FEE();
         resetPrank({ msgSender: users.eve });
@@ -18,7 +20,10 @@ contract SetDefaultSablierFee_Integration_Test is MerkleCampaign_Integration_Sha
 
         // It should emit a {SetDefaultSablierFee} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit SetDefaultSablierFee({ admin: users.admin, sablierFee: defaults.DEFAULT_SABLIER_FEE() });
+        emit ISablierMerkleFactory.SetDefaultSablierFee({
+            admin: users.admin,
+            defaultSablierFee: defaults.DEFAULT_SABLIER_FEE()
+        });
 
         merkleFactory.setDefaultSablierFee({ defaultFee: defaults.DEFAULT_SABLIER_FEE() });
 

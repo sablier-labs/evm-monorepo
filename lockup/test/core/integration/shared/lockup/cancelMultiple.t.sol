@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup_Integration_Shared_Test } from "./Lockup.t.sol";
+import { Integration_Test } from "../../Integration.t.sol";
 
-abstract contract CancelMultiple_Integration_Shared_Test is Lockup_Integration_Shared_Test {
+abstract contract CancelMultiple_Integration_Shared_Test is Integration_Test {
     uint40 internal originalTime;
     uint256[] internal testStreamIds;
 
@@ -24,35 +24,10 @@ abstract contract CancelMultiple_Integration_Shared_Test is Lockup_Integration_S
         testStreamIds[1] = createDefaultStreamWithEndTime(defaults.END_TIME() + defaults.TOTAL_DURATION());
     }
 
-    modifier givenAllStreamsCancelable() {
-        _;
-    }
-
-    modifier givenNoColdStreams() {
-        _;
-    }
-
-    modifier givenNotNull() {
-        _;
-    }
-
-    modifier whenAuthorizedCaller() {
-        _;
-    }
-
     modifier whenCallerAuthorizedForAll() {
         _;
         vm.warp({ newTimestamp: originalTime });
         createTestStreams();
-        resetPrank({ msgSender: users.sender });
-        _;
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
-    modifier whenNonZeroArrayLength() {
         _;
     }
 }

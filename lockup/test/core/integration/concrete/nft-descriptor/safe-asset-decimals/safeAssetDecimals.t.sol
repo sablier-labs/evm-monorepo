@@ -11,10 +11,6 @@ contract SafeAssetDecimals_Integration_Concrete_Test is NFTDescriptor_Integratio
         assertEq(actualDecimals, expectedDecimals, "decimals");
     }
 
-    modifier whenAssetContract() {
-        _;
-    }
-
     function test_WhenDecimalsNotImplemented() external view whenAssetContract {
         uint8 actualDecimals = nftDescriptorMock.safeAssetDecimals_(address(noop));
         uint8 expectedDecimals = 0;

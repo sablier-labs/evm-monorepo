@@ -5,14 +5,11 @@ import { Solarray } from "solarray/src/Solarray.sol";
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Lockup } from "src/core/types/DataTypes.sol";
-import { Integration_Test } from "./../../../Integration.t.sol";
+
 import { WithdrawMultiple_Integration_Shared_Test } from "./../../../shared/lockup/withdrawMultiple.t.sol";
 
-abstract contract WithdrawMultiple_Integration_Concrete_Test is
-    Integration_Test,
-    WithdrawMultiple_Integration_Shared_Test
-{
-    function setUp() public virtual override(Integration_Test, WithdrawMultiple_Integration_Shared_Test) {
+abstract contract WithdrawMultiple_Integration_Concrete_Test is WithdrawMultiple_Integration_Shared_Test {
+    function setUp() public virtual override {
         WithdrawMultiple_Integration_Shared_Test.setUp();
     }
 
@@ -33,20 +30,12 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         lockup.withdrawMultiple(streamIds, amounts);
     }
 
-    modifier whenEqualArraysLength() {
-        _;
-    }
-
     function test_WhenZeroArrayLength() external whenNoDelegateCall whenEqualArraysLength {
         uint256[] memory streamIds = new uint256[](0);
         uint128[] memory amounts = new uint128[](0);
 
         // It should do nothing.
         lockup.withdrawMultiple(streamIds, amounts);
-    }
-
-    modifier whenNonZeroArrayLength() {
-        _;
     }
 
     function test_RevertGiven_AtleastOneNullStream()
@@ -158,21 +147,21 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
 
         // It should emit multiple {WithdrawFromLockupStream} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: testStreamIds[0],
             to: users.recipient,
             asset: dai,
             amount: testAmounts[0]
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: testStreamIds[1],
             to: users.recipient,
             asset: dai,
             amount: testAmounts[1]
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: testStreamIds[2],
             to: users.recipient,
             asset: dai,

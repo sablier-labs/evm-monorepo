@@ -15,9 +15,14 @@ Burn_Integration_Concrete_Test
       │  └── given CANCELED status
       │     └── it should revert
       └── given depleted stream
-         ├── when unauthorized caller
-         │  └── it should revert
-         └── when authorized caller
+         ├── when caller not recipient
+         │  ├── when caller malicious third party
+         │  │  └── it should revert
+         │  ├── when caller sender
+         │  │  └── it should revert
+         │  └── when caller approved third party
+         │     └── it should burn the NFT
+         └── when caller recipient
             ├── given NFT not exist
             │  └── it should revert
             └── given NFT exists
@@ -25,9 +30,5 @@ Burn_Integration_Concrete_Test
                │  ├── it should burn the NFT
                │  └── it should emit a {MetadataUpdate} event
                └── given transferable NFT
-                  ├── when caller approved third party
-                  │  ├── it should burn the NFT
-                  │  └── it should emit a {MetadataUpdate} event
-                  └── when caller NFT owner
-                     ├── it should burn the NFT
-                     └── it should emit a {MetadataUpdate} event
+                  ├── it should burn the NFT
+                  └── it should emit a {MetadataUpdate} event

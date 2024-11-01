@@ -2,14 +2,16 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as CoreErrors } from "src/core/libraries/Errors.sol";
+
 import { ISablierMerkleBase } from "src/periphery/interfaces/ISablierMerkleBase.sol";
+import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
 import { Errors } from "src/periphery/libraries/Errors.sol";
 
-import { MerkleCampaign_Integration_Shared_Test } from "../../shared/MerkleCampaign.t.sol";
+import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
 
-contract WithdrawFees_Integration_Test is MerkleCampaign_Integration_Shared_Test {
+contract WithdrawFees_Integration_Test is MerkleCampaign_Integration_Test {
     function setUp() public virtual override {
-        MerkleCampaign_Integration_Shared_Test.setUp();
+        MerkleCampaign_Integration_Test.setUp();
 
         // Set the `merkleBase` to the merkleLL contract to use it in the tests.
         merkleBase = ISablierMerkleBase(merkleLL);
@@ -31,17 +33,9 @@ contract WithdrawFees_Integration_Test is MerkleCampaign_Integration_Shared_Test
         merkleFactory.withdrawFees(payable(address(0)), merkleBase);
     }
 
-    modifier whenWithdrawalAddressNotZero() {
-        _;
-    }
-
     function test_RevertWhen_ProvidedMerkleLockupNotValid() external whenCallerAdmin whenWithdrawalAddressNotZero {
         vm.expectRevert();
         merkleFactory.withdrawFees(users.eve, ISablierMerkleBase(users.eve));
-    }
-
-    modifier whenProvidedMerkleLockupValid() {
-        _;
     }
 
     function test_WhenProvidedAddressNotContract() external whenCallerAdmin whenProvidedMerkleLockupValid {
@@ -49,7 +43,7 @@ contract WithdrawFees_Integration_Test is MerkleCampaign_Integration_Shared_Test
 
         // It should emit {WithdrawSablierFees} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit WithdrawSablierFees({
+        emit ISablierMerkleFactory.WithdrawSablierFees({
             admin: users.admin,
             merkleBase: merkleBase,
             to: users.eve,
@@ -62,10 +56,6 @@ contract WithdrawFees_Integration_Test is MerkleCampaign_Integration_Shared_Test
         assertEq(address(merkleBase).balance, 0, "merkle lockup eth balance");
         // It should transfer fee collected in ETH to the provided address.
         assertEq(users.eve.balance, previousToBalance + defaults.DEFAULT_SABLIER_FEE(), "eth balance");
-    }
-
-    modifier whenProvidedAddressContract() {
-        _;
     }
 
     function test_RevertWhen_ProvidedAddressNotImplementReceiveEth()
@@ -93,7 +83,7 @@ contract WithdrawFees_Integration_Test is MerkleCampaign_Integration_Shared_Test
 
         // It should emit {WithdrawSablierFees} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit WithdrawSablierFees({
+        emit ISablierMerkleFactory.WithdrawSablierFees({
             admin: users.admin,
             merkleBase: merkleBase,
             to: receiveEth,

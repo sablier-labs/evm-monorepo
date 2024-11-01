@@ -3,8 +3,12 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
-import { ISablierMerkleInstant } from "src/periphery/interfaces/ISablierMerkleInstant.sol";
+
+import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
+import { ISablierMerkleBase, ISablierMerkleInstant } from "src/periphery/interfaces/ISablierMerkleInstant.sol";
+
 import { MerkleBase } from "src/periphery/types/DataTypes.sol";
+
 import { MerkleBuilder } from "./../../../utils/MerkleBuilder.sol";
 import { Fork_Test } from "./../Fork.t.sol";
 
@@ -109,7 +113,7 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
         });
 
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit CreateMerkleInstant({
+        emit ISablierMerkleFactory.CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(vars.expectedMerkleInstant),
             baseParams: vars.baseParams,
             aggregateAmount: vars.aggregateAmount,
@@ -151,7 +155,7 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
         vars.leafPos = Arrays.findUpperBound(leaves, vars.leafToClaim);
 
         vm.expectEmit({ emitter: address(vars.merkleInstant) });
-        emit Claim(
+        emit ISablierMerkleInstant.Claim(
             vars.indexes[params.posBeforeSort],
             vars.recipients[params.posBeforeSort],
             vars.amounts[params.posBeforeSort]
@@ -202,7 +206,11 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
 
             expectCallToTransfer({ asset: FORK_ASSET, to: params.campaignOwner, value: vars.clawbackAmount });
             vm.expectEmit({ emitter: address(vars.merkleInstant) });
-            emit Clawback({ to: params.campaignOwner, admin: params.campaignOwner, amount: vars.clawbackAmount });
+            emit ISablierMerkleBase.Clawback({
+                to: params.campaignOwner,
+                admin: params.campaignOwner,
+                amount: vars.clawbackAmount
+            });
             vars.merkleInstant.clawback({ to: params.campaignOwner, amount: vars.clawbackAmount });
         }
 
@@ -214,7 +222,7 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
         resetPrank({ msgSender: users.admin });
 
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit WithdrawSablierFees({
+        emit ISablierMerkleFactory.WithdrawSablierFees({
             admin: users.admin,
             merkleBase: vars.merkleInstant,
             to: users.admin,

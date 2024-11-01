@@ -13,18 +13,10 @@ contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_
         assertEq(actualSymbol, expectedSymbol, "symbol");
     }
 
-    modifier whenAssetContract() {
-        _;
-    }
-
     function test_GivenSymbolNotImplemented() external view whenAssetContract {
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(noop));
         string memory expectedSymbol = "ERC20";
         assertEq(actualSymbol, expectedSymbol, "symbol");
-    }
-
-    modifier givenSymbolImplemented() {
-        _;
     }
 
     function test_GivenSymbolAsBytes32() external whenAssetContract givenSymbolImplemented {
@@ -32,10 +24,6 @@ contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(asset));
         string memory expectedSymbol = "ERC20";
         assertEq(actualSymbol, expectedSymbol, "symbol");
-    }
-
-    modifier givenSymbolAsString() {
-        _;
     }
 
     function test_GivenSymbolLongerThan30Chars()
@@ -51,10 +39,6 @@ contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(asset));
         string memory expectedSymbol = "Long Symbol";
         assertEq(actualSymbol, expectedSymbol, "symbol");
-    }
-
-    modifier givenSymbolNotLongerThan30Chars() {
-        _;
     }
 
     function test_GivenSymbolContainsNon_alphanumericChars()

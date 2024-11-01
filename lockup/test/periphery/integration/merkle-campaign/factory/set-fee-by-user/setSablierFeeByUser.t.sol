@@ -3,11 +3,12 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as CoreErrors } from "src/core/libraries/Errors.sol";
 
+import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
 import { MerkleFactory } from "src/periphery/types/DataTypes.sol";
 
-import { MerkleCampaign_Integration_Shared_Test } from "../../shared/MerkleCampaign.t.sol";
+import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
 
-contract SetSablierFeeByUser_Integration_Test is MerkleCampaign_Integration_Shared_Test {
+contract SetSablierFeeByUser_Integration_Test is MerkleCampaign_Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(CoreErrors.CallerNotAdmin.selector, users.admin, users.eve));
@@ -17,7 +18,11 @@ contract SetSablierFeeByUser_Integration_Test is MerkleCampaign_Integration_Shar
     function test_WhenNotEnabled() external whenCallerAdmin {
         // It should emit a {SetSablierFee} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit SetSablierFeeForUser({ admin: users.admin, campaignCreator: users.campaignOwner, sablierFee: 0 });
+        emit ISablierMerkleFactory.SetSablierFeeForUser({
+            admin: users.admin,
+            campaignCreator: users.campaignOwner,
+            sablierFee: 0
+        });
 
         // Set the Sablier fee.
         merkleFactory.setSablierFeeByUser({ campaignCreator: users.campaignOwner, fee: 0 });
@@ -41,7 +46,11 @@ contract SetSablierFeeByUser_Integration_Test is MerkleCampaign_Integration_Shar
 
         // It should emit a {SetSablierFee} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit SetSablierFeeForUser({ admin: users.admin, campaignCreator: users.campaignOwner, sablierFee: 1 ether });
+        emit ISablierMerkleFactory.SetSablierFeeForUser({
+            admin: users.admin,
+            campaignCreator: users.campaignOwner,
+            sablierFee: 1 ether
+        });
 
         // Now set it to another fee.
         merkleFactory.setSablierFeeByUser({ campaignCreator: users.campaignOwner, fee: 1 ether });

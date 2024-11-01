@@ -1,22 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
 import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 
-import { CreateWithDurations_Integration_Shared_Test } from "../../shared/lockup/createWithDurations.t.sol";
-import { LockupTranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
+import { LockupTranched_Integration_Shared_Test } from "./LockupTranched.t.sol";
 
-contract CreateWithDurations_LockupTranched_Integration_Fuzz_Test is
-    LockupTranched_Integration_Fuzz_Test,
-    CreateWithDurations_Integration_Shared_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupTranched_Integration_Fuzz_Test, CreateWithDurations_Integration_Shared_Test)
-    {
-        LockupTranched_Integration_Fuzz_Test.setUp();
-        CreateWithDurations_Integration_Shared_Test.setUp();
+contract CreateWithDurations_LockupTranched_Integration_Fuzz_Test is LockupTranched_Integration_Shared_Test {
+    uint256 internal streamId;
+
+    function setUp() public virtual override {
+        LockupTranched_Integration_Shared_Test.setUp();
+        streamId = lockupTranched.nextStreamId();
     }
 
     struct Vars {
@@ -72,7 +67,7 @@ contract CreateWithDurations_LockupTranched_Integration_Fuzz_Test is
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockupTranched) });
-        emit CreateLockupTranchedStream({
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: streamId,
             funder: vars.funder,
             sender: users.sender,

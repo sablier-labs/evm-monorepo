@@ -1,19 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { LockupNFTDescriptor } from "src/core/LockupNFTDescriptor.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
-import { Lockup_Integration_Shared_Test } from "./../../../shared/lockup/Lockup.t.sol";
 
-abstract contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
-    uint256 internal defaultStreamId;
-
-    function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) {
-        defaultStreamId = createDefaultStream();
-    }
-
+abstract contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         resetPrank({ msgSender: users.eve });
@@ -23,18 +18,12 @@ abstract contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test
         lockup.setNFTDescriptor(ILockupNFTDescriptor(users.eve));
     }
 
-    modifier whenCallerAdmin() {
-        // Make the Admin the caller in the rest of this test suite.
-        resetPrank({ msgSender: users.admin });
-        _;
-    }
-
     function test_WhenProvidedAddressMatchesCurrentNFTDescriptor() external whenCallerAdmin {
         // It should emit {SetNFTDescriptor} and {BatchMetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit SetNFTDescriptor(users.admin, nftDescriptor, nftDescriptor);
+        emit ISablierLockup.SetNFTDescriptor(users.admin, nftDescriptor, nftDescriptor);
         vm.expectEmit({ emitter: address(lockup) });
-        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: lockup.nextStreamId() - 1 });
+        emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: lockup.nextStreamId() - 1 });
 
         // Re-set the NFT descriptor.
         lockup.setNFTDescriptor(nftDescriptor);
@@ -50,9 +39,9 @@ abstract contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test
 
         // It should emit {SetNFTDescriptor} and {BatchMetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit SetNFTDescriptor(users.admin, nftDescriptor, newNFTDescriptor);
+        emit ISablierLockup.SetNFTDescriptor(users.admin, nftDescriptor, newNFTDescriptor);
         vm.expectEmit({ emitter: address(lockup) });
-        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: lockup.nextStreamId() - 1 });
+        emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: lockup.nextStreamId() - 1 });
 
         // Set the new NFT descriptor.
         lockup.setNFTDescriptor(newNFTDescriptor);

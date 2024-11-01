@@ -1,17 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
-import { Integration_Test } from "./../../../Integration.t.sol";
-import { Lockup_Integration_Shared_Test } from "./../../../shared/lockup/Lockup.t.sol";
 
-abstract contract AllowToHook_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
-    uint256 internal defaultStreamId;
+import { Integration_Test } from "../../../Integration.t.sol";
 
-    function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) {
-        defaultStreamId = createDefaultStream();
-    }
-
+abstract contract AllowToHook_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         resetPrank({ msgSender: users.eve });
@@ -21,20 +16,10 @@ abstract contract AllowToHook_Integration_Concrete_Test is Integration_Test, Loc
         lockup.allowToHook(users.eve);
     }
 
-    modifier whenCallerAdmin() {
-        // Make the Admin the caller in the rest of this test suite.
-        resetPrank({ msgSender: users.admin });
-        _;
-    }
-
     function test_RevertWhen_ProvidedAddressNotContract() external whenCallerAdmin {
         address eoa = vm.addr({ privateKey: 1 });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_AllowToHookZeroCodeSize.selector, eoa));
         lockup.allowToHook(eoa);
-    }
-
-    modifier whenProvidedAddressContract() {
-        _;
     }
 
     function test_RevertWhen_ProvidedAddressNotReturnInterfaceId()
@@ -58,7 +43,7 @@ abstract contract AllowToHook_Integration_Concrete_Test is Integration_Test, Loc
     function test_WhenProvidedAddressReturnsInterfaceId() external whenCallerAdmin whenProvidedAddressContract {
         // It should emit a {AllowToHook} event.
         vm.expectEmit({ emitter: address(lockup) });
-        emit AllowToHook(users.admin, address(recipientGood));
+        emit ISablierLockup.AllowToHook(users.admin, address(recipientGood));
 
         // Allow the provided address to hook.
         lockup.allowToHook(address(recipientGood));

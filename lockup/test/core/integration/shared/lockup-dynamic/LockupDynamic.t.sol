@@ -3,12 +3,13 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Broker, LockupDynamic } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Integration_Shared_Test } from "../lockup/Lockup.t.sol";
+import { Integration_Test } from "../../Integration.t.sol";
 
 /// @notice Common testing logic needed across {SablierLockupDynamic} integration tests.
-abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Shared_Test {
+abstract contract LockupDynamic_Integration_Shared_Test is Integration_Test {
     struct CreateParams {
         LockupDynamic.CreateWithDurations createWithDurations;
         LockupDynamic.CreateWithTimestamps createWithTimestamps;
@@ -19,7 +20,7 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
     CreateParams private _params;
 
     function setUp() public virtual override {
-        Lockup_Integration_Shared_Test.setUp();
+        Integration_Test.setUp();
 
         _params.createWithDurations.sender = users.sender;
         _params.createWithDurations.recipient = users.recipient;
@@ -45,21 +46,30 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
             _params.createWithDurations.segments.push(segmentsWithDurations[i]);
             _params.createWithTimestamps.segments.push(segments[i]);
         }
+
+        // Cast the {LockupDynamic} contract as {ISablierLockup}.
+        lockup = ISablierLockup(lockupDynamic);
+
+        // Create the default stream.
+        defaultStreamId = createDefaultStream();
+
+        // Create a non-transferable stream.
+        notTransferableStreamId = createDefaultStreamNotTransferable();
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStream() internal override returns (uint256 streamId) {
         streamId = lockupDynamic.createWithTimestamps(_params.createWithTimestamps);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithAsset(IERC20 asset) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.asset = asset;
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithBroker(Broker memory broker) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.broker = broker;
@@ -81,28 +91,28 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         streamId = lockupDynamic.createWithDurations(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.segments[1].timestamp = endTime;
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamNotCancelable() internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.cancelable = false;
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamNotTransferable() internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.transferable = false;
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.recipient = recipient;
@@ -119,14 +129,14 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.sender = sender;
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithStartTime(uint40 startTime) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.startTime = startTime;
@@ -144,14 +154,14 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.totalAmount = totalAmount;
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 
-    /// @inheritdoc Lockup_Integration_Shared_Test
+    /// @inheritdoc Integration_Test
     function createDefaultStreamWithUsers(
         address recipient,
         address sender

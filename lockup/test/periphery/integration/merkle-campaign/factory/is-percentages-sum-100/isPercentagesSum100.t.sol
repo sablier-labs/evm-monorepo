@@ -16,14 +16,6 @@ contract IsPercentagesSum100_Integration_Test is MerkleCampaign_Integration_Test
         merkleFactory.isPercentagesSum100(tranches);
     }
 
-    modifier whenPercentagesSumNotOverflow() {
-        _;
-    }
-
-    modifier whenPercentagesSumNot100Pct() {
-        _;
-    }
-
     function test_WhenPercentagesSumLessThan100Pct()
         external
         view

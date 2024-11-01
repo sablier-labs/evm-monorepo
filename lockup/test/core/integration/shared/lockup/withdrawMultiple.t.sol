@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup_Integration_Shared_Test } from "./Lockup.t.sol";
+import { Integration_Test } from "../../Integration.t.sol";
 
-abstract contract WithdrawMultiple_Integration_Shared_Test is Lockup_Integration_Shared_Test {
+abstract contract WithdrawMultiple_Integration_Shared_Test is Integration_Test {
     address internal caller;
     uint40 internal earlyStopTime;
     uint40 internal originalTime;
@@ -37,23 +37,6 @@ abstract contract WithdrawMultiple_Integration_Shared_Test is Lockup_Integration
         testStreamIds[2] = createDefaultStream();
     }
 
-    modifier givenNoDEPLETEDStreams() {
-        vm.warp({ newTimestamp: defaults.START_TIME() });
-        _;
-    }
-
-    modifier givenNoNullStreams() {
-        _;
-    }
-
-    modifier givenNotNull() {
-        _;
-    }
-
-    modifier whenArraysEqual() {
-        _;
-    }
-
     /// @dev This modifier runs the test in three different modes:
     /// - Stream's sender as caller
     /// - Stream's recipient as caller
@@ -61,32 +44,13 @@ abstract contract WithdrawMultiple_Integration_Shared_Test is Lockup_Integration
     modifier whenCallerAuthorizedAllStreams() {
         caller = users.sender;
         _;
+
         createTestStreams();
         caller = users.recipient;
-        resetPrank({ msgSender: users.recipient });
         _;
+
         createTestStreams();
         caller = users.operator;
-        resetPrank({ msgSender: users.recipient });
-        lockup.setApprovalForAll({ operator: users.operator, approved: true });
-        caller = users.operator;
-        resetPrank({ msgSender: users.operator });
-        _;
-    }
-
-    modifier whenNoAmountOverdraws() {
-        _;
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
-    modifier whenNoZeroAmounts() {
-        _;
-    }
-
-    modifier whenWithdrawalAddressNotZero() {
         _;
     }
 }

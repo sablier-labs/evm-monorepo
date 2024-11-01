@@ -2,24 +2,10 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupDynamic } from "src/core/types/DataTypes.sol";
-import { WithdrawableAmountOf_Integration_Shared_Test } from "./../../shared/lockup/withdrawableAmountOf.t.sol";
-import { LockupDynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
-contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is
-    LockupDynamic_Integration_Fuzz_Test,
-    WithdrawableAmountOf_Integration_Shared_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Fuzz_Test, WithdrawableAmountOf_Integration_Shared_Test)
-    {
-        LockupDynamic_Integration_Fuzz_Test.setUp();
-        WithdrawableAmountOf_Integration_Shared_Test.setUp();
+import { LockupDynamic_Integration_Shared_Test } from "./LockupDynamic.t.sol";
 
-        resetPrank({ msgSender: users.sender });
-    }
-
+contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is LockupDynamic_Integration_Shared_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past

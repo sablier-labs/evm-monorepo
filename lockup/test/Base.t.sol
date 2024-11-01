@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
 import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
@@ -17,21 +18,20 @@ import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol"
 import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
 import { SablierBatchLockup } from "src/periphery/SablierBatchLockup.sol";
 import { SablierMerkleFactory } from "src/periphery/SablierMerkleFactory.sol";
+
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
 import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { RecipientGood } from "./mocks/Hooks.sol";
 import { Noop } from "./mocks/Noop.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Calculations } from "./utils/Calculations.sol";
-import { Constants } from "./utils/Constants.sol";
 import { Defaults } from "./utils/Defaults.sol";
 import { DeployOptimized } from "./utils/DeployOptimized.sol";
-import { Events } from "./utils/Events.sol";
-import { Fuzzers } from "./utils/Fuzzers.sol";
+import { Modifiers } from "./utils/Modifiers.sol";
 import { Users } from "./utils/Types.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
-abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimized, Events, Fuzzers {
+abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifiers {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -103,6 +103,18 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
 
         defaults.setUsers(users);
         defaults.initMerkleTree();
+
+        // Set the variables in Modifiers contract.
+        setVariables(defaults, users);
+
+        // Approve `users.operator` to operate over lockups on behalf of the `users.recipient`.
+        resetPrank({ msgSender: users.recipient });
+        lockupDynamic.setApprovalForAll(users.operator, true);
+        lockupLinear.setApprovalForAll(users.operator, true);
+        lockupTranched.setApprovalForAll(users.operator, true);
+
+        // Set sender as the default caller for the tests.
+        resetPrank({ msgSender: users.sender });
 
         // Warp to July 1, 2024 at 00:00 UTC to provide a more realistic testing environment.
         vm.warp({ newTimestamp: JULY_1_2024 });

@@ -2,22 +2,10 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupLinear } from "src/core/types/DataTypes.sol";
-import { WithdrawableAmountOf_Integration_Shared_Test } from "./../../shared/lockup/withdrawableAmountOf.t.sol";
-import { LockupLinear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
-contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
-    LockupLinear_Integration_Fuzz_Test,
-    WithdrawableAmountOf_Integration_Shared_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupLinear_Integration_Fuzz_Test, WithdrawableAmountOf_Integration_Shared_Test)
-    {
-        LockupLinear_Integration_Fuzz_Test.setUp();
-        WithdrawableAmountOf_Integration_Shared_Test.setUp();
-    }
+import { LockupLinear_Integration_Shared_Test } from "./LockupLinear.t.sol";
 
+contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is LockupLinear_Integration_Shared_Test {
     function testFuzz_WithdrawableAmountOf_CliffTimeInFuture(uint40 timeJump)
         external
         givenNotNull
@@ -28,11 +16,6 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
-    }
-
-    modifier whenCliffTimeNotInFuture() {
-        resetPrank({ msgSender: users.sender });
-        _;
     }
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
@@ -49,7 +32,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         external
         givenNotNull
         givenNotCanceledStream
-        whenCliffTimeNotInFuture
+        givenCliffTimeNotInFuture
     {
         vm.assume(depositAmount != 0);
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
@@ -91,7 +74,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         external
         givenNotNull
         givenNotCanceledStream
-        whenCliffTimeNotInFuture
+        givenCliffTimeNotInFuture
         givenPreviousWithdrawal
     {
         depositAmount = boundUint128(depositAmount, 10_000, MAX_UINT128);

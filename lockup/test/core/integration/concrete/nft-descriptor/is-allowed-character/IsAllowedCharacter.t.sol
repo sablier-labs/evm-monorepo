@@ -10,10 +10,6 @@ contract IsAllowedCharacter_Integration_Concrete_Test is NFTDescriptor_Integrati
         assertTrue(result, "isAllowedCharacter");
     }
 
-    modifier whenNotEmptyString() {
-        _;
-    }
-
     function test_GivenUnsupportedCharacters() external view whenNotEmptyString {
         string memory symbol = "<foo/>";
         bool result = nftDescriptorMock.isAllowedCharacter_(symbol);

@@ -4,13 +4,11 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ISablierLockupRecipient } from "src/core/interfaces/ISablierLockupRecipient.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
-import { Withdraw_Integration_Shared_Test } from "../../../shared/lockup/withdraw.t.sol";
 
-abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, Withdraw_Integration_Shared_Test {
+abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test {
     uint128 internal withdrawAmount;
 
-    function setUp() public virtual override(Integration_Test, Withdraw_Integration_Shared_Test) {
-        Withdraw_Integration_Shared_Test.setUp();
+    function setUp() public virtual override {
         withdrawAmount = defaults.WITHDRAW_AMOUNT();
 
         // Allow the good recipient to hook.
@@ -37,10 +35,6 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: users.sender, amount: withdrawAmount });
-    }
-
-    modifier givenRecipientNotSameAsSender() {
-        _;
     }
 
     function test_WhenCallerUnknown() external givenRecipientNotSameAsSender {

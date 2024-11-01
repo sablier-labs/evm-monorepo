@@ -1,17 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Integration_Test } from "./../../Integration.t.sol";
-import { GetWithdrawnAmount_Integration_Shared_Test } from "./../../shared/lockup/getWithdrawnAmount.t.sol";
+import { Integration_Test } from "../../Integration.t.sol";
 
-abstract contract GetWithdrawnAmount_Integration_Fuzz_Test is
-    Integration_Test,
-    GetWithdrawnAmount_Integration_Shared_Test
-{
-    function setUp() public virtual override(Integration_Test, GetWithdrawnAmount_Integration_Shared_Test) {
-        GetWithdrawnAmount_Integration_Shared_Test.setUp();
-    }
-
+abstract contract GetWithdrawnAmount_Integration_Fuzz_Test is Integration_Test {
     function testFuzz_GetWithdrawnAmount_NoPreviousWithdrawals(uint256 timeJump) external givenNotNull {
         timeJump = _bound(timeJump, 0 seconds, defaults.TOTAL_DURATION() * 2);
 

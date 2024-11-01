@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { IAdminable } from "src/core/interfaces/IAdminable.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 
 import { Adminable_Unit_Shared_Test } from "../shared/Adminable.t.sol";
@@ -18,16 +19,12 @@ contract TransferAdmin_Unit_Fuzz_Test is Adminable_Unit_Shared_Test {
         adminableMock.transferAdmin(eve);
     }
 
-    modifier whenCallerAdmin() {
-        _;
-    }
-
     function testFuzz_TransferAdmin(address newAdmin) external whenCallerAdmin {
         vm.assume(newAdmin != address(0));
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(adminableMock) });
-        emit TransferAdmin({ oldAdmin: users.admin, newAdmin: newAdmin });
+        emit IAdminable.TransferAdmin({ oldAdmin: users.admin, newAdmin: newAdmin });
 
         // Transfer the admin.
         adminableMock.transferAdmin(newAdmin);

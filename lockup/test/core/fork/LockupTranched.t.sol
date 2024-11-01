@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
-
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
+import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
 import { Broker, Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
-
 import { Fork_Test } from "./Fork.t.sol";
 
 abstract contract LockupTranched_Fork_Test is Fork_Test {
@@ -145,9 +146,9 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockupTranched) });
-        emit MetadataUpdate({ _tokenId: vars.streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
         vm.expectEmit({ emitter: address(lockupTranched) });
-        emit CreateLockupTranchedStream({
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: vars.streamId,
             funder: FORK_ASSET_HOLDER,
             sender: params.sender,
@@ -268,14 +269,14 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
 
             // Expect the relevant events to be emitted.
             vm.expectEmit({ emitter: address(lockupTranched) });
-            emit WithdrawFromLockupStream({
+            emit ISablierLockup.WithdrawFromLockupStream({
                 streamId: vars.streamId,
                 to: params.recipient,
                 asset: FORK_ASSET,
                 amount: params.withdrawAmount
             });
             vm.expectEmit({ emitter: address(lockupTranched) });
-            emit MetadataUpdate({ _tokenId: vars.streamId });
+            emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
 
             // Make the withdrawal.
             resetPrank({ msgSender: params.recipient });
@@ -334,11 +335,11 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
             vm.expectEmit({ emitter: address(lockupTranched) });
             vars.senderAmount = lockupTranched.refundableAmountOf(vars.streamId);
             vars.recipientAmount = lockupTranched.withdrawableAmountOf(vars.streamId);
-            emit CancelLockupStream(
+            emit ISablierLockup.CancelLockupStream(
                 vars.streamId, params.sender, params.recipient, FORK_ASSET, vars.senderAmount, vars.recipientAmount
             );
             vm.expectEmit({ emitter: address(lockupTranched) });
-            emit MetadataUpdate({ _tokenId: vars.streamId });
+            emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
 
             // Cancel the stream.
             resetPrank({ msgSender: params.sender });

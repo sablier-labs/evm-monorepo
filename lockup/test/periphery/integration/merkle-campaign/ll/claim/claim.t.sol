@@ -2,21 +2,18 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
+import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol";
 import { MerkleLL } from "src/periphery/types/DataTypes.sol";
 
 import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
-import { MerkleLL_Integration_Shared_Test } from "../MerkleLL.t.sol";
+import { MerkleLL_Integration_Shared_Test, MerkleCampaign_Integration_Test } from "../MerkleLL.t.sol";
 
 contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Integration_Shared_Test {
     MerkleLL.Schedule internal schedule;
 
-    function setUp() public override(Claim_Integration_Test, MerkleLL_Integration_Shared_Test) {
-        super.setUp();
+    function setUp() public virtual override(MerkleLL_Integration_Shared_Test, MerkleCampaign_Integration_Test) {
+        MerkleLL_Integration_Shared_Test.setUp();
         schedule = defaults.schedule();
-    }
-
-    modifier whenScheduledStartTimeZero() {
-        _;
     }
 
     function test_WhenScheduledCliffDurationZero() external whenMerkleProofValid whenScheduledStartTimeZero {
@@ -73,7 +70,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
-        emit Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
+        emit ISablierMerkleLL.Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
 
         expectCallToTransferFrom({ from: address(merkleLL), to: address(lockupLinear), value: defaults.CLAIM_AMOUNT() });
         expectCallToClaimWithMsgValue(address(merkleLL), sablierFee);

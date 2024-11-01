@@ -16,10 +16,6 @@ contract MapSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_Shared
         nftDescriptorMock.mapSymbol_(IERC721Metadata(address(nft)));
     }
 
-    modifier givenKnownNFTContract() {
-        _;
-    }
-
     function test_WhenLockupDynamicNFT() external view givenKnownNFTContract {
         string memory actualLockupModel = nftDescriptorMock.mapSymbol_(lockupDynamic);
         string memory expectedLockupModel = "Sablier Lockup Dynamic";

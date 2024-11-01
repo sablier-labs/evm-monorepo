@@ -4,24 +4,13 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Errors } from "src/core/libraries/Errors.sol";
 import { LockupTranched } from "src/core/types/DataTypes.sol";
 
-import { LockupTranched_Integration_Concrete_Test } from "../LockupTranched.t.sol";
+import { LockupTranched_Integration_Shared_Test } from "../LockupTranched.t.sol";
 
-contract GetStream_LockupTranched_Integration_Concrete_Test is LockupTranched_Integration_Concrete_Test {
-    uint256 internal defaultStreamId;
-
-    function setUp() public virtual override {
-        LockupTranched_Integration_Concrete_Test.setUp();
-        defaultStreamId = createDefaultStream();
-    }
-
+contract GetStream_LockupTranched_Integration_Concrete_Test is LockupTranched_Integration_Shared_Test {
     function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_Null.selector, nullStreamId));
         lockupTranched.getStream(nullStreamId);
-    }
-
-    modifier givenNotNull() {
-        _;
     }
 
     function test_GivenSettledStream() external givenNotNull {

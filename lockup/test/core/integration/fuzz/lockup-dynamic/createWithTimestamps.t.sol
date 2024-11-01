@@ -4,23 +4,18 @@ pragma solidity >=0.8.22 <0.9.0;
 import { MAX_UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { stdError } from "forge-std/src/StdError.sol";
 
+import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Broker, Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
 
-import { CreateWithTimestamps_Integration_Shared_Test } from "../../shared/lockup/createWithTimestamps.t.sol";
-import { LockupDynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
+import { LockupDynamic_Integration_Shared_Test } from "./LockupDynamic.t.sol";
 
-contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
-    LockupDynamic_Integration_Fuzz_Test,
-    CreateWithTimestamps_Integration_Shared_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupDynamic_Integration_Fuzz_Test, CreateWithTimestamps_Integration_Shared_Test)
-    {
-        LockupDynamic_Integration_Fuzz_Test.setUp();
-        CreateWithTimestamps_Integration_Shared_Test.setUp();
+contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is LockupDynamic_Integration_Shared_Test {
+    uint256 internal streamId;
+
+    function setUp() public virtual override {
+        LockupDynamic_Integration_Shared_Test.setUp();
+        streamId = lockupDynamic.nextStreamId();
     }
 
     function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
@@ -232,7 +227,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
             start: params.startTime,
             end: params.segments[params.segments.length - 1].timestamp
         });
-        emit CreateLockupDynamicStream({
+        emit ISablierLockupDynamic.CreateLockupDynamicStream({
             streamId: streamId,
             funder: funder,
             sender: params.sender,

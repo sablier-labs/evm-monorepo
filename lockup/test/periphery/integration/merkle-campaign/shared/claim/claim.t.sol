@@ -3,13 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/periphery/libraries/Errors.sol";
 
-import { MerkleCampaign_Integration_Shared_Test } from "../MerkleCampaign.t.sol";
+import { MerkleCampaign_Integration_Test } from "../../MerkleCampaign.t.sol";
 
-abstract contract Claim_Integration_Test is MerkleCampaign_Integration_Shared_Test {
-    function setUp() public virtual override {
-        MerkleCampaign_Integration_Shared_Test.setUp();
-    }
-
+abstract contract Claim_Integration_Test is MerkleCampaign_Integration_Test {
     function test_RevertGiven_CampaignExpired() external {
         uint40 expiration = defaults.EXPIRATION();
         uint256 sablierFee = defaults.DEFAULT_SABLIER_FEE();
@@ -35,10 +31,6 @@ abstract contract Claim_Integration_Test is MerkleCampaign_Integration_Shared_Te
         merkleBase.claim{ value: 0 }(index1, users.recipient1, amount, merkleProof);
     }
 
-    modifier givenMsgValueNotLessThanSablierFee() {
-        _;
-    }
-
     function test_RevertGiven_RecipientClaimed() external givenCampaignNotExpired givenMsgValueNotLessThanSablierFee {
         claim();
         uint256 index1 = defaults.INDEX1();
@@ -47,10 +39,6 @@ abstract contract Claim_Integration_Test is MerkleCampaign_Integration_Shared_Te
         bytes32[] memory merkleProof = defaults.index1Proof();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_StreamClaimed.selector, index1));
         merkleBase.claim{ value: sablierFee }(index1, users.recipient1, amount, merkleProof);
-    }
-
-    modifier givenRecipientNotClaimed() {
-        _;
     }
 
     function test_RevertWhen_IndexNotValid()
@@ -65,10 +53,6 @@ abstract contract Claim_Integration_Test is MerkleCampaign_Integration_Shared_Te
         bytes32[] memory merkleProof = defaults.index1Proof();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
         merkleBase.claim{ value: sablierFee }(invalidIndex, users.recipient1, amount, merkleProof);
-    }
-
-    modifier whenIndexValid() {
-        _;
     }
 
     function test_RevertWhen_RecipientNotValid()
@@ -87,10 +71,6 @@ abstract contract Claim_Integration_Test is MerkleCampaign_Integration_Shared_Te
         merkleBase.claim{ value: sablierFee }(index1, invalidRecipient, amount, merkleProof);
     }
 
-    modifier whenRecipientValid() {
-        _;
-    }
-
     function test_RevertWhen_AmountNotValid()
         external
         givenCampaignNotExpired
@@ -105,10 +85,6 @@ abstract contract Claim_Integration_Test is MerkleCampaign_Integration_Shared_Te
         bytes32[] memory merkleProof = defaults.index1Proof();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
         merkleBase.claim{ value: sablierFee }(index1, users.recipient1, invalidAmount, merkleProof);
-    }
-
-    modifier whenAmountValid() {
-        _;
     }
 
     function test_RevertWhen_MerkleProofNotValid()
