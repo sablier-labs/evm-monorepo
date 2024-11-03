@@ -21,10 +21,10 @@ import { Broker, Flow } from "./types/DataTypes.sol";
 /// @title SablierFlow
 /// @notice See the documentation in {ISablierFlow}.
 contract SablierFlow is
-    Batch, // 0 inherited components
+    Batch, // 1 inherited components
     NoDelegateCall, // 0 inherited components
-    ISablierFlow, // 4 inherited components
-    SablierFlowBase // 8 inherited components
+    ISablierFlow, // 7 inherited components
+    SablierFlowBase // 5 inherited components
 {
     using SafeCast for uint256;
     using SafeERC20 for IERC20;

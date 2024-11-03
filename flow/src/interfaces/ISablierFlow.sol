@@ -5,12 +5,14 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Broker, Flow } from "./../types/DataTypes.sol";
+import { IBatch } from "./IBatch.sol";
 import { ISablierFlowBase } from "./ISablierFlowBase.sol";
 
 /// @title ISablierFlow
 /// @notice Creates and manages Flow streams with linear streaming functions.
 interface ISablierFlow is
-    ISablierFlowBase // 4 inherited component
+    IBatch, // 0 inherited interface
+    ISablierFlowBase // 5 inherited component
 {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
