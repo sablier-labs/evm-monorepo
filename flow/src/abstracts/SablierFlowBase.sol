@@ -82,6 +82,7 @@ abstract contract SablierFlowBase is
         _;
     }
 
+    /// @dev Checks that `streamId` does not reference a voided stream.
     modifier notVoided(uint256 streamId) {
         if (_streams[streamId].isVoided) {
             revert Errors.SablierFlow_StreamVoided(streamId);
