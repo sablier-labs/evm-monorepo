@@ -5,6 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
@@ -281,6 +282,12 @@ abstract contract SablierFlowBase is
 
         // Refresh the NFT metadata for all streams.
         emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
+    }
+
+    /// @inheritdoc ERC721
+    function supportsInterface(bytes4 interfaceId) public view override(IERC165, ERC721) returns (bool) {
+        // 0x49064906 is the ERC-165 interface ID required by ERC-4906
+        return interfaceId == 0x49064906 || super.supportsInterface(interfaceId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -25,6 +25,9 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");
 
+        // {SablierV2Flow.supportsInterface}
+        assertTrue(constructedFlow.supportsInterface(0x49064906), "ERC-4906 interface ID");
+
         address actualNFTDescriptor = address(constructedFlow.nftDescriptor());
         address expectedNFTDescriptor = address(nftDescriptor);
         assertEq(actualNFTDescriptor, expectedNFTDescriptor, "nftDescriptor");
