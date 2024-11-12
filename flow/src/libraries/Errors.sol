@@ -33,11 +33,11 @@ library Errors {
     /// @notice Thrown when trying to create a stream with a zero deposit amount.
     error SablierFlow_DepositAmountZero(uint256 streamId);
 
-    /// @notice Thrown when trying to create a stream with an token with no decimals.
-    error SablierFlow_InvalidTokenDecimals(address token);
-
     /// @notice Thrown when an unexpected error occurs during the calculation of an amount.
     error SablierFlow_InvalidCalculation(uint256 streamId, uint128 availableAmount, uint128 amount);
+
+    /// @notice Thrown when trying to create a stream with an token with no decimals.
+    error SablierFlow_InvalidTokenDecimals(address token);
 
     /// @notice Thrown when the recipient address does not match the stream's recipient.
     error SablierFlow_NotStreamRecipient(address recipient, address streamRecipient);
