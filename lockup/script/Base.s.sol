@@ -85,37 +85,37 @@ contract BaseScript is Script {
         // forgefmt: disable-start
 
         // Arbitrum chain ID
-        maxCountMap[42161] = 1160;
+        maxCountMap[42161] = 1080;
 
         // Avalanche chain ID.
-        maxCountMap[43114] = 520;
+        maxCountMap[43114] = 490;
 
         // Base chain ID.
-        maxCountMap[8453] = 2170;
+        maxCountMap[8453] = 2020;
 
         // Blast chain ID.
-        maxCountMap[81457] = 1080;
+        maxCountMap[81457] = 1010;
 
         // BNB chain ID.
-        maxCountMap[56] = 4820;
+        maxCountMap[56] = 4430;
 
         // Ethereum chain ID.
-        maxCountMap[1] = 1080;
+        maxCountMap[1] = 1010;
 
         // Gnosis chain ID.
-        maxCountMap[100] = 600;
+        maxCountMap[100] = 560;
 
         // Optimism chain ID.
-        maxCountMap[10] = 1080;
+        maxCountMap[10] = 1010;
 
         // Polygon chain ID.
-        maxCountMap[137] = 1080;
+        maxCountMap[137] = 1010;
 
         // Scroll chain ID.
-        maxCountMap[534352] = 330;
+        maxCountMap[534352] = 310;
 
         // Sepolia chain ID.
-        maxCountMap[11155111] = 1080;
+        maxCountMap[11155111] = 1010;
 
         // forgefmt: disable-end
     }

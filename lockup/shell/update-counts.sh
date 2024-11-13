@@ -43,7 +43,7 @@ update_counts() {
 }
 
 # Call the function with specific parameters for segments and tranches
-update_counts "maxCountMap" "maxCountMap"
+update_counts "Segments" "maxCountMap"
 
 # Reformat the code with Forge
 forge fmt $BASE_SCRIPT

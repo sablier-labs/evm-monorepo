@@ -1,4 +1,4 @@
-StreamedAmountOf_LockupDynamic_Integration_Concrete_Test
+StreamedAmountOf_Lockup_Dynamic_Integration_Concrete_Test
 └── given STREAMING status
    ├── given start time in present
    │  └── it should return zero

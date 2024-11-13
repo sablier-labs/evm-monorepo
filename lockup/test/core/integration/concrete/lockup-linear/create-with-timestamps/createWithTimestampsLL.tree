@@ -1,0 +1,46 @@
+CreateWithTimestampsLL_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── when sender zero address
+   │  └── it should revert
+   └── when sender not zero address
+      ├── when recipient zero address
+      │  └── it should revert
+      └── when recipient not zero address
+         ├── when deposit amount zero
+         │  └── it should revert
+         └── when deposit amount not zero
+            ├── when start time zero
+            │  └── it should revert
+            └── when start time not zero
+               ├── when cliff time zero
+               │  ├── when start time not less than end time
+               │  │  └── it should revert
+               │  └── when start time less than end time
+               │     └── it should create the stream
+               └── when cliff time not zero
+                  ├── when start time not less than cliff time
+                  │  └── it should revert
+                  └── when start time less than cliff time
+                     ├── when cliff time not less than end time
+                     │  └── it should revert
+                     └── when cliff time less than end time
+                        ├── when broker fee exceeds max value
+                        │  └── it should revert
+                        └── when broker fee not exceed max value
+                           ├── when asset not contract
+                           │  └── it should revert
+                           └── when asset contract
+                              ├── when asset misses ERC20 return value
+                              │  ├── it should create the stream
+                              │  ├── it should bump the next stream ID
+                              │  ├── it should mint the NFT
+                              │  ├── it should emit {MetadataUpdate} and {CreateLockupLinearStream} events
+                              │  └── it should perform the ERC-20 transfers
+                              └── when asset not miss ERC20 return value
+                                 ├── it should create the stream
+                                 ├── it should bump the next stream ID
+                                 ├── it should mint the NFT
+                                 ├── it should emit {MetadataUpdate} and {CreateLockupLinearStream} events
+                                 └── it should perform the ERC-20 transfers

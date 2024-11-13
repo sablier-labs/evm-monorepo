@@ -5,7 +5,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/utils/Assertions.sol";
 
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/core/types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupTranched } from "../../src/core/types/DataTypes.sol";
 import { MerkleLT } from "../../src/periphery/types/DataTypes.sol";
 
 abstract contract Assertions is PRBMathAssertions {
@@ -44,67 +44,8 @@ abstract contract Assertions is PRBMathAssertions {
         assertEq(address(a), address(b), err);
     }
 
-    /// @dev Compares two {LockupDynamic.Stream} struct entities.
-    function assertEq(LockupDynamic.StreamLD memory a, LockupDynamic.StreamLD memory b) internal {
-        assertEq(a.asset, b.asset, "asset");
-        assertEq(a.endTime, b.endTime, "endTime");
-        assertEq(a.isCancelable, b.isCancelable, "isCancelable");
-        assertEq(a.isDepleted, b.isDepleted, "isDepleted");
-        assertEq(a.isStream, b.isStream, "isStream");
-        assertEq(a.isTransferable, b.isTransferable, "isTransferable");
-        assertEq(a.recipient, b.recipient, "recipient");
-        assertEq(a.segments, b.segments, "segments");
-        assertEq(a.sender, b.sender, "sender");
-        assertEq(a.startTime, b.startTime, "startTime");
-        assertEq(a.wasCanceled, b.wasCanceled, "wasCanceled");
-    }
-
-    /// @dev Compares two {LockupLinear.Stream} struct entities.
-    function assertEq(LockupLinear.StreamLL memory a, LockupLinear.StreamLL memory b) internal {
-        assertEq(a.amounts, b.amounts);
-        assertEq(a.asset, b.asset, "asset");
-        assertEq(a.cliffTime, b.cliffTime, "cliffTime");
-        assertEq(a.endTime, b.endTime, "endTime");
-        assertEq(a.isCancelable, b.isCancelable, "isCancelable");
-        assertEq(a.isDepleted, b.isDepleted, "isDepleted");
-        assertEq(a.isStream, b.isStream, "isStream");
-        assertEq(a.isTransferable, b.isTransferable, "isTransferable");
-        assertEq(a.recipient, b.recipient, "recipient");
-        assertEq(a.sender, b.sender, "sender");
-        assertEq(a.startTime, b.startTime, "startTime");
-        assertEq(a.wasCanceled, b.wasCanceled, "wasCanceled");
-    }
-
-    /// @dev Compares two {LockupTranched.Stream} struct entities.
-    function assertEq(LockupTranched.StreamLT memory a, LockupTranched.StreamLT memory b) internal {
-        assertEq(a.asset, b.asset, "asset");
-        assertEq(a.endTime, b.endTime, "endTime");
-        assertEq(a.isCancelable, b.isCancelable, "isCancelable");
-        assertEq(a.isDepleted, b.isDepleted, "isDepleted");
-        assertEq(a.isStream, b.isStream, "isStream");
-        assertEq(a.isTransferable, b.isTransferable, "isTransferable");
-        assertEq(a.recipient, b.recipient, "recipient");
-        assertEq(a.sender, b.sender, "sender");
-        assertEq(a.startTime, b.startTime, "startTime");
-        assertEq(a.tranches, b.tranches, "tranches");
-        assertEq(a.wasCanceled, b.wasCanceled, "wasCanceled");
-    }
-
-    /// @dev Compares two {LockupDynamic.Timestamps} struct entities.
-    function assertEq(LockupDynamic.Timestamps memory a, LockupDynamic.Timestamps memory b) internal {
-        assertEqUint40(a.end, b.end, "timestamps.end");
-        assertEqUint40(a.start, b.start, "timestamps.start");
-    }
-
-    /// @dev Compares two {LockupLinear.Timestamps} struct entities.
-    function assertEq(LockupLinear.Timestamps memory a, LockupLinear.Timestamps memory b) internal {
-        assertEqUint40(a.cliff, b.cliff, "timestamps.cliff");
-        assertEqUint40(a.end, b.end, "timestamps.end");
-        assertEqUint40(a.start, b.start, "timestamps.start");
-    }
-
-    /// @dev Compares two {LockupTranched.Timestamps} struct entities.
-    function assertEq(LockupTranched.Timestamps memory a, LockupTranched.Timestamps memory b) internal {
+    /// @dev Compares two {Lockup.Timestamps} struct entities.
+    function assertEq(Lockup.Timestamps memory a, Lockup.Timestamps memory b) internal {
         assertEqUint40(a.end, b.end, "timestamps.end");
         assertEqUint40(a.start, b.start, "timestamps.start");
     }

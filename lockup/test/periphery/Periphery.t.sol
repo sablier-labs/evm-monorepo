@@ -3,10 +3,8 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
-import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
-import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
-import { LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
 
 import { ISablierMerkleBase } from "src/periphery/interfaces/ISablierMerkleBase.sol";
 import { SablierMerkleInstant } from "src/periphery/SablierMerkleInstant.sol";
@@ -41,93 +39,95 @@ contract Periphery_Test is Base_Test {
                                 CALL EXPECTS - LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithDurations}, each with the specified
-    /// `params`.
+    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLD}, each with the specified `params`.
     function expectMultipleCallsToCreateWithDurationsLD(
         uint64 count,
-        LockupDynamic.CreateWithDurations memory params
+        Lockup.CreateWithDurations memory params,
+        LockupDynamic.SegmentWithDuration[] memory segments
     )
         internal
     {
         vm.expectCall({
-            callee: address(lockupDynamic),
+            callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockupDynamic.createWithDurations, (params))
+            data: abi.encodeCall(ISablierLockup.createWithDurationsLD, (params, segments))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithDurations}, each with the specified
-    /// `params`.
+    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLL}, each with the specified `params`.
     function expectMultipleCallsToCreateWithDurationsLL(
         uint64 count,
-        LockupLinear.CreateWithDurations memory params
+        Lockup.CreateWithDurations memory params,
+        LockupLinear.Durations memory durations
     )
         internal
     {
         vm.expectCall({
-            callee: address(lockupLinear),
+            callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockupLinear.createWithDurations, (params))
+            data: abi.encodeCall(ISablierLockup.createWithDurationsLL, (params, durations))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithDurations}, each with the specified
-    /// `params`.
+    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLT}, each with the specified `params`.
     function expectMultipleCallsToCreateWithDurationsLT(
         uint64 count,
-        LockupTranched.CreateWithDurations memory params
+        Lockup.CreateWithDurations memory params,
+        LockupTranched.TrancheWithDuration[] memory tranches
     )
         internal
     {
         vm.expectCall({
-            callee: address(lockupTranched),
+            callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockupTranched.createWithDurations, (params))
+            data: abi.encodeCall(ISablierLockup.createWithDurationsLT, (params, tranches))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithTimestamps}, each with the specified
-    /// `params`.
+    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLD}, each with the specified `params`.
     function expectMultipleCallsToCreateWithTimestampsLD(
         uint64 count,
-        LockupDynamic.CreateWithTimestamps memory params
+        Lockup.CreateWithTimestamps memory params,
+        LockupDynamic.Segment[] memory segments
     )
         internal
     {
         vm.expectCall({
-            callee: address(lockupDynamic),
+            callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockupDynamic.createWithTimestamps, (params))
+            data: abi.encodeCall(ISablierLockup.createWithTimestampsLD, (params, segments))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithTimestamps}, each with the specified
+    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLL}, each with the specified
     /// `params`.
     function expectMultipleCallsToCreateWithTimestampsLL(
         uint64 count,
-        LockupLinear.CreateWithTimestamps memory params
+        Lockup.CreateWithTimestamps memory params,
+        uint40 cliff
     )
         internal
     {
         vm.expectCall({
-            callee: address(lockupLinear),
+            callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockupLinear.createWithTimestamps, (params))
+            data: abi.encodeCall(ISablierLockup.createWithTimestampsLL, (params, cliff))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithTimestamps}, each with the specified
+    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLT}, each with the specified
     /// `params`.
     function expectMultipleCallsToCreateWithTimestampsLT(
         uint64 count,
-        LockupTranched.CreateWithTimestamps memory params
+        Lockup.CreateWithTimestamps memory params,
+        LockupTranched.Tranche[] memory tranches
     )
         internal
     {
         vm.expectCall({
-            callee: address(lockupTranched),
+            callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockupTranched.createWithTimestamps, (params))
+            data: abi.encodeCall(ISablierLockup.createWithTimestampsLT, (params, tranches))
         });
     }
 
@@ -220,7 +220,7 @@ contract Periphery_Test is Base_Test {
                 abi.encode(defaults.IPFS_CID()),
                 merkleRoot,
                 defaults.NAME_BYTES32(),
-                lockupLinear,
+                lockup,
                 defaults.CANCELABLE(),
                 defaults.TRANSFERABLE(),
                 abi.encode(defaults.schedule())
@@ -256,7 +256,7 @@ contract Periphery_Test is Base_Test {
                 abi.encode(defaults.IPFS_CID()),
                 merkleRoot,
                 defaults.NAME_BYTES32(),
-                lockupTranched,
+                lockup,
                 defaults.CANCELABLE(),
                 defaults.TRANSFERABLE(),
                 defaults.STREAM_START_TIME_ZERO(),
@@ -307,7 +307,7 @@ contract Periphery_Test is Base_Test {
     {
         bytes memory constructorArgs = abi.encode(
             defaults.baseParams(campaignOwner, asset_, expiration, merkleRoot),
-            lockupLinear,
+            lockup,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
             defaults.schedule(),
@@ -333,7 +333,7 @@ contract Periphery_Test is Base_Test {
     {
         bytes memory constructorArgs = abi.encode(
             defaults.baseParams(campaignOwner, asset_, expiration, merkleRoot),
-            lockupTranched,
+            lockup,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
             defaults.STREAM_START_TIME_ZERO(),

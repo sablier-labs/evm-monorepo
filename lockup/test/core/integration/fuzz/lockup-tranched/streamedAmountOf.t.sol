@@ -2,11 +2,11 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ZERO } from "@prb/math/src/UD60x18.sol";
-import { Broker, LockupTranched } from "src/core/types/DataTypes.sol";
+import { Broker, Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 
-import { LockupTranched_Integration_Shared_Test } from "./LockupTranched.t.sol";
+import { Lockup_Tranched_Integration_Shared_Test } from "./../../shared/lockup/LockupTranched.t.sol";
 
-contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is LockupTranched_Integration_Shared_Test {
+contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranched_Integration_Shared_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
@@ -44,19 +44,19 @@ contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is LockupTranched
         deal({ token: address(dai), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed tranches.
-        LockupTranched.CreateWithTimestamps memory params = defaults.createWithTimestampsLT();
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
         params.broker = Broker({ account: address(0), fee: ZERO });
-        params.tranches = tranches;
         params.totalAmount = totalAmount;
-        uint256 streamId = lockupTranched.createWithTimestamps(params);
+        params.endTime = tranches[tranches.length - 1].timestamp;
+        uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
 
         // Simulate the passage of time.
         uint40 blockTimestamp = defaults.START_TIME() + timeJump;
         vm.warp({ newTimestamp: blockTimestamp });
 
         // Run the test.
-        uint128 actualStreamedAmount = lockupTranched.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateStreamedAmountForTranches(tranches, totalAmount);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
+        uint128 expectedStreamedAmount = calculateLockupTranchedStreamedAmount(tranches, totalAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -92,23 +92,23 @@ contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is LockupTranched
         deal({ token: address(dai), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed tranches.
-        LockupTranched.CreateWithTimestamps memory params = defaults.createWithTimestampsLT();
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
         params.broker = Broker({ account: address(0), fee: ZERO });
-        params.tranches = tranches;
         params.totalAmount = totalAmount;
-        uint256 streamId = lockupTranched.createWithTimestamps(params);
+        params.endTime = tranches[tranches.length - 1].timestamp;
+        uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
 
         // Warp to the future for the first time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeWarp0 });
 
         // Calculate the streamed amount at this midpoint in time.
-        uint128 streamedAmount0 = lockupTranched.streamedAmountOf(streamId);
+        uint128 streamedAmount0 = lockup.streamedAmountOf(streamId);
 
         // Warp to the future for the second time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeWarp1 });
 
         // Assert that this streamed amount is greater than or equal to the previous streamed amount.
-        uint128 streamedAmount1 = lockupTranched.streamedAmountOf(streamId);
+        uint128 streamedAmount1 = lockup.streamedAmountOf(streamId);
         assertGe(streamedAmount1, streamedAmount0, "streamedAmount");
     }
 }

@@ -9,13 +9,11 @@ import { Lockup } from "src/core/types/DataTypes.sol";
 import { LockupStore } from "../stores/LockupStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
-/// @dev Common handler logic between {LockupLinearHandler} and {LockupDynamicHandler}.
-abstract contract LockupHandler is BaseHandler {
+contract LockupHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierLockup public lockup;
     LockupStore public lockupStore;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -30,9 +28,8 @@ abstract contract LockupHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierLockup lockup_) BaseHandler(asset_) {
+    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierLockup lockup_) BaseHandler(asset_, lockup_) {
         lockupStore = lockupStore_;
-        lockup = lockup_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

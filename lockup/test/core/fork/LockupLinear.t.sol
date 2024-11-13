@@ -6,11 +6,11 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
-import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
-import { Broker, Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
+import { ISablierLockupBase } from "src/core/interfaces/ISablierLockupBase.sol";
+import { Broker, Lockup } from "src/core/types/DataTypes.sol";
 import { Fork_Test } from "./Fork.t.sol";
 
-abstract contract LockupLinear_Fork_Test is Fork_Test {
+abstract contract Lockup_Linear_Fork_Test is Fork_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -24,9 +24,9 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
     function setUp() public virtual override {
         Fork_Test.setUp();
 
-        // Approve {SablierLockupLinear} to transfer the asset holder's assets.
+        // Approve {SablierLockup} to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
-        (bool success,) = address(FORK_ASSET).call(abi.encodeCall(IERC20.approve, (address(lockupLinear), MAX_UINT256)));
+        (bool success,) = address(FORK_ASSET).call(abi.encodeCall(IERC20.approve, (address(lockup), MAX_UINT256)));
         success;
     }
 
@@ -40,13 +40,13 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         uint128 totalAmount;
         uint128 withdrawAmount;
         uint40 warpTimestamp;
-        LockupLinear.Timestamps timestamps;
+        Lockup.Timestamps timestamps;
         Broker broker;
     }
 
     struct Vars {
         // Generic vars
-        uint256 actualLockupLinearBalance;
+        uint256 actualLockupBalance;
         uint256 actualHolderBalance;
         address actualNFTOwner;
         uint256 actualRecipientBalance;
@@ -54,13 +54,13 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         uint256[] balances;
         uint40 blockTimestamp;
         uint40 endTimeLowerBound;
-        uint256 expectedLockupLinearBalance;
+        uint256 expectedLockupBalance;
         uint256 expectedHolderBalance;
         address expectedNFTOwner;
         uint256 expectedRecipientBalance;
         Lockup.Status expectedStatus;
         bool hasCliff;
-        uint256 initialLockupLinearBalance;
+        uint256 initialLockupBalance;
         uint256 initialRecipientBalance;
         bool isCancelable;
         bool isDepleted;
@@ -111,8 +111,8 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
     /// - Cliff time zero and not zero
     /// - Multiple values for the broker fee, including zero
     /// - The whole gamut of stream statuses
-    function testForkFuzz_LockupLinear_CreateWithdrawCancel(Params memory params) external {
-        checkUsers(params.sender, params.recipient, params.broker.account, address(lockupLinear));
+    function testForkFuzz_CreateWithdrawCancel(Params memory params) external {
+        checkUsers(params.sender, params.recipient, params.broker.account, address(lockup));
 
         // Bound the parameters.
         Vars memory vars;
@@ -144,21 +144,21 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
 
         // Load the pre-create asset balances.
         vars.balances =
-            getTokenBalances(address(FORK_ASSET), Solarray.addresses(address(lockupLinear), params.broker.account));
-        vars.initialLockupLinearBalance = vars.balances[0];
+            getTokenBalances(address(FORK_ASSET), Solarray.addresses(address(lockup), params.broker.account));
+        vars.initialLockupBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
         // Calculate the broker fee amount and the deposit amount.
         vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
         vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.brokerFee;
 
-        vars.streamId = lockupLinear.nextStreamId();
+        vars.streamId = lockup.nextStreamId();
 
         // Expect the relevant events to be emitted.
-        vm.expectEmit({ emitter: address(lockupLinear) });
+        vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
-        vm.expectEmit({ emitter: address(lockupLinear) });
-        emit ISablierLockupLinear.CreateLockupLinearStream({
+        vm.expectEmit({ emitter: address(lockup) });
+        emit ISablierLockup.CreateLockupLinearStream({
             streamId: vars.streamId,
             funder: FORK_ASSET_HOLDER,
             sender: params.sender,
@@ -172,17 +172,19 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         });
 
         // Create the stream.
-        lockupLinear.createWithTimestamps(
-            LockupLinear.CreateWithTimestamps({
+        lockup.createWithTimestampsLL(
+            Lockup.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
                 totalAmount: params.totalAmount,
                 asset: FORK_ASSET,
                 cancelable: true,
                 transferable: true,
-                timestamps: params.timestamps,
+                startTime: params.timestamps.start,
+                endTime: params.timestamps.end,
                 broker: params.broker
-            })
+            }),
+            params.timestamps.cliff
         );
 
         // Check if the stream is settled. It is possible for a Lockup Linear stream to settle at the time of creation
@@ -191,22 +193,21 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         vars.isCancelable = vars.isSettled ? false : true;
 
         // Assert that the stream has been created.
-        LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(vars.streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
-        assertEq(actualStream.asset, FORK_ASSET, "asset");
-        assertEq(actualStream.cliffTime, params.timestamps.cliff, "cliffTime");
-        assertEq(actualStream.endTime, params.timestamps.end, "endTime");
-        assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
-        assertEq(actualStream.isDepleted, false, "isDepleted");
-        assertEq(actualStream.isStream, true, "isStream");
-        assertEq(actualStream.isTransferable, true, "isTransferable");
-        assertEq(actualStream.recipient, params.recipient, "recipient");
-        assertEq(actualStream.sender, params.sender, "sender");
-        assertEq(actualStream.startTime, params.timestamps.start, "startTime");
-        assertEq(actualStream.wasCanceled, false, "wasCanceled");
+        assertEq(lockup.getDepositedAmount(vars.streamId), vars.createAmounts.deposit, "depositedAmount");
+        assertEq(lockup.getAsset(vars.streamId), FORK_ASSET, "asset");
+        assertEq(lockup.getCliffTime(vars.streamId), params.timestamps.cliff, "cliffTime");
+        assertEq(lockup.getEndTime(vars.streamId), params.timestamps.end, "endTime");
+        assertEq(lockup.isCancelable(vars.streamId), vars.isCancelable, "isCancelable");
+        assertEq(lockup.isDepleted(vars.streamId), false, "isDepleted");
+        assertEq(lockup.isStream(vars.streamId), true, "isStream");
+        assertEq(lockup.isTransferable(vars.streamId), true, "isTransferable");
+        assertEq(lockup.getRecipient(vars.streamId), params.recipient, "recipient");
+        assertEq(lockup.getSender(vars.streamId), params.sender, "sender");
+        assertEq(lockup.getStartTime(vars.streamId), params.timestamps.start, "startTime");
+        assertEq(lockup.wasCanceled(vars.streamId), false, "wasCanceled");
 
         // Assert that the stream's status is correct.
-        vars.actualStatus = lockupLinear.statusOf(vars.streamId);
+        vars.actualStatus = lockup.statusOf(vars.streamId);
         if (params.timestamps.end <= vars.blockTimestamp) {
             vars.expectedStatus = Lockup.Status.SETTLED;
         } else if (params.timestamps.start > vars.blockTimestamp) {
@@ -217,26 +218,26 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         assertEq(vars.actualStatus, vars.expectedStatus, "post-create stream status");
 
         // Assert that the next stream ID has been bumped.
-        vars.actualNextStreamId = lockupLinear.nextStreamId();
+        vars.actualNextStreamId = lockup.nextStreamId();
         vars.expectedNextStreamId = vars.streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "post-create nextStreamId");
 
         // Assert that the NFT has been minted.
-        vars.actualNFTOwner = lockupLinear.ownerOf({ tokenId: vars.streamId });
+        vars.actualNFTOwner = lockup.ownerOf({ tokenId: vars.streamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "post-create NFT owner");
 
         // Load the post-create asset balances.
         vars.balances = getTokenBalances(
-            address(FORK_ASSET), Solarray.addresses(address(lockupLinear), FORK_ASSET_HOLDER, params.broker.account)
+            address(FORK_ASSET), Solarray.addresses(address(lockup), FORK_ASSET_HOLDER, params.broker.account)
         );
-        vars.actualLockupLinearBalance = vars.balances[0];
+        vars.actualLockupBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];
 
-        // Assert that the LockupLinear contract's balance has been updated.
-        vars.expectedLockupLinearBalance = vars.initialLockupLinearBalance + vars.createAmounts.deposit;
-        assertEq(vars.actualLockupLinearBalance, vars.expectedLockupLinearBalance, "post-create LockupLinear balance");
+        // Assert that the Lockup contract's balance has been updated.
+        vars.expectedLockupBalance = vars.initialLockupBalance + vars.createAmounts.deposit;
+        assertEq(vars.actualLockupBalance, vars.expectedLockupBalance, "post-create Lockup balance");
 
         // Assert that the holder's balance has been updated.
         vars.expectedHolderBalance = initialHolderBalance - params.totalAmount;
@@ -259,37 +260,37 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         vm.warp({ newTimestamp: params.warpTimestamp });
 
         // Bound the withdraw amount.
-        vars.withdrawableAmount = lockupLinear.withdrawableAmountOf(vars.streamId);
+        vars.withdrawableAmount = lockup.withdrawableAmountOf(vars.streamId);
         params.withdrawAmount = boundUint128(params.withdrawAmount, 0, vars.withdrawableAmount);
 
         // Check if the stream has settled or will get depleted. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.
-        vars.isSettled = lockupLinear.refundableAmountOf(vars.streamId) == 0;
+        vars.isSettled = lockup.refundableAmountOf(vars.streamId) == 0;
         vars.isDepleted = params.withdrawAmount == vars.createAmounts.deposit;
 
         // Only run the withdraw tests if the withdraw amount is not zero.
         if (params.withdrawAmount > 0) {
             // Load the pre-withdraw asset balances.
-            vars.initialLockupLinearBalance = vars.actualLockupLinearBalance;
+            vars.initialLockupBalance = vars.actualLockupBalance;
             vars.initialRecipientBalance = FORK_ASSET.balanceOf(params.recipient);
 
             // Expect the relevant events to be emitted.
-            vm.expectEmit({ emitter: address(lockupLinear) });
-            emit ISablierLockup.WithdrawFromLockupStream({
+            vm.expectEmit({ emitter: address(lockup) });
+            emit ISablierLockupBase.WithdrawFromLockupStream({
                 streamId: vars.streamId,
                 to: params.recipient,
                 asset: FORK_ASSET,
                 amount: params.withdrawAmount
             });
-            vm.expectEmit({ emitter: address(lockupLinear) });
+            vm.expectEmit({ emitter: address(lockup) });
             emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
 
             // Make the withdrawal.
             resetPrank({ msgSender: params.recipient });
-            lockupLinear.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
+            lockup.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
 
             // Assert that the stream's status is correct.
-            vars.actualStatus = lockupLinear.statusOf(vars.streamId);
+            vars.actualStatus = lockup.statusOf(vars.streamId);
             if (vars.isDepleted) {
                 vars.expectedStatus = Lockup.Status.DEPLETED;
             } else if (vars.isSettled) {
@@ -300,21 +301,18 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
             assertEq(vars.actualStatus, vars.expectedStatus, "post-withdraw stream status");
 
             // Assert that the withdrawn amount has been updated.
-            vars.actualWithdrawnAmount = lockupLinear.getWithdrawnAmount(vars.streamId);
+            vars.actualWithdrawnAmount = lockup.getWithdrawnAmount(vars.streamId);
             vars.expectedWithdrawnAmount = params.withdrawAmount;
             assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "post-withdraw withdrawnAmount");
 
             // Load the post-withdraw asset balances.
-            vars.balances =
-                getTokenBalances(address(FORK_ASSET), Solarray.addresses(address(lockupLinear), params.recipient));
-            vars.actualLockupLinearBalance = vars.balances[0];
+            vars.balances = getTokenBalances(address(FORK_ASSET), Solarray.addresses(address(lockup), params.recipient));
+            vars.actualLockupBalance = vars.balances[0];
             vars.actualRecipientBalance = vars.balances[1];
 
             // Assert that the contract's balance has been updated.
-            vars.expectedLockupLinearBalance = vars.initialLockupLinearBalance - uint256(params.withdrawAmount);
-            assertEq(
-                vars.actualLockupLinearBalance, vars.expectedLockupLinearBalance, "post-withdraw LockupLinear balance"
-            );
+            vars.expectedLockupBalance = vars.initialLockupBalance - uint256(params.withdrawAmount);
+            assertEq(vars.actualLockupBalance, vars.expectedLockupBalance, "post-withdraw Lockup balance");
 
             // Assert that the Recipient's balance has been updated.
             vars.expectedRecipientBalance = vars.initialRecipientBalance + uint256(params.withdrawAmount);
@@ -329,44 +327,42 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         if (!vars.isDepleted && !vars.isSettled) {
             // Load the pre-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(FORK_ASSET), Solarray.addresses(address(lockupLinear), params.sender, params.recipient)
+                address(FORK_ASSET), Solarray.addresses(address(lockup), params.sender, params.recipient)
             );
-            vars.initialLockupLinearBalance = vars.balances[0];
+            vars.initialLockupBalance = vars.balances[0];
             vars.initialSenderBalance = vars.balances[1];
             vars.initialRecipientBalance = vars.balances[2];
 
             // Expect the relevant events to be emitted.
-            vm.expectEmit({ emitter: address(lockupLinear) });
-            vars.senderAmount = lockupLinear.refundableAmountOf(vars.streamId);
-            vars.recipientAmount = lockupLinear.withdrawableAmountOf(vars.streamId);
-            emit ISablierLockup.CancelLockupStream(
+            vm.expectEmit({ emitter: address(lockup) });
+            vars.senderAmount = lockup.refundableAmountOf(vars.streamId);
+            vars.recipientAmount = lockup.withdrawableAmountOf(vars.streamId);
+            emit ISablierLockupBase.CancelLockupStream(
                 vars.streamId, params.sender, params.recipient, FORK_ASSET, vars.senderAmount, vars.recipientAmount
             );
-            vm.expectEmit({ emitter: address(lockupLinear) });
+            vm.expectEmit({ emitter: address(lockup) });
             emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
 
             // Cancel the stream.
             resetPrank({ msgSender: params.sender });
-            lockupLinear.cancel(vars.streamId);
+            lockup.cancel(vars.streamId);
 
             // Assert that the stream's status is correct.
-            vars.actualStatus = lockupLinear.statusOf(vars.streamId);
+            vars.actualStatus = lockup.statusOf(vars.streamId);
             vars.expectedStatus = vars.recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
             assertEq(vars.actualStatus, vars.expectedStatus, "post-cancel stream status");
 
             // Load the post-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(FORK_ASSET), Solarray.addresses(address(lockupLinear), params.sender, params.recipient)
+                address(FORK_ASSET), Solarray.addresses(address(lockup), params.sender, params.recipient)
             );
-            vars.actualLockupLinearBalance = vars.balances[0];
+            vars.actualLockupBalance = vars.balances[0];
             vars.actualSenderBalance = vars.balances[1];
             vars.actualRecipientBalance = vars.balances[2];
 
             // Assert that the contract's balance has been updated.
-            vars.expectedLockupLinearBalance = vars.initialLockupLinearBalance - uint256(vars.senderAmount);
-            assertEq(
-                vars.actualLockupLinearBalance, vars.expectedLockupLinearBalance, "post-cancel LockupLinear balance"
-            );
+            vars.expectedLockupBalance = vars.initialLockupBalance - uint256(vars.senderAmount);
+            assertEq(vars.actualLockupBalance, vars.expectedLockupBalance, "post-cancel Lockup balance");
 
             // Assert that the Sender's balance has been updated.
             vars.expectedSenderBalance = vars.initialSenderBalance + uint256(vars.senderAmount);
@@ -378,7 +374,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         }
 
         // Assert that the not burned NFT.
-        vars.actualNFTOwner = lockupLinear.ownerOf({ tokenId: vars.streamId });
+        vars.actualNFTOwner = lockup.ownerOf({ tokenId: vars.streamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "post-cancel NFT owner");
     }

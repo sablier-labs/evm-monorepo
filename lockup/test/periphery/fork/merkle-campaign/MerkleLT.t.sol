@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 
-import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
+import { LockupTranched } from "src/core/types/DataTypes.sol";
 import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleBase, ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
 import { MerkleBase } from "src/periphery/types/DataTypes.sol";
@@ -32,14 +32,12 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
     }
 
     struct Vars {
-        LockupTranched.StreamLT actualStream;
         LockupTranched.Tranche[] actualTranches;
         uint256 aggregateAmount;
         uint128[] amounts;
         MerkleBase.ConstructorParams baseParams;
         uint128 clawbackAmount;
         address expectedLT;
-        LockupTranched.StreamLT expectedStream;
         uint256 expectedStreamId;
         uint256[] indexes;
         uint256 leafPos;
@@ -120,7 +118,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         emit ISablierMerkleFactory.CreateMerkleLT({
             merkleLT: ISablierMerkleLT(vars.expectedLT),
             baseParams: vars.baseParams,
-            lockupTranched: lockupTranched,
+            lockup: lockup,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
             streamStartTime: defaults.STREAM_START_TIME_ZERO(),
@@ -133,7 +131,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
 
         vars.merkleLT = merkleFactory.createMerkleLT({
             baseParams: vars.baseParams,
-            lockupTranched: lockupTranched,
+            lockup: lockup,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
             streamStartTime: defaults.STREAM_START_TIME_ZERO(),
@@ -165,7 +163,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         );
         vars.leafPos = Arrays.findUpperBound(leaves, vars.leafToClaim);
 
-        vars.expectedStreamId = lockupTranched.nextStreamId();
+        vars.expectedStreamId = lockup.nextStreamId();
         vm.expectEmit({ emitter: address(vars.merkleLT) });
         emit ISablierMerkleLT.Claim(
             vars.indexes[params.posBeforeSort],
@@ -198,27 +196,32 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
             merkleProof: vars.merkleProof
         });
 
-        vars.actualStream = lockupTranched.getStream(vars.expectedStreamId);
-        vars.expectedStream = LockupTranched.StreamLT({
-            amounts: Lockup.Amounts({ deposited: vars.amounts[params.posBeforeSort], refunded: 0, withdrawn: 0 }),
-            asset: FORK_ASSET,
-            endTime: getBlockTimestamp() + defaults.TOTAL_DURATION(),
-            isCancelable: defaults.CANCELABLE(),
-            isDepleted: false,
-            isStream: true,
-            isTransferable: defaults.TRANSFERABLE(),
-            recipient: vars.recipients[params.posBeforeSort],
-            sender: params.campaignOwner,
-            startTime: getBlockTimestamp(),
-            tranches: defaults.tranchesMerkleLT({
+        // Assert that the stream has been creatUSDT_MerkleLL_Fork_Tested successfully.
+        assertEq(
+            lockup.getDepositedAmount(vars.expectedStreamId), vars.amounts[params.posBeforeSort], "deposited amount"
+        );
+        assertEq(lockup.getRefundedAmount(vars.expectedStreamId), 0, "refunded amount");
+        assertEq(lockup.getWithdrawnAmount(vars.expectedStreamId), 0, "withdrawn amount");
+        assertEq(lockup.getAsset(vars.expectedStreamId), FORK_ASSET, "asset");
+        assertEq(lockup.getEndTime(vars.expectedStreamId), getBlockTimestamp() + defaults.TOTAL_DURATION(), "end time");
+        assertEq(lockup.isCancelable(vars.expectedStreamId), defaults.CANCELABLE(), "is cancelable");
+        assertEq(lockup.isDepleted(vars.expectedStreamId), false, "is depleted");
+        assertEq(lockup.isStream(vars.expectedStreamId), true, "is stream");
+        assertEq(lockup.isTransferable(vars.expectedStreamId), defaults.TRANSFERABLE(), "is transferable");
+        assertEq(lockup.getRecipient(vars.expectedStreamId), vars.recipients[params.posBeforeSort], "recipient");
+        assertEq(lockup.getSender(vars.expectedStreamId), params.campaignOwner, "sender");
+        assertEq(lockup.getStartTime(vars.expectedStreamId), getBlockTimestamp(), "start time");
+        assertEq(lockup.wasCanceled(vars.expectedStreamId), false, "was canceled");
+        assertEq(
+            lockup.getTranches(vars.expectedStreamId),
+            defaults.tranchesMerkleLT({
                 streamStartTime: defaults.STREAM_START_TIME_ZERO(),
                 totalAmount: vars.amounts[params.posBeforeSort]
             }),
-            wasCanceled: false
-        });
+            "tranches"
+        );
 
         assertTrue(vars.merkleLT.hasClaimed(vars.indexes[params.posBeforeSort]));
-        assertEq(vars.actualStream, vars.expectedStream);
 
         /*//////////////////////////////////////////////////////////////////////////
                                         CLAWBACK

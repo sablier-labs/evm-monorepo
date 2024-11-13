@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupLinear } from "src/core/types/DataTypes.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
 
-import { LockupLinear_Integration_Shared_Test } from "./LockupLinear.t.sol";
+import { Lockup_Linear_Integration_Shared_Test } from "./../../shared/lockup/LockupLinear.t.sol";
 
-contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is LockupLinear_Integration_Shared_Test {
+contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_Integration_Shared_Test {
     function testFuzz_WithdrawableAmountOf_CliffTimeInFuture(uint40 timeJump)
         external
         givenNotNull
@@ -13,7 +13,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is LockupLinear
     {
         timeJump = boundUint40(timeJump, 0, defaults.CLIFF_DURATION() - 1);
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
-        uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
+        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -41,17 +41,17 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is LockupLinear
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
-        LockupLinear.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLL();
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
         params.totalAmount = depositAmount;
-        uint256 streamId = lockupLinear.createWithTimestamps(params);
+        uint256 streamId = lockup.createWithTimestampsLL(params, defaults.CLIFF_TIME());
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(streamId);
+        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount =
-            calculateStreamedAmount(defaults.START_TIME(), defaults.END_TIME(), depositAmount);
+            calculateLockupLinearStreamedAmount(defaults.START_TIME(), defaults.END_TIME(), depositAmount);
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -83,9 +83,9 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is LockupLinear
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
-        LockupLinear.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLL();
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
         params.totalAmount = depositAmount;
-        uint256 streamId = lockupLinear.createWithTimestamps(params);
+        uint256 streamId = lockup.createWithTimestampsLL(params, defaults.CLIFF_TIME());
 
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
@@ -93,14 +93,15 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is LockupLinear
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
-        uint128 streamedAmount = calculateStreamedAmount(defaults.START_TIME(), defaults.END_TIME(), depositAmount);
+        uint128 streamedAmount =
+            calculateLockupLinearStreamedAmount(defaults.START_TIME(), defaults.END_TIME(), depositAmount);
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.
-        lockupLinear.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
+        lockup.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(streamId);
+        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount = streamedAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }

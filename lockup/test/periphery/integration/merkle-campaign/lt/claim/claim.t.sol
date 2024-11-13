@@ -3,7 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
 import { Errors } from "src/periphery/libraries/Errors.sol";
 import { MerkleLT } from "src/periphery/types/DataTypes.sol";
@@ -26,7 +25,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         merkleLT = merkleFactory.createMerkleLT(
             defaults.baseParams(),
-            lockupTranched,
+            lockup,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
             defaults.STREAM_START_TIME_ZERO(),
@@ -62,7 +61,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         merkleLT = merkleFactory.createMerkleLT(
             defaults.baseParams(),
-            lockupTranched,
+            lockup,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
             defaults.STREAM_START_TIME_ZERO(),
@@ -97,7 +96,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
     function test_WhenStreamStartTimeNotZero() external whenMerkleProofValid whenTotalPercentage100 {
         merkleLT = merkleFactory.createMerkleLT({
             baseParams: defaults.baseParams(),
-            lockupTranched: lockupTranched,
+            lockup: lockup,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
             streamStartTime: defaults.STREAM_START_TIME_NON_ZERO(),
@@ -119,14 +118,14 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         deal({ token: address(dai), to: address(merkleLT), give: defaults.AGGREGATE_AMOUNT() });
 
-        uint256 expectedStreamId = lockupTranched.nextStreamId();
+        uint256 expectedStreamId = lockup.nextStreamId();
         uint256 previousFeeAccrued = address(merkleLL).balance;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
         emit ISablierMerkleLT.Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
 
-        expectCallToTransferFrom({ from: address(merkleLT), to: address(lockupTranched), value: defaults.CLAIM_AMOUNT() });
+        expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: defaults.CLAIM_AMOUNT() });
         expectCallToClaimWithMsgValue(address(merkleLT), sablierFee);
 
         // Claim the airstream.
@@ -134,24 +133,25 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
             defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), defaults.index1Proof()
         );
 
+        // Assert that the stream has been created successfully.
+        assertEq(lockup.getDepositedAmount(expectedStreamId), defaults.CLAIM_AMOUNT(), "depositedAmount");
+        assertEq(lockup.getAsset(expectedStreamId), dai, "asset");
+        assertEq(lockup.getEndTime(expectedStreamId), startTime + defaults.TOTAL_DURATION(), "end time");
+        assertEq(lockup.isCancelable(expectedStreamId), defaults.CANCELABLE(), "is cancelable");
+        assertEq(lockup.isDepleted(expectedStreamId), false, "is depleted");
+        assertEq(lockup.isStream(expectedStreamId), true, "is stream");
+        assertEq(lockup.isTransferable(expectedStreamId), defaults.TRANSFERABLE(), "is transferable");
+        assertEq(lockup.getRecipient(expectedStreamId), users.recipient1, "recipient");
+        assertEq(lockup.getSender(expectedStreamId), users.campaignOwner, "sender");
+        assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
+        assertEq(lockup.wasCanceled(expectedStreamId), false, "was canceled");
         // It should create a stream with `STREAM_START_TIME` as start time.
-        LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(expectedStreamId);
-        LockupTranched.StreamLT memory expectedStream = LockupTranched.StreamLT({
-            amounts: Lockup.Amounts({ deposited: defaults.CLAIM_AMOUNT(), refunded: 0, withdrawn: 0 }),
-            asset: dai,
-            endTime: startTime + defaults.TOTAL_DURATION(),
-            isCancelable: defaults.CANCELABLE(),
-            isDepleted: false,
-            isStream: true,
-            isTransferable: defaults.TRANSFERABLE(),
-            recipient: users.recipient1,
-            sender: users.campaignOwner,
-            startTime: startTime,
-            tranches: defaults.tranchesMerkleLT({ streamStartTime: streamStartTime, totalAmount: defaults.CLAIM_AMOUNT() }),
-            wasCanceled: false
-        });
+        assertEq(
+            lockup.getTranches(expectedStreamId),
+            defaults.tranchesMerkleLT({ streamStartTime: streamStartTime, totalAmount: defaults.CLAIM_AMOUNT() }),
+            "tranches"
+        );
 
-        assertEq(actualStream, expectedStream);
         assertTrue(merkleLT.hasClaimed(defaults.INDEX1()), "not claimed");
 
         assertEq(address(merkleLT).balance, previousFeeAccrued + defaults.DEFAULT_SABLIER_FEE(), "fee collected");

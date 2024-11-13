@@ -198,7 +198,7 @@ abstract contract MerkleCampaign_Integration_Test is Periphery_Test {
     function createMerkleLL(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLL) {
         return merkleFactory.createMerkleLL({
             baseParams: defaults.baseParams(campaignOwner, dai, expiration, defaults.MERKLE_ROOT()),
-            lockupLinear: lockupLinear,
+            lockup: lockup,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
             schedule: defaults.schedule(),
@@ -278,7 +278,7 @@ abstract contract MerkleCampaign_Integration_Test is Periphery_Test {
     function createMerkleLT(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLT) {
         return merkleFactory.createMerkleLT({
             baseParams: defaults.baseParams(campaignOwner, dai, expiration, defaults.MERKLE_ROOT()),
-            lockupTranched: lockupTranched,
+            lockup: lockup,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
             streamStartTime: defaults.STREAM_START_TIME_ZERO(),

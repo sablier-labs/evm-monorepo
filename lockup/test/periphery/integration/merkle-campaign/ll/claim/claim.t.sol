@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
 import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol";
 import { MerkleLL } from "src/periphery/types/DataTypes.sol";
 
@@ -21,7 +20,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         merkleLL = merkleFactory.createMerkleLL({
             baseParams: defaults.baseParams(),
-            lockupLinear: lockupLinear,
+            lockup: lockup,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
             schedule: schedule,
@@ -45,7 +44,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         merkleLL = merkleFactory.createMerkleLL({
             baseParams: defaults.baseParams(),
-            lockupLinear: lockupLinear,
+            lockup: lockup,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
             schedule: schedule,
@@ -65,14 +64,14 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         uint256 sablierFee = defaults.DEFAULT_SABLIER_FEE();
         deal({ token: address(dai), to: address(merkleLL), give: defaults.AGGREGATE_AMOUNT() });
 
-        uint256 expectedStreamId = lockupLinear.nextStreamId();
+        uint256 expectedStreamId = lockup.nextStreamId();
         uint256 previousFeeAccrued = address(merkleLL).balance;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
         emit ISablierMerkleLL.Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
 
-        expectCallToTransferFrom({ from: address(merkleLL), to: address(lockupLinear), value: defaults.CLAIM_AMOUNT() });
+        expectCallToTransferFrom({ from: address(merkleLL), to: address(lockup), value: defaults.CLAIM_AMOUNT() });
         expectCallToClaimWithMsgValue(address(merkleLL), sablierFee);
 
         // Claim the airstream.
@@ -80,23 +79,20 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
             defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), defaults.index1Proof()
         );
 
-        LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(expectedStreamId);
-        LockupLinear.StreamLL memory expectedStream = LockupLinear.StreamLL({
-            amounts: Lockup.Amounts({ deposited: defaults.CLAIM_AMOUNT(), refunded: 0, withdrawn: 0 }),
-            asset: dai,
-            cliffTime: cliffTime,
-            endTime: startTime + defaults.TOTAL_DURATION(),
-            isCancelable: defaults.CANCELABLE(),
-            isDepleted: false,
-            isStream: true,
-            isTransferable: defaults.TRANSFERABLE(),
-            recipient: users.recipient1,
-            sender: users.campaignOwner,
-            startTime: startTime,
-            wasCanceled: false
-        });
+        // Assert that the stream has been created successfully.
+        assertEq(lockup.getDepositedAmount(expectedStreamId), defaults.CLAIM_AMOUNT(), "depositedAmount");
+        assertEq(lockup.getAsset(expectedStreamId), dai, "asset");
+        assertEq(lockup.getCliffTime(expectedStreamId), cliffTime, "cliff time");
+        assertEq(lockup.getEndTime(expectedStreamId), startTime + defaults.TOTAL_DURATION(), "end time");
+        assertEq(lockup.isCancelable(expectedStreamId), defaults.CANCELABLE(), "is cancelable");
+        assertEq(lockup.isDepleted(expectedStreamId), false, "is depleted");
+        assertEq(lockup.isStream(expectedStreamId), true, "is stream");
+        assertEq(lockup.isTransferable(expectedStreamId), defaults.TRANSFERABLE(), "is transferable");
+        assertEq(lockup.getRecipient(expectedStreamId), users.recipient1, "recipient");
+        assertEq(lockup.getSender(expectedStreamId), users.campaignOwner, "sender");
+        assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
+        assertEq(lockup.wasCanceled(expectedStreamId), false, "was canceled");
 
-        assertEq(actualStream, expectedStream);
         assertTrue(merkleLL.hasClaimed(defaults.INDEX1()), "not claimed");
 
         assertEq(address(merkleLL).balance, previousFeeAccrued + defaults.DEFAULT_SABLIER_FEE(), "fee collected");

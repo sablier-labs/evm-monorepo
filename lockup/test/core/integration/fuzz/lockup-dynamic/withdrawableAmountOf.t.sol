@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupDynamic } from "src/core/types/DataTypes.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
 
-import { LockupDynamic_Integration_Shared_Test } from "./LockupDynamic.t.sol";
+import { Lockup_Dynamic_Integration_Shared_Test } from "./../../shared/lockup/LockupDynamic.t.sol";
 
-contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is LockupDynamic_Integration_Shared_Test {
+contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic_Integration_Shared_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
@@ -18,18 +18,17 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is LockupDynam
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
-        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLD();
-        uint256 streamId = lockupDynamic.createWithTimestamps(params);
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
+        uint256 streamId = lockup.createWithTimestampsLD(params, defaults.segments());
 
         // Simulate the passage of time.
         uint40 blockTimestamp = defaults.START_TIME() + timeJump;
         vm.warp({ newTimestamp: blockTimestamp });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(streamId);
-        uint128 expectedWithdrawableAmount = calculateStreamedAmountForMultipleSegments(
-            defaults.segments(), defaults.START_TIME(), defaults.DEPOSIT_AMOUNT()
-        );
+        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(streamId);
+        uint128 expectedWithdrawableAmount =
+            calculateLockupDynamicStreamedAmount(defaults.segments(), defaults.START_TIME(), defaults.DEPOSIT_AMOUNT());
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -53,9 +52,9 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is LockupDynam
     {
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
-        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLD();
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
         params.totalAmount = defaults.DEPOSIT_AMOUNT();
-        uint256 streamId = lockupDynamic.createWithTimestamps(params);
+        uint256 streamId = lockup.createWithTimestampsLD(params, defaults.segments());
 
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
@@ -63,16 +62,15 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is LockupDynam
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
-        uint128 streamedAmount = calculateStreamedAmountForMultipleSegments(
-            defaults.segments(), defaults.START_TIME(), defaults.DEPOSIT_AMOUNT()
-        );
+        uint128 streamedAmount =
+            calculateLockupDynamicStreamedAmount(defaults.segments(), defaults.START_TIME(), defaults.DEPOSIT_AMOUNT());
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.
-        lockupDynamic.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
+        lockup.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(streamId);
+        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount = streamedAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }

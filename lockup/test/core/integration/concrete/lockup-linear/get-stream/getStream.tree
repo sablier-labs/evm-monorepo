@@ -1,9 +1,0 @@
-GetStream_LockupLinear_Integration_Concrete_Test
-├── given null
-│  └── it should revert
-└── given not null
-   ├── given settled stream
-   │  ├── it should always return stream as non-cancelable
-   │  └── it should return the stream struct
-   └── given not settled stream
-      └── it should return the stream struct

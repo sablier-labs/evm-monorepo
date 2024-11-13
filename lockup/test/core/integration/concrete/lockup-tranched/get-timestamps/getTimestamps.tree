@@ -1,4 +1,4 @@
-GetTimestamps_LockupTranched_Integration_Concrete_Test
+GetTimestamps_Lockup_Tranched_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null

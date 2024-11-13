@@ -2,9 +2,4 @@ MapSymbol_Integration_Concrete_Test
 ├── given unknown NFT contract
 │  └── it should revert
 └── given known NFT contract
-   ├── when LockupDynamic NFT
-   │  └── it should map the ERC-721 symbol to Lockup Dynamic
-   ├── when LockupLinear NFT
-   │  └── it should map the ERC-721 symbol to Lockup Linear
-   └── when LockupTranched NFT
-      └── it should map the ERC-721 symbol to Lockup Linear
+   └── it should map the ERC-721 symbol to Lockup Linear

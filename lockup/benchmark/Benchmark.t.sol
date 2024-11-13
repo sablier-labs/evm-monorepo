@@ -3,7 +3,6 @@ pragma solidity >=0.8.22;
 
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierLockup } from "../src/core/interfaces/ISablierLockup.sol";
 import { Base_Test } from "../test/Base.t.sol";
 
 /// @notice Benchmark contract with common logic needed by all tests.
@@ -23,8 +22,6 @@ abstract contract Benchmark_Test is Base_Test {
 
     /// @dev A variable used to store the content to append to the results file.
     string internal contentToAppend;
-
-    ISablierLockup internal lockup;
 
     uint256[7] internal streamIds = [50, 51, 52, 53, 54, 55, 56];
 
@@ -167,9 +164,9 @@ abstract contract Benchmark_Test is Base_Test {
     /// @dev Internal function to creates a few streams in each Lockup contract.
     function _createFewStreams() internal {
         for (uint128 i = 0; i < 100; ++i) {
-            lockupDynamic.createWithTimestamps(defaults.createWithTimestampsLD());
-            lockupLinear.createWithTimestamps(defaults.createWithTimestampsLL());
-            lockupTranched.createWithTimestamps(defaults.createWithTimestampsLT());
+            lockup.createWithTimestampsLD(defaults.createWithTimestamps(), defaults.segments());
+            lockup.createWithTimestampsLL(defaults.createWithTimestamps(), defaults.CLIFF_TIME());
+            lockup.createWithTimestampsLT(defaults.createWithTimestamps(), defaults.tranches());
         }
     }
 }

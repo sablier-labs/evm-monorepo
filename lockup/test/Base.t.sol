@@ -4,13 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
-import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
-import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
-import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { LockupNFTDescriptor } from "src/core/LockupNFTDescriptor.sol";
-import { SablierLockupDynamic } from "src/core/SablierLockupDynamic.sol";
-import { SablierLockupLinear } from "src/core/SablierLockupLinear.sol";
-import { SablierLockupTranched } from "src/core/SablierLockupTranched.sol";
+import { SablierLockup } from "src/core/SablierLockup.sol";
 import { ISablierBatchLockup } from "src/periphery/interfaces/ISablierBatchLockup.sol";
 import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleInstant } from "src/periphery/interfaces/ISablierMerkleInstant.sol";
@@ -45,9 +41,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     ISablierBatchLockup internal batchLockup;
     ERC20Mock internal dai;
     Defaults internal defaults;
-    ISablierLockupDynamic internal lockupDynamic;
-    ISablierLockupLinear internal lockupLinear;
-    ISablierLockupTranched internal lockupTranched;
+    ISablierLockup internal lockup;
     ISablierMerkleFactory internal merkleFactory;
     ISablierMerkleInstant internal merkleInstant;
     ISablierMerkleLL internal merkleLL;
@@ -107,11 +101,9 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         // Set the variables in Modifiers contract.
         setVariables(defaults, users);
 
-        // Approve `users.operator` to operate over lockups on behalf of the `users.recipient`.
+        // Approve `users.operator` to operate over lockup on behalf of the `users.recipient`.
         resetPrank({ msgSender: users.recipient });
-        lockupDynamic.setApprovalForAll(users.operator, true);
-        lockupLinear.setApprovalForAll(users.operator, true);
-        lockupTranched.setApprovalForAll(users.operator, true);
+        lockup.setApprovalForAll(users.operator, true);
 
         // Set sender as the default caller for the tests.
         resetPrank({ msgSender: users.sender });
@@ -135,14 +127,10 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     function approveProtocol(address from) internal {
         resetPrank({ msgSender: from });
         dai.approve({ spender: address(batchLockup), value: MAX_UINT256 });
-        dai.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
-        dai.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
-        dai.approve({ spender: address(lockupTranched), value: MAX_UINT256 });
+        dai.approve({ spender: address(lockup), value: MAX_UINT256 });
         dai.approve({ spender: address(merkleFactory), value: MAX_UINT256 });
         usdt.approve({ spender: address(batchLockup), value: MAX_UINT256 });
-        usdt.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
-        usdt.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
-        usdt.approve({ spender: address(lockupTranched), value: MAX_UINT256 });
+        usdt.approve({ spender: address(lockup), value: MAX_UINT256 });
         usdt.approve({ spender: address(merkleFactory), value: MAX_UINT256 });
     }
 
@@ -165,19 +153,14 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         if (!isBenchmarkProfile() && !isTestOptimizedProfile()) {
             batchLockup = new SablierBatchLockup();
             nftDescriptor = new LockupNFTDescriptor();
-            lockupDynamic = new SablierLockupDynamic(users.admin, nftDescriptor, defaults.MAX_SEGMENT_COUNT());
-            lockupLinear = new SablierLockupLinear(users.admin, nftDescriptor);
-            lockupTranched = new SablierLockupTranched(users.admin, nftDescriptor, defaults.MAX_TRANCHE_COUNT());
+            lockup = new SablierLockup(users.admin, nftDescriptor, defaults.MAX_COUNT());
             merkleFactory = new SablierMerkleFactory(users.admin);
         } else {
-            (nftDescriptor, lockupDynamic, lockupLinear, lockupTranched, batchLockup, merkleFactory) =
-                deployOptimizedProtocol(users.admin, defaults.MAX_SEGMENT_COUNT(), defaults.MAX_TRANCHE_COUNT());
+            (nftDescriptor, lockup, batchLockup, merkleFactory) =
+                deployOptimizedProtocol(users.admin, defaults.MAX_COUNT());
         }
-
         vm.label({ account: address(batchLockup), newLabel: "BatchLockup" });
-        vm.label({ account: address(lockupDynamic), newLabel: "LockupDynamic" });
-        vm.label({ account: address(lockupLinear), newLabel: "LockupLinear" });
-        vm.label({ account: address(lockupTranched), newLabel: "LockupTranched" });
+        vm.label({ account: address(lockup), newLabel: "Lockup" });
         vm.label({ account: address(merkleFactory), newLabel: "MerkleFactory" });
         vm.label({ account: address(nftDescriptor), newLabel: "NFTDescriptor" });
     }

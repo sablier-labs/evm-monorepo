@@ -1,4 +1,4 @@
-TokenURI_LockupTranched_Integration_Concrete_Test
+TokenURI_Lockup_Tranched_Integration_Concrete_Test
 ├── given NFT not exist
 │  └── it should revert
 └── given NFT exists

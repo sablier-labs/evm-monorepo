@@ -38,9 +38,16 @@
 
 # Compile only the production code and the test mocks with via IR
 [profile.optimized]
+  # https://book.getfoundry.sh/reference/config/solidity-compiler#libraries
+  # TODO: Update addresses once deployed.
+  libraries = [
+    "src/core/libraries/Helpers.sol:Helpers:0x7715bE116061E014Bb721b46Dc78Dd57C91FDF9b",
+    "src/core/libraries/VestingMath.sol:VestingMath:0x26F9d826BDed47Fc472526aE8095B75ac336963C"
+  ]
   out = "out-optimized"
   test = "test/mocks"
   via_ir = true
+
 
 # See "SMTChecker and Formal Verification" in the Solidity docs
 [profile.smt]

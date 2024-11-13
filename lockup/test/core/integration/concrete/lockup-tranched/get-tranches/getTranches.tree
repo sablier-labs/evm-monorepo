@@ -1,4 +1,4 @@
-GetTranches_LockupTranched_Integration_Concrete_Test
+GetTranches_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null

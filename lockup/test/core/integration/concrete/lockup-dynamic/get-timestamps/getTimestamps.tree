@@ -1,4 +1,4 @@
-GetTimestamps_LockupDynamic_Integration_Concrete_Test
+GetTimestamps_Lockup_Dynamic_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null

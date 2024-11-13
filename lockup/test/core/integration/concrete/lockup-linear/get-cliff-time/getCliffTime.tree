@@ -1,4 +1,4 @@
-GetCliffTime_LockupLinear_Integration_Concrete_Test
+GetCliffTime_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null

@@ -32,9 +32,8 @@ contract Defaults is Constants, Merkle {
     uint40 public constant CLIFF_DURATION = 2500 seconds;
     uint128 public constant DEPOSIT_AMOUNT = 10_000e18;
     uint40 public immutable END_TIME;
-    uint256 public constant MAX_SEGMENT_COUNT = 10_000;
+    uint256 public constant MAX_COUNT = 10_000;
     uint40 public immutable MAX_SEGMENT_DURATION;
-    uint256 public constant MAX_TRANCHE_COUNT = 10_000;
     uint128 public constant REFUND_AMOUNT = DEPOSIT_AMOUNT - CLIFF_AMOUNT;
     uint256 public constant SEGMENT_COUNT = 2;
     uint40 public immutable START_TIME;
@@ -86,7 +85,7 @@ contract Defaults is Constants, Merkle {
         CLIFF_TIME = START_TIME + CLIFF_DURATION;
         END_TIME = START_TIME + TOTAL_DURATION;
         EXPIRATION = JULY_1_2024 + 12 weeks;
-        MAX_SEGMENT_DURATION = TOTAL_DURATION / uint40(MAX_SEGMENT_COUNT);
+        MAX_SEGMENT_DURATION = TOTAL_DURATION / uint40(MAX_COUNT);
         WARP_26_PERCENT = START_TIME + CLIFF_DURATION + 100 seconds;
     }
 
@@ -137,67 +136,16 @@ contract Defaults is Constants, Merkle {
         return Lockup.CreateAmounts({ deposit: DEPOSIT_AMOUNT, brokerFee: BROKER_FEE_AMOUNT });
     }
 
-    function lockupDynamicStream() public view returns (LockupDynamic.StreamLD memory) {
-        return LockupDynamic.StreamLD({
-            amounts: lockupAmounts(),
-            asset: asset,
-            endTime: END_TIME,
-            isCancelable: true,
-            isDepleted: false,
-            isStream: true,
-            isTransferable: true,
-            recipient: users.recipient,
-            segments: segments(),
-            sender: users.sender,
-            startTime: START_TIME,
-            wasCanceled: false
-        });
+    function lockupDynamicTimestamps() public view returns (Lockup.Timestamps memory) {
+        return Lockup.Timestamps({ start: START_TIME, cliff: 0, end: END_TIME });
     }
 
-    function lockupDynamicTimestamps() public view returns (LockupDynamic.Timestamps memory) {
-        return LockupDynamic.Timestamps({ start: START_TIME, end: END_TIME });
+    function lockupLinearTimestamps() public view returns (Lockup.Timestamps memory) {
+        return Lockup.Timestamps({ start: START_TIME, cliff: CLIFF_TIME, end: END_TIME });
     }
 
-    function lockupLinearStream() public view returns (LockupLinear.StreamLL memory) {
-        return LockupLinear.StreamLL({
-            amounts: lockupAmounts(),
-            asset: asset,
-            cliffTime: CLIFF_TIME,
-            endTime: END_TIME,
-            isCancelable: true,
-            isTransferable: true,
-            isDepleted: false,
-            isStream: true,
-            recipient: users.recipient,
-            sender: users.sender,
-            startTime: START_TIME,
-            wasCanceled: false
-        });
-    }
-
-    function lockupLinearTimestamps() public view returns (LockupLinear.Timestamps memory) {
-        return LockupLinear.Timestamps({ start: START_TIME, cliff: CLIFF_TIME, end: END_TIME });
-    }
-
-    function lockupTranchedStream() public view returns (LockupTranched.StreamLT memory) {
-        return LockupTranched.StreamLT({
-            amounts: lockupAmounts(),
-            asset: asset,
-            endTime: END_TIME,
-            isCancelable: true,
-            isDepleted: false,
-            isStream: true,
-            isTransferable: true,
-            recipient: users.recipient,
-            sender: users.sender,
-            startTime: START_TIME,
-            tranches: tranches(),
-            wasCanceled: false
-        });
-    }
-
-    function lockupTranchedTimestamps() public view returns (LockupTranched.Timestamps memory) {
-        return LockupTranched.Timestamps({ start: START_TIME, end: END_TIME });
+    function lockupTranchedTimestamps() public view returns (Lockup.Timestamps memory) {
+        return Lockup.Timestamps({ start: START_TIME, cliff: 0, end: END_TIME });
     }
 
     function segments() public view returns (LockupDynamic.Segment[] memory segments_) {
@@ -255,68 +203,26 @@ contract Defaults is Constants, Merkle {
                                    CREATE-PARAMS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createWithDurationsLD() public view returns (LockupDynamic.CreateWithDurations memory) {
-        return LockupDynamic.CreateWithDurations({
+    function createWithDurations() public view returns (Lockup.CreateWithDurations memory) {
+        return Lockup.CreateWithDurations({
             sender: users.sender,
             recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
             asset: asset,
             cancelable: true,
             transferable: true,
-            segments: segmentsWithDurations(),
             broker: broker()
         });
     }
 
-    function createWithDurationsBrokerNullLD() public view returns (LockupDynamic.CreateWithDurations memory) {
-        LockupDynamic.CreateWithDurations memory params = createWithDurationsLD();
-        params.totalAmount = DEPOSIT_AMOUNT;
-        params.broker = brokerNull();
-        return params;
+    function createWithDurationsBrokerNull() public view returns (Lockup.CreateWithDurations memory params_) {
+        params_ = createWithDurations();
+        params_.totalAmount = DEPOSIT_AMOUNT;
+        params_.broker = brokerNull();
     }
 
-    function createWithDurationsLL() public view returns (LockupLinear.CreateWithDurations memory) {
-        return LockupLinear.CreateWithDurations({
-            sender: users.sender,
-            recipient: users.recipient,
-            totalAmount: TOTAL_AMOUNT,
-            asset: asset,
-            cancelable: true,
-            transferable: true,
-            durations: durations(),
-            broker: broker()
-        });
-    }
-
-    function createWithDurationsBrokerNullLL() public view returns (LockupLinear.CreateWithDurations memory) {
-        LockupLinear.CreateWithDurations memory params = createWithDurationsLL();
-        params.totalAmount = DEPOSIT_AMOUNT;
-        params.broker = brokerNull();
-        return params;
-    }
-
-    function createWithDurationsLT() public view returns (LockupTranched.CreateWithDurations memory) {
-        return LockupTranched.CreateWithDurations({
-            sender: users.sender,
-            recipient: users.recipient,
-            totalAmount: TOTAL_AMOUNT,
-            asset: asset,
-            cancelable: true,
-            transferable: true,
-            tranches: tranchesWithDurations(),
-            broker: broker()
-        });
-    }
-
-    function createWithDurationsBrokerNullLT() public view returns (LockupTranched.CreateWithDurations memory) {
-        LockupTranched.CreateWithDurations memory params = createWithDurationsLT();
-        params.totalAmount = DEPOSIT_AMOUNT;
-        params.broker = brokerNull();
-        return params;
-    }
-
-    function createWithTimestampsLD() public view returns (LockupDynamic.CreateWithTimestamps memory) {
-        return LockupDynamic.CreateWithTimestamps({
+    function createWithTimestamps() public view returns (Lockup.CreateWithTimestamps memory) {
+        return Lockup.CreateWithTimestamps({
             sender: users.sender,
             recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
@@ -324,57 +230,15 @@ contract Defaults is Constants, Merkle {
             cancelable: true,
             transferable: true,
             startTime: START_TIME,
-            segments: segments(),
+            endTime: END_TIME,
             broker: broker()
         });
     }
 
-    function createWithTimestampsBrokerNullLD() public view returns (LockupDynamic.CreateWithTimestamps memory) {
-        LockupDynamic.CreateWithTimestamps memory params = createWithTimestampsLD();
-        params.totalAmount = DEPOSIT_AMOUNT;
-        params.broker = brokerNull();
-        return params;
-    }
-
-    function createWithTimestampsLL() public view returns (LockupLinear.CreateWithTimestamps memory) {
-        return LockupLinear.CreateWithTimestamps({
-            sender: users.sender,
-            recipient: users.recipient,
-            totalAmount: TOTAL_AMOUNT,
-            asset: asset,
-            cancelable: true,
-            transferable: true,
-            timestamps: lockupLinearTimestamps(),
-            broker: broker()
-        });
-    }
-
-    function createWithTimestampsBrokerNullLL() public view returns (LockupLinear.CreateWithTimestamps memory) {
-        LockupLinear.CreateWithTimestamps memory params = createWithTimestampsLL();
-        params.totalAmount = DEPOSIT_AMOUNT;
-        params.broker = brokerNull();
-        return params;
-    }
-
-    function createWithTimestampsLT() public view returns (LockupTranched.CreateWithTimestamps memory) {
-        return LockupTranched.CreateWithTimestamps({
-            sender: users.sender,
-            recipient: users.recipient,
-            totalAmount: TOTAL_AMOUNT,
-            asset: asset,
-            cancelable: true,
-            transferable: true,
-            startTime: START_TIME,
-            tranches: tranches(),
-            broker: broker()
-        });
-    }
-
-    function createWithTimestampsBrokerNullLT() public view returns (LockupTranched.CreateWithTimestamps memory) {
-        LockupTranched.CreateWithTimestamps memory params = createWithTimestampsLT();
-        params.totalAmount = DEPOSIT_AMOUNT;
-        params.broker = brokerNull();
-        return params;
+    function createWithTimestampsBrokerNull() public view returns (Lockup.CreateWithTimestamps memory params_) {
+        params_ = createWithTimestamps();
+        params_.totalAmount = DEPOSIT_AMOUNT;
+        params_.broker = brokerNull();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -387,17 +251,17 @@ contract Defaults is Constants, Merkle {
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithDurationsLD} parameters.
     function batchCreateWithDurationsLD() public view returns (BatchLockup.CreateWithDurationsLD[] memory batch) {
-        batch = BatchLockupBuilder.fillBatch(createWithDurationsBrokerNullLD(), BATCH_SIZE);
+        batch = BatchLockupBuilder.fillBatch(createWithDurationsBrokerNull(), segmentsWithDurations(), BATCH_SIZE);
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithDurationsLL} parameters.
     function batchCreateWithDurationsLL() public view returns (BatchLockup.CreateWithDurationsLL[] memory batch) {
-        batch = BatchLockupBuilder.fillBatch(createWithDurationsBrokerNullLL(), BATCH_SIZE);
+        batch = BatchLockupBuilder.fillBatch(createWithDurationsBrokerNull(), durations(), BATCH_SIZE);
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithDurationsLT} parameters.
     function batchCreateWithDurationsLT() public view returns (BatchLockup.CreateWithDurationsLT[] memory batch) {
-        batch = BatchLockupBuilder.fillBatch(createWithDurationsBrokerNullLT(), BATCH_SIZE);
+        batch = BatchLockupBuilder.fillBatch(createWithDurationsBrokerNull(), tranchesWithDurations(), BATCH_SIZE);
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithTimestampsLD} parameters.
@@ -411,7 +275,7 @@ contract Defaults is Constants, Merkle {
         view
         returns (BatchLockup.CreateWithTimestampsLD[] memory batch)
     {
-        batch = BatchLockupBuilder.fillBatch(createWithTimestampsBrokerNullLD(), batchSize);
+        batch = BatchLockupBuilder.fillBatch(createWithTimestampsBrokerNull(), segments(), batchSize);
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithTimestampsLL} parameters.
@@ -425,7 +289,7 @@ contract Defaults is Constants, Merkle {
         view
         returns (BatchLockup.CreateWithTimestampsLL[] memory batch)
     {
-        batch = BatchLockupBuilder.fillBatch(createWithTimestampsBrokerNullLL(), batchSize);
+        batch = BatchLockupBuilder.fillBatch(createWithTimestampsBrokerNull(), CLIFF_TIME, batchSize);
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithTimestampsLT} parameters.
@@ -439,7 +303,7 @@ contract Defaults is Constants, Merkle {
         view
         returns (BatchLockup.CreateWithTimestampsLT[] memory batch)
     {
-        batch = BatchLockupBuilder.fillBatch(createWithTimestampsBrokerNullLT(), batchSize);
+        batch = BatchLockupBuilder.fillBatch(createWithTimestampsBrokerNull(), tranches(), batchSize);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

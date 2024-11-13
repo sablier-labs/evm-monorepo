@@ -4,8 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { console2 } from "forge-std/src/console2.sol";
 import { Test } from "forge-std/src/Test.sol";
 
-import { LockupDynamic_Gas_Test } from "./LockupDynamic.Gas.t.sol";
-import { LockupTranched_Gas_Test } from "./LockupTranched.Gas.t.sol";
+import { Lockup_Dynamic_Gas_Test } from "./LockupDynamic.Gas.t.sol";
+import { Lockup_Tranched_Gas_Test } from "./LockupTranched.Gas.t.sol";
 
 /// @notice Structure to group the block gas limit and chain id.
 struct ChainInfo {
@@ -39,7 +39,7 @@ contract EstimateMaxCount is Test {
 
     /// @notice Estimate the maximum number of segments allowed in LockupDynamic.
     function test_EstimateSegments() public {
-        LockupDynamic_Gas_Test lockupDynamicGasTest = new LockupDynamic_Gas_Test();
+        Lockup_Dynamic_Gas_Test lockupDynamicGasTest = new Lockup_Dynamic_Gas_Test();
         lockupDynamicGasTest.setUp();
 
         for (uint256 i = 0; i < chains.length; ++i) {
@@ -56,7 +56,7 @@ contract EstimateMaxCount is Test {
                 lastGasConsumed = gasConsumed;
 
                 // Estimate the gas consumed by adding 10 segments.
-                gasConsumed = lockupDynamicGasTest.computeGas_CreateWithDurations(count + 10);
+                gasConsumed = lockupDynamicGasTest.computeGas_CreateWithDurationsLD(count + 10);
             }
 
             console2.log("count: %d and gasUsed: %d and chainId: %d", count, lastGasConsumed, chains[i].chainId);
@@ -65,7 +65,7 @@ contract EstimateMaxCount is Test {
 
     /// @notice Estimate the maximum number of tranches allowed in LockupTranched.
     function test_EstimateTranches() public {
-        LockupTranched_Gas_Test lockupTranchedGasTest = new LockupTranched_Gas_Test();
+        Lockup_Tranched_Gas_Test lockupTranchedGasTest = new Lockup_Tranched_Gas_Test();
         lockupTranchedGasTest.setUp();
 
         for (uint256 i = 0; i < chains.length; ++i) {
@@ -82,7 +82,7 @@ contract EstimateMaxCount is Test {
                 lastGasConsumed = gasConsumed;
 
                 // Estimate the gas consumed by adding 10 tranches.
-                gasConsumed = lockupTranchedGasTest.computeGas_CreateWithDurations(count + 10);
+                gasConsumed = lockupTranchedGasTest.computeGas_CreateWithDurationsLT(count + 10);
             }
 
             console2.log("count: %d and gasUsed: %d and chainId: %d", count, lastGasConsumed, chains[i].chainId);

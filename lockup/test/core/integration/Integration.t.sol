@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
-import { Broker } from "src/core/types/DataTypes.sol";
 
 import { Base_Test } from "../../Base.t.sol";
 import {
@@ -22,16 +18,40 @@ abstract contract Integration_Test is Base_Test {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
+    // Various stream IDs to be used across the tests.
+    // An array of stream IDs to be canceled.
+    uint256[] internal cancelMultipleStreamIds;
+    // Default stream ID.
     uint256 internal defaultStreamId;
+    // A stream ID with a different sender and recipient.
+    uint256 internal differentSenderRecipientStreamId;
+    // A stream ID with an early end time.
+    uint256 internal earlyEndtimeStreamId;
+    // A stream ID with the same sender and recipient.
+    uint256 internal identicalSenderRecipientStreamId;
+    // A non-cancelable stream ID.
+    uint256 internal notCancelableStreamId;
+    // A non-transferable stream ID.
     uint256 internal notTransferableStreamId;
+    // A stream ID that does not exist.
+    uint256 internal nullStreamId = 1729;
+    // A stream with a recipient contract that implements {ISablierLockupRecipient}.
+    uint256 internal recipientGoodStreamId;
+    // A stream with a recipient contract that returns invalid selector bytes on the hook call.
+    uint256 internal recipientInvalidSelectorStreamId;
+    // A stream with a reentrant contract as the recipient.
+    uint256 internal recipientReentrantStreamId;
+    // Astream with a reverting contract as the stream's recipient.
+    uint256 internal recipientRevertStreamId;
+    // An array of stream IDs to be withdrawn from.
+    uint256[] internal withdrawMultipleStreamIds;
+
+    // An array of amounts to be used in `withdrawMultiple` tests.
+    uint128[] internal withdrawAmounts;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev A test contract that is meant to be overridden by the implementing contract, which will be
-    /// either {SablierLockupDynamic}, {SablierLockupLinear} or {SablierLockupTranched}.
-    ISablierLockup internal lockup;
 
     RecipientInterfaceIDIncorrect internal recipientInterfaceIDIncorrect;
     RecipientInterfaceIDMissing internal recipientInterfaceIDMissing;
@@ -56,6 +76,10 @@ abstract contract Integration_Test is Base_Test {
         vm.label({ account: address(recipientInvalidSelector), newLabel: "Recipient Invalid Selector" });
         vm.label({ account: address(recipientReentrant), newLabel: "Recipient Reentrant" });
         vm.label({ account: address(recipientReverting), newLabel: "Recipient Reverting" });
+
+        withdrawAmounts.push(defaults.WITHDRAW_AMOUNT());
+        withdrawAmounts.push(defaults.DEPOSIT_AMOUNT());
+        withdrawAmounts.push(defaults.WITHDRAW_AMOUNT() / 2);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -67,52 +91,4 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "delegatecall success");
         assertEq(returnData, abi.encodeWithSelector(Errors.DelegateCall.selector), "delegatecall return data");
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                      HELPERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Creates the default stream.
-    function createDefaultStream() internal virtual returns (uint256 streamId);
-
-    /// @dev Creates the default stream but make it not cancelable.
-    function createDefaultStreamNotCancelable() internal virtual returns (uint256 streamId);
-
-    /// @dev Creates the default stream with the NFT transfer disabled.
-    function createDefaultStreamNotTransferable() internal virtual returns (uint256 streamId);
-
-    /// @dev Creates the default stream with the provided address.
-    function createDefaultStreamWithAsset(IERC20 asset) internal virtual returns (uint256 streamId);
-
-    /// @dev Creates the default stream with the provided broker.
-    function createDefaultStreamWithBroker(Broker memory broker) internal virtual returns (uint256 streamId);
-
-    /// @dev Creates the default stream with the provided end time.
-    function createDefaultStreamWithEndTime(uint40 endTime) internal virtual returns (uint256 streamId);
-
-    /// @dev Creates the default stream with the provided user as the recipient and the sender.
-    function createDefaultStreamWithIdenticalUsers(address user) internal returns (uint256 streamId) {
-        return createDefaultStreamWithUsers({ recipient: user, sender: user });
-    }
-
-    /// @dev Creates the default stream with the provided recipient.
-    function createDefaultStreamWithRecipient(address recipient) internal virtual returns (uint256 streamId);
-
-    /// @dev Creates the default stream with the provided sender.
-    function createDefaultStreamWithSender(address sender) internal virtual returns (uint256 streamId);
-
-    /// @dev Creates the default stream with the provided start time.
-    function createDefaultStreamWithStartTime(uint40 startTime) internal virtual returns (uint256 streamId);
-
-    /// @dev Creates the default stream with the provided total amount.
-    function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal virtual returns (uint256 streamId);
-
-    /// @dev Creates the default stream with the provided sender and recipient.
-    function createDefaultStreamWithUsers(
-        address recipient,
-        address sender
-    )
-        internal
-        virtual
-        returns (uint256 streamId);
 }

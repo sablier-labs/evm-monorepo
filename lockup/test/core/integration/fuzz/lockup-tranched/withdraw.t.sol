@@ -2,22 +2,21 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
-
-import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
+import { ISablierLockupBase } from "src/core/interfaces/ISablierLockupBase.sol";
 import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
-
-import { Withdraw_Integration_Fuzz_Test, Integration_Test } from "../lockup/withdraw.t.sol";
-import { LockupTranched_Integration_Shared_Test } from "./LockupTranched.t.sol";
+import { Integration_Test } from "./../../Integration.t.sol";
+import { Lockup_Tranched_Integration_Shared_Test } from "./../../shared/lockup/LockupTranched.t.sol";
+import { Withdraw_Integration_Fuzz_Test } from "./../lockup-base/withdraw.t.sol";
 
 /// @dev This contract complements the tests in {Withdraw_Integration_Fuzz_Test} by testing the withdraw function
 /// against
 /// streams created with fuzzed tranches.
-contract Withdraw_LockupTranched_Integration_Fuzz_Test is
-    LockupTranched_Integration_Shared_Test,
-    Withdraw_Integration_Fuzz_Test
+contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
+    Withdraw_Integration_Fuzz_Test,
+    Lockup_Tranched_Integration_Shared_Test
 {
-    function setUp() public virtual override(LockupTranched_Integration_Shared_Test, Integration_Test) {
-        LockupTranched_Integration_Shared_Test.setUp();
+    function setUp() public virtual override(Lockup_Tranched_Integration_Shared_Test, Integration_Test) {
+        Lockup_Tranched_Integration_Shared_Test.setUp();
     }
 
     struct Params {
@@ -74,17 +73,17 @@ contract Withdraw_LockupTranched_Integration_Fuzz_Test is
         resetPrank({ msgSender: users.sender });
 
         // Create the stream with the fuzzed tranches.
-        LockupTranched.CreateWithTimestamps memory createParams = defaults.createWithTimestampsLT();
+        Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestamps();
         createParams.totalAmount = vars.totalAmount;
-        createParams.tranches = params.tranches;
+        createParams.endTime = params.tranches[params.tranches.length - 1].timestamp;
 
-        vars.streamId = lockupTranched.createWithTimestamps(createParams);
+        vars.streamId = lockup.createWithTimestampsLT(createParams, params.tranches);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + params.timeJump });
 
         // Query the withdrawable amount.
-        vars.withdrawableAmount = lockupTranched.withdrawableAmountOf(vars.streamId);
+        vars.withdrawableAmount = lockup.withdrawableAmountOf(vars.streamId);
 
         // Halt the test if the withdraw amount is zero.
         if (vars.withdrawableAmount == 0) {
@@ -101,26 +100,26 @@ contract Withdraw_LockupTranched_Integration_Fuzz_Test is
         expectCallToTransfer({ to: params.to, value: vars.withdrawAmount });
 
         // Expect the relevant events to be emitted.
-        vm.expectEmit({ emitter: address(lockupTranched) });
-        emit ISablierLockup.WithdrawFromLockupStream({
+        vm.expectEmit({ emitter: address(lockup) });
+        emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: vars.streamId,
             to: params.to,
             asset: dai,
             amount: vars.withdrawAmount
         });
-        vm.expectEmit({ emitter: address(lockupTranched) });
+        vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
 
         // Make the withdrawal.
-        lockupTranched.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
+        lockup.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
 
         // Check if the stream is depleted or settled. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.
         vars.isDepleted = vars.withdrawAmount == vars.createAmounts.deposit;
-        vars.isSettled = lockupTranched.refundableAmountOf(vars.streamId) == 0;
+        vars.isSettled = lockup.refundableAmountOf(vars.streamId) == 0;
 
         // Assert that the stream's status is correct.
-        vars.actualStatus = lockupTranched.statusOf(vars.streamId);
+        vars.actualStatus = lockup.statusOf(vars.streamId);
         if (vars.isDepleted) {
             vars.expectedStatus = Lockup.Status.DEPLETED;
         } else if (vars.isSettled) {
@@ -131,7 +130,7 @@ contract Withdraw_LockupTranched_Integration_Fuzz_Test is
         assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the withdrawn amount has been updated.
-        vars.actualWithdrawnAmount = lockupTranched.getWithdrawnAmount(vars.streamId);
+        vars.actualWithdrawnAmount = lockup.getWithdrawnAmount(vars.streamId);
         vars.expectedWithdrawnAmount = vars.withdrawAmount;
         assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "withdrawnAmount");
     }

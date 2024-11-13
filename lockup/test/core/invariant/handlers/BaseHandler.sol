@@ -3,11 +3,12 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 
 import { Constants } from "../../../utils/Constants.sol";
 import { Fuzzers } from "../../../utils/Fuzzers.sol";
 
-/// @notice Base contract with common logic needed by all handler contracts.
+/// @notice Base contract with common logic needed by {LockupHandler} and {LockupCreateHandler} contracts.
 abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                     STATE-VARIABLES
@@ -22,6 +23,8 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
     /// @dev The total number of calls made to this contract.
     uint256 public totalCalls;
 
+    ISablierLockup public lockup;
+
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -33,8 +36,9 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_) {
+    constructor(IERC20 asset_, ISablierLockup lockup_) {
         asset = asset_;
+        lockup = lockup_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -16,7 +16,7 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         uint40 actualExpiration;
         address actualFactory;
         string actualIpfsCID;
-        address actualLockupLinear;
+        address actualLockup;
         bytes32 actualMerkleRoot;
         string actualName;
         uint256 actualSablierFee;
@@ -29,7 +29,7 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         uint40 expectedExpiration;
         address expectedFactory;
         string expectedIpfsCID;
-        address expectedLockupLinear;
+        address expectedLockup;
         bytes32 expectedMerkleRoot;
         bytes32 expectedName;
         uint256 expectedSablierFee;
@@ -43,7 +43,7 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
 
         SablierMerkleLL constructedLL = new SablierMerkleLL(
             defaults.baseParams(),
-            lockupLinear,
+            lockup,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
             defaults.schedule(),
@@ -56,7 +56,7 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         vars.expectedAdmin = users.campaignOwner;
         assertEq(vars.actualAdmin, vars.expectedAdmin, "admin");
 
-        vars.actualAllowance = dai.allowance(address(constructedLL), address(lockupLinear));
+        vars.actualAllowance = dai.allowance(address(constructedLL), address(lockup));
         vars.expectedAllowance = MAX_UINT256;
         assertEq(vars.actualAllowance, vars.expectedAllowance, "allowance");
 
@@ -80,9 +80,9 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         vars.expectedIpfsCID = defaults.IPFS_CID();
         assertEq(vars.actualIpfsCID, vars.expectedIpfsCID, "ipfsCID");
 
-        vars.actualLockupLinear = address(constructedLL.LOCKUP_LINEAR());
-        vars.expectedLockupLinear = address(lockupLinear);
-        assertEq(vars.actualLockupLinear, vars.expectedLockupLinear, "lockupLinear");
+        vars.actualLockup = address(constructedLL.LOCKUP());
+        vars.expectedLockup = address(lockup);
+        assertEq(vars.actualLockup, vars.expectedLockup, "lockup");
 
         vars.actualMerkleRoot = constructedLL.MERKLE_ROOT();
         vars.expectedMerkleRoot = defaults.MERKLE_ROOT();

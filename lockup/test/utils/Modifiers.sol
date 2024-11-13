@@ -83,6 +83,10 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
+    modifier whenCallerAuthorizedForAllStreams() virtual {
+        _;
+    }
+
     modifier whenCallerRecipient() {
         resetPrank({ msgSender: users.recipient });
         _;

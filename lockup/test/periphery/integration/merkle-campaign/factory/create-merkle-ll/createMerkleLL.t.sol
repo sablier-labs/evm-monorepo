@@ -27,7 +27,7 @@ contract CreateMerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
 
         merkleFactory.createMerkleLL({
             baseParams: baseParams,
-            lockupLinear: lockupLinear,
+            lockup: lockup,
             cancelable: cancelable,
             transferable: transferable,
             schedule: schedule,
@@ -49,7 +49,7 @@ contract CreateMerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
         vm.expectRevert();
         merkleFactory.createMerkleLL({
             baseParams: baseParams,
-            lockupLinear: lockupLinear,
+            lockup: lockup,
             cancelable: cancelable,
             transferable: transferable,
             schedule: schedule,
@@ -86,7 +86,7 @@ contract CreateMerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
         emit ISablierMerkleFactory.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
             baseParams: baseParams,
-            lockupLinear: lockupLinear,
+            lockup: lockup,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
             schedule: defaults.schedule(),
@@ -128,7 +128,7 @@ contract CreateMerkleLL_Integration_Test is MerkleCampaign_Integration_Test {
         emit ISablierMerkleFactory.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
             baseParams: baseParams,
-            lockupLinear: lockupLinear,
+            lockup: lockup,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
             schedule: defaults.schedule(),

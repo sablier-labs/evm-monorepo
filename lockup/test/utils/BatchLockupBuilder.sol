@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
 
 import { BatchLockup } from "src/periphery/types/DataTypes.sol";
 
@@ -21,9 +21,10 @@ library BatchLockupBuilder {
         }
     }
 
-    /// @notice Turns the `params` into an array of {BatchLockup.CreateWithDurationsLD} structs.
+    /// @notice Turns the inputs into an array of {BatchLockup.CreateWithDurationsLD} structs.
     function fillBatch(
-        LockupDynamic.CreateWithDurations memory params,
+        Lockup.CreateWithDurations memory params,
+        LockupDynamic.SegmentWithDuration[] memory segments,
         uint256 batchSize
     )
         internal
@@ -37,7 +38,7 @@ library BatchLockupBuilder {
             totalAmount: params.totalAmount,
             cancelable: params.cancelable,
             transferable: params.transferable,
-            segments: params.segments,
+            segments: segments,
             broker: params.broker
         });
         batch = fillBatch(batchSingle, batchSize);
@@ -58,9 +59,10 @@ library BatchLockupBuilder {
         }
     }
 
-    /// @notice Turns the `params` into an array of {BatchLockup.CreateWithDurationsLL} structs.
+    /// @notice Turns the inputs into an array of {BatchLockup.CreateWithDurationsLL} structs.
     function fillBatch(
-        LockupLinear.CreateWithDurations memory params,
+        Lockup.CreateWithDurations memory params,
+        LockupLinear.Durations memory durations,
         uint256 batchSize
     )
         internal
@@ -74,7 +76,7 @@ library BatchLockupBuilder {
             totalAmount: params.totalAmount,
             cancelable: params.cancelable,
             transferable: params.transferable,
-            durations: params.durations,
+            durations: durations,
             broker: params.broker
         });
         batch = fillBatch(batchSingle, batchSize);
@@ -95,9 +97,10 @@ library BatchLockupBuilder {
         }
     }
 
-    /// @notice Turns the `params` into an array of {BatchLockup.CreateWithDurationsLT} structs.
+    /// @notice Turns the inputs into an array of {BatchLockup.CreateWithDurationsLT} structs.
     function fillBatch(
-        LockupTranched.CreateWithDurations memory params,
+        Lockup.CreateWithDurations memory params,
+        LockupTranched.TrancheWithDuration[] memory tranches,
         uint256 batchSize
     )
         internal
@@ -111,7 +114,7 @@ library BatchLockupBuilder {
             totalAmount: params.totalAmount,
             cancelable: params.cancelable,
             transferable: params.transferable,
-            tranches: params.tranches,
+            tranches: tranches,
             broker: params.broker
         });
         batch = fillBatch(batchSingle, batchSize);
@@ -132,9 +135,10 @@ library BatchLockupBuilder {
         }
     }
 
-    /// @notice Turns the `params` into an array of {BatchLockup.CreateWithTimestampsLDs} structs.
+    /// @notice Turns the inputs into an array of {BatchLockup.CreateWithTimestampsLDs} structs.
     function fillBatch(
-        LockupDynamic.CreateWithTimestamps memory params,
+        Lockup.CreateWithTimestamps memory params,
+        LockupDynamic.Segment[] memory segments,
         uint256 batchSize
     )
         internal
@@ -149,7 +153,7 @@ library BatchLockupBuilder {
             cancelable: params.cancelable,
             transferable: params.transferable,
             startTime: params.startTime,
-            segments: params.segments,
+            segments: segments,
             broker: params.broker
         });
         batch = fillBatch(batchSingle, batchSize);
@@ -170,9 +174,10 @@ library BatchLockupBuilder {
         }
     }
 
-    /// @notice Turns the `params` into an array of {BatchLockup.CreateWithTimestampsLL} structs.
+    /// @notice Turns the inputs into an array of {BatchLockup.CreateWithTimestampsLL} structs.
     function fillBatch(
-        LockupLinear.CreateWithTimestamps memory params,
+        Lockup.CreateWithTimestamps memory params,
+        uint40 cliff,
         uint256 batchSize
     )
         internal
@@ -186,7 +191,7 @@ library BatchLockupBuilder {
             totalAmount: params.totalAmount,
             cancelable: params.cancelable,
             transferable: params.transferable,
-            timestamps: params.timestamps,
+            timestamps: Lockup.Timestamps({ start: params.startTime, cliff: cliff, end: params.endTime }),
             broker: params.broker
         });
         batch = fillBatch(batchSingle, batchSize);
@@ -207,9 +212,10 @@ library BatchLockupBuilder {
         }
     }
 
-    /// @notice Turns the `params` into an array of {BatchLockup.CreateWithTimestampsLT} structs.
+    /// @notice Turns the inputs into an array of {BatchLockup.CreateWithTimestampsLT} structs.
     function fillBatch(
-        LockupTranched.CreateWithTimestamps memory params,
+        Lockup.CreateWithTimestamps memory params,
+        LockupTranched.Tranche[] memory tranches,
         uint256 batchSize
     )
         internal
@@ -224,7 +230,7 @@ library BatchLockupBuilder {
             cancelable: params.cancelable,
             transferable: params.transferable,
             startTime: params.startTime,
-            tranches: params.tranches,
+            tranches: tranches,
             broker: params.broker
         });
         batch = fillBatch(batchSingle, batchSize);

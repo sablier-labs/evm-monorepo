@@ -15,7 +15,7 @@ contract CreateWithDurationsLL_Integration_Test is Periphery_Test {
     function test_RevertWhen_BatchSizeZero() external {
         BatchLockup.CreateWithDurationsLL[] memory batchParams = new BatchLockup.CreateWithDurationsLL[](0);
         vm.expectRevert(Errors.SablierBatchLockup_BatchSizeZero.selector);
-        batchLockup.createWithDurationsLL(lockupLinear, dai, batchParams);
+        batchLockup.createWithDurationsLL(lockup, dai, batchParams);
     }
 
     function test_WhenBatchSizeNotZero() external {
@@ -26,20 +26,22 @@ contract CreateWithDurationsLL_Integration_Test is Periphery_Test {
             to: address(batchLockup),
             value: defaults.TOTAL_TRANSFER_AMOUNT()
         });
+
         expectMultipleCallsToCreateWithDurationsLL({
             count: defaults.BATCH_SIZE(),
-            params: defaults.createWithDurationsBrokerNullLL()
+            params: defaults.createWithDurationsBrokerNull(),
+            durations: defaults.durations()
         });
         expectMultipleCallsToTransferFrom({
             count: defaults.BATCH_SIZE(),
             from: address(batchLockup),
-            to: address(lockupLinear),
+            to: address(lockup),
             value: defaults.DEPOSIT_AMOUNT()
         });
 
         // Assert that the batch of streams has been created successfully.
         uint256[] memory actualStreamIds =
-            batchLockup.createWithDurationsLL(lockupLinear, dai, defaults.batchCreateWithDurationsLL());
+            batchLockup.createWithDurationsLL(lockup, dai, defaults.batchCreateWithDurationsLL());
         uint256[] memory expectedStreamIds = defaults.incrementalStreamIds();
         assertEq(actualStreamIds, expectedStreamIds, "stream ids mismatch");
     }

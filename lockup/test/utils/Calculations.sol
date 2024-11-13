@@ -18,30 +18,8 @@ abstract contract Calculations {
         return totalAmount - brokerFeeAmount;
     }
 
-    /// @dev Helper function that replicates the logic of {SablierLockupLinear.streamedAmountOf}.
-    function calculateStreamedAmount(
-        uint40 startTime,
-        uint40 endTime,
-        uint128 depositAmount
-    )
-        internal
-        view
-        returns (uint128)
-    {
-        uint40 blockTimestamp = uint40(block.timestamp);
-        if (blockTimestamp >= endTime) {
-            return depositAmount;
-        }
-        unchecked {
-            UD60x18 elapsedTime = ud(blockTimestamp - startTime);
-            UD60x18 totalDuration = ud(endTime - startTime);
-            UD60x18 elapsedTimePercentage = elapsedTime.div(totalDuration);
-            return elapsedTimePercentage.mul(ud(depositAmount)).intoUint128();
-        }
-    }
-
-    /// @dev Replicates the logic of {SablierLockupDynamic._calculateStreamedAmountForMultipleSegments}.
-    function calculateStreamedAmountForMultipleSegments(
+    /// @dev Replicates the logic of {VestingMath.calculateLockupDynamicStreamedAmount}.
+    function calculateLockupDynamicStreamedAmount(
         LockupDynamic.Segment[] memory segments,
         uint40 startTime,
         uint128 depositAmount
@@ -86,33 +64,30 @@ abstract contract Calculations {
         }
     }
 
-    /// @dev Replicates the logic of {SablierLockupDynamic._calculateStreamedAmountForOneSegment}.
-    function calculateStreamedAmountForOneSegment(
-        LockupDynamic.Segment memory segment,
-        uint40 startTime
+    /// @dev Helper function that replicates the logic of {VestingMath.calculateLockupLinearStreamedAmount}.
+    function calculateLockupLinearStreamedAmount(
+        uint40 startTime,
+        uint40 endTime,
+        uint128 depositAmount
     )
         internal
         view
         returns (uint128)
     {
         uint40 blockTimestamp = uint40(block.timestamp);
-
-        if (blockTimestamp >= segment.timestamp) {
-            return segment.amount;
+        if (blockTimestamp >= endTime) {
+            return depositAmount;
         }
         unchecked {
-            SD59x18 elapsedTime = (blockTimestamp - startTime).intoSD59x18();
-            SD59x18 totalDuration = (segment.timestamp - startTime).intoSD59x18();
-
-            SD59x18 elapsedTimePercentage = elapsedTime.div(totalDuration);
-            SD59x18 multiplier = elapsedTimePercentage.pow(segment.exponent.intoSD59x18());
-            SD59x18 streamedAmount = multiplier.mul(segment.amount.intoSD59x18());
-            return uint128(streamedAmount.intoUint256());
+            UD60x18 elapsedTime = ud(blockTimestamp - startTime);
+            UD60x18 totalDuration = ud(endTime - startTime);
+            UD60x18 elapsedTimePercentage = elapsedTime.div(totalDuration);
+            return elapsedTimePercentage.mul(ud(depositAmount)).intoUint128();
         }
     }
 
-    /// @dev Helper function that replicates the logic of {SablierLockupTranched._calculateStreamedAmount}.
-    function calculateStreamedAmountForTranches(
+    /// @dev Helper function that replicates the logic of {VestingMath.calculateLockupTranchedStreamedAmount}.
+    function calculateLockupTranchedStreamedAmount(
         LockupTranched.Tranche[] memory tranches,
         uint128 depositAmount
     )

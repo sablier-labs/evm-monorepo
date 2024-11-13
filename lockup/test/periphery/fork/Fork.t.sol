@@ -2,9 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
-import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
-import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
 import { Merkle } from "./../../utils/Murky.sol";
 import { Periphery_Test } from "./../Periphery.t.sol";
 
@@ -30,13 +27,14 @@ abstract contract Fork_Test is Periphery_Test, Merkle {
 
     function setUp() public virtual override {
         // Fork Ethereum Mainnet at a specific block number.
-        vm.createSelectFork({ blockNumber: 20_339_512, urlOrAlias: "mainnet" });
+        vm.createSelectFork({ blockNumber: 20_428_723, urlOrAlias: "mainnet" });
 
         // Set up the parent test contract.
         Periphery_Test.setUp();
 
-        // Load the external dependencies.
-        loadDependencies();
+        // Load the pre-deployed external dependencies.
+        // TODO: Update addresses once deployed.
+        // lockup = ISablierLockup(0x6Fe81F4Bf1aF1b829f0E701647808f3Aa4b0BdE7);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -50,20 +48,10 @@ abstract contract Fork_Test is Periphery_Test, Merkle {
 
         // The goal is to not have overlapping users because the asset balance tests would fail otherwise.
         vm.assume(user != recipient);
-        vm.assume(user != address(lockupDynamic) && recipient != address(lockupDynamic));
-        vm.assume(user != address(lockupLinear) && recipient != address(lockupLinear));
-        vm.assume(user != address(lockupTranched) && recipient != address(lockupTranched));
+        vm.assume(user != address(lockup) && recipient != address(lockup));
 
         // Avoid users blacklisted by USDC or USDT.
         assumeNoBlacklisted(address(FORK_ASSET), user);
         assumeNoBlacklisted(address(FORK_ASSET), recipient);
-    }
-
-    /// @dev Loads all dependencies pre-deployed on Mainnet.
-    // TODO: Update addresses once deployed.
-    function loadDependencies() private {
-        lockupDynamic = ISablierLockupDynamic(0x9DeaBf7815b42Bf4E9a03EEc35a486fF74ee7459);
-        lockupLinear = ISablierLockupLinear(0x3962f6585946823440d274aD7C719B02b49DE51E);
-        lockupTranched = ISablierLockupTranched(0xf86B359035208e4529686A1825F2D5BeE38c28A8);
     }
 }

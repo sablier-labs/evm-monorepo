@@ -28,7 +28,7 @@ contract CreateMerkleLT_Integration_Test is MerkleCampaign_Integration_Test {
 
         merkleFactory.createMerkleLT(
             baseParams,
-            lockupTranched,
+            lockup,
             cancelable,
             transferable,
             streamStartTime,
@@ -52,7 +52,7 @@ contract CreateMerkleLT_Integration_Test is MerkleCampaign_Integration_Test {
         vm.expectRevert();
         merkleFactory.createMerkleLT(
             baseParams,
-            lockupTranched,
+            lockup,
             cancelable,
             transferable,
             streamStartTime,
@@ -90,7 +90,7 @@ contract CreateMerkleLT_Integration_Test is MerkleCampaign_Integration_Test {
         emit ISablierMerkleFactory.CreateMerkleLT({
             merkleLT: ISablierMerkleLT(expectedLT),
             baseParams: baseParams,
-            lockupTranched: lockupTranched,
+            lockup: lockup,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
             streamStartTime: defaults.STREAM_START_TIME_ZERO(),
@@ -132,7 +132,7 @@ contract CreateMerkleLT_Integration_Test is MerkleCampaign_Integration_Test {
         emit ISablierMerkleFactory.CreateMerkleLT({
             merkleLT: ISablierMerkleLT(expectedLT),
             baseParams: baseParams,
-            lockupTranched: lockupTranched,
+            lockup: lockup,
             cancelable: defaults.CANCELABLE(),
             transferable: defaults.TRANSFERABLE(),
             streamStartTime: defaults.STREAM_START_TIME_ZERO(),

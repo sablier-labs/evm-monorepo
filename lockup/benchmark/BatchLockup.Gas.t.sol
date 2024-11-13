@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { LockupDynamic, LockupTranched } from "../src/core/types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupTranched } from "../src/core/types/DataTypes.sol";
 import { BatchLockup } from "../src/periphery/types/DataTypes.sol";
 import { BatchLockupBuilder } from "../test/utils/BatchLockupBuilder.sol";
 
@@ -58,13 +58,14 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function gasCreateWithDurationsLD(uint256 batchSize, uint256 segmentsCount) internal {
-        LockupDynamic.CreateWithDurations memory createParams = defaults.createWithDurationsBrokerNullLD();
+        Lockup.CreateWithDurations memory createParams = defaults.createWithDurationsBrokerNull();
         createParams.totalAmount = uint128(AMOUNT_PER_ITEM * segmentsCount);
-        createParams.segments = _generateSegmentsWithDuration(segmentsCount);
-        BatchLockup.CreateWithDurationsLD[] memory params = BatchLockupBuilder.fillBatch(createParams, batchSize);
+        LockupDynamic.SegmentWithDuration[] memory segments = _generateSegmentsWithDuration(segmentsCount);
+        BatchLockup.CreateWithDurationsLD[] memory params =
+            BatchLockupBuilder.fillBatch(createParams, segments, batchSize);
 
         uint256 initialGas = gasleft();
-        batchLockup.createWithDurationsLD(lockupDynamic, dai, params);
+        batchLockup.createWithDurationsLD(lockup, dai, params);
         string memory gasUsed = vm.toString(initialGas - gasleft());
 
         contentToAppend = string.concat(
@@ -82,14 +83,16 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     }
 
     function gasCreateWithTimestampsLD(uint256 batchSize, uint256 segmentsCount) internal {
-        LockupDynamic.CreateWithTimestamps memory createParams = defaults.createWithTimestampsBrokerNullLD();
+        Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestampsBrokerNull();
+        LockupDynamic.Segment[] memory segments = _generateSegments(segmentsCount);
         createParams.startTime = getBlockTimestamp();
+        createParams.endTime = segments[segments.length - 1].timestamp;
         createParams.totalAmount = uint128(AMOUNT_PER_ITEM * segmentsCount);
-        createParams.segments = _generateSegments(segmentsCount);
-        BatchLockup.CreateWithTimestampsLD[] memory params = BatchLockupBuilder.fillBatch(createParams, batchSize);
+        BatchLockup.CreateWithTimestampsLD[] memory params =
+            BatchLockupBuilder.fillBatch(createParams, segments, batchSize);
 
         uint256 initialGas = gasleft();
-        batchLockup.createWithTimestampsLD(lockupDynamic, dai, params);
+        batchLockup.createWithTimestampsLD(lockup, dai, params);
         string memory gasUsed = vm.toString(initialGas - gasleft());
 
         contentToAppend = string.concat(
@@ -107,11 +110,14 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     }
 
     function gasCreateWithDurationsLL(uint256 batchSize) internal {
-        BatchLockup.CreateWithDurationsLL[] memory params =
-            BatchLockupBuilder.fillBatch({ params: defaults.createWithDurationsBrokerNullLL(), batchSize: batchSize });
+        BatchLockup.CreateWithDurationsLL[] memory params = BatchLockupBuilder.fillBatch({
+            params: defaults.createWithDurationsBrokerNull(),
+            durations: defaults.durations(),
+            batchSize: batchSize
+        });
 
         uint256 initialGas = gasleft();
-        batchLockup.createWithDurationsLL(lockupLinear, dai, params);
+        batchLockup.createWithDurationsLL(lockup, dai, params);
         string memory gasUsed = vm.toString(initialGas - gasleft());
 
         contentToAppend = string.concat(
@@ -123,11 +129,14 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     }
 
     function gasCreateWithTimestampsLL(uint256 batchSize) internal {
-        BatchLockup.CreateWithTimestampsLL[] memory params =
-            BatchLockupBuilder.fillBatch({ params: defaults.createWithTimestampsBrokerNullLL(), batchSize: batchSize });
+        BatchLockup.CreateWithTimestampsLL[] memory params = BatchLockupBuilder.fillBatch({
+            params: defaults.createWithTimestampsBrokerNull(),
+            cliff: defaults.CLIFF_TIME(),
+            batchSize: batchSize
+        });
 
         uint256 initialGas = gasleft();
-        batchLockup.createWithTimestampsLL(lockupLinear, dai, params);
+        batchLockup.createWithTimestampsLL(lockup, dai, params);
         string memory gasUsed = vm.toString(initialGas - gasleft());
 
         contentToAppend = string.concat(
@@ -139,13 +148,14 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     }
 
     function gasCreateWithDurationsLT(uint256 batchSize, uint256 tranchesCount) internal {
-        LockupTranched.CreateWithDurations memory createParams = defaults.createWithDurationsBrokerNullLT();
+        Lockup.CreateWithDurations memory createParams = defaults.createWithDurationsBrokerNull();
+        LockupTranched.TrancheWithDuration[] memory tranches = _generateTranchesWithDuration(tranchesCount);
         createParams.totalAmount = uint128(AMOUNT_PER_ITEM * tranchesCount);
-        createParams.tranches = _generateTranchesWithDuration(tranchesCount);
-        BatchLockup.CreateWithDurationsLT[] memory params = BatchLockupBuilder.fillBatch(createParams, batchSize);
+        BatchLockup.CreateWithDurationsLT[] memory params =
+            BatchLockupBuilder.fillBatch(createParams, tranches, batchSize);
 
         uint256 initialGas = gasleft();
-        batchLockup.createWithDurationsLT(lockupTranched, dai, params);
+        batchLockup.createWithDurationsLT(lockup, dai, params);
         string memory gasUsed = vm.toString(initialGas - gasleft());
 
         contentToAppend = string.concat(
@@ -163,14 +173,16 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     }
 
     function gasCreateWithTimestampsLT(uint256 batchSize, uint256 tranchesCount) internal {
-        LockupTranched.CreateWithTimestamps memory createParams = defaults.createWithTimestampsBrokerNullLT();
+        Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestampsBrokerNull();
+        LockupTranched.Tranche[] memory tranches = _generateTranches(tranchesCount);
         createParams.startTime = getBlockTimestamp();
+        createParams.endTime = tranches[tranches.length - 1].timestamp;
         createParams.totalAmount = uint128(AMOUNT_PER_ITEM * tranchesCount);
-        createParams.tranches = _generateTranches(tranchesCount);
-        BatchLockup.CreateWithTimestampsLT[] memory params = BatchLockupBuilder.fillBatch(createParams, batchSize);
+        BatchLockup.CreateWithTimestampsLT[] memory params =
+            BatchLockupBuilder.fillBatch(createParams, tranches, batchSize);
 
         uint256 initialGas = gasleft();
-        batchLockup.createWithTimestampsLT(lockupTranched, dai, params);
+        batchLockup.createWithTimestampsLT(lockup, dai, params);
         string memory gasUsed = vm.toString(initialGas - gasleft());
 
         contentToAppend = string.concat(

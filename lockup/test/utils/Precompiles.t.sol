@@ -4,9 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Precompiles } from "precompiles/Precompiles.sol";
 import { LibString } from "solady/src/utils/LibString.sol";
 import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
-import { ISablierLockupDynamic } from "src/core/interfaces/ISablierLockupDynamic.sol";
-import { ISablierLockupLinear } from "src/core/interfaces/ISablierLockupLinear.sol";
-import { ISablierLockupTranched } from "src/core/interfaces/ISablierLockupTranched.sol";
+import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { ISablierBatchLockup } from "src/periphery/interfaces/ISablierBatchLockup.sol";
 import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
 import { Base_Test } from "./../Base.t.sol";
@@ -26,30 +24,11 @@ contract Precompiles_Test is Base_Test {
                                         CORE
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_DeployLockupDynamic() external onlyTestOptimizedProfile {
-        address actualLockupDynamic = address(precompiles.deployLockupDynamic(users.admin, nftDescriptor));
-        address expectedLockupDynamic =
-            address(deployOptimizedLockupDynamic(users.admin, nftDescriptor, precompiles.MAX_SEGMENT_COUNT()));
-        bytes memory expectedLockupDynamicCode =
-            adjustBytecode(expectedLockupDynamic.code, expectedLockupDynamic, actualLockupDynamic);
-        assertEq(actualLockupDynamic.code, expectedLockupDynamicCode, "bytecodes mismatch");
-    }
-
-    function test_DeployLockupLinear() external onlyTestOptimizedProfile {
-        address actualLockupLinear = address(precompiles.deployLockupLinear(users.admin, nftDescriptor));
-        address expectedLockupLinear = address(deployOptimizedLockupLinear(users.admin, nftDescriptor));
-        bytes memory expectedLockupLinearCode =
-            adjustBytecode(expectedLockupLinear.code, expectedLockupLinear, actualLockupLinear);
-        assertEq(actualLockupLinear.code, expectedLockupLinearCode, "bytecodes mismatch");
-    }
-
-    function test_DeployLockupTranched() external onlyTestOptimizedProfile {
-        address actualLockupTranched = address(precompiles.deployLockupTranched(users.admin, nftDescriptor));
-        address expectedLockupTranched =
-            address(deployOptimizedLockupTranched(users.admin, nftDescriptor, precompiles.MAX_TRANCHE_COUNT()));
-        bytes memory expectedLockupTranchedCode =
-            adjustBytecode(expectedLockupTranched.code, expectedLockupTranched, actualLockupTranched);
-        assertEq(actualLockupTranched.code, expectedLockupTranchedCode, "bytecodes mismatch");
+    function test_DeployLockup() external onlyTestOptimizedProfile {
+        address actualLockup = address(precompiles.deployLockup(users.admin, nftDescriptor));
+        address expectedLockup = address(deployOptimizedLockup(users.admin, nftDescriptor, precompiles.MAX_COUNT()));
+        bytes memory expectedLockupCode = adjustBytecode(expectedLockup.code, expectedLockup, actualLockup);
+        assertEq(actualLockup.code, expectedLockupCode, "bytecodes mismatch");
     }
 
     function test_DeployNFTDescriptor() external onlyTestOptimizedProfile {
@@ -59,35 +38,15 @@ contract Precompiles_Test is Base_Test {
     }
 
     function test_DeployCore() external onlyTestOptimizedProfile {
-        (
-            ILockupNFTDescriptor actualNFTDescriptor,
-            ISablierLockupDynamic actualLockupDynamic,
-            ISablierLockupLinear actualLockupLinear,
-            ISablierLockupTranched actualLockupTranched
-        ) = precompiles.deployCore(users.admin);
+        (ILockupNFTDescriptor actualNFTDescriptor, ISablierLockup actualLockup) = precompiles.deployCore(users.admin);
 
-        (
-            ILockupNFTDescriptor expectedNFTDescriptor,
-            ISablierLockupDynamic expectedLockupDynamic,
-            ISablierLockupLinear expectedLockupLinear,
-            ISablierLockupTranched expectedLockupTranched
-        ) = deployOptimizedCore(users.admin, precompiles.MAX_SEGMENT_COUNT(), precompiles.MAX_TRANCHE_COUNT());
+        (ILockupNFTDescriptor expectedNFTDescriptor, ISablierLockup expectedLockup) =
+            deployOptimizedCore(users.admin, precompiles.MAX_COUNT());
 
-        bytes memory expectedLockupDynamicCode = adjustBytecode(
-            address(expectedLockupDynamic).code, address(expectedLockupDynamic), address(actualLockupDynamic)
-        );
+        bytes memory expectedLockupCode =
+            adjustBytecode(address(expectedLockup).code, address(expectedLockup), address(actualLockup));
 
-        bytes memory expectedLockupLinearCode = adjustBytecode(
-            address(expectedLockupLinear).code, address(expectedLockupLinear), address(actualLockupLinear)
-        );
-
-        bytes memory expectedLockupTranchedCode = adjustBytecode(
-            address(expectedLockupTranched).code, address(expectedLockupTranched), address(actualLockupTranched)
-        );
-
-        assertEq(address(actualLockupDynamic).code, expectedLockupDynamicCode, "bytecodes mismatch");
-        assertEq(address(actualLockupLinear).code, expectedLockupLinearCode, "bytecodes mismatch");
-        assertEq(address(actualLockupTranched).code, expectedLockupTranchedCode, "bytecodes mismatch");
+        assertEq(address(actualLockup).code, expectedLockupCode, "bytecodes mismatch");
         assertEq(address(actualNFTDescriptor).code, address(expectedNFTDescriptor).code, "bytecodes mismatch");
     }
 

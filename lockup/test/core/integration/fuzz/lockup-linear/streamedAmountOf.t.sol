@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupLinear } from "src/core/types/DataTypes.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
 
-import { LockupLinear_Integration_Shared_Test } from "./LockupLinear.t.sol";
+import { Lockup_Linear_Integration_Shared_Test } from "./../../shared/lockup/LockupLinear.t.sol";
 
-contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is LockupLinear_Integration_Shared_Test {
+contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_Integration_Shared_Test {
     function testFuzz_StreamedAmountOf_CliffTimeInFuture(uint40 timeJump)
         external
         givenNotNull
@@ -13,7 +13,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is LockupLinear_Int
     {
         timeJump = boundUint40(timeJump, 0, defaults.CLIFF_DURATION() - 1);
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
-        uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(defaultStreamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -42,17 +42,17 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is LockupLinear_Int
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
-        LockupLinear.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLL();
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
         params.totalAmount = depositAmount;
-        uint256 streamId = lockupLinear.createWithTimestamps(params);
+        uint256 streamId = lockup.createWithTimestampsLL(params, defaults.CLIFF_TIME());
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Run the test.
-        uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(streamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount =
-            calculateStreamedAmount(defaults.START_TIME(), defaults.END_TIME(), depositAmount);
+            calculateLockupLinearStreamedAmount(defaults.START_TIME(), defaults.END_TIME(), depositAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -75,21 +75,21 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is LockupLinear_Int
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
-        LockupLinear.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNullLL();
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
         params.totalAmount = depositAmount;
-        uint256 streamId = lockupLinear.createWithTimestamps(params);
+        uint256 streamId = lockup.createWithTimestampsLL(params, defaults.CLIFF_TIME());
 
         // Warp to the future for the first time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeWarp0 });
 
         // Calculate the streamed amount at this midpoint in time.
-        uint128 streamedAmount0 = lockupLinear.streamedAmountOf(streamId);
+        uint128 streamedAmount0 = lockup.streamedAmountOf(streamId);
 
         // Warp to the future for the second time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeWarp1 });
 
         // Assert that this streamed amount is greater than or equal to the previous streamed amount.
-        uint128 streamedAmount1 = lockupLinear.streamedAmountOf(streamId);
+        uint128 streamedAmount1 = lockup.streamedAmountOf(streamId);
         assertGe(streamedAmount1, streamedAmount0, "streamedAmount");
     }
 }
