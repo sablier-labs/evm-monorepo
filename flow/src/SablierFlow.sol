@@ -64,9 +64,9 @@ contract SablierFlow is
     {
         uint128 balance = _streams[streamId].balance;
 
-        // If the stream balance is zero, return zero.
+        // If the stream balance is zero, revert to avoid ambiguity from a depleting stream.
         if (balance == 0) {
-            return 0;
+            revert Errors.SablierFlow_StreamBalanceZero(streamId);
         }
 
         uint8 tokenDecimals = _streams[streamId].tokenDecimals;

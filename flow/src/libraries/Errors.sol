@@ -63,6 +63,9 @@ library Errors {
     /// @notice Thrown when trying to create a stream with the sender as the zero address.
     error SablierFlow_SenderZeroAddress();
 
+    /// @notice Thrown when trying to get depletion time of a stream with zero balance.
+    error SablierFlow_StreamBalanceZero(uint256 streamId);
+
     /// @notice Thrown when trying to perform an action with a paused stream.
     error SablierFlow_StreamPaused(uint256 streamId);
 

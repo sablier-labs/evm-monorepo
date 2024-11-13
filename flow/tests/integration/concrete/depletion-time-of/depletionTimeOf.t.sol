@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -16,10 +17,9 @@ contract DepletionTimeOf_Integration_Concrete_Test is Integration_Test {
         expectRevert_Paused(callData);
     }
 
-    function test_GivenBalanceZero() external view givenNotNull givenNotPaused {
-        // It should return 0.
-        uint256 actualDepletionTime = flow.depletionTimeOf(defaultStreamId);
-        assertEq(actualDepletionTime, 0, "depletion time");
+    function test_RevertGiven_BalanceZero() external givenNotNull givenNotPaused {
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamBalanceZero.selector, defaultStreamId));
+        flow.depletionTimeOf(defaultStreamId);
     }
 
     function test_GivenUncoveredDebt() external givenNotNull givenNotPaused givenBalanceNotZero {

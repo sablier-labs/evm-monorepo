@@ -119,7 +119,9 @@ interface ISablierFlow is
 
     /// @notice Returns the time at which the total debt exceeds stream balance. If the total debt is less than
     /// or equal to stream balance, it returns 0.
-    /// @dev Reverts if `streamId` references a paused or a null stream.
+    /// @dev Reverts on the following conditions:
+    /// - If `streamId` references a paused or a null stream.
+    /// - If stream balance is zero.
     /// @param streamId The stream ID for the query.
     function depletionTimeOf(uint256 streamId) external view returns (uint256 depletionTime);
 

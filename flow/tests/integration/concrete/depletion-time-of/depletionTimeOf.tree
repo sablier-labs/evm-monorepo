@@ -6,7 +6,7 @@ DepletionTimeOf_Integration_Concrete_Test
    │  └── it should revert
    └── given not paused
       ├── given balance zero
-      │  └── it should return 0
+      │  └── it should revert
       └── given balance not zero
          ├── given uncovered debt
          │  └── it should return 0
