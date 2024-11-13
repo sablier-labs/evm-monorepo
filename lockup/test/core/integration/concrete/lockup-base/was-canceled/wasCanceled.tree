@@ -1,8 +1,0 @@
-WasCanceled_Integration_Concrete_Test
-├── given null
-│  └── it should revert
-└── given not null
-   ├── given canceled stream
-   │  └── it should return false
-   └── given not canceled stream
-      └── it should return true

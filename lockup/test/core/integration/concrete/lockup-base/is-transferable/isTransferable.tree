@@ -1,8 +1,0 @@
-IsTransferable_Integration_Concrete_Test
-├── given null
-│   └── it should revert
-└── given not null
-    ├── given non transferable stream
-    │   └── it should return false
-    └── given transferable stream
-        └── it should return true

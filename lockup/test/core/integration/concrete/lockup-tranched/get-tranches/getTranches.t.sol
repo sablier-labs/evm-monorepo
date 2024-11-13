@@ -2,17 +2,27 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/core/libraries/Errors.sol";
-import { LockupTranched } from "src/core/types/DataTypes.sol";
+import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Tranched_Integration_Shared_Test } from "../LockupTranched.t.sol";
+import { Lockup_Tranched_Integration_Concrete_Test } from "../LockupTranched.t.sol";
 
-contract GetTranches_Integration_Concrete_Test is Lockup_Tranched_Integration_Shared_Test {
+contract GetTranches_Integration_Concrete_Test is Lockup_Tranched_Integration_Concrete_Test {
     function test_RevertGiven_Null() external {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, nullStreamId));
-        lockup.getTranches(nullStreamId);
+        expectRevert_Null({ callData: abi.encodeCall(lockup.getTranches, nullStreamId) });
     }
 
-    function test_GivenNotNull() external {
+    function test_RevertGiven_NotTranchedModel() external givenNotNull {
+        lockupModel = Lockup.Model.LOCKUP_LINEAR;
+        uint256 streamId = createDefaultStream();
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierLockup_NotExpectedModel.selector, Lockup.Model.LOCKUP_LINEAR, Lockup.Model.LOCKUP_TRANCHED
+            )
+        );
+        lockup.getTranches(streamId);
+    }
+
+    function test_GivenTranchedModel() external givenNotNull {
         LockupTranched.Tranche[] memory actualTranches = lockup.getTranches(defaultStreamId);
         LockupTranched.Tranche[] memory expectedTranches = defaults.tranches();
         assertEq(actualTranches, expectedTranches, "tranches");

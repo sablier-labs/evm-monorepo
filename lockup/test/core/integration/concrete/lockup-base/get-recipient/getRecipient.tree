@@ -1,8 +1,0 @@
-GetRecipient_Integration_Concrete_Test
-├── given null
-│  └── it should revert
-└── given not null
-   ├── given burned NFT
-   │  └── it should revert
-   └── given not burned NFT
-      └── it should return the correct recipient

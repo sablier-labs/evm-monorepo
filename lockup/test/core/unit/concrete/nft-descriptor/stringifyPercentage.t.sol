@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract StringifyPercentage_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
+contract StringifyPercentage_Unit_Concrete_Test is Base_Test {
     function sp(uint256 percentage) internal view returns (string memory) {
         return nftDescriptorMock.stringifyPercentage_(percentage);
     }

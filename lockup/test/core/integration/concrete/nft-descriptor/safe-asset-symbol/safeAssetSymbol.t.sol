@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Base_Test } from "test/Base.t.sol";
 import { ERC20Bytes32 } from "test/mocks/erc20/ERC20Bytes32.sol";
 import { ERC20Mock } from "test/mocks/erc20/ERC20Mock.sol";
-import { NFTDescriptor_Integration_Shared_Test } from "./../../../shared/nft-descriptor/NFTDescriptor.t.sol";
 
-contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_Shared_Test {
+contract SafeAssetSymbol_Integration_Concrete_Test is Base_Test {
     function test_WhenAssetNotContract() external view {
         address eoa = vm.addr({ privateKey: 1 });
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(eoa));

@@ -6,7 +6,7 @@ import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
-abstract contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
+contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
     function testFuzz_WithdrawMax_EndTimeNotInFuture(uint256 timeJump) external {
         timeJump = _bound(timeJump, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2);
 

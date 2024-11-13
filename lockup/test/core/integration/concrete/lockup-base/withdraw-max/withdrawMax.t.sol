@@ -6,7 +6,7 @@ import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
-abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
+contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
     function test_GivenEndTimeNotInFuture() external {
         // Warp to the stream's end.
         vm.warp({ newTimestamp: defaults.END_TIME() + 1 seconds });

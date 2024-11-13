@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Errors } from "src/core/libraries/Errors.sol";
 import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
-abstract contract StatusOf_Integration_Concrete_Test is Integration_Test {
+contract StatusOf_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_Null() external {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, nullStreamId));
-        lockup.statusOf(nullStreamId);
+        expectRevert_Null({ callData: abi.encodeCall(lockup.statusOf, nullStreamId) });
     }
 
     function test_GivenAssetsFullyWithdrawn() external givenNotNull {

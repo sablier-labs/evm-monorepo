@@ -7,7 +7,7 @@ import { console2 } from "forge-std/src/console2.sol";
 import { StdStyle } from "forge-std/src/StdStyle.sol";
 import { Base64 } from "solady/src/utils/Base64.sol";
 
-import { Lockup_Dynamic_Integration_Shared_Test } from "../LockupDynamic.t.sol";
+import { Integration_Test } from "test/core/integration/Integration.t.sol";
 
 /// @dev Requirements for these tests to work:
 /// - The stream ID must be 1
@@ -16,7 +16,7 @@ import { Lockup_Dynamic_Integration_Shared_Test } from "../LockupDynamic.t.sol";
 /// - The contract deployer, i.e. the `sender` config option in `foundry.toml`, must have the default value
 /// 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38 so that the deployed contracts have the same addresses as
 /// the values hard coded in the tests below
-contract TokenURI_Lockup_Dynamic_Integration_Concrete_Test is Lockup_Dynamic_Integration_Shared_Test {
+contract TokenURI_Lockup_Dynamic_Integration_Concrete_Test is Integration_Test {
     address internal constant LOCKUP = 0xDB25A7b768311dE128BBDa7B8426c3f9C74f3240;
 
     /// @dev To make these tests noninvasive, they are run only when the contract address matches the hard coded value.

@@ -38,7 +38,7 @@ contract Lockup_Dynamic_Gas_Test is Benchmark_Test {
         vm.writeFile({
             path: benchmarkResultsFile,
             data: string.concat(
-                "# Benchmarks for Lockup Dynamic\n\n", "| Implementation | Gas Usage |\n", "| --- | --- |\n"
+                "# Benchmarks for Lockup Dynamic Model\n\n", "| Implementation | Gas Usage |\n", "| --- | --- |\n"
             )
         });
 
@@ -224,8 +224,8 @@ contract Lockup_Dynamic_Gas_Test is Benchmark_Test {
 
         params = defaults.createWithTimestamps();
         params.totalAmount = _calculateTotalAmount(depositAmount, brokerFee);
-        params.startTime = getBlockTimestamp();
-        params.endTime = segments_[totalSegments - 1].timestamp;
+        params.timestamps.start = getBlockTimestamp();
+        params.timestamps.end = segments_[totalSegments - 1].timestamp;
         params.broker.fee = brokerFee;
         return (params, segments_);
     }

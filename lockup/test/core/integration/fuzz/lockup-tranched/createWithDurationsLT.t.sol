@@ -4,16 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Integration_Shared_Test } from "./../../shared/lockup/Lockup.t.sol";
+import { Lockup_Tranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
 
-contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Integration_Shared_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
-        Lockup_Integration_Shared_Test.setUp();
-        streamId = lockup.nextStreamId();
-    }
-
+contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Tranched_Integration_Fuzz_Test {
     struct Vars {
         uint256 actualNextStreamId;
         address actualNFTOwner;
@@ -46,11 +39,12 @@ contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Integration_Share
 
         // Make the Sender the stream's funder (recall that the Sender is the default caller).
         vars.funder = users.sender;
+        uint256 expectedStreamId = lockup.nextStreamId();
 
         // Mint enough assets to the fuzzed funder.
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
 
-        // Expect the assets to be transferred from the funder to {SablierLockupTranched}.
+        // Expect the assets to be transferred from the funder to {SablierLockup}.
         expectCallToTransferFrom({ from: vars.funder, to: address(lockup), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.
@@ -62,14 +56,13 @@ contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Integration_Share
         vars.tranchesWithTimestamps = getTranchesWithTimestamps(tranches);
         Lockup.Timestamps memory timestamps = Lockup.Timestamps({
             start: getBlockTimestamp(),
-            cliff: 0,
             end: vars.tranchesWithTimestamps[vars.tranchesWithTimestamps.length - 1].timestamp
         });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupTranchedStream({
-            streamId: streamId,
+            streamId: expectedStreamId,
             funder: vars.funder,
             sender: users.sender,
             recipient: users.recipient,
@@ -83,10 +76,9 @@ contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Integration_Share
         });
 
         // Create the stream.
-        Lockup.CreateWithDurations memory params = defaults.createWithDurations();
-        params.totalAmount = vars.totalAmount;
-        params.transferable = true;
-        lockup.createWithDurationsLT(params, tranches);
+        _defaultParams.createWithDurations.totalAmount = vars.totalAmount;
+        _defaultParams.createWithDurations.transferable = true;
+        uint256 streamId = lockup.createWithDurationsLT(_defaultParams.createWithDurations, tranches);
 
         // Check if the stream is settled. It is possible for a Lockup Tranched stream to settle at the time of creation
         // because some tranche amounts can be zero.
@@ -98,14 +90,15 @@ contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Integration_Share
         assertEq(lockup.getAsset(streamId), dai, "asset");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), vars.isCancelable, "isCancelable");
-        assertEq(lockup.isDepleted(streamId), false, "isDepleted");
-        assertEq(lockup.isStream(streamId), true, "isStream");
-        assertEq(lockup.isTransferable(streamId), true, "isTransferable");
-        assertEq(lockup.getRecipient(streamId), params.recipient, "recipient");
+        assertFalse(lockup.isDepleted(streamId), "isDepleted");
+        assertTrue(lockup.isStream(streamId), "isStream");
+        assertTrue(lockup.isTransferable(streamId), "isTransferable");
+        assertEq(lockup.getRecipient(streamId), users.recipient, "recipient");
         assertEq(lockup.getSender(streamId), users.sender, "sender");
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
-        assertEq(lockup.wasCanceled(streamId), false, "wasCanceled");
+        assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
         assertEq(lockup.getTranches(streamId), vars.tranchesWithTimestamps, "tranches");
+        assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_TRANCHED);
 
         // Assert that the stream's status is correct.
         vars.actualStatus = lockup.statusOf(streamId);

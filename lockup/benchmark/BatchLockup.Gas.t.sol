@@ -85,8 +85,8 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     function gasCreateWithTimestampsLD(uint256 batchSize, uint256 segmentsCount) internal {
         Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestampsBrokerNull();
         LockupDynamic.Segment[] memory segments = _generateSegments(segmentsCount);
-        createParams.startTime = getBlockTimestamp();
-        createParams.endTime = segments[segments.length - 1].timestamp;
+        createParams.timestamps.start = getBlockTimestamp();
+        createParams.timestamps.end = segments[segments.length - 1].timestamp;
         createParams.totalAmount = uint128(AMOUNT_PER_ITEM * segmentsCount);
         BatchLockup.CreateWithTimestampsLD[] memory params =
             BatchLockupBuilder.fillBatch(createParams, segments, batchSize);
@@ -131,7 +131,7 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     function gasCreateWithTimestampsLL(uint256 batchSize) internal {
         BatchLockup.CreateWithTimestampsLL[] memory params = BatchLockupBuilder.fillBatch({
             params: defaults.createWithTimestampsBrokerNull(),
-            cliff: defaults.CLIFF_TIME(),
+            cliffTime: defaults.CLIFF_TIME(),
             batchSize: batchSize
         });
 
@@ -175,8 +175,8 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     function gasCreateWithTimestampsLT(uint256 batchSize, uint256 tranchesCount) internal {
         Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestampsBrokerNull();
         LockupTranched.Tranche[] memory tranches = _generateTranches(tranchesCount);
-        createParams.startTime = getBlockTimestamp();
-        createParams.endTime = tranches[tranches.length - 1].timestamp;
+        createParams.timestamps.start = getBlockTimestamp();
+        createParams.timestamps.end = tranches[tranches.length - 1].timestamp;
         createParams.totalAmount = uint128(AMOUNT_PER_ITEM * tranchesCount);
         BatchLockup.CreateWithTimestampsLT[] memory params =
             BatchLockupBuilder.fillBatch(createParams, tranches, batchSize);

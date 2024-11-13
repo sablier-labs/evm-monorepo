@@ -5,7 +5,7 @@ import { Errors } from "src/core/libraries/Errors.sol";
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 
-abstract contract Batch_Integration_Concrete_Test is Integration_Test {
+contract Batch_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CallFunctionNotExist() external {
         bytes[] memory calls = new bytes[](1);
         calls[0] = abi.encodeWithSignature("nonExistentFunction()");

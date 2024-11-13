@@ -3,9 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { SVGElements } from "src/core/libraries/SVGElements.sol";
 
-import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract AbbreviateAmount_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
+contract AbbreviateAmount_Unit_Concrete_Test is Base_Test {
     function aa(uint256 amount, uint256 decimals) internal view returns (string memory) {
         return nftDescriptorMock.abbreviateAmount_({ amount: amount, decimals: decimals });
     }

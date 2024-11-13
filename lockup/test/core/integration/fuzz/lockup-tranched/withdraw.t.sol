@@ -4,19 +4,19 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { ISablierLockupBase } from "src/core/interfaces/ISablierLockupBase.sol";
 import { Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
-import { Integration_Test } from "./../../Integration.t.sol";
-import { Lockup_Tranched_Integration_Shared_Test } from "./../../shared/lockup/LockupTranched.t.sol";
-import { Withdraw_Integration_Fuzz_Test } from "./../lockup-base/withdraw.t.sol";
 
+import { Integration_Test } from "../../Integration.t.sol";
+import { Withdraw_Integration_Fuzz_Test } from "./../lockup-base/withdraw.t.sol";
+import { Lockup_Tranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
 /// @dev This contract complements the tests in {Withdraw_Integration_Fuzz_Test} by testing the withdraw function
-/// against
-/// streams created with fuzzed tranches.
+/// against streams created with fuzzed tranches.
+
 contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
-    Withdraw_Integration_Fuzz_Test,
-    Lockup_Tranched_Integration_Shared_Test
+    Lockup_Tranched_Integration_Fuzz_Test,
+    Withdraw_Integration_Fuzz_Test
 {
-    function setUp() public virtual override(Lockup_Tranched_Integration_Shared_Test, Integration_Test) {
-        Lockup_Tranched_Integration_Shared_Test.setUp();
+    function setUp() public virtual override(Lockup_Tranched_Integration_Fuzz_Test, Integration_Test) {
+        Lockup_Tranched_Integration_Fuzz_Test.setUp();
     }
 
     struct Params {
@@ -75,7 +75,7 @@ contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
         // Create the stream with the fuzzed tranches.
         Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestamps();
         createParams.totalAmount = vars.totalAmount;
-        createParams.endTime = params.tranches[params.tranches.length - 1].timestamp;
+        createParams.timestamps.end = params.tranches[params.tranches.length - 1].timestamp;
 
         vars.streamId = lockup.createWithTimestampsLT(createParams, params.tranches);
 

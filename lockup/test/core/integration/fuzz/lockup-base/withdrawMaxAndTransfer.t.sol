@@ -7,12 +7,11 @@ import { ISablierLockupBase } from "src/core/interfaces/ISablierLockupBase.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
-abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is Integration_Test {
+contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is Integration_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - New recipient same and different from the current one
     /// - Withdrawable amount zero and not zero
-
     function testFuzz_WithdrawMaxAndTransfer(
         uint256 timeJump,
         address newRecipient

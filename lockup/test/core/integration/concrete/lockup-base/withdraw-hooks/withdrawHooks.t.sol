@@ -5,10 +5,16 @@ import { ISablierLockupRecipient } from "src/core/interfaces/ISablierLockupRecip
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
-abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test {
+contract WithdrawHooks_Integration_Concrete_Test is Integration_Test {
+    // A stream ID with a different sender and recipient.
+    uint256 internal differentSenderRecipientStreamId;
+
     uint128 internal withdrawAmount;
 
     function setUp() public virtual override {
+        Integration_Test.setUp();
+
+        differentSenderRecipientStreamId = createDefaultStreamWithRecipient(address(recipientGood));
         withdrawAmount = defaults.WITHDRAW_AMOUNT();
 
         // Allow the good recipient to hook.
@@ -18,6 +24,8 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GivenRecipientSameAsSender() external {
+        uint256 identicalSenderRecipientStreamId = createDefaultStreamWithUsers(users.sender, users.sender);
+
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 

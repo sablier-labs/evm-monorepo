@@ -6,9 +6,9 @@ import { MockERC721 } from "forge-std/src/mocks/MockERC721.sol";
 
 import { Errors } from "src/core/libraries/Errors.sol";
 
-import { NFTDescriptor_Integration_Shared_Test } from "../../../shared/nft-descriptor/NFTDescriptor.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract MapSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_Shared_Test {
+contract MapSymbol_Integration_Concrete_Test is Base_Test {
     function test_RevertGiven_UnknownNFTContract() external {
         MockERC721 nft = new MockERC721();
         nft.initialize("Foo", "FOO");

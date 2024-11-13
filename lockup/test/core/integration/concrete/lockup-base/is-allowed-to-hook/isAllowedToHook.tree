@@ -1,5 +1,0 @@
-IsAllowedToHook_Integration_Concrete_Test
-├── given provided address not allowed to hook
-│  └── it should return false
-└── given provided address allowed to hook
-   └── it should return true

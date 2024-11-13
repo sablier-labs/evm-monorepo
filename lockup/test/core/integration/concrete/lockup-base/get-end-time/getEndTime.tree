@@ -1,5 +1,0 @@
-GetEndTime_Integration_Concrete_Test
-├── given null
-│  └── it should revert
-└── given not null
-   └── it should return the correct end time

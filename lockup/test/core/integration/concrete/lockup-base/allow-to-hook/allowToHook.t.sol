@@ -6,7 +6,7 @@ import { Errors } from "src/core/libraries/Errors.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
-abstract contract AllowToHook_Integration_Concrete_Test is Integration_Test {
+contract AllowToHook_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         resetPrank({ msgSender: users.eve });

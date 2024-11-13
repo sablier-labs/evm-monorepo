@@ -1,5 +1,0 @@
-GetTimestamps_Lockup_Linear_Integration_Concrete_Test
-├── given null
-│  └── it should revert
-└── given not null
-   └── it should return the correct timestamps

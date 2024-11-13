@@ -2,9 +2,9 @@
 // solhint-disable max-line-length,quotes
 pragma solidity >=0.8.22 <0.9.0;
 
-import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract GenerateDescription_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
+contract GenerateDescription_Unit_Concrete_Test is Base_Test {
     string internal constant INFO_NON_TRANSFERABLE =
         unicode"❕INFO: This NFT is non-transferable. It cannot be sold or transferred to another account.";
     string internal constant INFO_TRANSFERABLE =

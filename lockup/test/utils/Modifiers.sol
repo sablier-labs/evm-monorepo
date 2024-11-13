@@ -277,6 +277,14 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
+    modifier whenDepositAmountEqualsSegmentAmountsSum() {
+        _;
+    }
+
+    modifier whenDepositAmountEqualsTrancheAmountsSum() {
+        _;
+    }
+
     modifier whenDepositAmountNotZero() {
         _;
     }

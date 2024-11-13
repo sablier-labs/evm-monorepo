@@ -12,34 +12,23 @@ import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(ISablierLockupBase.cancel, defaultStreamId);
-        (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
-        expectRevertDueToDelegateCall(success, returnData);
+        expectRevert_DelegateCall({ callData: abi.encodeCall(lockup.cancel, defaultStreamId) });
     }
 
     function test_RevertGiven_Null() external whenNoDelegateCall {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, nullStreamId));
-        lockup.cancel(nullStreamId);
+        expectRevert_Null({ callData: abi.encodeCall(lockup.cancel, nullStreamId) });
     }
 
     function test_RevertGiven_DEPLETEDStatus() external whenNoDelegateCall givenNotNull givenColdStream {
-        vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_StreamDepleted.selector, defaultStreamId));
-        lockup.cancel(defaultStreamId);
+        expectRevert_DEPLETEDStatus({ callData: abi.encodeCall(lockup.cancel, defaultStreamId) });
     }
 
     function test_RevertGiven_CANCELEDStatus() external whenNoDelegateCall givenNotNull givenColdStream {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
-        lockup.cancel(defaultStreamId);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_StreamCanceled.selector, defaultStreamId));
-        lockup.cancel(defaultStreamId);
+        expectRevert_CANCELEDStatus({ callData: abi.encodeCall(lockup.cancel, defaultStreamId) });
     }
 
     function test_RevertGiven_SETTLEDStatus() external whenNoDelegateCall givenNotNull givenColdStream {
-        vm.warp({ newTimestamp: defaults.END_TIME() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_StreamSettled.selector, defaultStreamId));
-        lockup.cancel(defaultStreamId);
+        expectRevert_SETTLEDStatus({ callData: abi.encodeCall(lockup.cancel, defaultStreamId) });
     }
 
     function test_RevertWhen_CallerMaliciousThirdParty()
@@ -49,14 +38,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         givenWarmStream
         whenCallerNotSender
     {
-        // Make Eve the caller in this test.
-        resetPrank({ msgSender: users.eve });
-
-        // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, defaultStreamId, users.eve)
-        );
-        lockup.cancel(defaultStreamId);
+        expectRevert_CallerMaliciousThirdParty({ callData: abi.encodeCall(lockup.cancel, defaultStreamId) });
     }
 
     function test_RevertWhen_CallerRecipient()

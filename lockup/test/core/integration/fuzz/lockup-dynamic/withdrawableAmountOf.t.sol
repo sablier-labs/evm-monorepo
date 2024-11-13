@@ -3,9 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Dynamic_Integration_Shared_Test } from "./../../shared/lockup/LockupDynamic.t.sol";
+import { Lockup_Dynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
-contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic_Integration_Shared_Test {
+contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic_Integration_Fuzz_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past

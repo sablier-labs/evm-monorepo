@@ -5,16 +5,9 @@ import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Integration_Shared_Test } from "./../../shared/lockup/Lockup.t.sol";
+import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
-contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Integration_Shared_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
-        Lockup_Integration_Shared_Test.setUp();
-        streamId = lockup.nextStreamId();
-    }
-
+contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integration_Fuzz_Test {
     function testFuzz_RevertWhen_TotalDurationCalculationOverflows(LockupLinear.Durations memory durations)
         external
         whenNoDelegateCall
@@ -34,11 +27,12 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Integration_Share
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockup_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime)
+            abi.encodeWithSelector(Errors.SablierHelpers_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime)
         );
 
         // Create the stream.
-        createDefaultStreamWithDurationsLL(durations);
+        _defaultParams.durations = durations;
+        createDefaultStreamWithDurations();
     }
 
     function testFuzz_CreateWithDurationsLL(LockupLinear.Durations memory durations)
@@ -52,24 +46,27 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Integration_Share
 
         // Make the Sender the stream's funder (recall that the Sender is the default caller).
         address funder = users.sender;
+        uint256 expectedStreamId = lockup.nextStreamId();
 
-        // Expect the assets to be transferred from the funder to {SablierLockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierLockup}.
         expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the broker fee to be paid to the broker.
         expectCallToTransferFrom({ from: funder, to: users.broker, value: defaults.BROKER_FEE_AMOUNT() });
 
         // Create the timestamps struct by calculating the start time, cliff time and the end time.
-        Lockup.Timestamps memory timestamps = Lockup.Timestamps({
-            start: getBlockTimestamp(),
-            cliff: durations.cliff == 0 ? 0 : getBlockTimestamp() + durations.cliff,
-            end: getBlockTimestamp() + durations.total
-        });
+        Lockup.Timestamps memory timestamps =
+            Lockup.Timestamps({ start: getBlockTimestamp(), end: getBlockTimestamp() + durations.total });
+
+        uint40 cliffTime;
+        if (durations.cliff > 0) {
+            cliffTime = getBlockTimestamp() + durations.cliff;
+        }
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupLinearStream({
-            streamId: streamId,
+            streamId: expectedStreamId,
             funder: funder,
             sender: users.sender,
             recipient: users.recipient,
@@ -78,25 +75,28 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Integration_Share
             cancelable: true,
             transferable: true,
             timestamps: timestamps,
+            cliffTime: cliffTime,
             broker: users.broker
         });
 
         // Create the stream.
-        createDefaultStreamWithDurationsLL(durations);
+        _defaultParams.durations = durations;
+        uint256 streamId = createDefaultStreamWithDurations();
 
         // It should create the stream.
         assertEq(lockup.getDepositedAmount(streamId), defaults.DEPOSIT_AMOUNT(), "depositedAmount");
         assertEq(lockup.getAsset(streamId), dai, "asset");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), true, "isCancelable");
-        assertEq(lockup.isDepleted(streamId), false, "isDepleted");
-        assertEq(lockup.isStream(streamId), true, "isStream");
-        assertEq(lockup.isTransferable(streamId), true, "isTransferable");
+        assertFalse(lockup.isDepleted(streamId), "isDepleted");
+        assertTrue(lockup.isStream(streamId), "isStream");
+        assertTrue(lockup.isTransferable(streamId), "isTransferable");
         assertEq(lockup.getRecipient(streamId), users.recipient, "recipient");
         assertEq(lockup.getSender(streamId), users.sender, "sender");
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
-        assertEq(lockup.wasCanceled(streamId), false, "wasCanceled");
-        assertEq(lockup.getCliffTime(streamId), timestamps.cliff, "cliff");
+        assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
+        assertEq(lockup.getCliffTime(streamId), cliffTime, "cliffTime");
+        assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
 
         // Assert that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
@@ -107,10 +107,5 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Integration_Share
         uint256 actualNextStreamId = lockup.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
-
-        // Assert that the NFT has been minted.
-        address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = users.recipient;
-        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

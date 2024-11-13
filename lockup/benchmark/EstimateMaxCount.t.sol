@@ -5,7 +5,6 @@ import { console2 } from "forge-std/src/console2.sol";
 import { Test } from "forge-std/src/Test.sol";
 
 import { Lockup_Dynamic_Gas_Test } from "./LockupDynamic.Gas.t.sol";
-import { Lockup_Tranched_Gas_Test } from "./LockupTranched.Gas.t.sol";
 
 /// @notice Structure to group the block gas limit and chain id.
 struct ChainInfo {
@@ -57,32 +56,6 @@ contract EstimateMaxCount is Test {
 
                 // Estimate the gas consumed by adding 10 segments.
                 gasConsumed = lockupDynamicGasTest.computeGas_CreateWithDurationsLD(count + 10);
-            }
-
-            console2.log("count: %d and gasUsed: %d and chainId: %d", count, lastGasConsumed, chains[i].chainId);
-        }
-    }
-
-    /// @notice Estimate the maximum number of tranches allowed in LockupTranched.
-    function test_EstimateTranches() public {
-        Lockup_Tranched_Gas_Test lockupTranchedGasTest = new Lockup_Tranched_Gas_Test();
-        lockupTranchedGasTest.setUp();
-
-        for (uint256 i = 0; i < chains.length; ++i) {
-            uint128 count = INITIAL_GUESS;
-
-            // Subtract `BUFFER_GAS` from `blockGasLimit` as an additional precaution to account for the dynamic gas for
-            // ether transfer on different chains.
-            uint256 blockGasLimit = chains[i].blockGasLimit - BUFFER_GAS;
-
-            uint256 gasConsumed = 0;
-            uint256 lastGasConsumed = 0;
-            while (blockGasLimit > gasConsumed) {
-                count += 10;
-                lastGasConsumed = gasConsumed;
-
-                // Estimate the gas consumed by adding 10 tranches.
-                gasConsumed = lockupTranchedGasTest.computeGas_CreateWithDurationsLT(count + 10);
             }
 
             console2.log("count: %d and gasUsed: %d and chainId: %d", count, lastGasConsumed, chains[i].chainId);

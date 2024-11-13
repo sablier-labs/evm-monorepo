@@ -71,10 +71,10 @@ This is just a glimpse of Sablier Lockup. For more guides and examples, see the
 [documentation](https://docs.sablier.com).
 
 ```solidity
-import { ISablierLockupLinear } from "@sablier/lockup/src/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
 contract MyContract {
-  ISablierLockupLinear lockup;
+  ISablierLockup lockup;
 
   function buildSomethingWithSablier() external {
     // ...
@@ -84,9 +84,9 @@ contract MyContract {
 
 ## Architecture
 
-Lockup uses a singleton-style architecture, where all streams are managed in the `LockupLinear`, `LockupDynamic` and
-`LockupTranched` contracts. That is, Sablier does not deploy a new contract for each stream. It bundles all streams into
-a single contract, which is more gas-efficient and easier to maintain.
+Lockup uses a singleton-style architecture, where all streams are managed in the `SablierLockup` contract. That is,
+Sablier does not deploy a new contract for each distribution model or stream. It bundles all streams into a single
+contract, which is more gas-efficient and easier to maintain.
 
 For more information, see the [Technical Overview](https://docs.sablier.com/contracts/v2/reference/overview) in our
 docs, as well as these [diagrams](https://docs.sablier.com/contracts/v2/reference/diagrams).

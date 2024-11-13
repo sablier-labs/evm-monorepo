@@ -91,7 +91,7 @@ contract BaseScript is Script {
         maxCountMap[43114] = 490;
 
         // Base chain ID.
-        maxCountMap[8453] = 2020;
+        maxCountMap[8453] = 2010;
 
         // Blast chain ID.
         maxCountMap[81457] = 1010;

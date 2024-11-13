@@ -21,25 +21,27 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
             maxCount: defaults.MAX_COUNT()
         });
 
-        // {SablierLockup.constant}
+        // {SablierLockupBase.constant}
         UD60x18 actualMaxBrokerFee = constructedLockup.MAX_BROKER_FEE();
         UD60x18 expectedMaxBrokerFee = UD60x18.wrap(0.1e18);
         assertEq(actualMaxBrokerFee, expectedMaxBrokerFee, "MAX_BROKER_FEE");
 
-        // {SablierLockup.constructor}
+        // {Adminable.constructor}
         address actualAdmin = constructedLockup.admin();
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");
 
+        // {SablierLockupBase.constructor}
         uint256 actualStreamId = constructedLockup.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");
 
+        // {SablierLockupBase.constructor}
         address actualNFTDescriptor = address(constructedLockup.nftDescriptor());
         address expectedNFTDescriptor = address(nftDescriptor);
         assertEq(actualNFTDescriptor, expectedNFTDescriptor, "nftDescriptor");
 
-        // {SablierLockup.supportsInterface}
+        // {SablierLockupBase.supportsInterface}
         assertTrue(constructedLockup.supportsInterface(0x49064906), "ERC-4906 interface ID");
 
         // {SablierLockup.constructor}

@@ -15,7 +15,7 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Maximum number of streams that can be created during an invariant campaign.
-    uint256 internal constant MAX_STREAM_COUNT = 100;
+    uint256 internal constant MAX_STREAM_COUNT = 300;
 
     /// @dev Maps function names to the number of times they have been called.
     mapping(string func => uint256 calls) public calls;

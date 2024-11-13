@@ -3,20 +3,17 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
-import { ISablierLockupBase } from "src/core/interfaces/ISablierLockupBase.sol";
+
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
 
-abstract contract Burn_Integration_Concrete_Test is Integration_Test {
+contract Burn_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(ISablierLockupBase.burn, defaultStreamId);
-        (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
-        expectRevertDueToDelegateCall(success, returnData);
+        expectRevert_DelegateCall({ callData: abi.encodeCall(lockup.burn, defaultStreamId) });
     }
 
     function test_RevertGiven_Null() external whenNoDelegateCall {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, nullStreamId));
-        lockup.burn(nullStreamId);
+        expectRevert_Null({ callData: abi.encodeCall(lockup.burn, nullStreamId) });
     }
 
     function test_RevertGiven_PENDINGStatus() external whenNoDelegateCall givenNotNull givenNotDepletedStream {
@@ -53,11 +50,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test {
         givenDepletedStream(lockup, defaultStreamId)
         whenCallerNotRecipient
     {
-        resetPrank({ msgSender: users.eve });
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, defaultStreamId, users.eve)
-        );
-        lockup.burn(defaultStreamId);
+        expectRevert_CallerMaliciousThirdParty({ callData: abi.encodeCall(lockup.burn, defaultStreamId) });
     }
 
     function test_RevertWhen_CallerSender()

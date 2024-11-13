@@ -138,11 +138,8 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
         vars.initialBrokerBalance = vars.balances[1];
 
         vars.streamId = lockup.nextStreamId();
-        vars.timestamps = Lockup.Timestamps({
-            start: params.startTime,
-            cliff: 0,
-            end: params.segments[params.segments.length - 1].timestamp
-        });
+        vars.timestamps =
+            Lockup.Timestamps({ start: params.startTime, end: params.segments[params.segments.length - 1].timestamp });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
@@ -171,8 +168,7 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
                 asset: FORK_ASSET,
                 cancelable: true,
                 transferable: true,
-                startTime: params.startTime,
-                endTime: vars.timestamps.end,
+                timestamps: vars.timestamps,
                 broker: params.broker
             }),
             params.segments
@@ -188,13 +184,13 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
         assertEq(lockup.getAsset(vars.streamId), FORK_ASSET, "asset");
         assertEq(lockup.getEndTime(vars.streamId), vars.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(vars.streamId), vars.isCancelable, "isCancelable");
-        assertEq(lockup.isDepleted(vars.streamId), false, "isDepleted");
-        assertEq(lockup.isStream(vars.streamId), true, "isStream");
-        assertEq(lockup.isTransferable(vars.streamId), true, "isTransferable");
+        assertTrue(lockup.isStream(vars.streamId), "isStream");
+        assertTrue(lockup.isTransferable(vars.streamId), "isTransferable");
         assertEq(lockup.getRecipient(vars.streamId), params.recipient, "recipient");
         assertEq(lockup.getSender(vars.streamId), params.sender, "sender");
         assertEq(lockup.getStartTime(vars.streamId), params.startTime, "startTime");
-        assertEq(lockup.wasCanceled(vars.streamId), false, "wasCanceled");
+        assertFalse(lockup.isDepleted(vars.streamId), "isDepleted");
+        assertFalse(lockup.wasCanceled(vars.streamId), "wasCanceled");
         assertEq(lockup.getSegments(vars.streamId), params.segments, "segments");
 
         // Assert that the stream's status is correct.

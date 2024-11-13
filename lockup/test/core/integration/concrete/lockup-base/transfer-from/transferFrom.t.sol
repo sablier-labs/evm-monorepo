@@ -8,8 +8,10 @@ import { Errors } from "src/core/libraries/Errors.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
-abstract contract TransferFrom_Integration_Concrete_Test is Integration_Test {
+contract TransferFrom_Integration_Concrete_Test is Integration_Test {
     function setUp() public virtual override {
+        Integration_Test.setUp();
+
         // Set recipient as caller for this test.
         resetPrank({ msgSender: users.recipient });
     }

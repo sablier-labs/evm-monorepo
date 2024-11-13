@@ -44,6 +44,11 @@ abstract contract Assertions is PRBMathAssertions {
         assertEq(address(a), address(b), err);
     }
 
+    /// @dev Compares two {Lockup.Model} enum values.
+    function assertEq(Lockup.Model a, Lockup.Model b) internal pure {
+        assertEq(uint8(a), uint8(b), "lockup model");
+    }
+
     /// @dev Compares two {Lockup.Timestamps} struct entities.
     function assertEq(Lockup.Timestamps memory a, Lockup.Timestamps memory b) internal {
         assertEqUint40(a.end, b.end, "timestamps.end");

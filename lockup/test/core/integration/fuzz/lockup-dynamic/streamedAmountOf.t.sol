@@ -4,9 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ZERO } from "@prb/math/src/UD60x18.sol";
 import { Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Dynamic_Integration_Shared_Test } from "./../../shared/lockup/LockupDynamic.t.sol";
+import { Lockup_Dynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
-contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic_Integration_Shared_Test {
+contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic_Integration_Fuzz_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
@@ -37,7 +37,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         // Create the stream with the fuzzed segment.
         Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
         params.totalAmount = segment.amount;
-        params.endTime = segment.timestamp;
+        params.timestamps.end = segment.timestamp;
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
 
         // Simulate the passage of time.
@@ -89,7 +89,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         // Create the stream with the fuzzed segments.
         Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
         params.totalAmount = totalAmount;
-        params.endTime = segments[segments.length - 1].timestamp;
+        params.timestamps.end = segments[segments.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
 
         // Simulate the passage of time.
@@ -136,7 +136,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         // Create the stream with the fuzzed segments.
         Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
         params.totalAmount = totalAmount;
-        params.endTime = segments[segments.length - 1].timestamp;
+        params.timestamps.end = segments[segments.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
 
         // Warp to the future for the first time.

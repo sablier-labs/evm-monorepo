@@ -76,7 +76,7 @@ contract LockupCreateHandler is BaseHandler {
         LockupLinear.Durations memory durations
     )
         public
-        instrument("createWithDurations")
+        instrument("createWithDurationsLL")
         adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
@@ -110,7 +110,7 @@ contract LockupCreateHandler is BaseHandler {
         LockupTranched.TrancheWithDuration[] memory tranches
     )
         public
-        instrument("createWithDurations")
+        instrument("createWithDurationsLT")
         adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
@@ -154,7 +154,7 @@ contract LockupCreateHandler is BaseHandler {
         LockupDynamic.Segment[] memory segments
     )
         public
-        instrument("createWithTimestamps")
+        instrument("createWithTimestampsLD")
         adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
@@ -166,10 +166,10 @@ contract LockupCreateHandler is BaseHandler {
         vm.assume(segments.length != 0);
 
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
-        params.startTime = boundUint40(params.startTime, 1, getBlockTimestamp());
+        params.timestamps.start = boundUint40(params.timestamps.start, 1, getBlockTimestamp());
 
         // Fuzz the segment timestamps.
-        fuzzSegmentTimestamps(segments, params.startTime);
+        fuzzSegmentTimestamps(segments, params.timestamps.start);
 
         // Fuzz the segment amounts and calculate the total amount.
         (params.totalAmount,) =
@@ -183,7 +183,7 @@ contract LockupCreateHandler is BaseHandler {
 
         // Create the stream.
         params.asset = asset;
-        params.endTime = segments[segments.length - 1].timestamp;
+        params.timestamps.end = segments[segments.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
 
         // Store the stream ID.
@@ -193,10 +193,10 @@ contract LockupCreateHandler is BaseHandler {
     function createWithTimestampsLL(
         uint256 timeJumpSeed,
         Lockup.CreateWithTimestamps memory params,
-        uint40 cliff
+        uint40 cliffTime
     )
         public
-        instrument("createWithTimestamps")
+        instrument("createWithTimestampsLL")
         adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
@@ -205,17 +205,17 @@ contract LockupCreateHandler is BaseHandler {
         vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
 
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
-        params.startTime = boundUint40(params.startTime, 1 seconds, getBlockTimestamp());
+        params.timestamps.start = boundUint40(params.timestamps.start, 1 seconds, getBlockTimestamp());
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // The cliff time must be either zero or greater than the start time.
-        if (cliff > 0) {
-            cliff = boundUint40(cliff, params.startTime + 1 seconds, params.startTime + 52 weeks);
+        if (cliffTime > 0) {
+            cliffTime = boundUint40(cliffTime, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks);
         }
 
         // Bound the end time so that it is always greater than the start time, and the cliff time.
-        uint40 endTimeLowerBound = maxOfTwo(params.startTime, cliff);
-        params.endTime = boundUint40(params.endTime, endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
+        uint40 endTimeLowerBound = maxOfTwo(params.timestamps.start, cliffTime);
+        params.timestamps.end = boundUint40(params.timestamps.end, endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
 
         // Mint enough assets to the Sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
@@ -225,7 +225,7 @@ contract LockupCreateHandler is BaseHandler {
 
         // Create the stream.
         params.asset = asset;
-        uint256 streamId = lockup.createWithTimestampsLL(params, cliff);
+        uint256 streamId = lockup.createWithTimestampsLL(params, cliffTime);
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -237,7 +237,7 @@ contract LockupCreateHandler is BaseHandler {
         LockupTranched.Tranche[] memory tranches
     )
         public
-        instrument("createWithTimestamps")
+        instrument("createWithTimestampsLT")
         adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
@@ -249,10 +249,10 @@ contract LockupCreateHandler is BaseHandler {
         vm.assume(tranches.length != 0);
 
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
-        params.startTime = boundUint40(params.startTime, 1, getBlockTimestamp());
+        params.timestamps.start = boundUint40(params.timestamps.start, 1, getBlockTimestamp());
 
         // Fuzz the tranche timestamps.
-        fuzzTrancheTimestamps(tranches, params.startTime);
+        fuzzTrancheTimestamps(tranches, params.timestamps.start);
 
         // Fuzz the tranche amounts and calculate the total amount.
         (params.totalAmount,) = fuzzTranchedStreamAmounts({
@@ -269,7 +269,7 @@ contract LockupCreateHandler is BaseHandler {
 
         // Create the stream.
         params.asset = asset;
-        params.endTime = tranches[tranches.length - 1].timestamp;
+        params.timestamps.end = tranches[tranches.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
 
         // Store the stream ID.

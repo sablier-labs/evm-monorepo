@@ -17,6 +17,7 @@ abstract contract CreateWithTimestampsLL_BatchLockup_Fork_Test is Fork_Test {
     struct CreateWithTimestampsParams {
         uint128 batchSize;
         Lockup.Timestamps timestamps;
+        uint40 cliffTime;
         address sender;
         address recipient;
         uint128 perStreamAmount;
@@ -27,11 +28,9 @@ abstract contract CreateWithTimestampsLL_BatchLockup_Fork_Test is Fork_Test {
         params.perStreamAmount = boundUint128(params.perStreamAmount, 1, MAX_UINT128 / params.batchSize);
         params.timestamps.start =
             boundUint40(params.timestamps.start, getBlockTimestamp(), getBlockTimestamp() + 24 hours);
-        params.timestamps.cliff = boundUint40(
-            params.timestamps.cliff, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks
-        );
-        params.timestamps.end =
-            boundUint40(params.timestamps.end, params.timestamps.cliff + 1 seconds, MAX_UNIX_TIMESTAMP);
+        params.cliffTime =
+            boundUint40(params.cliffTime, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks);
+        params.timestamps.end = boundUint40(params.timestamps.end, params.cliffTime + 1 seconds, MAX_UNIX_TIMESTAMP);
 
         checkUsers(params.sender, params.recipient);
 
@@ -48,12 +47,11 @@ abstract contract CreateWithTimestampsLL_BatchLockup_Fork_Test is Fork_Test {
             asset: FORK_ASSET,
             cancelable: true,
             transferable: true,
-            startTime: params.timestamps.start,
-            endTime: params.timestamps.end,
+            timestamps: params.timestamps,
             broker: defaults.brokerNull()
         });
         BatchLockup.CreateWithTimestampsLL[] memory batchParams =
-            BatchLockupBuilder.fillBatch(createParams, params.timestamps.cliff, params.batchSize);
+            BatchLockupBuilder.fillBatch(createParams, params.cliffTime, params.batchSize);
 
         // Asset flow: sender → batch → Sablier
         expectCallToTransferFrom({
@@ -65,7 +63,7 @@ abstract contract CreateWithTimestampsLL_BatchLockup_Fork_Test is Fork_Test {
         expectMultipleCallsToCreateWithTimestampsLL({
             count: uint64(params.batchSize),
             params: createParams,
-            cliff: params.timestamps.cliff
+            cliff: params.cliffTime
         });
         expectMultipleCallsToTransferFrom({
             asset: FORK_ASSET,

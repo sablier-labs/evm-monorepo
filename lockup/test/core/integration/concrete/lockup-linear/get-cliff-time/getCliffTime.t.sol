@@ -2,16 +2,27 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/core/libraries/Errors.sol";
+import { Lockup } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Linear_Integration_Shared_Test } from "../LockupLinear.t.sol";
+import { Lockup_Linear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
 
-contract GetCliffTime_Integration_Concrete_Test is Lockup_Linear_Integration_Shared_Test {
+contract GetCliffTime_Integration_Concrete_Test is Lockup_Linear_Integration_Concrete_Test {
     function test_RevertGiven_Null() external {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, nullStreamId));
-        lockup.getCliffTime(nullStreamId);
+        expectRevert_Null({ callData: abi.encodeCall(lockup.getCliffTime, nullStreamId) });
     }
 
-    function test_GivenNotNull() external view {
+    function test_RevertGiven_NotLinearModel() external givenNotNull {
+        lockupModel = Lockup.Model.LOCKUP_TRANCHED;
+        uint256 streamId = createDefaultStream();
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierLockup_NotExpectedModel.selector, Lockup.Model.LOCKUP_TRANCHED, Lockup.Model.LOCKUP_LINEAR
+            )
+        );
+        lockup.getCliffTime(streamId);
+    }
+
+    function test_GivenLinearModel() external view givenNotNull {
         uint40 actualCliffTime = lockup.getCliffTime(defaultStreamId);
         uint40 expectedCliffTime = defaults.CLIFF_TIME();
         assertEq(actualCliffTime, expectedCliffTime, "cliffTime");

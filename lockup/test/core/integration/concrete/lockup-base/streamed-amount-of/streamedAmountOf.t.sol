@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Errors } from "src/core/libraries/Errors.sol";
-
 import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract StreamedAmountOf_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_Null() external {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, nullStreamId));
-        lockup.streamedAmountOf(nullStreamId);
+        expectRevert_Null({ callData: abi.encodeCall(lockup.streamedAmountOf, nullStreamId) });
     }
 
     function test_GivenCanceledStreamAndCANCELEDStatus() external givenNotNull {

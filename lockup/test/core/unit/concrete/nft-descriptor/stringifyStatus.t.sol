@@ -3,9 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup } from "src/core/types/DataTypes.sol";
 
-import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract StringifyStatus_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
+contract StringifyStatus_Unit_Concrete_Test is Base_Test {
     function test_StringifyStatus() external view {
         assertEq(nftDescriptorMock.stringifyStatus_(Lockup.Status.DEPLETED), "Depleted", "depleted status mismatch");
         assertEq(nftDescriptorMock.stringifyStatus_(Lockup.Status.CANCELED), "Canceled", "canceled status mismatch");

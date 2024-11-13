@@ -29,7 +29,7 @@ contract Lockup_Tranched_Gas_Test is Benchmark_Test {
         vm.writeFile({
             path: benchmarkResultsFile,
             data: string.concat(
-                "# Benchmarks for Lockup Tranched\n\n", "| Implementation | Gas Usage |\n", "| --- | --- |\n"
+                "# Benchmarks for Lockup Tranched Model\n\n", "| Implementation | Gas Usage |\n", "| --- | --- |\n"
             )
         });
 
@@ -207,8 +207,8 @@ contract Lockup_Tranched_Gas_Test is Benchmark_Test {
 
         params = defaults.createWithTimestamps();
         params.broker.fee = brokerFee;
-        params.startTime = getBlockTimestamp();
-        params.endTime = tranches_[totalTranches - 1].timestamp;
+        params.timestamps.start = getBlockTimestamp();
+        params.timestamps.end = tranches_[totalTranches - 1].timestamp;
         params.totalAmount = _calculateTotalAmount(depositAmount, brokerFee);
         return (params, tranches_);
     }

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract CalculateStreamedPercentage_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
+contract CalculateStreamedPercentage_Unit_Concrete_Test is Base_Test {
     function test_CalculateStreamedPercentage_Zero() external view {
         uint256 actualStreamedPercentage =
             nftDescriptorMock.calculateStreamedPercentage_({ streamedAmount: 0, depositedAmount: 1337e18 });

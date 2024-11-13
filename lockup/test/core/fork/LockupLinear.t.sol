@@ -41,6 +41,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         uint128 withdrawAmount;
         uint40 warpTimestamp;
         Lockup.Timestamps timestamps;
+        uint40 cliffTime;
         Broker broker;
     }
 
@@ -124,14 +125,13 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
 
         // The cliff time must be either zero or greater than the start time.
-        vars.hasCliff = params.timestamps.cliff > 0;
+        vars.hasCliff = params.cliffTime > 0;
         if (vars.hasCliff) {
-            params.timestamps.cliff = boundUint40(
-                params.timestamps.cliff, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks
-            );
+            params.cliffTime =
+                boundUint40(params.cliffTime, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks);
         }
         // Bound the end time so that it is always greater than the start time, and the cliff time.
-        vars.endTimeLowerBound = maxOfTwo(params.timestamps.start, params.timestamps.cliff);
+        vars.endTimeLowerBound = maxOfTwo(params.timestamps.start, params.cliffTime);
         params.timestamps.end =
             boundUint40(params.timestamps.end, vars.endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
 
@@ -168,6 +168,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
             cancelable: true,
             transferable: true,
             timestamps: params.timestamps,
+            cliffTime: params.cliffTime,
             broker: params.broker.account
         });
 
@@ -180,11 +181,10 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
                 asset: FORK_ASSET,
                 cancelable: true,
                 transferable: true,
-                startTime: params.timestamps.start,
-                endTime: params.timestamps.end,
+                timestamps: params.timestamps,
                 broker: params.broker
             }),
-            params.timestamps.cliff
+            params.cliffTime
         );
 
         // Check if the stream is settled. It is possible for a Lockup Linear stream to settle at the time of creation
@@ -195,16 +195,16 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         // Assert that the stream has been created.
         assertEq(lockup.getDepositedAmount(vars.streamId), vars.createAmounts.deposit, "depositedAmount");
         assertEq(lockup.getAsset(vars.streamId), FORK_ASSET, "asset");
-        assertEq(lockup.getCliffTime(vars.streamId), params.timestamps.cliff, "cliffTime");
+        assertEq(lockup.getCliffTime(vars.streamId), params.cliffTime, "cliffTime");
         assertEq(lockup.getEndTime(vars.streamId), params.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(vars.streamId), vars.isCancelable, "isCancelable");
-        assertEq(lockup.isDepleted(vars.streamId), false, "isDepleted");
-        assertEq(lockup.isStream(vars.streamId), true, "isStream");
-        assertEq(lockup.isTransferable(vars.streamId), true, "isTransferable");
+        assertFalse(lockup.isDepleted(vars.streamId), "isDepleted");
+        assertTrue(lockup.isStream(vars.streamId), "isStream");
+        assertTrue(lockup.isTransferable(vars.streamId), "isTransferable");
         assertEq(lockup.getRecipient(vars.streamId), params.recipient, "recipient");
         assertEq(lockup.getSender(vars.streamId), params.sender, "sender");
         assertEq(lockup.getStartTime(vars.streamId), params.timestamps.start, "startTime");
-        assertEq(lockup.wasCanceled(vars.streamId), false, "wasCanceled");
+        assertFalse(lockup.wasCanceled(vars.streamId), "wasCanceled");
 
         // Assert that the stream's status is correct.
         vars.actualStatus = lockup.statusOf(vars.streamId);
@@ -254,7 +254,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         // Simulate the passage of time.
         params.warpTimestamp = boundUint40(
             params.warpTimestamp,
-            vars.hasCliff ? params.timestamps.cliff : params.timestamps.start + 1 seconds,
+            vars.hasCliff ? params.cliffTime : params.timestamps.start + 1 seconds,
             params.timestamps.end + 100 seconds
         );
         vm.warp({ newTimestamp: params.warpTimestamp });

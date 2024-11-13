@@ -3,14 +3,14 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { WithdrawableAmountOf_Integration_Concrete_Test } from
     "./../../lockup-base/withdrawable-amount-of/withdrawableAmountOf.t.sol";
-import { Lockup_Linear_Integration_Shared_Test, Integration_Test } from "./../LockupLinear.t.sol";
+import { Lockup_Linear_Integration_Concrete_Test, Integration_Test } from "./../LockupLinear.t.sol";
 
 contract WithdrawableAmountOf_Lockup_Linear_Integration_Concrete_Test is
-    Lockup_Linear_Integration_Shared_Test,
+    Lockup_Linear_Integration_Concrete_Test,
     WithdrawableAmountOf_Integration_Concrete_Test
 {
-    function setUp() public virtual override(Lockup_Linear_Integration_Shared_Test, Integration_Test) {
-        Lockup_Linear_Integration_Shared_Test.setUp();
+    function setUp() public virtual override(Lockup_Linear_Integration_Concrete_Test, Integration_Test) {
+        Lockup_Linear_Integration_Concrete_Test.setUp();
     }
 
     function test_GivenCliffTimeInFuture() external givenSTREAMINGStatus {

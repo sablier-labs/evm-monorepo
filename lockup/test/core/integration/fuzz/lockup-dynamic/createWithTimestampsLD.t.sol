@@ -6,16 +6,9 @@ import { stdError } from "forge-std/src/StdError.sol";
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Broker, Lockup, LockupDynamic } from "src/core/types/DataTypes.sol";
-import { Lockup_Integration_Shared_Test } from "./../../shared/lockup/Lockup.t.sol";
+import { Lockup_Dynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
-contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Integration_Shared_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
-        Lockup_Integration_Shared_Test.setUp();
-        streamId = lockup.nextStreamId();
-    }
-
+contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integration_Fuzz_Test {
     function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
         external
         whenNoDelegateCall
@@ -27,8 +20,8 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Integration_Shar
         uint256 defaultMax = defaults.MAX_COUNT();
         segmentCount = _bound(segmentCount, defaultMax + 1, defaultMax * 2);
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_SegmentCountTooHigh.selector, segmentCount));
-        createDefaultStreamWithSegmentsLD(segments);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_SegmentCountTooHigh.selector, segmentCount));
+        lockup.createWithTimestampsLD(_defaultParams.createWithTimestamps, segments);
     }
 
     function testFuzz_RevertWhen_SegmentAmountsSumOverflows(
@@ -45,11 +38,10 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Integration_Shar
     {
         amount0 = boundUint128(amount0, MAX_UINT128 / 2 + 1, MAX_UINT128);
         amount1 = boundUint128(amount0, MAX_UINT128 / 2 + 1, MAX_UINT128);
-        LockupDynamic.Segment[] memory segments = defaults.segments();
-        segments[0].amount = amount0;
-        segments[1].amount = amount1;
+        _defaultParams.segments[0].amount = amount0;
+        _defaultParams.segments[1].amount = amount1;
         vm.expectRevert(stdError.arithmeticError);
-        createDefaultStreamWithSegmentsLD(segments);
+        createDefaultStream();
     }
 
     function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentTimestamp(uint40 firstTimestamp)
@@ -65,20 +57,17 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Integration_Shar
         firstTimestamp = boundUint40(firstTimestamp, 0, defaults.START_TIME());
 
         // Change the timestamp of the first segment.
-        LockupDynamic.Segment[] memory segments = defaults.segments();
-        segments[0].timestamp = firstTimestamp;
+        _defaultParams.segments[0].timestamp = firstTimestamp;
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockup_StartTimeNotLessThanFirstSegmentTimestamp.selector,
+                Errors.SablierHelpers_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                 defaults.START_TIME(),
-                segments[0].timestamp
+                _defaultParams.segments[0].timestamp
             )
         );
-
-        // Create the stream.
-        createDefaultStreamWithSegmentsLD(segments);
+        createDefaultStream();
     }
 
     function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositDiff)
@@ -102,21 +91,18 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Integration_Shar
         uint128 depositAmount = defaultDepositAmount + depositDiff;
 
         // Prepare the params.
-        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
-        params.totalAmount = depositAmount;
-        LockupDynamic.Segment[] memory segments = defaults.segments();
+        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
+        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockup_DepositAmountNotEqualToSegmentAmountsSum.selector,
+                Errors.SablierHelpers_DepositAmountNotEqualToSegmentAmountsSum.selector,
                 depositAmount,
                 defaultDepositAmount
             )
         );
-
-        // Create the stream.
-        lockup.createWithTimestampsLD(params, segments);
+        createDefaultStream();
     }
 
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
@@ -134,10 +120,11 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Integration_Shar
     {
         vm.assume(broker.account != address(0));
         broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
+        _defaultParams.createWithTimestamps.broker = broker;
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
+            abi.encodeWithSelector(Errors.SablierHelpers_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
         );
-        createDefaultStreamWithBrokerLD(broker);
+        createDefaultStream();
     }
 
     struct Vars {
@@ -190,27 +177,34 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Integration_Shar
         );
         vm.assume(segments.length != 0);
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
-        params.startTime = boundUint40(params.startTime, 1, defaults.START_TIME());
+
+        params.asset = dai;
+        params.timestamps.start = boundUint40(params.timestamps.start, 1, defaults.START_TIME());
         params.transferable = true;
 
         // Fuzz the segment timestamps.
-        fuzzSegmentTimestamps(segments, params.startTime);
+        fuzzSegmentTimestamps(segments, params.timestamps.start);
+        params.timestamps.end = segments[segments.length - 1].timestamp;
 
         // Fuzz the segment amounts and calculate the total and create amounts (deposit and broker fee).
         Vars memory vars;
         (vars.totalAmount, vars.createAmounts) =
             fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments, brokerFee: params.broker.fee });
 
+        params.totalAmount = vars.totalAmount;
+
         // Make the fuzzed funder the caller in the rest of this test.
         resetPrank(funder);
+
+        uint256 expectedStreamId = lockup.nextStreamId();
 
         // Mint enough assets to the fuzzed funder.
         deal({ token: address(dai), to: funder, give: vars.totalAmount });
 
-        // Approve {SablierLockupDynamic} to transfer the assets from the fuzzed funder.
+        // Approve {SablierLockup} to transfer the assets from the fuzzed funder.
         dai.approve({ spender: address(lockup), value: MAX_UINT256 });
 
-        // Expect the assets to be transferred from the funder to {SablierLockupDynamic}.
+        // Expect the assets to be transferred from the funder to {SablierLockup}.
         expectCallToTransferFrom({ from: funder, to: address(lockup), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.
@@ -220,10 +214,8 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Integration_Shar
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        Lockup.Timestamps memory timestamps =
-            Lockup.Timestamps({ start: params.startTime, cliff: 0, end: segments[segments.length - 1].timestamp });
         emit ISablierLockup.CreateLockupDynamicStream({
-            streamId: streamId,
+            streamId: expectedStreamId,
             funder: funder,
             sender: params.sender,
             recipient: params.recipient,
@@ -231,26 +223,13 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Integration_Shar
             asset: dai,
             cancelable: params.cancelable,
             transferable: params.transferable,
+            timestamps: params.timestamps,
             segments: segments,
-            timestamps: timestamps,
             broker: params.broker.account
         });
 
         // Create the stream.
-        lockup.createWithTimestampsLD(
-            Lockup.CreateWithTimestamps({
-                sender: params.sender,
-                recipient: params.recipient,
-                totalAmount: vars.totalAmount,
-                asset: dai,
-                cancelable: params.cancelable,
-                transferable: params.transferable,
-                startTime: params.startTime,
-                endTime: segments[segments.length - 1].timestamp,
-                broker: params.broker
-            }),
-            segments
-        );
+        uint256 streamId = lockup.createWithTimestampsLD(params, segments);
 
         // Check if the stream is settled. It is possible for a Lockup Dynamic stream to settle at the time of creation
         // because some segment amounts can be zero.
@@ -260,20 +239,21 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Integration_Shar
         // It should create the stream.
         assertEq(lockup.getDepositedAmount(streamId), vars.createAmounts.deposit, "depositedAmount");
         assertEq(lockup.getAsset(streamId), dai, "asset");
-        assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
+        assertEq(lockup.getEndTime(streamId), params.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), vars.isCancelable, "isCancelable");
-        assertEq(lockup.isDepleted(streamId), false, "isDepleted");
-        assertEq(lockup.isStream(streamId), true, "isStream");
-        assertEq(lockup.isTransferable(streamId), true, "isTransferable");
+        assertFalse(lockup.isDepleted(streamId), "isDepleted");
+        assertTrue(lockup.isStream(streamId), "isStream");
+        assertTrue(lockup.isTransferable(streamId), "isTransferable");
         assertEq(lockup.getRecipient(streamId), params.recipient, "recipient");
         assertEq(lockup.getSender(streamId), params.sender, "sender");
-        assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
-        assertEq(lockup.wasCanceled(streamId), false, "wasCanceled");
+        assertEq(lockup.getStartTime(streamId), params.timestamps.start, "startTime");
+        assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
         assertEq(lockup.getSegments(streamId), segments, "segments");
+        assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_DYNAMIC);
 
         // Assert that the stream's status is correct.
         vars.actualStatus = lockup.statusOf(streamId);
-        if (params.startTime > getBlockTimestamp()) {
+        if (params.timestamps.start > getBlockTimestamp()) {
             vars.expectedStatus = Lockup.Status.PENDING;
         } else if (vars.isSettled) {
             vars.expectedStatus = Lockup.Status.SETTLED;

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract CalculatePixelWidth_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
+contract CalculatePixelWidth_Unit_Concrete_Test is Base_Test {
     uint256 internal constant CHAR_WIDTH_LARGE = 16;
     uint256 internal constant CHAR_WIDTH_SMALL = 13;
 

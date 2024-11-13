@@ -9,17 +9,15 @@ import { ISablierLockupBase } from "src/core/interfaces/ISablierLockupBase.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
 
-abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
+contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData =
-            abi.encodeCall(ISablierLockupBase.withdrawMaxAndTransfer, (defaultStreamId, users.alice));
-        (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
-        expectRevertDueToDelegateCall(success, returnData);
+        expectRevert_DelegateCall({
+            callData: abi.encodeCall(lockup.withdrawMaxAndTransfer, (defaultStreamId, users.alice))
+        });
     }
 
     function test_RevertGiven_Null() external whenNoDelegateCall {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, nullStreamId));
-        lockup.withdrawMaxAndTransfer({ streamId: nullStreamId, newRecipient: users.recipient });
+        expectRevert_Null({ callData: abi.encodeCall(lockup.withdrawMaxAndTransfer, (nullStreamId, users.alice)) });
     }
 
     function test_RevertGiven_NonTransferableStream() external whenCallerRecipient whenNoDelegateCall givenNotNull {

@@ -4,9 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ZERO } from "@prb/math/src/UD60x18.sol";
 import { Broker, Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Tranched_Integration_Shared_Test } from "./../../shared/lockup/LockupTranched.t.sol";
+import { Lockup_Tranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
 
-contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranched_Integration_Shared_Test {
+contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranched_Integration_Fuzz_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
@@ -47,12 +47,11 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranch
         Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = totalAmount;
-        params.endTime = tranches[tranches.length - 1].timestamp;
+        params.timestamps.end = tranches[tranches.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
 
         // Simulate the passage of time.
-        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
-        vm.warp({ newTimestamp: blockTimestamp });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Run the test.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
@@ -95,7 +94,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranch
         Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = totalAmount;
-        params.endTime = tranches[tranches.length - 1].timestamp;
+        params.timestamps.end = tranches[tranches.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
 
         // Warp to the future for the first time.

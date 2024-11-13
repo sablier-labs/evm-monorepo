@@ -5,9 +5,9 @@ import { LibString } from "solady/src/utils/LibString.sol";
 
 import { SVGElements } from "src/core/libraries/SVGElements.sol";
 
-import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract Hourglass_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
+contract Hourglass_Unit_Concrete_Test is Base_Test {
     using LibString for string;
 
     function test_Hourglass_Pending() external view {

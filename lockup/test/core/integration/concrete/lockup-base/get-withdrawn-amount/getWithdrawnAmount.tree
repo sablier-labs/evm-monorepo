@@ -1,8 +1,0 @@
-GetWithdrawnAmount_Integration_Concrete_Test
-├── given null
-│  └── it should revert
-└── given not null
-   ├── given no previous withdrawals
-   │  └── it should return zero
-   └── given previous withdrawal
-      └── it should return the correct withdrawn amount

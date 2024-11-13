@@ -42,6 +42,9 @@ abstract contract CreateWithTimestampsLD_BatchLockup_Fork_Test is Fork_Test {
         deal({ token: address(FORK_ASSET), to: params.sender, give: uint256(totalTransferAmount) });
         approveContract({ asset_: FORK_ASSET, from: params.sender, spender: address(batchLockup) });
 
+        Lockup.Timestamps memory timestamps =
+            Lockup.Timestamps({ start: params.startTime, end: params.segments[params.segments.length - 1].timestamp });
+
         Lockup.CreateWithTimestamps memory createWithTimestamps = Lockup.CreateWithTimestamps({
             sender: params.sender,
             recipient: params.recipient,
@@ -49,10 +52,10 @@ abstract contract CreateWithTimestampsLD_BatchLockup_Fork_Test is Fork_Test {
             asset: FORK_ASSET,
             cancelable: true,
             transferable: true,
-            startTime: params.startTime,
-            endTime: params.segments[params.segments.length - 1].timestamp,
+            timestamps: timestamps,
             broker: defaults.brokerNull()
         });
+
         BatchLockup.CreateWithTimestampsLD[] memory batchParams =
             BatchLockupBuilder.fillBatch(createWithTimestamps, params.segments, params.batchSize);
 

@@ -44,7 +44,7 @@ abstract contract DeploymentLogger is BaseScript {
 
         // If there is no explorer URL set for a specific chain, use a placeholder.
         if (explorerMap[block.chainid].equal("")) {
-            explorerMap[block.chainid] = "N/A";
+            explorerMap[block.chainid] = "<N/A>";
         }
 
         // If there is no chain name set for a specific chain, use the chain ID.

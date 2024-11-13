@@ -1,5 +1,0 @@
-GetAsset_Integration_Concrete_Test
-├── given null
-│  └── it should revert
-└── given not null
-   └── it should return the correct address of the asset

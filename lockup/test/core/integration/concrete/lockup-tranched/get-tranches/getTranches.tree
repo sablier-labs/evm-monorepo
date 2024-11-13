@@ -2,4 +2,7 @@ GetTranches_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
-   └── it should return the correct tranches
+   ├── given not tranched model
+   │  └── it should revert
+   └── given tranched model
+      └── it should return the correct tranches

@@ -1,24 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup } from "src/core/types/DataTypes.sol";
 import { StreamedAmountOf_Integration_Concrete_Test } from
     "./../../lockup-base/streamed-amount-of/streamedAmountOf.t.sol";
-import { Lockup_Linear_Integration_Shared_Test, Integration_Test } from "./../LockupLinear.t.sol";
+import { Lockup_Linear_Integration_Concrete_Test, Integration_Test } from "./../LockupLinear.t.sol";
 
 contract StreamedAmountOf_Lockup_Linear_Integration_Concrete_Test is
-    Lockup_Linear_Integration_Shared_Test,
+    Lockup_Linear_Integration_Concrete_Test,
     StreamedAmountOf_Integration_Concrete_Test
 {
-    function setUp() public override(Lockup_Linear_Integration_Shared_Test, Integration_Test) {
-        Lockup_Linear_Integration_Shared_Test.setUp();
+    function setUp() public virtual override(Lockup_Linear_Integration_Concrete_Test, Integration_Test) {
+        Lockup_Linear_Integration_Concrete_Test.setUp();
     }
 
     function test_GivenCliffTimeZero() external givenPENDINGStatus {
+        uint40 cliffTime = 0;
+        uint256 streamId = lockup.createWithTimestampsLL(_defaultParams.createWithTimestamps, cliffTime);
+
         vm.warp({ newTimestamp: defaults.START_TIME() - 1 });
-        Lockup.Timestamps memory timestamps = defaults.lockupLinearTimestamps();
-        timestamps.cliff = 0;
-        uint256 streamId = createDefaultStreamWithTimestampsLL(timestamps);
 
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount = 0;
@@ -28,11 +27,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Concrete_Test is
     function test_GivenCliffTimeNotZero() external givenPENDINGStatus {
         vm.warp({ newTimestamp: defaults.START_TIME() - 1 });
 
-        Lockup.Timestamps memory timestamps = defaults.lockupLinearTimestamps();
-        timestamps.cliff = defaults.CLIFF_TIME();
-        uint256 streamId = createDefaultStreamWithTimestampsLL(timestamps);
-
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }

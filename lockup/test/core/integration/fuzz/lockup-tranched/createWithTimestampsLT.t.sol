@@ -8,16 +8,9 @@ import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Broker, Lockup, LockupTranched } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Integration_Shared_Test } from "./../../shared/lockup/Lockup.t.sol";
+import { Lockup_Tranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
 
-contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Integration_Shared_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
-        Lockup_Integration_Shared_Test.setUp();
-        streamId = lockup.nextStreamId();
-    }
-
+contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integration_Fuzz_Test {
     function testFuzz_RevertWhen_TrancheCountTooHigh(uint256 trancheCount)
         external
         whenNoDelegateCall
@@ -29,8 +22,8 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Integration_Shar
         uint256 defaultMax = defaults.MAX_COUNT();
         trancheCount = _bound(trancheCount, defaultMax + 1, defaultMax * 10);
         LockupTranched.Tranche[] memory tranches = new LockupTranched.Tranche[](trancheCount);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_TrancheCountTooHigh.selector, trancheCount));
-        createDefaultStreamWithTranchesLT(tranches);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_TrancheCountTooHigh.selector, trancheCount));
+        lockup.createWithTimestampsLT(_defaultParams.createWithTimestamps, tranches);
     }
 
     function testFuzz_RevertWhen_TrancheAmountsSumOverflows(
@@ -51,7 +44,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Integration_Shar
         tranches[0].amount = amount0;
         tranches[1].amount = amount1;
         vm.expectRevert(stdError.arithmeticError);
-        createDefaultStreamWithTranchesLT(tranches);
+        lockup.createWithTimestampsLT(_defaultParams.createWithTimestamps, tranches);
     }
 
     function testFuzz_RevertWhen_StartTimeNotLessThanFirstTrancheTimestamp(uint40 firstTimestamp)
@@ -73,14 +66,12 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Integration_Shar
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockup_StartTimeNotLessThanFirstTrancheTimestamp.selector,
+                Errors.SablierHelpers_StartTimeNotLessThanFirstTrancheTimestamp.selector,
                 defaults.START_TIME(),
                 tranches[0].timestamp
             )
         );
-
-        // Create the stream.
-        createDefaultStreamWithTranchesLT(tranches);
+        lockup.createWithTimestampsLT(_defaultParams.createWithTimestamps, tranches);
     }
 
     function testFuzz_RevertWhen_DepositAmountNotEqualToTrancheAmountsSum(uint128 depositDiff)
@@ -111,13 +102,12 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Integration_Shar
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockup_DepositAmountNotEqualToTrancheAmountsSum.selector,
+                Errors.SablierHelpers_DepositAmountNotEqualToTrancheAmountsSum.selector,
                 depositAmount,
                 defaultDepositAmount
             )
         );
 
-        // Create the stream.
         lockup.createWithTimestampsLT(params, tranches);
     }
 
@@ -137,9 +127,10 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Integration_Shar
         vm.assume(broker.account != address(0));
         broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
+            abi.encodeWithSelector(Errors.SablierHelpers_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
         );
-        createDefaultStreamWithBrokerLT(broker);
+        _defaultParams.createWithTimestamps.broker = broker;
+        lockup.createWithTimestampsLT(_defaultParams.createWithTimestamps, _defaultParams.tranches);
     }
 
     struct Vars {
@@ -193,16 +184,20 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Integration_Shar
         vm.assume(tranches.length != 0);
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
 
-        params.startTime = boundUint40(params.startTime, 1, defaults.START_TIME());
+        params.asset = dai;
+        params.timestamps.start = boundUint40(params.timestamps.start, 1, defaults.START_TIME());
         params.transferable = true;
 
         // Fuzz the tranche timestamps.
-        fuzzTrancheTimestamps(tranches, params.startTime);
+        fuzzTrancheTimestamps(tranches, params.timestamps.start);
+        params.timestamps.end = tranches[tranches.length - 1].timestamp;
 
         // Fuzz the tranche amounts and calculate the total and create amounts (deposit and broker fee).
         Vars memory vars;
         (vars.totalAmount, vars.createAmounts) =
             fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches, brokerFee: params.broker.fee });
+
+        params.totalAmount = vars.totalAmount;
 
         // Make the fuzzed funder the caller in the rest of this test.
         resetPrank(funder);
@@ -210,10 +205,10 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Integration_Shar
         // Mint enough assets to the fuzzed funder.
         deal({ token: address(dai), to: funder, give: vars.totalAmount });
 
-        // Approve {SablierLockupTranched} to transfer the assets from the fuzzed funder.
+        // Approve {SablierLockup} to transfer the assets from the fuzzed funder.
         dai.approve({ spender: address(lockup), value: MAX_UINT256 });
 
-        // Expect the assets to be transferred from the funder to {SablierLockupTranched}.
+        // Expect the assets to be transferred from the funder to {SablierLockup}.
         expectCallToTransferFrom({ from: funder, to: address(lockup), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.
@@ -221,12 +216,12 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Integration_Shar
             expectCallToTransferFrom({ from: funder, to: params.broker.account, value: vars.createAmounts.brokerFee });
         }
 
+        uint256 expectedStreamId = lockup.nextStreamId();
+
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        Lockup.Timestamps memory timestamps =
-            Lockup.Timestamps({ start: params.startTime, cliff: 0, end: tranches[tranches.length - 1].timestamp });
         emit ISablierLockup.CreateLockupTranchedStream({
-            streamId: streamId,
+            streamId: expectedStreamId,
             funder: funder,
             sender: params.sender,
             recipient: params.recipient,
@@ -235,25 +230,12 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Integration_Shar
             cancelable: params.cancelable,
             transferable: params.transferable,
             tranches: tranches,
-            timestamps: timestamps,
+            timestamps: params.timestamps,
             broker: params.broker.account
         });
 
         // Create the stream.
-        lockup.createWithTimestampsLT(
-            Lockup.CreateWithTimestamps({
-                sender: params.sender,
-                recipient: params.recipient,
-                totalAmount: vars.totalAmount,
-                asset: dai,
-                cancelable: params.cancelable,
-                transferable: params.transferable,
-                startTime: params.startTime,
-                endTime: tranches[tranches.length - 1].timestamp,
-                broker: params.broker
-            }),
-            tranches
-        );
+        uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
 
         // Check if the stream is settled. It is possible for a Lockup Tranched stream to settle at the time of creation
         // because some tranche amounts can be zero.
@@ -263,20 +245,21 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Integration_Shar
         // It should create the stream.
         assertEq(lockup.getDepositedAmount(streamId), vars.createAmounts.deposit, "depositedAmount");
         assertEq(lockup.getAsset(streamId), dai, "asset");
-        assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
+        assertEq(lockup.getEndTime(streamId), params.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), vars.isCancelable, "isCancelable");
-        assertEq(lockup.isDepleted(streamId), false, "isDepleted");
-        assertEq(lockup.isStream(streamId), true, "isStream");
-        assertEq(lockup.isTransferable(streamId), true, "isTransferable");
+        assertFalse(lockup.isDepleted(streamId), "isDepleted");
+        assertTrue(lockup.isStream(streamId), "isStream");
+        assertTrue(lockup.isTransferable(streamId), "isTransferable");
         assertEq(lockup.getRecipient(streamId), params.recipient, "recipient");
         assertEq(lockup.getSender(streamId), params.sender, "sender");
-        assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
-        assertEq(lockup.wasCanceled(streamId), false, "wasCanceled");
+        assertEq(lockup.getStartTime(streamId), params.timestamps.start, "startTime");
+        assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
         assertEq(lockup.getTranches(streamId), tranches, "tranches");
+        assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_TRANCHED);
 
         // Assert that the stream's status is correct.
         vars.actualStatus = lockup.statusOf(streamId);
-        if (params.startTime > getBlockTimestamp()) {
+        if (params.timestamps.start > getBlockTimestamp()) {
             vars.expectedStatus = Lockup.Status.PENDING;
         } else if (vars.isSettled) {
             vars.expectedStatus = Lockup.Status.SETTLED;

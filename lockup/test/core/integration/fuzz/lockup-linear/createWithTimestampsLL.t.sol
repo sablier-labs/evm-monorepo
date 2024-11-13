@@ -7,16 +7,9 @@ import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
 import { Broker, Lockup } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Integration_Shared_Test } from "./../../shared/lockup/Lockup.t.sol";
+import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
-contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Integration_Shared_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
-        Lockup_Integration_Shared_Test.setUp();
-        streamId = lockup.nextStreamId();
-    }
-
+contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integration_Fuzz_Test {
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNoDelegateCall
@@ -27,9 +20,11 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Integration_Shar
         vm.assume(broker.account != address(0));
         broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
+            abi.encodeWithSelector(Errors.SablierHelpers_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
         );
-        createDefaultStreamWithBrokerLL(broker);
+
+        _defaultParams.createWithTimestamps.broker = broker;
+        lockup.createWithTimestampsLL(_defaultParams.createWithTimestamps, _defaultParams.cliffTime);
     }
 
     function testFuzz_RevertWhen_StartTimeNotLessThanCliffTime(uint40 startTime)
@@ -40,12 +35,14 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Integration_Shar
         whenDepositAmountNotZero
     {
         startTime = boundUint40(startTime, defaults.CLIFF_TIME() + 1 seconds, defaults.END_TIME() - 1 seconds);
+        _defaultParams.createWithTimestamps.timestamps.start = startTime;
+
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockup_StartTimeNotLessThanCliffTime.selector, startTime, defaults.CLIFF_TIME()
+                Errors.SablierHelpers_StartTimeNotLessThanCliffTime.selector, startTime, defaults.CLIFF_TIME()
             )
         );
-        createDefaultStreamWithStartTimeLL(startTime);
+        lockup.createWithTimestampsLL(_defaultParams.createWithTimestamps, _defaultParams.cliffTime);
     }
 
     function testFuzz_RevertWhen_CliffTimeNotLessThanEndTime(
@@ -62,13 +59,19 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Integration_Shar
         endTime = boundUint40(endTime, startTime + 1 seconds, startTime + 2 weeks);
         cliffTime = boundUint40(cliffTime, endTime, MAX_UNIX_TIMESTAMP);
 
+        _defaultParams.createWithTimestamps.timestamps.start = startTime;
+        _defaultParams.createWithTimestamps.timestamps.end = endTime;
+
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockup_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime)
+            abi.encodeWithSelector(Errors.SablierHelpers_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime)
         );
-        createDefaultStreamWithTimestampsLL(Lockup.Timestamps({ start: startTime, cliff: cliffTime, end: endTime }));
+
+        lockup.createWithTimestampsLL(_defaultParams.createWithTimestamps, cliffTime);
     }
 
     struct Vars {
+        uint256 expectedStreamId;
+        uint256 actualStreamId;
         uint256 actualNextStreamId;
         address actualNFTOwner;
         Lockup.Status actualStatus;
@@ -111,16 +114,18 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Integration_Shar
                 && params.broker.account != address(0)
         );
         vm.assume(params.totalAmount != 0);
-        params.startTime = boundUint40(params.startTime, defaults.START_TIME(), defaults.START_TIME() + 10_000 seconds);
+        params.timestamps.start =
+            boundUint40(params.timestamps.start, defaults.START_TIME(), defaults.START_TIME() + 10_000 seconds);
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.transferable = true;
 
         // The cliff time must be either zero or greater than the start time.
         if (cliffTime > 0) {
-            cliffTime = boundUint40(cliffTime, params.startTime + 1 seconds, params.startTime + 52 weeks);
-            params.endTime = boundUint40(params.endTime, cliffTime + 1 seconds, MAX_UNIX_TIMESTAMP);
+            cliffTime = boundUint40(cliffTime, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks);
+            params.timestamps.end = boundUint40(params.timestamps.end, cliffTime + 1 seconds, MAX_UNIX_TIMESTAMP);
         } else {
-            params.endTime = boundUint40(params.endTime, params.startTime + 1 seconds, MAX_UNIX_TIMESTAMP);
+            params.timestamps.end =
+                boundUint40(params.timestamps.end, params.timestamps.start + 1 seconds, MAX_UNIX_TIMESTAMP);
         }
 
         // Calculate the fee amounts and the deposit amount.
@@ -131,14 +136,15 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Integration_Shar
 
         // Make the fuzzed funder the caller in this test.
         resetPrank(funder);
+        vars.expectedStreamId = lockup.nextStreamId();
 
         // Mint enough assets to the funder.
         deal({ token: address(dai), to: funder, give: params.totalAmount });
 
-        // Approve {SablierLockupLinear} to transfer the assets from the fuzzed funder.
+        // Approve {SablierLockup} to transfer the assets from the fuzzed funder.
         dai.approve({ spender: address(lockup), value: MAX_UINT256 });
 
-        // Expect the assets to be transferred from the funder to {SablierLockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierLockup}.
         expectCallToTransferFrom({ from: funder, to: address(lockup), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.
@@ -149,7 +155,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Integration_Shar
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupLinearStream({
-            streamId: streamId,
+            streamId: vars.expectedStreamId,
             funder: funder,
             sender: params.sender,
             recipient: params.recipient,
@@ -157,53 +163,40 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Integration_Shar
             asset: dai,
             cancelable: params.cancelable,
             transferable: params.transferable,
-            timestamps: Lockup.Timestamps({ start: params.startTime, cliff: cliffTime, end: params.endTime }),
+            timestamps: Lockup.Timestamps({ start: params.timestamps.start, end: params.timestamps.end }),
+            cliffTime: cliffTime,
             broker: params.broker.account
         });
 
+        params.asset = dai;
+
         // Create the stream.
-        lockup.createWithTimestampsLL(
-            Lockup.CreateWithTimestamps({
-                sender: params.sender,
-                recipient: params.recipient,
-                totalAmount: params.totalAmount,
-                asset: dai,
-                cancelable: params.cancelable,
-                transferable: params.transferable,
-                startTime: params.startTime,
-                endTime: params.endTime,
-                broker: params.broker
-            }),
-            cliffTime
-        );
+        vars.actualStreamId = lockup.createWithTimestampsLL(params, cliffTime);
 
         // It should create the stream.
-        assertEq(lockup.getDepositedAmount(streamId), vars.createAmounts.deposit, "depositedAmount");
-        assertEq(lockup.getAsset(streamId), dai, "asset");
-        assertEq(lockup.getEndTime(streamId), params.endTime, "endTime");
-        assertEq(lockup.isCancelable(streamId), params.cancelable, "isCancelable");
-        assertEq(lockup.isDepleted(streamId), false, "isDepleted");
-        assertEq(lockup.isStream(streamId), true, "isStream");
-        assertEq(lockup.isTransferable(streamId), true, "isTransferable");
-        assertEq(lockup.getRecipient(streamId), params.recipient, "recipient");
-        assertEq(lockup.getSender(streamId), params.sender, "sender");
-        assertEq(lockup.getStartTime(streamId), params.startTime, "startTime");
-        assertEq(lockup.wasCanceled(streamId), false, "wasCanceled");
-        assertEq(lockup.getCliffTime(streamId), cliffTime, "cliff");
+        assertEq(lockup.getDepositedAmount(vars.actualStreamId), vars.createAmounts.deposit, "depositedAmount");
+        assertEq(lockup.getAsset(vars.actualStreamId), dai, "asset");
+        assertEq(lockup.getEndTime(vars.actualStreamId), params.timestamps.end, "endTime");
+        assertEq(lockup.isCancelable(vars.actualStreamId), params.cancelable, "isCancelable");
+        assertFalse(lockup.isDepleted(vars.actualStreamId), "isDepleted");
+        assertTrue(lockup.isStream(vars.actualStreamId), "isStream");
+        assertTrue(lockup.isTransferable(vars.actualStreamId), "isTransferable");
+        assertEq(lockup.getRecipient(vars.actualStreamId), params.recipient, "recipient");
+        assertEq(lockup.getSender(vars.actualStreamId), params.sender, "sender");
+        assertEq(lockup.getStartTime(vars.actualStreamId), params.timestamps.start, "startTime");
+        assertFalse(lockup.wasCanceled(vars.actualStreamId), "wasCanceled");
+        assertEq(lockup.getCliffTime(vars.actualStreamId), cliffTime, "cliff");
+        assertEq(lockup.getLockupModel(vars.actualStreamId), Lockup.Model.LOCKUP_LINEAR);
 
         // Assert that the stream's status is correct.
-        vars.actualStatus = lockup.statusOf(streamId);
-        vars.expectedStatus = params.startTime > getBlockTimestamp() ? Lockup.Status.PENDING : Lockup.Status.STREAMING;
+        vars.actualStatus = lockup.statusOf(vars.actualStreamId);
+        vars.expectedStatus =
+            params.timestamps.start > getBlockTimestamp() ? Lockup.Status.PENDING : Lockup.Status.STREAMING;
         assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the next stream ID has been bumped.
         vars.actualNextStreamId = lockup.nextStreamId();
-        vars.expectedNextStreamId = streamId + 1;
+        vars.expectedNextStreamId = vars.actualStreamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
-
-        // Assert that the NFT has been minted.
-        vars.actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
-        vars.expectedNFTOwner = params.recipient;
-        assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
     }
 }

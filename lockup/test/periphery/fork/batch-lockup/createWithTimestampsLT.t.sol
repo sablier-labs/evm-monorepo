@@ -34,6 +34,9 @@ abstract contract CreateWithTimestampsLT_BatchLockup_Fork_Test is Fork_Test {
             brokerFee: defaults.brokerNull().fee
         });
 
+        Lockup.Timestamps memory timestamps =
+            Lockup.Timestamps({ start: params.startTime, end: params.tranches[params.tranches.length - 1].timestamp });
+
         checkUsers(params.sender, params.recipient);
 
         uint256 firstStreamId = lockup.nextStreamId();
@@ -49,8 +52,7 @@ abstract contract CreateWithTimestampsLT_BatchLockup_Fork_Test is Fork_Test {
             asset: FORK_ASSET,
             cancelable: true,
             transferable: true,
-            startTime: params.startTime,
-            endTime: params.tranches[params.tranches.length - 1].timestamp,
+            timestamps: timestamps,
             broker: defaults.brokerNull()
         });
         BatchLockup.CreateWithTimestampsLT[] memory batchParams =

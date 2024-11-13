@@ -8,21 +8,46 @@ import { Lockup } from "src/core/types/DataTypes.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
-abstract contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
+contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
     address internal caller;
 
     // The original time when the tests started.
     uint40 internal originalTime;
 
+    // An array of amounts to be used in `withdrawMultiple` tests.
+    uint128[] internal withdrawAmounts;
+
+    // An array of stream IDs to be withdrawn from.
+    uint256[] internal withdrawMultipleStreamIds;
+
     function setUp() public virtual override {
+        Integration_Test.setUp();
+
         originalTime = getBlockTimestamp();
+
+        withdrawMultipleStreamIds = warpAndCreateStreams(defaults.START_TIME());
+
+        withdrawAmounts.push(defaults.WITHDRAW_AMOUNT());
+        withdrawAmounts.push(defaults.DEPOSIT_AMOUNT());
+        withdrawAmounts.push(defaults.WITHDRAW_AMOUNT() / 2);
+    }
+
+    function warpAndCreateStreams(uint40 warpTime) internal returns (uint256[3] memory streamIds) {
+        vm.warp({ newTimestamp: warpTime });
+
+        // Create three test streams:
+        // 1. A default stream
+        // 2. A stream with an early end time
+        // 3. A stream meant to be canceled before the withdrawal is made
+        streamIds[0] = createDefaultStream();
+        streamIds[1] = createDefaultStreamWithEndTime(defaults.WARP_26_PERCENT());
+        streamIds[2] = createDefaultStream();
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData =
-            abi.encodeCall(ISablierLockupBase.withdrawMultiple, (withdrawMultipleStreamIds, withdrawAmounts));
-        (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
-        expectRevertDueToDelegateCall(success, returnData);
+        expectRevert_DelegateCall({
+            callData: abi.encodeCall(lockup.withdrawMultiple, (withdrawMultipleStreamIds, withdrawAmounts))
+        });
     }
 
     function test_RevertWhen_UnequalArraysLength() external whenNoDelegateCall {
@@ -132,6 +157,23 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test
             )
         );
         lockup.withdrawMultiple({ streamIds: withdrawMultipleStreamIds, amounts: amounts });
+    }
+
+    /// @dev This modifier runs the test in three different modes:
+    /// - Stream's sender as caller
+    /// - Stream's recipient as caller
+    /// - Approved NFT operator as caller
+    modifier whenCallerAuthorizedForAllStreams() override {
+        caller = users.sender;
+        _;
+
+        withdrawMultipleStreamIds = warpAndCreateStreams({ warpTime: originalTime });
+        caller = users.recipient;
+        _;
+
+        withdrawMultipleStreamIds = warpAndCreateStreams({ warpTime: originalTime });
+        caller = users.operator;
+        _;
     }
 
     function test_WhenNoAmountsOverdraw()

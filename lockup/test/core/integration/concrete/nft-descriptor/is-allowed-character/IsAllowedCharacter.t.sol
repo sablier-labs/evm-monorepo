@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { NFTDescriptor_Integration_Shared_Test } from "../../../shared/nft-descriptor/NFTDescriptor.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract IsAllowedCharacter_Integration_Concrete_Test is NFTDescriptor_Integration_Shared_Test {
+contract IsAllowedCharacter_Integration_Concrete_Test is Base_Test {
     function test_WhenEmptyString() external view {
         string memory symbol = "";
         bool result = nftDescriptorMock.isAllowedCharacter_(symbol);

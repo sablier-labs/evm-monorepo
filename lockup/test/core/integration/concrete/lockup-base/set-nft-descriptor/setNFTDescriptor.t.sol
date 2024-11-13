@@ -8,7 +8,7 @@ import { Errors } from "src/core/libraries/Errors.sol";
 import { LockupNFTDescriptor } from "src/core/LockupNFTDescriptor.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
 
-abstract contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
+contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         resetPrank({ msgSender: users.eve });

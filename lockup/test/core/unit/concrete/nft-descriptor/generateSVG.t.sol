@@ -5,9 +5,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { NFTSVG } from "src/core/libraries/NFTSVG.sol";
 import { SVGElements } from "src/core/libraries/SVGElements.sol";
 
-import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
+contract GenerateSVG_Unit_Concrete_Test is Base_Test {
     /// @dev If you need to update the hard-coded token URI:
     /// 1. Use "vm.writeFile" to log the strings to a file.
     /// 2. Remember to escape 'Courier New' with \'Courier New\'.

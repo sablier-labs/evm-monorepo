@@ -4,9 +4,10 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
 import { ISablierLockupBase } from "src/core/interfaces/ISablierLockupBase.sol";
+import { ISablierLockupRecipient } from "src/core/interfaces/ISablierLockupRecipient.sol";
 import { Lockup } from "src/core/types/DataTypes.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "./../../Integration.t.sol";
 
 abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
     function testFuzz_Cancel_StatusPending(uint256 timeJump)
@@ -78,8 +79,17 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         uint128 senderAmount = lockup.refundableAmountOf(recipientGoodStreamId);
         expectCallToTransfer({ to: users.sender, value: senderAmount });
 
-        // Expect the relevant events to be emitted.
+        // Expect the recipient to be called.
         uint128 recipientAmount = lockup.withdrawableAmountOf(recipientGoodStreamId);
+        vm.expectCall(
+            address(recipientGood),
+            abi.encodeCall(
+                ISablierLockupRecipient.onSablierLockupCancel,
+                (recipientGoodStreamId, users.sender, senderAmount, recipientAmount)
+            )
+        );
+
+        // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.CancelLockupStream(
             recipientGoodStreamId, users.sender, address(recipientGood), dai, senderAmount, recipientAmount

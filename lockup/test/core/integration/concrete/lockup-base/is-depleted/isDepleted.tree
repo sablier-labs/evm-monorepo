@@ -1,8 +1,0 @@
-IsDepleted_Integration_Concrete_Test
-├── given null
-│  └── it should revert
-└── given not null
-   ├── given not depleted stream
-   │  └── it should return false
-   └── given depleted stream
-      └── it should return true

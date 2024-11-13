@@ -15,25 +15,20 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCall() external {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
-        bytes memory callData =
-            abi.encodeCall(ISablierLockupBase.withdraw, (defaultStreamId, users.recipient, withdrawAmount));
-        (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
-        expectRevertDueToDelegateCall(success, returnData);
+        expectRevert_DelegateCall({
+            callData: abi.encodeCall(lockup.withdraw, (defaultStreamId, users.recipient, withdrawAmount))
+        });
     }
 
     function test_RevertGiven_Null() external whenNoDelegateCall {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, nullStreamId));
-        lockup.withdraw({ streamId: nullStreamId, to: users.recipient, amount: withdrawAmount });
+        expectRevert_Null({ callData: abi.encodeCall(lockup.withdraw, (nullStreamId, users.recipient, withdrawAmount)) });
     }
 
     function test_RevertGiven_DEPLETEDStatus() external whenNoDelegateCall givenNotNull {
-        vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-
-        uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_StreamDepleted.selector, defaultStreamId));
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
+        expectRevert_DEPLETEDStatus({
+            callData: abi.encodeCall(lockup.withdraw, (defaultStreamId, users.recipient, defaults.WITHDRAW_AMOUNT()))
+        });
     }
 
     function test_RevertWhen_WithdrawalAddressZero() external whenNoDelegateCall givenNotNull givenNotDEPLETEDStatus {

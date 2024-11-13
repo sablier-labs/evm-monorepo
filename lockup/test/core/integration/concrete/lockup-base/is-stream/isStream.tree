@@ -1,5 +1,0 @@
-IsStream_Integration_Concrete_Test
-├── given null
-│  └── it should return false
-└── given not null
-   └── it should return true

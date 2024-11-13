@@ -3,9 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup } from "src/core/types/DataTypes.sol";
 
-import { Lockup_Linear_Integration_Shared_Test } from "./../../shared/lockup/LockupLinear.t.sol";
+import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
-contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_Integration_Shared_Test {
+contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_Integration_Fuzz_Test {
     function testFuzz_WithdrawableAmountOf_CliffTimeInFuture(uint40 timeJump)
         external
         givenNotNull

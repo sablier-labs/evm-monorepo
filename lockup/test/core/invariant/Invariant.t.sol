@@ -381,12 +381,14 @@ contract Invariant_Test is Base_Test, StdInvariant {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            if (lockup.getCliffTime(streamId) > 0) {
-                assertGt(
-                    lockup.getCliffTime(streamId),
-                    lockup.getStartTime(streamId),
-                    "Invariant violated: cliff time <= start time"
-                );
+            if (lockup.getLockupModel(streamId) == Lockup.Model.LOCKUP_LINEAR) {
+                if (lockup.getCliffTime(streamId) > 0) {
+                    assertGt(
+                        lockup.getCliffTime(streamId),
+                        lockup.getStartTime(streamId),
+                        "Invariant violated: cliff time <= start time"
+                    );
+                }
             }
         }
     }
@@ -396,9 +398,13 @@ contract Invariant_Test is Base_Test, StdInvariant {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            assertGt(
-                lockup.getEndTime(streamId), lockup.getCliffTime(streamId), "Invariant violated: end time <= cliff time"
-            );
+            if (lockup.getLockupModel(streamId) == Lockup.Model.LOCKUP_LINEAR) {
+                assertGt(
+                    lockup.getEndTime(streamId),
+                    lockup.getCliffTime(streamId),
+                    "Invariant violated: end time <= cliff time"
+                );
+            }
         }
     }
 

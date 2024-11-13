@@ -136,16 +136,8 @@ contract Defaults is Constants, Merkle {
         return Lockup.CreateAmounts({ deposit: DEPOSIT_AMOUNT, brokerFee: BROKER_FEE_AMOUNT });
     }
 
-    function lockupDynamicTimestamps() public view returns (Lockup.Timestamps memory) {
-        return Lockup.Timestamps({ start: START_TIME, cliff: 0, end: END_TIME });
-    }
-
-    function lockupLinearTimestamps() public view returns (Lockup.Timestamps memory) {
-        return Lockup.Timestamps({ start: START_TIME, cliff: CLIFF_TIME, end: END_TIME });
-    }
-
-    function lockupTranchedTimestamps() public view returns (Lockup.Timestamps memory) {
-        return Lockup.Timestamps({ start: START_TIME, cliff: 0, end: END_TIME });
+    function lockupTimestamps() public view returns (Lockup.Timestamps memory) {
+        return Lockup.Timestamps({ start: START_TIME, end: END_TIME });
     }
 
     function segments() public view returns (LockupDynamic.Segment[] memory segments_) {
@@ -229,8 +221,7 @@ contract Defaults is Constants, Merkle {
             asset: asset,
             cancelable: true,
             transferable: true,
-            startTime: START_TIME,
-            endTime: END_TIME,
+            timestamps: lockupTimestamps(),
             broker: broker()
         });
     }

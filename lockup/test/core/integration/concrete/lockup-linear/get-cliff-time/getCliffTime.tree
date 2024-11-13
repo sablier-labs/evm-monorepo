@@ -2,4 +2,7 @@ GetCliffTime_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
-   └── it should return the correct cliff time
+   ├── given not linear model
+   │  └── it should revert
+   └── given linear model
+      └── it should return the correct cliff time

@@ -21,7 +21,9 @@ contract Lockup_Linear_Gas_Test is Benchmark_Test {
         // Create the file if it doesn't exist, otherwise overwrite it.
         vm.writeFile({
             path: benchmarkResultsFile,
-            data: string.concat("# Benchmarks for Lockup Linear\n\n", "| Implementation | Gas Usage |\n", "| --- | --- |\n")
+            data: string.concat(
+                "# Benchmarks for Lockup Linear Model\n\n", "| Implementation | Gas Usage |\n", "| --- | --- |\n"
+            )
         });
 
         vm.warp({ newTimestamp: defaults.END_TIME() });
