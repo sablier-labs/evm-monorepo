@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { ISablierLockupLinear } from "../../core/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockup } from "../../core/interfaces/ISablierLockup.sol";
 
 import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
 
 /// @title ISablierMerkleLL
-/// @notice Merkle Lockup campaign that creates LockupLinear streams.
+/// @notice Merkle Lockup campaign that creates Lockup Linear streams.
 interface ISablierMerkleLL is ISablierMerkleBase {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
@@ -23,15 +23,15 @@ interface ISablierMerkleLL is ISablierMerkleBase {
     /// @dev This is an immutable state variable.
     function CANCELABLE() external returns (bool);
 
-    /// @notice The address of the {SablierLockupLinear} contract.
-    function LOCKUP_LINEAR() external view returns (ISablierLockupLinear);
+    /// @notice The address of the {SablierLockup} contract.
+    function LOCKUP() external view returns (ISablierLockup);
 
     /// @notice A flag indicating whether the stream NFTs are transferable.
     /// @dev This is an immutable state variable.
     function TRANSFERABLE() external returns (bool);
 
     /// @notice The start time, cliff duration and the end duration used to calculate the time variables in
-    /// `LockupLinear.CreateWithTimestamps`.
+    /// `Lockup.CreateWithTimestampsLL`.
     /// @dev A start time value of zero will be considered as `block.timestamp`.
     function schedule() external view returns (uint40 startTime, uint40 cliffDuration, uint40 endDuration);
 }

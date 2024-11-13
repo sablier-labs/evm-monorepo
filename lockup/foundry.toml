@@ -70,9 +70,7 @@
 
 [profile.smt.model_checker.contracts]
   "src/core/LockupNFTDescriptor.sol" = ["LockupNFTDescriptor"]
-  "src/core/SablierLockupDynamic.sol" = ["SablierLockupDynamic"]
-  "src/core/SablierLockupLinear.sol" = ["SablierLockupLinear"]
-  "src/core/SablierLockupTranched.sol" = ["SablierLockupTranched"]
+  "src/core/SablierLockup.sol" = ["SablierLockup"]
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
@@ -100,7 +98,7 @@
   scroll = { key = "${SCROLLSCAN_API_KEY}" }
   sepolia = { key = "${SEPOLIASCAN_KEY}" }
   taiko_mainnet = { key = "${TAIKO_MAINNET_API_KEY}" }
-  
+
 [fmt]
   bracket_spacing = true
   int_types = "long"

@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { ISablierLockupTranched } from "../../src/core/interfaces/ISablierLockupTranched.sol";
+import { ISablierLockup } from "../../src/core/interfaces/ISablierLockup.sol";
 import { ISablierMerkleFactory } from "../../src/periphery/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleLT } from "../../src/periphery/interfaces/ISablierMerkleLT.sol";
 import { MerkleBase, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
@@ -36,7 +36,7 @@ contract CreateMerkleLT is BaseScript {
         // TODO: Update address once deployed.
         merkleLT = merkleFactory.createMerkleLT({
             baseParams: baseParams,
-            lockupTranched: ISablierLockupTranched(0xf86B359035208e4529686A1825F2D5BeE38c28A8),
+            lockup: ISablierLockup(0xf86B359035208e4529686A1825F2D5BeE38c28A8),
             cancelable: true,
             transferable: true,
             streamStartTime: 0, // i.e. block.timestamp

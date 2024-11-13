@@ -12,7 +12,7 @@ contract BaseScript is Script {
     using Strings for uint256;
     using stdJson for string;
 
-    /// @dev The default value for `segmentCountMap` and `trancheCountMap`.
+    /// @dev The default value for `maxCountMap`.
     uint256 internal constant DEFAULT_MAX_COUNT = 500;
 
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
@@ -27,11 +27,8 @@ contract BaseScript is Script {
     /// @dev Used to derive the broadcaster's address if $EOA is not defined.
     string internal mnemonic;
 
-    /// @dev Maximum segment count mapped by the chain Id.
-    mapping(uint256 chainId => uint256 count) internal segmentCountMap;
-
-    /// @dev Maximum tranche count mapped by the chain Id.
-    mapping(uint256 chainId => uint256 count) internal trancheCountMap;
+    /// @dev Maximum count for segments and tranches mapped by the chain Id.
+    mapping(uint256 chainId => uint256 count) internal maxCountMap;
 
     /// @dev Initializes the transaction broadcaster like this:
     ///
@@ -49,15 +46,12 @@ contract BaseScript is Script {
             (broadcaster,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
         }
 
-        // Populate the segment and tranche count map.
-        populateSegmentAndTrancheCountMap();
+        // Populate the max count map for segments and tranches.
+        populateMaxCountMap();
 
         // If there is no maximum value set for a specific chain, use the default value.
-        if (segmentCountMap[block.chainid] == 0) {
-            segmentCountMap[block.chainid] = DEFAULT_MAX_COUNT;
-        }
-        if (trancheCountMap[block.chainid] == 0) {
-            trancheCountMap[block.chainid] = DEFAULT_MAX_COUNT;
+        if (maxCountMap[block.chainid] == 0) {
+            maxCountMap[block.chainid] = DEFAULT_MAX_COUNT;
         }
     }
 
@@ -86,53 +80,42 @@ contract BaseScript is Script {
         return json.readString(".version");
     }
 
-    /// @dev Populates the segment & tranche count map. Values can be updated using the `update-counts.sh` script.
-    function populateSegmentAndTrancheCountMap() internal {
+    /// @dev Updates max values for segments and tranches. Values can be updated using the `update-counts.sh` script.
+    function populateMaxCountMap() internal {
         // forgefmt: disable-start
 
         // Arbitrum chain ID
-        segmentCountMap[42161] = 1160;
-        trancheCountMap[42161] = 1200;
+        maxCountMap[42161] = 1160;
 
         // Avalanche chain ID.
-        segmentCountMap[43114] = 520;
-        trancheCountMap[43114] = 540;
+        maxCountMap[43114] = 520;
 
         // Base chain ID.
-        segmentCountMap[8453] = 2170;
-        trancheCountMap[8453] = 2270;
+        maxCountMap[8453] = 2170;
 
         // Blast chain ID.
-        segmentCountMap[81457] = 1080;
-        trancheCountMap[81457] = 1120;
+        maxCountMap[81457] = 1080;
 
         // BNB chain ID.
-        segmentCountMap[56] = 4820;
-        trancheCountMap[56] = 5130;
+        maxCountMap[56] = 4820;
 
         // Ethereum chain ID.
-        segmentCountMap[1] = 1080;
-        trancheCountMap[1] = 1120;
+        maxCountMap[1] = 1080;
 
         // Gnosis chain ID.
-        segmentCountMap[100] = 600;
-        trancheCountMap[100] = 620;
+        maxCountMap[100] = 600;
 
         // Optimism chain ID.
-        segmentCountMap[10] = 1080;
-        trancheCountMap[10] = 1120;
+        maxCountMap[10] = 1080;
 
         // Polygon chain ID.
-        segmentCountMap[137] = 1080;
-        trancheCountMap[137] = 1120;
+        maxCountMap[137] = 1080;
 
         // Scroll chain ID.
-        segmentCountMap[534352] = 330;
-        trancheCountMap[534352] = 340;
+        maxCountMap[534352] = 330;
 
         // Sepolia chain ID.
-        segmentCountMap[11155111] = 1080;
-        trancheCountMap[11155111] = 1120;
+        maxCountMap[11155111] = 1080;
 
         // forgefmt: disable-end
     }

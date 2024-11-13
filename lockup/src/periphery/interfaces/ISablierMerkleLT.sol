@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { ISablierLockupTranched } from "./../../core/interfaces/ISablierLockupTranched.sol";
+import { ISablierLockup } from "./../../core/interfaces/ISablierLockup.sol";
 import { MerkleLT } from "./../types/DataTypes.sol";
 import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
 
 /// @title ISablierMerkleLT
-/// @notice Merkle Lockup campaign that creates LockupTranched streams.
+/// @notice Merkle Lockup campaign that creates Lockup Tranched streams.
 interface ISablierMerkleLT is ISablierMerkleBase {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
@@ -23,8 +23,8 @@ interface ISablierMerkleLT is ISablierMerkleBase {
     /// @dev This is an immutable state variable.
     function CANCELABLE() external returns (bool);
 
-    /// @notice The address of the {SablierLockupTranched} contract.
-    function LOCKUP_TRANCHED() external view returns (ISablierLockupTranched);
+    /// @notice The address of the {SablierLockup} contract.
+    function LOCKUP() external view returns (ISablierLockup);
 
     /// @notice The start time of the streams created through {SablierMerkleBase.claim} function.
     /// @dev A start time value of zero will be considered as `block.timestamp`.

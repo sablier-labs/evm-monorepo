@@ -4,23 +4,21 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { Broker, LockupDynamic, LockupLinear, LockupTranched } from "../../core/types/DataTypes.sol";
+import { Broker, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../core/types/DataTypes.sol";
 
 library BatchLockup {
-    /// @notice A struct encapsulating all parameters of {SablierLockupDynamic.createWithDurations} except for the
-    /// asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLD} except for the asset.
     struct CreateWithDurationsLD {
         address sender;
         address recipient;
         uint128 totalAmount;
         bool cancelable;
         bool transferable;
-        LockupDynamic.SegmentWithDuration[] segments;
+        LockupDynamic.SegmentWithDuration[] segmentsWithDuration;
         Broker broker;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierLockupLinear.createWithDurations} except for the
-    /// asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLL} except for the asset.
     struct CreateWithDurationsLL {
         address sender;
         address recipient;
@@ -31,20 +29,18 @@ library BatchLockup {
         Broker broker;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierLockupTranched.createWithDurations} except for the
-    /// asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLT} except for the asset.
     struct CreateWithDurationsLT {
         address sender;
         address recipient;
         uint128 totalAmount;
         bool cancelable;
         bool transferable;
-        LockupTranched.TrancheWithDuration[] tranches;
+        LockupTranched.TrancheWithDuration[] tranchesWithDuration;
         Broker broker;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierLockupDynamic.createWithTimestamps} except for the
-    /// asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLD} except for the asset.
     struct CreateWithTimestampsLD {
         address sender;
         address recipient;
@@ -56,20 +52,19 @@ library BatchLockup {
         Broker broker;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierLockupLinear.createWithTimestamps} except for the
-    /// asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLL} except for the asset.
     struct CreateWithTimestampsLL {
         address sender;
         address recipient;
         uint128 totalAmount;
         bool cancelable;
         bool transferable;
-        LockupLinear.Timestamps timestamps;
+        Lockup.Timestamps timestamps;
+        uint40 cliffTime;
         Broker broker;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierLockupTranched.createWithTimestamps} except for the
-    /// asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLT} except for the asset.
     struct CreateWithTimestampsLT {
         address sender;
         address recipient;
@@ -113,7 +108,7 @@ library MerkleFactory {
 
 library MerkleLL {
     /// @notice Struct encapsulating the start time, cliff duration and the end duration used to construct the time
-    /// variables in `LockupLinear.CreateWithTimestamps`.
+    /// variables in `Lockup.CreateWithTimestampsLL`.
     /// @dev A start time value of zero will be considered as `block.timestamp`.
     /// @param startTime The start time of the stream.
     /// @param cliffDuration The duration of the cliff.

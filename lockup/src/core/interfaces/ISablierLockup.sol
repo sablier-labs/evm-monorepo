@@ -1,360 +1,276 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
-import { Lockup } from "../types/DataTypes.sol";
-import { IAdminable } from "./IAdminable.sol";
-import { IBatch } from "./IBatch.sol";
-import { ILockupNFTDescriptor } from "./ILockupNFTDescriptor.sol";
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../types/DataTypes.sol";
+import { ISablierLockupBase } from "./ISablierLockupBase.sol";
 
 /// @title ISablierLockup
-/// @notice Common logic between all Sablier Lockup contracts.
-interface ISablierLockup is
-    IAdminable, // 0 inherited components
-    IBatch, // 0 inherited components
-    IERC4906, // 2 inherited components
-    IERC721Metadata // 2 inherited components
-{
+/// @notice Creates and manages Lockup streams with various distribution models.
+interface ISablierLockup is ISablierLockupBase {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the admin allows a new recipient contract to hook to Sablier.
-    /// @param admin The address of the current contract admin.
-    /// @param recipient The address of the recipient contract put on the allowlist.
-    event AllowToHook(address indexed admin, address recipient);
-
-    /// @notice Emitted when a stream is canceled.
-    /// @param streamId The ID of the stream.
-    /// @param sender The address of the stream's sender.
-    /// @param recipient The address of the stream's recipient.
-    /// @param asset The contract address of the ERC-20 asset that has been distributed.
-    /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in units of the asset's
-    /// decimals.
-    /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of the
-    /// asset's decimals.
-    event CancelLockupStream(
+    /// @notice Emitted when a stream is created using Lockup dynamic model.
+    /// @param streamId The ID of the newly created stream.
+    /// @param funder The address which has funded the stream.
+    /// @param sender The address distributing the assets, which is able to cancel the stream.
+    /// @param recipient The address receiving the assets, as well as the NFT owner.
+    /// @param amounts Struct encapsulating (i) the deposit amount, and (ii) the broker fee amount, both denoted
+    /// in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param cancelable Boolean indicating whether the stream is cancelable or not.
+    /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
+    /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, all as Unix timestamps.
+    /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
+    /// @param segments The segments the protocol uses to compose the dynamic distribution function.
+    event CreateLockupDynamicStream(
         uint256 streamId,
+        address funder,
         address indexed sender,
         address indexed recipient,
+        Lockup.CreateAmounts amounts,
         IERC20 indexed asset,
-        uint128 senderAmount,
-        uint128 recipientAmount
+        bool cancelable,
+        bool transferable,
+        Lockup.Timestamps timestamps,
+        LockupDynamic.Segment[] segments,
+        address broker
     );
 
-    /// @notice Emitted when a sender gives up the right to cancel a stream.
-    /// @param streamId The ID of the stream.
-    event RenounceLockupStream(uint256 indexed streamId);
-
-    /// @notice Emitted when the admin sets a new NFT descriptor contract.
-    /// @param admin The address of the current contract admin.
-    /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
-    /// @param newNFTDescriptor The address of the new NFT descriptor contract.
-    event SetNFTDescriptor(
-        address indexed admin, ILockupNFTDescriptor oldNFTDescriptor, ILockupNFTDescriptor newNFTDescriptor
+    /// @notice Emitted when a stream is created using Lockup linear model.
+    /// @param streamId The ID of the newly created stream.
+    /// @param funder The address which funded the stream.
+    /// @param sender The address distributing the assets, which is able to to cancel the stream.
+    /// @param recipient The address receiving the assets, as well as the NFT owner.
+    /// @param amounts Struct encapsulating (i) the deposit amount, and (ii) the broker fee amount, both denoted
+    /// in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param cancelable Boolean indicating whether the stream is cancelable or not.
+    /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
+    /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, all as Unix timestamps.
+    /// @param cliffTime The Unix timestamp for the cliff period's end. A value of zero means there is no cliff.
+    /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
+    event CreateLockupLinearStream(
+        uint256 streamId,
+        address funder,
+        address indexed sender,
+        address indexed recipient,
+        Lockup.CreateAmounts amounts,
+        IERC20 indexed asset,
+        bool cancelable,
+        bool transferable,
+        Lockup.Timestamps timestamps,
+        uint40 cliffTime,
+        address broker
     );
 
-    /// @notice Emitted when assets are withdrawn from a stream.
-    /// @param streamId The ID of the stream.
-    /// @param to The address that has received the withdrawn assets.
-    /// @param asset The contract address of the ERC-20 asset that has been withdrawn.
-    /// @param amount The amount of assets withdrawn, denoted in units of the asset's decimals.
-    event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 amount);
+    /// @notice Emitted when a stream is created using Lockup tranched model.
+    /// @param streamId The ID of the newly created stream.
+    /// @param funder The address which has funded the stream.
+    /// @param sender The address distributing the assets, which is able to cancel the stream.
+    /// @param recipient The address receiving the assets, as well as the NFT owner.
+    /// @param amounts Struct encapsulating (i) the deposit amount, and (ii) the broker fee amount, both denoted
+    /// in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param cancelable Boolean indicating whether the stream is cancelable or not.
+    /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
+    /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, both as Unix timestamps.
+    /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
+    /// @param tranches The tranches the protocol uses to compose the tranched distribution function.
+    event CreateLockupTranchedStream(
+        uint256 streamId,
+        address funder,
+        address indexed sender,
+        address indexed recipient,
+        Lockup.CreateAmounts amounts,
+        IERC20 indexed asset,
+        bool cancelable,
+        bool transferable,
+        Lockup.Timestamps timestamps,
+        LockupTranched.Tranche[] tranches,
+        address broker
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the maximum broker fee that can be charged by the broker, denoted as a fixed-point
-    /// number where 1e18 is 100%.
-    /// @dev This value is hard coded as a constant.
-    function MAX_BROKER_FEE() external view returns (UD60x18);
+    /// @notice The maximum number of segments and tranches allowed in Dynamic and Tranched streams respectively.
+    /// @dev This is initialized at construction time and cannot be changed later.
+    function MAX_COUNT() external view returns (uint256);
 
-    /// @notice Retrieves the address of the ERC-20 asset being distributed.
-    /// @dev Reverts if `streamId` references a null stream.
+    /// @notice Retrieves the stream's cliff time, which is a Unix timestamp.  A value of zero means there is no cliff.
+    /// @dev Reverts if `streamId` references a null stream or a non Lockup Linear stream.
     /// @param streamId The stream ID for the query.
-    function getAsset(uint256 streamId) external view returns (IERC20 asset);
+    function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
 
-    /// @notice Retrieves the amount deposited in the stream, denoted in units of the asset's decimals.
-    /// @dev Reverts if `streamId` references a null stream.
+    /// @notice Retrieves the segments used to compose the dynamic distribution function.
+    /// @dev Reverts if `streamId` references a null stream or a non Lockup Dynamic stream.
     /// @param streamId The stream ID for the query.
-    function getDepositedAmount(uint256 streamId) external view returns (uint128 depositedAmount);
+    function getSegments(uint256 streamId) external view returns (LockupDynamic.Segment[] memory segments);
 
-    /// @notice Retrieves the stream's end time, which is a Unix timestamp.
-    /// @dev Reverts if `streamId` references a null stream.
+    /// @notice Retrieves the tranches used to compose the tranched distribution function.
+    /// @dev Reverts if `streamId` references a null stream or a non Lockup Tranched stream.
     /// @param streamId The stream ID for the query.
-    function getEndTime(uint256 streamId) external view returns (uint40 endTime);
-
-    /// @notice Retrieves the stream's recipient.
-    /// @dev Reverts if the NFT has been burned.
-    /// @param streamId The stream ID for the query.
-    function getRecipient(uint256 streamId) external view returns (address recipient);
-
-    /// @notice Retrieves the amount refunded to the sender after a cancellation, denoted in units of the asset's
-    /// decimals. This amount is always zero unless the stream was canceled.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function getRefundedAmount(uint256 streamId) external view returns (uint128 refundedAmount);
-
-    /// @notice Retrieves the stream's sender.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function getSender(uint256 streamId) external view returns (address sender);
-
-    /// @notice Retrieves the stream's start time, which is a Unix timestamp.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function getStartTime(uint256 streamId) external view returns (uint40 startTime);
-
-    /// @notice Retrieves the amount withdrawn from the stream, denoted in units of the asset's decimals.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
-
-    /// @notice Retrieves a flag indicating whether the provided address is a contract allowed to hook to Sablier
-    /// when a stream is canceled or when assets are withdrawn.
-    /// @dev See {ISablierLockupRecipient} for more information.
-    function isAllowedToHook(address recipient) external view returns (bool result);
-
-    /// @notice Retrieves a flag indicating whether the stream can be canceled. When the stream is cold, this
-    /// flag is always `false`.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function isCancelable(uint256 streamId) external view returns (bool result);
-
-    /// @notice Retrieves a flag indicating whether the stream is cold, i.e. settled, canceled, or depleted.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function isCold(uint256 streamId) external view returns (bool result);
-
-    /// @notice Retrieves a flag indicating whether the stream is depleted.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function isDepleted(uint256 streamId) external view returns (bool result);
-
-    /// @notice Retrieves a flag indicating whether the stream exists.
-    /// @dev Does not revert if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function isStream(uint256 streamId) external view returns (bool result);
-
-    /// @notice Retrieves a flag indicating whether the stream NFT can be transferred.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function isTransferable(uint256 streamId) external view returns (bool result);
-
-    /// @notice Retrieves a flag indicating whether the stream is warm, i.e. either pending or streaming.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function isWarm(uint256 streamId) external view returns (bool result);
-
-    /// @notice Counter for stream IDs, used in the create functions.
-    function nextStreamId() external view returns (uint256);
-
-    /// @notice Contract that generates the non-fungible token URI.
-    function nftDescriptor() external view returns (ILockupNFTDescriptor);
-
-    /// @notice Calculates the amount that the sender would be refunded if the stream were canceled, denoted in units
-    /// of the asset's decimals.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
-
-    /// @notice Retrieves the stream's status.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function statusOf(uint256 streamId) external view returns (Lockup.Status status);
-
-    /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
-    /// @dev Reverts if `streamId` references a null stream.
-    ///
-    /// Notes:
-    /// - Upon cancellation of the stream, the amount streamed is calculated as the difference between the deposited
-    /// amount and the refunded amount. Ultimately, when the stream becomes depleted, the streamed amount is equivalent
-    /// to the total amount withdrawn.
-    ///
-    /// @param streamId The stream ID for the query.
-    function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
-
-    /// @notice Retrieves a flag indicating whether the stream was canceled.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function wasCanceled(uint256 streamId) external view returns (bool result);
-
-    /// @notice Calculates the amount that the recipient can withdraw from the stream, denoted in units of the asset's
-    /// decimals.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function withdrawableAmountOf(uint256 streamId) external view returns (uint128 withdrawableAmount);
+    function getTranches(uint256 streamId) external view returns (LockupTranched.Tranche[] memory tranches);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Allows a recipient contract to hook to Sablier when a stream is canceled or when assets are withdrawn.
-    /// Useful for implementing contracts that hold streams on behalf of users, such as vaults or staking contracts.
+    /// @notice Creates a stream by setting the start time to `block.timestamp`, and the end time to the sum of
+    /// `block.timestamp` and all specified time durations. The segment timestamps are derived from these
+    /// durations. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits an {AllowToHook} event.
-    ///
-    /// Notes:
-    /// - Does not revert if the contract is already on the allowlist.
-    /// - This is an irreversible operation. The contract cannot be removed from the allowlist.
+    /// @dev Emits a {Transfer} and {CreateLockupDynamicStream} event.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the contract admin.
-    /// - `recipient` must have a non-zero code size.
-    /// - `recipient` must implement {ISablierLockupRecipient}.
+    /// - All requirements in {createWithTimestampsLD} must be met for the calculated parameters.
     ///
-    /// @param recipient The address of the contract to allow for hooks.
-    function allowToHook(address recipient) external;
-
-    /// @notice Burns the NFT associated with the stream.
-    ///
-    /// @dev Emits a {Transfer} event.
-    ///
-    /// Requirements:
-    /// - Must not be delegate called.
-    /// - `streamId` must reference a depleted stream.
-    /// - The NFT must exist.
-    /// - `msg.sender` must be either the NFT owner or an approved third party.
-    ///
-    /// @param streamId The ID of the stream NFT to burn.
-    function burn(uint256 streamId) external;
-
-    /// @notice Cancels the stream and refunds any remaining assets to the sender.
-    ///
-    /// @dev Emits a {Transfer}, {CancelLockupStream}, and {MetadataUpdate} event.
-    ///
-    /// Notes:
-    /// - If there any assets left for the recipient to withdraw, the stream is marked as canceled. Otherwise, the
-    /// stream is marked as depleted.
-    /// - This function attempts to invoke a hook on the recipient, if the resolved address is a contract.
-    ///
-    /// Requirements:
-    /// - Must not be delegate called.
-    /// - The stream must be warm and cancelable.
-    /// - `msg.sender` must be the stream's sender.
-    ///
-    /// @param streamId The ID of the stream to cancel.
-    function cancel(uint256 streamId) external;
-
-    /// @notice Cancels multiple streams and refunds any remaining assets to the sender.
-    ///
-    /// @dev Emits multiple {Transfer}, {CancelLockupStream}, and {MetadataUpdate} events.
-    ///
-    /// Notes:
-    /// - Refer to the notes in {cancel}.
-    ///
-    /// Requirements:
-    /// - All requirements from {cancel} must be met for each stream.
-    ///
-    /// @param streamIds The IDs of the streams to cancel.
-    function cancelMultiple(uint256[] calldata streamIds) external;
-
-    /// @notice Removes the right of the stream's sender to cancel the stream.
-    ///
-    /// @dev Emits a {RenounceLockupStream} and {MetadataUpdate} event.
-    ///
-    /// Notes:
-    /// - This is an irreversible operation.
-    ///
-    /// Requirements:
-    /// - Must not be delegate called.
-    /// - `streamId` must reference a warm stream.
-    /// - `msg.sender` must be the stream's sender.
-    /// - The stream must be cancelable.
-    ///
-    /// @param streamId The ID of the stream to renounce.
-    function renounce(uint256 streamId) external;
-
-    /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
-    ///
-    /// @dev Emits a {SetNFTDescriptor} and {BatchMetadataUpdate} event.
-    ///
-    /// Notes:
-    /// - Does not revert if the NFT descriptor is the same.
-    ///
-    /// Requirements:
-    /// - `msg.sender` must be the contract admin.
-    ///
-    /// @param newNFTDescriptor The address of the new NFT descriptor contract.
-    function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external;
-
-    /// @notice Withdraws the provided amount of assets from the stream to the `to` address.
-    ///
-    /// @dev Emits a {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} event.
-    ///
-    /// Notes:
-    /// - This function attempts to call a hook on the recipient of the stream, unless `msg.sender` is the recipient.
-    ///
-    /// Requirements:
-    /// - Must not be delegate called.
-    /// - `streamId` must not reference a null or depleted stream.
-    /// - `to` must not be the zero address.
-    /// - `amount` must be greater than zero and must not exceed the withdrawable amount.
-    /// - `to` must be the recipient if `msg.sender` is not the stream's recipient or an approved third party.
-    ///
-    /// @param streamId The ID of the stream to withdraw from.
-    /// @param to The address receiving the withdrawn assets.
-    /// @param amount The amount to withdraw, denoted in units of the asset's decimals.
-    function withdraw(uint256 streamId, address to, uint128 amount) external;
-
-    /// @notice Withdraws the maximum withdrawable amount from the stream to the provided address `to`.
-    ///
-    /// @dev Emits a {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} event.
-    ///
-    /// Notes:
-    /// - Refer to the notes in {withdraw}.
-    ///
-    /// Requirements:
-    /// - Refer to the requirements in {withdraw}.
-    ///
-    /// @param streamId The ID of the stream to withdraw from.
-    /// @param to The address receiving the withdrawn assets.
-    /// @return withdrawnAmount The amount withdrawn, denoted in units of the asset's decimals.
-    function withdrawMax(uint256 streamId, address to) external returns (uint128 withdrawnAmount);
-
-    /// @notice Withdraws the maximum withdrawable amount from the stream to the current recipient, and transfers the
-    /// NFT to `newRecipient`.
-    ///
-    /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
-    ///
-    /// Notes:
-    /// - If the withdrawable amount is zero, the withdrawal is skipped.
-    /// - Refer to the notes in {withdraw}.
-    ///
-    /// Requirements:
-    /// - `msg.sender` must be either the NFT owner or an approved third party.
-    /// - Refer to the requirements in {withdraw}.
-    /// - Refer to the requirements in {IERC721.transferFrom}.
-    ///
-    /// @param streamId The ID of the stream NFT to transfer.
-    /// @param newRecipient The address of the new owner of the stream NFT.
-    /// @return withdrawnAmount The amount withdrawn, denoted in units of the asset's decimals.
-    function withdrawMaxAndTransfer(
-        uint256 streamId,
-        address newRecipient
+    /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
+    /// @param segmentsWithDuration Segments with durations used to compose the dynamic distribution function. Timestamps
+    /// are calculated by starting from `block.timestamp` and adding each duration to the previous timestamp.
+    /// @return streamId The ID of the newly created stream.
+    function createWithDurationsLD(
+        Lockup.CreateWithDurations calldata params,
+        LockupDynamic.SegmentWithDuration[] calldata segmentsWithDuration
     )
         external
-        returns (uint128 withdrawnAmount);
+        returns (uint256 streamId);
 
-    /// @notice Withdraws assets from streams to the recipient of each stream.
+    /// @notice Creates a stream by setting the start time to `block.timestamp`, and the end time to
+    /// the sum of `block.timestamp` and `durations.total`. The stream is funded by `msg.sender` and is wrapped in an
+    /// ERC-721 NFT.
     ///
-    /// @dev Emits multiple {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} events.
+    /// @dev Emits a {Transfer} and {CreateLockupLinearStream} event.
+    ///
+    /// Requirements:
+    /// - All requirements in {createWithTimestampsLL} must be met for the calculated parameters.
+    ///
+    /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
+    /// @param durations Struct encapsulating (i) cliff period duration and (ii) total stream duration, both in seconds.
+    /// @return streamId The ID of the newly created stream.
+    function createWithDurationsLL(
+        Lockup.CreateWithDurations calldata params,
+        LockupLinear.Durations calldata durations
+    )
+        external
+        returns (uint256 streamId);
+
+    /// @notice Creates a stream by setting the start time to `block.timestamp`, and the end time to the sum of
+    /// `block.timestamp` and all specified time durations. The tranche timestamps are derived from these
+    /// durations. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
+    ///
+    /// @dev Emits a {Transfer} and {CreateLockupTrancheStream} event.
+    ///
+    /// Requirements:
+    /// - All requirements in {createWithTimestampsLT} must be met for the calculated parameters.
+    ///
+    /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
+    /// @param tranchesWithDuration Tranches with durations used to compose the tranched distribution function.
+    /// Timestamps are calculated by starting from `block.timestamp` and adding each duration to the previous timestamp.
+    /// @return streamId The ID of the newly created stream.
+    function createWithDurationsLT(
+        Lockup.CreateWithDurations calldata params,
+        LockupTranched.TrancheWithDuration[] calldata tranchesWithDuration
+    )
+        external
+        returns (uint256 streamId);
+
+    /// @notice Creates a stream with the provided segment timestamps, implying the end time from the last timestamp.
+    /// The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
+    ///
+    /// @dev Emits a {Transfer} and {CreateLockupDynamicStream} event.
     ///
     /// Notes:
-    /// - This function attempts to call a hook on the recipient of each stream, unless `msg.sender` is the recipient.
+    /// - As long as the segment timestamps are arranged in ascending order, it is not an error for some
+    /// of them to be in the past.
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - There must be an equal number of `streamIds` and `amounts`.
-    /// - Each stream ID in the array must not reference a null or depleted stream.
-    /// - Each amount in the array must be greater than zero and must not exceed the withdrawable amount.
+    /// - `params.totalAmount` must be greater than zero.
+    /// - If set, `params.broker.fee` must not be greater than `MAX_BROKER_FEE`.
+    /// - `params.timestamps.start` must be greater than zero and less than the first segment's timestamp.
+    /// - `segments` must have at least one segment, but not more than `MAX_COUNT`.
+    /// - The segment timestamps must be arranged in ascending order.
+    /// - `params.timestamps.end` must be equal to the last segment's timestamp.
+    /// - The sum of the segment amounts must equal the deposit amount.
+    /// - `params.recipient` must not be the zero address.
+    /// - `params.sender` must not be the zero address.
+    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
     ///
-    /// @param streamIds The IDs of the streams to withdraw from.
-    /// @param amounts The amounts to withdraw, denoted in units of the asset's decimals.
-    function withdrawMultiple(uint256[] calldata streamIds, uint128[] calldata amounts) external;
+    /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
+    /// @param segments Segments used to compose the dynamic distribution function.
+    /// @return streamId The ID of the newly created stream.
+    function createWithTimestampsLD(
+        Lockup.CreateWithTimestamps calldata params,
+        LockupDynamic.Segment[] calldata segments
+    )
+        external
+        returns (uint256 streamId);
+
+    /// @notice Creates a stream with the provided start time and end time. The stream is funded by `msg.sender` and is
+    /// wrapped in an ERC-721 NFT.
+    ///
+    /// @dev Emits a {Transfer} and {CreateLockupLinearStream} event.
+    ///
+    /// Notes:
+    /// - A cliff time of zero means there is no cliff.
+    /// - As long as the times are ordered, it is not an error for the start or the cliff time to be in the past.
+    ///
+    /// Requirements:
+    /// - Must not be delegate called.
+    /// - `params.totalAmount` must be greater than zero.
+    /// - If set, `params.broker.fee` must not be greater than `MAX_BROKER_FEE`.
+    /// - `params.timestamps.start` must be greater than zero and less than `params.timestamps.end`.
+    /// - If set, `cliffTime` must be greater than `params.timestamps.start` and less than
+    /// `params.timestamps.end`.
+    /// - `params.recipient` must not be the zero address.
+    /// - `params.sender` must not be the zero address.
+    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
+    ///
+    /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
+    /// @param cliffTime The Unix timestamp for the cliff period's end. A value of zero means there is no cliff.
+    /// @return streamId The ID of the newly created stream.
+    function createWithTimestampsLL(
+        Lockup.CreateWithTimestamps calldata params,
+        uint40 cliffTime
+    )
+        external
+        returns (uint256 streamId);
+
+    /// @notice Creates a stream with the provided tranche timestamps, implying the end time from the last timestamp.
+    /// The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
+    ///
+    /// @dev Emits a {Transfer} and {CreateLockupTrancheStream} event.
+    ///
+    /// Notes:
+    /// - As long as the tranche timestamps are arranged in ascending order, it is not an error for some
+    /// of them to be in the past.
+    ///
+    /// Requirements:
+    /// - Must not be delegate called.
+    /// - `params.totalAmount` must be greater than zero.
+    /// - If set, `params.broker.fee` must not be greater than `MAX_BROKER_FEE`.
+    /// - `params.timestamps.start` must be greater than zero and less than the first tranche's timestamp.
+    /// - `tranches` must have at least one tranche, but not more than `MAX_COUNT`.
+    /// - The tranche timestamps must be arranged in ascending order.
+    /// - `params.timestamps.end` must be equal to the last tranche's timestamp.
+    /// - The sum of the tranche amounts must equal the deposit amount.
+    /// - `params.recipient` must not be the zero address.
+    /// - `params.sender` must not be the zero address.
+    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
+    ///
+    /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
+    /// @param tranches Tranches used to compose the tranched distribution function.
+    /// @return streamId The ID of the newly created stream.
+    function createWithTimestampsLT(
+        Lockup.CreateWithTimestamps calldata params,
+        LockupTranched.Tranche[] calldata tranches
+    )
+        external
+        returns (uint256 streamId);
 }

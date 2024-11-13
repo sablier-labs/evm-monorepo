@@ -2,23 +2,22 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ILockupNFTDescriptor } from "../../src/core/interfaces/ILockupNFTDescriptor.sol";
-import { SablierLockupLinear } from "../../src/core/SablierLockupLinear.sol";
-
+import { SablierLockup } from "../../src/core/SablierLockup.sol";
 import { BaseScript } from "../Base.s.sol";
 
-/// @dev Deploys {SablierLockupLinear} at a deterministic address across chains.
+/// @notice Deploys {SablierLockup} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
-contract DeployDeterministicLockupLinear is BaseScript {
+contract DeployDeterministicLockup is BaseScript {
     function run(
         address initialAdmin,
-        ILockupNFTDescriptor initialNFTDescriptor
+        ILockupNFTDescriptor nftDescriptor
     )
         public
         virtual
         broadcast
-        returns (SablierLockupLinear lockupLinear)
+        returns (SablierLockup lockup)
     {
         bytes32 salt = constructCreate2Salt();
-        lockupLinear = new SablierLockupLinear{ salt: salt }(initialAdmin, initialNFTDescriptor);
+        lockup = new SablierLockup{ salt: salt }(initialAdmin, nftDescriptor, maxCountMap[block.chainid]);
     }
 }

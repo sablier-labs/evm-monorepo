@@ -6,8 +6,8 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { uUNIT } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud60x18, ZERO } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierLockupTranched } from "../core/interfaces/ISablierLockupTranched.sol";
-import { Broker, LockupTranched } from "../core/types/DataTypes.sol";
+import { ISablierLockup } from "../core/interfaces/ISablierLockup.sol";
+import { Broker, Lockup, LockupTranched } from "../core/types/DataTypes.sol";
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
@@ -30,7 +30,7 @@ contract SablierMerkleLT is
     bool public immutable override CANCELABLE;
 
     /// @inheritdoc ISablierMerkleLT
-    ISablierLockupTranched public immutable override LOCKUP_TRANCHED;
+    ISablierLockup public immutable override LOCKUP;
 
     /// @inheritdoc ISablierMerkleLT
     uint40 public immutable override STREAM_START_TIME;
@@ -52,7 +52,7 @@ contract SablierMerkleLT is
     /// contract.
     constructor(
         MerkleBase.ConstructorParams memory baseParams,
-        ISablierLockupTranched lockupTranched,
+        ISablierLockup lockup,
         bool cancelable,
         bool transferable,
         uint40 streamStartTime,
@@ -62,7 +62,7 @@ contract SablierMerkleLT is
         SablierMerkleBase(baseParams, sablierFee)
     {
         CANCELABLE = cancelable;
-        LOCKUP_TRANCHED = lockupTranched;
+        LOCKUP = lockup;
         STREAM_START_TIME = streamStartTime;
         TRANSFERABLE = transferable;
 
@@ -78,7 +78,7 @@ contract SablierMerkleLT is
         TOTAL_PERCENTAGE = totalPercentage;
 
         // Max approve the Lockup contract to spend funds from the MerkleLT contract.
-        ASSET.forceApprove(address(LOCKUP_TRANCHED), type(uint256).max);
+        ASSET.forceApprove(address(LOCKUP), type(uint256).max);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -104,19 +104,25 @@ contract SablierMerkleLT is
         // Calculate the tranches based on the unlock percentages.
         (uint40 startTime, LockupTranched.Tranche[] memory tranches) = _calculateStartTimeAndTranches(amount);
 
-        // Interaction: create the stream via {SablierLockupTranched}.
-        uint256 streamId = LOCKUP_TRANCHED.createWithTimestamps(
-            LockupTranched.CreateWithTimestamps({
+        // Calculate the stream's end time.
+        uint40 endTime;
+        unchecked {
+            endTime = tranches[tranches.length - 1].timestamp;
+        }
+
+        // Interaction: create the stream via {SablierLockup-createWithTimestampsLT}.
+        uint256 streamId = LOCKUP.createWithTimestampsLT(
+            Lockup.CreateWithTimestamps({
                 sender: admin,
                 recipient: recipient,
                 totalAmount: amount,
                 asset: ASSET,
                 cancelable: CANCELABLE,
-                startTime: startTime,
                 transferable: TRANSFERABLE,
-                tranches: tranches,
+                timestamps: Lockup.Timestamps({ start: startTime, end: endTime }),
                 broker: Broker({ account: address(0), fee: ZERO })
-            })
+            }),
+            tranches
         );
 
         // Log the claim.

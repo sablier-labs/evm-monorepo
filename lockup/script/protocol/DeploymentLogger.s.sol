@@ -61,9 +61,7 @@ abstract contract DeploymentLogger is BaseScript {
 
     /// @dev Function to append the deployed addresses to the deployment file.
     function appendToFileDeployedAddresses(
-        address lockupDynamic,
-        address lockupLinear,
-        address lockupTranched,
+        address lockup,
         address nftDescriptor,
         address batchLockup,
         address merkleFactory
@@ -76,26 +74,12 @@ abstract contract DeploymentLogger is BaseScript {
         string memory firstTwoLines = "| Contract | Address | Deployment |\n | :------- | :------ | :----------|";
         _appendToFile(firstTwoLines);
 
-        string memory lockupDynamicLine = _getContractLine({
-            contractName: "SablierLockupDynamic",
-            contractAddress: lockupDynamic.toHexString(),
+        string memory lockupLine = _getContractLine({
+            contractName: "SablierLockup",
+            contractAddress: lockup.toHexString(),
             coreOrPeriphery: "core"
         });
-        _appendToFile(lockupDynamicLine);
-
-        string memory lockupLinearLine = _getContractLine({
-            contractName: "SablierLockupLinear",
-            contractAddress: lockupLinear.toHexString(),
-            coreOrPeriphery: "core"
-        });
-        _appendToFile(lockupLinearLine);
-
-        string memory lockupTranchedLine = _getContractLine({
-            contractName: "SablierLockupTranched",
-            contractAddress: lockupTranched.toHexString(),
-            coreOrPeriphery: "core"
-        });
-        _appendToFile(lockupTranchedLine);
+        _appendToFile(lockupLine);
 
         string memory nftDescriptorLine = _getContractLine({
             contractName: "SablierNFTDescriptor",

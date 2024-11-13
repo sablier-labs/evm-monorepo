@@ -2,8 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IAdminable } from "../../core/interfaces/IAdminable.sol";
-import { ISablierLockupLinear } from "../../core/interfaces/ISablierLockupLinear.sol";
-import { ISablierLockupTranched } from "../../core/interfaces/ISablierLockupTranched.sol";
+import { ISablierLockup } from "../../core/interfaces/ISablierLockup.sol";
 
 import { ISablierMerkleBase } from "../interfaces/ISablierMerkleBase.sol";
 import { MerkleBase, MerkleFactory, MerkleLL, MerkleLT } from "../types/DataTypes.sol";
@@ -36,7 +35,7 @@ interface ISablierMerkleFactory is IAdminable {
     event CreateMerkleLL(
         ISablierMerkleLL indexed merkleLL,
         MerkleBase.ConstructorParams baseParams,
-        ISablierLockupLinear lockupLinear,
+        ISablierLockup lockup,
         bool cancelable,
         bool transferable,
         MerkleLL.Schedule schedule,
@@ -49,7 +48,7 @@ interface ISablierMerkleFactory is IAdminable {
     event CreateMerkleLT(
         ISablierMerkleLT indexed merkleLT,
         MerkleBase.ConstructorParams baseParams,
-        ISablierLockupTranched lockupTranched,
+        ISablierLockup lockup,
         bool cancelable,
         bool transferable,
         uint40 streamStartTime,
@@ -120,7 +119,7 @@ interface ISablierMerkleFactory is IAdminable {
         external
         returns (ISablierMerkleInstant merkleInstant);
 
-    /// @notice Creates a new Merkle Lockup campaign with a LockupLinear distribution.
+    /// @notice Creates a new Merkle Lockup campaign with a Lockup Linear distribution.
     ///
     /// @dev Emits a {CreateMerkleLL} event.
     ///
@@ -130,7 +129,7 @@ interface ISablierMerkleFactory is IAdminable {
     ///
     /// @param baseParams Struct encapsulating the {SablierMerkleBase} parameters, which are documented in
     /// {DataTypes}.
-    /// @param lockupLinear The address of the {SablierLockupLinear} contract.
+    /// @param lockup The address of the {SablierLockup} contract.
     /// @param cancelable Indicates if the stream will be cancelable after claiming.
     /// @param transferable Indicates if the stream will be transferable after claiming.
     /// @param schedule The time variables to construct the stream timestamps.
@@ -139,7 +138,7 @@ interface ISablierMerkleFactory is IAdminable {
     /// @return merkleLL The address of the newly created Merkle Lockup contract.
     function createMerkleLL(
         MerkleBase.ConstructorParams memory baseParams,
-        ISablierLockupLinear lockupLinear,
+        ISablierLockup lockup,
         bool cancelable,
         bool transferable,
         MerkleLL.Schedule memory schedule,
@@ -149,7 +148,7 @@ interface ISablierMerkleFactory is IAdminable {
         external
         returns (ISablierMerkleLL merkleLL);
 
-    /// @notice Creates a new Merkle Lockup campaign with a LockupTranched distribution.
+    /// @notice Creates a new Merkle Lockup campaign with a Lockup Tranched distribution.
     ///
     /// @dev Emits a {CreateMerkleLT} event.
     ///
@@ -159,7 +158,7 @@ interface ISablierMerkleFactory is IAdminable {
     ///
     /// @param baseParams Struct encapsulating the {SablierMerkleBase} parameters, which are documented in
     /// {DataTypes}.
-    /// @param lockupTranched The address of the {SablierLockupTranched} contract.
+    /// @param lockup The address of the {SablierLockup} contract.
     /// @param cancelable Indicates if the stream will be cancelable after claiming.
     /// @param transferable Indicates if the stream will be transferable after claiming.
     /// @param streamStartTime The start time of the streams created through {SablierMerkleBase.claim}.
@@ -169,7 +168,7 @@ interface ISablierMerkleFactory is IAdminable {
     /// @return merkleLT The address of the newly created Merkle Lockup contract.
     function createMerkleLT(
         MerkleBase.ConstructorParams memory baseParams,
-        ISablierLockupTranched lockupTranched,
+        ISablierLockup lockup,
         bool cancelable,
         bool transferable,
         uint40 streamStartTime,

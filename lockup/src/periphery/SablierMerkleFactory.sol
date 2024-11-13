@@ -4,8 +4,7 @@ pragma solidity >=0.8.22;
 import { uUNIT } from "@prb/math/src/UD2x18.sol";
 
 import { Adminable } from "../core/abstracts/Adminable.sol";
-import { ISablierLockupLinear } from "../core/interfaces/ISablierLockupLinear.sol";
-import { ISablierLockupTranched } from "../core/interfaces/ISablierLockupTranched.sol";
+import { ISablierLockup } from "../core/interfaces/ISablierLockup.sol";
 
 import { ISablierMerkleBase } from "./interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleFactory } from "./interfaces/ISablierMerkleFactory.sol";
@@ -157,7 +156,7 @@ contract SablierMerkleFactory is
     /// @inheritdoc ISablierMerkleFactory
     function createMerkleLL(
         MerkleBase.ConstructorParams memory baseParams,
-        ISablierLockupLinear lockupLinear,
+        ISablierLockup lockup,
         bool cancelable,
         bool transferable,
         MerkleLL.Schedule memory schedule,
@@ -178,7 +177,7 @@ contract SablierMerkleFactory is
                 abi.encode(baseParams.ipfsCID),
                 baseParams.merkleRoot,
                 bytes32(abi.encodePacked(baseParams.name)),
-                lockupLinear,
+                lockup,
                 cancelable,
                 transferable,
                 abi.encode(schedule)
@@ -189,14 +188,13 @@ contract SablierMerkleFactory is
         uint256 sablierFee = _computeSablierFeeForUser(msg.sender);
 
         // Deploy the MerkleLL contract with CREATE2.
-        merkleLL =
-            new SablierMerkleLL{ salt: salt }(baseParams, lockupLinear, cancelable, transferable, schedule, sablierFee);
+        merkleLL = new SablierMerkleLL{ salt: salt }(baseParams, lockup, cancelable, transferable, schedule, sablierFee);
 
         // Log the creation of the MerkleLL contract, including some metadata that is not stored on-chain.
         emit CreateMerkleLL(
             merkleLL,
             baseParams,
-            lockupLinear,
+            lockup,
             cancelable,
             transferable,
             schedule,
@@ -209,7 +207,7 @@ contract SablierMerkleFactory is
     /// @inheritdoc ISablierMerkleFactory
     function createMerkleLT(
         MerkleBase.ConstructorParams memory baseParams,
-        ISablierLockupTranched lockupTranched,
+        ISablierLockup lockup,
         bool cancelable,
         bool transferable,
         uint40 streamStartTime,
@@ -236,14 +234,14 @@ contract SablierMerkleFactory is
 
         // Deploy the MerkleLT contract.
         merkleLT = _deployMerkleLT(
-            baseParams, lockupTranched, cancelable, transferable, streamStartTime, tranchesWithPercentages, sablierFee
+            baseParams, lockup, cancelable, transferable, streamStartTime, tranchesWithPercentages, sablierFee
         );
 
         // Log the creation of the MerkleLT contract, including some metadata that is not stored on-chain.
         emit CreateMerkleLT(
             merkleLT,
             baseParams,
-            lockupTranched,
+            lockup,
             cancelable,
             transferable,
             streamStartTime,
@@ -268,7 +266,7 @@ contract SablierMerkleFactory is
     /// @dev We need a separate function to prevent the stack too deep error.
     function _deployMerkleLT(
         MerkleBase.ConstructorParams memory baseParams,
-        ISablierLockupTranched lockupTranched,
+        ISablierLockup lockup,
         bool cancelable,
         bool transferable,
         uint40 streamStartTime,
@@ -288,7 +286,7 @@ contract SablierMerkleFactory is
                 abi.encode(baseParams.ipfsCID),
                 baseParams.merkleRoot,
                 bytes32(abi.encodePacked(baseParams.name)),
-                lockupTranched,
+                lockup,
                 cancelable,
                 transferable,
                 streamStartTime,
@@ -298,7 +296,7 @@ contract SablierMerkleFactory is
 
         // Deploy the MerkleLT contract with CREATE2.
         merkleLT = new SablierMerkleLT{ salt: salt }(
-            baseParams, lockupTranched, cancelable, transferable, streamStartTime, tranchesWithPercentages, sablierFee
+            baseParams, lockup, cancelable, transferable, streamStartTime, tranchesWithPercentages, sablierFee
         );
     }
 }

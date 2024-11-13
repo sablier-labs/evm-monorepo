@@ -7,9 +7,8 @@ import { ud60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Solarray } from "solarray/src/Solarray.sol";
 
-import { ISablierLockupDynamic } from "../../src/core/interfaces/ISablierLockupDynamic.sol";
-import { ISablierLockupLinear } from "../../src/core/interfaces/ISablierLockupLinear.sol";
-import { Broker, LockupDynamic, LockupLinear } from "../../src/core/types/DataTypes.sol";
+import { ISablierLockup } from "../../src/core/interfaces/ISablierLockup.sol";
+import { Broker, Lockup, LockupDynamic, LockupLinear } from "../../src/core/types/DataTypes.sol";
 
 import { BaseScript } from "../Base.s.sol";
 
@@ -19,14 +18,7 @@ interface IERC20Mint {
 
 /// @notice Initializes the protocol by creating some streams.
 contract Init is BaseScript {
-    function run(
-        ISablierLockupLinear lockupLinear,
-        ISablierLockupDynamic lockupDynamic,
-        IERC20 asset
-    )
-        public
-        broadcast
-    {
+    function run(ISablierLockup lockup, IERC20 asset) public broadcast {
         address sender = broadcaster;
         address recipient = vm.addr(vm.deriveKey({ mnemonic: mnemonic, index: 1 }));
 
@@ -38,8 +30,7 @@ contract Init is BaseScript {
         IERC20Mint(address(asset)).mint({ beneficiary: sender, value: 131_601.1e18 + 10_000e18 });
 
         // Approve the Lockup contracts to transfer the ERC-20 assets from the sender.
-        asset.approve({ spender: address(lockupLinear), value: type(uint256).max });
-        asset.approve({ spender: address(lockupDynamic), value: type(uint256).max });
+        asset.approve({ spender: address(lockup), value: type(uint256).max });
 
         // Create 7 Lockup Linear streams with various amounts and durations.
         //
@@ -53,25 +44,25 @@ contract Init is BaseScript {
         uint40[] memory totalDurations =
             Solarray.uint40s(1 seconds, 1 hours, 24 hours, 1 weeks, 4 weeks, 12 weeks, 48 weeks);
         for (uint256 i = 0; i < totalDurations.length; ++i) {
-            lockupLinear.createWithDurations(
-                LockupLinear.CreateWithDurations({
+            lockup.createWithDurationsLL(
+                Lockup.CreateWithDurations({
                     sender: sender,
                     recipient: recipient,
                     totalAmount: totalAmounts[i],
                     asset: asset,
                     cancelable: true,
                     transferable: true,
-                    durations: LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] }),
                     broker: Broker(address(0), ud60x18(0))
-                })
+                }),
+                LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] })
             );
         }
 
         // Renounce the 5th stream.
-        lockupLinear.renounce({ streamId: 5 });
+        lockup.renounce({ streamId: 5 });
 
         // Cancel the 6th stream.
-        lockupLinear.cancel({ streamId: 6 });
+        lockup.cancel({ streamId: 6 });
 
         /*//////////////////////////////////////////////////////////////////////////
                                        LOCKUP-DYNAMIC
@@ -83,17 +74,17 @@ contract Init is BaseScript {
             LockupDynamic.SegmentWithDuration({ amount: 2500e18, exponent: ud2x18(3.14e18), duration: 1 hours });
         segments[1] =
             LockupDynamic.SegmentWithDuration({ amount: 7500e18, exponent: ud2x18(0.5e18), duration: 1 weeks });
-        lockupDynamic.createWithDurations(
-            LockupDynamic.CreateWithDurations({
+        lockup.createWithDurationsLD(
+            Lockup.CreateWithDurations({
                 sender: sender,
                 recipient: recipient,
                 totalAmount: 10_000e18,
                 asset: asset,
                 cancelable: true,
                 transferable: true,
-                segments: segments,
                 broker: Broker(address(0), ud60x18(0))
-            })
+            }),
+            segments
         );
     }
 }

@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierLockupLinear } from "../../src/core/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockup } from "../../src/core/interfaces/ISablierLockup.sol";
 import { ISablierMerkleFactory } from "../../src/periphery/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleLL } from "../../src/periphery/interfaces/ISablierMerkleLL.sol";
 import { MerkleBase, MerkleLL } from "../../src/periphery/types/DataTypes.sol";
@@ -29,7 +29,7 @@ contract CreateMerkleLL is BaseScript {
         // TODO: Update address once deployed.
         merkleLL = merkleFactory.createMerkleLL({
             baseParams: baseParams,
-            lockupLinear: ISablierLockupLinear(0x3962f6585946823440d274aD7C719B02b49DE51E),
+            lockup: ISablierLockup(0x3962f6585946823440d274aD7C719B02b49DE51E),
             cancelable: true,
             transferable: true,
             schedule: MerkleLL.Schedule({

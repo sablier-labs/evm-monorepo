@@ -4,10 +4,8 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import { ISablierLockupDynamic } from "../core/interfaces/ISablierLockupDynamic.sol";
-import { ISablierLockupLinear } from "../core/interfaces/ISablierLockupLinear.sol";
-import { ISablierLockupTranched } from "../core/interfaces/ISablierLockupTranched.sol";
-import { LockupDynamic, LockupLinear, LockupTranched } from "../core/types/DataTypes.sol";
+import { ISablierLockup } from "../core/interfaces/ISablierLockup.sol";
+import { Lockup } from "../core/types/DataTypes.sol";
 
 import { ISablierBatchLockup } from "./interfaces/ISablierBatchLockup.sol";
 import { Errors } from "./libraries/Errors.sol";
@@ -24,7 +22,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
 
     /// @inheritdoc ISablierBatchLockup
     function createWithDurationsLD(
-        ISablierLockupDynamic lockupDynamic,
+        ISablierLockup lockup,
         IERC20 asset,
         BatchLockup.CreateWithDurationsLD[] calldata batch
     )
@@ -48,31 +46,31 @@ contract SablierBatchLockup is ISablierBatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierLockupDynamic} to spend the amount of assets.
-        _handleTransfer(address(lockupDynamic), asset, transferAmount);
+        // Perform the ERC-20 transfer and approve {SablierLockup} to spend the amount of assets.
+        _handleTransfer(address(lockup), asset, transferAmount);
 
         // Create a stream for each element in the parameter array.
         streamIds = new uint256[](batchSize);
         for (i = 0; i < batchSize; ++i) {
             // Create the stream.
-            streamIds[i] = lockupDynamic.createWithDurations(
-                LockupDynamic.CreateWithDurations({
+            streamIds[i] = lockup.createWithDurationsLD(
+                Lockup.CreateWithDurations({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
                     totalAmount: batch[i].totalAmount,
                     asset: asset,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    segments: batch[i].segments,
                     broker: batch[i].broker
-                })
+                }),
+                batch[i].segmentsWithDuration
             );
         }
     }
 
     /// @inheritdoc ISablierBatchLockup
     function createWithTimestampsLD(
-        ISablierLockupDynamic lockupDynamic,
+        ISablierLockup lockup,
         IERC20 asset,
         BatchLockup.CreateWithTimestampsLD[] calldata batch
     )
@@ -96,25 +94,32 @@ contract SablierBatchLockup is ISablierBatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierLockupDynamic} to spend the amount of assets.
-        _handleTransfer(address(lockupDynamic), asset, transferAmount);
+        // Perform the ERC-20 transfer and approve {SablierLockup} to spend the amount of assets.
+        _handleTransfer(address(lockup), asset, transferAmount);
+
+        uint40 endTime;
 
         // Create a stream for each element in the parameter array.
         streamIds = new uint256[](batchSize);
         for (i = 0; i < batchSize; ++i) {
+            // Calculate the end time of the stream.
+            unchecked {
+                endTime = batch[i].segments[batch[i].segments.length - 1].timestamp;
+            }
+
             // Create the stream.
-            streamIds[i] = lockupDynamic.createWithTimestamps(
-                LockupDynamic.CreateWithTimestamps({
+            streamIds[i] = lockup.createWithTimestampsLD(
+                Lockup.CreateWithTimestamps({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
                     totalAmount: batch[i].totalAmount,
                     asset: asset,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    startTime: batch[i].startTime,
-                    segments: batch[i].segments,
+                    timestamps: Lockup.Timestamps({ start: batch[i].startTime, end: endTime }),
                     broker: batch[i].broker
-                })
+                }),
+                batch[i].segments
             );
         }
     }
@@ -125,7 +130,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
 
     /// @inheritdoc ISablierBatchLockup
     function createWithDurationsLL(
-        ISablierLockupLinear lockupLinear,
+        ISablierLockup lockup,
         IERC20 asset,
         BatchLockup.CreateWithDurationsLL[] calldata batch
     )
@@ -149,31 +154,31 @@ contract SablierBatchLockup is ISablierBatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierLockupLinear} to spend the amount of assets.
-        _handleTransfer(address(lockupLinear), asset, transferAmount);
+        // Perform the ERC-20 transfer and approve {SablierLockup} to spend the amount of assets.
+        _handleTransfer(address(lockup), asset, transferAmount);
 
         // Create a stream for each element in the parameter array.
         streamIds = new uint256[](batchSize);
         for (i = 0; i < batchSize; ++i) {
             // Create the stream.
-            streamIds[i] = lockupLinear.createWithDurations(
-                LockupLinear.CreateWithDurations({
+            streamIds[i] = lockup.createWithDurationsLL(
+                Lockup.CreateWithDurations({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
                     totalAmount: batch[i].totalAmount,
                     asset: asset,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    durations: batch[i].durations,
                     broker: batch[i].broker
-                })
+                }),
+                batch[i].durations
             );
         }
     }
 
     /// @inheritdoc ISablierBatchLockup
     function createWithTimestampsLL(
-        ISablierLockupLinear lockupLinear,
+        ISablierLockup lockup,
         IERC20 asset,
         BatchLockup.CreateWithTimestampsLL[] calldata batch
     )
@@ -197,15 +202,15 @@ contract SablierBatchLockup is ISablierBatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierLockupLinear} to spend the amount of assets.
-        _handleTransfer(address(lockupLinear), asset, transferAmount);
+        // Perform the ERC-20 transfer and approve {SablierLockup} to spend the amount of assets.
+        _handleTransfer(address(lockup), asset, transferAmount);
 
         // Create a stream for each element in the parameter array.
         streamIds = new uint256[](batchSize);
         for (i = 0; i < batchSize; ++i) {
             // Create the stream.
-            streamIds[i] = lockupLinear.createWithTimestamps(
-                LockupLinear.CreateWithTimestamps({
+            streamIds[i] = lockup.createWithTimestampsLL(
+                Lockup.CreateWithTimestamps({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
                     totalAmount: batch[i].totalAmount,
@@ -214,7 +219,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
                     transferable: batch[i].transferable,
                     timestamps: batch[i].timestamps,
                     broker: batch[i].broker
-                })
+                }),
+                batch[i].cliffTime
             );
         }
     }
@@ -225,7 +231,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
 
     /// @inheritdoc ISablierBatchLockup
     function createWithDurationsLT(
-        ISablierLockupTranched lockupTranched,
+        ISablierLockup lockup,
         IERC20 asset,
         BatchLockup.CreateWithDurationsLT[] calldata batch
     )
@@ -249,31 +255,31 @@ contract SablierBatchLockup is ISablierBatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierLockupTranched} to spend the amount of assets.
-        _handleTransfer(address(lockupTranched), asset, transferAmount);
+        // Perform the ERC-20 transfer and approve {SablierLockup} to spend the amount of assets.
+        _handleTransfer(address(lockup), asset, transferAmount);
 
         // Create a stream for each element in the parameter array.
         streamIds = new uint256[](batchSize);
         for (i = 0; i < batchSize; ++i) {
             // Create the stream.
-            streamIds[i] = lockupTranched.createWithDurations(
-                LockupTranched.CreateWithDurations({
+            streamIds[i] = lockup.createWithDurationsLT(
+                Lockup.CreateWithDurations({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
                     totalAmount: batch[i].totalAmount,
                     asset: asset,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    tranches: batch[i].tranches,
                     broker: batch[i].broker
-                })
+                }),
+                batch[i].tranchesWithDuration
             );
         }
     }
 
     /// @inheritdoc ISablierBatchLockup
     function createWithTimestampsLT(
-        ISablierLockupTranched lockupTranched,
+        ISablierLockup lockup,
         IERC20 asset,
         BatchLockup.CreateWithTimestampsLT[] calldata batch
     )
@@ -297,25 +303,32 @@ contract SablierBatchLockup is ISablierBatchLockup {
             }
         }
 
-        // Perform the ERC-20 transfer and approve {SablierLockupTranched} to spend the amount of assets.
-        _handleTransfer(address(lockupTranched), asset, transferAmount);
+        // Perform the ERC-20 transfer and approve {SablierLockup} to spend the amount of assets.
+        _handleTransfer(address(lockup), asset, transferAmount);
+
+        uint40 endTime;
 
         // Create a stream for each element in the parameter array.
         streamIds = new uint256[](batchSize);
         for (i = 0; i < batchSize; ++i) {
+            // Calculate the end time of the stream.
+            unchecked {
+                endTime = batch[i].tranches[batch[i].tranches.length - 1].timestamp;
+            }
+
             // Create the stream.
-            streamIds[i] = lockupTranched.createWithTimestamps(
-                LockupTranched.CreateWithTimestamps({
+            streamIds[i] = lockup.createWithTimestampsLT(
+                Lockup.CreateWithTimestamps({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
                     totalAmount: batch[i].totalAmount,
                     asset: asset,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    startTime: batch[i].startTime,
-                    tranches: batch[i].tranches,
+                    timestamps: Lockup.Timestamps({ start: batch[i].startTime, end: endTime }),
                     broker: batch[i].broker
-                })
+                }),
+                batch[i].tranches
             );
         }
     }
@@ -328,20 +341,20 @@ contract SablierBatchLockup is ISablierBatchLockup {
     /// is insufficient, this function approves Lockup to spend the exact `amount`.
     /// The {SafeERC20.forceApprove} function is used to handle special ERC-20 assets (e.g. USDT) that require the
     /// current allowance to be zero before setting it to a non-zero value.
-    function _approve(address lockupContract, IERC20 asset, uint256 amount) internal {
-        uint256 allowance = asset.allowance({ owner: address(this), spender: lockupContract });
+    function _approve(address lockup, IERC20 asset, uint256 amount) internal {
+        uint256 allowance = asset.allowance({ owner: address(this), spender: lockup });
         if (allowance < amount) {
-            asset.forceApprove({ spender: lockupContract, value: amount });
+            asset.forceApprove({ spender: lockup, value: amount });
         }
     }
 
     /// @dev Helper function to transfer assets from the caller to the batchLockup contract and approve the Lockup
     /// contract.
-    function _handleTransfer(address lockupContract, IERC20 asset, uint256 amount) internal {
+    function _handleTransfer(address lockup, IERC20 asset, uint256 amount) internal {
         // Transfer the assets to the batchLockup contract.
         asset.safeTransferFrom({ from: msg.sender, to: address(this), value: amount });
 
         // Approve the Lockup contract to spend funds.
-        _approve(lockupContract, asset, amount);
+        _approve(lockup, asset, amount);
     }
 }

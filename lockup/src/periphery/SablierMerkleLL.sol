@@ -5,8 +5,8 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierLockupLinear } from "../core/interfaces/ISablierLockupLinear.sol";
-import { Broker, LockupLinear } from "../core/types/DataTypes.sol";
+import { ISablierLockup } from "../core/interfaces/ISablierLockup.sol";
+import { Broker, Lockup } from "../core/types/DataTypes.sol";
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
@@ -28,7 +28,7 @@ contract SablierMerkleLL is
     bool public immutable override CANCELABLE;
 
     /// @inheritdoc ISablierMerkleLL
-    ISablierLockupLinear public immutable override LOCKUP_LINEAR;
+    ISablierLockup public immutable override LOCKUP;
 
     /// @inheritdoc ISablierMerkleLL
     bool public immutable override TRANSFERABLE;
@@ -44,7 +44,7 @@ contract SablierMerkleLL is
     /// contract.
     constructor(
         MerkleBase.ConstructorParams memory baseParams,
-        ISablierLockupLinear lockupLinear,
+        ISablierLockup lockup,
         bool cancelable,
         bool transferable,
         MerkleLL.Schedule memory schedule_,
@@ -53,12 +53,12 @@ contract SablierMerkleLL is
         SablierMerkleBase(baseParams, sablierFee)
     {
         CANCELABLE = cancelable;
-        LOCKUP_LINEAR = lockupLinear;
+        LOCKUP = lockup;
         TRANSFERABLE = transferable;
         schedule = schedule_;
 
         // Max approve the Lockup contract to spend funds from the MerkleLL contract.
-        ASSET.forceApprove(address(LOCKUP_LINEAR), type(uint256).max);
+        ASSET.forceApprove(address(LOCKUP), type(uint256).max);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -68,25 +68,27 @@ contract SablierMerkleLL is
     /// @inheritdoc SablierMerkleBase
     function _claim(uint256 index, address recipient, uint128 amount) internal override {
         // Calculate the timestamps for the stream.
-        LockupLinear.Timestamps memory timestamps;
+        Lockup.Timestamps memory timestamps;
         if (schedule.startTime == 0) {
             timestamps.start = uint40(block.timestamp);
         } else {
             timestamps.start = schedule.startTime;
         }
 
+        uint40 cliffTime;
+
         // It is safe to use unchecked arithmetic because the `createWithTimestamps` function in the Lockup contract
         // will nonetheless make the relevant checks.
         unchecked {
             if (schedule.cliffDuration > 0) {
-                timestamps.cliff = timestamps.start + schedule.cliffDuration;
+                cliffTime = timestamps.start + schedule.cliffDuration;
             }
             timestamps.end = timestamps.start + schedule.totalDuration;
         }
 
-        // Interaction: create the stream via {SablierLockupLinear}.
-        uint256 streamId = LOCKUP_LINEAR.createWithTimestamps(
-            LockupLinear.CreateWithTimestamps({
+        // Interaction: create the stream via {SablierLockup}.
+        uint256 streamId = LOCKUP.createWithTimestampsLL(
+            Lockup.CreateWithTimestamps({
                 sender: admin,
                 recipient: recipient,
                 totalAmount: amount,
@@ -95,7 +97,8 @@ contract SablierMerkleLL is
                 transferable: TRANSFERABLE,
                 timestamps: timestamps,
                 broker: Broker({ account: address(0), fee: ud(0) })
-            })
+            }),
+            cliffTime
         );
 
         // Log the claim.
