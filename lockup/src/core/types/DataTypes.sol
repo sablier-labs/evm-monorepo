@@ -50,6 +50,29 @@ library Lockup {
         uint128 brokerFee;
     }
 
+    /// @notice Struct encapsulating the common parameters emitted in the `Create` event.
+    /// @param funder The address which has funded the stream.
+    /// @param sender The address distributing the assets, which is able to cancel the stream.
+    /// @param recipient The address receiving the assets, as well as the NFT owner.
+    /// @param amounts Struct encapsulating (i) the deposit amount, and (ii) the broker fee amount, both denoted
+    /// in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param cancelable Boolean indicating whether the stream is cancelable or not.
+    /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
+    /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, all as Unix timestamps.
+    /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
+    struct CreateEventCommon {
+        address funder;
+        address sender;
+        address recipient;
+        Lockup.CreateAmounts amounts;
+        IERC20 asset;
+        bool cancelable;
+        bool transferable;
+        Lockup.Timestamps timestamps;
+        address broker;
+    }
+
     /// @notice Struct encapsulating the parameters of the `createWithDurations` functions.
     /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
@@ -194,6 +217,16 @@ library LockupLinear {
     struct Durations {
         uint40 cliff;
         uint40 total;
+    }
+
+    /// @notice Struct encapsulating the unlock amounts for the stream.
+    /// @dev The sum of `start` and `cliff` must be less than or equal to deposit amount. Both amounts can be zero.
+    /// @param start The amount to be unlocked at the start time.
+    /// @param cliff The amount to be unlocked at the cliff time.
+    struct UnlockAmounts {
+        // slot 0
+        uint128 start;
+        uint128 cliff;
     }
 }
 

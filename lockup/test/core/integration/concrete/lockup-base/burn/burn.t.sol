@@ -35,7 +35,7 @@ contract Burn_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertGiven_CANCELEDStatus() external whenNoDelegateCall givenNotNull givenNotDepletedStream {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         resetPrank({ msgSender: users.sender });
         lockup.cancel(defaultStreamId);
         resetPrank({ msgSender: users.recipient });

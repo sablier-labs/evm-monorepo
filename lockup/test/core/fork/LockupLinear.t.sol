@@ -7,7 +7,7 @@ import { ud } from "@prb/math/src/UD60x18.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { ISablierLockupBase } from "src/core/interfaces/ISablierLockupBase.sol";
-import { Broker, Lockup } from "src/core/types/DataTypes.sol";
+import { Broker, Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
 import { Fork_Test } from "./Fork.t.sol";
 
 abstract contract Lockup_Linear_Fork_Test is Fork_Test {
@@ -41,6 +41,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         uint128 withdrawAmount;
         uint40 warpTimestamp;
         Lockup.Timestamps timestamps;
+        LockupLinear.UnlockAmounts unlockAmounts;
         uint40 cliffTime;
         Broker broker;
     }
@@ -67,6 +68,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         bool isDepleted;
         bool isSettled;
         uint256 streamId;
+        uint128 streamedAmount;
         // Create vars
         uint256 actualBrokerBalance;
         uint256 actualNextStreamId;
@@ -126,14 +128,24 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
 
         // The cliff time must be either zero or greater than the start time.
         vars.hasCliff = params.cliffTime > 0;
-        if (vars.hasCliff) {
-            params.cliffTime =
-                boundUint40(params.cliffTime, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks);
-        }
+        params.cliffTime = vars.hasCliff
+            ? boundUint40(params.cliffTime, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks)
+            : 0;
+
         // Bound the end time so that it is always greater than the start time, and the cliff time.
         vars.endTimeLowerBound = maxOfTwo(params.timestamps.start, params.cliffTime);
         params.timestamps.end =
             boundUint40(params.timestamps.end, vars.endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
+
+        // Calculate the broker fee amount and the deposit amount.
+        vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
+        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.brokerFee;
+
+        // Bound the unlock amounts.
+        params.unlockAmounts.start = boundUint128(params.unlockAmounts.start, 0, vars.createAmounts.deposit);
+        params.unlockAmounts.cliff = vars.hasCliff
+            ? boundUint128(params.unlockAmounts.cliff, 0, vars.createAmounts.deposit - params.unlockAmounts.start)
+            : 0;
 
         // Make the holder the caller.
         resetPrank(FORK_ASSET_HOLDER);
@@ -148,10 +160,6 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         vars.initialLockupBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
-        // Calculate the broker fee amount and the deposit amount.
-        vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.brokerFee;
-
         vars.streamId = lockup.nextStreamId();
 
         // Expect the relevant events to be emitted.
@@ -160,16 +168,19 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupLinearStream({
             streamId: vars.streamId,
-            funder: FORK_ASSET_HOLDER,
-            sender: params.sender,
-            recipient: params.recipient,
-            amounts: vars.createAmounts,
-            asset: FORK_ASSET,
-            cancelable: true,
-            transferable: true,
-            timestamps: params.timestamps,
+            commonParams: Lockup.CreateEventCommon({
+                funder: FORK_ASSET_HOLDER,
+                sender: params.sender,
+                recipient: params.recipient,
+                amounts: vars.createAmounts,
+                asset: FORK_ASSET,
+                cancelable: true,
+                transferable: true,
+                timestamps: params.timestamps,
+                broker: params.broker.account
+            }),
             cliffTime: params.cliffTime,
-            broker: params.broker.account
+            unlockAmounts: params.unlockAmounts
         });
 
         // Create the stream.
@@ -184,12 +195,25 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
                 timestamps: params.timestamps,
                 broker: params.broker
             }),
+            params.unlockAmounts,
             params.cliffTime
         );
 
+        vars.streamedAmount = calculateLockupLinearStreamedAmount(
+            params.timestamps.start,
+            params.cliffTime,
+            params.timestamps.end,
+            vars.createAmounts.deposit,
+            params.unlockAmounts
+        );
+
         // Check if the stream is settled. It is possible for a Lockup Linear stream to settle at the time of creation
-        // in case end time is in the past.
-        vars.isSettled = params.timestamps.end <= vars.blockTimestamp;
+        // in case 1. the start unlock amount equals the deposited amount 2. end time is in the past.
+        if (vars.streamedAmount == vars.createAmounts.deposit) {
+            vars.isSettled = true;
+        } else {
+            vars.isSettled = false;
+        }
         vars.isCancelable = vars.isSettled ? false : true;
 
         // Assert that the stream has been created.
@@ -205,10 +229,12 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         assertEq(lockup.getSender(vars.streamId), params.sender, "sender");
         assertEq(lockup.getStartTime(vars.streamId), params.timestamps.start, "startTime");
         assertFalse(lockup.wasCanceled(vars.streamId), "wasCanceled");
+        assertEq(lockup.getUnlockAmounts(vars.streamId).start, params.unlockAmounts.start, "unlockAmounts.start");
+        assertEq(lockup.getUnlockAmounts(vars.streamId).cliff, params.unlockAmounts.cliff, "unlockAmounts.cliff");
 
         // Assert that the stream's status is correct.
         vars.actualStatus = lockup.statusOf(vars.streamId);
-        if (params.timestamps.end <= vars.blockTimestamp) {
+        if (vars.streamedAmount == vars.createAmounts.deposit) {
             vars.expectedStatus = Lockup.Status.SETTLED;
         } else if (params.timestamps.start > vars.blockTimestamp) {
             vars.expectedStatus = Lockup.Status.PENDING;

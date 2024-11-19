@@ -15,7 +15,7 @@ contract WithdrawableAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tr
     /// - Status streaming
     /// - Status settled
     function testFuzz_WithdrawableAmountOf_NoPreviousWithdrawals(uint40 timeJump) external givenStartTimeInPast {
-        timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        timeJump = boundUint40(timeJump, defaults.WARP_26_PERCENT_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
@@ -60,7 +60,7 @@ contract WithdrawableAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tr
         params.totalAmount = defaults.DEPOSIT_AMOUNT();
         uint256 streamId = lockup.createWithTimestampsLT(params, defaults.tranches());
 
-        timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        timeJump = boundUint40(timeJump, defaults.WARP_26_PERCENT_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });

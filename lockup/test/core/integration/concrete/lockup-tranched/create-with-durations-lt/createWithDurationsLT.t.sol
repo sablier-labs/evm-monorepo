@@ -51,14 +51,14 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
     {
         uint40 startTime = getBlockTimestamp();
         LockupTranched.TrancheWithDuration[] memory tranches = defaults.tranchesWithDurations();
-        tranches[2].duration = 0;
-        uint256 index = 2;
+        uint256 index = 1;
+        tranches[index].duration = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierHelpers_TrancheTimestampsNotOrdered.selector,
                 index,
-                startTime + tranches[0].duration + tranches[1].duration,
-                startTime + tranches[0].duration + tranches[1].duration
+                startTime + tranches[0].duration,
+                startTime + tranches[0].duration
             )
         );
         createDefaultStreamWithDurations(tranches);
@@ -137,7 +137,6 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         LockupTranched.Tranche[] memory tranches = defaults.tranches();
         tranches[0].timestamp = timestamps.start + tranchesWithDurations[0].duration;
         tranches[1].timestamp = tranches[0].timestamp + tranchesWithDurations[1].duration;
-        tranches[2].timestamp = tranches[1].timestamp + tranchesWithDurations[2].duration;
 
         // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
@@ -151,16 +150,8 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupTranchedStream({
             streamId: expectedStreamId,
-            funder: funder,
-            sender: users.sender,
-            recipient: users.recipient,
-            amounts: defaults.lockupCreateAmounts(),
-            asset: dai,
-            cancelable: true,
-            transferable: true,
-            tranches: tranches,
-            timestamps: timestamps,
-            broker: users.broker
+            commonParams: defaults.lockupCreateEvent(timestamps),
+            tranches: tranches
         });
 
         // Create the stream.

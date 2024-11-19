@@ -30,6 +30,7 @@ contract CreateWithDurationsLL_Integration_Test is Periphery_Test {
         expectMultipleCallsToCreateWithDurationsLL({
             count: defaults.BATCH_SIZE(),
             params: defaults.createWithDurationsBrokerNull(),
+            unlockAmounts: defaults.unlockAmounts(),
             durations: defaults.durations()
         });
         expectMultipleCallsToTransferFrom({

@@ -4,7 +4,6 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { ud60x18 } from "@prb/math/src/UD60x18.sol";
-
 import { Solarray } from "solarray/src/Solarray.sol";
 
 import { ISablierLockup } from "../../src/core/interfaces/ISablierLockup.sol";
@@ -54,6 +53,7 @@ contract Init is BaseScript {
                     transferable: true,
                     broker: Broker(address(0), ud60x18(0))
                 }),
+                LockupLinear.UnlockAmounts({ start: 0, cliff: 0 }),
                 LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] })
             );
         }

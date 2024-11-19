@@ -24,8 +24,8 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         givenStartTimeInPast
     {
         vm.assume(segment.amount != 0);
-        segment.timestamp = boundUint40(segment.timestamp, defaults.CLIFF_TIME(), defaults.END_TIME());
-        timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        segment.timestamp = boundUint40(segment.timestamp, defaults.WARP_26_PERCENT(), defaults.END_TIME());
+        timeJump = boundUint40(timeJump, defaults.WARP_26_PERCENT_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Create the single-segment array.
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](1);

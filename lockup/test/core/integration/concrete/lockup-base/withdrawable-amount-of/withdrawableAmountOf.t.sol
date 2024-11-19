@@ -9,20 +9,20 @@ abstract contract WithdrawableAmountOf_Integration_Concrete_Test is Integration_
     }
 
     function test_GivenCanceledStreamAndCANCELEDStatus() external givenNotNull {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         lockup.cancel(defaultStreamId);
 
         // It should return the correct withdrawable amount.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
-        uint256 expectedWithdrawableAmount = defaults.CLIFF_AMOUNT();
+        uint256 expectedWithdrawableAmount = defaults.STREAMED_AMOUNT_26_PERCENT();
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     function test_GivenCanceledStreamAndDEPLETEDStatus() external givenNotNull {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         lockup.cancel(defaultStreamId);
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() + 10 seconds });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 10 seconds });
 
         // It should return zero.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);

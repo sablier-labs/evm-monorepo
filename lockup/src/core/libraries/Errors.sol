@@ -39,6 +39,9 @@ library Errors {
     /// @notice Thrown when trying to create a linear stream with a cliff time not strictly less than the end time.
     error SablierHelpers_CliffTimeNotLessThanEndTime(uint40 cliffTime, uint40 endTime);
 
+    /// @notice Thrown when trying to create a stream with a non zero cliff unlock amount when the cliff time is zero.
+    error SablierHelpers_CliffTimeZeroUnlockAmountNotZero(uint128 cliffUnlockAmount);
+
     /// @notice Thrown when trying to create a dynamic stream with a deposit amount not equal to the sum of the segment
     /// amounts.
     error SablierHelpers_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositAmount, uint128 segmentAmountsSum);
@@ -94,6 +97,11 @@ library Errors {
 
     /// @notice Thrown when trying to create a tranched stream with unordered tranche timestamps.
     error SablierHelpers_TrancheTimestampsNotOrdered(uint256 index, uint40 previousTimestamp, uint40 currentTimestamp);
+
+    /// @notice Thrown when trying to create a stream with the sum of the unlock amounts greater than deposit amount.
+    error SablierHelpers_UnlockAmountsSumTooHigh(
+        uint128 depositAmount, uint128 startUnlockAmount, uint128 cliffUnlockAmount
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER-LOCKUP-BASE

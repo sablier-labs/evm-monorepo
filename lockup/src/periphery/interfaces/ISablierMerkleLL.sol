@@ -30,8 +30,11 @@ interface ISablierMerkleLL is ISablierMerkleBase {
     /// @dev This is an immutable state variable.
     function TRANSFERABLE() external returns (bool);
 
-    /// @notice The start time, cliff duration and the end duration used to calculate the time variables in
-    /// `Lockup.CreateWithTimestampsLL`.
+    /// @notice The start time, start unlock amount, cliff duration, cliff unclock amount and the end duration used to
+    /// calculate the time variables in `Lockup.CreateWithTimestampsLL`.
     /// @dev A start time value of zero will be considered as `block.timestamp`.
-    function schedule() external view returns (uint40 startTime, uint40 cliffDuration, uint40 endDuration);
+    function schedule()
+        external
+        view
+        returns (uint40 startTime, uint128 startAmount, uint40 cliffDuration, uint128 cliffAmount, uint40 endDuration);
 }

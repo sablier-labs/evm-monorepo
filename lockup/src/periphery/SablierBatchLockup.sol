@@ -171,6 +171,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
                     transferable: batch[i].transferable,
                     broker: batch[i].broker
                 }),
+                batch[i].unlockAmounts,
                 batch[i].durations
             );
         }
@@ -220,6 +221,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
                     timestamps: batch[i].timestamps,
                     broker: batch[i].broker
                 }),
+                batch[i].unlockAmounts,
                 batch[i].cliffTime
             );
         }

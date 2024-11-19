@@ -26,6 +26,7 @@ library BatchLockup {
         bool cancelable;
         bool transferable;
         LockupLinear.Durations durations;
+        LockupLinear.UnlockAmounts unlockAmounts;
         Broker broker;
     }
 
@@ -61,6 +62,7 @@ library BatchLockup {
         bool transferable;
         Lockup.Timestamps timestamps;
         uint40 cliffTime;
+        LockupLinear.UnlockAmounts unlockAmounts;
         Broker broker;
     }
 
@@ -111,11 +113,15 @@ library MerkleLL {
     /// variables in `Lockup.CreateWithTimestampsLL`.
     /// @dev A start time value of zero will be considered as `block.timestamp`.
     /// @param startTime The start time of the stream.
+    /// @param startAmount The amount to be unlocked at the start time.
     /// @param cliffDuration The duration of the cliff.
+    /// @param cliffAmount The amount to be unlocked at the cliff time.
     /// @param totalDuration The total duration of the stream.
     struct Schedule {
         uint40 startTime;
+        uint128 startAmount;
         uint40 cliffDuration;
+        uint128 cliffAmount;
         uint40 totalDuration;
     }
 }

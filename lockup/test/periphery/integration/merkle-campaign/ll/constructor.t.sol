@@ -92,11 +92,18 @@ contract Constructor_MerkleLL_Integration_Test is MerkleCampaign_Integration_Tes
         vars.expectedName = defaults.NAME_BYTES32();
         assertEq(bytes32(abi.encodePacked(vars.actualName)), vars.expectedName, "name");
 
-        (vars.actualSchedule.startTime, vars.actualSchedule.cliffDuration, vars.actualSchedule.totalDuration) =
-            constructedLL.schedule();
+        (
+            vars.actualSchedule.startTime,
+            vars.actualSchedule.startAmount,
+            vars.actualSchedule.cliffDuration,
+            vars.actualSchedule.cliffAmount,
+            vars.actualSchedule.totalDuration
+        ) = constructedLL.schedule();
         vars.expectedSchedule = defaults.schedule();
         assertEq(vars.actualSchedule.startTime, vars.expectedSchedule.startTime, "schedule.startTime");
+        assertEq(vars.actualSchedule.startAmount, vars.expectedSchedule.startAmount, "schedule.startAmount");
         assertEq(vars.actualSchedule.cliffDuration, vars.expectedSchedule.cliffDuration, "schedule.cliffDuration");
+        assertEq(vars.actualSchedule.cliffAmount, vars.expectedSchedule.cliffAmount, "schedule.cliffAmount");
         assertEq(vars.actualSchedule.totalDuration, vars.expectedSchedule.totalDuration, "schedule.totalDuration");
 
         vars.actualTransferable = constructedLL.TRANSFERABLE();

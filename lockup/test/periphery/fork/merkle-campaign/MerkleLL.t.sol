@@ -74,7 +74,11 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             vars.indexes[i] = params.leafData[i].index;
 
             // Bound each leaf amount so that `aggregateAmount` does not overflow.
-            vars.amounts[i] = boundUint128(params.leafData[i].amount, 1, uint128(MAX_UINT128 / vars.recipientCount - 1));
+            vars.amounts[i] = boundUint128(
+                params.leafData[i].amount,
+                defaults.START_AMOUNT() + defaults.CLIFF_AMOUNT(),
+                uint128(MAX_UINT128 / vars.recipientCount - 1)
+            );
             vars.aggregateAmount += vars.amounts[i];
 
             // Avoid zero recipient addresses.
@@ -211,6 +215,8 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         assertEq(lockup.getSender(vars.expectedStreamId), params.campaignOwner, "sender");
         assertEq(lockup.getStartTime(vars.expectedStreamId), getBlockTimestamp(), "start time");
         assertEq(lockup.wasCanceled(vars.expectedStreamId), false, "was canceled");
+        assertEq(lockup.getUnlockAmounts(vars.expectedStreamId).start, defaults.START_AMOUNT(), "unlock amounts start");
+        assertEq(lockup.getUnlockAmounts(vars.expectedStreamId).cliff, defaults.CLIFF_AMOUNT(), "unlock amounts cliff");
 
         assertTrue(vars.merkleLL.hasClaimed(vars.indexes[params.posBeforeSort]));
 

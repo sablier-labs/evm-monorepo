@@ -54,7 +54,7 @@ forge install --no-commit sablier-labs/lockup
 Second, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.0.3
+forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.1.0
 ```
 
 Finally, add these to your `remappings.txt` file:

@@ -132,7 +132,7 @@ interface ISablierMerkleFactory is IAdminable {
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param cancelable Indicates if the stream will be cancelable after claiming.
     /// @param transferable Indicates if the stream will be transferable after claiming.
-    /// @param schedule The time variables to construct the stream timestamps.
+    /// @param schedule Struct encapsulating the unlocks schedule, which are documented in {DataTypes}.
     /// @param aggregateAmount The total amount of ERC-20 assets to be distributed to all recipients.
     /// @param recipientCount The total number of recipients who are eligible to claim.
     /// @return merkleLL The address of the newly created Merkle Lockup contract.

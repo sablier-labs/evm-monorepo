@@ -10,6 +10,8 @@ StreamedAmountOf_Integration_Concrete_Test
       ├── given PENDING status
       │  └── it should return zero
       ├── given STREAMING status
+      │  └── it should the correct streamed amount
+      ├── given SETTLED status
       │  └── it should return the deposited amount
       └── given DEPLETED status
-         └── it should return the correct streamed amount
+         └── it should return the deposited amount

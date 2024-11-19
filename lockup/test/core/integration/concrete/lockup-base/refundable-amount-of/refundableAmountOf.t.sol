@@ -9,14 +9,14 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
     }
 
     function test_GivenNonCancelableStream() external givenNotNull {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(notCancelableStreamId);
         uint128 expectedRefundableAmount = 0;
         assertEq(actualRefundableAmount, expectedRefundableAmount, "refundableAmount");
     }
 
     function test_GivenCanceledStreamAndCANCELEDStatus() external givenNotNull givenCancelableStream {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         lockup.cancel(defaultStreamId);
         uint128 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
         uint128 expectedRefundableAmount = 0;
@@ -24,10 +24,10 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
     }
 
     function test_GivenCanceledStreamAndDEPLETEDStatus() external givenNotNull givenCancelableStream {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         lockup.cancel(defaultStreamId);
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() + 10 seconds });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 10 seconds });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
         uint128 expectedRefundableAmount = 0;
         assertEq(actualRefundableAmount, expectedRefundableAmount, "refundableAmount");
@@ -41,7 +41,7 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
     }
 
     function test_GivenSTREAMINGStatus() external givenNotNull givenCancelableStream givenNotCanceledStream {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
         uint128 expectedReturnableAmount = defaults.REFUND_AMOUNT();
         assertEq(actualRefundableAmount, expectedReturnableAmount, "refundableAmount");

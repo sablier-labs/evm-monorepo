@@ -14,19 +14,6 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Concrete_Test is
         Lockup_Dynamic_Integration_Concrete_Test.setUp();
     }
 
-    function test_GivenStartTimeInPresent() external givenSTREAMINGStatus {
-        vm.warp({ newTimestamp: defaults.START_TIME() });
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
-        assertEq(actualStreamedAmount, 0, "streamedAmount");
-    }
-
-    function test_GivenEndTimeNotInFuture() external givenSTREAMINGStatus givenStartTimeInPast {
-        vm.warp({ newTimestamp: defaults.END_TIME() + 1 });
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = defaults.DEPOSIT_AMOUNT();
-        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
-    }
-
     function test_GivenSingleSegment() external givenSTREAMINGStatus givenStartTimeInPast givenEndTimeInFuture {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + 2000 seconds });
@@ -49,12 +36,12 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Concrete_Test is
     }
 
     function test_GivenMultipleSegments() external givenSTREAMINGStatus givenStartTimeInPast givenEndTimeInFuture {
-        // Simulate the passage of time. 750 seconds is ~10% of the way in the second segment.
-        vm.warp({ newTimestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 750 seconds });
+        // Simulate the passage of time. 740 seconds is ~10% of the way in the second segment.
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 740 seconds });
 
         // It should return the correct streamed amount.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = defaults.segments()[0].amount + 2371.708245126284505e18; // ~7,500*0.1^{0.5}
+        uint128 expectedStreamedAmount = defaults.segments()[0].amount + 2340.0854685246007116e18; // ~7,400*0.1^{0.5}
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 }

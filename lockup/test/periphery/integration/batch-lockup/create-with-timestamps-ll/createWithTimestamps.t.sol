@@ -30,7 +30,8 @@ contract CreateWithTimestampsLL_Integration_Test is Periphery_Test {
         expectMultipleCallsToCreateWithTimestampsLL({
             count: defaults.BATCH_SIZE(),
             params: defaults.createWithTimestampsBrokerNull(),
-            cliff: defaults.CLIFF_TIME()
+            unlockAmounts: defaults.unlockAmounts(),
+            cliffTime: defaults.CLIFF_TIME()
         });
         expectMultipleCallsToTransferFrom({
             count: defaults.BATCH_SIZE(),

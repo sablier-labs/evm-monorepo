@@ -3,10 +3,7 @@ StreamedAmountOf_Lockup_Tranched_Integration_Concrete_Test
    ├── given start time in present
    │  └── it should return zero
    └── given start time in past
-      ├── given end time not in future
-      │  └── it should return the deposited amount
-      └── given end time in future
-         ├── given first tranche timestamp in future
-         │  └── it should return 0
-         └── given first tranche timestamp not in future
-            └── it should return the correct streamed amount
+      ├── given first tranche timestamp in future
+      │  └── it should return 0
+      └── given first tranche timestamp not in future
+         └── it should return the correct streamed amount

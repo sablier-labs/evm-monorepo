@@ -53,7 +53,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Concrete_Test is
 
         // It should return the correct streamed amount.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = defaults.tranches()[0].amount + defaults.tranches()[1].amount;
+        uint128 expectedStreamedAmount = defaults.tranches()[0].amount;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 }

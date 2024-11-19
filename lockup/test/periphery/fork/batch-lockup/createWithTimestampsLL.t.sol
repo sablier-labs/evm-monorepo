@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { Lockup } from "src/core/types/DataTypes.sol";
+import { Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
 import { BatchLockup } from "src/periphery/types/DataTypes.sol";
 
 import { ArrayBuilder } from "../../../utils/ArrayBuilder.sol";
@@ -18,6 +18,7 @@ abstract contract CreateWithTimestampsLL_BatchLockup_Fork_Test is Fork_Test {
         uint128 batchSize;
         Lockup.Timestamps timestamps;
         uint40 cliffTime;
+        LockupLinear.UnlockAmounts unlockAmounts;
         address sender;
         address recipient;
         uint128 perStreamAmount;
@@ -31,6 +32,12 @@ abstract contract CreateWithTimestampsLL_BatchLockup_Fork_Test is Fork_Test {
         params.cliffTime =
             boundUint40(params.cliffTime, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks);
         params.timestamps.end = boundUint40(params.timestamps.end, params.cliffTime + 1 seconds, MAX_UNIX_TIMESTAMP);
+
+        // Bound the unlock amounts.
+        params.unlockAmounts.start = boundUint128(params.unlockAmounts.start, 0, params.perStreamAmount);
+        params.unlockAmounts.cliff = params.cliffTime > 0
+            ? boundUint128(params.unlockAmounts.cliff, 0, params.perStreamAmount - params.unlockAmounts.start)
+            : 0;
 
         checkUsers(params.sender, params.recipient);
 
@@ -51,7 +58,7 @@ abstract contract CreateWithTimestampsLL_BatchLockup_Fork_Test is Fork_Test {
             broker: defaults.brokerNull()
         });
         BatchLockup.CreateWithTimestampsLL[] memory batchParams =
-            BatchLockupBuilder.fillBatch(createParams, params.cliffTime, params.batchSize);
+            BatchLockupBuilder.fillBatch(createParams, params.unlockAmounts, params.cliffTime, params.batchSize);
 
         // Asset flow: sender → batch → Sablier
         expectCallToTransferFrom({
@@ -63,7 +70,8 @@ abstract contract CreateWithTimestampsLL_BatchLockup_Fork_Test is Fork_Test {
         expectMultipleCallsToCreateWithTimestampsLL({
             count: uint64(params.batchSize),
             params: createParams,
-            cliff: params.cliffTime
+            unlockAmounts: params.unlockAmounts,
+            cliffTime: params.cliffTime
         });
         expectMultipleCallsToTransferFrom({
             asset: FORK_ASSET,

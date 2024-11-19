@@ -23,7 +23,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
     function setUp() public virtual override {
         Integration_Test.setUp();
 
-        originalTime = getBlockTimestamp();
+        originalTime = defaults.START_TIME();
 
         withdrawMultipleStreamIds = warpAndCreateStreams(defaults.START_TIME());
 
@@ -40,7 +40,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         // 2. A stream with an early end time
         // 3. A stream meant to be canceled before the withdrawal is made
         streamIds[0] = createDefaultStream();
-        streamIds[1] = createDefaultStreamWithEndTime(defaults.WARP_26_PERCENT());
+        streamIds[1] = createDefaultStreamWithEndTime(defaults.WARP_26_PERCENT() + 1);
         streamIds[2] = createDefaultStream();
     }
 
@@ -76,10 +76,10 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         whenNonZeroArrayLength
     {
         uint256[] memory streamIds =
-            Solarray.uint256s(withdrawMultipleStreamIds[0], withdrawMultipleStreamIds[1], nullStreamId);
+            Solarray.uint256s(nullStreamId, withdrawMultipleStreamIds[0], withdrawMultipleStreamIds[1]);
 
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 1 });
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, nullStreamId));
@@ -119,7 +119,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         givenNoDEPLETEDStreams
     {
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 1 });
 
         // Run the test.
         uint128[] memory amounts = Solarray.uint128s(defaults.WITHDRAW_AMOUNT(), 0, 0);
@@ -141,7 +141,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         whenNoZeroAmounts
     {
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 1 });
 
         // Run the test.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(withdrawMultipleStreamIds[2]);
@@ -184,9 +184,10 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         givenNoNullStreams
         givenNoDEPLETEDStreams
         whenNoZeroAmounts
+        whenCallerAuthorizedForAllStreams
     {
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 1 });
 
         // Cancel the 3rd stream.
         resetPrank({ msgSender: users.sender });

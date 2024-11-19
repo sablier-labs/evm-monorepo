@@ -29,7 +29,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.STREAMED_AMOUNT_26_PERCENT() });
 
         // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -38,7 +38,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
-        uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
+        uint128 expectedWithdrawnAmount = defaults.STREAMED_AMOUNT_26_PERCENT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
@@ -63,7 +63,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: to, amount: defaults.WITHDRAW_AMOUNT() });
+        lockup.withdraw({ streamId: defaultStreamId, to: to, amount: defaults.STREAMED_AMOUNT_26_PERCENT() });
 
         // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -72,7 +72,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
-        uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
+        uint128 expectedWithdrawnAmount = defaults.STREAMED_AMOUNT_26_PERCENT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
@@ -94,7 +94,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         whenWithdrawAmountNotOverdraw
         whenCallerRecipient
     {
-        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
+        timeJump = _bound(timeJump, defaults.WARP_26_PERCENT_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
         vm.assume(to != address(0));
 
         // Simulate the passage of time.
@@ -162,7 +162,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         whenWithdrawAmountNotOverdraw
         givenNotCanceledStream
     {
-        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        timeJump = _bound(timeJump, defaults.WARP_26_PERCENT_DURATION(), defaults.TOTAL_DURATION() * 2);
         vm.assume(to != address(0));
 
         // Simulate the passage of time.

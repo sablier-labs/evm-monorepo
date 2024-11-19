@@ -140,6 +140,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenStartTimeLessThanFirstTimestamp
     {
         // Swap the tranche timestamps.
+        // LockupTranched.Tranche[] memory tranches = defaults.tranches();
         (_defaultParams.tranches[0].timestamp, _defaultParams.tranches[1].timestamp) =
             (_defaultParams.tranches[1].timestamp, _defaultParams.tranches[0].timestamp);
 
@@ -153,6 +154,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
                 _defaultParams.tranches[1].timestamp
             )
         );
+        _defaultParams.createWithTimestamps.timestamps.end = _defaultParams.tranches[1].timestamp;
         createDefaultStream();
     }
 
@@ -256,16 +258,8 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupTranchedStream({
             streamId: expectedStreamId,
-            funder: funder,
-            sender: users.sender,
-            recipient: users.recipient,
-            amounts: defaults.lockupCreateAmounts(),
-            tranches: defaults.tranches(),
-            asset: IERC20(asset),
-            cancelable: true,
-            transferable: true,
-            timestamps: defaults.lockupTimestamps(),
-            broker: users.broker
+            commonParams: defaults.lockupCreateEvent(IERC20(asset)),
+            tranches: defaults.tranches()
         });
 
         // It should create the stream.

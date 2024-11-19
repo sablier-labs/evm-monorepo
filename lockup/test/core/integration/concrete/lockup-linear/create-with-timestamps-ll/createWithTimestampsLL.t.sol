@@ -19,6 +19,26 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         lockupModel = Lockup.Model.LOCKUP_LINEAR;
     }
 
+    function test_RevertWhen_CliffUnlockAmountNotZero()
+        external
+        whenNoDelegateCall
+        whenBrokerFeeNotExceedMaxValue
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenAssetContract
+        whenCliffTimeZero
+    {
+        _defaultParams.cliffTime = 0;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierHelpers_CliffTimeZeroUnlockAmountNotZero.selector, _defaultParams.unlockAmounts.cliff
+            )
+        );
+        createDefaultStream();
+    }
+
     function test_RevertWhen_StartTimeNotLessThanEndTime()
         external
         whenNoDelegateCall
@@ -31,15 +51,16 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenCliffTimeZero
     {
         uint40 startTime = defaults.END_TIME();
-        uint40 cliffTime = 0;
         uint40 endTime = defaults.START_TIME();
         _defaultParams.createWithTimestamps.timestamps.start = startTime;
         _defaultParams.createWithTimestamps.timestamps.end = endTime;
+        _defaultParams.cliffTime = 0;
+        _defaultParams.unlockAmounts.cliff = 0;
 
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierHelpers_StartTimeNotLessThanEndTime.selector, startTime, endTime)
         );
-        lockup.createWithTimestampsLL(_defaultParams.createWithTimestamps, cliffTime);
+        createDefaultStream();
     }
 
     function test_WhenStartTimeLessThanEndTime()
@@ -74,11 +95,12 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
 
         _defaultParams.createWithTimestamps.timestamps.start = startTime;
         _defaultParams.createWithTimestamps.timestamps.end = endTime;
+        _defaultParams.cliffTime = cliffTime;
 
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierHelpers_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime)
         );
-        lockup.createWithTimestampsLL(_defaultParams.createWithTimestamps, cliffTime);
+        createDefaultStream();
     }
 
     function test_RevertWhen_CliffTimeNotLessThanEndTime()
@@ -105,6 +127,31 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStream();
     }
 
+    function test_RevertWhen_UnlockAmountsSumExceedsDepositAmount()
+        external
+        whenNoDelegateCall
+        whenBrokerFeeNotExceedMaxValue
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenAssetContract
+        whenCliffTimeNotZero
+        whenStartTimeLessThanCliffTime
+        whenCliffTimeLessThanEndTime
+    {
+        uint128 depositAmount = defaults.DEPOSIT_AMOUNT();
+        _defaultParams.unlockAmounts.start = depositAmount;
+        _defaultParams.unlockAmounts.cliff = 1;
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierHelpers_UnlockAmountsSumTooHigh.selector, depositAmount, depositAmount, 1
+            )
+        );
+        createDefaultStream();
+    }
+
     function test_WhenAssetMissesERC20ReturnValue()
         external
         whenNoDelegateCall
@@ -117,6 +164,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
         whenCliffTimeLessThanEndTime
+        whenUnlockAmountsSumNotExceedDepositAmount
     {
         _testCreateWithTimestampsLL(address(usdt), _defaultParams.cliffTime);
     }
@@ -133,6 +181,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
         whenCliffTimeLessThanEndTime
+        whenUnlockAmountsSumNotExceedDepositAmount
     {
         _testCreateWithTimestampsLL(address(dai), _defaultParams.cliffTime);
     }
@@ -143,6 +192,11 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         // Make the Sender the stream's funder.
         address funder = users.sender;
         uint256 expectedStreamId = lockup.nextStreamId();
+
+        // Set the default parameters.
+        _defaultParams.createWithTimestamps.asset = IERC20(asset);
+        _defaultParams.unlockAmounts.cliff = cliffTime == 0 ? 0 : _defaultParams.unlockAmounts.cliff;
+        _defaultParams.cliffTime = cliffTime;
 
         // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({
@@ -166,21 +220,12 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupLinearStream({
             streamId: expectedStreamId,
-            funder: funder,
-            sender: users.sender,
-            recipient: users.recipient,
-            amounts: defaults.lockupCreateAmounts(),
-            asset: IERC20(asset),
-            cancelable: true,
-            transferable: true,
-            timestamps: defaults.lockupTimestamps(),
+            commonParams: defaults.lockupCreateEvent(IERC20(asset)),
             cliffTime: cliffTime,
-            broker: users.broker
+            unlockAmounts: _defaultParams.unlockAmounts
         });
 
         // Create the stream.
-        _defaultParams.createWithTimestamps.asset = IERC20(asset);
-        _defaultParams.cliffTime = cliffTime;
         uint256 streamId = createDefaultStream();
 
         // It should create the stream.
@@ -188,5 +233,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         assertEq(lockup.getAsset(streamId), IERC20(asset), "asset");
         assertEq(lockup.getCliffTime(streamId), cliffTime, "cliffTime");
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
+        assertEq(lockup.getUnlockAmounts(streamId).start, _defaultParams.unlockAmounts.start, "unlockAmounts.start");
+        assertEq(lockup.getUnlockAmounts(streamId).cliff, _defaultParams.unlockAmounts.cliff, "unlockAmounts.cliff");
     }
 }

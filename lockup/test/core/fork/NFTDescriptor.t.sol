@@ -56,7 +56,7 @@ contract NFTDescriptor_Fork_Test is Fork_Test {
         // TODO: Add the deployment addresses for Lockup v1.3.0.
         // Deploy some streams temporarity for the test
         resetPrank({ msgSender: users.sender });
-        lockup.createWithDurationsLL(defaults.createWithDurations(), defaults.durations());
+        lockup.createWithDurationsLL(defaults.createWithDurations(), defaults.unlockAmounts(), defaults.durations());
         _;
     }
 

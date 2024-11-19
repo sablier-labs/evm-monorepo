@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup } from "src/core/types/DataTypes.sol";
+import { Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
 
 import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
@@ -35,23 +35,29 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
         givenCliffTimeNotInFuture
     {
         vm.assume(depositAmount != 0);
-        timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        timeJump = boundUint40(timeJump, defaults.WARP_26_PERCENT_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Mint enough assets to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
-        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
-        params.totalAmount = depositAmount;
-        uint256 streamId = lockup.createWithTimestampsLL(params, defaults.CLIFF_TIME());
+        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
+        _defaultParams.unlockAmounts = defaults.unlockAmountsZero();
+        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
+        uint256 streamId = createDefaultStream();
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(streamId);
-        uint128 expectedWithdrawableAmount =
-            calculateLockupLinearStreamedAmount(defaults.START_TIME(), defaults.END_TIME(), depositAmount);
+        uint128 expectedWithdrawableAmount = calculateLockupLinearStreamedAmount(
+            defaults.START_TIME(),
+            defaults.CLIFF_TIME(),
+            defaults.END_TIME(),
+            depositAmount,
+            _defaultParams.unlockAmounts
+        );
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -85,16 +91,18 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
         params.totalAmount = depositAmount;
-        uint256 streamId = lockup.createWithTimestampsLL(params, defaults.CLIFF_TIME());
+        LockupLinear.UnlockAmounts memory unlockAmounts = defaults.unlockAmountsZero();
+        uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, defaults.CLIFF_TIME());
 
-        timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        timeJump = boundUint40(timeJump, defaults.WARP_26_PERCENT_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
-        uint128 streamedAmount =
-            calculateLockupLinearStreamedAmount(defaults.START_TIME(), defaults.END_TIME(), depositAmount);
+        uint128 streamedAmount = calculateLockupLinearStreamedAmount(
+            defaults.START_TIME(), defaults.CLIFF_TIME(), defaults.END_TIME(), depositAmount, unlockAmounts
+        );
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.

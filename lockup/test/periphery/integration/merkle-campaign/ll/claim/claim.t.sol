@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { LockupLinear } from "src/core/types/DataTypes.sol";
 import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol";
 import { MerkleLL } from "src/periphery/types/DataTypes.sol";
 
@@ -17,6 +18,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
     function test_WhenScheduledCliffDurationZero() external whenMerkleProofValid whenScheduledStartTimeZero {
         schedule.cliffDuration = 0;
+        schedule.cliffAmount = 0;
 
         merkleLL = merkleFactory.createMerkleLL({
             baseParams: defaults.baseParams(),
@@ -67,6 +69,9 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         uint256 expectedStreamId = lockup.nextStreamId();
         uint256 previousFeeAccrued = address(merkleLL).balance;
 
+        LockupLinear.UnlockAmounts memory unlockAmounts =
+            cliffTime > 0 ? defaults.unlockAmounts() : defaults.unlockAmountsZero();
+
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
         emit ISablierMerkleLL.Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
@@ -92,9 +97,10 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         assertEq(lockup.getSender(expectedStreamId), users.campaignOwner, "sender");
         assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
         assertEq(lockup.wasCanceled(expectedStreamId), false, "was canceled");
+        assertEq(lockup.getUnlockAmounts(expectedStreamId).start, unlockAmounts.start, "unlock amount start");
+        assertEq(lockup.getUnlockAmounts(expectedStreamId).cliff, unlockAmounts.cliff, "unlock amount cliff");
 
         assertTrue(merkleLL.hasClaimed(defaults.INDEX1()), "not claimed");
-
         assertEq(address(merkleLL).balance, previousFeeAccrued + defaults.DEFAULT_SABLIER_FEE(), "fee collected");
     }
 }

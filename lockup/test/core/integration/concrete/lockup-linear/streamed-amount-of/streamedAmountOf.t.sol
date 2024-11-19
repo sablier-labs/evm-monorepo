@@ -13,49 +13,81 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Concrete_Test is
         Lockup_Linear_Integration_Concrete_Test.setUp();
     }
 
-    function test_GivenCliffTimeZero() external givenPENDINGStatus {
-        uint40 cliffTime = 0;
-        uint256 streamId = lockup.createWithTimestampsLL(_defaultParams.createWithTimestamps, cliffTime);
-
-        vm.warp({ newTimestamp: defaults.START_TIME() - 1 });
-
+    function test_GivenCliffTimeZero() external givenSTREAMINGStatus {
+        _defaultParams.cliffTime = 0;
+        _defaultParams.unlockAmounts.cliff = 0;
+        uint256 streamId = createDefaultStream();
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = 0;
+        uint128 expectedStreamedAmount = defaults.STREAMED_AMOUNT_26_PERCENT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    function test_GivenCliffTimeNotZero() external givenPENDINGStatus {
-        vm.warp({ newTimestamp: defaults.START_TIME() - 1 });
-
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = 0;
+    function test_GivenCliffTimeInFuture() external givenSTREAMINGStatus givenCliffTimeNotZero {
+        _defaultParams.unlockAmounts.start = 1;
+        uint256 streamId = createDefaultStream();
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() - 1 });
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
+        uint128 expectedStreamedAmount = 1;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    function test_GivenCliffTimeInFuture() external givenSTREAMINGStatus {
+    function test_GivenCliffTimeInFuture_Zero() external givenSTREAMINGStatus givenCliffTimeNotZero {
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() - 1 });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    function test_GivenCliffTimeInPresent() external givenSTREAMINGStatus {
+    function test_GivenCliffTimeInPresent() external givenSTREAMINGStatus givenCliffTimeNotZero {
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = defaults.CLIFF_AMOUNT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    function test_GivenEndTimeNotInFuture() external givenSTREAMINGStatus givenCliffTimeInPast {
-        vm.warp({ newTimestamp: defaults.END_TIME() + 1 });
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = defaults.DEPOSIT_AMOUNT();
+    function test_GivenStartAmount() external givenSTREAMINGStatus givenCliffTimeNotZero givenCliffTimeInPast {
+        _defaultParams.unlockAmounts.start = 1;
+        uint256 streamId = createDefaultStream();
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
+        uint128 expectedStreamedAmount = defaults.STREAMED_AMOUNT_26_PERCENT() + 1;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    function test_GivenEndTimeInFuture() external givenSTREAMINGStatus givenCliffTimeInPast {
+    function test_GivenNoCliffAmount()
+        external
+        givenSTREAMINGStatus
+        givenCliffTimeNotZero
+        givenCliffTimeInPast
+        givenNoStartAmount
+    {
+        _defaultParams.unlockAmounts.cliff = 0;
+        uint256 streamId = createDefaultStream();
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
+
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
+        uint128 expectedStreamedAmount = calculateLockupLinearStreamedAmount(
+            _defaultParams.createWithTimestamps.timestamps.start,
+            _defaultParams.cliffTime,
+            _defaultParams.createWithTimestamps.timestamps.end,
+            defaults.DEPOSIT_AMOUNT(),
+            _defaultParams.unlockAmounts
+        );
+
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
+    }
+
+    function test_GivenCliffAmount()
+        external
+        givenSTREAMINGStatus
+        givenCliffTimeNotZero
+        givenCliffTimeInPast
+        givenNoStartAmount
+    {
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = 2600e18;
+        uint128 expectedStreamedAmount = defaults.STREAMED_AMOUNT_26_PERCENT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 }

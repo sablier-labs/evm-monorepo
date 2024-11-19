@@ -57,30 +57,22 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         // Create the timestamps struct by calculating the start time, cliff time and the end time.
         Lockup.Timestamps memory timestamps =
             Lockup.Timestamps({ start: getBlockTimestamp(), end: getBlockTimestamp() + durations.total });
-
-        uint40 cliffTime;
-        if (durations.cliff > 0) {
-            cliffTime = getBlockTimestamp() + durations.cliff;
-        }
+        uint40 cliffTime = durations.cliff == 0 ? 0 : getBlockTimestamp() + durations.cliff;
+        LockupLinear.UnlockAmounts memory unlockAmounts = defaults.unlockAmounts();
+        unlockAmounts.cliff = durations.cliff > 0 ? unlockAmounts.cliff : 0;
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupLinearStream({
             streamId: expectedStreamId,
-            funder: funder,
-            sender: users.sender,
-            recipient: users.recipient,
-            amounts: defaults.lockupCreateAmounts(),
-            asset: dai,
-            cancelable: true,
-            transferable: true,
-            timestamps: timestamps,
+            commonParams: defaults.lockupCreateEvent(timestamps),
             cliffTime: cliffTime,
-            broker: users.broker
+            unlockAmounts: unlockAmounts
         });
 
         // Create the stream.
         _defaultParams.durations = durations;
+        _defaultParams.unlockAmounts = unlockAmounts;
         uint256 streamId = createDefaultStreamWithDurations();
 
         // It should create the stream.
@@ -97,6 +89,8 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
         assertEq(lockup.getCliffTime(streamId), cliffTime, "cliffTime");
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
+        assertEq(lockup.getUnlockAmounts(streamId).start, unlockAmounts.start, "unlockAmounts.start");
+        assertEq(lockup.getUnlockAmounts(streamId).cliff, unlockAmounts.cliff, "unlockAmounts.cliff");
 
         // Assert that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);

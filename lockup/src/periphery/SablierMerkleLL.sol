@@ -6,7 +6,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ud } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierLockup } from "../core/interfaces/ISablierLockup.sol";
-import { Broker, Lockup } from "../core/types/DataTypes.sol";
+import { Broker, Lockup, LockupLinear } from "../core/types/DataTypes.sol";
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
@@ -98,6 +98,7 @@ contract SablierMerkleLL is
                 timestamps: timestamps,
                 broker: Broker({ account: address(0), fee: ud(0) })
             }),
+            LockupLinear.UnlockAmounts({ start: schedule.startAmount, cliff: schedule.cliffAmount }),
             cliffTime
         );
 

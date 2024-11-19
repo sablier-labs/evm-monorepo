@@ -49,7 +49,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
     }
 
     function testFuzz_WithdrawMax(uint256 timeJump) external givenEndTimeInFuture {
-        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
+        timeJump = _bound(timeJump, defaults.WARP_26_PERCENT_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });

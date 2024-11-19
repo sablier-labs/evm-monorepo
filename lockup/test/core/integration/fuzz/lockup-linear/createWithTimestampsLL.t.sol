@@ -5,7 +5,7 @@ import { MAX_UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { Errors } from "src/core/libraries/Errors.sol";
-import { Broker, Lockup } from "src/core/types/DataTypes.sol";
+import { Broker, Lockup, LockupLinear } from "src/core/types/DataTypes.sol";
 
 import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
@@ -24,7 +24,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         );
 
         _defaultParams.createWithTimestamps.broker = broker;
-        lockup.createWithTimestampsLL(_defaultParams.createWithTimestamps, _defaultParams.cliffTime);
+        createDefaultStream();
     }
 
     function testFuzz_RevertWhen_StartTimeNotLessThanCliffTime(uint40 startTime)
@@ -42,7 +42,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
                 Errors.SablierHelpers_StartTimeNotLessThanCliffTime.selector, startTime, defaults.CLIFF_TIME()
             )
         );
-        lockup.createWithTimestampsLL(_defaultParams.createWithTimestamps, _defaultParams.cliffTime);
+        createDefaultStream();
     }
 
     function testFuzz_RevertWhen_CliffTimeNotLessThanEndTime(
@@ -61,12 +61,12 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
 
         _defaultParams.createWithTimestamps.timestamps.start = startTime;
         _defaultParams.createWithTimestamps.timestamps.end = endTime;
+        _defaultParams.cliffTime = cliffTime;
 
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierHelpers_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime)
         );
-
-        lockup.createWithTimestampsLL(_defaultParams.createWithTimestamps, cliffTime);
+        createDefaultStream();
     }
 
     struct Vars {
@@ -92,10 +92,12 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
     /// - Start time lower than and equal to cliff time
     /// - Cliff time zero and not zero
     /// - Multiple values for the cliff time and the end time
+    /// - Multiple values for start unlock amount and cliff unlock amount
     /// - Multiple values for the broker fee, including zero
     function testFuzz_CreateWithTimestampsLL(
         address funder,
         Lockup.CreateWithTimestamps memory params,
+        LockupLinear.UnlockAmounts memory unlockAmounts,
         uint40 cliffTime
     )
         external
@@ -134,6 +136,10 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
         vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.brokerFee;
 
+        unlockAmounts.start = boundUint128(unlockAmounts.start, 0, vars.createAmounts.deposit);
+        unlockAmounts.cliff =
+            cliffTime > 0 ? boundUint128(unlockAmounts.cliff, 0, vars.createAmounts.deposit - unlockAmounts.start) : 0;
+
         // Make the fuzzed funder the caller in this test.
         resetPrank(funder);
         vars.expectedStreamId = lockup.nextStreamId();
@@ -156,22 +162,25 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupLinearStream({
             streamId: vars.expectedStreamId,
-            funder: funder,
-            sender: params.sender,
-            recipient: params.recipient,
-            amounts: vars.createAmounts,
-            asset: dai,
-            cancelable: params.cancelable,
-            transferable: params.transferable,
-            timestamps: Lockup.Timestamps({ start: params.timestamps.start, end: params.timestamps.end }),
+            commonParams: Lockup.CreateEventCommon({
+                funder: funder,
+                sender: params.sender,
+                recipient: params.recipient,
+                amounts: vars.createAmounts,
+                asset: dai,
+                cancelable: params.cancelable,
+                transferable: params.transferable,
+                timestamps: Lockup.Timestamps({ start: params.timestamps.start, end: params.timestamps.end }),
+                broker: params.broker.account
+            }),
             cliffTime: cliffTime,
-            broker: params.broker.account
+            unlockAmounts: unlockAmounts
         });
 
         params.asset = dai;
 
         // Create the stream.
-        vars.actualStreamId = lockup.createWithTimestampsLL(params, cliffTime);
+        vars.actualStreamId = lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime);
 
         // It should create the stream.
         assertEq(lockup.getDepositedAmount(vars.actualStreamId), vars.createAmounts.deposit, "depositedAmount");
@@ -185,7 +194,9 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         assertEq(lockup.getSender(vars.actualStreamId), params.sender, "sender");
         assertEq(lockup.getStartTime(vars.actualStreamId), params.timestamps.start, "startTime");
         assertFalse(lockup.wasCanceled(vars.actualStreamId), "wasCanceled");
-        assertEq(lockup.getCliffTime(vars.actualStreamId), cliffTime, "cliff");
+        assertEq(lockup.getUnlockAmounts(vars.actualStreamId).start, unlockAmounts.start, "unlockAmounts.start");
+        assertEq(lockup.getUnlockAmounts(vars.actualStreamId).cliff, unlockAmounts.cliff, "unlockAmounts.cliff");
+        assertEq(lockup.getCliffTime(vars.actualStreamId), cliffTime, "cliffTime");
         assertEq(lockup.getLockupModel(vars.actualStreamId), Lockup.Model.LOCKUP_LINEAR);
 
         // Assert that the stream's status is correct.

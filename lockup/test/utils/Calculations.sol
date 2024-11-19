@@ -6,7 +6,7 @@ import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uin
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { LockupDynamic, LockupTranched } from "../../src/core/types/DataTypes.sol";
+import { LockupDynamic, LockupLinear, LockupTranched } from "../../src/core/types/DataTypes.sol";
 
 abstract contract Calculations {
     using CastingUint128 for uint128;
@@ -67,22 +67,41 @@ abstract contract Calculations {
     /// @dev Helper function that replicates the logic of {VestingMath.calculateLockupLinearStreamedAmount}.
     function calculateLockupLinearStreamedAmount(
         uint40 startTime,
+        uint40 cliffTime,
         uint40 endTime,
-        uint128 depositAmount
+        uint128 depositAmount,
+        LockupLinear.UnlockAmounts memory unlockAmounts
     )
         internal
         view
         returns (uint128)
     {
         uint40 blockTimestamp = uint40(block.timestamp);
+
+        if (startTime >= blockTimestamp) {
+            return 0;
+        }
         if (blockTimestamp >= endTime) {
             return depositAmount;
         }
+        if (cliffTime > blockTimestamp) {
+            return unlockAmounts.start;
+        }
+
         unchecked {
-            UD60x18 elapsedTime = ud(blockTimestamp - startTime);
-            UD60x18 totalDuration = ud(endTime - startTime);
-            UD60x18 elapsedTimePercentage = elapsedTime.div(totalDuration);
-            return elapsedTimePercentage.mul(ud(depositAmount)).intoUint128();
+            UD60x18 unlockAmountsSum = ud(unlockAmounts.start).add(ud(unlockAmounts.cliff));
+
+            if (unlockAmountsSum.unwrap() >= depositAmount) {
+                return depositAmount;
+            }
+
+            UD60x18 elapsedTime = cliffTime > 0 ? ud(blockTimestamp - cliffTime) : ud(blockTimestamp - startTime);
+            UD60x18 streamableDuration = cliffTime > 0 ? ud(endTime - cliffTime) : ud(endTime - startTime);
+            UD60x18 elapsedTimePercentage = elapsedTime.div(streamableDuration);
+
+            UD60x18 streamableAmount = ud(depositAmount).sub(unlockAmountsSum);
+            UD60x18 streamedAmount = elapsedTimePercentage.mul(streamableAmount);
+            return streamedAmount.add(unlockAmountsSum).intoUint128();
         }
     }
 

@@ -147,16 +147,18 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupTranchedStream({
             streamId: vars.streamId,
-            funder: FORK_ASSET_HOLDER,
-            sender: params.sender,
-            recipient: params.recipient,
-            amounts: vars.createAmounts,
-            asset: FORK_ASSET,
-            cancelable: true,
-            transferable: true,
-            tranches: params.tranches,
-            timestamps: vars.timestamps,
-            broker: params.broker.account
+            commonParams: Lockup.CreateEventCommon({
+                funder: FORK_ASSET_HOLDER,
+                sender: params.sender,
+                recipient: params.recipient,
+                amounts: vars.createAmounts,
+                asset: FORK_ASSET,
+                cancelable: true,
+                transferable: true,
+                timestamps: vars.timestamps,
+                broker: params.broker.account
+            }),
+            tranches: params.tranches
         });
 
         // Create the stream.

@@ -58,6 +58,7 @@ contract Periphery_Test is Base_Test {
     function expectMultipleCallsToCreateWithDurationsLL(
         uint64 count,
         Lockup.CreateWithDurations memory params,
+        LockupLinear.UnlockAmounts memory unlockAmounts,
         LockupLinear.Durations memory durations
     )
         internal
@@ -65,7 +66,7 @@ contract Periphery_Test is Base_Test {
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithDurationsLL, (params, durations))
+            data: abi.encodeCall(ISablierLockup.createWithDurationsLL, (params, unlockAmounts, durations))
         });
     }
 
@@ -104,14 +105,15 @@ contract Periphery_Test is Base_Test {
     function expectMultipleCallsToCreateWithTimestampsLL(
         uint64 count,
         Lockup.CreateWithTimestamps memory params,
-        uint40 cliff
+        LockupLinear.UnlockAmounts memory unlockAmounts,
+        uint40 cliffTime
     )
         internal
     {
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithTimestampsLL, (params, cliff))
+            data: abi.encodeCall(ISablierLockup.createWithTimestampsLL, (params, unlockAmounts, cliffTime))
         });
     }
 

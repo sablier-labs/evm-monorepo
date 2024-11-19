@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
-import { Lockup, LockupDynamic, LockupTranched } from "./../types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
 import { Errors } from "./Errors.sol";
 
 /// @title Helpers
@@ -106,6 +106,7 @@ library Helpers {
         Lockup.Timestamps memory timestamps,
         uint40 cliffTime,
         uint128 totalAmount,
+        LockupLinear.UnlockAmounts memory unlockAmounts,
         UD60x18 brokerFee,
         UD60x18 maxBrokerFee
     )
@@ -120,7 +121,7 @@ library Helpers {
         _checkCreateStream(sender, createAmounts.deposit, timestamps.start);
 
         // Check: validate the user-provided cliff and end times.
-        _checkCliffAndEndTime(timestamps, cliffTime);
+        _checkTimestampsAndUnlockAmounts(createAmounts.deposit, timestamps, cliffTime, unlockAmounts);
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLT} function.
@@ -187,8 +188,16 @@ library Helpers {
         amounts.deposit = totalAmount - amounts.brokerFee;
     }
 
-    /// @dev Checks the user-provided cliff and end times of a lockup linear stream.
-    function _checkCliffAndEndTime(Lockup.Timestamps memory timestamps, uint40 cliffTime) private pure {
+    /// @dev Checks the user-provided cliff, end times and unlock amounts of a lockup linear stream.
+    function _checkTimestampsAndUnlockAmounts(
+        uint128 depositAmount,
+        Lockup.Timestamps memory timestamps,
+        uint40 cliffTime,
+        LockupLinear.UnlockAmounts memory unlockAmounts
+    )
+        private
+        pure
+    {
         // Since a cliff time of zero means there is no cliff, the following checks are performed only if it's not zero.
         if (cliffTime > 0) {
             // Check: the start time is strictly less than the cliff time.
@@ -201,10 +210,21 @@ library Helpers {
                 revert Errors.SablierHelpers_CliffTimeNotLessThanEndTime(cliffTime, timestamps.end);
             }
         }
+        // Check: the cliff unlock amount is zero when the cliff time is zero.
+        else if (unlockAmounts.cliff > 0) {
+            revert Errors.SablierHelpers_CliffTimeZeroUnlockAmountNotZero(unlockAmounts.cliff);
+        }
 
         // Check: the start time is strictly less than the end time.
         if (timestamps.start >= timestamps.end) {
             revert Errors.SablierHelpers_StartTimeNotLessThanEndTime(timestamps.start, timestamps.end);
+        }
+
+        // Check: the sum of the start and cliff unlock amounts is not greater than deposit amount.
+        if (unlockAmounts.start + unlockAmounts.cliff > depositAmount) {
+            revert Errors.SablierHelpers_UnlockAmountsSumTooHigh(
+                depositAmount, unlockAmounts.start, unlockAmounts.cliff
+            );
         }
     }
 

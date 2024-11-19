@@ -91,7 +91,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GetRefundedAmountGivenCanceledStreamAndCANCELEDStatus() external givenNotNull {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         // Cancel the stream.
         lockup.cancel(defaultStreamId);
 
@@ -102,7 +102,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GetRefundedAmountGivenCanceledStreamAndDEPLETEDStatus() external givenNotNull {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         // Cancel the stream.
         lockup.cancel(defaultStreamId);
 
@@ -268,7 +268,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_IsColdGivenCANCELEDStatus() external givenNotNull {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         lockup.cancel(defaultStreamId);
         assertTrue(lockup.isCold(defaultStreamId), "isCold");
     }
@@ -349,7 +349,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_IsWarmGivenCANCELEDStatus() external givenNotNull {
-        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         lockup.cancel(defaultStreamId);
         assertFalse(lockup.isWarm(defaultStreamId), "isWarm");
     }

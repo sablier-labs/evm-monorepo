@@ -5,7 +5,8 @@ import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/U
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
-import { LockupDynamic, LockupTranched } from "./../types/DataTypes.sol";
+
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
 
 /// @title VestingMath
 /// @notice Library with functions needed to calculate vested amount across lockup streams.
@@ -99,19 +100,20 @@ library VestingMath {
     /// @dev Lockup linear model uses the following distribution function:
     ///
     /// $$
-    /// f(x) = x * d + c
+    /// f(x) = x * sa + s + c
     /// $$
     ///
     /// Where:
     ///
-    /// - $x$ is the elapsed time divided by the stream's total duration.
-    /// - $d$ is the deposited amount.
-    /// - $c$ is the cliff amount.
+    /// - $x$ is the elapsed time in the streamable range divided by the total streamable range.
+    /// - $sa$ is the streamable amount, i.e. deposited amount minus unlock amounts' sum.
+    /// - $s$ is the start unlock amount.
+    /// - $c$ is the cliff unlock amount.
     function calculateLockupLinearStreamedAmount(
         uint128 depositedAmount,
-        uint40 startTime,
+        Lockup.Timestamps memory timestamps,
         uint40 cliffTime,
-        uint40 endTime,
+        LockupLinear.UnlockAmounts memory unlockAmounts,
         uint128 withdrawnAmount
     )
         public
@@ -120,36 +122,48 @@ library VestingMath {
     {
         uint256 blockTimestamp = block.timestamp;
 
-        // If the cliff time is in the future, return zero.
+        // If the cliff time is in the future, return the start unlock amount.
         if (cliffTime > blockTimestamp) {
-            return 0;
+            return unlockAmounts.start;
         }
 
-        // In all other cases, calculate the amount streamed so far. Normalization to 18 decimals is not needed
-        // because there is no mix of amounts with different decimals.
         unchecked {
-            // Calculate how much time has passed since the stream started, and the stream's total duration.
-            UD60x18 elapsedTime = ud(blockTimestamp - startTime);
-            UD60x18 totalDuration = ud(endTime - startTime);
+            uint128 unlockAmountsSum = unlockAmounts.start + unlockAmounts.cliff;
 
-            // Divide the elapsed time by the stream's total duration.
-            UD60x18 elapsedTimePercentage = elapsedTime.div(totalDuration);
+            //  If the sum of the unlock amounts is greater than or equal to the deposited amount, return the deposited
+            // amount. The ">=" operator is used as a safety measure in case of a bug, as the sum of the unlock amounts
+            // should never exceed the deposited amount.
+            if (unlockAmountsSum >= depositedAmount) {
+                return depositedAmount;
+            }
 
-            // Cast the deposited amount to UD60x18.
-            UD60x18 depositedAmountUD60x18 = ud(depositedAmount);
+            UD60x18 elapsedTime;
+            UD60x18 streamableRange;
 
-            // Calculate the streamed amount by multiplying the elapsed time percentage by the deposited amount.
-            UD60x18 streamedAmount = elapsedTimePercentage.mul(depositedAmountUD60x18);
+            // Calculate the streamable range.
+            if (cliffTime == 0) {
+                elapsedTime = ud(blockTimestamp - timestamps.start);
+                streamableRange = ud(timestamps.end - timestamps.start);
+            } else {
+                elapsedTime = ud(blockTimestamp - cliffTime);
+                streamableRange = ud(timestamps.end - cliffTime);
+            }
+
+            UD60x18 elapsedTimePercentage = elapsedTime.div(streamableRange);
+            UD60x18 streamableAmount = ud(depositedAmount - unlockAmountsSum);
+
+            // The streamed amount is the sum of the unlock amounts plus the product of elapsed time percentage and
+            // streamable amount.
+            uint128 streamedAmount = unlockAmountsSum + (elapsedTimePercentage.mul(streamableAmount)).intoUint128();
 
             // Although the streamed amount should never exceed the deposited amount, this condition is checked
             // without asserting to avoid locking assets in case of a bug. If this situation occurs, the withdrawn
             // amount is considered to be the streamed amount, and the stream is effectively frozen.
-            if (streamedAmount.gt(depositedAmountUD60x18)) {
+            if (streamedAmount > depositedAmount) {
                 return withdrawnAmount;
             }
 
-            // Cast the streamed amount to uint128. This is safe due to the check above.
-            return uint128(streamedAmount.intoUint256());
+            return streamedAmount;
         }
     }
 

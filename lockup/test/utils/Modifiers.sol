@@ -35,6 +35,10 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
+    modifier givenLinearModel() {
+        _;
+    }
+
     modifier givenNFTExists() {
         _;
     }
@@ -44,6 +48,10 @@ abstract contract Modifiers is Fuzzers {
     }
 
     modifier givenNotNull() {
+        _;
+    }
+
+    modifier givenOnlyOneAmountZero() {
         _;
     }
 
@@ -345,6 +353,10 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
+    modifier whenUnlockAmountsSumNotExceedDepositAmount() {
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                    CREATE-MERKLE
     //////////////////////////////////////////////////////////////////////////*/
@@ -441,6 +453,10 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
+    modifier givenCliffTimeNotZero() {
+        _;
+    }
+
     modifier givenPENDINGStatus() {
         _;
     }
@@ -454,6 +470,10 @@ abstract contract Modifiers is Fuzzers {
     }
 
     modifier givenMultipleTranches() {
+        _;
+    }
+
+    modifier givenNoStartAmount() {
         _;
     }
 

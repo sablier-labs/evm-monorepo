@@ -222,16 +222,18 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupTranchedStream({
             streamId: expectedStreamId,
-            funder: funder,
-            sender: params.sender,
-            recipient: params.recipient,
-            amounts: vars.createAmounts,
-            asset: dai,
-            cancelable: params.cancelable,
-            transferable: params.transferable,
-            tranches: tranches,
-            timestamps: params.timestamps,
-            broker: params.broker.account
+            commonParams: Lockup.CreateEventCommon({
+                funder: funder,
+                sender: params.sender,
+                recipient: params.recipient,
+                amounts: vars.createAmounts,
+                asset: dai,
+                cancelable: params.cancelable,
+                transferable: params.transferable,
+                timestamps: params.timestamps,
+                broker: params.broker.account
+            }),
+            tranches: tranches
         });
 
         // Create the stream.
