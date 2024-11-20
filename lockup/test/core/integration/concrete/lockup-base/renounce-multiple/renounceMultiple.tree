@@ -1,4 +1,4 @@
-CancelMultiple_Integration_Concrete_Test
+RenounceMultiple_Integration_Concrete_Test
 ├── when delegate call
 │  └── it should revert
 └── when no delegate call
@@ -17,9 +17,5 @@ CancelMultiple_Integration_Concrete_Test
                ├── given atleast one non cancelable stream
                │  └── it should revert
                └── given all streams cancelable
-                  ├── it should mark the streams as canceled
-                  ├── it should make the streams as non cancelable
-                  ├── it should refund the sender
-                  ├── it should update the refunded amounts
-                  ├── it should not burn the NFT for all streams
-                  └── it should emit {CancelLockupStream} events for all streams
+                  ├── it should emit {MetadataUpdate} and {RenounceLockupStream} events
+                  └── it should make streams non cancelable

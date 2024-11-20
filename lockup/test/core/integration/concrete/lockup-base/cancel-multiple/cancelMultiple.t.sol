@@ -83,7 +83,7 @@ contract CancelMultiple_Integration_Concrete_Test is Integration_Test {
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(streamIds[0], notCancelableStreamId) });
     }
 
-    function test_GivenNoNonCancelableStreams()
+    function test_GivenAllStreamsCancelable()
         external
         whenNoDelegateCall
         whenNonZeroArrayLength

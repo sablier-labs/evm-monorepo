@@ -275,6 +275,19 @@ interface ISablierLockupBase is
     /// @param streamId The ID of the stream to renounce.
     function renounce(uint256 streamId) external;
 
+    /// @notice Renounces multiple streams.
+    ///
+    /// @dev Emits multiple {RenounceLockupStream} and {MetadataUpdate} events.
+    ///
+    /// Notes:
+    /// - Refer to the notes in {renounce}.
+    ///
+    /// Requirements:
+    /// - All requirements from {renounce} must be met for each stream.
+    ///
+    /// @param streamIds An array of stream IDs to renounce.
+    function renounceMultiple(uint256[] calldata streamIds) external;
+
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
     ///
     /// @dev Emits a {SetNFTDescriptor} and {BatchMetadataUpdate} event.

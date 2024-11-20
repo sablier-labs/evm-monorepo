@@ -320,7 +320,7 @@ abstract contract SablierLockupBase is
     }
 
     /// @inheritdoc ISablierLockupBase
-    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) {
+    function renounce(uint256 streamId) public override noDelegateCall notNull(streamId) {
         // Check: the stream is not cold.
         Lockup.Status status = _statusOf(streamId);
         if (status == Lockup.Status.DEPLETED) {
@@ -344,6 +344,16 @@ abstract contract SablierLockupBase is
 
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
         emit MetadataUpdate({ _tokenId: streamId });
+    }
+
+    /// @inheritdoc ISablierLockupBase
+    function renounceMultiple(uint256[] calldata streamIds) external override noDelegateCall {
+        // Iterate over the provided array of stream IDs and renounce each stream.
+        uint256 count = streamIds.length;
+        for (uint256 i = 0; i < count; ++i) {
+            // Call the existing renounce function for each stream ID.
+            renounce(streamIds[i]);
+        }
     }
 
     /// @inheritdoc ISablierLockupBase
