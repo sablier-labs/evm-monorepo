@@ -4,12 +4,10 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import { ISablierLockup } from "../core/interfaces/ISablierLockup.sol";
-import { Lockup } from "../core/types/DataTypes.sol";
-
 import { ISablierBatchLockup } from "./interfaces/ISablierBatchLockup.sol";
+import { ISablierLockup } from "./interfaces/ISablierLockup.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { BatchLockup } from "./types/DataTypes.sol";
+import { BatchLockup, Lockup } from "./types/DataTypes.sol";
 
 /// @title SablierBatchLockup
 /// @notice See the documentation in {ISablierBatchLockup}.

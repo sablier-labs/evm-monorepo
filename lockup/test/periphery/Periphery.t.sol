@@ -3,9 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
-
+import { LockupLinear } from "src/core/types/DataTypes.sol";
 import { ISablierMerkleBase } from "src/periphery/interfaces/ISablierMerkleBase.sol";
 import { SablierMerkleInstant } from "src/periphery/SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "src/periphery/SablierMerkleLL.sol";
@@ -33,104 +31,6 @@ contract Periphery_Test is Base_Test {
         contractWithReceiveEth = new ContractWithReceiveEth();
         vm.label({ account: address(contractWithoutReceiveEth), newLabel: "Contract Without Receive Eth" });
         vm.label({ account: address(contractWithReceiveEth), newLabel: "Contract With Receive Eth" });
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                CALL EXPECTS - LOCKUP
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLD}, each with the specified `params`.
-    function expectMultipleCallsToCreateWithDurationsLD(
-        uint64 count,
-        Lockup.CreateWithDurations memory params,
-        LockupDynamic.SegmentWithDuration[] memory segments
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockup),
-            count: count,
-            data: abi.encodeCall(ISablierLockup.createWithDurationsLD, (params, segments))
-        });
-    }
-
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLL}, each with the specified `params`.
-    function expectMultipleCallsToCreateWithDurationsLL(
-        uint64 count,
-        Lockup.CreateWithDurations memory params,
-        LockupLinear.UnlockAmounts memory unlockAmounts,
-        LockupLinear.Durations memory durations
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockup),
-            count: count,
-            data: abi.encodeCall(ISablierLockup.createWithDurationsLL, (params, unlockAmounts, durations))
-        });
-    }
-
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLT}, each with the specified `params`.
-    function expectMultipleCallsToCreateWithDurationsLT(
-        uint64 count,
-        Lockup.CreateWithDurations memory params,
-        LockupTranched.TrancheWithDuration[] memory tranches
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockup),
-            count: count,
-            data: abi.encodeCall(ISablierLockup.createWithDurationsLT, (params, tranches))
-        });
-    }
-
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLD}, each with the specified `params`.
-    function expectMultipleCallsToCreateWithTimestampsLD(
-        uint64 count,
-        Lockup.CreateWithTimestamps memory params,
-        LockupDynamic.Segment[] memory segments
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockup),
-            count: count,
-            data: abi.encodeCall(ISablierLockup.createWithTimestampsLD, (params, segments))
-        });
-    }
-
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLL}, each with the specified
-    /// `params`.
-    function expectMultipleCallsToCreateWithTimestampsLL(
-        uint64 count,
-        Lockup.CreateWithTimestamps memory params,
-        LockupLinear.UnlockAmounts memory unlockAmounts,
-        uint40 cliffTime
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockup),
-            count: count,
-            data: abi.encodeCall(ISablierLockup.createWithTimestampsLL, (params, unlockAmounts, cliffTime))
-        });
-    }
-
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLT}, each with the specified
-    /// `params`.
-    function expectMultipleCallsToCreateWithTimestampsLT(
-        uint64 count,
-        Lockup.CreateWithTimestamps memory params,
-        LockupTranched.Tranche[] memory tranches
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(lockup),
-            count: count,
-            data: abi.encodeCall(ISablierLockup.createWithTimestampsLT, (params, tranches))
-        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

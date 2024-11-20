@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Errors } from "src/periphery/libraries/Errors.sol";
-import { BatchLockup } from "src/periphery/types/DataTypes.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
+import { BatchLockup } from "src/core/types/DataTypes.sol";
 
-import { Periphery_Test } from "../../../Periphery.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract CreateWithTimestampsLL_Integration_Test is Periphery_Test {
+contract CreateWithTimestampsLL_Integration_Test is Base_Test {
     function setUp() public virtual override {
-        Periphery_Test.setUp();
+        Base_Test.setUp();
         resetPrank({ msgSender: users.sender });
     }
 

@@ -74,6 +74,13 @@ abstract contract DeploymentLogger is BaseScript {
         string memory firstTwoLines = "| Contract | Address | Deployment |\n | :------- | :------ | :----------|";
         _appendToFile(firstTwoLines);
 
+        string memory batchLockupLine = _getContractLine({
+            contractName: "SablierBatchLockup",
+            contractAddress: batchLockup.toHexString(),
+            coreOrPeriphery: "core"
+        });
+        _appendToFile(batchLockupLine);
+
         string memory lockupLine = _getContractLine({
             contractName: "SablierLockup",
             contractAddress: lockup.toHexString(),
@@ -91,13 +98,6 @@ abstract contract DeploymentLogger is BaseScript {
         string memory peripheryTitle = "\n ### Periphery\n\n";
         _appendToFile(peripheryTitle);
         _appendToFile(firstTwoLines);
-
-        string memory batchLockupLine = _getContractLine({
-            contractName: "SablierBatchLockup",
-            contractAddress: batchLockup.toHexString(),
-            coreOrPeriphery: "periphery"
-        });
-        _appendToFile(batchLockupLine);
 
         string memory merkleFactoryLine = _getContractLine({
             contractName: "MerkleFactory",

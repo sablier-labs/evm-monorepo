@@ -3,9 +3,9 @@
 pragma solidity >=0.8.22;
 
 import { ILockupNFTDescriptor } from "./../src/core/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierBatchLockup } from "./../src/core/interfaces/ISablierBatchLockup.sol";
 import { ISablierLockup } from "./../src/core/interfaces/ISablierLockup.sol";
 import { LockupNFTDescriptor } from "./../src/core/LockupNFTDescriptor.sol";
-import { ISablierBatchLockup } from "./../src/periphery/interfaces/ISablierBatchLockup.sol";
 import { ISablierMerkleFactory } from "./../src/periphery/interfaces/ISablierMerkleFactory.sol";
 
 /// @notice This is useful for external integrations seeking to test against the exact deployed bytecode, as recompiling
@@ -32,6 +32,25 @@ contract Precompiles {
     /*//////////////////////////////////////////////////////////////////////////
                                         CORE
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Deploys {SablierBatchLockup} from precompiled bytecode.
+    function deployBatchLockup() public returns (ISablierBatchLockup batchLockup) {
+        bytes memory creationBytecode = BYTECODE_BATCH_LOCKUP;
+        assembly {
+            batchLockup := create(0, add(creationBytecode, 0x20), mload(creationBytecode))
+        }
+        require(address(batchLockup) != address(0), "Lockup Precompiles: deployment failed for BatchLockup contract");
+    }
+
+    /// @notice Deploys all Core contracts.
+    function deployCore(address initialAdmin)
+        public
+        returns (ILockupNFTDescriptor nftDescriptor, ISablierLockup lockup, ISablierBatchLockup batchLockup)
+    {
+        nftDescriptor = deployNFTDescriptor();
+        lockup = deployLockup(initialAdmin);
+        batchLockup = deployBatchLockup();
+    }
 
     /// @notice Deploys {SablierLockup} from precompiled bytecode, passing a default value for the `maxCount` parameter.
     /// @dev Notes:
@@ -87,27 +106,9 @@ contract Precompiles {
         );
     }
 
-    /// @notice Deploys all Core contracts.
-    function deployCore(address initialAdmin)
-        public
-        returns (ILockupNFTDescriptor nftDescriptor, ISablierLockup lockup)
-    {
-        nftDescriptor = deployNFTDescriptor();
-        lockup = deployLockup(initialAdmin);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                      PERIPHERY
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Deploys {SablierBatchLockup} from precompiled bytecode.
-    function deployBatchLockup() public returns (ISablierBatchLockup batchLockup) {
-        bytes memory creationBytecode = BYTECODE_BATCH_LOCKUP;
-        assembly {
-            batchLockup := create(0, add(creationBytecode, 0x20), mload(creationBytecode))
-        }
-        require(address(batchLockup) != address(0), "Lockup Precompiles: deployment failed for BatchLockup contract");
-    }
 
     /// @notice Deploys {SablierMerkleFactory} from precompiled bytecode.
     function deployMerkleFactory(address initialAdmin) public returns (ISablierMerkleFactory factory) {
@@ -118,17 +119,9 @@ contract Precompiles {
         require(address(factory) != address(0), "Lockup Precompiles: deployment failed for MerkleFactory contract");
     }
 
-    /// @notice Deploys all Periphery contracts in the following order:
-    ///
-    /// 1. {SablierBatchLockup}
-    /// 2. {SablierMerkleFactory}
-    function deployPeriphery(address initialAdmin)
-        public
-        returns (ISablierBatchLockup batchLockup, ISablierMerkleFactory merkleFactory)
-    {
-        batchLockup = deployBatchLockup();
-        merkleFactory = deployMerkleFactory(initialAdmin);
-    }
+    /*//////////////////////////////////////////////////////////////////////////
+                                      PROTOCOL
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Deploys the entire Lockup Protocol from precompiled bytecode.
     ///
@@ -146,9 +139,9 @@ contract Precompiles {
         )
     {
         // Deploy Core.
-        (nftDescriptor, lockup) = deployCore(initialAdmin);
+        (nftDescriptor, lockup, batchLockup) = deployCore(initialAdmin);
 
         // Deploy Periphery.
-        (batchLockup, merkleFactory) = deployPeriphery(initialAdmin);
+        merkleFactory = deployMerkleFactory(initialAdmin);
     }
 }

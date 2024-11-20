@@ -2,19 +2,18 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierBatchLockup } from "src/core/interfaces/ISablierBatchLockup.sol";
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
 import { LockupNFTDescriptor } from "src/core/LockupNFTDescriptor.sol";
+import { SablierBatchLockup } from "src/core/SablierBatchLockup.sol";
 import { SablierLockup } from "src/core/SablierLockup.sol";
-import { ISablierBatchLockup } from "src/periphery/interfaces/ISablierBatchLockup.sol";
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
 import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleInstant } from "src/periphery/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
-import { SablierBatchLockup } from "src/periphery/SablierBatchLockup.sol";
 import { SablierMerkleFactory } from "src/periphery/SablierMerkleFactory.sol";
-
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
 import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { RecipientGood } from "./mocks/Hooks.sol";
@@ -218,6 +217,104 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
             callee: address(asset),
             count: count,
             data: abi.encodeCall(IERC20.transferFrom, (from, to, value))
+        });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                CALL EXPECTS - LOCKUP
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLD}, each with the specified `params`.
+    function expectMultipleCallsToCreateWithDurationsLD(
+        uint64 count,
+        Lockup.CreateWithDurations memory params,
+        LockupDynamic.SegmentWithDuration[] memory segments
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockup),
+            count: count,
+            data: abi.encodeCall(ISablierLockup.createWithDurationsLD, (params, segments))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLL}, each with the specified `params`.
+    function expectMultipleCallsToCreateWithDurationsLL(
+        uint64 count,
+        Lockup.CreateWithDurations memory params,
+        LockupLinear.UnlockAmounts memory unlockAmounts,
+        LockupLinear.Durations memory durations
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockup),
+            count: count,
+            data: abi.encodeCall(ISablierLockup.createWithDurationsLL, (params, unlockAmounts, durations))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLT}, each with the specified `params`.
+    function expectMultipleCallsToCreateWithDurationsLT(
+        uint64 count,
+        Lockup.CreateWithDurations memory params,
+        LockupTranched.TrancheWithDuration[] memory tranches
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockup),
+            count: count,
+            data: abi.encodeCall(ISablierLockup.createWithDurationsLT, (params, tranches))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLD}, each with the specified `params`.
+    function expectMultipleCallsToCreateWithTimestampsLD(
+        uint64 count,
+        Lockup.CreateWithTimestamps memory params,
+        LockupDynamic.Segment[] memory segments
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockup),
+            count: count,
+            data: abi.encodeCall(ISablierLockup.createWithTimestampsLD, (params, segments))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLL}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithTimestampsLL(
+        uint64 count,
+        Lockup.CreateWithTimestamps memory params,
+        LockupLinear.UnlockAmounts memory unlockAmounts,
+        uint40 cliffTime
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockup),
+            count: count,
+            data: abi.encodeCall(ISablierLockup.createWithTimestampsLL, (params, unlockAmounts, cliffTime))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLT}, each with the specified
+    /// `params`.
+    function expectMultipleCallsToCreateWithTimestampsLT(
+        uint64 count,
+        Lockup.CreateWithTimestamps memory params,
+        LockupTranched.Tranche[] memory tranches
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockup),
+            count: count,
+            data: abi.encodeCall(ISablierLockup.createWithTimestampsLT, (params, tranches))
         });
     }
 }

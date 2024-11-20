@@ -3,10 +3,12 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Precompiles } from "precompiles/Precompiles.sol";
 import { LibString } from "solady/src/utils/LibString.sol";
+
 import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierBatchLockup } from "src/core/interfaces/ISablierBatchLockup.sol";
 import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
-import { ISablierBatchLockup } from "src/periphery/interfaces/ISablierBatchLockup.sol";
 import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
+
 import { Base_Test } from "./../Base.t.sol";
 
 contract Precompiles_Test is Base_Test {
@@ -24,6 +26,12 @@ contract Precompiles_Test is Base_Test {
                                         CORE
     //////////////////////////////////////////////////////////////////////////*/
 
+    function test_DeployBatchLockup() external onlyTestOptimizedProfile {
+        address actualBatchLockup = address(precompiles.deployBatchLockup());
+        address expectedBatchLockup = address(deployOptimizedBatchLockup());
+        assertEq(actualBatchLockup.code, expectedBatchLockup.code, "bytecodes mismatch");
+    }
+
     function test_DeployLockup() external onlyTestOptimizedProfile {
         address actualLockup = address(precompiles.deployLockup(users.admin, nftDescriptor));
         address expectedLockup = address(deployOptimizedLockup(users.admin, nftDescriptor, precompiles.MAX_COUNT()));
@@ -38,43 +46,31 @@ contract Precompiles_Test is Base_Test {
     }
 
     function test_DeployCore() external onlyTestOptimizedProfile {
-        (ILockupNFTDescriptor actualNFTDescriptor, ISablierLockup actualLockup) = precompiles.deployCore(users.admin);
+        (ILockupNFTDescriptor actualNFTDescriptor, ISablierLockup actualLockup, ISablierBatchLockup actualBatchLockup) =
+            precompiles.deployCore(users.admin);
 
-        (ILockupNFTDescriptor expectedNFTDescriptor, ISablierLockup expectedLockup) =
-            deployOptimizedCore(users.admin, precompiles.MAX_COUNT());
+        (
+            ILockupNFTDescriptor expectedNFTDescriptor,
+            ISablierLockup expectedLockup,
+            ISablierBatchLockup expectedBatchLockup
+        ) = deployOptimizedCore(users.admin, precompiles.MAX_COUNT());
 
         bytes memory expectedLockupCode =
             adjustBytecode(address(expectedLockup).code, address(expectedLockup), address(actualLockup));
 
         assertEq(address(actualLockup).code, expectedLockupCode, "bytecodes mismatch");
         assertEq(address(actualNFTDescriptor).code, address(expectedNFTDescriptor).code, "bytecodes mismatch");
+        assertEq(address(actualBatchLockup).code, address(expectedBatchLockup).code, "bytecodes mismatch");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      PERIPHERY
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_DeployBatchLockup() external onlyTestOptimizedProfile {
-        address actualBatchLockup = address(precompiles.deployBatchLockup());
-        address expectedBatchLockup = address(deployOptimizedBatchLockup());
-        assertEq(actualBatchLockup.code, expectedBatchLockup.code, "bytecodes mismatch");
-    }
-
     function test_DeployMerkleFactory() external onlyTestOptimizedProfile {
         address actualFactory = address(precompiles.deployMerkleFactory(users.admin));
         address expectedFactory = address(deployOptimizedMerkleFactory(users.admin));
         assertEq(actualFactory.code, expectedFactory.code, "bytecodes mismatch");
-    }
-
-    function test_DeployPeriphery() external onlyTestOptimizedProfile {
-        (ISablierBatchLockup actualBatchLockup, ISablierMerkleFactory actualMerkleFactory) =
-            precompiles.deployPeriphery(users.admin);
-
-        (ISablierBatchLockup expectedBatchLockup, ISablierMerkleFactory expectedMerkleFactory) =
-            deployOptimizedPeriphery(users.admin);
-
-        assertEq(address(actualBatchLockup).code, address(expectedBatchLockup).code, "bytecodes mismatch");
-        assertEq(address(actualMerkleFactory).code, address(expectedMerkleFactory).code, "bytecodes mismatch");
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -17,7 +17,6 @@ contract DeployDeterministicLockup is BaseScript {
         broadcast
         returns (SablierLockup lockup)
     {
-        bytes32 salt = constructCreate2Salt();
-        lockup = new SablierLockup{ salt: salt }(initialAdmin, nftDescriptor, maxCountMap[block.chainid]);
+        lockup = new SablierLockup{ salt: SALT }(initialAdmin, nftDescriptor, maxCountMap[block.chainid]);
     }
 }

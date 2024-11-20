@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupNFTDescriptor } from "../../src/core/LockupNFTDescriptor.sol";
-import { SablierLockup } from "../../src/core/SablierLockup.sol";
-import { SablierBatchLockup } from "../../src/periphery/SablierBatchLockup.sol";
-import { SablierMerkleFactory } from "../../src/periphery/SablierMerkleFactory.sol";
-
+import { LockupNFTDescriptor } from "./../../src/core/LockupNFTDescriptor.sol";
+import { SablierBatchLockup } from "./../../src/core/SablierBatchLockup.sol";
+import { SablierLockup } from "./../../src/core/SablierLockup.sol";
+import { SablierMerkleFactory } from "./../../src/periphery/SablierMerkleFactory.sol";
 import { DeploymentLogger } from "./DeploymentLogger.s.sol";
 
 /// @notice Deploys the Lockup Protocol.
@@ -50,9 +49,12 @@ contract DeployProtocol is DeploymentLogger("non_deterministic") {
             SablierMerkleFactory merkleLockupFactory
         )
     {
+        // Deploy Core.
         nftDescriptor = new LockupNFTDescriptor();
         lockup = new SablierLockup(initialAdmin, nftDescriptor, maxCountMap[block.chainid]);
         batchLockup = new SablierBatchLockup();
+
+        // Deploy Periphery.
         merkleLockupFactory = new SablierMerkleFactory(initialAdmin);
 
         appendToFileDeployedAddresses(

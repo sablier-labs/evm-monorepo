@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
-
-import { BatchLockup } from "src/periphery/types/DataTypes.sol";
+import { BatchLockup, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
 
 library BatchLockupBuilder {
     /// @notice Generates an array containing `batchSize` copies of `batchSingle`.

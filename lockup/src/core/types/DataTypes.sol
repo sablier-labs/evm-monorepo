@@ -7,6 +7,7 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 // This file defines all structs used in Lockup, most of which are organized under three namespaces:
 //
+// - BatchLockup
 // - Lockup
 // - LockupDynamic
 // - LockupLinear
@@ -15,6 +16,80 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 // You will notice that some structs contain "slot" annotations - they are used to indicate the
 // storage layout of the struct. It is more gas efficient to group small data types together so
 // that they fit in a single 32-byte slot.
+
+/// @dev Namespace for the structs used in `BatchLockup` contract.
+library BatchLockup {
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLD} except for the asset.
+    struct CreateWithDurationsLD {
+        address sender;
+        address recipient;
+        uint128 totalAmount;
+        bool cancelable;
+        bool transferable;
+        LockupDynamic.SegmentWithDuration[] segmentsWithDuration;
+        Broker broker;
+    }
+
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLL} except for the asset.
+    struct CreateWithDurationsLL {
+        address sender;
+        address recipient;
+        uint128 totalAmount;
+        bool cancelable;
+        bool transferable;
+        LockupLinear.Durations durations;
+        LockupLinear.UnlockAmounts unlockAmounts;
+        Broker broker;
+    }
+
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLT} except for the asset.
+    struct CreateWithDurationsLT {
+        address sender;
+        address recipient;
+        uint128 totalAmount;
+        bool cancelable;
+        bool transferable;
+        LockupTranched.TrancheWithDuration[] tranchesWithDuration;
+        Broker broker;
+    }
+
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLD} except for the asset.
+    struct CreateWithTimestampsLD {
+        address sender;
+        address recipient;
+        uint128 totalAmount;
+        bool cancelable;
+        bool transferable;
+        uint40 startTime;
+        LockupDynamic.Segment[] segments;
+        Broker broker;
+    }
+
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLL} except for the asset.
+    struct CreateWithTimestampsLL {
+        address sender;
+        address recipient;
+        uint128 totalAmount;
+        bool cancelable;
+        bool transferable;
+        Lockup.Timestamps timestamps;
+        uint40 cliffTime;
+        LockupLinear.UnlockAmounts unlockAmounts;
+        Broker broker;
+    }
+
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLT} except for the asset.
+    struct CreateWithTimestampsLT {
+        address sender;
+        address recipient;
+        uint128 totalAmount;
+        bool cancelable;
+        bool transferable;
+        uint40 startTime;
+        LockupTranched.Tranche[] tranches;
+        Broker broker;
+    }
+}
 
 /// @notice Struct encapsulating the broker parameters passed to the create functions. Both can be set to zero.
 /// @param account The address receiving the broker's fee.

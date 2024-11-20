@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Errors } from "src/periphery/libraries/Errors.sol";
-import { BatchLockup } from "src/periphery/types/DataTypes.sol";
+import { Errors } from "src/core/libraries/Errors.sol";
+import { BatchLockup } from "src/core/types/DataTypes.sol";
 
-import { Periphery_Test } from "../../../Periphery.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 
-contract CreateWithDurationsLL_Integration_Test is Periphery_Test {
+contract CreateWithTimestampsLT_Integration_Test is Base_Test {
     function setUp() public virtual override {
-        Periphery_Test.setUp();
+        Base_Test.setUp();
         resetPrank({ msgSender: users.sender });
     }
 
     function test_RevertWhen_BatchSizeZero() external {
-        BatchLockup.CreateWithDurationsLL[] memory batchParams = new BatchLockup.CreateWithDurationsLL[](0);
+        BatchLockup.CreateWithTimestampsLT[] memory batchParams = new BatchLockup.CreateWithTimestampsLT[](0);
         vm.expectRevert(Errors.SablierBatchLockup_BatchSizeZero.selector);
-        batchLockup.createWithDurationsLL(lockup, dai, batchParams);
+        batchLockup.createWithTimestampsLT(lockup, dai, batchParams);
     }
 
     function test_WhenBatchSizeNotZero() external {
@@ -27,11 +27,10 @@ contract CreateWithDurationsLL_Integration_Test is Periphery_Test {
             value: defaults.TOTAL_TRANSFER_AMOUNT()
         });
 
-        expectMultipleCallsToCreateWithDurationsLL({
+        expectMultipleCallsToCreateWithTimestampsLT({
             count: defaults.BATCH_SIZE(),
-            params: defaults.createWithDurationsBrokerNull(),
-            unlockAmounts: defaults.unlockAmounts(),
-            durations: defaults.durations()
+            params: defaults.createWithTimestampsBrokerNull(),
+            tranches: defaults.tranches()
         });
         expectMultipleCallsToTransferFrom({
             count: defaults.BATCH_SIZE(),
@@ -42,7 +41,7 @@ contract CreateWithDurationsLL_Integration_Test is Periphery_Test {
 
         // Assert that the batch of streams has been created successfully.
         uint256[] memory actualStreamIds =
-            batchLockup.createWithDurationsLL(lockup, dai, defaults.batchCreateWithDurationsLL());
+            batchLockup.createWithTimestampsLT(lockup, dai, defaults.batchCreateWithTimestampsLT());
         uint256[] memory expectedStreamIds = defaults.incrementalStreamIds();
         assertEq(actualStreamIds, expectedStreamIds, "stream ids mismatch");
     }

@@ -6,8 +6,15 @@ import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ud2x18, uUNIT } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud, ZERO } from "@prb/math/src/UD60x18.sol";
 
-import { Broker, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/core/types/DataTypes.sol";
-import { BatchLockup, MerkleBase, MerkleLL, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
+import {
+    Broker,
+    BatchLockup,
+    Lockup,
+    LockupDynamic,
+    LockupLinear,
+    LockupTranched
+} from "../../src/core/types/DataTypes.sol";
+import { MerkleBase, MerkleLL, MerkleLT } from "../../src/periphery/types/DataTypes.sol";
 
 import { ArrayBuilder } from "./ArrayBuilder.sol";
 import { BatchLockupBuilder } from "./BatchLockupBuilder.sol";

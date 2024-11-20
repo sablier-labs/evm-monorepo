@@ -3,16 +3,20 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { CommonBase } from "forge-std/src/Base.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-
-import { ILockupNFTDescriptor } from "../../src/core/interfaces/ILockupNFTDescriptor.sol";
-import { ISablierLockup } from "../../src/core/interfaces/ISablierLockup.sol";
-import { ISablierBatchLockup } from "../../src/periphery/interfaces/ISablierBatchLockup.sol";
-import { ISablierMerkleFactory } from "../../src/periphery/interfaces/ISablierMerkleFactory.sol";
+import { ILockupNFTDescriptor } from "./../../src/core/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierBatchLockup } from "./../../src/core/interfaces/ISablierBatchLockup.sol";
+import { ISablierLockup } from "./../../src/core/interfaces/ISablierLockup.sol";
+import { ISablierMerkleFactory } from "./../../src/periphery/interfaces/ISablierMerkleFactory.sol";
 
 abstract contract DeployOptimized is StdCheats, CommonBase {
     /*//////////////////////////////////////////////////////////////////////////
                                         CORE
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Deploys {SablierBatchLockup} from an optimized source compiled with `--via-ir`.
+    function deployOptimizedBatchLockup() internal returns (ISablierBatchLockup) {
+        return ISablierBatchLockup(deployCode("out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json"));
+    }
 
     /// @dev Deploys the optimized {Helpers} and {VestingMath} libraries and assign them to linked addresses.
     function deployOptimizedLibraries() internal {
@@ -52,42 +56,28 @@ abstract contract DeployOptimized is StdCheats, CommonBase {
     ///
     /// 1. {LockupNFTDescriptor}
     /// 2. {SablierLockup}
+    /// 3. {SablierBatchLockup}
     function deployOptimizedCore(
         address initialAdmin,
         uint256 maxCount
     )
         internal
-        returns (ILockupNFTDescriptor nftDescriptor_, ISablierLockup lockup_)
+        returns (ILockupNFTDescriptor nftDescriptor_, ISablierLockup lockup_, ISablierBatchLockup batchLockup_)
     {
         nftDescriptor_ = deployOptimizedNFTDescriptor();
         lockup_ = deployOptimizedLockup(initialAdmin, nftDescriptor_, maxCount);
+        batchLockup_ = deployOptimizedBatchLockup();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      PERIPHERY
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Deploys {SablierBatchLockup} from an optimized source compiled with `--via-ir`.
-    function deployOptimizedBatchLockup() internal returns (ISablierBatchLockup) {
-        return ISablierBatchLockup(deployCode("out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json"));
-    }
-
     /// @dev Deploys {SablierMerkleFactory} from an optimized source compiled with `--via-ir`.
     function deployOptimizedMerkleFactory(address initialAdmin) internal returns (ISablierMerkleFactory) {
         return ISablierMerkleFactory(
             deployCode("out-optimized/SablierMerkleFactory.sol/SablierMerkleFactory.json", abi.encode(initialAdmin))
         );
-    }
-
-    /// @notice Deploys all  Periphery contracts from an optimized source in the following order:
-    ///
-    /// 1. {SablierBatchLockup}
-    /// 2. {SablierMerkleFactory}
-    function deployOptimizedPeriphery(address initialAdmin)
-        internal
-        returns (ISablierBatchLockup, ISablierMerkleFactory)
-    {
-        return (deployOptimizedBatchLockup(), deployOptimizedMerkleFactory(initialAdmin));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -112,7 +102,7 @@ abstract contract DeployOptimized is StdCheats, CommonBase {
             ISablierMerkleFactory merkleFactory_
         )
     {
-        (nftDescriptor_, lockup_) = deployOptimizedCore(initialAdmin, maxCount);
-        (batchLockup_, merkleFactory_) = deployOptimizedPeriphery(initialAdmin);
+        (nftDescriptor_, lockup_, batchLockup_) = deployOptimizedCore(initialAdmin, maxCount);
+        (merkleFactory_) = deployOptimizedMerkleFactory(initialAdmin);
     }
 }

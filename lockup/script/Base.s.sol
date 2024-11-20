@@ -15,11 +15,11 @@ contract BaseScript is Script {
     /// @dev The default value for `maxCountMap`.
     uint256 internal constant DEFAULT_MAX_COUNT = 500;
 
+    /// @dev The salt used for deterministic deployments.
+    bytes32 internal immutable SALT;
+
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
-
-    /// @dev Needed for the deterministic deployments.
-    bytes32 internal constant ZERO_SALT = bytes32(0);
 
     /// @dev The address of the transaction broadcaster.
     address internal broadcaster;
@@ -45,6 +45,9 @@ contract BaseScript is Script {
             mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (broadcaster,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
         }
+
+        // Construct the salt for deterministic deployments.
+        SALT = constructCreate2Salt();
 
         // Populate the max count map for segments and tranches.
         populateMaxCountMap();

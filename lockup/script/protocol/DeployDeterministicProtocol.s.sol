@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupNFTDescriptor } from "../../src/core/LockupNFTDescriptor.sol";
-import { SablierLockup } from "../../src/core/SablierLockup.sol";
-import { SablierBatchLockup } from "../../src/periphery/SablierBatchLockup.sol";
-import { SablierMerkleFactory } from "../../src/periphery/SablierMerkleFactory.sol";
-
+import { LockupNFTDescriptor } from "./../../src/core/LockupNFTDescriptor.sol";
+import { SablierBatchLockup } from "./../../src/core/SablierBatchLockup.sol";
+import { SablierLockup } from "./../../src/core/SablierLockup.sol";
+import { SablierMerkleFactory } from "./../../src/periphery/SablierMerkleFactory.sol";
 import { DeploymentLogger } from "./DeploymentLogger.s.sol";
 
 /// @notice Deploys the Lockup Protocol at deterministic addresses across chains.
@@ -50,15 +49,13 @@ contract DeployDeterministicProtocol is DeploymentLogger("deterministic") {
             SablierMerkleFactory merkleLockupFactory
         )
     {
-        bytes32 salt = constructCreate2Salt();
-
         // Deploy Core.
-        nftDescriptor = new LockupNFTDescriptor{ salt: salt }();
-        lockup = new SablierLockup{ salt: salt }(initialAdmin, nftDescriptor, maxCountMap[block.chainid]);
+        nftDescriptor = new LockupNFTDescriptor{ salt: SALT }();
+        lockup = new SablierLockup{ salt: SALT }(initialAdmin, nftDescriptor, maxCountMap[block.chainid]);
+        batchLockup = new SablierBatchLockup{ salt: SALT }();
 
         // Deploy Periphery.
-        batchLockup = new SablierBatchLockup{ salt: salt }();
-        merkleLockupFactory = new SablierMerkleFactory{ salt: salt }(initialAdmin);
+        merkleLockupFactory = new SablierMerkleFactory{ salt: SALT }(initialAdmin);
 
         appendToFileDeployedAddresses(
             address(lockup), address(nftDescriptor), address(batchLockup), address(merkleLockupFactory)
