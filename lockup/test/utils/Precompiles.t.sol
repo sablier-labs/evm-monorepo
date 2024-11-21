@@ -4,11 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Precompiles } from "precompiles/Precompiles.sol";
 import { LibString } from "solady/src/utils/LibString.sol";
 
-import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
-import { ISablierBatchLockup } from "src/core/interfaces/ISablierBatchLockup.sol";
-import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
-import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
-
+import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Base_Test } from "./../Base.t.sol";
 
 contract Precompiles_Test is Base_Test {
@@ -21,10 +19,6 @@ contract Precompiles_Test is Base_Test {
             _;
         }
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                        CORE
-    //////////////////////////////////////////////////////////////////////////*/
 
     function test_DeployBatchLockup() external onlyTestOptimizedProfile {
         address actualBatchLockup = address(precompiles.deployBatchLockup());
@@ -45,15 +39,15 @@ contract Precompiles_Test is Base_Test {
         assertEq(actualNFTDescriptor.code, expectedNFTDescriptor.code, "bytecodes mismatch");
     }
 
-    function test_DeployCore() external onlyTestOptimizedProfile {
+    function test_DeployProtocol() external onlyTestOptimizedProfile {
         (ILockupNFTDescriptor actualNFTDescriptor, ISablierLockup actualLockup, ISablierBatchLockup actualBatchLockup) =
-            precompiles.deployCore(users.admin);
+            precompiles.deployProtocol(users.admin);
 
         (
             ILockupNFTDescriptor expectedNFTDescriptor,
             ISablierLockup expectedLockup,
             ISablierBatchLockup expectedBatchLockup
-        ) = deployOptimizedCore(users.admin, precompiles.MAX_COUNT());
+        ) = deployOptimizedProtocol(users.admin, precompiles.MAX_COUNT());
 
         bytes memory expectedLockupCode =
             adjustBytecode(address(expectedLockup).code, address(expectedLockup), address(actualLockup));
@@ -61,16 +55,6 @@ contract Precompiles_Test is Base_Test {
         assertEq(address(actualLockup).code, expectedLockupCode, "bytecodes mismatch");
         assertEq(address(actualNFTDescriptor).code, address(expectedNFTDescriptor).code, "bytecodes mismatch");
         assertEq(address(actualBatchLockup).code, address(expectedBatchLockup).code, "bytecodes mismatch");
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     PERIPHERY
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function test_DeployMerkleFactory() external onlyTestOptimizedProfile {
-        address actualFactory = address(precompiles.deployMerkleFactory(users.admin));
-        address expectedFactory = address(deployOptimizedMerkleFactory(users.admin));
-        assertEq(actualFactory.code, expectedFactory.code, "bytecodes mismatch");
     }
 
     /*//////////////////////////////////////////////////////////////////////////

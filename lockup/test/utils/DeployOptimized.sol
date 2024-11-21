@@ -3,16 +3,12 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { CommonBase } from "forge-std/src/Base.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-import { ILockupNFTDescriptor } from "./../../src/core/interfaces/ILockupNFTDescriptor.sol";
-import { ISablierBatchLockup } from "./../../src/core/interfaces/ISablierBatchLockup.sol";
-import { ISablierLockup } from "./../../src/core/interfaces/ISablierLockup.sol";
-import { ISablierMerkleFactory } from "./../../src/periphery/interfaces/ISablierMerkleFactory.sol";
+
+import { ILockupNFTDescriptor } from "../../src/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierBatchLockup } from "../../src/interfaces/ISablierBatchLockup.sol";
+import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
 
 abstract contract DeployOptimized is StdCheats, CommonBase {
-    /*//////////////////////////////////////////////////////////////////////////
-                                        CORE
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @dev Deploys {SablierBatchLockup} from an optimized source compiled with `--via-ir`.
     function deployOptimizedBatchLockup() internal returns (ISablierBatchLockup) {
         return ISablierBatchLockup(deployCode("out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json"));
@@ -52,12 +48,12 @@ abstract contract DeployOptimized is StdCheats, CommonBase {
         return ILockupNFTDescriptor(deployCode("out-optimized/LockupNFTDescriptor.sol/LockupNFTDescriptor.json"));
     }
 
-    /// @notice Deploys all Lockup contracts from an optimized source compiled with `--via-ir` in the following order:
+    /// @notice Deploys all contracts from an optimized source compiled with `--via-ir` in the following order:
     ///
     /// 1. {LockupNFTDescriptor}
     /// 2. {SablierLockup}
     /// 3. {SablierBatchLockup}
-    function deployOptimizedCore(
+    function deployOptimizedProtocol(
         address initialAdmin,
         uint256 maxCount
     )
@@ -67,42 +63,5 @@ abstract contract DeployOptimized is StdCheats, CommonBase {
         nftDescriptor_ = deployOptimizedNFTDescriptor();
         lockup_ = deployOptimizedLockup(initialAdmin, nftDescriptor_, maxCount);
         batchLockup_ = deployOptimizedBatchLockup();
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     PERIPHERY
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Deploys {SablierMerkleFactory} from an optimized source compiled with `--via-ir`.
-    function deployOptimizedMerkleFactory(address initialAdmin) internal returns (ISablierMerkleFactory) {
-        return ISablierMerkleFactory(
-            deployCode("out-optimized/SablierMerkleFactory.sol/SablierMerkleFactory.json", abi.encode(initialAdmin))
-        );
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                      PROTOCOL
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Deploys all Lockup and Periphery contracts from an optimized source in the following order:
-    ///
-    /// 1. {LockupNFTDescriptor}
-    /// 2. {SablierLockup}
-    /// 5. {SablierBatchLockup}
-    /// 6. {SablierMerkleFactory}
-    function deployOptimizedProtocol(
-        address initialAdmin,
-        uint256 maxCount
-    )
-        internal
-        returns (
-            ILockupNFTDescriptor nftDescriptor_,
-            ISablierLockup lockup_,
-            ISablierBatchLockup batchLockup_,
-            ISablierMerkleFactory merkleFactory_
-        )
-    {
-        (nftDescriptor_, lockup_, batchLockup_) = deployOptimizedCore(initialAdmin, maxCount);
-        (merkleFactory_) = deployOptimizedMerkleFactory(initialAdmin);
     }
 }

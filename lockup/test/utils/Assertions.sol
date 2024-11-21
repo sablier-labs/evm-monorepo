@@ -5,8 +5,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/utils/Assertions.sol";
 
-import { Lockup, LockupDynamic, LockupTranched } from "../../src/core/types/DataTypes.sol";
-import { MerkleLT } from "../../src/periphery/types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupTranched } from "../../src/types/DataTypes.sol";
 
 abstract contract Assertions is PRBMathAssertions {
     /*//////////////////////////////////////////////////////////////////////////
@@ -17,14 +16,12 @@ abstract contract Assertions is PRBMathAssertions {
 
     event log_named_array(string key, LockupTranched.Tranche[] tranches);
 
-    event log_named_array(string key, MerkleLT.TrancheWithPercentage[] tranchesWithPercentages);
-
     event log_named_uint128(string key, uint128 value);
 
     event log_named_uint40(string key, uint40 value);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                        CORE
+                                    FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Compares two {Lockup.Amounts} struct entities.
@@ -151,33 +148,5 @@ abstract contract Assertions is PRBMathAssertions {
     /// @dev Compares two {Lockup.Status} enum values.
     function assertNotEq(Lockup.Status a, Lockup.Status b, string memory err) internal pure {
         assertNotEq(uint256(a), uint256(b), err);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     PERIPHERY
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Compares two {MerkleLT.TrancheWithPercentage} arrays.
-    function assertEq(MerkleLT.TrancheWithPercentage[] memory a, MerkleLT.TrancheWithPercentage[] memory b) internal {
-        if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit log("Error: a == b not satisfied [MerkleLT.TrancheWithPercentage[]]");
-            emit log_named_array("   Left", a);
-            emit log_named_array("  Right", b);
-            fail();
-        }
-    }
-
-    /// @dev Compares two {MerkleLT.TrancheWithPercentage} arrays.
-    function assertEq(
-        MerkleLT.TrancheWithPercentage[] memory a,
-        MerkleLT.TrancheWithPercentage[] memory b,
-        string memory err
-    )
-        internal
-    {
-        if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit log_named_string("Error", err);
-            assertEq(a, b);
-        }
     }
 }

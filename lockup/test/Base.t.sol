@@ -2,18 +2,15 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ILockupNFTDescriptor } from "src/core/interfaces/ILockupNFTDescriptor.sol";
-import { ISablierBatchLockup } from "src/core/interfaces/ISablierBatchLockup.sol";
-import { ISablierLockup } from "src/core/interfaces/ISablierLockup.sol";
-import { LockupNFTDescriptor } from "src/core/LockupNFTDescriptor.sol";
-import { SablierBatchLockup } from "src/core/SablierBatchLockup.sol";
-import { SablierLockup } from "src/core/SablierLockup.sol";
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/core/types/DataTypes.sol";
-import { ISablierMerkleFactory } from "src/periphery/interfaces/ISablierMerkleFactory.sol";
-import { ISablierMerkleInstant } from "src/periphery/interfaces/ISablierMerkleInstant.sol";
-import { ISablierMerkleLL } from "src/periphery/interfaces/ISablierMerkleLL.sol";
-import { ISablierMerkleLT } from "src/periphery/interfaces/ISablierMerkleLT.sol";
-import { SablierMerkleFactory } from "src/periphery/SablierMerkleFactory.sol";
+
+import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { LockupNFTDescriptor } from "src/LockupNFTDescriptor.sol";
+import { SablierBatchLockup } from "src/SablierBatchLockup.sol";
+import { SablierLockup } from "src/SablierLockup.sol";
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/types/DataTypes.sol";
+
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
 import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { RecipientGood } from "./mocks/Hooks.sol";
@@ -42,10 +39,6 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     ERC20Mock internal dai;
     Defaults internal defaults;
     ISablierLockup internal lockup;
-    ISablierMerkleFactory internal merkleFactory;
-    ISablierMerkleInstant internal merkleInstant;
-    ISablierMerkleLL internal merkleLL;
-    ISablierMerkleLT internal merkleLT;
     ILockupNFTDescriptor internal nftDescriptor;
     NFTDescriptorMock internal nftDescriptorMock;
     Noop internal noop;
@@ -83,24 +76,15 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         // Deploy the NFT descriptor mock.
         nftDescriptorMock = new NFTDescriptorMock();
 
-        // Set the Sablier fee on the Merkle factory.
-        merkleFactory.setDefaultSablierFee(defaults.DEFAULT_SABLIER_FEE());
-
         // Create users for testing.
         users.alice = createUser("Alice");
         users.broker = createUser("Broker");
-        users.campaignOwner = createUser("CampaignOwner");
         users.eve = createUser("Eve");
         users.operator = createUser("Operator");
         users.recipient = createUser("Recipient");
-        users.recipient1 = createUser("Recipient1");
-        users.recipient2 = createUser("Recipient2");
-        users.recipient3 = createUser("Recipient3");
-        users.recipient4 = createUser("Recipient4");
         users.sender = createUser("Sender");
 
         defaults.setUsers(users);
-        defaults.initMerkleTree();
 
         // Set the variables in Modifiers contract.
         setVariables(defaults, users);
@@ -132,10 +116,8 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         resetPrank({ msgSender: from });
         dai.approve({ spender: address(batchLockup), value: MAX_UINT256 });
         dai.approve({ spender: address(lockup), value: MAX_UINT256 });
-        dai.approve({ spender: address(merkleFactory), value: MAX_UINT256 });
         usdt.approve({ spender: address(batchLockup), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockup), value: MAX_UINT256 });
-        usdt.approve({ spender: address(merkleFactory), value: MAX_UINT256 });
     }
 
     /// @dev Generates a user, labels its address, funds it with test assets, and approves the protocol contracts.
@@ -158,14 +140,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
             batchLockup = new SablierBatchLockup();
             nftDescriptor = new LockupNFTDescriptor();
             lockup = new SablierLockup(users.admin, nftDescriptor, defaults.MAX_COUNT());
-            merkleFactory = new SablierMerkleFactory(users.admin);
         } else {
-            (nftDescriptor, lockup, batchLockup, merkleFactory) =
-                deployOptimizedProtocol(users.admin, defaults.MAX_COUNT());
+            (nftDescriptor, lockup, batchLockup) = deployOptimizedProtocol(users.admin, defaults.MAX_COUNT());
         }
         vm.label({ account: address(batchLockup), newLabel: "BatchLockup" });
         vm.label({ account: address(lockup), newLabel: "Lockup" });
-        vm.label({ account: address(merkleFactory), newLabel: "MerkleFactory" });
         vm.label({ account: address(nftDescriptor), newLabel: "NFTDescriptor" });
     }
 
@@ -224,22 +203,22 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
                                 CALL EXPECTS - LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLD}, each with the specified `params`.
+    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLD}.
     function expectMultipleCallsToCreateWithDurationsLD(
         uint64 count,
         Lockup.CreateWithDurations memory params,
-        LockupDynamic.SegmentWithDuration[] memory segments
+        LockupDynamic.SegmentWithDuration[] memory segmentsWithDuration
     )
         internal
     {
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithDurationsLD, (params, segments))
+            data: abi.encodeCall(ISablierLockup.createWithDurationsLD, (params, segmentsWithDuration))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLL}, each with the specified `params`.
+    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLL}.
     function expectMultipleCallsToCreateWithDurationsLL(
         uint64 count,
         Lockup.CreateWithDurations memory params,
@@ -255,7 +234,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLT}, each with the specified `params`.
+    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLT}.
     function expectMultipleCallsToCreateWithDurationsLT(
         uint64 count,
         Lockup.CreateWithDurations memory params,
@@ -270,7 +249,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLD}, each with the specified `params`.
+    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLD}.
     function expectMultipleCallsToCreateWithTimestampsLD(
         uint64 count,
         Lockup.CreateWithTimestamps memory params,
@@ -285,8 +264,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLL}, each with the specified
-    /// `params`.
+    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLL}.
     function expectMultipleCallsToCreateWithTimestampsLL(
         uint64 count,
         Lockup.CreateWithTimestamps memory params,
@@ -302,8 +280,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLT}, each with the specified
-    /// `params`.
+    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLT}.
     function expectMultipleCallsToCreateWithTimestampsLT(
         uint64 count,
         Lockup.CreateWithTimestamps memory params,

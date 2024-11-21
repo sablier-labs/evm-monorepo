@@ -75,10 +75,8 @@
     "prepare": "husky",
     "prettier:check": "prettier --check \"**/*.{json,md,svg,yml}\"",
     "prettier:write": "prettier --write \"**/*.{json,md,svg,yml}\"",
-    "test": "forge test",
-    "test:core": "FOUNDRY_PROFILE=lite forge test --match-path \"test/core/**/*.sol\" --nmt \"testFork\"",
+    "test": "forge test --nmt \"testFork\"",
     "test:lite": "FOUNDRY_PROFILE=lite forge test",
-    "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test",
-    "test:periphery": "FOUNDRY_PROFILE=lite forge test --match-path \"test/periphery/**/*.sol\" --nmt \"testFork\""
+    "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   }
 }

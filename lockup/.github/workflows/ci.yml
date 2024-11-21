@@ -33,7 +33,7 @@ jobs:
     with:
       foundry-fuzz-runs: 2000
       foundry-profile: "test-optimized"
-      match-path: "test/core/unit/**/*.sol"
+      match-path: "test/unit/**/*.sol"
       name: "Unit tests"
 
   test-integration:
@@ -42,7 +42,7 @@ jobs:
     with:
       foundry-fuzz-runs: 2000
       foundry-profile: "test-optimized"
-      match-path: "test/{core,periphery}/integration/**/*.sol"
+      match-path: "test/integration/**/*.sol"
       name: "Integration tests"
 
   test-invariant:
@@ -50,7 +50,7 @@ jobs:
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
     with:
       foundry-profile: "test-optimized"
-      match-path: "test/core/invariant/**/*.sol"
+      match-path: "test/invariant/**/*.sol"
       name: "Invariant tests"
 
   test-fork:
@@ -61,7 +61,7 @@ jobs:
     with:
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
-      match-path: "test/{core,periphery}/fork/**/*.sol"
+      match-path: "test/fork/**/*.sol"
       name: "Fork tests"
 
   coverage:
@@ -70,4 +70,4 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-coverage.yml@main"
     with:
-      match-path: "test/{core,periphery}/{integration,unit}/**/*.sol"
+      match-path: "test/{integration,unit}/**/*.sol"

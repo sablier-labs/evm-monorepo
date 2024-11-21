@@ -16,54 +16,32 @@ rm -rf $artifacts
 
 # Create the new artifacts directories
 mkdir $artifacts \
-  "$artifacts/core" \
-  "$artifacts/core/interfaces" \
-  "$artifacts/core/libraries" \
+  "$artifacts/interfaces" \
+  "$artifacts/libraries" \
   "$artifacts/erc20" \
-  "$artifacts/erc721" \
-  "$artifacts/periphery" \
-  "$artifacts/periphery/interfaces" \
-  "$artifacts/periphery/libraries"
+  "$artifacts/erc721"
 
 ################################################
-####                 CORE                   ####
+####                LOCKUP                  ####
 ################################################
 
-core=./artifacts/core
-cp out-optimized/LockupNFTDescriptor.sol/LockupNFTDescriptor.json $core
-cp out-optimized/SablierLockup.sol/SablierLockup.json $core
+lockup=./artifacts/
+cp out-optimized/LockupNFTDescriptor.sol/LockupNFTDescriptor.json $lockup
+cp out-optimized/SablierLockup.sol/SablierLockup.json $lockup
+cp out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json $lockup
 
-core_interfaces=./artifacts/core/interfaces
-cp out-optimized/ILockupNFTDescriptor.sol/ILockupNFTDescriptor.json $core_interfaces
-cp out-optimized/ISablierLockupRecipient.sol/ISablierLockupRecipient.json $core_interfaces
-cp out-optimized/ISablierLockupBase.sol/ISablierLockupBase.json $core_interfaces
-cp out-optimized/ISablierLockup.sol/ISablierLockup.json $core_interfaces
+lockup_interfaces=./artifacts/interfaces
+cp out-optimized/ISablierBatchLockup.sol/ISablierBatchLockup.json $lockup_interfaces
+cp out-optimized/ILockupNFTDescriptor.sol/ILockupNFTDescriptor.json $lockup_interfaces
+cp out-optimized/ISablierLockupRecipient.sol/ISablierLockupRecipient.json $lockup_interfaces
+cp out-optimized/ISablierLockupBase.sol/ISablierLockupBase.json $lockup_interfaces
+cp out-optimized/ISablierLockup.sol/ISablierLockup.json $lockup_interfaces
 
-core_libraries=./artifacts/core/libraries
-cp out-optimized/Errors.sol/Errors.json $core_libraries
-cp out-optimized/Helpers.sol/Helpers.json $core_libraries
-cp out-optimized/VestingMath.sol/VestingMath.json $core_libraries
+lockup_libraries=./artifacts/libraries
+cp out-optimized/Errors.sol/Errors.json $lockup_libraries
+cp out-optimized/Helpers.sol/Helpers.json $lockup_libraries
+cp out-optimized/VestingMath.sol/VestingMath.json $lockup_libraries
 
-################################################
-####               PERIPHERY                ####
-################################################
-
-periphery=./artifacts/periphery
-cp out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json $periphery
-cp out-optimized/SablierMerkleFactory.sol/SablierMerkleFactory.json $periphery
-cp out-optimized/SablierMerkleInstant.sol/SablierMerkleInstant.json $periphery
-cp out-optimized/SablierMerkleLL.sol/SablierMerkleLL.json $periphery
-cp out-optimized/SablierMerkleLT.sol/SablierMerkleLT.json $periphery
-
-periphery_interfaces=./artifacts/periphery/interfaces
-cp out-optimized/ISablierBatchLockup.sol/ISablierBatchLockup.json $periphery_interfaces
-cp out-optimized/ISablierMerkleFactory.sol/ISablierMerkleFactory.json $periphery_interfaces
-cp out-optimized/ISablierMerkleInstant.sol/ISablierMerkleInstant.json $periphery_interfaces
-cp out-optimized/ISablierMerkleLL.sol/ISablierMerkleLL.json $periphery_interfaces
-cp out-optimized/ISablierMerkleLT.sol/ISablierMerkleLT.json $periphery_interfaces
-
-periphery_libraries=./artifacts/periphery/libraries
-cp out-optimized/libraries/Errors.sol/Errors.json $periphery_libraries
 
 ################################################
 ####                OTHERS                  ####

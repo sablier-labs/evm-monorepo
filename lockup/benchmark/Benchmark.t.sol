@@ -165,7 +165,9 @@ abstract contract Benchmark_Test is Base_Test {
     function _createFewStreams() internal {
         for (uint128 i = 0; i < 100; ++i) {
             lockup.createWithTimestampsLD(defaults.createWithTimestamps(), defaults.segments());
-            lockup.createWithTimestampsLL(defaults.createWithTimestamps(), defaults.CLIFF_TIME());
+            lockup.createWithTimestampsLL(
+                defaults.createWithTimestamps(), defaults.unlockAmounts(), defaults.CLIFF_TIME()
+            );
             lockup.createWithTimestampsLT(defaults.createWithTimestamps(), defaults.tranches());
         }
     }

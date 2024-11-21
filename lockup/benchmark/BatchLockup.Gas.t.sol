@@ -3,8 +3,8 @@ pragma solidity >=0.8.22;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { Lockup, LockupDynamic, LockupTranched } from "../src/core/types/DataTypes.sol";
-import { BatchLockup } from "../src/periphery/types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupTranched } from "../src//types/DataTypes.sol";
+import { BatchLockup } from "../src//types/DataTypes.sol";
 import { BatchLockupBuilder } from "../test/utils/BatchLockupBuilder.sol";
 
 import { Benchmark_Test } from "./Benchmark.t.sol";
@@ -112,6 +112,7 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     function gasCreateWithDurationsLL(uint256 batchSize) internal {
         BatchLockup.CreateWithDurationsLL[] memory params = BatchLockupBuilder.fillBatch({
             params: defaults.createWithDurationsBrokerNull(),
+            unlockAmounts: defaults.unlockAmounts(),
             durations: defaults.durations(),
             batchSize: batchSize
         });
@@ -131,6 +132,7 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     function gasCreateWithTimestampsLL(uint256 batchSize) internal {
         BatchLockup.CreateWithTimestampsLL[] memory params = BatchLockupBuilder.fillBatch({
             params: defaults.createWithTimestampsBrokerNull(),
+            unlockAmounts: defaults.unlockAmounts(),
             cliffTime: defaults.CLIFF_TIME(),
             batchSize: batchSize
         });

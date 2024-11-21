@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { ud } from "@prb/math/src/UD60x18.sol";
 
-import { Lockup, LockupLinear } from "../src/core/types/DataTypes.sol";
+import { Lockup, LockupLinear } from "../src//types/DataTypes.sol";
 
 import { Benchmark_Test } from "./Benchmark.t.sol";
 
@@ -56,8 +56,11 @@ contract Lockup_Linear_Gas_Test is Benchmark_Test {
         LockupLinear.Durations memory durations = defaults.durations();
         durations.cliff = cliffDuration;
 
+        LockupLinear.UnlockAmounts memory unlockAmounts = defaults.unlockAmounts();
+        if (cliffDuration == 0) unlockAmounts.cliff = 0;
+
         uint256 beforeGas = gasleft();
-        lockup.createWithDurationsLL(params, durations);
+        lockup.createWithDurationsLL(params, unlockAmounts, durations);
         string memory gasUsed = vm.toString(beforeGas - gasleft());
 
         string memory cliffSetOrNot = cliffDuration == 0 ? " (cliff not set)" : " (cliff set)";
@@ -73,7 +76,7 @@ contract Lockup_Linear_Gas_Test is Benchmark_Test {
         params.totalAmount = _calculateTotalAmount(defaults.DEPOSIT_AMOUNT(), ud(0));
 
         beforeGas = gasleft();
-        lockup.createWithDurationsLL(params, durations);
+        lockup.createWithDurationsLL(params, unlockAmounts, durations);
         gasUsed = vm.toString(beforeGas - gasleft());
 
         contentToAppend =
@@ -88,9 +91,11 @@ contract Lockup_Linear_Gas_Test is Benchmark_Test {
         resetPrank({ msgSender: users.sender });
 
         Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
+        LockupLinear.UnlockAmounts memory unlockAmounts = defaults.unlockAmounts();
+        if (cliffTime == 0) unlockAmounts.cliff = 0;
 
         uint256 beforeGas = gasleft();
-        lockup.createWithTimestampsLL(params, cliffTime);
+        lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime);
         string memory gasUsed = vm.toString(beforeGas - gasleft());
 
         string memory cliffSetOrNot = cliffTime == 0 ? " (cliff not set)" : " (cliff set)";
@@ -106,7 +111,7 @@ contract Lockup_Linear_Gas_Test is Benchmark_Test {
         params.totalAmount = _calculateTotalAmount(defaults.DEPOSIT_AMOUNT(), ud(0));
 
         beforeGas = gasleft();
-        lockup.createWithTimestampsLL(params, cliffTime);
+        lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime);
         gasUsed = vm.toString(beforeGas - gasleft());
 
         contentToAppend =

@@ -20,7 +20,7 @@ jobs:
         foundry-fuzz-runs: 100
         foundry-profile: "test-optimized"
         fuzz-seed: true
-        match-path: "test/{core,periphery}fork/**/*.sol"
+        match-path: "test/fork/**/*.sol"
         name: "Fork tests"
 
   test-utils:
