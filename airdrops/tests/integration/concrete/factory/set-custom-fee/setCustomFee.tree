@@ -1,0 +1,11 @@
+SetCustomFee_Integration_Test
+├── when caller not admin
+│  └── it should revert
+└── when caller admin
+   ├── when not enabled
+   │  ├── it should enable the custom fee
+   │  ├── it should set the custom fee
+   │  └── it should emit a {SetCustomFee} event
+   └── when enabled
+      ├── it should set the custom fee
+      └── it should emit a {SetCustomFee} event

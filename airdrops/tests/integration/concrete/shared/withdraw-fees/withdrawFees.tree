@@ -1,0 +1,13 @@
+WithdrawFees_Integration_Test
+├── when caller not factory
+│  └── it should revert
+└── when caller factory
+   ├── when provided address not contract
+   │  ├── it should transfer fee collected in ETH to the provided address
+   │  └── it should set the ETH balance to 0
+   └── when provided address contract
+      ├── when provided address not implement receive eth
+      │  └── it should revert
+      └── when provided address implement receive eth
+         ├── it should transfer fee collected in ETH to the provided address
+         └── it should set the ETH balance to 0

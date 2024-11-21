@@ -13,21 +13,22 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 
 ## Introduction
 
-Sablier Airdrops is a collection of smart contracts that allows airdrops of ERC-20 tokens using merkle distribution. It
-offers multiple distributions options, including:
+Sablier Airdrops is a collection of smart contracts that allows airdrops of ERC-20 tokens using Merkle trees. It offers
+multiple distributions options, including:
 
-1. Instant airdrops: The simplest way to distribute tokens to a list of addresses. The eligible users can claim and
-   receive their allocation instantly in a single transaction.
+1. Instant airdrops: The simplest way to distribute tokens to a list of addresses. Eligible users can claim and receive
+   their allocation instantly via a single claim transaction.
 2. Vesting airdrops: This is the way to go if you want your users to receive tokens over time through vesting. Upon
-   claiming, the eligible users will have their tokens streamed through Sablier over a period as specified by the
-   campaign owner.
+   claiming, eligible users will have their tokens streamed through Sablier over a period specified by the campaign
+   owner. This distribution option has been referred to as Airstreams in the past.
 
 Sablier Airdrops also offer flexibility in configuring the Airdrop campaigns. For example, you can choose between
-whether you want to have vesting to begin at the same time for all users or at the time of each claim.
+whether you want to have vesting to begin at the same time for all user (absolute) or at the time of each claim
+(relative).
 
 ## Documentation
 
-For guides and technical details, checkout the [Sablier documentation](https://docs.sablier.com).
+For guides and technical details, check out the [Sablier documentation](https://docs.sablier.com).
 
 ## Getting started
 
@@ -66,7 +67,7 @@ forge install --no-commit sablier-labs/airdrops
 Second, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.1.0 sablier-labs/lockup@v1.2.0
+forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.1.0 sablier-labs/lockup@v2.0.0
 ```
 
 Finally, add these to your `remappings.txt` file:
@@ -81,7 +82,7 @@ Finally, add these to your `remappings.txt` file:
 ### Branching Tree Technique
 
 You may notice that some test files are accompanied by `.tree` files. This is called the Branching Tree Technique, and
-it is explained in depth [here](https://www.bulloak.dev/).
+it is explained in depth [here](https://bulloak.dev/).
 
 ### Deployments
 

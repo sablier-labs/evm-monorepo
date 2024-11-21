@@ -1,0 +1,83 @@
+{
+  "name": "@sablier/airdrops",
+  "description": "Merkle-based airdrop distributions powered by Sablier",
+  "license": "BUSL-1.1",
+  "version": "1.3.0",
+  "author": {
+    "name": "Sablier Labs Ltd",
+    "url": "https://sablier.com"
+  },
+  "bugs": {
+    "url": "https://github.com/sablier-labs/airdrops/issues"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.0.2",
+    "@prb/math": "4.1.0",
+    "@sablier/lockup": "github:sablier-labs/v2-core#staging"
+  },
+  "devDependencies": {
+    "forge-std": "github:foundry-rs/forge-std#v1.8.2",
+    "husky": "^9.1.4",
+    "lint-staged": "^15.2.8",
+    "prettier": "^3.3.2",
+    "solady": "0.0.208",
+    "solhint": "^5.0.3"
+  },
+  "files": [
+    "artifacts",
+    "precompiles",
+    "src",
+    "tests/utils",
+    "CHANGELOG.md",
+    "LICENSE-GPL.md"
+  ],
+  "homepage": "https://github.com/sablier-labs/airdrops#readme",
+  "keywords": [
+    "airdrops",
+    "airstream",
+    "instant-airdrop",
+    "blockchain",
+    "cryptoasset-streaming",
+    "cryptoassets",
+    "ethereum",
+    "foundry",
+    "lockup",
+    "money-streaming",
+    "real-time-finance",
+    "sablier",
+    "sablier-v2",
+    "sablier-lockup",
+    "smart-contracts",
+    "solidity",
+    "token-distribution",
+    "token-streaming",
+    "token-vesting",
+    "vested-airdrop",
+    "vesting",
+    "web3"
+  ],
+  "peerDependencies": {
+    "@prb/math": "4.x.x"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "github.com/sablier-labs/airdrops",
+  "scripts": {
+    "build": "forge build",
+    "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
+    "build:smt": "FOUNDRY_PROFILE=smt forge build",
+    "clean": "rm -rf artifacts broadcast cache docs out out-optimized",
+    "lint": "bun run lint:sol && bun run prettier:check",
+    "lint:fix": "bun run lint:sol:fix && forge fmt",
+    "lint:sol": "forge fmt --check && bun solhint \"{precompiles,script,src,tests}/**/*.sol\"",
+    "lint:sol:fix": "bun solhint \"{precompiles,script,src,tests}/**/*.sol\" --fix --noPrompt",
+    "prepack": "bun install && bash ./shell/prepare-artifacts.sh",
+    "prepare": "husky",
+    "prettier:check": "prettier --check \"**/*.{json,md,yml}\"",
+    "prettier:write": "prettier --write \"**/*.{json,md,yml}\"",
+    "test": "forge test",
+    "test:lite": "FOUNDRY_PROFILE=lite forge test",
+    "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
+  }
+}

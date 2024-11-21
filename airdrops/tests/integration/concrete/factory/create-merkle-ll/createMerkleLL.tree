@@ -1,0 +1,15 @@
+CreateMerkleLL_Integration_Test
+├── when name too long
+│  └── it should revert
+└── when name not too long
+   ├── given campaign already exists
+   │  └── it should revert
+   └── given campaign not exists
+      ├── given custom fee set
+      │  ├── it should create the campaign with custom fee
+      │  ├── it should set the current factory address
+      │  └── it should emit a {CreateMerkleLL} event
+      └── given custom fee not set
+         ├── it should create the campaign with default fee
+         ├── it should set the current factory address
+         └── it should emit a {CreateMerkleLL} event

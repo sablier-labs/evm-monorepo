@@ -10,7 +10,6 @@ on:
   push:
     branches:
       - "main"
-      - "staging"
 
 jobs:
   lint:
@@ -35,13 +34,6 @@ jobs:
       match-path: "tests/integration/**/*.sol"
       name: "Integration tests"
 
-  test-invariant:
-    needs: ["lint", "build"]
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
-    with:
-      foundry-profile: "test-optimized"
-      match-path: "tests/invariant/**/*.sol"
-      name: "Invariant tests"
 
   test-fork:
     needs: ["lint", "build"]

@@ -1,0 +1,14 @@
+Claim_MerkleLL_Integration_Test
+└── when Merkle proof valid
+   ├── when scheduled start time zero
+   │  ├── when scheduled cliff duration zero
+   │  │  ├── it should create a stream with block.timestamp as start time
+   │  │  ├── it should create a stream with cliff as zero
+   │  │  └── it should emit a {Claim} event
+   │  └── when scheduled cliff duration not zero
+   │     ├── it should create a stream with block.timestamp as start time
+   │     ├── it should create a stream with cliff as start time + cliff duration
+   │     └── it should emit a {Claim} event
+   └── when scheduled start time not zero
+      ├── it should create a stream with scheduled start time as start time
+      └── it should emit a {Claim} event

@@ -1,0 +1,127 @@
+[profile.default]
+  auto_detect_solc = false
+  bytecode_hash = "none"
+  evm_version = "shanghai"
+  fs_permissions = [
+    { access = "read", path = "./out-optimized" },
+    { access = "read", path = "package.json" },
+    { access = "read-write", path = "./script" },
+  ]
+  gas_limit = 9223372036854775807
+  optimizer = true
+  optimizer_runs = 1000
+  out = "out"
+  script = "script"
+  sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
+  solc = "0.8.26"
+  src = "src"
+  test = "tests"
+
+[profile.default.fuzz]
+  max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
+  runs = 50
+
+[profile.default.invariant]
+  call_override = false # Override unsafe external calls to perform reentrancy checks
+  depth = 20            # Number of calls executed in one run
+  fail_on_revert = true
+  runs = 20
+
+# Speed up compilation and tests during development
+[profile.lite]
+  optimizer = false
+
+# Compile only the production code and the test mocks with via IR
+[profile.optimized]
+  out = "out-optimized"
+  test = "tests/mocks"
+  via_ir = true
+
+
+# See "SMTChecker and Formal Verification" in the Solidity docs
+[profile.smt]
+  ignored_error_codes = [
+    7737, # Disable inline assembly warnings
+  ]
+  out = "out-optimized"
+  script = "src"
+  test = "src"
+  via_ir = true
+
+[profile.smt.model_checker]
+  engine = "chc" # constrained Horn clauses
+  invariants = ["contract", "reentrancy"]
+  show_proved_safe = true
+  show_unproved = true
+  show_unsupported = true
+  timeout = 100_000 # in milliseconds, per solving query
+  targets = [
+    "assert",
+    "constantCondition",
+    "divByZero",
+    "outOfBounds",
+    "overflow",
+    "underflow",
+  ]
+
+# Test the optimized contracts without re-compiling them
+[profile.test-optimized]
+  src = "tests"
+
+[doc]
+  ignore = ["**/*.t.sol"]
+  out = "docs"
+  repository = "https://github.com/sablier-labs/airdrops"
+
+[etherscan]
+  arbitrum = { key = "${ARBISCAN_API_KEY}" }
+  arbitrum_sepolia = { key = "${ARBISCAN_API_KEY}" }
+  avalanche = { key = "${SNOWTRACE_API_KEY}" }
+  base = { key = "${BASESCAN_API_KEY}" }
+  base_sepolia = { key = "${BASESCAN_API_KEY}" }
+  bnb = { key = "${BSCSCAN_API_KEY}" }
+  gnosis = { key = "${GNOSISSCAN_API_KEY}" }
+  linea = { key = "${LINEASCAN_API_KEY}" }
+  linea_sepolia = { key = "${LINEASCAN_API_KEY}" }
+  mainnet = { key = "${ETHERSCAN_API_KEY}" }
+  optimism = { key = "${OPTIMISTIC_API_KEY}" }
+  optimism_sepolia = { key = "${OPTIMISTIC_API_KEY}" }
+  polygon = { key = "${POLYGONSCAN_API_KEY}" }
+  scroll = { key = "${SCROLLSCAN_API_KEY}" }
+  sepolia = { key = "${SEPOLIASCAN_KEY}" }
+  taiko_mainnet = { key = "${TAIKO_MAINNET_API_KEY}" }
+
+[fmt]
+  bracket_spacing = true
+  int_types = "long"
+  line_length = 120
+  multiline_func_header = "all"
+  number_underscore = "thousands"
+  quote_style = "double"
+  tab_width = 4
+  wrap_comments = true
+
+[rpc_endpoints]
+  arbitrum = "${ARBITRUM_RPC_URL}"
+  arbitrum_sepolia = "https://arbitrum-sepolia.blockpi.network/v1/rpc/public"
+  avalanche = "${AVALANCHE_RPC_URL}"
+  base = "https://mainnet.base.org"
+  base_sepolia = "https://sepolia.base.org"
+  berachain_artio = "https://bartio.rpc.berachain.com/"
+  bnb = "https://bsc-dataseed.binance.org"
+  gnosis = "https://rpc.gnosischain.com"
+  linea = "https://rpc.linea.build"
+  linea_sepolia = "https://rpc.sepolia.linea.build"
+  localhost = "http://localhost:8545"
+  mainnet = "${MAINNET_RPC_URL}"
+  mode = "https://mainnet.mode.network/"
+  mode_sepolia = "https://sepolia.mode.network/"
+  optimism = "${OPTIMISM_RPC_URL}"
+  optimism_sepolia = "https://sepolia.optimism.io"
+  polygon = "${POLYGON_RPC_URL}"
+  scroll = "https://rpc.scroll.io/"
+  sei = "https://evm-rpc.sei-apis.com"
+  sei_testnet = "https://evm-rpc.arctic-1.seinetwork.io"
+  sepolia = "${SEPOLIA_RPC_URL}"
+  taiko_hekla = "https://rpc.hekla.taiko.xyz"
+  taiko_mainnet = "https://rpc.mainnet.taiko.xyz"

@@ -1,0 +1,12 @@
+{
+  "detectors_to_exclude": "naming-convention,reentrancy-events,solc-version,timestamp",
+  "filter_paths": "(node_modules/,tests/)",
+  "solc_remaps": [
+    "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
+    "@prb/math/=node_modules/@prb-math/",
+    "@sablier/lockup/=node_modules/sablier/lockup/src/core/",
+    "@sablier/lockup-precompiles=node_modules/@sablier/lockup/precompiles/",
+    "forge-std/=node_modules/forge-std/",
+    "solady/=node_modules/solady/"
+  ]
+}

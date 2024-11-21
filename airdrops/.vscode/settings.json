@@ -9,7 +9,6 @@
     ".gas-snapshot": "julia"
   },
   "editor.formatOnSave": true,
-  "prettier.documentSelectors": ["**/*.svg"],
   "search.exclude": {
     "**/node_modules": true
   },

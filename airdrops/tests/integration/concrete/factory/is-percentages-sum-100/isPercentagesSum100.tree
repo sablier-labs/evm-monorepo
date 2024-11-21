@@ -1,0 +1,11 @@
+IsPercentagesSum100_Integration_Test
+├── when percentages sum overflows
+│  └── it should revert
+└── when percentages sum not overflow
+   ├── when percentages sum not 100 pct
+   │  ├── when percentages sum less than 100 pct
+   │  │  └── it should return false
+   │  └── when percentages sum greater than 100 pct
+   │     └── it should return false
+   └── when percentages sum 100 pct
+      └── it should return true
