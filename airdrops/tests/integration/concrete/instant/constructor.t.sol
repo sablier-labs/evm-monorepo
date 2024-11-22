@@ -30,8 +30,7 @@ contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
         // Make Factory the caller for the constructor test.
         resetPrank(address(merkleFactory));
 
-        SablierMerkleInstant constructedInstant =
-            new SablierMerkleInstant(defaults.baseParams(), defaults.DEFAULT_FEE());
+        SablierMerkleInstant constructedInstant = new SablierMerkleInstant(defaults.baseParams(), defaults.FEE());
 
         Vars memory vars;
 
@@ -64,7 +63,7 @@ contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
         assertEq(bytes32(abi.encodePacked(vars.actualName)), vars.expectedName, "name");
 
         vars.actualFee = constructedInstant.FEE();
-        vars.expectedFee = defaults.DEFAULT_FEE();
+        vars.expectedFee = defaults.FEE();
         assertEq(vars.actualFee, vars.expectedFee, "fee");
     }
 }

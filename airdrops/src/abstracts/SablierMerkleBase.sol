@@ -165,20 +165,20 @@ abstract contract SablierMerkleBase is
     }
 
     /// @inheritdoc ISablierMerkleBase
-    function withdrawFees(address payable to) external override returns (uint256 feeAmount) {
-        // Check: the msg.sender is the FACTORY.
+    function collectFees(address factoryAdmin) external override returns (uint256 feeAmount) {
+        // Check: the caller is the FACTORY.
         if (msg.sender != FACTORY) {
             revert Errors.SablierMerkleBase_CallerNotFactory(FACTORY, msg.sender);
         }
 
         feeAmount = address(this).balance;
 
-        // Effect: transfer the fees to the provided address.
-        (bool success,) = to.call{ value: feeAmount }("");
+        // Effect: transfer the fees to the factory admin.
+        (bool success,) = factoryAdmin.call{ value: feeAmount }("");
 
         // Revert if the call failed.
         if (!success) {
-            revert Errors.SablierMerkleBase_FeeWithdrawFailed(to, feeAmount);
+            revert Errors.SablierMerkleBase_FeeTransferFail(factoryAdmin, feeAmount);
         }
     }
 

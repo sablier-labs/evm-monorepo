@@ -88,15 +88,12 @@ interface ISablierMerkleBase is IAdminable {
     /// @param amount The amount of tokens to claw back.
     function clawback(address to, uint128 amount) external;
 
-    /// @notice Withdraws the accrued fees to the provided address.
-    ///
-    /// @dev This function transfers ETH to the provided address. If the receiver is a contract, it must be able to
-    /// receive ETH.
+    /// @notice Collects the accrued fees by transferring them to `FACTORY` admin.
     ///
     /// Requirements:
     /// - msg.sender must be the `FACTORY` contract.
     ///
-    /// @param to The address to transfer the fees to.
-    /// @return feeAmount The amount of ETH transferred to the provided address.
-    function withdrawFees(address payable to) external returns (uint256 feeAmount);
+    /// @param factoryAdmin The address of the `FACTORY` admin.
+    /// @return feeAmount The amount of ETH withdrawn.
+    function collectFees(address factoryAdmin) external returns (uint256 feeAmount);
 }

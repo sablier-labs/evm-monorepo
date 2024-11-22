@@ -22,6 +22,9 @@ interface ISablierMerkleFactory is IAdminable {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when the accrued fees are collected.
+    event CollectFees(address indexed admin, ISablierMerkleBase indexed merkleBase, uint256 feeAmount);
+
     /// @notice Emitted when a {SablierMerkleInstant} campaign is created.
     event CreateMerkleInstant(
         ISablierMerkleInstant indexed merkleInstant,
@@ -68,9 +71,6 @@ interface ISablierMerkleFactory is IAdminable {
     /// @notice Emitted when the default fee is set by the admin.
     event SetDefaultFee(address indexed admin, uint256 defaultFee);
 
-    /// @notice Emitted when the fees are claimed by the Sablier admin.
-    event WithdrawFees(address indexed admin, ISablierMerkleBase indexed merkleBase, address to, uint256 fees);
-
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -95,6 +95,15 @@ interface ISablierMerkleFactory is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Collects the fees accrued in the `merkleBase` contract, and transfers them to the factory admin.
+    /// @dev Emits a {CollectFees} event.
+    ///
+    /// Notes:
+    /// - If the admin is a contract, it must be able to receive ETH.
+    ///
+    /// @param merkleBase The address of the Merkle contract where the fees are collected from.
+    function collectFees(ISablierMerkleBase merkleBase) external;
 
     /// @notice Creates a new MerkleInstant campaign for instant distribution of tokens.
     ///
@@ -214,18 +223,4 @@ interface ISablierMerkleFactory is IAdminable {
     ///
     /// @param defaultFee The new default fee to be set.
     function setDefaultFee(uint256 defaultFee) external;
-
-    /// @notice Withdraws the fees accrued in the `merkleBase` contract.
-    /// @dev Emits a {WithdrawFees} event.
-    ///
-    /// Notes:
-    /// - This function transfers ETH to the provided address. If the receiver is a contract, it must be able to receive
-    /// ETH.
-    ///
-    /// Requirements:
-    /// - `msg.sender` must be the admin.
-    /// - `to` must not be the zero address.
-    ///
-    /// @param to The address to transfer the fees to.
-    function withdrawFees(address payable to, ISablierMerkleBase merkleBase) external;
 }

@@ -47,7 +47,7 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
             defaults.schedule(),
-            defaults.DEFAULT_FEE()
+            defaults.FEE()
         );
 
         Vars memory vars;
@@ -111,7 +111,7 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         assertEq(vars.actualTransferable, vars.expectedTransferable, "transferable");
 
         vars.actualFee = constructedLL.FEE();
-        vars.expectedFee = defaults.DEFAULT_FEE();
+        vars.expectedFee = defaults.FEE();
         assertEq(vars.actualFee, vars.expectedFee, "fee");
     }
 }

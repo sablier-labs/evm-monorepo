@@ -67,6 +67,10 @@ abstract contract Modifiers is Utils {
         _;
     }
 
+    modifier whenFactoryAdminIsContract() {
+        _;
+    }
+
     modifier whenIndexInMerkleTree() {
         _;
     }
@@ -88,10 +92,6 @@ abstract contract Modifiers is Utils {
     }
 
     modifier whenPercentagesSumNotOverflow() {
-        _;
-    }
-
-    modifier whenProvidedAddressContract() {
         _;
     }
 

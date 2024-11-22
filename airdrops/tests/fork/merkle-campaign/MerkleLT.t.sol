@@ -100,7 +100,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         // Make the campaign owner as the caller.
         resetPrank({ msgSender: params.campaignOwner });
 
-        uint256 fee = defaults.DEFAULT_FEE();
+        uint256 fee = defaults.FEE();
 
         vars.expectedLT = computeMerkleLTAddress(
             params.campaignOwner, params.campaignOwner, FORK_TOKEN, vars.merkleRoot, params.expiration, fee
@@ -246,22 +246,14 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         }
 
         /*//////////////////////////////////////////////////////////////////////////
-                                        WITHDRAW-FEE
+                                        COLLECT-FEES
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Make the factory admin as the caller.
-        resetPrank({ msgSender: users.admin });
-
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ISablierMerkleFactory.WithdrawFees({
-            admin: users.admin,
-            merkleBase: vars.merkleLT,
-            to: users.admin,
-            fees: fee
-        });
-        merkleFactory.withdrawFees({ to: payable(users.admin), merkleBase: vars.merkleLT });
+        emit ISablierMerkleFactory.CollectFees({ admin: users.admin, merkleBase: vars.merkleLT, feeAmount: fee });
+        merkleFactory.collectFees({ merkleBase: vars.merkleLT });
 
-        assertEq(address(vars.merkleLT).balance, 0, "merkle lockup ether balance");
-        assertEq(users.admin.balance, fee, "admin ether balance");
+        assertEq(address(vars.merkleLT).balance, 0, "merkleLT ETH balance");
+        assertEq(users.admin.balance, fee, "admin ETH balance");
     }
 }

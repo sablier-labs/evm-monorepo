@@ -52,7 +52,7 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function claim() internal {
-        merkleBase.claim{ value: defaults.DEFAULT_FEE() }({
+        merkleBase.claim{ value: defaults.FEE() }({
             index: defaults.INDEX1(),
             recipient: users.recipient1,
             amount: defaults.CLAIM_AMOUNT(),
@@ -65,7 +65,7 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function computeMerkleInstantAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleInstantAddress(campaignOwner, expiration, defaults.DEFAULT_FEE());
+        return computeMerkleInstantAddress(campaignOwner, expiration, defaults.FEE());
     }
 
     function computeMerkleInstantAddress(
@@ -112,7 +112,7 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function computeMerkleLLAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleLLAddress(campaignOwner, expiration, defaults.DEFAULT_FEE());
+        return computeMerkleLLAddress(campaignOwner, expiration, defaults.FEE());
     }
 
     function computeMerkleLLAddress(
@@ -163,7 +163,7 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function computeMerkleLTAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleLTAddress(campaignOwner, expiration, defaults.DEFAULT_FEE());
+        return computeMerkleLTAddress(campaignOwner, expiration, defaults.FEE());
     }
 
     function computeMerkleLTAddress(

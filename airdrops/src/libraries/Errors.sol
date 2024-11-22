@@ -11,12 +11,6 @@ library Errors {
     error CallerNotAdmin(address admin, address caller);
 
     /*//////////////////////////////////////////////////////////////////////////
-                              SABLIER-MERKLE-FACTORY
-    //////////////////////////////////////////////////////////////////////////*/
-
-    error SablierMerkleFactory_WithdrawToZeroAddress();
-
-    /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER-MERKLE-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -34,7 +28,7 @@ library Errors {
     error SablierMerkleBase_ClawbackNotAllowed(uint256 blockTimestamp, uint40 expiration, uint40 firstClaimTime);
 
     /// @notice Thrown if the fees withdrawal failed.
-    error SablierMerkleBase_FeeWithdrawFailed(address to, uint256 amount);
+    error SablierMerkleBase_FeeTransferFail(address factoryAdmin, uint256 feeAmount);
 
     /// @notice Thrown when trying to claim with an insufficient fee payment.
     error SablierMerkleBase_InsufficientFeePayment(uint256 feePaid, uint256 fee);

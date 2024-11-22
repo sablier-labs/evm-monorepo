@@ -11,7 +11,6 @@ import { ISablierMerkleFactory } from "./interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleInstant } from "./interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
-import { Errors } from "./libraries/Errors.sol";
 import { SablierMerkleInstant } from "./SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "./SablierMerkleLL.sol";
 import { SablierMerkleLT } from "./SablierMerkleLT.sol";
@@ -64,58 +63,17 @@ contract SablierMerkleFactory is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                         ADMIN-FACING NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierMerkleFactory
-    function resetCustomFee(address campaignCreator) external override onlyAdmin {
-        delete _customFees[campaignCreator];
-
-        // Log the reset.
-        emit ResetCustomFee({ admin: msg.sender, campaignCreator: campaignCreator });
-    }
-
-    /// @inheritdoc ISablierMerkleFactory
-    function setCustomFee(address campaignCreator, uint256 newFee) external override onlyAdmin {
-        MerkleFactory.CustomFee storage customFeeByUser = _customFees[campaignCreator];
-
-        // Check: if the user is not in the custom fee list.
-        if (!customFeeByUser.enabled) {
-            customFeeByUser.enabled = true;
-        }
-
-        // Effect: update the custom fee for the given campaign creator.
-        customFeeByUser.fee = newFee;
-
-        // Log the update.
-        emit SetCustomFee({ admin: msg.sender, campaignCreator: campaignCreator, customFee: newFee });
-    }
-
-    /// @inheritdoc ISablierMerkleFactory
-    function setDefaultFee(uint256 defaultFee_) external override onlyAdmin {
-        // Effect: update the default fee.
-        defaultFee = defaultFee_;
-
-        emit SetDefaultFee(msg.sender, defaultFee_);
-    }
-
-    /// @inheritdoc ISablierMerkleFactory
-    function withdrawFees(address payable to, ISablierMerkleBase merkleBase) external override onlyAdmin {
-        // Check: the withdrawal address is not zero.
-        if (to == address(0)) {
-            revert Errors.SablierMerkleFactory_WithdrawToZeroAddress();
-        }
-
-        // Effect: call `withdrawFees` on the MerkleBase contract.
-        uint256 fees = merkleBase.withdrawFees(to);
-
-        // Log the withdrawal.
-        emit WithdrawFees({ admin: msg.sender, merkleBase: merkleBase, to: to, fees: fees });
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierMerkleFactory
+    function collectFees(ISablierMerkleBase merkleBase) external override {
+        // Effect: collect the fees from the MerkleBase contract.
+        uint256 feeAmount = merkleBase.collectFees(admin);
+
+        // Log the fee withdrawal.
+        emit CollectFees({ admin: admin, merkleBase: merkleBase, feeAmount: feeAmount });
+    }
 
     /// @inheritdoc ISablierMerkleFactory
     function createMerkleInstant(
@@ -239,6 +197,38 @@ contract SablierMerkleFactory is
             recipientCount,
             fee
         );
+    }
+
+    /// @inheritdoc ISablierMerkleFactory
+    function resetCustomFee(address campaignCreator) external override onlyAdmin {
+        delete _customFees[campaignCreator];
+
+        // Log the reset.
+        emit ResetCustomFee({ admin: msg.sender, campaignCreator: campaignCreator });
+    }
+
+    /// @inheritdoc ISablierMerkleFactory
+    function setCustomFee(address campaignCreator, uint256 newFee) external override onlyAdmin {
+        MerkleFactory.CustomFee storage customFeeByUser = _customFees[campaignCreator];
+
+        // Check: if the user is not in the custom fee list.
+        if (!customFeeByUser.enabled) {
+            customFeeByUser.enabled = true;
+        }
+
+        // Effect: update the custom fee for the given campaign creator.
+        customFeeByUser.fee = newFee;
+
+        // Log the update.
+        emit SetCustomFee({ admin: msg.sender, campaignCreator: campaignCreator, customFee: newFee });
+    }
+
+    /// @inheritdoc ISablierMerkleFactory
+    function setDefaultFee(uint256 defaultFee_) external override onlyAdmin {
+        // Effect: update the default fee.
+        defaultFee = defaultFee_;
+
+        emit SetDefaultFee(msg.sender, defaultFee_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

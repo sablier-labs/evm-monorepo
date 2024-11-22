@@ -7,7 +7,7 @@ import { Integration_Test } from "./../../../Integration.t.sol";
 
 contract SetDefaultFee_Integration_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
-        uint256 fee = defaults.DEFAULT_FEE();
+        uint256 fee = defaults.FEE();
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));
         merkleFactory.setDefaultFee({ defaultFee: fee });
@@ -18,11 +18,11 @@ contract SetDefaultFee_Integration_Test is Integration_Test {
 
         // It should emit a {SetDefaultFee} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ISablierMerkleFactory.SetDefaultFee({ admin: users.admin, defaultFee: defaults.DEFAULT_FEE() });
+        emit ISablierMerkleFactory.SetDefaultFee({ admin: users.admin, defaultFee: defaults.FEE() });
 
-        merkleFactory.setDefaultFee({ defaultFee: defaults.DEFAULT_FEE() });
+        merkleFactory.setDefaultFee({ defaultFee: defaults.FEE() });
 
         // It should set the default fee.
-        assertEq(merkleFactory.defaultFee(), defaults.DEFAULT_FEE(), "default fee");
+        assertEq(merkleFactory.defaultFee(), defaults.FEE(), "default fee");
     }
 }

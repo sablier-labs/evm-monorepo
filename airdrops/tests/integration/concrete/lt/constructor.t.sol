@@ -52,7 +52,7 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
             defaults.TRANSFERABLE(),
             defaults.STREAM_START_TIME_ZERO(),
             defaults.tranchesWithPercentages(),
-            defaults.DEFAULT_FEE()
+            defaults.FEE()
         );
 
         Vars memory vars;
@@ -98,7 +98,7 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         assertEq(bytes32(abi.encodePacked(vars.actualName)), vars.expectedName, "name");
 
         vars.actualFee = constructedLT.FEE();
-        vars.expectedFee = defaults.DEFAULT_FEE();
+        vars.expectedFee = defaults.FEE();
         assertEq(vars.actualFee, vars.expectedFee, "fee");
 
         vars.actualStreamStartTime = constructedLT.STREAM_START_TIME();
