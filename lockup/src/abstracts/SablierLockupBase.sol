@@ -18,7 +18,7 @@ import { Batch } from "./Batch.sol";
 import { NoDelegateCall } from "./NoDelegateCall.sol";
 
 /// @title SablierLockupBase
-/// @notice See the documentation in {SablierLockupBase}.
+/// @notice See the documentation in {ISablierLockupBase}.
 abstract contract SablierLockupBase is
     Batch, // 1 inherited components
     NoDelegateCall, // 0 inherited components
@@ -271,7 +271,7 @@ abstract contract SablierLockupBase is
     }
 
     /// @inheritdoc ISablierLockupBase
-    function burn(uint256 streamId) external override noDelegateCall notNull(streamId) {
+    function burn(uint256 streamId) external payable override noDelegateCall notNull(streamId) {
         // Check: only depleted streams can be burned.
         if (!_streams[streamId].isDepleted) {
             revert Errors.SablierLockupBase_StreamNotDepleted(streamId);
@@ -292,7 +292,7 @@ abstract contract SablierLockupBase is
     }
 
     /// @inheritdoc ISablierLockupBase
-    function cancel(uint256 streamId) public override noDelegateCall notNull(streamId) {
+    function cancel(uint256 streamId) public payable override noDelegateCall notNull(streamId) {
         // Check: the stream is neither depleted nor canceled.
         if (_streams[streamId].isDepleted) {
             revert Errors.SablierLockupBase_StreamDepleted(streamId);
@@ -310,7 +310,7 @@ abstract contract SablierLockupBase is
     }
 
     /// @inheritdoc ISablierLockupBase
-    function cancelMultiple(uint256[] calldata streamIds) external override noDelegateCall {
+    function cancelMultiple(uint256[] calldata streamIds) external payable override noDelegateCall {
         // Iterate over the provided array of stream IDs and cancel each stream.
         uint256 count = streamIds.length;
         for (uint256 i = 0; i < count; ++i) {
@@ -320,7 +320,23 @@ abstract contract SablierLockupBase is
     }
 
     /// @inheritdoc ISablierLockupBase
-    function renounce(uint256 streamId) public override noDelegateCall notNull(streamId) {
+    function collectFees() external override {
+        uint256 feeAmount = address(this).balance;
+
+        // Effect: transfer the fees to the admin.
+        (bool success,) = admin.call{ value: feeAmount }("");
+
+        // Revert if the call failed.
+        if (!success) {
+            revert Errors.SablierLockupBase_FeeTransferFail(admin, feeAmount);
+        }
+
+        // Log the fee withdrawal.
+        emit ISablierLockupBase.CollectFees({ admin: admin, feeAmount: feeAmount });
+    }
+
+    /// @inheritdoc ISablierLockupBase
+    function renounce(uint256 streamId) public payable override noDelegateCall notNull(streamId) {
         // Check: the stream is not cold.
         Lockup.Status status = _statusOf(streamId);
         if (status == Lockup.Status.DEPLETED) {
@@ -347,7 +363,7 @@ abstract contract SablierLockupBase is
     }
 
     /// @inheritdoc ISablierLockupBase
-    function renounceMultiple(uint256[] calldata streamIds) external override noDelegateCall {
+    function renounceMultiple(uint256[] calldata streamIds) external payable override noDelegateCall {
         // Iterate over the provided array of stream IDs and renounce each stream.
         uint256 count = streamIds.length;
         for (uint256 i = 0; i < count; ++i) {
@@ -374,7 +390,17 @@ abstract contract SablierLockupBase is
     }
 
     /// @inheritdoc ISablierLockupBase
-    function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall notNull(streamId) {
+    function withdraw(
+        uint256 streamId,
+        address to,
+        uint128 amount
+    )
+        public
+        payable
+        override
+        noDelegateCall
+        notNull(streamId)
+    {
         // Check: the stream is not depleted.
         if (_streams[streamId].isDepleted) {
             revert Errors.SablierLockupBase_StreamDepleted(streamId);
@@ -428,7 +454,7 @@ abstract contract SablierLockupBase is
     }
 
     /// @inheritdoc ISablierLockupBase
-    function withdrawMax(uint256 streamId, address to) external override returns (uint128 withdrawnAmount) {
+    function withdrawMax(uint256 streamId, address to) external payable override returns (uint128 withdrawnAmount) {
         withdrawnAmount = _withdrawableAmountOf(streamId);
         withdraw({ streamId: streamId, to: to, amount: withdrawnAmount });
     }
@@ -439,6 +465,7 @@ abstract contract SablierLockupBase is
         address newRecipient
     )
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -468,6 +495,7 @@ abstract contract SablierLockupBase is
         uint128[] calldata amounts
     )
         external
+        payable
         override
         noDelegateCall
     {

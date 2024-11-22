@@ -96,6 +96,7 @@ interface ISablierLockup is ISablierLockupBase {
         LockupDynamic.SegmentWithDuration[] calldata segmentsWithDuration
     )
         external
+        payable
         returns (uint256 streamId);
 
     /// @notice Creates a stream by setting the start time to `block.timestamp`, and the end time to
@@ -118,6 +119,7 @@ interface ISablierLockup is ISablierLockupBase {
         LockupLinear.Durations calldata durations
     )
         external
+        payable
         returns (uint256 streamId);
 
     /// @notice Creates a stream by setting the start time to `block.timestamp`, and the end time to the sum of
@@ -138,6 +140,7 @@ interface ISablierLockup is ISablierLockupBase {
         LockupTranched.TrancheWithDuration[] calldata tranchesWithDuration
     )
         external
+        payable
         returns (uint256 streamId);
 
     /// @notice Creates a stream with the provided segment timestamps, implying the end time from the last timestamp.
@@ -170,6 +173,7 @@ interface ISablierLockup is ISablierLockupBase {
         LockupDynamic.Segment[] calldata segments
     )
         external
+        payable
         returns (uint256 streamId);
 
     /// @notice Creates a stream with the provided start time and end time. The stream is funded by `msg.sender` and is
@@ -206,6 +210,7 @@ interface ISablierLockup is ISablierLockupBase {
         uint40 cliffTime
     )
         external
+        payable
         returns (uint256 streamId);
 
     /// @notice Creates a stream with the provided tranche timestamps, implying the end time from the last timestamp.
@@ -238,5 +243,6 @@ interface ISablierLockup is ISablierLockupBase {
         LockupTranched.Tranche[] calldata tranches
     )
         external
+        payable
         returns (uint256 streamId);
 }

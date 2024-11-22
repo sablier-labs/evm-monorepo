@@ -74,6 +74,7 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
         // Withdraw vars
         uint128 actualWithdrawnAmount;
         uint128 expectedWithdrawnAmount;
+        uint256 initialLockupBalanceETH;
         uint128 withdrawableAmount;
         // Cancel vars
         uint256 actualSenderBalance;
@@ -85,14 +86,14 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
 
     /// @dev Checklist:
     ///
-    /// - It should perform all expected ERC-20 transfers.
-    /// - It should create the stream.
-    /// - It should bump the next stream ID.
-    /// - It should mint the NFT.
-    /// - It should emit a {CreateLockupDynamicStream} event.
-    /// - It may make a withdrawal.
-    /// - It may update the withdrawn amounts.
-    /// - It may emit a {WithdrawFromLockupStream} event.
+    /// - It should perform all expected ERC-20 transfers
+    /// - It should create the stream
+    /// - It should bump the next stream ID
+    /// - It should mint the NFT
+    /// - It should emit a {CreateLockupDynamicStream} event
+    /// - It may make a withdrawal and pay a fee
+    /// - It may update the withdrawn amounts
+    /// - It may emit a {WithdrawFromLockupStream} event
     /// - It may cancel the stream
     /// - It may emit a {CancelLockupStream} event
     ///
@@ -182,18 +183,18 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
         vars.isCancelable = vars.isSettled ? false : true;
 
         // Assert that the stream has been created.
-        assertEq(lockup.getDepositedAmount(vars.streamId), vars.createAmounts.deposit, "depositedAmount");
         assertEq(lockup.getAsset(vars.streamId), FORK_ASSET, "asset");
+        assertEq(lockup.getDepositedAmount(vars.streamId), vars.createAmounts.deposit, "depositedAmount");
         assertEq(lockup.getEndTime(vars.streamId), vars.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(vars.streamId), vars.isCancelable, "isCancelable");
         assertTrue(lockup.isStream(vars.streamId), "isStream");
         assertTrue(lockup.isTransferable(vars.streamId), "isTransferable");
         assertEq(lockup.getRecipient(vars.streamId), params.recipient, "recipient");
+        assertEq(lockup.getSegments(vars.streamId), params.segments, "segments");
         assertEq(lockup.getSender(vars.streamId), params.sender, "sender");
         assertEq(lockup.getStartTime(vars.streamId), params.startTime, "startTime");
         assertFalse(lockup.isDepleted(vars.streamId), "isDepleted");
         assertFalse(lockup.wasCanceled(vars.streamId), "wasCanceled");
-        assertEq(lockup.getSegments(vars.streamId), params.segments, "segments");
 
         // Assert that the stream's status is correct.
         vars.actualStatus = lockup.statusOf(vars.streamId);
@@ -258,6 +259,7 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
         if (params.withdrawAmount > 0) {
             // Load the pre-withdraw asset balances.
             vars.initialLockupBalance = vars.actualLockupBalance;
+            vars.initialLockupBalanceETH = address(lockup).balance;
             vars.initialRecipientBalance = FORK_ASSET.balanceOf(params.recipient);
 
             // Expect the relevant events to be emitted.
@@ -273,7 +275,12 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
 
             // Make the withdrawal.
             resetPrank({ msgSender: params.recipient });
-            lockup.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
+            vm.deal({ account: params.recipient, newBalance: 100 ether });
+            lockup.withdraw{ value: FEE }({
+                streamId: vars.streamId,
+                to: params.recipient,
+                amount: params.withdrawAmount
+            });
 
             // Assert that the stream's status is correct.
             vars.actualStatus = lockup.statusOf(vars.streamId);
@@ -298,7 +305,10 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
 
             // Assert that the contract's balance has been updated.
             vars.expectedLockupBalance = vars.initialLockupBalance - uint256(params.withdrawAmount);
-            assertEq(vars.actualLockupBalance, vars.expectedLockupBalance, "post-withdraw lockup contract balance");
+            assertEq(vars.actualLockupBalance, vars.expectedLockupBalance, "post-withdraw Lockup contract balance");
+
+            // Assert that the contract's ETH balance has been updated.
+            assertEq(address(lockup).balance, vars.initialLockupBalanceETH + FEE, "post-withdraw Lockup balance ETH");
 
             // Assert that the Recipient's balance has been updated.
             vars.expectedRecipientBalance = vars.initialRecipientBalance + uint256(params.withdrawAmount);

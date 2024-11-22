@@ -36,12 +36,6 @@ contract LockupHandler is BaseHandler {
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier useAdmin() {
-        address admin = lockup.admin();
-        resetPrank(admin);
-        _;
-    }
-
     /// @dev Picks a random stream from the store.
     /// @param streamIndexSeed A fuzzed value needed for picking the random stream.
     modifier useFuzzedStream(uint256 streamIndexSeed) {
@@ -53,14 +47,13 @@ contract LockupHandler is BaseHandler {
     }
 
     modifier useFuzzedStreamRecipient() {
-        uint256 lastStreamId = lockupStore.lastStreamId();
         currentRecipient = lockupStore.recipients(currentStreamId);
         resetPrank(currentRecipient);
+        vm.deal({ account: currentRecipient, newBalance: 100 ether });
         _;
     }
 
     modifier useFuzzedStreamSender() {
-        uint256 lastStreamId = lockupStore.lastStreamId();
         currentSender = lockupStore.senders(currentStreamId);
         resetPrank(currentSender);
         _;
@@ -137,7 +130,8 @@ contract LockupHandler is BaseHandler {
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         address to,
-        uint128 withdrawAmount
+        uint128 withdrawAmount,
+        bool payFee
     )
         external
         instrument("withdraw")
@@ -167,13 +161,18 @@ contract LockupHandler is BaseHandler {
         }
 
         // Withdraw from the stream.
-        lockup.withdraw({ streamId: currentStreamId, to: to, amount: withdrawAmount });
+        lockup.withdraw{ value: payFee ? FEE : 0 }({ streamId: currentStreamId, to: to, amount: withdrawAmount });
+    }
+
+    function collectFees() external instrument("collectFees") {
+        lockup.collectFees();
     }
 
     function withdrawMax(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        address to
+        address to,
+        bool payFee
     )
         external
         instrument("withdrawMax")
@@ -199,13 +198,14 @@ contract LockupHandler is BaseHandler {
         }
 
         // Make the max withdrawal.
-        lockup.withdrawMax({ streamId: currentStreamId, to: to });
+        lockup.withdrawMax{ value: payFee ? FEE : 0 }({ streamId: currentStreamId, to: to });
     }
 
     function withdrawMaxAndTransfer(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        address newRecipient
+        address newRecipient,
+        bool payFee
     )
         external
         instrument("withdrawMaxAndTransfer")
@@ -230,7 +230,10 @@ contract LockupHandler is BaseHandler {
         vm.assume(lockup.withdrawableAmountOf(currentStreamId) != 0);
 
         // Make the max withdrawal and transfer the NFT.
-        lockup.withdrawMaxAndTransfer({ streamId: currentStreamId, newRecipient: newRecipient });
+        lockup.withdrawMaxAndTransfer{ value: payFee ? FEE : 0 }({
+            streamId: currentStreamId,
+            newRecipient: newRecipient
+        });
 
         // Update the recipient associated with this stream ID.
         lockupStore.updateRecipient(currentStreamId, newRecipient);

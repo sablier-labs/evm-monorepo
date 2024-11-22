@@ -16,6 +16,7 @@ import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { RecipientGood } from "./mocks/Hooks.sol";
 import { NFTDescriptorMock } from "./mocks/NFTDescriptorMock.sol";
 import { Noop } from "./mocks/Noop.sol";
+import { ContractWithoutReceive, ContractWithReceive } from "./mocks/Receive.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Calculations } from "./utils/Calculations.sol";
 import { Defaults } from "./utils/Defaults.sol";
@@ -36,6 +37,8 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     //////////////////////////////////////////////////////////////////////////*/
 
     ISablierBatchLockup internal batchLockup;
+    ContractWithoutReceive internal contractWithoutReceive;
+    ContractWithReceive internal contractWithReceive;
     ERC20Mock internal dai;
     Defaults internal defaults;
     ISablierLockup internal lockup;
@@ -51,12 +54,16 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
 
     function setUp() public virtual {
         // Deploy the base test contracts.
+        contractWithoutReceive = new ContractWithoutReceive();
+        contractWithReceive = new ContractWithReceive();
         dai = new ERC20Mock("Dai Stablecoin", "DAI");
         noop = new Noop();
         recipientGood = new RecipientGood();
         usdt = new ERC20MissingReturn("Tether USD", "USDT", 6);
 
         // Label the base test contracts.
+        vm.label({ account: address(contractWithoutReceive), newLabel: "Contract without Receive" });
+        vm.label({ account: address(contractWithReceive), newLabel: "Contract with Receive" });
         vm.label({ account: address(dai), newLabel: "DAI" });
         vm.label({ account: address(recipientGood), newLabel: "Good Recipient" });
         vm.label({ account: address(noop), newLabel: "Noop" });
@@ -64,6 +71,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
 
         // Create the protocol admin.
         users.admin = payable(makeAddr({ name: "Admin" }));
+        vm.deal({ account: users.admin, newBalance: 100 ether });
         vm.startPrank({ msgSender: users.admin });
 
         // Deploy the defaults contract.
@@ -76,7 +84,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         // Deploy the NFT descriptor mock.
         nftDescriptorMock = new NFTDescriptorMock();
 
-        // Create users for testing.
+        // Create users for testing. Note that due to ERC-20 approvals, this has to go after the protocol deployment.
         users.alice = createUser("Alice");
         users.broker = createUser("Broker");
         users.eve = createUser("Eve");
@@ -86,7 +94,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
 
         defaults.setUsers(users);
 
-        // Set the variables in Modifiers contract.
+        // Set the variables in the Modifiers contract.
         setVariables(defaults, users);
 
         // Approve `users.operator` to operate over lockup on behalf of the `users.recipient`.

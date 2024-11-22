@@ -119,6 +119,9 @@ library Errors {
     /// @notice Thrown when trying to allow to hook an address with no code.
     error SablierLockupBase_AllowToHookZeroCodeSize(address recipient);
 
+    /// @notice Thrown when the fee transfer fails.
+    error SablierLockupBase_FeeTransferFail(address admin, uint256 feeAmount);
+
     /// @notice Thrown when the hook does not return the correct selector.
     error SablierLockupBase_InvalidHookSelector(address recipient);
 

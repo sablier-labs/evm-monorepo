@@ -49,11 +49,11 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    COMMON-INVARIANTS
+                                       COMMON
     //////////////////////////////////////////////////////////////////////////*/
 
     // solhint-disable max-line-length
-    function invariant_ContractBalance() external view {
+    function invariant_ContractTokenBalance() external view {
         uint256 contractBalance = dai.balanceOf(address(lockup));
 
         uint256 lastStreamId = lockupStore.lastStreamId();
@@ -351,7 +351,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                INVARIANTS-DYNAMIC-MODEL
+                                   LOCKUP DYNAMIC
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Unordered segment timestamps are not allowed.
@@ -373,7 +373,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                INVARIANTS-LINEAR-MODEL
+                                   LOCKUP LINEAR
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev If it is not zero, the cliff time must be strictly greater than the start time.
@@ -409,7 +409,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                INVARIANTS-TRANCHED-MODEL
+                                  LOCKUP TRANCHED
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Unordered tranche timestamps are not allowed.

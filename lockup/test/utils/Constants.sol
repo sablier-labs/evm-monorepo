@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 abstract contract Constants {
+    uint256 internal constant FEE = 0.001e18;
     uint40 internal constant JULY_1_2024 = 1_719_792_000;
     UD60x18 internal constant MAX_BROKER_FEE = UD60x18.wrap(0.1e18); // 10%
     uint128 internal constant MAX_UINT128 = type(uint128).max;
