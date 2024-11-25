@@ -55,6 +55,7 @@ it must adhere to the following assumptions:
 - A trust relationship is formed between the sender, recipient, and depositors participating in a stream. The recipient
   depends on the sender to fulfill their obligation to repay any debts incurred by the Flow stream. Likewise, depositors
   trust that the sender will not abuse the refund function to reclaim tokens.
+- The token contract must implement `decimals()` with an immutable return value.
 - The `depletionTimeOf` function depends on the stream's rate per second. Therefore, any change in the rate per second
   will result in a new depletion time.
 - As explained in the [Technical Documentation](https://github.com/sablier-labs/flow/blob/main/TECHNICAL-DOC.md), there
