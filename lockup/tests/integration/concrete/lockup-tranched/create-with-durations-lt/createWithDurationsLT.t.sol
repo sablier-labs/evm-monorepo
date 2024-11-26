@@ -159,7 +159,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
 
         // Assert that the stream has been created.
         assertEq(lockup.getDepositedAmount(streamId), defaults.DEPOSIT_AMOUNT(), "depositedAmount");
-        assertEq(lockup.getAsset(streamId), dai, "asset");
+        assertEq(lockup.getToken(streamId), dai, "token");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), true, "isCancelable");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");

@@ -20,5 +20,5 @@ CreateWithTimestamps_Integration_Concrete_Test
                   ├── when start time zero
                   │  └── it should revert
                   └── when start time not zero
-                     └── when asset not contract
+                     └── when token not contract
                         └── it should revert

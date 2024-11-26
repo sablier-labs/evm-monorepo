@@ -76,7 +76,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
 
         // Deploy the defaults contract.
         defaults = new Defaults();
-        defaults.setAsset(dai);
+        defaults.setToken(dai);
 
         // Deploy the protocol.
         deployProtocolConditionally();
@@ -112,14 +112,14 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Approve `spender` to spend assets from `from`.
-    function approveContract(IERC20 asset_, address from, address spender) internal {
+    /// @dev Approve `spender` to spend tokens from `from`.
+    function approveContract(IERC20 token_, address from, address spender) internal {
         resetPrank({ msgSender: from });
-        (bool success,) = address(asset_).call(abi.encodeCall(IERC20.approve, (spender, MAX_UINT256)));
+        (bool success,) = address(token_).call(abi.encodeCall(IERC20.approve, (spender, MAX_UINT256)));
         success;
     }
 
-    /// @dev Approves all contracts to spend assets from the address passed.
+    /// @dev Approves all contracts to spend tokens from the address passed.
     function approveProtocol(address from) internal {
         resetPrank({ msgSender: from });
         dai.approve({ spender: address(batchLockup), value: MAX_UINT256 });
@@ -128,7 +128,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         usdt.approve({ spender: address(lockup), value: MAX_UINT256 });
     }
 
-    /// @dev Generates a user, labels its address, funds it with test assets, and approves the protocol contracts.
+    /// @dev Generates a user, labels its address, funds it with test tokens, and approves the protocol contracts.
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
@@ -166,8 +166,8 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     }
 
     /// @dev Expects a call to {IERC20.transfer}.
-    function expectCallToTransfer(IERC20 asset, address to, uint256 value) internal {
-        vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transfer, (to, value)) });
+    function expectCallToTransfer(IERC20 token, address to, uint256 value) internal {
+        vm.expectCall({ callee: address(token), data: abi.encodeCall(IERC20.transfer, (to, value)) });
     }
 
     /// @dev Expects a call to {IERC20.transferFrom}.
@@ -176,8 +176,8 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     }
 
     /// @dev Expects a call to {IERC20.transferFrom}.
-    function expectCallToTransferFrom(IERC20 asset, address from, address to, uint256 value) internal {
-        vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transferFrom, (from, to, value)) });
+    function expectCallToTransferFrom(IERC20 token, address from, address to, uint256 value) internal {
+        vm.expectCall({ callee: address(token), data: abi.encodeCall(IERC20.transferFrom, (from, to, value)) });
     }
 
     /// @dev Expects multiple calls to {IERC20.transfer}.
@@ -192,7 +192,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
 
     /// @dev Expects multiple calls to {IERC20.transferFrom}.
     function expectMultipleCallsToTransferFrom(
-        IERC20 asset,
+        IERC20 token,
         uint64 count,
         address from,
         address to,
@@ -201,7 +201,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         internal
     {
         vm.expectCall({
-            callee: address(asset),
+            callee: address(token),
             count: count,
             data: abi.encodeCall(IERC20.transferFrom, (from, to, value))
         });

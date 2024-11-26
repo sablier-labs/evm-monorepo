@@ -33,8 +33,8 @@ contract GenerateSVG is BaseScript, LockupNFTDescriptor {
             NFTSVG.SVGParams({
                 accentColor: generateAccentColor({ sablier: LOCKUP, streamId: uint256(keccak256(msg.data)) }),
                 amount: string.concat(SVGElements.SIGN_GE, " ", amount),
-                assetAddress: DAI.toHexString(),
-                assetSymbol: "DAI",
+                tokenAddress: DAI.toHexString(),
+                tokenSymbol: "DAI",
                 duration: calculateDurationInDays({ startTime: 0, endTime: duration * 1 days }),
                 progress: stringifyPercentage(progress),
                 progressNumerical: progress,

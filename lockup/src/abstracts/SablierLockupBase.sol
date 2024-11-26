@@ -41,7 +41,7 @@ abstract contract SablierLockupBase is
     /// @inheritdoc ISablierLockupBase
     ILockupNFTDescriptor public override nftDescriptor;
 
-    /// @dev Mapping of contracts allowed to hook to Sablier when a stream is canceled or when assets are withdrawn.
+    /// @dev Mapping of contracts allowed to hook to Sablier when a stream is canceled or when tokens are withdrawn.
     mapping(address recipient => bool allowed) internal _allowedToHook;
 
     /// @dev Lockup streams mapped by unsigned integers.
@@ -74,8 +74,8 @@ abstract contract SablierLockupBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierLockupBase
-    function getAsset(uint256 streamId) external view override notNull(streamId) returns (IERC20 asset) {
-        asset = _streams[streamId].asset;
+    function getToken(uint256 streamId) external view override notNull(streamId) returns (IERC20 token) {
+        token = _streams[streamId].token;
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -610,7 +610,7 @@ abstract contract SablierLockupBase is
         // Effect: make the stream not cancelable anymore, because a stream can only be canceled once.
         _streams[streamId].isCancelable = false;
 
-        // Effect: if there are no assets left for the recipient to withdraw, mark the stream as depleted.
+        // Effect: if there are no tokens left for the recipient to withdraw, mark the stream as depleted.
         if (recipientAmount == 0) {
             _streams[streamId].isDepleted = true;
         }
@@ -622,14 +622,14 @@ abstract contract SablierLockupBase is
         address sender = _streams[streamId].sender;
         address recipient = _ownerOf(streamId);
 
-        // Retrieve the ERC-20 asset from storage.
-        IERC20 asset = _streams[streamId].asset;
+        // Retrieve the ERC-20 token from storage.
+        IERC20 token = _streams[streamId].token;
 
         // Interaction: refund the sender.
-        asset.safeTransfer({ to: sender, value: senderAmount });
+        token.safeTransfer({ to: sender, value: senderAmount });
 
         // Log the cancellation.
-        emit ISablierLockupBase.CancelLockupStream(streamId, sender, recipient, asset, senderAmount, recipientAmount);
+        emit ISablierLockupBase.CancelLockupStream(streamId, sender, recipient, token, senderAmount, recipientAmount);
 
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
         emit MetadataUpdate({ _tokenId: streamId });
@@ -702,13 +702,13 @@ abstract contract SablierLockupBase is
             _streams[streamId].isCancelable = false;
         }
 
-        // Retrieve the ERC-20 asset from storage.
-        IERC20 asset = _streams[streamId].asset;
+        // Retrieve the ERC-20 token from storage.
+        IERC20 token = _streams[streamId].token;
 
         // Interaction: perform the ERC-20 transfer.
-        asset.safeTransfer({ to: to, value: amount });
+        token.safeTransfer({ to: to, value: amount });
 
         // Log the withdrawal.
-        emit ISablierLockupBase.WithdrawFromLockupStream(streamId, to, asset, amount);
+        emit ISablierLockupBase.WithdrawFromLockupStream(streamId, to, token, amount);
     }
 }

@@ -16,8 +16,8 @@ contract GenerateSVG_Unit_Concrete_Test is Base_Test {
             NFTSVG.SVGParams({
                 accentColor: "hsl(155,18%,30%)",
                 amount: "100",
-                assetAddress: "0x03a6a84cd762d9707a21605b548aaab891562aab",
-                assetSymbol: "DAI",
+                tokenAddress: "0x03a6a84cd762d9707a21605b548aaab891562aab",
+                tokenSymbol: "DAI",
                 duration: "5 Days",
                 progress: "0%",
                 progressNumerical: 0,
@@ -36,8 +36,8 @@ contract GenerateSVG_Unit_Concrete_Test is Base_Test {
             NFTSVG.SVGParams({
                 accentColor: "hsl(114,3%,53%)",
                 amount: string.concat(SVGElements.SIGN_GE, " 1.23M"),
-                assetAddress: "0x03a6a84cd762d9707a21605b548aaab891562aab",
-                assetSymbol: "DAI",
+                tokenAddress: "0x03a6a84cd762d9707a21605b548aaab891562aab",
+                tokenSymbol: "DAI",
                 duration: "91 Days",
                 progress: "42.35%",
                 progressNumerical: 4235,
@@ -56,8 +56,8 @@ contract GenerateSVG_Unit_Concrete_Test is Base_Test {
             NFTSVG.SVGParams({
                 accentColor: "hsl(123,25%,44%)",
                 amount: "100",
-                assetAddress: "0x03a6a84cd762d9707a21605b548aaab891562aab",
-                assetSymbol: "DAI",
+                tokenAddress: "0x03a6a84cd762d9707a21605b548aaab891562aab",
+                tokenSymbol: "DAI",
                 duration: "5 Days",
                 progress: "100%",
                 progressNumerical: 100,

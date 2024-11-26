@@ -19,7 +19,7 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 /// @dev Namespace for the structs used in `BatchLockup` contract.
 library BatchLockup {
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLD} except for the asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLD} except for the token.
     struct CreateWithDurationsLD {
         address sender;
         address recipient;
@@ -31,7 +31,7 @@ library BatchLockup {
         string shape;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLL} except for the asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLL} except for the token.
     struct CreateWithDurationsLL {
         address sender;
         address recipient;
@@ -44,7 +44,7 @@ library BatchLockup {
         string shape;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLT} except for the asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLT} except for the token.
     struct CreateWithDurationsLT {
         address sender;
         address recipient;
@@ -56,7 +56,7 @@ library BatchLockup {
         string shape;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLD} except for the asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLD} except for the token.
     struct CreateWithTimestampsLD {
         address sender;
         address recipient;
@@ -69,7 +69,7 @@ library BatchLockup {
         string shape;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLL} except for the asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLL} except for the token.
     struct CreateWithTimestampsLL {
         address sender;
         address recipient;
@@ -83,7 +83,7 @@ library BatchLockup {
         string shape;
     }
 
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLT} except for the asset.
+    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLT} except for the token.
     struct CreateWithTimestampsLT {
         address sender;
         address recipient;
@@ -107,7 +107,7 @@ struct Broker {
 
 /// @notice Namespace for the structs used in all Lockup models.
 library Lockup {
-    /// @notice Struct encapsulating the deposit, withdrawn, and refunded amounts, all denoted in units of the asset's
+    /// @notice Struct encapsulating the deposit, withdrawn, and refunded amounts, all denoted in units of the token's
     /// decimals.
     /// @dev Because the deposited and the withdrawn amount are often read together, declaring them in the same slot
     /// saves gas.
@@ -123,7 +123,7 @@ library Lockup {
     }
 
     /// @notice Struct encapsulating (i) the deposit amount and (ii) the broker fee amount, both denoted in units of the
-    /// asset's decimals.
+    /// token's decimals.
     /// @param deposit The amount to deposit in the stream.
     /// @param brokerFee The broker fee amount.
     struct CreateAmounts {
@@ -133,11 +133,11 @@ library Lockup {
 
     /// @notice Struct encapsulating the common parameters emitted in the `Create` event.
     /// @param funder The address which has funded the stream.
-    /// @param sender The address distributing the assets, which is able to cancel the stream.
-    /// @param recipient The address receiving the assets, as well as the NFT owner.
+    /// @param sender The address distributing the tokens, which is able to cancel the stream.
+    /// @param recipient The address receiving the tokens, as well as the NFT owner.
     /// @param amounts Struct encapsulating (i) the deposit amount, and (ii) the broker fee amount, both denoted
-    /// in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// in units of the token's decimals.
+    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param cancelable Boolean indicating whether the stream is cancelable or not.
     /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
     /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, all as Unix timestamps.
@@ -149,7 +149,7 @@ library Lockup {
         address sender;
         address recipient;
         Lockup.CreateAmounts amounts;
-        IERC20 asset;
+        IERC20 token;
         bool cancelable;
         bool transferable;
         Lockup.Timestamps timestamps;
@@ -158,12 +158,12 @@ library Lockup {
     }
 
     /// @notice Struct encapsulating the parameters of the `createWithDurations` functions.
-    /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
+    /// @param sender The address distributing the tokens, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
-    /// @param recipient The address receiving the assets, as well as the NFT owner.
-    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the asset's
+    /// @param recipient The address receiving the tokens, as well as the NFT owner.
+    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the token's
     /// decimals.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
@@ -174,7 +174,7 @@ library Lockup {
         address sender;
         address recipient;
         uint128 totalAmount;
-        IERC20 asset;
+        IERC20 token;
         bool cancelable;
         bool transferable;
         Broker broker;
@@ -182,12 +182,12 @@ library Lockup {
     }
 
     /// @notice Struct encapsulating the parameters of the `createWithTimestamps` functions.
-    /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
+    /// @param sender The address distributing the tokens, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
-    /// @param recipient The address receiving the assets, as well as the NFT owner.
-    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the asset's
+    /// @param recipient The address receiving the tokens, as well as the NFT owner.
+    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the token's
     /// decimals.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, both as Unix timestamps.
@@ -199,7 +199,7 @@ library Lockup {
         address sender;
         address recipient;
         uint128 totalAmount;
-        IERC20 asset;
+        IERC20 token;
         bool cancelable;
         bool transferable;
         Timestamps timestamps;
@@ -208,7 +208,7 @@ library Lockup {
     }
 
     /// @notice Enum representing the different distribution models used to create lockup streams.
-    /// @dev These distribution models determine the vesting function used in the calculations of the unlocked assets.
+    /// @dev These distribution models determine the vesting function used in the calculations of the unlocked tokens.
     enum Model {
         LOCKUP_LINEAR,
         LOCKUP_DYNAMIC,
@@ -219,11 +219,11 @@ library Lockup {
     /// @dev The status can have a "temperature":
     /// 1. Warm: Pending, Streaming. The passage of time alone can change the status.
     /// 2. Cold: Settled, Canceled, Depleted. The passage of time alone cannot change the status.
-    /// @custom:value0 PENDING Stream created but not started; assets are in a pending state.
-    /// @custom:value1 STREAMING Active stream where assets are currently being streamed.
-    /// @custom:value2 SETTLED All assets have been streamed; recipient is due to withdraw them.
-    /// @custom:value3 CANCELED Canceled stream; remaining assets await recipient's withdrawal.
-    /// @custom:value4 DEPLETED Depleted stream; all assets have been withdrawn and/or refunded.
+    /// @custom:value0 PENDING Stream created but not started; tokens are in a pending state.
+    /// @custom:value1 STREAMING Active stream where tokens are currently being streamed.
+    /// @custom:value2 SETTLED All tokens have been streamed; recipient is due to withdraw them.
+    /// @custom:value3 CANCELED Canceled stream; remaining tokens await recipient's withdrawal.
+    /// @custom:value4 DEPLETED Depleted stream; all tokens have been withdrawn and/or refunded.
     enum Status {
         // Warm
         PENDING,
@@ -236,18 +236,18 @@ library Lockup {
 
     /// @notice A common data structure to be stored in all Lockup models.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
-    /// @param sender The address distributing the assets, with the ability to cancel the stream.
+    /// @param sender The address distributing the tokens, with the ability to cancel the stream.
     /// @param startTime The Unix timestamp indicating the stream's start.
     /// @param endTime The Unix timestamp indicating the stream's end.
     /// @param isCancelable Boolean indicating if the stream is cancelable.
     /// @param wasCanceled Boolean indicating if the stream was canceled.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param isDepleted Boolean indicating if the stream is depleted.
     /// @param isStream Boolean indicating if the struct entity exists.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
     /// @param lockupModel The distribution model of the stream.
     /// @param amounts Struct encapsulating the deposit, withdrawn, and refunded amounts, both denoted in units of the
-    /// asset's decimals.
+    /// token's decimals.
     struct Stream {
         // slot 0
         address sender;
@@ -256,7 +256,7 @@ library Lockup {
         bool isCancelable;
         bool wasCanceled;
         // slot 1
-        IERC20 asset;
+        IERC20 token;
         bool isDepleted;
         bool isStream;
         bool isTransferable;
@@ -277,7 +277,7 @@ library Lockup {
 /// @notice Namespace for the structs used only in Lockup Dynamic model.
 library LockupDynamic {
     /// @notice Segment struct to be stored in the Lockup Dynamic model.
-    /// @param amount The amount of assets streamed in the segment, denoted in units of the asset's decimals.
+    /// @param amount The amount of tokens streamed in the segment, denoted in units of the token's decimals.
     /// @param exponent The exponent of the segment, denoted as a fixed-point number.
     /// @param timestamp The Unix timestamp indicating the segment's end.
     struct Segment {
@@ -288,7 +288,7 @@ library LockupDynamic {
     }
 
     /// @notice Segment struct used at runtime in {SablierLockup.createWithDurationsLD} function.
-    /// @param amount The amount of assets streamed in the segment, denoted in units of the asset's decimals.
+    /// @param amount The amount of tokens streamed in the segment, denoted in units of the token's decimals.
     /// @param exponent The exponent of the segment, denoted as a fixed-point number.
     /// @param duration The time difference in seconds between the segment and the previous one.
     struct SegmentWithDuration {
@@ -323,7 +323,7 @@ library LockupLinear {
 /// @notice Namespace for the structs used only in Lockup Tranched model.
 library LockupTranched {
     /// @notice Tranche struct to be stored in the Lockup Tranched model.
-    /// @param amount The amount of assets to be unlocked in the tranche, denoted in units of the asset's decimals.
+    /// @param amount The amount of tokens to be unlocked in the tranche, denoted in units of the token's decimals.
     /// @param timestamp The Unix timestamp indicating the tranche's end.
     struct Tranche {
         // slot 0
@@ -332,7 +332,7 @@ library LockupTranched {
     }
 
     /// @notice Tranche struct used at runtime in {SablierLockup.createWithDurationsLT} function.
-    /// @param amount The amount of assets to be unlocked in the tranche, denoted in units of the asset's decimals.
+    /// @param amount The amount of tokens to be unlocked in the tranche, denoted in units of the token's decimals.
     /// @param duration The time difference in seconds between the tranche and the previous one.
     struct TrancheWithDuration {
         uint128 amount;

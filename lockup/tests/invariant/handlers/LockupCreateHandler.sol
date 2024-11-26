@@ -22,7 +22,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierLockup lockup_) BaseHandler(asset_, lockup_) {
+    constructor(IERC20 token_, LockupStore lockupStore_, ISablierLockup lockup_) BaseHandler(token_, lockup_) {
         lockupStore = lockupStore_;
     }
 
@@ -57,14 +57,14 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         (params.totalAmount,) =
             fuzzDynamicStreamAmounts({ upperBound: 1_000_000_000e18, segments: segments, brokerFee: params.broker.fee });
 
-        // Mint enough assets to the Sender.
-        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
+        // Mint enough tokens to the Sender.
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve {SablierLockup} to spend the assets.
-        asset.approve({ spender: address(lockup), value: params.totalAmount });
+        // Approve {SablierLockup} to spend the tokens.
+        token.approve({ spender: address(lockup), value: params.totalAmount });
 
         // Create the stream.
-        params.asset = asset;
+        params.token = token;
         params.shape = "Dynamic Stream";
         uint256 streamId = lockup.createWithDurationsLD(params, segments);
 
@@ -89,14 +89,14 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         (params, unlockAmounts, durations) = _boundCreateWithDurationsLLParams(params, unlockAmounts, durations);
 
-        // Mint enough assets to the Sender.
-        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
+        // Mint enough tokens to the Sender.
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve {SablierLockup} to spend the assets.
-        asset.approve({ spender: address(lockup), value: params.totalAmount });
+        // Approve {SablierLockup} to spend the tokens.
+        token.approve({ spender: address(lockup), value: params.totalAmount });
 
         // Create the stream.
-        params.asset = asset;
+        params.token = token;
         params.shape = "Linear Stream";
         uint256 streamId = lockup.createWithDurationsLL(params, unlockAmounts, durations);
 
@@ -134,14 +134,14 @@ contract LockupCreateHandler is BaseHandler, Calculations {
             brokerFee: params.broker.fee
         });
 
-        // Mint enough assets to the Sender.
-        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
+        // Mint enough tokens to the Sender.
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve {SablierLockup} to spend the assets.
-        asset.approve({ spender: address(lockup), value: params.totalAmount });
+        // Approve {SablierLockup} to spend the tokens.
+        token.approve({ spender: address(lockup), value: params.totalAmount });
 
         // Create the stream.
-        params.asset = asset;
+        params.token = token;
         params.shape = "Tranched Stream";
         uint256 streamId = lockup.createWithDurationsLT(params, tranches);
 
@@ -176,14 +176,14 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         (params.totalAmount,) =
             fuzzDynamicStreamAmounts({ upperBound: 1_000_000_000e18, segments: segments, brokerFee: params.broker.fee });
 
-        // Mint enough assets to the Sender.
-        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
+        // Mint enough tokens to the Sender.
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve {SablierLockup} to spend the assets.
-        asset.approve({ spender: address(lockup), value: params.totalAmount });
+        // Approve {SablierLockup} to spend the tokens.
+        token.approve({ spender: address(lockup), value: params.totalAmount });
 
         // Create the stream.
-        params.asset = asset;
+        params.token = token;
         params.shape = "Dynamic Stream";
         params.timestamps.end = segments[segments.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
@@ -209,14 +209,14 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         (params, unlockAmounts, cliffTime) = _boundCreateWithTimestampsLLParams(params, unlockAmounts, cliffTime);
 
-        // Mint enough assets to the Sender.
-        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
+        // Mint enough tokens to the Sender.
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve {SablierLockup} to spend the assets.
-        asset.approve({ spender: address(lockup), value: params.totalAmount });
+        // Approve {SablierLockup} to spend the tokens.
+        token.approve({ spender: address(lockup), value: params.totalAmount });
 
         // Create the stream.
-        params.asset = asset;
+        params.token = token;
         params.shape = "Linear Stream";
         uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime);
 
@@ -254,14 +254,14 @@ contract LockupCreateHandler is BaseHandler, Calculations {
             brokerFee: params.broker.fee
         });
 
-        // Mint enough assets to the Sender.
-        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
+        // Mint enough tokens to the Sender.
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve {SablierLockup} to spend the assets.
-        asset.approve({ spender: address(lockup), value: params.totalAmount });
+        // Approve {SablierLockup} to spend the tokens.
+        token.approve({ spender: address(lockup), value: params.totalAmount });
 
         // Create the stream.
-        params.asset = asset;
+        params.token = token;
         params.shape = "Tranched Stream";
         params.timestamps.end = tranches[tranches.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);

@@ -37,7 +37,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
     {
         LockupDynamic.Segment[] memory segments;
         vm.expectRevert(Errors.SablierHelpers_SegmentCountZero.selector);
@@ -53,7 +53,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenSegmentCountNotZero
     {
         uint256 segmentCount = defaults.MAX_COUNT() + 1;
@@ -72,7 +72,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenSegmentCountNotZero
         whenSegmentCountNotExceedMaxValue
     {
@@ -92,7 +92,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenSegmentCountNotZero
         whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
@@ -121,7 +121,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenSegmentCountNotZero
         whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
@@ -150,7 +150,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenSegmentCountNotZero
         whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
@@ -209,7 +209,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStream();
     }
 
-    function test_WhenAssetMissesERC20ReturnValue()
+    function test_WhenTokenMissesERC20ReturnValue()
         external
         whenNoDelegateCall
         whenShapeNameNotExceed32Bytes
@@ -218,7 +218,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenSegmentCountNotZero
         whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
@@ -229,7 +229,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         _testCreateWithTimestampsLD(address(usdt));
     }
 
-    function test_WhenAssetNotMissERC20ReturnValue()
+    function test_WhenTokenNotMissERC20ReturnValue()
         external
         whenNoDelegateCall
         whenShapeNameNotExceed32Bytes
@@ -244,12 +244,12 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenTimestampsStrictlyIncreasing
         whenDepositAmountNotEqualSegmentAmountsSum
         whenBrokerFeeNotExceedMaxValue
-        whenAssetContract
+        whenTokenContract
     {
         _testCreateWithTimestampsLD(address(dai));
     }
 
-    function _testCreateWithTimestampsLD(address asset) private {
+    function _testCreateWithTimestampsLD(address token) private {
         // Make the Sender the stream's funder.
         address funder = users.sender;
 
@@ -257,7 +257,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
 
         // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({
-            asset: IERC20(asset),
+            token: IERC20(token),
             from: funder,
             to: address(lockup),
             value: defaults.DEPOSIT_AMOUNT()
@@ -265,7 +265,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
 
         // Expect the broker fee to be paid to the broker.
         expectCallToTransferFrom({
-            asset: IERC20(asset),
+            token: IERC20(token),
             from: funder,
             to: users.broker,
             value: defaults.BROKER_FEE_AMOUNT()
@@ -277,17 +277,17 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupDynamicStream({
             streamId: expectedStreamId,
-            commonParams: defaults.lockupCreateEvent(IERC20(asset)),
+            commonParams: defaults.lockupCreateEvent(IERC20(token)),
             segments: defaults.segments()
         });
 
         // Create the stream.
-        _defaultParams.createWithTimestamps.asset = IERC20(asset);
+        _defaultParams.createWithTimestamps.token = IERC20(token);
         uint256 streamId = createDefaultStream();
 
         // It should create the stream.
         assertEqStream(streamId);
-        assertEq(lockup.getAsset(streamId), IERC20(asset), "asset");
+        assertEq(lockup.getToken(streamId), IERC20(token), "token");
         assertEq(lockup.getSegments(streamId), defaults.segments());
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_DYNAMIC);
     }

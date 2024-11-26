@@ -11,7 +11,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         // Warp to the stream's end.
         vm.warp({ newTimestamp: defaults.END_TIME() + 1 seconds });
 
-        // Expect the ERC-20 assets to be transferred to the Recipient.
+        // Expect the ERC-20 tokens to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: defaults.DEPOSIT_AMOUNT() });
 
         // It should emit a {WithdrawFromLockupStream} event.
@@ -20,7 +20,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
             streamId: defaultStreamId,
             to: users.recipient,
             amount: defaults.DEPOSIT_AMOUNT(),
-            asset: dai
+            token: dai
         });
 
         // Make the max withdrawal.
@@ -57,7 +57,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         // Get the withdraw amount.
         uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
-        // Expect the assets to be transferred to the Recipient.
+        // Expect the tokens to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: expectedWithdrawnAmount });
 
         // It should emit a {WithdrawFromLockupStream} event.
@@ -66,7 +66,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
             streamId: defaultStreamId,
             to: users.recipient,
             amount: expectedWithdrawnAmount,
-            asset: dai
+            token: dai
         });
 
         // Make the max withdrawal.

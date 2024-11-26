@@ -32,16 +32,16 @@ interface ISablierLockupBase is
     /// @param streamId The ID of the stream.
     /// @param sender The address of the stream's sender.
     /// @param recipient The address of the stream's recipient.
-    /// @param asset The contract address of the ERC-20 asset that has been distributed.
-    /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in units of the asset's
+    /// @param token The contract address of the ERC-20 token that has been distributed.
+    /// @param senderAmount The amount of tokens refunded to the stream's sender, denoted in units of the token's
     /// decimals.
-    /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of the
-    /// asset's decimals.
+    /// @param recipientAmount The amount of tokens left for the stream's recipient to withdraw, denoted in units of the
+    /// token's decimals.
     event CancelLockupStream(
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
-        IERC20 indexed asset,
+        IERC20 indexed token,
         uint128 senderAmount,
         uint128 recipientAmount
     );
@@ -63,12 +63,12 @@ interface ISablierLockupBase is
         address indexed admin, ILockupNFTDescriptor oldNFTDescriptor, ILockupNFTDescriptor newNFTDescriptor
     );
 
-    /// @notice Emitted when assets are withdrawn from a stream.
+    /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The ID of the stream.
-    /// @param to The address that has received the withdrawn assets.
-    /// @param asset The contract address of the ERC-20 asset that has been withdrawn.
-    /// @param amount The amount of assets withdrawn, denoted in units of the asset's decimals.
-    event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 amount);
+    /// @param to The address that has received the withdrawn tokens.
+    /// @param token The contract address of the ERC-20 token that has been withdrawn.
+    /// @param amount The amount of tokens withdrawn, denoted in units of the token's decimals.
+    event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, IERC20 indexed token, uint128 amount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
@@ -79,12 +79,12 @@ interface ISablierLockupBase is
     /// @dev This value is hard coded as a constant.
     function MAX_BROKER_FEE() external view returns (UD60x18);
 
-    /// @notice Retrieves the address of the ERC-20 asset being distributed.
+    /// @notice Retrieves the address of the ERC-20 token being distributed.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    function getAsset(uint256 streamId) external view returns (IERC20 asset);
+    function getToken(uint256 streamId) external view returns (IERC20 token);
 
-    /// @notice Retrieves the amount deposited in the stream, denoted in units of the asset's decimals.
+    /// @notice Retrieves the amount deposited in the stream, denoted in units of the token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function getDepositedAmount(uint256 streamId) external view returns (uint128 depositedAmount);
@@ -104,7 +104,7 @@ interface ISablierLockupBase is
     /// @param streamId The stream ID for the query.
     function getRecipient(uint256 streamId) external view returns (address recipient);
 
-    /// @notice Retrieves the amount refunded to the sender after a cancellation, denoted in units of the asset's
+    /// @notice Retrieves the amount refunded to the sender after a cancellation, denoted in units of the token's
     /// decimals. This amount is always zero unless the stream was canceled.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
@@ -120,13 +120,13 @@ interface ISablierLockupBase is
     /// @param streamId The stream ID for the query.
     function getStartTime(uint256 streamId) external view returns (uint40 startTime);
 
-    /// @notice Retrieves the amount withdrawn from the stream, denoted in units of the asset's decimals.
+    /// @notice Retrieves the amount withdrawn from the stream, denoted in units of the token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
     /// @notice Retrieves a flag indicating whether the provided address is a contract allowed to hook to Sablier
-    /// when a stream is canceled or when assets are withdrawn.
+    /// when a stream is canceled or when tokens are withdrawn.
     /// @dev See {ISablierLockupRecipient} for more information.
     function isAllowedToHook(address recipient) external view returns (bool result);
 
@@ -168,7 +168,7 @@ interface ISablierLockupBase is
     function nftDescriptor() external view returns (ILockupNFTDescriptor);
 
     /// @notice Calculates the amount that the sender would be refunded if the stream were canceled, denoted in units
-    /// of the asset's decimals.
+    /// of the token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
@@ -178,7 +178,7 @@ interface ISablierLockupBase is
     /// @param streamId The stream ID for the query.
     function statusOf(uint256 streamId) external view returns (Lockup.Status status);
 
-    /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
+    /// @notice Calculates the amount streamed to the recipient, denoted in units of the token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     ///
     /// Notes:
@@ -194,7 +194,7 @@ interface ISablierLockupBase is
     /// @param streamId The stream ID for the query.
     function wasCanceled(uint256 streamId) external view returns (bool result);
 
-    /// @notice Calculates the amount that the recipient can withdraw from the stream, denoted in units of the asset's
+    /// @notice Calculates the amount that the recipient can withdraw from the stream, denoted in units of the token's
     /// decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
@@ -204,7 +204,7 @@ interface ISablierLockupBase is
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Allows a recipient contract to hook to Sablier when a stream is canceled or when assets are withdrawn.
+    /// @notice Allows a recipient contract to hook to Sablier when a stream is canceled or when tokens are withdrawn.
     /// Useful for implementing contracts that hold streams on behalf of users, such as vaults or staking contracts.
     ///
     /// @dev Emits an {AllowToHook} event.
@@ -234,12 +234,12 @@ interface ISablierLockupBase is
     /// @param streamId The ID of the stream NFT to burn.
     function burn(uint256 streamId) external payable;
 
-    /// @notice Cancels the stream and refunds any remaining assets to the sender.
+    /// @notice Cancels the stream and refunds any remaining tokens to the sender.
     ///
     /// @dev Emits a {Transfer}, {CancelLockupStream}, and {MetadataUpdate} event.
     ///
     /// Notes:
-    /// - If there any assets left for the recipient to withdraw, the stream is marked as canceled. Otherwise, the
+    /// - If there any tokens left for the recipient to withdraw, the stream is marked as canceled. Otherwise, the
     /// stream is marked as depleted.
     /// - This function attempts to invoke a hook on the recipient, if the resolved address is a contract.
     ///
@@ -251,7 +251,7 @@ interface ISablierLockupBase is
     /// @param streamId The ID of the stream to cancel.
     function cancel(uint256 streamId) external payable;
 
-    /// @notice Cancels multiple streams and refunds any remaining assets to the sender.
+    /// @notice Cancels multiple streams and refunds any remaining tokens to the sender.
     ///
     /// @dev Emits multiple {Transfer}, {CancelLockupStream}, and {MetadataUpdate} events.
     ///
@@ -314,7 +314,7 @@ interface ISablierLockupBase is
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external;
 
-    /// @notice Withdraws the provided amount of assets from the stream to the `to` address.
+    /// @notice Withdraws the provided amount of tokens from the stream to the `to` address.
     ///
     /// @dev Emits a {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} event.
     ///
@@ -329,8 +329,8 @@ interface ISablierLockupBase is
     /// - `to` must be the recipient if `msg.sender` is not the stream's recipient or an approved third party.
     ///
     /// @param streamId The ID of the stream to withdraw from.
-    /// @param to The address receiving the withdrawn assets.
-    /// @param amount The amount to withdraw, denoted in units of the asset's decimals.
+    /// @param to The address receiving the withdrawn tokens.
+    /// @param amount The amount to withdraw, denoted in units of the token's decimals.
     function withdraw(uint256 streamId, address to, uint128 amount) external payable;
 
     /// @notice Withdraws the maximum withdrawable amount from the stream to the provided address `to`.
@@ -344,8 +344,8 @@ interface ISablierLockupBase is
     /// - Refer to the requirements in {withdraw}.
     ///
     /// @param streamId The ID of the stream to withdraw from.
-    /// @param to The address receiving the withdrawn assets.
-    /// @return withdrawnAmount The amount withdrawn, denoted in units of the asset's decimals.
+    /// @param to The address receiving the withdrawn tokens.
+    /// @return withdrawnAmount The amount withdrawn, denoted in units of the token's decimals.
     function withdrawMax(uint256 streamId, address to) external payable returns (uint128 withdrawnAmount);
 
     /// @notice Withdraws the maximum withdrawable amount from the stream to the current recipient, and transfers the
@@ -364,7 +364,7 @@ interface ISablierLockupBase is
     ///
     /// @param streamId The ID of the stream NFT to transfer.
     /// @param newRecipient The address of the new owner of the stream NFT.
-    /// @return withdrawnAmount The amount withdrawn, denoted in units of the asset's decimals.
+    /// @return withdrawnAmount The amount withdrawn, denoted in units of the token's decimals.
     function withdrawMaxAndTransfer(
         uint256 streamId,
         address newRecipient
@@ -373,7 +373,7 @@ interface ISablierLockupBase is
         payable
         returns (uint128 withdrawnAmount);
 
-    /// @notice Withdraws assets from streams to the recipient of each stream.
+    /// @notice Withdraws tokens from streams to the recipient of each stream.
     ///
     /// @dev Emits multiple {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} events.
     ///
@@ -387,6 +387,6 @@ interface ISablierLockupBase is
     /// - Each amount in the array must be greater than zero and must not exceed the withdrawable amount.
     ///
     /// @param streamIds The IDs of the streams to withdraw from.
-    /// @param amounts The amounts to withdraw, denoted in units of the asset's decimals.
+    /// @param amounts The amounts to withdraw, denoted in units of the token's decimals.
     function withdrawMultiple(uint256[] calldata streamIds, uint128[] calldata amounts) external payable;
 }

@@ -66,7 +66,7 @@ contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
         vars.totalDuration = params.tranches[params.tranches.length - 1].timestamp - defaults.START_TIME();
         params.timeJump = _bound(params.timeJump, 1 seconds, vars.totalDuration + 100 seconds);
 
-        // Mint enough assets to the funder.
+        // Mint enough tokens to the funder.
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
 
         // Make the Sender the caller.
@@ -96,7 +96,7 @@ contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
         // Make the Recipient the caller.
         resetPrank({ msgSender: users.recipient });
 
-        // Expect the assets to be transferred to the fuzzed `to` address.
+        // Expect the tokens to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: params.to, value: vars.withdrawAmount });
 
         // Expect the relevant events to be emitted.
@@ -104,7 +104,7 @@ contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
         emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: vars.streamId,
             to: params.to,
-            asset: dai,
+            token: dai,
             amount: vars.withdrawAmount
         });
         vm.expectEmit({ emitter: address(lockup) });

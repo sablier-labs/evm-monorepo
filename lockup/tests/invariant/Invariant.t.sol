@@ -30,8 +30,8 @@ contract Invariant_Test is Base_Test, StdInvariant {
         vm.label({ account: address(lockupStore), newLabel: "LockupStore" });
 
         // Deploy the Lockup handlers.
-        createHandler = new LockupCreateHandler({ asset_: dai, lockupStore_: lockupStore, lockup_: lockup });
-        handler = new LockupHandler({ asset_: dai, lockupStore_: lockupStore, lockup_: lockup });
+        createHandler = new LockupCreateHandler({ token_: dai, lockupStore_: lockupStore, lockup_: lockup });
+        handler = new LockupHandler({ token_: dai, lockupStore_: lockupStore, lockup_: lockup });
 
         // Label the contracts.
         vm.label({ account: address(createHandler), newLabel: "LockupCreateHandler" });

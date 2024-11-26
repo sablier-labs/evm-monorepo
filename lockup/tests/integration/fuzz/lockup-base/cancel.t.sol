@@ -75,7 +75,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
             lockup.withdraw({ streamId: recipientGoodStreamId, to: address(recipientGood), amount: withdrawAmount });
         }
 
-        // Expect the assets to be refunded to the Sender.
+        // Expect the tokens to be refunded to the Sender.
         uint128 senderAmount = lockup.refundableAmountOf(recipientGoodStreamId);
         expectCallToTransfer({ to: users.sender, value: senderAmount });
 

@@ -28,7 +28,7 @@ contract LockupHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierLockup lockup_) BaseHandler(asset_, lockup_) {
+    constructor(IERC20 token_, LockupStore lockupStore_, ISablierLockup lockup_) BaseHandler(token_, lockup_) {
         lockupStore = lockupStore_;
     }
 

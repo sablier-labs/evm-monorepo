@@ -1,5 +1,5 @@
 CreateWithTimestampsLD_Integration_Concrete_Test
-└── when asset contract
+└── when token contract
    ├── when segment count zero
    │  └── it should revert
    └── when segment count not zero
@@ -20,13 +20,13 @@ CreateWithTimestampsLD_Integration_Concrete_Test
                   ├── when deposit amount not equal segment amounts sum
                   │  └── it should revert
                   └── when deposit amount equals segment amounts sum
-                     ├── when asset misses ERC20 return value
+                     ├── when token misses ERC20 return value
                      │  ├── it should create the stream
                      │  ├── it should bump the next stream ID
                      │  ├── it should mint the NFT
                      │  ├── it should emit {CreateLockupDynamicStream} and {MetadataUpdate} events
                      │  └── it should perform the ERC-20 transfers
-                     └── when asset not miss ERC20 return value
+                     └── when token not miss ERC20 return value
                         ├── it should create the stream
                         ├── it should bump the next stream ID
                         ├── it should mint the NFT

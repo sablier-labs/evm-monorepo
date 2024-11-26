@@ -29,15 +29,15 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Default ERC-20 asset used for testing.
-    IERC20 public asset;
+    /// @dev Default ERC-20 token used for testing.
+    IERC20 public token;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, ISablierLockup lockup_) {
-        asset = asset_;
+    constructor(IERC20 token_, ISablierLockup lockup_) {
+        token = token_;
         lockup = lockup_;
     }
 

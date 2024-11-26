@@ -163,7 +163,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// - The sum of the segment amounts must equal the deposit amount.
     /// - `params.recipient` must not be the zero address.
     /// - `params.sender` must not be the zero address.
-    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
+    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` tokens.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
     /// @param segments Segments used to compose the dynamic distribution function.
@@ -197,7 +197,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// - The sum of `params.unlockAmounts.start` and `params.unlockAmounts.cliff` must be less than or equal to
     /// deposit amount.
     /// - If `params.timestamps.cliff` not set, the `params.unlockAmounts.cliff` must be zero.
-    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
+    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` tokens.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
     /// @param cliffTime The Unix timestamp for the cliff period's end. A value of zero means there is no cliff.
@@ -233,7 +233,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// - The sum of the tranche amounts must equal the deposit amount.
     /// - `params.recipient` must not be the zero address.
     /// - `params.sender` must not be the zero address.
-    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
+    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` tokens.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
     /// @param tranches Tranches used to compose the tranched distribution function.

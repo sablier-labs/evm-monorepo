@@ -1,9 +1,3 @@
-Getters_Integration_Concrete_Test::getAsset
-├── given null
-│  └── it should revert
-└── given not null
-   └── it should return the correct address of the asset
-
 Getters_Integration_Concrete_Test::getDepositedAmount
 ├── given null
 │  └── it should revert
@@ -54,6 +48,12 @@ Getters_Integration_Concrete_Test::getStartTime
 │  └── it should revert
 └── given not null
    └── it should return the correct start time
+
+Getters_Integration_Concrete_Test::getToken
+├── given null
+│  └── it should revert
+└── given not null
+   └── it should return the correct address of the token
 
 Getters_Integration_Concrete_Test::getWithdrawnAmount
 ├── given null

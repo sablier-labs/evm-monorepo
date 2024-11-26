@@ -1,5 +1,5 @@
 CreateWithTimestampsLT_Integration_Concrete_Test
-└── when asset contract
+└── when token contract
    ├── when tranche count zero
    │  └── it should revert
    └── when tranche count not zero
@@ -20,13 +20,13 @@ CreateWithTimestampsLT_Integration_Concrete_Test
                   ├── when deposit amount not equal tranche amounts sum
                   │  └── it should revert
                   └── when deposit amount equals tranche amounts sum
-                     ├── when asset misses ERC20 return value
+                     ├── when token misses ERC20 return value
                      │  ├── it should create the stream
                      │  ├── it should bump the next stream ID
                      │  ├── it should mint the NFT
                      │  ├── it should emit {CreateLockupTranchedStream} and {MetadataUpdate} events
                      │  └── it should perform the ERC-20 transfers
-                     └── when asset not miss ERC20 return value
+                     └── when token not miss ERC20 return value
                         ├── it should create the stream
                         ├── it should bump the next stream ID
                         ├── it should mint the NFT

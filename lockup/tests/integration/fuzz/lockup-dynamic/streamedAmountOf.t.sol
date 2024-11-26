@@ -31,7 +31,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](1);
         segments[0] = segment;
 
-        // Mint enough assets to the Sender.
+        // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: segment.amount });
 
         // Create the stream with the fuzzed segment.
@@ -83,7 +83,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         uint40 totalDuration = segments[segments.length - 1].timestamp - defaults.START_TIME();
         timeJump = boundUint40(timeJump, firstSegmentDuration, totalDuration + 100 seconds);
 
-        // Mint enough assets to the Sender.
+        // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.
@@ -130,7 +130,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         timeWarp0 = boundUint40(timeWarp0, firstSegmentDuration, totalDuration - 1);
         timeWarp1 = boundUint40(timeWarp1, timeWarp0, totalDuration);
 
-        // Mint enough assets to the Sender.
+        // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.

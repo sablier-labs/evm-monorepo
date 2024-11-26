@@ -48,7 +48,7 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         address funder = users.sender;
         uint256 expectedStreamId = lockup.nextStreamId();
 
-        // Expect the assets to be transferred from the funder to {SablierLockup}.
+        // Expect the tokens to be transferred from the funder to {SablierLockup}.
         expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the broker fee to be paid to the broker.
@@ -77,7 +77,7 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
 
         // It should create the stream.
         assertEq(lockup.getDepositedAmount(streamId), defaults.DEPOSIT_AMOUNT(), "depositedAmount");
-        assertEq(lockup.getAsset(streamId), dai, "asset");
+        assertEq(lockup.getToken(streamId), dai, "token");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), true, "isCancelable");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");

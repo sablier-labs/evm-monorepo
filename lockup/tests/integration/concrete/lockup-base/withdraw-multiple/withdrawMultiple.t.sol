@@ -206,21 +206,21 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: withdrawMultipleStreamIds[0],
             to: users.recipient,
-            asset: dai,
+            token: dai,
             amount: withdrawAmounts[0]
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: withdrawMultipleStreamIds[1],
             to: users.recipient,
-            asset: dai,
+            token: dai,
             amount: withdrawAmounts[1]
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: withdrawMultipleStreamIds[2],
             to: users.recipient,
-            asset: dai,
+            token: dai,
             amount: withdrawAmounts[2]
         });
 

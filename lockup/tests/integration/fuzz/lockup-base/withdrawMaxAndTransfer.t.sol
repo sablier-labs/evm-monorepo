@@ -33,7 +33,7 @@ contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is Integration_Test {
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
         if (withdrawAmount > 0) {
-            // Expect the assets to be transferred to the fuzzed recipient.
+            // Expect the tokens to be transferred to the fuzzed recipient.
             expectCallToTransfer({ to: users.recipient, value: withdrawAmount });
 
             // Expect the relevant event to be emitted.
@@ -41,7 +41,7 @@ contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is Integration_Test {
             emit ISablierLockupBase.WithdrawFromLockupStream({
                 streamId: defaultStreamId,
                 to: users.recipient,
-                asset: dai,
+                token: dai,
                 amount: withdrawAmount
             });
         }

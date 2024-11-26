@@ -67,7 +67,7 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         vars.totalDuration = params.segments[params.segments.length - 1].timestamp - defaults.START_TIME();
         params.timeJump = _bound(params.timeJump, 1 seconds, vars.totalDuration + 100 seconds);
 
-        // Mint enough assets to the funder.
+        // Mint enough tokens to the funder.
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
 
         // Make the Sender the caller.
@@ -94,7 +94,7 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         // Bound the withdraw amount.
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
-        // Expect the assets to be transferred to the fuzzed `to` address.
+        // Expect the tokens to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: params.to, value: vars.withdrawAmount });
 
         // Expect the relevant events to be emitted.
@@ -103,7 +103,7 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
             streamId: vars.streamId,
             to: params.to,
             amount: vars.withdrawAmount,
-            asset: dai
+            token: dai
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });

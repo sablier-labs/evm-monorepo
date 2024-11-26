@@ -13,7 +13,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
-        // Expect the ERC-20 assets to be transferred to the Recipient.
+        // Expect the ERC-20 tokens to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the relevant event to be emitted.
@@ -21,7 +21,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
         emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: defaultStreamId,
             to: users.recipient,
-            asset: dai,
+            token: dai,
             amount: defaults.DEPOSIT_AMOUNT()
         });
 
@@ -57,7 +57,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
-        // Expect the assets to be transferred to the Recipient.
+        // Expect the tokens to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: withdrawAmount });
 
         // Expect the relevant event to be emitted.
@@ -65,7 +65,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
         emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: defaultStreamId,
             to: users.recipient,
-            asset: dai,
+            token: dai,
             amount: withdrawAmount
         });
 

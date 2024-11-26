@@ -109,7 +109,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
-        // Expect the assets to be transferred to the fuzzed `to` address.
+        // Expect the tokens to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: to, value: withdrawAmount });
 
         // Expect the relevant events to be emitted.
@@ -172,7 +172,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
-        // Expect the assets to be transferred to the fuzzed `to` address.
+        // Expect the tokens to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: to, value: withdrawAmount });
 
         // Expect the relevant events to be emitted.

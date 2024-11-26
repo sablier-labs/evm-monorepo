@@ -77,14 +77,6 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
-    modifier whenAssetContract() {
-        _;
-    }
-
-    modifier whenAssetERC20() {
-        _;
-    }
-
     modifier whenCallerAdmin() {
         // Make the Admin the caller in the rest of this test suite.
         resetPrank({ msgSender: users.admin });
@@ -118,6 +110,14 @@ abstract contract Modifiers is Fuzzers {
     }
 
     modifier whenShapeNameNotExceed32Bytes() {
+        _;
+    }
+
+    modifier whenTokenContract() {
+        _;
+    }
+
+    modifier whenTokenERC20() {
         _;
     }
 
@@ -324,7 +324,7 @@ abstract contract Modifiers is Fuzzers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SAFE-ASSET-SYMBOL
+                                 SAFE-TOKEN-SYMBOL
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier givenSymbolImplemented() {
@@ -355,7 +355,7 @@ abstract contract Modifiers is Fuzzers {
                                      STATUS-OF
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenAssetsNotFullyWithdrawn() {
+    modifier givenTokensNotFullyWithdrawn() {
         _;
     }
 

@@ -17,7 +17,7 @@ interface IERC20Mint {
 
 /// @notice Initializes the protocol by creating some streams.
 contract Init is BaseScript {
-    function run(ISablierLockup lockup, IERC20 asset) public broadcast {
+    function run(ISablierLockup lockup, IERC20 token) public broadcast {
         address sender = broadcaster;
         address recipient = vm.addr(vm.deriveKey({ mnemonic: mnemonic, index: 1 }));
 
@@ -25,11 +25,11 @@ contract Init is BaseScript {
                                        LOCKUP-LINEAR
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Mint enough assets to the sender.
-        IERC20Mint(address(asset)).mint({ beneficiary: sender, value: 131_601.1e18 + 10_000e18 });
+        // Mint enough tokens to the sender.
+        IERC20Mint(address(token)).mint({ beneficiary: sender, value: 131_601.1e18 + 10_000e18 });
 
-        // Approve the Lockup contracts to transfer the ERC-20 assets from the sender.
-        asset.approve({ spender: address(lockup), value: type(uint256).max });
+        // Approve the Lockup contracts to transfer the ERC-20 tokens from the sender.
+        token.approve({ spender: address(lockup), value: type(uint256).max });
 
         // Create 7 Lockup Linear streams with various amounts and durations.
         //
@@ -48,7 +48,7 @@ contract Init is BaseScript {
                     sender: sender,
                     recipient: recipient,
                     totalAmount: totalAmounts[i],
-                    asset: asset,
+                    token: token,
                     cancelable: true,
                     transferable: true,
                     broker: Broker(address(0), ud60x18(0)),
@@ -80,7 +80,7 @@ contract Init is BaseScript {
                 sender: sender,
                 recipient: recipient,
                 totalAmount: 10_000e18,
-                asset: asset,
+                token: token,
                 cancelable: true,
                 transferable: true,
                 broker: Broker(address(0), ud60x18(0)),

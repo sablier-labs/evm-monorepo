@@ -43,7 +43,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenTrancheCountNotZero
     {
         uint256 trancheCount = defaults.MAX_COUNT() + 1;
@@ -61,7 +61,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
     {
@@ -80,7 +80,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
@@ -111,7 +111,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
@@ -139,7 +139,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
@@ -173,7 +173,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
@@ -199,7 +199,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStream();
     }
 
-    function test_WhenAssetMissesERC20ReturnValue()
+    function test_WhenTokenMissesERC20ReturnValue()
         external
         whenNoDelegateCall
         whenShapeNameNotExceed32Bytes
@@ -208,7 +208,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
@@ -219,7 +219,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         _testCreateWithTimestampsLT(address(usdt));
     }
 
-    function test_WhenAssetNotMissERC20ReturnValue()
+    function test_WhenTokenNotMissERC20ReturnValue()
         external
         whenNoDelegateCall
         whenShapeNameNotExceed32Bytes
@@ -228,7 +228,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
@@ -239,15 +239,15 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         _testCreateWithTimestampsLT(address(dai));
     }
 
-    /// @dev Shared logic between {test_CreateWithTimestamps_AssetMissingReturnValue} and {test_CreateWithTimestamps}.
-    function _testCreateWithTimestampsLT(address asset) internal {
+    /// @dev Shared logic between {test_CreateWithTimestamps_TokenMissingReturnValue} and {test_CreateWithTimestamps}.
+    function _testCreateWithTimestampsLT(address token) internal {
         // Make the Sender the stream's funder.
         address funder = users.sender;
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({
-            asset: IERC20(asset),
+            token: IERC20(token),
             from: funder,
             to: address(lockup),
             value: defaults.DEPOSIT_AMOUNT()
@@ -255,7 +255,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
 
         // Expect the broker fee to be paid to the broker.
         expectCallToTransferFrom({
-            asset: IERC20(asset),
+            token: IERC20(token),
             from: funder,
             to: users.broker,
             value: defaults.BROKER_FEE_AMOUNT()
@@ -267,17 +267,17 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupTranchedStream({
             streamId: expectedStreamId,
-            commonParams: defaults.lockupCreateEvent(IERC20(asset)),
+            commonParams: defaults.lockupCreateEvent(IERC20(token)),
             tranches: defaults.tranches()
         });
 
         // It should create the stream.
-        _defaultParams.createWithTimestamps.asset = IERC20(asset);
+        _defaultParams.createWithTimestamps.token = IERC20(token);
         uint256 streamId = createDefaultStream();
 
         // It should create the stream.
         assertEqStream(streamId);
-        assertEq(lockup.getAsset(streamId), IERC20(asset), "asset");
+        assertEq(lockup.getToken(streamId), IERC20(token), "token");
         assertEq(lockup.getTranches(streamId), defaults.tranches());
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_TRANCHED);
     }

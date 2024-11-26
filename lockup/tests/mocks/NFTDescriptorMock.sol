@@ -39,7 +39,7 @@ contract NFTDescriptorMock is LockupNFTDescriptor {
     }
 
     function generateAttributes_(
-        string memory assetSymbol,
+        string memory tokenSymbol,
         string memory sender,
         string memory status
     )
@@ -47,14 +47,14 @@ contract NFTDescriptorMock is LockupNFTDescriptor {
         pure
         returns (string memory)
     {
-        return generateAttributes(assetSymbol, sender, status);
+        return generateAttributes(tokenSymbol, sender, status);
     }
 
     function generateDescription_(
         string memory lockupModel,
-        string memory assetSymbol,
+        string memory tokenSymbol,
         string memory lockupAddress,
-        string memory assetAddress,
+        string memory tokenAddress,
         string memory streamId,
         bool isTransferable
     )
@@ -62,7 +62,7 @@ contract NFTDescriptorMock is LockupNFTDescriptor {
         pure
         returns (string memory)
     {
-        return generateDescription(lockupModel, assetSymbol, lockupAddress, assetAddress, streamId, isTransferable);
+        return generateDescription(lockupModel, tokenSymbol, lockupAddress, tokenAddress, streamId, isTransferable);
     }
 
     function generateName_(string memory lockupModel, string memory streamId) external pure returns (string memory) {
@@ -85,12 +85,12 @@ contract NFTDescriptorMock is LockupNFTDescriptor {
         return mapSymbol(nft);
     }
 
-    function safeAssetDecimals_(address asset) external view returns (uint8) {
-        return safeAssetDecimals(asset);
+    function safeTokenDecimals_(address token) external view returns (uint8) {
+        return safeTokenDecimals(token);
     }
 
-    function safeAssetSymbol_(address asset) external view returns (string memory) {
-        return safeAssetSymbol(asset);
+    function safeTokenSymbol_(address token) external view returns (string memory) {
+        return safeTokenSymbol(token);
     }
 
     function stringifyCardType_(SVGElements.CardType cardType) external pure returns (string memory) {

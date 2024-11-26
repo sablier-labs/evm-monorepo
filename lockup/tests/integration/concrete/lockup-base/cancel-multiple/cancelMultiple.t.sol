@@ -106,7 +106,7 @@ contract CancelMultiple_Integration_Concrete_Test is Integration_Test {
             streamId: streamIds[0],
             sender: users.sender,
             recipient: users.recipient,
-            asset: dai,
+            token: dai,
             senderAmount: senderAmount0,
             recipientAmount: defaults.DEPOSIT_AMOUNT() - senderAmount0
         });
@@ -115,7 +115,7 @@ contract CancelMultiple_Integration_Concrete_Test is Integration_Test {
             streamId: streamIds[1],
             sender: users.sender,
             recipient: users.recipient,
-            asset: dai,
+            token: dai,
             senderAmount: senderAmount1,
             recipientAmount: defaults.DEPOSIT_AMOUNT() - senderAmount1
         });

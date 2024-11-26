@@ -44,8 +44,8 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
 
     /// @dev Needed to avoid Stack Too Deep.
     struct TokenURIVars {
-        address asset;
-        string assetSymbol;
+        address token;
+        string tokenSymbol;
         uint128 depositedAmount;
         bool isTransferable;
         string json;
@@ -67,9 +67,20 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
         vars.lockup = ISablierLockup(address(lockup));
         vars.lockupModel = mapSymbol(lockup);
         vars.lockupStringified = address(lockup).toHexString();
-        vars.asset = address(vars.lockup.getAsset(streamId));
-        vars.assetSymbol = safeAssetSymbol(vars.asset);
+        vars.tokenSymbol = safeTokenSymbol(vars.token);
         vars.depositedAmount = vars.lockup.getDepositedAmount(streamId);
+
+        // Retrieve the token's address based on the Lockup contract version.
+        if (vars.lockupModel.equal("Sablier Lockup")) {
+            // For Lockup contract versions v2.0.0 and later, use the `getToken` function.
+            vars.token = address(vars.lockup.getToken(streamId));
+        }
+        // For Lockup contract versions earlier than v2.0.0, use the `getAsset` function.
+        else {
+            (, bytes memory returnData) =
+                address(lockup).staticcall(abi.encodeWithSignature("getAsset(uint256)", streamId));
+            vars.token = abi.decode(returnData, (address));
+        }
 
         // Load the stream's data.
         vars.status = stringifyStatus(vars.lockup.statusOf(streamId));
@@ -82,9 +93,9 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
         vars.svg = NFTSVG.generateSVG(
             NFTSVG.SVGParams({
                 accentColor: generateAccentColor(address(lockup), streamId),
-                amount: abbreviateAmount({ amount: vars.depositedAmount, decimals: safeAssetDecimals(vars.asset) }),
-                assetAddress: vars.asset.toHexString(),
-                assetSymbol: vars.assetSymbol,
+                amount: abbreviateAmount({ amount: vars.depositedAmount, decimals: safeTokenDecimals(vars.token) }),
+                tokenAddress: vars.token.toHexString(),
+                tokenSymbol: vars.tokenSymbol,
                 duration: calculateDurationInDays({
                     startTime: vars.lockup.getStartTime(streamId),
                     endTime: vars.lockup.getEndTime(streamId)
@@ -108,16 +119,16 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
         vars.json = string.concat(
             '{"attributes":',
             generateAttributes({
-                assetSymbol: vars.assetSymbol,
+                tokenSymbol: vars.tokenSymbol,
                 sender: vars.lockup.getSender(streamId).toHexString(),
                 status: vars.status
             }),
             ',"description":"',
             generateDescription({
                 lockupModel: vars.lockupModel,
-                assetSymbol: vars.assetSymbol,
+                tokenSymbol: vars.tokenSymbol,
                 lockupStringified: vars.lockupStringified,
-                assetAddress: vars.asset.toHexString(),
+                tokenAddress: vars.token.toHexString(),
                 streamId: streamId.toString(),
                 isTransferable: vars.isTransferable
             }),
@@ -249,12 +260,12 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
     }
 
     /// @notice Generates an array of JSON objects that represent the NFT's attributes:
-    /// - Asset symbol
+    /// - Token symbol
     /// - Sender address
     /// - Status
     /// @dev These attributes are useful for filtering and sorting the NFTs.
     function generateAttributes(
-        string memory assetSymbol,
+        string memory tokenSymbol,
         string memory sender,
         string memory status
     )
@@ -263,8 +274,8 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
         returns (string memory)
     {
         return string.concat(
-            '[{"trait_type":"Asset","value":"',
-            assetSymbol,
+            '[{"trait_type":"Token","value":"',
+            tokenSymbol,
             '"},{"trait_type":"Sender","value":"',
             sender,
             '"},{"trait_type":"Status","value":"',
@@ -276,9 +287,9 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
     /// @notice Generates a string with the NFT's JSON metadata description, which provides a high-level overview.
     function generateDescription(
         string memory lockupModel,
-        string memory assetSymbol,
+        string memory tokenSymbol,
         string memory lockupStringified,
-        string memory assetAddress,
+        string memory tokenAddress,
         string memory streamId,
         bool isTransferable
     )
@@ -295,8 +306,8 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
         return string.concat(
             "This NFT represents a payment stream in a Sablier Lockup ",
             lockupModel,
-            " contract. The owner of this NFT can withdraw the streamed assets, which are denominated in ",
-            assetSymbol,
+            " contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
+            tokenSymbol,
             ".\\n\\n- Stream ID: ",
             streamId,
             "\\n- ",
@@ -304,9 +315,9 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
             " Address: ",
             lockupStringified,
             "\\n- ",
-            assetSymbol,
+            tokenSymbol,
             " Address: ",
-            assetAddress,
+            tokenAddress,
             "\\n\\n",
             info
         );
@@ -358,10 +369,10 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
         }
     }
 
-    /// @notice Retrieves the asset's decimals safely, defaulting to "0" if an error occurs.
-    /// @dev Performs a low-level call to handle assets in which the decimals are not implemented.
-    function safeAssetDecimals(address asset) internal view returns (uint8) {
-        (bool success, bytes memory returnData) = asset.staticcall(abi.encodeCall(IERC20Metadata.decimals, ()));
+    /// @notice Retrieves the token's decimals safely, defaulting to "0" if an error occurs.
+    /// @dev Performs a low-level call to handle tokens in which the decimals are not implemented.
+    function safeTokenDecimals(address token) internal view returns (uint8) {
+        (bool success, bytes memory returnData) = token.staticcall(abi.encodeCall(IERC20Metadata.decimals, ()));
         if (success && returnData.length == 32) {
             return abi.decode(returnData, (uint8));
         } else {
@@ -369,11 +380,11 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
         }
     }
 
-    /// @notice Retrieves the asset's symbol safely, defaulting to a hard-coded value if an error occurs.
-    /// @dev Performs a low-level call to handle assets in which the symbol is not implemented or it is a bytes32
+    /// @notice Retrieves the token's symbol safely, defaulting to a hard-coded value if an error occurs.
+    /// @dev Performs a low-level call to handle tokens in which the symbol is not implemented or it is a bytes32
     /// instead of a string.
-    function safeAssetSymbol(address asset) internal view returns (string memory) {
-        (bool success, bytes memory returnData) = asset.staticcall(abi.encodeCall(IERC20Metadata.symbol, ()));
+    function safeTokenSymbol(address token) internal view returns (string memory) {
+        (bool success, bytes memory returnData) = token.staticcall(abi.encodeCall(IERC20Metadata.symbol, ()));
 
         // Non-empty strings have a length greater than 64, and bytes32 has length 32.
         if (!success || returnData.length <= 64) {
@@ -383,7 +394,7 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
         string memory symbol = abi.decode(returnData, (string));
 
         // Check if the symbol is too long or contains disallowed characters. This measure helps mitigate potential
-        // security threats from malicious assets injecting scripts in the symbol string.
+        // security threats from malicious tokens injecting scripts in the symbol string.
         if (bytes(symbol).length > 30) {
             return "Long Symbol";
         } else {

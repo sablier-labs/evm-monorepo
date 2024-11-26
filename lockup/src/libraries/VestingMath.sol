@@ -83,7 +83,7 @@ library VestingMath {
             SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
 
             // Although the segment streamed amount should never exceed the total segment amount, this condition is
-            // checked without asserting to avoid locking assets in case of a bug. If this situation occurs, the
+            // checked without asserting to avoid locking tokens in case of a bug. If this situation occurs, the
             // amount streamed in the segment is considered zero (except for past withdrawals), and the segment is
             // effectively voided.
             if (segmentStreamedAmount.gt(currentSegmentAmount)) {
@@ -157,7 +157,7 @@ library VestingMath {
             uint128 streamedAmount = unlockAmountsSum + (elapsedTimePercentage.mul(streamableAmount)).intoUint128();
 
             // Although the streamed amount should never exceed the deposited amount, this condition is checked
-            // without asserting to avoid locking assets in case of a bug. If this situation occurs, the withdrawn
+            // without asserting to avoid locking tokens in case of a bug. If this situation occurs, the withdrawn
             // amount is considered to be the streamed amount, and the stream is effectively frozen.
             if (streamedAmount > depositedAmount) {
                 return withdrawnAmount;

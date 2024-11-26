@@ -37,7 +37,7 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
         vm.assume(depositAmount != 0);
         timeJump = boundUint40(timeJump, defaults.WARP_26_PERCENT_DURATION(), defaults.TOTAL_DURATION() * 2);
 
-        // Mint enough assets to the Sender.
+        // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
@@ -85,7 +85,7 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
     {
         depositAmount = boundUint128(depositAmount, 10_000, MAX_UINT128);
 
-        // Mint enough assets to the Sender.
+        // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.

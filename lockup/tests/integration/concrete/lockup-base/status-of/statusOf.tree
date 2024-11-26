@@ -2,9 +2,9 @@ StatusOf_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
-   ├── given assets fully withdrawn
+   ├── given tokens fully withdrawn
    │  └── it should return DEPLETED
-   └── given assets not fully withdrawn
+   └── given tokens not fully withdrawn
       ├── given canceled stream
       │  └── it should return CANCELED
       └── given not canceled stream

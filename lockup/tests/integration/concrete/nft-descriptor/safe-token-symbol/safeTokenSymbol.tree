@@ -1,7 +1,7 @@
-SafeAssetSymbol_Integration_Concrete_Test
-├── when asset not contract
+SafeTokenSymbol_Integration_Concrete_Test
+├── when token not contract
 │   └── it should return a hard-coded value
-└── when asset contract
+└── when token contract
     ├── given symbol not implemented
     │   └── it should return a hard-coded value
     └── given symbol implemented

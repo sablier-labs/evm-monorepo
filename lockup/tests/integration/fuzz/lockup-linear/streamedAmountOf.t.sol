@@ -22,7 +22,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, depositAmount);
         unlockAmounts.cliff = boundUint128(unlockAmounts.start, 0, depositAmount - unlockAmounts.start);
 
-        // Mint enough assets to the Sender.
+        // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Approve the lockup contract to transfer the deposit amount.
@@ -65,7 +65,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, depositAmount);
         unlockAmounts.cliff = boundUint128(unlockAmounts.start, 0, depositAmount - unlockAmounts.start);
 
-        // Mint enough assets to the Sender.
+        // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Approve the lockup contract to transfer the deposit amount.
@@ -108,7 +108,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, depositAmount);
         unlockAmounts.cliff = boundUint128(unlockAmounts.start, 0, depositAmount - unlockAmounts.start);
 
-        // Mint enough assets to the Sender.
+        // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Approve the lockup contract to transfer the deposit amount.

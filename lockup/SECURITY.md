@@ -88,7 +88,7 @@ publicly for their contribution if they so choose.
 
 To qualify for a reward under this Program, you must adhere to the following criteria:
 
-- Identify a previously unreported, non-public vulnerability that could result in the loss or freeze of any ERC-20 asset
+- Identify a previously unreported, non-public vulnerability that could result in the loss or freeze of any ERC-20 token
   in Sablier Lockup (but not on any third-party platform interacting with Sablier Lockup) and that is within the scope
   of this Program.
 - The vulnerability must be distinct from the issues covered in the [Audits](https://github.com/sablier-labs/audits).

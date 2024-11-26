@@ -128,8 +128,8 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         whenStartTimeNotZero
         whenCliffTimeLessThanEndTime
         whenBrokerFeeNotExceedMaxValue
-        whenAssetContract
-        whenAssetERC20
+        whenTokenContract
+        whenTokenERC20
     {
         vm.assume(
             funder != address(0) && params.sender != address(0) && params.recipient != address(0)
@@ -167,13 +167,13 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         resetPrank(funder);
         vars.expectedStreamId = lockup.nextStreamId();
 
-        // Mint enough assets to the funder.
+        // Mint enough tokens to the funder.
         deal({ token: address(dai), to: funder, give: params.totalAmount });
 
-        // Approve {SablierLockup} to transfer the assets from the fuzzed funder.
+        // Approve {SablierLockup} to transfer the tokens from the fuzzed funder.
         dai.approve({ spender: address(lockup), value: MAX_UINT256 });
 
-        // Expect the assets to be transferred from the funder to {SablierLockup}.
+        // Expect the tokens to be transferred from the funder to {SablierLockup}.
         expectCallToTransferFrom({ from: funder, to: address(lockup), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.
@@ -190,7 +190,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
                 sender: params.sender,
                 recipient: params.recipient,
                 amounts: vars.createAmounts,
-                asset: dai,
+                token: dai,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: Lockup.Timestamps({ start: params.timestamps.start, end: params.timestamps.end }),
@@ -201,14 +201,14 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
             unlockAmounts: unlockAmounts
         });
 
-        params.asset = dai;
+        params.token = dai;
 
         // Create the stream.
         vars.actualStreamId = lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime);
 
         // It should create the stream.
         assertEq(lockup.getDepositedAmount(vars.actualStreamId), vars.createAmounts.deposit, "depositedAmount");
-        assertEq(lockup.getAsset(vars.actualStreamId), dai, "asset");
+        assertEq(lockup.getToken(vars.actualStreamId), dai, "token");
         assertEq(lockup.getEndTime(vars.actualStreamId), params.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(vars.actualStreamId), params.cancelable, "isCancelable");
         assertFalse(lockup.isDepleted(vars.actualStreamId), "isDepleted");

@@ -133,7 +133,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
         createDefaultStream();
     }
 
-    function test_RevertWhen_AssetNotContract()
+    function test_RevertWhen_TokenNotContract()
         external
         whenNoDelegateCall
         whenShapeNameNotExceed32Bytes
@@ -144,7 +144,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
         whenStartTimeNotZero
     {
         address nonContract = address(8128);
-        _defaultParams.createWithTimestamps.asset = IERC20(nonContract);
+        _defaultParams.createWithTimestamps.token = IERC20(nonContract);
         vm.expectRevert(abi.encodeWithSelector(Address.AddressEmptyCode.selector, nonContract));
         createDefaultStream();
     }

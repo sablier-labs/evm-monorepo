@@ -103,7 +103,7 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
         uint256 streamId = createDefaultStreamWithDurations();
 
         // It should create the stream.
-        assertEq(lockup.getAsset(streamId), dai, "asset");
+        assertEq(lockup.getToken(streamId), dai, "token");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), true, "isCancelable");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");

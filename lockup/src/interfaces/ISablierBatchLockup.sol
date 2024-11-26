@@ -21,13 +21,13 @@ interface ISablierBatchLockup {
     /// - All requirements from {ISablierLockup.createWithDurationsLD} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
     /// {SablierLockup.createWithDurationsLD}.
     /// @return streamIds The ids of the newly created streams.
     function createWithDurationsLD(
         ISablierLockup lockup,
-        IERC20 asset,
+        IERC20 token,
         BatchLockup.CreateWithDurationsLD[] calldata batch
     )
         external
@@ -40,13 +40,13 @@ interface ISablierBatchLockup {
     /// - All requirements from {ISablierLockup.createWithTimestampsLD} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
     /// {SablierLockup.createWithTimestampsLD}.
     /// @return streamIds The ids of the newly created streams.
     function createWithTimestampsLD(
         ISablierLockup lockup,
-        IERC20 asset,
+        IERC20 token,
         BatchLockup.CreateWithTimestampsLD[] calldata batch
     )
         external
@@ -63,13 +63,13 @@ interface ISablierBatchLockup {
     /// - All requirements from {ISablierLockup.createWithDurationsLL} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
     /// {SablierLockup.createWithDurationsLL}.
     /// @return streamIds The ids of the newly created streams.
     function createWithDurationsLL(
         ISablierLockup lockup,
-        IERC20 asset,
+        IERC20 token,
         BatchLockup.CreateWithDurationsLL[] calldata batch
     )
         external
@@ -82,13 +82,13 @@ interface ISablierBatchLockup {
     /// - All requirements from {ISablierLockup.createWithTimestampsLL} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
     /// {SablierLockup.createWithTimestampsLL}.
     /// @return streamIds The ids of the newly created streams.
     function createWithTimestampsLL(
         ISablierLockup lockup,
-        IERC20 asset,
+        IERC20 token,
         BatchLockup.CreateWithTimestampsLL[] calldata batch
     )
         external
@@ -105,13 +105,13 @@ interface ISablierBatchLockup {
     /// - All requirements from {ISablierLockup.createWithDurationsLT} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
     /// {SablierLockup.createWithDurationsLT}.
     /// @return streamIds The ids of the newly created streams.
     function createWithDurationsLT(
         ISablierLockup lockup,
-        IERC20 asset,
+        IERC20 token,
         BatchLockup.CreateWithDurationsLT[] calldata batch
     )
         external
@@ -124,13 +124,13 @@ interface ISablierBatchLockup {
     /// - All requirements from {ISablierLockup.createWithTimestampsLT} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
-    /// @param asset The contract address of the ERC-20 asset to be distributed.
+    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
     /// {SablierLockup.createWithTimestampsLT}.
     /// @return streamIds The ids of the newly created streams.
     function createWithTimestampsLT(
         ISablierLockup lockup,
-        IERC20 asset,
+        IERC20 token,
         BatchLockup.CreateWithTimestampsLT[] calldata batch
     )
         external

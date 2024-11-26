@@ -154,7 +154,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
                 sender: params.sender,
                 recipient: params.recipient,
                 totalAmount: params.totalAmount,
-                asset: params.asset,
+                token: params.token,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: timestamps,
@@ -198,7 +198,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
                 sender: params.sender,
                 recipient: params.recipient,
                 totalAmount: params.totalAmount,
-                asset: params.asset,
+                token: params.token,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: timestamps,
@@ -234,7 +234,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
                 sender: params.sender,
                 recipient: params.recipient,
                 totalAmount: params.totalAmount,
-                asset: params.asset,
+                token: params.token,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: timestamps,
@@ -363,7 +363,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             endTime: params.timestamps.end,
             isCancelable: params.cancelable,
             wasCanceled: false,
-            asset: params.asset,
+            token: params.token,
             isDepleted: false,
             isStream: true,
             isTransferable: params.transferable,
@@ -380,11 +380,11 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         }
 
         // Interaction: transfer the deposit amount.
-        params.asset.safeTransferFrom({ from: msg.sender, to: address(this), value: createAmounts.deposit });
+        params.token.safeTransferFrom({ from: msg.sender, to: address(this), value: createAmounts.deposit });
 
         // Interaction: pay the broker fee, if not zero.
         if (createAmounts.brokerFee > 0) {
-            params.asset.safeTransferFrom({ from: msg.sender, to: params.broker.account, value: createAmounts.brokerFee });
+            params.token.safeTransferFrom({ from: msg.sender, to: params.broker.account, value: createAmounts.brokerFee });
         }
 
         return Lockup.CreateEventCommon({
@@ -392,7 +392,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             sender: params.sender,
             recipient: params.recipient,
             amounts: createAmounts,
-            asset: params.asset,
+            token: params.token,
             cancelable: params.cancelable,
             transferable: params.transferable,
             timestamps: params.timestamps,

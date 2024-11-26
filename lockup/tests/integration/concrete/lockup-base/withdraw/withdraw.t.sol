@@ -145,7 +145,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: defaultStreamId,
             to: users.alice,
-            asset: dai,
+            token: dai,
             amount: withdrawAmount
         });
         vm.expectEmit({ emitter: address(lockup) });
@@ -264,7 +264,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: defaultStreamId,
             to: users.recipient,
-            asset: dai,
+            token: dai,
             amount: withdrawAmount
         });
         vm.expectEmit({ emitter: address(lockup) });
@@ -456,7 +456,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         // Set the withdraw amount to the default amount.
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
 
-        // Expect the assets to be transferred to the recipient contract.
+        // Expect the tokens to be transferred to the recipient contract.
         expectCallToTransfer({ to: address(recipientGood), value: withdrawAmount });
 
         // It should make Sablier run the recipient hook.
@@ -473,7 +473,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: recipientGoodStreamId,
             to: address(recipientGood),
-            asset: dai,
+            token: dai,
             amount: withdrawAmount
         });
         vm.expectEmit({ emitter: address(lockup) });

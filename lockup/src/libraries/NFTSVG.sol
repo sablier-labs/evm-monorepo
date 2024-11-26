@@ -14,8 +14,8 @@ library NFTSVG {
     struct SVGParams {
         string accentColor;
         string amount;
-        string assetAddress;
-        string assetSymbol;
+        string tokenAddress;
+        string tokenSymbol;
         string duration;
         string lockupAddress;
         string lockupModel;
@@ -89,7 +89,7 @@ library NFTSVG {
             '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">',
             SVGElements.BACKGROUND,
             generateDefs(params.accentColor, params.status, vars.cards),
-            generateFloatingText(params.lockupAddress, params.lockupModel, params.assetAddress, params.assetSymbol),
+            generateFloatingText(params.lockupAddress, params.lockupModel, params.tokenAddress, params.tokenSymbol),
             generateHrefs(vars.progressXPosition, vars.statusXPosition, vars.amountXPosition, vars.durationXPosition),
             "</svg>"
         );
@@ -120,8 +120,8 @@ library NFTSVG {
     function generateFloatingText(
         string memory lockupAddress,
         string memory lockupModel,
-        string memory assetAddress,
-        string memory assetSymbol
+        string memory tokenAddress,
+        string memory tokenSymbol
     )
         internal
         pure
@@ -137,8 +137,8 @@ library NFTSVG {
                 offset: "0%",
                 text: string.concat(lockupAddress, unicode" • ", "Sablier ", lockupModel)
             }),
-            SVGElements.floatingText({ offset: "-50%", text: string.concat(assetAddress, unicode" • ", assetSymbol) }),
-            SVGElements.floatingText({ offset: "50%", text: string.concat(assetAddress, unicode" • ", assetSymbol) }),
+            SVGElements.floatingText({ offset: "-50%", text: string.concat(tokenAddress, unicode" • ", tokenSymbol) }),
+            SVGElements.floatingText({ offset: "50%", text: string.concat(tokenAddress, unicode" • ", tokenSymbol) }),
             "</text>"
         );
     }

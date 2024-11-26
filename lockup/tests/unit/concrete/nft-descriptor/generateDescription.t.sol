@@ -14,7 +14,7 @@ contract GenerateDescription_Unit_Concrete_Test is Base_Test {
         string memory actualDescription = nftDescriptorMock.generateDescription_("", "", "", "", "", true);
         string memory expectedDescription = string.concat(
             "This NFT represents a payment stream in a Sablier Lockup ",
-            " contract. The owner of this NFT can withdraw the streamed assets, which are denominated in ",
+            " contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
             ".\\n\\n",
             "- Stream ID: ",
             "\\n- ",
@@ -39,7 +39,7 @@ contract GenerateDescription_Unit_Concrete_Test is Base_Test {
         string memory expectedDescription = string.concat(
             "This NFT represents a payment stream in a Sablier Lockup ",
             "Lockup Linear",
-            " contract. The owner of this NFT can withdraw the streamed assets, which are denominated in ",
+            " contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
             dai.symbol(),
             ".\\n\\n",
             "- Stream ID: ",
@@ -70,7 +70,7 @@ contract GenerateDescription_Unit_Concrete_Test is Base_Test {
         string memory expectedDescription = string.concat(
             "This NFT represents a payment stream in a Sablier Lockup ",
             "Lockup Linear",
-            " contract. The owner of this NFT can withdraw the streamed assets, which are denominated in ",
+            " contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
             dai.symbol(),
             ".\\n\\n",
             "- Stream ID: ",

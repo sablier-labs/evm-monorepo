@@ -41,10 +41,10 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
 
         uint256 expectedStreamId = lockup.nextStreamId();
 
-        // Mint enough assets to the fuzzed funder.
+        // Mint enough tokens to the fuzzed funder.
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
 
-        // Expect the assets to be transferred from the funder to {SablierLockup}.
+        // Expect the tokens to be transferred from the funder to {SablierLockup}.
         expectCallToTransferFrom({ from: vars.funder, to: address(lockup), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.
@@ -79,7 +79,7 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
 
         // It should create the stream.
         assertEq(lockup.getDepositedAmount(streamId), vars.createAmounts.deposit, "depositedAmount");
-        assertEq(lockup.getAsset(streamId), dai, "asset");
+        assertEq(lockup.getToken(streamId), dai, "token");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), vars.isCancelable, "isCancelable");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");

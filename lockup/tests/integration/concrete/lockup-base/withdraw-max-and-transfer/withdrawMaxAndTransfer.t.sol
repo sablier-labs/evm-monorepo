@@ -57,7 +57,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
-        // It should not expect a transfer call on asset.
+        // It should not expect a transfer call on token.
         vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transfer, (users.recipient, 0)), count: 0 });
 
         // It should emit {Transfer} event on NFT.
@@ -102,7 +102,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         // Get the withdraw amount.
         uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
-        // Expect the assets to be transferred to the Recipient.
+        // Expect the tokens to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: expectedWithdrawnAmount });
 
         // It should emit {Transfer} and {WithdrawFromLockupStream} events.
@@ -111,7 +111,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
             streamId: defaultStreamId,
             to: users.recipient,
             amount: expectedWithdrawnAmount,
-            asset: dai
+            token: dai
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC721.Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
@@ -145,7 +145,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         // Get the withdraw amount.
         uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
-        // Expect the assets to be transferred to the Recipient.
+        // Expect the tokens to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: expectedWithdrawnAmount });
 
         // It should emit {Transfer}, {WithdrawFromLockupStream} and {MetadataUpdate} events.
@@ -154,7 +154,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
             streamId: defaultStreamId,
             to: users.recipient,
             amount: expectedWithdrawnAmount,
-            asset: dai
+            token: dai
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });

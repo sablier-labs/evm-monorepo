@@ -8,20 +8,6 @@ import { Integration_Test } from "../../../Integration.t.sol";
 
 contract Getters_Integration_Concrete_Test is Integration_Test {
     /*//////////////////////////////////////////////////////////////////////////
-                                     GET-ASSET
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function test_GetAssetRevertGiven_Null() external {
-        expectRevert_Null({ callData: abi.encodeCall(lockup.getAsset, nullStreamId) });
-    }
-
-    function test_GetAssetGivenNotNull() external view {
-        IERC20 actualAsset = lockup.getAsset(defaultStreamId);
-        IERC20 expectedAsset = dai;
-        assertEq(actualAsset, expectedAsset, "asset");
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                 GET-DEPOSITED-AMOUNT
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -170,6 +156,20 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
         uint40 actualStartTime = lockup.getStartTime(defaultStreamId);
         uint40 expectedStartTime = defaults.START_TIME();
         assertEq(actualStartTime, expectedStartTime, "startTime");
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     GET-TOKEN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_GetTokenRevertGiven_Null() external {
+        expectRevert_Null({ callData: abi.encodeCall(lockup.getToken, nullStreamId) });
+    }
+
+    function test_GetTokenGivenNotNull() external view {
+        IERC20 actualToken = lockup.getToken(defaultStreamId);
+        IERC20 expectedToken = dai;
+        assertEq(actualToken, expectedToken, "token");
     }
 
     /*//////////////////////////////////////////////////////////////////////////

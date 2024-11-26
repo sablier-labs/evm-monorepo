@@ -40,7 +40,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranch
         uint40 totalDuration = tranches[tranches.length - 1].timestamp - defaults.START_TIME();
         timeJump = boundUint40(timeJump, firstTrancheDuration, totalDuration + 100 seconds);
 
-        // Mint enough assets to the Sender.
+        // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed tranches.
@@ -87,7 +87,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranch
         timeWarp0 = boundUint40(timeWarp0, firstTrancheDuration, totalDuration - 1);
         timeWarp1 = boundUint40(timeWarp1, timeWarp0, totalDuration);
 
-        // Mint enough assets to the Sender.
+        // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed tranches.

@@ -14,7 +14,7 @@ contract CreateWithTimestampsLD_Integration_Test is Integration_Test {
     }
 
     function test_WhenBatchSizeNotZero() external {
-        // Asset flow: Sender → batchLockup → SablierLockup
+        // Token flow: Sender → batchLockup → SablierLockup
         // Expect transfers from Alice to the batchLockup, and then from the batchLockup to the Lockup contract.
         expectCallToTransferFrom({
             from: users.sender,

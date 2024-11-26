@@ -28,7 +28,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenCliffTimeZero
     {
         _defaultParams.cliffTime = 0;
@@ -49,7 +49,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenCliffTimeZero
     {
         uint40 startTime = defaults.END_TIME();
@@ -74,7 +74,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenCliffTimeZero
     {
         uint40 cliffTime = 0;
@@ -90,7 +90,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenCliffTimeNotZero
     {
         uint40 startTime = defaults.CLIFF_TIME();
@@ -116,7 +116,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
     {
@@ -141,7 +141,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
         whenCliffTimeLessThanEndTime
@@ -158,7 +158,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStream();
     }
 
-    function test_WhenAssetMissesERC20ReturnValue()
+    function test_WhenTokenMissesERC20ReturnValue()
         external
         whenNoDelegateCall
         whenShapeNameNotExceed32Bytes
@@ -167,7 +167,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
         whenCliffTimeLessThanEndTime
@@ -176,7 +176,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         _testCreateWithTimestampsLL(address(usdt), _defaultParams.cliffTime);
     }
 
-    function test_WhenAssetNotMissERC20ReturnValue()
+    function test_WhenTokenNotMissERC20ReturnValue()
         external
         whenNoDelegateCall
         whenShapeNameNotExceed32Bytes
@@ -185,7 +185,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenAssetContract
+        whenTokenContract
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
         whenCliffTimeLessThanEndTime
@@ -194,21 +194,21 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         _testCreateWithTimestampsLL(address(dai), _defaultParams.cliffTime);
     }
 
-    /// @dev Shared logic between {test_WhenStartTimeLessThanEndTime}, {test_WhenAssetMissesERC20ReturnValue} and
-    /// {test_WhenAssetNotMissERC20ReturnValue}.
-    function _testCreateWithTimestampsLL(address asset, uint40 cliffTime) private {
+    /// @dev Shared logic between {test_WhenStartTimeLessThanEndTime}, {test_WhenTokenMissesERC20ReturnValue} and
+    /// {test_WhenTokenNotMissERC20ReturnValue}.
+    function _testCreateWithTimestampsLL(address token, uint40 cliffTime) private {
         // Make the Sender the stream's funder.
         address funder = users.sender;
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Set the default parameters.
-        _defaultParams.createWithTimestamps.asset = IERC20(asset);
+        _defaultParams.createWithTimestamps.token = IERC20(token);
         _defaultParams.unlockAmounts.cliff = cliffTime == 0 ? 0 : _defaultParams.unlockAmounts.cliff;
         _defaultParams.cliffTime = cliffTime;
 
         // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({
-            asset: IERC20(asset),
+            token: IERC20(token),
             from: funder,
             to: address(lockup),
             value: defaults.DEPOSIT_AMOUNT()
@@ -216,7 +216,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
 
         // Expect the broker fee to be paid to the broker.
         expectCallToTransferFrom({
-            asset: IERC20(asset),
+            token: IERC20(token),
             from: funder,
             to: users.broker,
             value: defaults.BROKER_FEE_AMOUNT()
@@ -228,7 +228,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupLinearStream({
             streamId: expectedStreamId,
-            commonParams: defaults.lockupCreateEvent(IERC20(asset)),
+            commonParams: defaults.lockupCreateEvent(IERC20(token)),
             cliffTime: cliffTime,
             unlockAmounts: _defaultParams.unlockAmounts
         });
@@ -238,7 +238,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
 
         // It should create the stream.
         assertEqStream(streamId);
-        assertEq(lockup.getAsset(streamId), IERC20(asset), "asset");
+        assertEq(lockup.getToken(streamId), IERC20(token), "token");
         assertEq(lockup.getCliffTime(streamId), cliffTime, "cliffTime");
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
         assertEq(lockup.getUnlockAmounts(streamId).start, _defaultParams.unlockAmounts.start, "unlockAmounts.start");

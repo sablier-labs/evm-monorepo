@@ -47,7 +47,7 @@ contract Defaults is Constants {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 private asset;
+    IERC20 private token;
     Users private users;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -66,8 +66,8 @@ contract Defaults is Constants {
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setAsset(IERC20 asset_) public {
-        asset = asset_;
+    function setToken(IERC20 token_) public {
+        token = token_;
     }
 
     function setUsers(Users memory users_) public {
@@ -98,8 +98,8 @@ contract Defaults is Constants {
         return Lockup.CreateAmounts({ deposit: DEPOSIT_AMOUNT, brokerFee: BROKER_FEE_AMOUNT });
     }
 
-    function lockupCreateEvent(IERC20 asset_) public view returns (Lockup.CreateEventCommon memory) {
-        return lockupCreateEvent(asset_, lockupCreateAmounts(), lockupTimestamps());
+    function lockupCreateEvent(IERC20 token_) public view returns (Lockup.CreateEventCommon memory) {
+        return lockupCreateEvent(token_, lockupCreateAmounts(), lockupTimestamps());
     }
 
     function lockupCreateEvent(Lockup.Timestamps memory timestamps)
@@ -107,7 +107,7 @@ contract Defaults is Constants {
         view
         returns (Lockup.CreateEventCommon memory)
     {
-        return lockupCreateEvent(asset, lockupCreateAmounts(), timestamps);
+        return lockupCreateEvent(token, lockupCreateAmounts(), timestamps);
     }
 
     function lockupCreateEvent(
@@ -118,11 +118,11 @@ contract Defaults is Constants {
         view
         returns (Lockup.CreateEventCommon memory)
     {
-        return lockupCreateEvent(asset, createAmounts, timestamps);
+        return lockupCreateEvent(token, createAmounts, timestamps);
     }
 
     function lockupCreateEvent(
-        IERC20 asset_,
+        IERC20 token_,
         Lockup.CreateAmounts memory createAmounts,
         Lockup.Timestamps memory timestamps
     )
@@ -135,7 +135,7 @@ contract Defaults is Constants {
             sender: users.sender,
             recipient: users.recipient,
             amounts: createAmounts,
-            asset: asset_,
+            token: token_,
             cancelable: true,
             transferable: true,
             timestamps: timestamps,
@@ -218,7 +218,7 @@ contract Defaults is Constants {
             sender: users.sender,
             recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
-            asset: asset,
+            token: token,
             cancelable: true,
             transferable: true,
             broker: broker(),
@@ -237,7 +237,7 @@ contract Defaults is Constants {
             sender: users.sender,
             recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
-            asset: asset,
+            token: token,
             cancelable: true,
             transferable: true,
             timestamps: lockupTimestamps(),

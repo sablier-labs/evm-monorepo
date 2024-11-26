@@ -158,7 +158,7 @@ library Errors {
     /// @notice Thrown when trying to withdraw to an address other than the recipient's.
     error SablierLockupBase_WithdrawalAddressNotRecipient(uint256 streamId, address caller, address to);
 
-    /// @notice Thrown when trying to withdraw zero assets from a stream.
+    /// @notice Thrown when trying to withdraw zero tokens from a stream.
     error SablierLockupBase_WithdrawAmountZero(uint256 streamId);
 
     /// @notice Thrown when trying to withdraw from multiple streams and the number of stream IDs does

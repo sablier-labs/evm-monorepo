@@ -190,8 +190,8 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         whenTimestampsStrictlyIncreasing
         whenDepositAmountNotEqualSegmentAmountsSum
         whenBrokerFeeNotExceedMaxValue
-        whenAssetContract
-        whenAssetERC20
+        whenTokenContract
+        whenTokenERC20
     {
         vm.assume(
             funder != address(0) && params.sender != address(0) && params.recipient != address(0)
@@ -200,7 +200,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         vm.assume(segments.length != 0);
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
 
-        params.asset = dai;
+        params.token = dai;
         params.timestamps.start = boundUint40(params.timestamps.start, 1, defaults.START_TIME());
         params.transferable = true;
 
@@ -223,13 +223,13 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
 
         uint256 expectedStreamId = lockup.nextStreamId();
 
-        // Mint enough assets to the fuzzed funder.
+        // Mint enough tokens to the fuzzed funder.
         deal({ token: address(dai), to: funder, give: vars.totalAmount });
 
-        // Approve {SablierLockup} to transfer the assets from the fuzzed funder.
+        // Approve {SablierLockup} to transfer the tokens from the fuzzed funder.
         dai.approve({ spender: address(lockup), value: MAX_UINT256 });
 
-        // Expect the assets to be transferred from the funder to {SablierLockup}.
+        // Expect the tokens to be transferred from the funder to {SablierLockup}.
         expectCallToTransferFrom({ from: funder, to: address(lockup), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.
@@ -246,7 +246,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
                 sender: params.sender,
                 recipient: params.recipient,
                 amounts: vars.createAmounts,
-                asset: dai,
+                token: dai,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: params.timestamps,
@@ -266,7 +266,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
 
         // It should create the stream.
         assertEq(lockup.getDepositedAmount(streamId), vars.createAmounts.deposit, "depositedAmount");
-        assertEq(lockup.getAsset(streamId), dai, "asset");
+        assertEq(lockup.getToken(streamId), dai, "token");
         assertEq(lockup.getEndTime(streamId), params.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), vars.isCancelable, "isCancelable");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");

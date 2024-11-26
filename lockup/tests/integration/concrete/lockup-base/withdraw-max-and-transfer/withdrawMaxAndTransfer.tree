@@ -12,7 +12,7 @@ WithdrawMaxAndTransfer_Integration_Concrete_Test
          │  └── it should revert
          └── given not burned NFT
             ├── given zero withdrawable amount
-            │  ├── it should not expect a transfer call on asset
+            │  ├── it should not expect a transfer call on token
             │  └── it should emit {Transfer} event on NFT
             └── given non zero withdrawable amount
                ├── when caller not current recipient

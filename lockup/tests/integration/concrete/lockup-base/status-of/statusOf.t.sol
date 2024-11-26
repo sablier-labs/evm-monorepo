@@ -10,7 +10,7 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null({ callData: abi.encodeCall(lockup.statusOf, nullStreamId) });
     }
 
-    function test_GivenAssetsFullyWithdrawn() external givenNotNull {
+    function test_GivenTokensFullyWithdrawn() external givenNotNull {
         vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
@@ -20,7 +20,7 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    function test_GivenCanceledStream() external givenNotNull givenAssetsNotFullyWithdrawn {
+    function test_GivenCanceledStream() external givenNotNull givenTokensNotFullyWithdrawn {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         lockup.cancel(defaultStreamId);
 
@@ -30,7 +30,7 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    function test_GivenStartTimeInFuture() external givenNotNull givenAssetsNotFullyWithdrawn givenNotCanceledStream {
+    function test_GivenStartTimeInFuture() external givenNotNull givenTokensNotFullyWithdrawn givenNotCanceledStream {
         vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
 
         // It should return PENDING.
@@ -42,7 +42,7 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
     function test_GivenZeroRefundableAmount()
         external
         givenNotNull
-        givenAssetsNotFullyWithdrawn
+        givenTokensNotFullyWithdrawn
         givenNotCanceledStream
         givenStartTimeNotInFuture
     {
@@ -57,7 +57,7 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
     function test_GivenNonZeroRefundableAmount()
         external
         givenNotNull
-        givenAssetsNotFullyWithdrawn
+        givenTokensNotFullyWithdrawn
         givenNotCanceledStream
         givenStartTimeNotInFuture
     {
