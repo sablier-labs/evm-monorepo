@@ -9,4 +9,4 @@ ignore:
   - "script"
   - "src/libraries/NFTSVG.sol"
   - "src/libraries/SVGElements.sol"
-  - "test"
+  - "tests"

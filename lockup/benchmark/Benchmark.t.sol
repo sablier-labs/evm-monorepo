@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { Base_Test } from "../test/Base.t.sol";
+import { Base_Test } from "../tests/Base.t.sol";
 
 /// @notice Benchmark contract with common logic needed by all tests.
 abstract contract Benchmark_Test is Base_Test {

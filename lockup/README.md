@@ -94,7 +94,7 @@ docs, as well as these [diagrams](https://docs.sablier.com/contracts/v2/referenc
 ### Branching Tree Technique
 
 You may notice that some test files are accompanied by `.tree` files. This is called the Branching Tree Technique, and
-it is explained in depth [here](https://github.com/sablier-labs/lockup/wiki/Tests#branching-tree-technique).
+it is explained in depth [here](https://www.bulloak.dev/).
 
 ## Deployments
 
@@ -124,6 +124,6 @@ The primary license for Sablier Lockup is the Business Source License 1.1 (`BUSL
 
 - All files in `src/interfaces/` and `src/types` are licensed under `GPL-3.0-or-later`, see
   [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Several files in `src`, `script`, and `test` are licensed under `GPL-3.0-or-later`, see
+- Several files in `src`, `script`, and `tests` are licensed under `GPL-3.0-or-later`, see
   [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Many files in `test/` remain unlicensed (as indicated in their SPDX headers).
+- Many files in `tests/` remain unlicensed (as indicated in their SPDX headers).
