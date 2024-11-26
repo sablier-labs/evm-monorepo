@@ -79,18 +79,18 @@ contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Tranched_Integrat
 
         // It should create the stream.
         assertEq(lockup.getDepositedAmount(streamId), vars.createAmounts.deposit, "depositedAmount");
-        assertEq(lockup.getToken(streamId), dai, "token");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), vars.isCancelable, "isCancelable");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");
         assertTrue(lockup.isStream(streamId), "isStream");
         assertTrue(lockup.isTransferable(streamId), "isTransferable");
+        assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_TRANCHED);
         assertEq(lockup.getRecipient(streamId), users.recipient, "recipient");
         assertEq(lockup.getSender(streamId), users.sender, "sender");
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
-        assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
         assertEq(lockup.getTranches(streamId), vars.tranchesWithTimestamps);
-        assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_TRANCHED);
+        assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
+        assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
         // Assert that the stream's status is correct.
         vars.actualStatus = lockup.statusOf(streamId);

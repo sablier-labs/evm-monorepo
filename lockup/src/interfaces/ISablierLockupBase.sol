@@ -79,11 +79,6 @@ interface ISablierLockupBase is
     /// @dev This value is hard coded as a constant.
     function MAX_BROKER_FEE() external view returns (UD60x18);
 
-    /// @notice Retrieves the address of the ERC-20 token being distributed.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function getToken(uint256 streamId) external view returns (IERC20 token);
-
     /// @notice Retrieves the amount deposited in the stream, denoted in units of the token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
@@ -119,6 +114,11 @@ interface ISablierLockupBase is
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function getStartTime(uint256 streamId) external view returns (uint40 startTime);
+
+    /// @notice Retrieves the address of the underlying ERC-20 token being distributed.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    function getUnderlyingToken(uint256 streamId) external view returns (IERC20 token);
 
     /// @notice Retrieves the amount withdrawn from the stream, denoted in units of the token's decimals.
     /// @dev Reverts if `streamId` references a null stream.

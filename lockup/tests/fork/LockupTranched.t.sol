@@ -185,17 +185,17 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
         vars.isCancelable = vars.isSettled ? false : true;
 
         // Assert that the stream has been created.
-        assertEq(lockup.getToken(vars.streamId), FORK_TOKEN, "token");
-        assertEq(lockup.getDepositedAmount(vars.streamId), vars.createAmounts.deposit, "depositedAmount");
-        assertEq(lockup.getEndTime(vars.streamId), vars.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(vars.streamId), vars.isCancelable, "isCancelable");
         assertFalse(lockup.isDepleted(vars.streamId), "isDepleted");
         assertTrue(lockup.isStream(vars.streamId), "isStream");
         assertTrue(lockup.isTransferable(vars.streamId), "isTransferable");
+        assertEq(lockup.getDepositedAmount(vars.streamId), vars.createAmounts.deposit, "depositedAmount");
+        assertEq(lockup.getEndTime(vars.streamId), vars.timestamps.end, "endTime");
         assertEq(lockup.getRecipient(vars.streamId), params.recipient, "recipient");
         assertEq(lockup.getSender(vars.streamId), params.sender, "sender");
         assertEq(lockup.getStartTime(vars.streamId), params.startTime, "startTime");
         assertEq(lockup.getTranches(vars.streamId), params.tranches);
+        assertEq(lockup.getUnderlyingToken(vars.streamId), FORK_TOKEN, "underlyingToken");
         assertFalse(lockup.wasCanceled(vars.streamId), "wasCanceled");
 
         // Assert that the stream's status is correct.

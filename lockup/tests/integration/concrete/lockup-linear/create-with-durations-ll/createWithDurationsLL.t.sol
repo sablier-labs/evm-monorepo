@@ -103,20 +103,20 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
         uint256 streamId = createDefaultStreamWithDurations();
 
         // It should create the stream.
-        assertEq(lockup.getToken(streamId), dai, "token");
+        assertEq(lockup.getCliffTime(streamId), cliffTime, "cliffTime");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), true, "isCancelable");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");
         assertTrue(lockup.isStream(streamId), "isStream");
         assertTrue(lockup.isTransferable(streamId), "isTransferable");
+        assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
         assertEq(lockup.getRecipient(streamId), users.recipient, "recipient");
         assertEq(lockup.getSender(streamId), users.sender, "sender");
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
-        assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
-        assertEq(lockup.getCliffTime(streamId), cliffTime, "cliffTime");
+        assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
         assertEq(lockup.getUnlockAmounts(streamId).start, _defaultParams.unlockAmounts.start, "unlockAmounts.start");
         assertEq(lockup.getUnlockAmounts(streamId).cliff, _defaultParams.unlockAmounts.cliff, "unlockAmounts.cliff");
-        assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
+        assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
         // Assert that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);

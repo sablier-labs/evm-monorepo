@@ -220,17 +220,17 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         vars.isCancelable = vars.isSettled ? false : true;
 
         // Assert that the stream has been created.
-        assertEq(lockup.getToken(vars.streamId), FORK_TOKEN, "token");
         assertEq(lockup.getCliffTime(vars.streamId), params.cliffTime, "cliffTime");
         assertEq(lockup.getDepositedAmount(vars.streamId), vars.createAmounts.deposit, "depositedAmount");
-        assertEq(lockup.getEndTime(vars.streamId), params.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(vars.streamId), vars.isCancelable, "isCancelable");
         assertFalse(lockup.isDepleted(vars.streamId), "isDepleted");
         assertTrue(lockup.isStream(vars.streamId), "isStream");
         assertTrue(lockup.isTransferable(vars.streamId), "isTransferable");
+        assertEq(lockup.getEndTime(vars.streamId), params.timestamps.end, "endTime");
         assertEq(lockup.getRecipient(vars.streamId), params.recipient, "recipient");
         assertEq(lockup.getSender(vars.streamId), params.sender, "sender");
         assertEq(lockup.getStartTime(vars.streamId), params.timestamps.start, "startTime");
+        assertEq(lockup.getUnderlyingToken(vars.streamId), FORK_TOKEN, "underlyingToken");
         assertEq(lockup.getUnlockAmounts(vars.streamId).start, params.unlockAmounts.start, "unlockAmounts.start");
         assertEq(lockup.getUnlockAmounts(vars.streamId).cliff, params.unlockAmounts.cliff, "unlockAmounts.cliff");
         assertFalse(lockup.wasCanceled(vars.streamId), "wasCanceled");

@@ -49,7 +49,7 @@ Getters_Integration_Concrete_Test::getStartTime
 └── given not null
    └── it should return the correct start time
 
-Getters_Integration_Concrete_Test::getToken
+Getters_Integration_Concrete_Test::getUnderlyingToken
 ├── given null
 │  └── it should revert
 └── given not null

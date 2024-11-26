@@ -167,17 +167,17 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
 
         // Assert that the stream has been created.
         assertEq(lockup.getDepositedAmount(streamId), defaults.DEPOSIT_AMOUNT(), "depositedAmount");
-        assertEq(lockup.getSender(streamId), users.sender, "sender");
-        assertEq(lockup.getRecipient(streamId), users.recipient, "recipient");
-        assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");
-        assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
         assertTrue(lockup.isStream(streamId), "isStream");
         assertTrue(lockup.isCancelable(streamId), "isCancelable");
         assertTrue(lockup.isTransferable(streamId), "isTransferable");
-        assertEq(lockup.getToken(streamId), dai, "token");
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_DYNAMIC);
+        assertEq(lockup.getRecipient(streamId), users.recipient, "recipient");
+        assertEq(lockup.getSender(streamId), users.sender, "sender");
+        assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
+        assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
+        assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
         // Assert that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);

@@ -159,17 +159,17 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     GET-TOKEN
+                                GET-UNDERLYING-TOKEN
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_GetTokenRevertGiven_Null() external {
-        expectRevert_Null({ callData: abi.encodeCall(lockup.getToken, nullStreamId) });
+    function test_GetUnderlyingTokenRevertGiven_Null() external {
+        expectRevert_Null({ callData: abi.encodeCall(lockup.getUnderlyingToken, nullStreamId) });
     }
 
-    function test_GetTokenGivenNotNull() external view {
-        IERC20 actualToken = lockup.getToken(defaultStreamId);
-        IERC20 expectedToken = dai;
-        assertEq(actualToken, expectedToken, "token");
+    function test_GetUnderlyingTokenGivenNotNull() external view {
+        IERC20 actualUnderlyingToken = lockup.getUnderlyingToken(defaultStreamId);
+        IERC20 expectedUnderlyingToken = dai;
+        assertEq(actualUnderlyingToken, expectedUnderlyingToken, "underlyingToken");
     }
 
     /*//////////////////////////////////////////////////////////////////////////

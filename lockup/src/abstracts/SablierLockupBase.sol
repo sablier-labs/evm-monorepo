@@ -74,11 +74,6 @@ abstract contract SablierLockupBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierLockupBase
-    function getToken(uint256 streamId) external view override notNull(streamId) returns (IERC20 token) {
-        token = _streams[streamId].token;
-    }
-
-    /// @inheritdoc ISablierLockupBase
     function getDepositedAmount(uint256 streamId)
         external
         view
@@ -130,6 +125,11 @@ abstract contract SablierLockupBase is
     /// @inheritdoc ISablierLockupBase
     function getStartTime(uint256 streamId) external view override notNull(streamId) returns (uint40 startTime) {
         startTime = _streams[streamId].startTime;
+    }
+
+    /// @inheritdoc ISablierLockupBase
+    function getUnderlyingToken(uint256 streamId) external view override notNull(streamId) returns (IERC20 token) {
+        token = _streams[streamId].token;
     }
 
     /// @inheritdoc ISablierLockupBase
