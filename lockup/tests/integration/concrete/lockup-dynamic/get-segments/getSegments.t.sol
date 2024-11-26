@@ -25,6 +25,6 @@ contract GetSegments_Integration_Concrete_Test is Lockup_Dynamic_Integration_Con
     function test_GivenDynamicModel() external givenNotNull {
         LockupDynamic.Segment[] memory actualSegments = lockup.getSegments(defaultStreamId);
         LockupDynamic.Segment[] memory expectedSegments = defaults.segments();
-        assertEq(actualSegments, expectedSegments, "segments");
+        assertEq(actualSegments, expectedSegments);
     }
 }

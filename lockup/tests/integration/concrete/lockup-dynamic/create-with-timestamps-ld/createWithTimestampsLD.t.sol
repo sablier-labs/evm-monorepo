@@ -288,7 +288,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         // It should create the stream.
         assertEqStream(streamId);
         assertEq(lockup.getAsset(streamId), IERC20(asset), "asset");
-        assertEq(lockup.getSegments(streamId), defaults.segments(), "segments");
+        assertEq(lockup.getSegments(streamId), defaults.segments());
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_DYNAMIC);
     }
 }

@@ -19,5 +19,5 @@ out-svg
 lcov.info
 package-lock.json
 pnpm-lock.yaml
-script/protocol/*.md
+script/*.md
 yarn.lock

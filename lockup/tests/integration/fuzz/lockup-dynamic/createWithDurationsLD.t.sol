@@ -89,7 +89,7 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
         assertEq(lockup.getSender(streamId), users.sender, "sender");
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
-        assertEq(lockup.getSegments(streamId), vars.segmentsWithTimestamps, "segments");
+        assertEq(lockup.getSegments(streamId), vars.segmentsWithTimestamps);
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_DYNAMIC);
 
         // Assert that the stream's status is correct.

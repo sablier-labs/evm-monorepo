@@ -192,7 +192,7 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
         assertTrue(lockup.isStream(vars.streamId), "isStream");
         assertTrue(lockup.isTransferable(vars.streamId), "isTransferable");
         assertEq(lockup.getRecipient(vars.streamId), params.recipient, "recipient");
-        assertEq(lockup.getSegments(vars.streamId), params.segments, "segments");
+        assertEq(lockup.getSegments(vars.streamId), params.segments);
         assertEq(lockup.getSender(vars.streamId), params.sender, "sender");
         assertEq(lockup.getStartTime(vars.streamId), params.startTime, "startTime");
         assertFalse(lockup.isDepleted(vars.streamId), "isDepleted");

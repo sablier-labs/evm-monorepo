@@ -195,7 +195,7 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
         assertEq(lockup.getRecipient(vars.streamId), params.recipient, "recipient");
         assertEq(lockup.getSender(vars.streamId), params.sender, "sender");
         assertEq(lockup.getStartTime(vars.streamId), params.startTime, "startTime");
-        assertEq(lockup.getTranches(vars.streamId), params.tranches, "tranches");
+        assertEq(lockup.getTranches(vars.streamId), params.tranches);
         assertFalse(lockup.wasCanceled(vars.streamId), "wasCanceled");
 
         // Assert that the stream's status is correct.

@@ -25,6 +25,6 @@ contract GetTranches_Integration_Concrete_Test is Lockup_Tranched_Integration_Co
     function test_GivenTranchedModel() external givenNotNull {
         LockupTranched.Tranche[] memory actualTranches = lockup.getTranches(defaultStreamId);
         LockupTranched.Tranche[] memory expectedTranches = defaults.tranches();
-        assertEq(actualTranches, expectedTranches, "tranches");
+        assertEq(actualTranches, expectedTranches);
     }
 }
