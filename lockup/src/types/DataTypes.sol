@@ -27,8 +27,8 @@ library BatchLockup {
         bool cancelable;
         bool transferable;
         LockupDynamic.SegmentWithDuration[] segmentsWithDuration;
-        Broker broker;
         string shape;
+        Broker broker;
     }
 
     /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLL} except for the token.
@@ -40,8 +40,8 @@ library BatchLockup {
         bool transferable;
         LockupLinear.Durations durations;
         LockupLinear.UnlockAmounts unlockAmounts;
-        Broker broker;
         string shape;
+        Broker broker;
     }
 
     /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLT} except for the token.
@@ -52,8 +52,8 @@ library BatchLockup {
         bool cancelable;
         bool transferable;
         LockupTranched.TrancheWithDuration[] tranchesWithDuration;
-        Broker broker;
         string shape;
+        Broker broker;
     }
 
     /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLD} except for the token.
@@ -65,8 +65,8 @@ library BatchLockup {
         bool transferable;
         uint40 startTime;
         LockupDynamic.Segment[] segments;
-        Broker broker;
         string shape;
+        Broker broker;
     }
 
     /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLL} except for the token.
@@ -79,8 +79,8 @@ library BatchLockup {
         Lockup.Timestamps timestamps;
         uint40 cliffTime;
         LockupLinear.UnlockAmounts unlockAmounts;
-        Broker broker;
         string shape;
+        Broker broker;
     }
 
     /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLT} except for the token.
@@ -92,8 +92,8 @@ library BatchLockup {
         bool transferable;
         uint40 startTime;
         LockupTranched.Tranche[] tranches;
-        Broker broker;
         string shape;
+        Broker broker;
     }
 }
 
@@ -141,9 +141,9 @@ library Lockup {
     /// @param cancelable Boolean indicating whether the stream is cancelable or not.
     /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
     /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, all as Unix timestamps.
-    /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
-    /// @param shape The name of the stream shape that it should represent. This is useful to differentiate between
+    /// @param shape An optional parameter to specify the shape of the distribution function. This helps differentiate
     /// streams in the UI.
+    /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     struct CreateEventCommon {
         address funder;
         address sender;
@@ -153,8 +153,8 @@ library Lockup {
         bool cancelable;
         bool transferable;
         Lockup.Timestamps timestamps;
-        address broker;
         string shape;
+        address broker;
     }
 
     /// @notice Struct encapsulating the parameters of the `createWithDurations` functions.
@@ -166,10 +166,10 @@ library Lockup {
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
+    /// @param shape An optional parameter to specify the shape of the distribution function. This helps differentiate
+    /// streams in the UI.
     /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
-    /// @param shape An optional name for the stream shape that it should represent. This is useful to differentiate
-    /// between streams in the UI.
     struct CreateWithDurations {
         address sender;
         address recipient;
@@ -177,8 +177,8 @@ library Lockup {
         IERC20 token;
         bool cancelable;
         bool transferable;
-        Broker broker;
         string shape;
+        Broker broker;
     }
 
     /// @notice Struct encapsulating the parameters of the `createWithTimestamps` functions.
@@ -191,10 +191,10 @@ library Lockup {
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, both as Unix timestamps.
+    /// @param shape An optional parameter to specify the shape of the distribution function. This helps differentiate
+    /// streams in the UI.
     /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
-    /// @param shape An optional name for the stream shape that it should represent. This is useful to differentiate
-    /// between streams in the UI.
     struct CreateWithTimestamps {
         address sender;
         address recipient;
@@ -203,8 +203,8 @@ library Lockup {
         bool cancelable;
         bool transferable;
         Timestamps timestamps;
-        Broker broker;
         string shape;
+        Broker broker;
     }
 
     /// @notice Enum representing the different distribution models used to create lockup streams.

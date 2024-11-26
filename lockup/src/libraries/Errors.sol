@@ -77,8 +77,8 @@ library Errors {
     /// @notice Thrown when trying to create a stream with the sender as the zero address.
     error SablierHelpers_SenderZeroAddress();
 
-    /// @notice Thrown when trying to create a stream with shape name exceeding 32 bytes.
-    error SablierHelpers_ShapeNameExceeds32Bytes(uint256 nameLength);
+    /// @notice Thrown when trying to create a stream with a shape string exceeding 32 bytes.
+    error SablierHelpers_ShapeExceeds32Bytes(uint256 shapeLength);
 
     /// @notice Thrown when trying to create a linear stream with a start time not strictly less than the cliff time,
     /// when the cliff time does not have a zero value.

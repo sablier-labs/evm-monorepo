@@ -2,9 +2,9 @@ CreateWithTimestamps_Integration_Concrete_Test
 ├── when delegate call
 │  └── it should revert
 └── when no delegate call
-   ├── when shape name exceeds 32 bytes
+   ├── when shape exceeds 32 bytes
    │  └── it should revert
-   └── when shape name not exceed 32 bytes
+   └── when shape not exceed 32 bytes
       ├── when broker fee exceeds max value
       │  └── it should revert
       └── when broker fee not exceed max value

@@ -18,12 +18,12 @@ import { BatchLockup, Lockup } from "./types/DataTypes.sol";
 ███████║██║  ██║██████╔╝███████╗██║███████╗██║  ██║    ██████╔╝██║  ██║   ██║   ╚██████╗██║  ██║
 ╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝    ╚═════╝╚═╝  ╚═╝
 
-██╗      ██████╗  ██████╗██╗  ██╗██╗   ██╗██████╗ 
+██╗      ██████╗  ██████╗██╗  ██╗██╗   ██╗██████╗
 ██║     ██╔═══██╗██╔════╝██║ ██╔╝██║   ██║██╔══██╗
 ██║     ██║   ██║██║     █████╔╝ ██║   ██║██████╔╝
-██║     ██║   ██║██║     ██╔═██╗ ██║   ██║██╔═══╝ 
-███████╗╚██████╔╝╚██████╗██║  ██╗╚██████╔╝██║     
-╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝     
+██║     ██║   ██║██║     ██╔═██╗ ██║   ██║██╔═══╝
+███████╗╚██████╔╝╚██████╗██║  ██╗╚██████╔╝██║
+╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝
 
 */
 
@@ -77,8 +77,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    broker: batch[i].broker,
-                    shape: batch[i].shape
+                    shape: batch[i].shape,
+                    broker: batch[i].broker
                 }),
                 batch[i].segmentsWithDuration
             );
@@ -134,8 +134,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
                     timestamps: Lockup.Timestamps({ start: batch[i].startTime, end: endTime }),
-                    broker: batch[i].broker,
-                    shape: batch[i].shape
+                    shape: batch[i].shape,
+                    broker: batch[i].broker
                 }),
                 batch[i].segments
             );
@@ -238,8 +238,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
                     timestamps: batch[i].timestamps,
-                    broker: batch[i].broker,
-                    shape: batch[i].shape
+                    shape: batch[i].shape,
+                    broker: batch[i].broker
                 }),
                 batch[i].unlockAmounts,
                 batch[i].cliffTime
@@ -292,8 +292,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    broker: batch[i].broker,
-                    shape: batch[i].shape
+                    shape: batch[i].shape,
+                    broker: batch[i].broker
                 }),
                 batch[i].tranchesWithDuration
             );
@@ -349,8 +349,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
                     timestamps: Lockup.Timestamps({ start: batch[i].startTime, end: endTime }),
-                    broker: batch[i].broker,
-                    shape: batch[i].shape
+                    shape: batch[i].shape,
+                    broker: batch[i].broker
                 }),
                 batch[i].tranches
             );

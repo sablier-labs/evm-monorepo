@@ -31,7 +31,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
     function test_RevertWhen_SegmentCountZero()
         external
         whenNoDelegateCall
-        whenShapeNameNotExceed32Bytes
+        whenShapeNotExceed32Bytes
         whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
@@ -47,7 +47,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
     function test_RevertWhen_SegmentCountExceedsMaxValue()
         external
         whenNoDelegateCall
-        whenShapeNameNotExceed32Bytes
+        whenShapeNotExceed32Bytes
         whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
@@ -66,7 +66,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
         whenNoDelegateCall
-        whenShapeNameNotExceed32Bytes
+        whenShapeNotExceed32Bytes
         whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
@@ -86,7 +86,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
     function test_RevertWhen_StartTimeGreaterThanFirstTimestamp()
         external
         whenNoDelegateCall
-        whenShapeNameNotExceed32Bytes
+        whenShapeNotExceed32Bytes
         whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
@@ -115,7 +115,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
     function test_RevertWhen_StartTimeEqualsFirstTimestamp()
         external
         whenNoDelegateCall
-        whenShapeNameNotExceed32Bytes
+        whenShapeNotExceed32Bytes
         whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
@@ -144,7 +144,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
     function test_RevertWhen_TimestampsNotStrictlyIncreasing()
         external
         whenNoDelegateCall
-        whenShapeNameNotExceed32Bytes
+        whenShapeNotExceed32Bytes
         whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
@@ -177,7 +177,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
     function test_RevertWhen_DepositAmountNotEqualSegmentAmountsSum()
         external
         whenNoDelegateCall
-        whenShapeNameNotExceed32Bytes
+        whenShapeNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -212,7 +212,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
     function test_WhenTokenMissesERC20ReturnValue()
         external
         whenNoDelegateCall
-        whenShapeNameNotExceed32Bytes
+        whenShapeNotExceed32Bytes
         whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
@@ -232,7 +232,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
     function test_WhenTokenNotMissERC20ReturnValue()
         external
         whenNoDelegateCall
-        whenShapeNameNotExceed32Bytes
+        whenShapeNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero

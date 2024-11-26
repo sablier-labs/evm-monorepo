@@ -84,8 +84,8 @@ library Helpers {
         LockupDynamic.Segment[] memory segments,
         uint256 maxCount,
         UD60x18 brokerFee,
-        UD60x18 maxBrokerFee,
-        string memory shape
+        string memory shape,
+        UD60x18 maxBrokerFee
     )
         public
         pure
@@ -109,8 +109,8 @@ library Helpers {
         uint128 totalAmount,
         LockupLinear.UnlockAmounts memory unlockAmounts,
         UD60x18 brokerFee,
-        UD60x18 maxBrokerFee,
-        string memory shape
+        string memory shape,
+        UD60x18 maxBrokerFee
     )
         public
         pure
@@ -134,8 +134,8 @@ library Helpers {
         LockupTranched.Tranche[] memory tranches,
         uint256 maxCount,
         UD60x18 brokerFee,
-        UD60x18 maxBrokerFee,
-        string memory shape
+        string memory shape,
+        UD60x18 maxBrokerFee
     )
         public
         pure
@@ -256,9 +256,9 @@ library Helpers {
             revert Errors.SablierHelpers_StartTimeZero();
         }
 
-        // Check: the shape name is not greater than 32 bytes to prevent HTML injection attacks.
+        // Check: the shape is not greater than 32 bytes.
         if (bytes(shape).length > 32) {
-            revert Errors.SablierHelpers_ShapeNameExceeds32Bytes(bytes(shape).length);
+            revert Errors.SablierHelpers_ShapeExceeds32Bytes(bytes(shape).length);
         }
     }
 

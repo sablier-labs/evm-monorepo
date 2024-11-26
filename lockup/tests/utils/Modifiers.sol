@@ -109,7 +109,7 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
-    modifier whenShapeNameNotExceed32Bytes() {
+    modifier whenShapeNotExceed32Bytes() {
         _;
     }
 

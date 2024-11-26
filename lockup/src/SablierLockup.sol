@@ -158,8 +158,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: timestamps,
-                broker: params.broker,
-                shape: params.shape
+                shape: params.shape,
+                broker: params.broker
             }),
             segments
         );
@@ -202,8 +202,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: timestamps,
-                broker: params.broker,
-                shape: params.shape
+                shape: params.shape,
+                broker: params.broker
             }),
             unlockAmounts,
             cliffTime
@@ -238,8 +238,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: timestamps,
-                broker: params.broker,
-                shape: params.shape
+                shape: params.shape,
+                broker: params.broker
             }),
             tranches
         );
@@ -396,8 +396,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             cancelable: params.cancelable,
             transferable: params.transferable,
             timestamps: params.timestamps,
-            broker: params.broker.account,
-            shape: params.shape
+            shape: params.shape,
+            broker: params.broker.account
         });
     }
 
@@ -417,8 +417,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             segments: segments,
             maxCount: MAX_COUNT,
             brokerFee: params.broker.fee,
-            maxBrokerFee: MAX_BROKER_FEE,
-            shape: params.shape
+            shape: params.shape,
+            maxBrokerFee: MAX_BROKER_FEE
         });
 
         // Load the stream ID in a variable.
@@ -464,8 +464,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             totalAmount: params.totalAmount,
             unlockAmounts: unlockAmounts,
             brokerFee: params.broker.fee,
-            maxBrokerFee: MAX_BROKER_FEE,
-            shape: params.shape
+            shape: params.shape,
+            maxBrokerFee: MAX_BROKER_FEE
         });
 
         // Load the stream ID in a variable.
@@ -519,8 +519,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             tranches: tranches,
             maxCount: MAX_COUNT,
             brokerFee: params.broker.fee,
-            maxBrokerFee: MAX_BROKER_FEE,
-            shape: params.shape
+            shape: params.shape,
+            maxBrokerFee: MAX_BROKER_FEE
         });
 
         // Load the stream ID in a variable.

@@ -178,8 +178,8 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
                 cancelable: true,
                 transferable: true,
                 timestamps: params.timestamps,
-                broker: params.broker.account,
-                shape: "Linear Shape"
+                shape: "Linear Shape",
+                broker: params.broker.account
             }),
             cliffTime: params.cliffTime,
             unlockAmounts: params.unlockAmounts
@@ -195,8 +195,8 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
                 cancelable: true,
                 transferable: true,
                 timestamps: params.timestamps,
-                broker: params.broker,
-                shape: "Linear Shape"
+                shape: "Linear Shape",
+                broker: params.broker
             }),
             params.unlockAmounts,
             params.cliffTime

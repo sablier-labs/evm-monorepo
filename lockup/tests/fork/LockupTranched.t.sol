@@ -157,8 +157,8 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
                 cancelable: true,
                 transferable: true,
                 timestamps: vars.timestamps,
-                broker: params.broker.account,
-                shape: "Tranched Shape"
+                shape: "Tranched Shape",
+                broker: params.broker.account
             }),
             tranches: params.tranches
         });
@@ -173,8 +173,8 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
                 cancelable: true,
                 transferable: true,
                 timestamps: vars.timestamps,
-                broker: params.broker,
-                shape: "Tranched Shape"
+                shape: "Tranched Shape",
+                broker: params.broker
             }),
             params.tranches
         );

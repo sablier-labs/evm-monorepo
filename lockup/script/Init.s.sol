@@ -51,8 +51,8 @@ contract Init is BaseScript {
                     token: token,
                     cancelable: true,
                     transferable: true,
-                    broker: Broker(address(0), ud60x18(0)),
-                    shape: "Cliff Linear"
+                    shape: "Cliff Linear",
+                    broker: Broker(address(0), ud60x18(0))
                 }),
                 LockupLinear.UnlockAmounts({ start: 0, cliff: 0 }),
                 LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] })
@@ -83,8 +83,8 @@ contract Init is BaseScript {
                 token: token,
                 cancelable: true,
                 transferable: true,
-                broker: Broker(address(0), ud60x18(0)),
-                shape: "Exponential Dynamic"
+                shape: "Exponential Dynamic",
+                broker: Broker(address(0), ud60x18(0))
             }),
             segments
         );

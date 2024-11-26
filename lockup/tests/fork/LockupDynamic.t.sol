@@ -157,8 +157,8 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
                 cancelable: true,
                 transferable: true,
                 timestamps: vars.timestamps,
-                broker: params.broker.account,
-                shape: "Dynamic Shape"
+                shape: "Dynamic Shape",
+                broker: params.broker.account
             }),
             segments: params.segments
         });
@@ -173,8 +173,8 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
                 cancelable: true,
                 transferable: true,
                 timestamps: vars.timestamps,
-                broker: params.broker,
-                shape: "Dynamic Shape"
+                shape: "Dynamic Shape",
+                broker: params.broker
             }),
             params.segments
         );
