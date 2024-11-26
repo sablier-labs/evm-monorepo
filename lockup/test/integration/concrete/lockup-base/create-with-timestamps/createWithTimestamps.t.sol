@@ -68,7 +68,13 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
         expectRevert_DelegateCall(callData);
     }
 
-    function test_RevertWhen_BrokerFeeExceedsMaxValue() external whenNoDelegateCall {
+    function test_RevertWhen_ShapeNameExceeds32Bytes() external whenNoDelegateCall {
+        _defaultParams.createWithTimestamps.shape = "this name is longer than 32 bytes";
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_ShapeNameExceeds32Bytes.selector, 33));
+        createDefaultStream();
+    }
+
+    function test_RevertWhen_BrokerFeeExceedsMaxValue() external whenNoDelegateCall whenShapeNameNotExceed32Bytes {
         UD60x18 brokerFee = MAX_BROKER_FEE + ud(1);
         _defaultParams.createWithTimestamps.broker.fee = brokerFee;
         vm.expectRevert(
@@ -77,7 +83,12 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
         createDefaultStream();
     }
 
-    function test_RevertWhen_SenderZeroAddress() external whenNoDelegateCall whenBrokerFeeNotExceedMaxValue {
+    function test_RevertWhen_SenderZeroAddress()
+        external
+        whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
+        whenBrokerFeeNotExceedMaxValue
+    {
         _defaultParams.createWithTimestamps.sender = address(0);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_SenderZeroAddress.selector));
         createDefaultStream();
@@ -86,6 +97,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
     function test_RevertWhen_RecipientZeroAddress()
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
     {
@@ -97,6 +109,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
     function test_RevertWhen_DepositAmountZero()
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
@@ -109,6 +122,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
     function test_RevertWhen_StartTimeZero()
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
@@ -122,6 +136,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
     function test_RevertWhen_AssetNotContract()
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress

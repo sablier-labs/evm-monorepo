@@ -84,7 +84,8 @@ library Helpers {
         LockupDynamic.Segment[] memory segments,
         uint256 maxCount,
         UD60x18 brokerFee,
-        UD60x18 maxBrokerFee
+        UD60x18 maxBrokerFee,
+        string memory shape
     )
         public
         pure
@@ -94,7 +95,7 @@ library Helpers {
         createAmounts = _checkAndCalculateBrokerFee(totalAmount, brokerFee, maxBrokerFee);
 
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, createAmounts.deposit, timestamps.start);
+        _checkCreateStream(sender, createAmounts.deposit, timestamps.start, shape);
 
         // Check: validate the user-provided segments.
         _checkSegments(segments, createAmounts.deposit, timestamps, maxCount);
@@ -108,7 +109,8 @@ library Helpers {
         uint128 totalAmount,
         LockupLinear.UnlockAmounts memory unlockAmounts,
         UD60x18 brokerFee,
-        UD60x18 maxBrokerFee
+        UD60x18 maxBrokerFee,
+        string memory shape
     )
         public
         pure
@@ -118,7 +120,7 @@ library Helpers {
         createAmounts = _checkAndCalculateBrokerFee(totalAmount, brokerFee, maxBrokerFee);
 
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, createAmounts.deposit, timestamps.start);
+        _checkCreateStream(sender, createAmounts.deposit, timestamps.start, shape);
 
         // Check: validate the user-provided cliff and end times.
         _checkTimestampsAndUnlockAmounts(createAmounts.deposit, timestamps, cliffTime, unlockAmounts);
@@ -132,7 +134,8 @@ library Helpers {
         LockupTranched.Tranche[] memory tranches,
         uint256 maxCount,
         UD60x18 brokerFee,
-        UD60x18 maxBrokerFee
+        UD60x18 maxBrokerFee,
+        string memory shape
     )
         public
         pure
@@ -142,7 +145,7 @@ library Helpers {
         createAmounts = _checkAndCalculateBrokerFee(totalAmount, brokerFee, maxBrokerFee);
 
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, createAmounts.deposit, timestamps.start);
+        _checkCreateStream(sender, createAmounts.deposit, timestamps.start, shape);
 
         // Check: validate the user-provided segments.
         _checkTranches(tranches, createAmounts.deposit, timestamps, maxCount);
@@ -229,7 +232,15 @@ library Helpers {
     }
 
     /// @dev Checks the user-provided common parameters across lockup streams.
-    function _checkCreateStream(address sender, uint128 depositAmount, uint40 startTime) private pure {
+    function _checkCreateStream(
+        address sender,
+        uint128 depositAmount,
+        uint40 startTime,
+        string memory shape
+    )
+        private
+        pure
+    {
         // Check: the sender is not the zero address.
         if (sender == address(0)) {
             revert Errors.SablierHelpers_SenderZeroAddress();
@@ -243,6 +254,11 @@ library Helpers {
         // Check: the start time is not zero.
         if (startTime == 0) {
             revert Errors.SablierHelpers_StartTimeZero();
+        }
+
+        // Check: the shape name is not greater than 32 bytes to prevent HTML injection attacks.
+        if (bytes(shape).length > 32) {
+            revert Errors.SablierHelpers_ShapeNameExceeds32Bytes(bytes(shape).length);
         }
     }
 

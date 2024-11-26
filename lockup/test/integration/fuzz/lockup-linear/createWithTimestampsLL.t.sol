@@ -10,9 +10,26 @@ import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
 contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integration_Fuzz_Test {
+    function testFuzz_RevertWhen_ShapeNameExceeds32Bytes(string memory shapeName)
+        external
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+    {
+        vm.assume(bytes(shapeName).length > 32);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierHelpers_ShapeNameExceeds32Bytes.selector, bytes(shapeName).length)
+        );
+
+        _defaultParams.createWithTimestamps.shape = shapeName;
+        createDefaultStream();
+    }
+
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -30,6 +47,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
     function testFuzz_RevertWhen_StartTimeNotLessThanCliffTime(uint40 startTime)
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -51,6 +69,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
     )
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -102,6 +121,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
     )
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -129,6 +149,9 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
             params.timestamps.end =
                 boundUint40(params.timestamps.end, params.timestamps.start + 1 seconds, MAX_UNIX_TIMESTAMP);
         }
+
+        // If shape name exceeds 32 bytes, use the default value.
+        if (bytes(params.shape).length > 32) params.shape = defaults.SHAPE_NAME();
 
         // Calculate the fee amounts and the deposit amount.
         Vars memory vars;
@@ -171,7 +194,8 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: Lockup.Timestamps({ start: params.timestamps.start, end: params.timestamps.end }),
-                broker: params.broker.account
+                broker: params.broker.account,
+                shape: params.shape
             }),
             cliffTime: cliffTime,
             unlockAmounts: unlockAmounts

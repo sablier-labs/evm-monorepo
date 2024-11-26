@@ -65,6 +65,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         // Create the stream.
         params.asset = asset;
+        params.shape = "Dynamic Stream";
         uint256 streamId = lockup.createWithDurationsLD(params, segments);
 
         // Store the stream ID.
@@ -96,6 +97,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         // Create the stream.
         params.asset = asset;
+        params.shape = "Linear Stream";
         uint256 streamId = lockup.createWithDurationsLL(params, unlockAmounts, durations);
 
         // Store the stream ID.
@@ -140,6 +142,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         // Create the stream.
         params.asset = asset;
+        params.shape = "Tranched Stream";
         uint256 streamId = lockup.createWithDurationsLT(params, tranches);
 
         // Store the stream ID.
@@ -181,6 +184,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         // Create the stream.
         params.asset = asset;
+        params.shape = "Dynamic Stream";
         params.timestamps.end = segments[segments.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
 
@@ -213,6 +217,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         // Create the stream.
         params.asset = asset;
+        params.shape = "Linear Stream";
         uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime);
 
         // Store the stream ID.
@@ -257,6 +262,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         // Create the stream.
         params.asset = asset;
+        params.shape = "Tranched Stream";
         params.timestamps.end = tranches[tranches.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
 

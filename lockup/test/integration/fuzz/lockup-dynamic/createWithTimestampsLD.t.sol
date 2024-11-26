@@ -9,9 +9,26 @@ import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 import { Lockup_Dynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
 contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integration_Fuzz_Test {
+    function testFuzz_RevertWhen_ShapeNameExceeds32Bytes(string memory shapeName)
+        external
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+    {
+        vm.assume(bytes(shapeName).length > 32);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierHelpers_ShapeNameExceeds32Bytes.selector, bytes(shapeName).length)
+        );
+
+        _defaultParams.createWithTimestamps.shape = shapeName;
+        createDefaultStream();
+    }
+
     function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -30,6 +47,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
     )
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -47,6 +65,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
     function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentTimestamp(uint40 firstTimestamp)
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -73,6 +92,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
     function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositDiff)
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -108,6 +128,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -157,6 +178,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
     )
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -185,6 +207,9 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         // Fuzz the segment timestamps.
         fuzzSegmentTimestamps(segments, params.timestamps.start);
         params.timestamps.end = segments[segments.length - 1].timestamp;
+
+        // If shape name exceeds 32 bytes, use the default value.
+        if (bytes(params.shape).length > 32) params.shape = defaults.SHAPE_NAME();
 
         // Fuzz the segment amounts and calculate the total and create amounts (deposit and broker fee).
         Vars memory vars;
@@ -225,7 +250,8 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: params.timestamps,
-                broker: params.broker.account
+                broker: params.broker.account,
+                shape: params.shape
             }),
             segments: segments
         });

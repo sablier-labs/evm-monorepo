@@ -37,7 +37,8 @@ library BatchLockupBuilder {
             cancelable: params.cancelable,
             transferable: params.transferable,
             segmentsWithDuration: segmentsWithDurations,
-            broker: params.broker
+            broker: params.broker,
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }
@@ -77,7 +78,8 @@ library BatchLockupBuilder {
             transferable: params.transferable,
             durations: durations,
             unlockAmounts: unlockAmounts,
-            broker: params.broker
+            broker: params.broker,
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }
@@ -115,7 +117,8 @@ library BatchLockupBuilder {
             cancelable: params.cancelable,
             transferable: params.transferable,
             tranchesWithDuration: tranchesWithDuration,
-            broker: params.broker
+            broker: params.broker,
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }
@@ -154,7 +157,8 @@ library BatchLockupBuilder {
             transferable: params.transferable,
             startTime: params.timestamps.start,
             segments: segments,
-            broker: params.broker
+            broker: params.broker,
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }
@@ -195,7 +199,8 @@ library BatchLockupBuilder {
             timestamps: params.timestamps,
             cliffTime: cliffTime,
             unlockAmounts: unlockAmounts,
-            broker: params.broker
+            broker: params.broker,
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }
@@ -234,7 +239,8 @@ library BatchLockupBuilder {
             transferable: params.transferable,
             startTime: params.timestamps.start,
             tranches: tranches,
-            broker: params.broker
+            broker: params.broker,
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }

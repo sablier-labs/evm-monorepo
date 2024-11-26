@@ -11,9 +11,26 @@ import { Broker, Lockup, LockupTranched } from "src/types/DataTypes.sol";
 import { Lockup_Tranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
 
 contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integration_Fuzz_Test {
+    function testFuzz_RevertWhen_ShapeNameExceeds32Bytes(string memory shapeName)
+        external
+        whenNoDelegateCall
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+    {
+        vm.assume(bytes(shapeName).length > 32);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierHelpers_ShapeNameExceeds32Bytes.selector, bytes(shapeName).length)
+        );
+
+        _defaultParams.createWithTimestamps.shape = shapeName;
+        createDefaultStream();
+    }
+
     function testFuzz_RevertWhen_TrancheCountTooHigh(uint256 trancheCount)
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -32,6 +49,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
     )
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -50,6 +68,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
     function testFuzz_RevertWhen_StartTimeNotLessThanFirstTrancheTimestamp(uint40 firstTimestamp)
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -77,6 +96,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
     function testFuzz_RevertWhen_DepositAmountNotEqualToTrancheAmountsSum(uint128 depositDiff)
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -114,6 +134,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -163,6 +184,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
     )
         external
         whenNoDelegateCall
+        whenShapeNameNotExceed32Bytes
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -187,6 +209,9 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         params.asset = dai;
         params.timestamps.start = boundUint40(params.timestamps.start, 1, defaults.START_TIME());
         params.transferable = true;
+
+        // If shape name exceeds 32 bytes, use the default value.
+        if (bytes(params.shape).length > 32) params.shape = defaults.SHAPE_NAME();
 
         // Fuzz the tranche timestamps.
         fuzzTrancheTimestamps(tranches, params.timestamps.start);
@@ -231,7 +256,8 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: params.timestamps,
-                broker: params.broker.account
+                broker: params.broker.account,
+                shape: params.shape
             }),
             tranches: tranches
         });
