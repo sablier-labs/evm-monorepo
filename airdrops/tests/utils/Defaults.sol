@@ -24,15 +24,9 @@ contract Defaults is Constants, Merkle {
 
     uint128 public constant CLIFF_AMOUNT = 2500e18;
     uint40 public constant CLIFF_DURATION = 2500 seconds;
-    uint256 public constant MAX_COUNT = 10_000;
-    uint256 public constant SEGMENT_COUNT = 2;
     uint40 public immutable START_TIME;
     uint128 public constant START_AMOUNT = 100e18;
-    uint128 public constant TOTAL_AMOUNT = 10_030.090270812437311935e18; // deposit + broker fee
     uint40 public constant TOTAL_DURATION = 10_000 seconds;
-    uint256 public constant TRANCHE_COUNT = 3;
-    uint128 public constant WITHDRAW_AMOUNT = 2600e18;
-    uint40 public immutable WARP_26_PERCENT; // 26% of the way through the stream
 
     /*//////////////////////////////////////////////////////////////////////////
                                   MERKLE-LOCKUP
@@ -73,7 +67,6 @@ contract Defaults is Constants, Merkle {
     constructor() {
         START_TIME = JULY_1_2024 + 2 days;
         EXPIRATION = JULY_1_2024 + 12 weeks;
-        WARP_26_PERCENT = START_TIME + CLIFF_DURATION + 100 seconds;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

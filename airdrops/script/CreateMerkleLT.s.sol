@@ -29,13 +29,9 @@ contract CreateMerkleLT is BaseScript {
         // The admin of the campaign.
         baseParams.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
 
-        // A dummy IPFS CID where the campaign's metadata can be stored.
+        // Dummy values for the IPFS CID, Merkle root hash, and name.
         baseParams.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
-
-        // A dummy Merkle root hash.
         baseParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-
-        // A dummy name for the campaign.
         baseParams.name = "The Boys LT";
 
         // The tranches with their unlock percentages and durations.

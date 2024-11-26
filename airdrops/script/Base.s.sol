@@ -12,6 +12,9 @@ contract BaseScript is Script {
     using Strings for uint256;
     using stdJson for string;
 
+    /// @dev The salt used to deploy contracts deterministically.
+    bytes32 internal immutable SALT;
+
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
 
@@ -36,6 +39,8 @@ contract BaseScript is Script {
             mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (broadcaster,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
         }
+
+        SALT = constructCreate2Salt();
     }
 
     modifier broadcast() {

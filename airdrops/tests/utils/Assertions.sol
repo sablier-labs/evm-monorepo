@@ -12,16 +12,14 @@ abstract contract Assertions is PRBMathAssertions {
     event log_named_array(string key, LockupTranched.Tranche[] tranches);
     event log_named_array(string key, MerkleLT.TrancheWithPercentage[] tranchesWithPercentages);
 
-    event log_named_uint8(string key, uint40 value);
-
     /// @dev Compares two {IERC20} values.
     function assertEq(IERC20 a, IERC20 b, string memory err) internal pure {
         assertEq(address(a), address(b), err);
     }
 
     /// @dev Compares two {Lockup.Model} enum values.
-    function assertEq(Lockup.Model a, Lockup.Model b) internal {
-        assertEqUint8(uint8(a), uint8(b));
+    function assertEq(Lockup.Model a, Lockup.Model b) internal pure {
+        assertEq(uint8(a), uint8(b), "Lockup.Model");
     }
 
     /// @dev Compares two {LockupTranched.Tranche} arrays.
@@ -69,16 +67,6 @@ abstract contract Assertions is PRBMathAssertions {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
             emit log_named_string("Error", err);
             assertEq(a, b);
-        }
-    }
-
-    /// @dev Compares two `uint40` numbers.
-    function assertEqUint8(uint8 a, uint8 b) internal {
-        if (a != b) {
-            emit log("Error: a == b not satisfied [uint8]");
-            emit log_named_uint8("   Left", a);
-            emit log_named_uint8("  Right", b);
-            fail();
         }
     }
 }

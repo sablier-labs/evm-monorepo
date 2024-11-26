@@ -11,7 +11,6 @@ import { BaseScript } from "./Base.s.sol";
 contract DeployDeterministicMerkleFactory is BaseScript {
     /// @dev Deploy via Forge.
     function run(address initialAdmin) public virtual broadcast returns (SablierMerkleFactory merkleFactory) {
-        bytes32 salt = constructCreate2Salt();
-        merkleFactory = new SablierMerkleFactory{ salt: salt }(initialAdmin);
+        merkleFactory = new SablierMerkleFactory{ salt: SALT }(initialAdmin);
     }
 }

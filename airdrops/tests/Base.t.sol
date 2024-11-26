@@ -14,7 +14,6 @@ import { SablierMerkleFactory } from "src/SablierMerkleFactory.sol";
 import { SablierMerkleInstant } from "src/SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "src/SablierMerkleLL.sol";
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
-import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
 import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Constants } from "./utils/Constants.sol";
@@ -42,7 +41,6 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     ISablierMerkleInstant internal merkleInstant;
     ISablierMerkleLL internal merkleLL;
     ISablierMerkleLT internal merkleLT;
-    ERC20MissingReturn internal usdt;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -51,11 +49,9 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     function setUp() public virtual {
         // Deploy the base test contracts.
         dai = new ERC20Mock("Dai Stablecoin", "DAI");
-        usdt = new ERC20MissingReturn("Tether USD", "USDT", 6);
 
         // Label the base test contracts.
         vm.label({ account: address(dai), newLabel: "DAI" });
-        vm.label({ account: address(usdt), newLabel: "USDT" });
 
         // Create the protocol admin.
         users.admin = payable(makeAddr({ name: "Admin" }));
@@ -69,8 +65,8 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         LockupNFTDescriptor nftDescriptor = new LockupNFTDescriptor();
         lockup = new SablierLockup(users.admin, nftDescriptor, 1000);
 
-        // Deploy the protocol.
-        deployProtocolConditionally();
+        // Deploy the Merkle Factory.
+        deployMerkleFactoryConditionally();
 
         // Set the default fee on the Merkle factory.
         merkleFactory.setDefaultFee(defaults.FEE());
@@ -103,10 +99,9 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Approves all contracts to spend tokens from the address passed.
-    function approveProtocol(address from) internal {
+    function approveFactory(address from) internal {
         resetPrank({ msgSender: from });
         dai.approve({ spender: address(merkleFactory), value: MAX_UINT256 });
-        usdt.approve({ spender: address(merkleFactory), value: MAX_UINT256 });
     }
 
     /// @dev Generates a user, labels its address, funds it with test tokens, and approves the protocol contracts.
@@ -114,13 +109,13 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
         deal({ token: address(dai), to: user, give: 1_000_000e18 });
-        deal({ token: address(usdt), to: user, give: 1_000_000e18 });
-        approveProtocol({ from: user });
+        approveFactory({ from: user });
         return user;
     }
 
-    /// @dev Conditionally deploys the protocol normally or from an optimized source compiled with `--via-ir`.
-    function deployProtocolConditionally() internal {
+    /// @dev Deploys the Merkle Factory contract conditionally based on the test profile.
+    function deployMerkleFactoryConditionally() internal {
+        // Deploy the Merkle Factory.
         if (!isTestOptimizedProfile()) {
             merkleFactory = new SablierMerkleFactory(users.admin);
         } else {
