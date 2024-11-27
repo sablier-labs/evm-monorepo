@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ud2x18, uUNIT } from "@prb/math/src/UD2x18.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
-import { LockupTranched } from "@sablier/lockup/types/DataTypes.sol";
+import { LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol";
 
 import { MerkleBase, MerkleLL, MerkleLT } from "../../src/types/DataTypes.sol";
 

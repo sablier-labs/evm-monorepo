@@ -2,9 +2,9 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ISablierLockup } from "@sablier/lockup/interfaces/ISablierLockup.sol";
-import { LockupNFTDescriptor } from "@sablier/lockup/LockupNFTDescriptor.sol";
-import { SablierLockup } from "@sablier/lockup/SablierLockup.sol";
+import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
+import { LockupNFTDescriptor } from "@sablier/lockup/src/LockupNFTDescriptor.sol";
+import { SablierLockup } from "@sablier/lockup/src/SablierLockup.sol";
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";

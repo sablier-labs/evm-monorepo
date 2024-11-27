@@ -3,8 +3,8 @@ pragma solidity >=0.8.22;
 
 import { uUNIT } from "@prb/math/src/UD2x18.sol";
 
-import { Adminable } from "@sablier/lockup/abstracts/Adminable.sol";
-import { ISablierLockup } from "@sablier/lockup/interfaces/ISablierLockup.sol";
+import { Adminable } from "@sablier/lockup/src/abstracts/Adminable.sol";
+import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
 import { ISablierMerkleBase } from "./interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleFactory } from "./interfaces/ISablierMerkleFactory.sol";

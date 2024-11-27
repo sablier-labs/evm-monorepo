@@ -2,10 +2,10 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IAdminable } from "@sablier/lockup/interfaces/IAdminable.sol";
+import { IAdminable } from "@sablier/lockup/src/interfaces/IAdminable.sol";
 
 /// @title ISablierMerkleBase
-/// @dev This is the base interface for Merkle Lockups and Merkle Instant.
+/// @dev Common interface between Merkle Lockups and Merkle Instant.
 interface ISablierMerkleBase is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
