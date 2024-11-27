@@ -3,34 +3,13 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
-import { Errors } from "src/libraries/Errors.sol";
 import { MerkleBase } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract CreateMerkleInstant_Integration_Test is Integration_Test {
-    function test_RevertWhen_NameTooLong() external {
-        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
-        uint256 aggregateAmount = defaults.AGGREGATE_AMOUNT();
-        uint256 recipientCount = defaults.RECIPIENT_COUNT();
-
-        baseParams.name = "this string is longer than 32 characters";
-
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierMerkleBase_CampaignNameTooLong.selector, bytes(baseParams.name).length, 32
-            )
-        );
-
-        merkleFactory.createMerkleInstant({
-            baseParams: baseParams,
-            aggregateAmount: aggregateAmount,
-            recipientCount: recipientCount
-        });
-    }
-
     /// @dev This test works because a default MerkleInstant contract is deployed in {Integration_Test.setUp}
-    function test_RevertGiven_CampaignAlreadyExists() external whenNameNotTooLong {
+    function test_RevertGiven_CampaignAlreadyExists() external {
         MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
         uint256 aggregateAmount = defaults.AGGREGATE_AMOUNT();
         uint256 recipientCount = defaults.RECIPIENT_COUNT();
@@ -44,14 +23,30 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
         });
     }
 
+    function test_WhenCampaignNameExceeds32Bytes() external givenCampaignNotExists {
+        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
+        baseParams.campaignName = "this string is longer than 32 bytes";
+
+        ISablierMerkleInstant actualInstant = merkleFactory.createMerkleInstant({
+            baseParams: baseParams,
+            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
+            recipientCount: defaults.RECIPIENT_COUNT()
+        });
+
+        // It should create the campaign with shape truncated to 32 bytes.
+        string memory actualCampaignName = actualInstant.campaignName();
+        string memory expectedCampaignName = "this string is longer than 32 by";
+        assertEq(actualCampaignName, expectedCampaignName, "shape");
+    }
+
     function test_GivenCustomFeeSet(
         address campaignOwner,
         uint40 expiration,
         uint256 customFee
     )
         external
-        whenNameNotTooLong
         givenCampaignNotExists
+        whenCampaignNameNotExceed32Bytes
     {
         // Set the custom fee to 0 for this test.
         resetPrank(users.admin);
@@ -95,8 +90,8 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
         uint40 expiration
     )
         external
-        whenNameNotTooLong
         givenCampaignNotExists
+        whenCampaignNameNotExceed32Bytes
     {
         address expectedMerkleInstant = computeMerkleInstantAddress(campaignOwner, expiration);
 

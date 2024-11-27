@@ -11,14 +11,17 @@ library MerkleBase {
     /// @param initialAdmin The initial admin of the campaign.
     /// @param ipfsCID The content identifier for indexing the contract on IPFS.
     /// @param merkleRoot The Merkle root of the claim data.
-    /// @param name The name of the campaign.
+    /// @param campaignName The name of the campaign.
+    /// @param shape The shape of Lockup stream is used for differentiating between streams in the UI. It is truncated
+    /// if exceeding 32 bytes.
     struct ConstructorParams {
         IERC20 token;
         uint40 expiration;
         address initialAdmin;
         string ipfsCID;
         bytes32 merkleRoot;
-        string name;
+        string campaignName;
+        string shape;
     }
 }
 

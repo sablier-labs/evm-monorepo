@@ -36,6 +36,9 @@ interface ISablierMerkleBase is IAdminable {
     /// @dev This is an immutable state variable.
     function TOKEN() external returns (IERC20);
 
+    /// @notice Retrieves the name of the campaign.
+    function campaignName() external view returns (string memory);
+
     /// @notice Returns the timestamp when the first claim is made.
     function getFirstClaimTime() external view returns (uint40);
 
@@ -50,8 +53,8 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice The content identifier for indexing the campaign on IPFS.
     function ipfsCID() external view returns (string memory);
 
-    /// @notice Retrieves the name of the campaign.
-    function name() external returns (string memory);
+    /// @notice Retrieves the shape of the lockup stream that the campaign produces upon claiming.
+    function shape() external view returns (string memory);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS

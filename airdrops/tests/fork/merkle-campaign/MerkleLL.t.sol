@@ -199,26 +199,26 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
 
         // Assert that the stream has been created successfully.
         assertEq(
-            lockup.getDepositedAmount(vars.expectedStreamId), vars.amounts[params.posBeforeSort], "deposited amount"
-        );
-        assertEq(lockup.getRefundedAmount(vars.expectedStreamId), 0, "refunded amount");
-        assertEq(lockup.getWithdrawnAmount(vars.expectedStreamId), 0, "withdrawn amount");
-        assertEq(lockup.getAsset(vars.expectedStreamId), FORK_TOKEN, "token");
-        assertEq(
             lockup.getCliffTime(vars.expectedStreamId), getBlockTimestamp() + defaults.CLIFF_DURATION(), "cliff time"
         );
+        assertEq(
+            lockup.getDepositedAmount(vars.expectedStreamId), vars.amounts[params.posBeforeSort], "deposited amount"
+        );
         assertEq(lockup.getEndTime(vars.expectedStreamId), getBlockTimestamp() + defaults.TOTAL_DURATION(), "end time");
+        assertEq(lockup.getLockupModel(vars.expectedStreamId), Lockup.Model.LOCKUP_LINEAR);
+        assertEq(lockup.getRecipient(vars.expectedStreamId), vars.recipients[params.posBeforeSort], "recipient");
+        assertEq(lockup.getRefundedAmount(vars.expectedStreamId), 0, "refunded amount");
+        assertEq(lockup.getSender(vars.expectedStreamId), params.campaignOwner, "sender");
+        assertEq(lockup.getStartTime(vars.expectedStreamId), getBlockTimestamp(), "start time");
+        assertEq(lockup.getUnderlyingToken(vars.expectedStreamId), FORK_TOKEN, "token");
+        assertEq(lockup.getUnlockAmounts(vars.expectedStreamId).cliff, defaults.CLIFF_AMOUNT(), "unlock amounts cliff");
+        assertEq(lockup.getUnlockAmounts(vars.expectedStreamId).start, defaults.START_AMOUNT(), "unlock amounts start");
+        assertEq(lockup.getWithdrawnAmount(vars.expectedStreamId), 0, "withdrawn amount");
         assertEq(lockup.isCancelable(vars.expectedStreamId), defaults.CANCELABLE(), "is cancelable");
         assertEq(lockup.isDepleted(vars.expectedStreamId), false, "is depleted");
         assertEq(lockup.isStream(vars.expectedStreamId), true, "is stream");
         assertEq(lockup.isTransferable(vars.expectedStreamId), defaults.TRANSFERABLE(), "is transferable");
-        assertEq(lockup.getRecipient(vars.expectedStreamId), vars.recipients[params.posBeforeSort], "recipient");
-        assertEq(lockup.getSender(vars.expectedStreamId), params.campaignOwner, "sender");
-        assertEq(lockup.getStartTime(vars.expectedStreamId), getBlockTimestamp(), "start time");
         assertEq(lockup.wasCanceled(vars.expectedStreamId), false, "was canceled");
-        assertEq(lockup.getUnlockAmounts(vars.expectedStreamId).start, defaults.START_AMOUNT(), "unlock amounts start");
-        assertEq(lockup.getUnlockAmounts(vars.expectedStreamId).cliff, defaults.CLIFF_AMOUNT(), "unlock amounts cliff");
-        assertEq(lockup.getLockupModel(vars.expectedStreamId), Lockup.Model.LOCKUP_LINEAR);
 
         assertTrue(vars.merkleLL.hasClaimed(vars.indexes[params.posBeforeSort]));
 

@@ -14,6 +14,7 @@ import { SablierMerkleFactory } from "src/SablierMerkleFactory.sol";
 import { SablierMerkleInstant } from "src/SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "src/SablierMerkleLL.sol";
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
+import { MerkleBase } from "src/types/DataTypes.sol";
 import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Constants } from "./utils/Constants.sol";
@@ -191,17 +192,13 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         view
         returns (address)
     {
-        bytes32 salt = keccak256(
-            abi.encodePacked(
-                caller,
-                address(token_),
-                expiration,
-                campaignOwner,
-                abi.encode(defaults.IPFS_CID()),
-                merkleRoot,
-                defaults.NAME_BYTES32()
-            )
-        );
+        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
+        baseParams.token = token_;
+        baseParams.expiration = expiration;
+        baseParams.initialAdmin = campaignOwner;
+        baseParams.merkleRoot = merkleRoot;
+
+        bytes32 salt = keccak256(abi.encodePacked(caller, abi.encode(baseParams)));
         bytes32 creationBytecodeHash =
             keccak256(getMerkleInstantBytecode(campaignOwner, token_, merkleRoot, expiration, fee));
         return vm.computeCreate2Address({
@@ -223,15 +220,15 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         view
         returns (address)
     {
+        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
+        baseParams.token = token_;
+        baseParams.expiration = expiration;
+        baseParams.initialAdmin = campaignOwner;
+        baseParams.merkleRoot = merkleRoot;
         bytes32 salt = keccak256(
             abi.encodePacked(
                 caller,
-                address(token_),
-                expiration,
-                campaignOwner,
-                abi.encode(defaults.IPFS_CID()),
-                merkleRoot,
-                defaults.NAME_BYTES32(),
+                abi.encode(baseParams),
                 lockup,
                 defaults.CANCELABLE(),
                 defaults.TRANSFERABLE(),
@@ -259,15 +256,15 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         view
         returns (address)
     {
+        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
+        baseParams.token = token_;
+        baseParams.expiration = expiration;
+        baseParams.initialAdmin = campaignOwner;
+        baseParams.merkleRoot = merkleRoot;
         bytes32 salt = keccak256(
             abi.encodePacked(
                 caller,
-                address(token_),
-                expiration,
-                campaignOwner,
-                abi.encode(defaults.IPFS_CID()),
-                merkleRoot,
-                defaults.NAME_BYTES32(),
+                abi.encode(baseParams),
                 lockup,
                 defaults.CANCELABLE(),
                 defaults.TRANSFERABLE(),

@@ -104,17 +104,7 @@ contract SablierMerkleFactory is
         returns (ISablierMerkleInstant merkleInstant)
     {
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(
-            abi.encodePacked(
-                msg.sender,
-                baseParams.token,
-                baseParams.expiration,
-                baseParams.initialAdmin,
-                abi.encode(baseParams.ipfsCID),
-                baseParams.merkleRoot,
-                bytes32(abi.encodePacked(baseParams.name))
-            )
-        );
+        bytes32 salt = keccak256(abi.encodePacked(msg.sender, abi.encode(baseParams)));
 
         // Compute the fee for the user.
         uint256 fee = _computeFeeForUser(msg.sender);
@@ -142,19 +132,7 @@ contract SablierMerkleFactory is
     {
         // Hash the parameters to generate a salt.
         bytes32 salt = keccak256(
-            abi.encodePacked(
-                msg.sender,
-                baseParams.token,
-                baseParams.expiration,
-                baseParams.initialAdmin,
-                abi.encode(baseParams.ipfsCID),
-                baseParams.merkleRoot,
-                bytes32(abi.encodePacked(baseParams.name)),
-                lockup,
-                cancelable,
-                transferable,
-                abi.encode(schedule)
-            )
+            abi.encodePacked(msg.sender, abi.encode(baseParams), lockup, cancelable, transferable, abi.encode(schedule))
         );
 
         // Compute the fee for the user.
@@ -276,12 +254,7 @@ contract SablierMerkleFactory is
         bytes32 salt = keccak256(
             abi.encodePacked(
                 msg.sender,
-                baseParams.token,
-                baseParams.expiration,
-                baseParams.initialAdmin,
-                abi.encode(baseParams.ipfsCID),
-                baseParams.merkleRoot,
-                bytes32(abi.encodePacked(baseParams.name)),
+                abi.encode(baseParams),
                 lockup,
                 cancelable,
                 transferable,

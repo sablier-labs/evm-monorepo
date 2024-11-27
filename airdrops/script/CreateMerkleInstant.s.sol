@@ -23,10 +23,10 @@ contract CreateMerkleInstant is BaseScript {
         // The admin of the campaign.
         baseParams.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
 
-        // Dummy values for the IPFS CID, Merkle root hash, and name.
+        // Dummy values for the campaign name, IPFS CID, and the Merkle root hash.
+        baseParams.campaignName = "The Boys Instant";
         baseParams.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
         baseParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        baseParams.name = "The Boys Instant";
 
         // The total amount to airdrop through the campaign.
         uint256 campaignTotalAmount = 10_000e18;

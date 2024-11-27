@@ -11,26 +11,26 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
     struct Vars {
         address actualAdmin;
         uint256 actualAllowance;
+        string actualCampaignName;
         bool actualCancelable;
         uint40 actualExpiration;
         address actualFactory;
         string actualIpfsCID;
         address actualLockup;
         bytes32 actualMerkleRoot;
-        string actualName;
         uint256 actualFee;
         MerkleLL.Schedule actualSchedule;
         address actualToken;
         bool actualTransferable;
         address expectedAdmin;
         uint256 expectedAllowance;
+        string expectedCampaignName;
         bool expectedCancelable;
         uint40 expectedExpiration;
         address expectedFactory;
         string expectedIpfsCID;
         address expectedLockup;
         bytes32 expectedMerkleRoot;
-        bytes32 expectedName;
         uint256 expectedFee;
         MerkleLL.Schedule expectedSchedule;
         address expectedToken;
@@ -60,9 +60,9 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         vars.expectedAllowance = MAX_UINT256;
         assertEq(vars.actualAllowance, vars.expectedAllowance, "allowance");
 
-        vars.actualToken = address(constructedLL.TOKEN());
-        vars.expectedToken = address(dai);
-        assertEq(vars.actualToken, vars.expectedToken, "token");
+        vars.actualCampaignName = constructedLL.campaignName();
+        vars.expectedCampaignName = defaults.CAMPAIGN_NAME();
+        assertEq(vars.actualCampaignName, vars.expectedCampaignName, "campaign name");
 
         vars.actualCancelable = constructedLL.CANCELABLE();
         vars.expectedCancelable = defaults.CANCELABLE();
@@ -76,6 +76,10 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         vars.expectedFactory = address(merkleFactory);
         assertEq(vars.actualFactory, vars.expectedFactory, "factory");
 
+        vars.actualFee = constructedLL.FEE();
+        vars.expectedFee = defaults.FEE();
+        assertEq(vars.actualFee, vars.expectedFee, "fee");
+
         vars.actualIpfsCID = constructedLL.ipfsCID();
         vars.expectedIpfsCID = defaults.IPFS_CID();
         assertEq(vars.actualIpfsCID, vars.expectedIpfsCID, "ipfsCID");
@@ -87,10 +91,6 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         vars.actualMerkleRoot = constructedLL.MERKLE_ROOT();
         vars.expectedMerkleRoot = defaults.MERKLE_ROOT();
         assertEq(vars.actualMerkleRoot, vars.expectedMerkleRoot, "merkleRoot");
-
-        vars.actualName = constructedLL.name();
-        vars.expectedName = defaults.NAME_BYTES32();
-        assertEq(bytes32(abi.encodePacked(vars.actualName)), vars.expectedName, "name");
 
         (
             vars.actualSchedule.startTime,
@@ -106,12 +106,14 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         assertEq(vars.actualSchedule.cliffAmount, vars.expectedSchedule.cliffAmount, "schedule.cliffAmount");
         assertEq(vars.actualSchedule.totalDuration, vars.expectedSchedule.totalDuration, "schedule.totalDuration");
 
+        assertEq(constructedLL.shape(), defaults.SHAPE(), "shape");
+
+        vars.actualToken = address(constructedLL.TOKEN());
+        vars.expectedToken = address(dai);
+        assertEq(vars.actualToken, vars.expectedToken, "token");
+
         vars.actualTransferable = constructedLL.TRANSFERABLE();
         vars.expectedTransferable = defaults.TRANSFERABLE();
         assertEq(vars.actualTransferable, vars.expectedTransferable, "transferable");
-
-        vars.actualFee = constructedLL.FEE();
-        vars.expectedFee = defaults.FEE();
-        assertEq(vars.actualFee, vars.expectedFee, "fee");
     }
 }

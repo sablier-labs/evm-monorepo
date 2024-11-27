@@ -109,10 +109,11 @@ contract SablierMerkleLL is
                 sender: admin,
                 recipient: recipient,
                 totalAmount: amount,
-                asset: TOKEN,
+                token: TOKEN,
                 cancelable: CANCELABLE,
                 transferable: TRANSFERABLE,
                 timestamps: timestamps,
+                shape: shape,
                 broker: Broker({ account: address(0), fee: ZERO })
             }),
             LockupLinear.UnlockAmounts({ start: schedule.startAmount, cliff: schedule.cliffAmount }),

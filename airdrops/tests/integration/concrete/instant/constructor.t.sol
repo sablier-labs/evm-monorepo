@@ -9,19 +9,19 @@ contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
     /// @dev Needed to prevent "Stack too deep" error
     struct Vars {
         address actualAdmin;
+        string actualCampaignName;
         uint40 actualExpiration;
         address actualFactory;
         string actualIpfsCID;
         bytes32 actualMerkleRoot;
-        string actualName;
         uint256 actualFee;
         address actualToken;
         address expectedAdmin;
+        string expectedCampaignName;
         uint40 expectedExpiration;
         address expectedFactory;
         string expectedIpfsCID;
         bytes32 expectedMerkleRoot;
-        bytes32 expectedName;
         uint256 expectedFee;
         address expectedToken;
     }
@@ -38,9 +38,9 @@ contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
         vars.expectedAdmin = users.campaignOwner;
         assertEq(vars.actualAdmin, vars.expectedAdmin, "admin");
 
-        vars.actualToken = address(constructedInstant.TOKEN());
-        vars.expectedToken = address(dai);
-        assertEq(vars.actualToken, vars.expectedToken, "token");
+        vars.actualCampaignName = constructedInstant.campaignName();
+        vars.expectedCampaignName = defaults.CAMPAIGN_NAME();
+        assertEq(vars.actualCampaignName, vars.expectedCampaignName, "campaign name");
 
         vars.actualExpiration = constructedInstant.EXPIRATION();
         vars.expectedExpiration = defaults.EXPIRATION();
@@ -50,6 +50,10 @@ contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
         vars.expectedFactory = address(merkleFactory);
         assertEq(vars.actualFactory, vars.expectedFactory, "factory");
 
+        vars.actualFee = constructedInstant.FEE();
+        vars.expectedFee = defaults.FEE();
+        assertEq(vars.actualFee, vars.expectedFee, "fee");
+
         vars.actualIpfsCID = constructedInstant.ipfsCID();
         vars.expectedIpfsCID = defaults.IPFS_CID();
         assertEq(vars.actualIpfsCID, vars.expectedIpfsCID, "ipfsCID");
@@ -58,12 +62,8 @@ contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
         vars.expectedMerkleRoot = defaults.MERKLE_ROOT();
         assertEq(vars.actualMerkleRoot, vars.expectedMerkleRoot, "merkleRoot");
 
-        vars.actualName = constructedInstant.name();
-        vars.expectedName = defaults.NAME_BYTES32();
-        assertEq(bytes32(abi.encodePacked(vars.actualName)), vars.expectedName, "name");
-
-        vars.actualFee = constructedInstant.FEE();
-        vars.expectedFee = defaults.FEE();
-        assertEq(vars.actualFee, vars.expectedFee, "fee");
+        vars.actualToken = address(constructedInstant.TOKEN());
+        vars.expectedToken = address(dai);
+        assertEq(vars.actualToken, vars.expectedToken, "token");
     }
 }

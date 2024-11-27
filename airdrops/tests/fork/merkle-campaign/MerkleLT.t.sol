@@ -199,18 +199,12 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         assertEq(
             lockup.getDepositedAmount(vars.expectedStreamId), vars.amounts[params.posBeforeSort], "deposited amount"
         );
-        assertEq(lockup.getRefundedAmount(vars.expectedStreamId), 0, "refunded amount");
-        assertEq(lockup.getWithdrawnAmount(vars.expectedStreamId), 0, "withdrawn amount");
-        assertEq(lockup.getAsset(vars.expectedStreamId), FORK_TOKEN, "token");
         assertEq(lockup.getEndTime(vars.expectedStreamId), getBlockTimestamp() + defaults.TOTAL_DURATION(), "end time");
-        assertEq(lockup.isCancelable(vars.expectedStreamId), defaults.CANCELABLE(), "is cancelable");
-        assertEq(lockup.isDepleted(vars.expectedStreamId), false, "is depleted");
-        assertEq(lockup.isStream(vars.expectedStreamId), true, "is stream");
-        assertEq(lockup.isTransferable(vars.expectedStreamId), defaults.TRANSFERABLE(), "is transferable");
+        assertEq(lockup.getLockupModel(vars.expectedStreamId), Lockup.Model.LOCKUP_TRANCHED);
         assertEq(lockup.getRecipient(vars.expectedStreamId), vars.recipients[params.posBeforeSort], "recipient");
+        assertEq(lockup.getRefundedAmount(vars.expectedStreamId), 0, "refunded amount");
         assertEq(lockup.getSender(vars.expectedStreamId), params.campaignOwner, "sender");
         assertEq(lockup.getStartTime(vars.expectedStreamId), getBlockTimestamp(), "start time");
-        assertEq(lockup.wasCanceled(vars.expectedStreamId), false, "was canceled");
         assertEq(
             lockup.getTranches(vars.expectedStreamId),
             defaults.tranchesMerkleLT({
@@ -219,7 +213,13 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
             }),
             "tranches"
         );
-        assertEq(lockup.getLockupModel(vars.expectedStreamId), Lockup.Model.LOCKUP_TRANCHED);
+        assertEq(lockup.getUnderlyingToken(vars.expectedStreamId), FORK_TOKEN, "token");
+        assertEq(lockup.getWithdrawnAmount(vars.expectedStreamId), 0, "withdrawn amount");
+        assertEq(lockup.isCancelable(vars.expectedStreamId), defaults.CANCELABLE(), "is cancelable");
+        assertEq(lockup.isDepleted(vars.expectedStreamId), false, "is depleted");
+        assertEq(lockup.isStream(vars.expectedStreamId), true, "is stream");
+        assertEq(lockup.isTransferable(vars.expectedStreamId), defaults.TRANSFERABLE(), "is transferable");
+        assertEq(lockup.wasCanceled(vars.expectedStreamId), false, "was canceled");
 
         assertTrue(vars.merkleLT.hasClaimed(vars.indexes[params.posBeforeSort]));
 

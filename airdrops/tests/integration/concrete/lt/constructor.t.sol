@@ -11,13 +11,13 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
     struct Vars {
         address actualAdmin;
         uint256 actualAllowance;
+        string actualCampaignName;
         bool actualCancelable;
         uint40 actualExpiration;
         address actualFactory;
         string actualIpfsCID;
         address actualLockup;
         bytes32 actualMerkleRoot;
-        string actualName;
         uint256 actualFee;
         uint40 actualStreamStartTime;
         address actualToken;
@@ -26,13 +26,13 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         bool actualTransferable;
         address expectedAdmin;
         uint256 expectedAllowance;
+        string expectedCampaignName;
         bool expectedCancelable;
         uint40 expectedExpiration;
         address expectedFactory;
         string expectedIpfsCID;
         address expectedLockup;
         bytes32 expectedMerkleRoot;
-        bytes32 expectedName;
         uint256 expectedFee;
         uint40 expectedStreamStartTime;
         address expectedToken;
@@ -65,9 +65,9 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         vars.expectedAllowance = MAX_UINT256;
         assertEq(vars.actualAllowance, vars.expectedAllowance, "allowance");
 
-        vars.actualToken = address(constructedLT.TOKEN());
-        vars.expectedToken = address(dai);
-        assertEq(vars.actualToken, vars.expectedToken, "token");
+        vars.actualCampaignName = constructedLT.campaignName();
+        vars.expectedCampaignName = defaults.CAMPAIGN_NAME();
+        assertEq(vars.actualCampaignName, vars.expectedCampaignName, "campaign name");
 
         vars.actualCancelable = constructedLT.CANCELABLE();
         vars.expectedCancelable = defaults.CANCELABLE();
@@ -81,6 +81,10 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         vars.expectedFactory = address(merkleFactory);
         assertEq(vars.actualFactory, vars.expectedFactory, "factory");
 
+        vars.actualFee = constructedLT.FEE();
+        vars.expectedFee = defaults.FEE();
+        assertEq(vars.actualFee, vars.expectedFee, "fee");
+
         vars.actualIpfsCID = constructedLT.ipfsCID();
         vars.expectedIpfsCID = defaults.IPFS_CID();
         assertEq(vars.actualIpfsCID, vars.expectedIpfsCID, "ipfsCID");
@@ -93,17 +97,15 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         vars.expectedMerkleRoot = defaults.MERKLE_ROOT();
         assertEq(vars.actualMerkleRoot, vars.expectedMerkleRoot, "merkleRoot");
 
-        vars.actualName = constructedLT.name();
-        vars.expectedName = defaults.NAME_BYTES32();
-        assertEq(bytes32(abi.encodePacked(vars.actualName)), vars.expectedName, "name");
-
-        vars.actualFee = constructedLT.FEE();
-        vars.expectedFee = defaults.FEE();
-        assertEq(vars.actualFee, vars.expectedFee, "fee");
+        assertEq(constructedLT.shape(), defaults.SHAPE(), "shape");
 
         vars.actualStreamStartTime = constructedLT.STREAM_START_TIME();
         vars.expectedStreamStartTime = defaults.STREAM_START_TIME_ZERO();
         assertEq(vars.actualStreamStartTime, vars.expectedStreamStartTime, "streamStartTime");
+
+        vars.actualToken = address(constructedLT.TOKEN());
+        vars.expectedToken = address(dai);
+        assertEq(vars.actualToken, vars.expectedToken, "token");
 
         vars.actualTotalPercentage = constructedLT.TOTAL_PERCENTAGE();
         vars.expectedTotalPercentage = defaults.TOTAL_PERCENTAGE();

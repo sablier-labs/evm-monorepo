@@ -20,9 +20,6 @@ library Errors {
     /// @notice Thrown when trying to claim after the campaign has expired.
     error SablierMerkleBase_CampaignExpired(uint256 blockTimestamp, uint40 expiration);
 
-    /// @notice Thrown when trying to create a campaign with a name that is too long.
-    error SablierMerkleBase_CampaignNameTooLong(uint256 nameLength, uint256 maxLength);
-
     /// @notice Thrown when trying to clawback when the current timestamp is over the grace period and the campaign has
     /// not expired.
     error SablierMerkleBase_ClawbackNotAllowed(uint256 blockTimestamp, uint40 expiration, uint40 firstClaimTime);

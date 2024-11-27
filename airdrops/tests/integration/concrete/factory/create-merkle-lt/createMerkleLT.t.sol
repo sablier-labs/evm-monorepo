@@ -3,43 +3,13 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
-import { Errors } from "src/libraries/Errors.sol";
 import { MerkleBase, MerkleLT } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract CreateMerkleLT_Integration_Test is Integration_Test {
-    function test_RevertWhen_NameTooLong() external {
-        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
-        bool cancelable = defaults.CANCELABLE();
-        bool transferable = defaults.TRANSFERABLE();
-        uint40 streamStartTime = defaults.STREAM_START_TIME_ZERO();
-        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
-        uint256 aggregateAmount = defaults.AGGREGATE_AMOUNT();
-        uint256 recipientCount = defaults.RECIPIENT_COUNT();
-
-        baseParams.name = "this string is longer than 32 characters";
-
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierMerkleBase_CampaignNameTooLong.selector, bytes(baseParams.name).length, 32
-            )
-        );
-
-        merkleFactory.createMerkleLT(
-            baseParams,
-            lockup,
-            cancelable,
-            transferable,
-            streamStartTime,
-            tranchesWithPercentages,
-            aggregateAmount,
-            recipientCount
-        );
-    }
-
     /// @dev This test works because a default MerkleLT contract is deployed in {Integration_Test.setUp}
-    function test_RevertGiven_CampaignAlreadyExists() external whenNameNotTooLong {
+    function test_RevertGiven_CampaignAlreadyExists() external {
         MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
         bool cancelable = defaults.CANCELABLE();
         bool transferable = defaults.TRANSFERABLE();
@@ -62,14 +32,57 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         );
     }
 
+    function test_WhenCampaignNameExceeds32Bytes() external givenCampaignNotExists {
+        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
+        baseParams.campaignName = "this string is longer than 32 bytes";
+
+        ISablierMerkleLT actualLL = merkleFactory.createMerkleLT({
+            baseParams: baseParams,
+            lockup: lockup,
+            cancelable: defaults.CANCELABLE(),
+            transferable: defaults.TRANSFERABLE(),
+            streamStartTime: defaults.STREAM_START_TIME_ZERO(),
+            tranchesWithPercentages: defaults.tranchesWithPercentages(),
+            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
+            recipientCount: defaults.RECIPIENT_COUNT()
+        });
+
+        // It should create the campaign with shape truncated to 32 bytes.
+        string memory actualCampaignName = actualLL.campaignName();
+        string memory expectedCampaignName = "this string is longer than 32 by";
+        assertEq(actualCampaignName, expectedCampaignName, "shape");
+    }
+
+    function test_WhenShapeExceeds32Bytes() external givenCampaignNotExists whenCampaignNameNotExceed32Bytes {
+        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
+        baseParams.shape = "this string is longer than 32 bytes";
+
+        ISablierMerkleLT actualLT = merkleFactory.createMerkleLT({
+            baseParams: baseParams,
+            lockup: lockup,
+            cancelable: defaults.CANCELABLE(),
+            transferable: defaults.TRANSFERABLE(),
+            streamStartTime: defaults.STREAM_START_TIME_ZERO(),
+            tranchesWithPercentages: defaults.tranchesWithPercentages(),
+            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
+            recipientCount: defaults.RECIPIENT_COUNT()
+        });
+
+        // It should create the campaign with shape truncated to 32 bytes.
+        string memory actualShape = actualLT.shape();
+        string memory expectedShape = "this string is longer than 32 by";
+        assertEq(actualShape, expectedShape, "shape");
+    }
+
     function test_GivenCustomFeeSet(
         address campaignOwner,
         uint40 expiration,
         uint256 customFee
     )
         external
-        whenNameNotTooLong
         givenCampaignNotExists
+        whenCampaignNameNotExceed32Bytes
+        whenShapeNotExceed32Bytes
     {
         // Set the custom fee to 0 for this test.
         resetPrank(users.admin);
@@ -116,8 +129,9 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         uint40 expiration
     )
         external
-        whenNameNotTooLong
         givenCampaignNotExists
+        whenCampaignNameNotExceed32Bytes
+        whenShapeNotExceed32Bytes
     {
         address expectedLT = computeMerkleLTAddress(campaignOwner, expiration);
 
@@ -146,6 +160,9 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         ISablierMerkleLT actualLT = createMerkleLT(campaignOwner, expiration);
         assertGt(address(actualLT).code.length, 0, "MerkleLT contract not created");
         assertEq(address(actualLT), expectedLT, "MerkleLT contract does not match computed address");
+
+        // It should set the correct shape.
+        assertEq(actualLT.shape(), defaults.SHAPE(), "shape");
 
         // It should create the campaign with custom fee.
         assertEq(actualLT.FEE(), defaults.FEE(), "default fee");

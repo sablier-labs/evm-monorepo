@@ -80,24 +80,23 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
             defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), defaults.index1Proof()
         );
 
+        uint128 expectedCliffAmount = cliffTime > 0 ? defaults.CLIFF_AMOUNT() : 0;
+
         // Assert that the stream has been created successfully.
-        assertEq(lockup.getDepositedAmount(expectedStreamId), defaults.CLAIM_AMOUNT(), "depositedAmount");
-        assertEq(lockup.getAsset(expectedStreamId), dai, "token");
         assertEq(lockup.getCliffTime(expectedStreamId), cliffTime, "cliff time");
+        assertEq(lockup.getDepositedAmount(expectedStreamId), defaults.CLAIM_AMOUNT(), "depositedAmount");
         assertEq(lockup.getEndTime(expectedStreamId), startTime + defaults.TOTAL_DURATION(), "end time");
+        assertEq(lockup.getRecipient(expectedStreamId), users.recipient1, "recipient");
+        assertEq(lockup.getSender(expectedStreamId), users.campaignOwner, "sender");
+        assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
+        assertEq(lockup.getUnderlyingToken(expectedStreamId), dai, "token");
+        assertEq(lockup.getUnlockAmounts(expectedStreamId).cliff, expectedCliffAmount, "unlock amount cliff");
+        assertEq(lockup.getUnlockAmounts(expectedStreamId).start, defaults.START_AMOUNT(), "unlock amount start");
         assertEq(lockup.isCancelable(expectedStreamId), defaults.CANCELABLE(), "is cancelable");
         assertEq(lockup.isDepleted(expectedStreamId), false, "is depleted");
         assertEq(lockup.isStream(expectedStreamId), true, "is stream");
         assertEq(lockup.isTransferable(expectedStreamId), defaults.TRANSFERABLE(), "is transferable");
-        assertEq(lockup.getRecipient(expectedStreamId), users.recipient1, "recipient");
-        assertEq(lockup.getSender(expectedStreamId), users.campaignOwner, "sender");
-        assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
         assertEq(lockup.wasCanceled(expectedStreamId), false, "was canceled");
-
-        assertEq(lockup.getUnlockAmounts(expectedStreamId).start, defaults.START_AMOUNT(), "unlock amount start");
-
-        uint128 expectedCliffAmount = cliffTime > 0 ? defaults.CLIFF_AMOUNT() : 0;
-        assertEq(lockup.getUnlockAmounts(expectedStreamId).cliff, expectedCliffAmount, "unlock amount cliff");
 
         assertTrue(merkleLL.hasClaimed(defaults.INDEX1()), "not claimed");
 

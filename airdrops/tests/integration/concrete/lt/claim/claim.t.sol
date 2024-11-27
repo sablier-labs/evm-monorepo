@@ -135,22 +135,22 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         // Assert that the stream has been created successfully.
         assertEq(lockup.getDepositedAmount(expectedStreamId), defaults.CLAIM_AMOUNT(), "depositedAmount");
-        assertEq(lockup.getAsset(expectedStreamId), dai, "token");
         assertEq(lockup.getEndTime(expectedStreamId), startTime + defaults.TOTAL_DURATION(), "end time");
-        assertEq(lockup.isCancelable(expectedStreamId), defaults.CANCELABLE(), "is cancelable");
-        assertEq(lockup.isDepleted(expectedStreamId), false, "is depleted");
-        assertEq(lockup.isStream(expectedStreamId), true, "is stream");
-        assertEq(lockup.isTransferable(expectedStreamId), defaults.TRANSFERABLE(), "is transferable");
         assertEq(lockup.getRecipient(expectedStreamId), users.recipient1, "recipient");
         assertEq(lockup.getSender(expectedStreamId), users.campaignOwner, "sender");
         assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
-        assertEq(lockup.wasCanceled(expectedStreamId), false, "was canceled");
         // It should create a stream with `STREAM_START_TIME` as start time.
         assertEq(
             lockup.getTranches(expectedStreamId),
             defaults.tranchesMerkleLT({ streamStartTime: streamStartTime, totalAmount: defaults.CLAIM_AMOUNT() }),
             "tranches"
         );
+        assertEq(lockup.getUnderlyingToken(expectedStreamId), dai, "token");
+        assertEq(lockup.isCancelable(expectedStreamId), defaults.CANCELABLE(), "is cancelable");
+        assertEq(lockup.isDepleted(expectedStreamId), false, "is depleted");
+        assertEq(lockup.isStream(expectedStreamId), true, "is stream");
+        assertEq(lockup.isTransferable(expectedStreamId), defaults.TRANSFERABLE(), "is transferable");
+        assertEq(lockup.wasCanceled(expectedStreamId), false, "was canceled");
 
         assertTrue(merkleLT.hasClaimed(defaults.INDEX1()), "not claimed");
 

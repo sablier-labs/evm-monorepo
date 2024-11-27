@@ -1,10 +1,10 @@
 CreateMerkleInstant_Integration_Test
-├── when name too long
+├── given campaign already exists
 │  └── it should revert
-└── when name not too long
-   ├── given campaign already exists
-   │  └── it should revert
-   └── given campaign not exists
+└── given campaign not exists
+   ├── when campaign name exceeds 32 bytes
+   │  └── it should create the campaign with campaign name truncated to 32 bytes
+   └── when campaign name not exceed 32 bytes
       ├── given custom fee set
       │  ├── it should create the campaign with custom fee
       │  ├── it should set the current factory address
