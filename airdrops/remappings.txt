@@ -2,4 +2,5 @@
 @prb/math/=node_modules/@prb/math/
 @sablier/lockup/=node_modules/@sablier/lockup/
 forge-std/=node_modules/forge-std/
+murky/=node_modules/murky/
 solady/=node_modules/solady/

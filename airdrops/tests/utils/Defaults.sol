@@ -6,12 +6,12 @@ import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ud2x18, uUNIT } from "@prb/math/src/UD2x18.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
 import { LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol";
+import { Merkle } from "murky/src/Merkle.sol";
 
 import { MerkleBase, MerkleLL, MerkleLT } from "../../src/types/DataTypes.sol";
 
 import { Constants } from "./Constants.sol";
 import { MerkleBuilder } from "./MerkleBuilder.sol";
-import { Merkle } from "./Murky.sol";
 import { Users } from "./Types.sol";
 
 /// @notice Contract with default values used throughout the tests.

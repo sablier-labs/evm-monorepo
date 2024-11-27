@@ -19,6 +19,7 @@
     "forge-std": "github:foundry-rs/forge-std#v1.8.2",
     "husky": "^9.1.4",
     "lint-staged": "^15.2.8",
+    "murky": "github:dmfxyz/murky#6f67641",
     "prettier": "^3.3.2",
     "solady": "0.0.208",
     "solhint": "^5.0.3"
