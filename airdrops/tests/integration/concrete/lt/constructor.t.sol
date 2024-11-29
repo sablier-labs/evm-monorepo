@@ -117,6 +117,6 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
 
         vars.actualTranchesWithPercentages = constructedLT.getTranchesWithPercentages();
         vars.expectedTranchesWithPercentages = defaults.tranchesWithPercentages();
-        assertEq(vars.actualTranchesWithPercentages, vars.expectedTranchesWithPercentages, "tranchesWithPercentages");
+        assertEq(vars.actualTranchesWithPercentages, vars.expectedTranchesWithPercentages);
     }
 }

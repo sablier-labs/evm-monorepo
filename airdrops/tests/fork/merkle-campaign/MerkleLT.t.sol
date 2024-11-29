@@ -210,8 +210,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
             defaults.tranchesMerkleLT({
                 streamStartTime: defaults.STREAM_START_TIME_ZERO(),
                 totalAmount: vars.amounts[params.posBeforeSort]
-            }),
-            "tranches"
+            })
         );
         assertEq(lockup.getUnderlyingToken(vars.expectedStreamId), FORK_TOKEN, "token");
         assertEq(lockup.getWithdrawnAmount(vars.expectedStreamId), 0, "withdrawn amount");

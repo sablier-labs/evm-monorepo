@@ -142,8 +142,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         // It should create a stream with `STREAM_START_TIME` as start time.
         assertEq(
             lockup.getTranches(expectedStreamId),
-            defaults.tranchesMerkleLT({ streamStartTime: streamStartTime, totalAmount: defaults.CLAIM_AMOUNT() }),
-            "tranches"
+            defaults.tranchesMerkleLT({ streamStartTime: streamStartTime, totalAmount: defaults.CLAIM_AMOUNT() })
         );
         assertEq(lockup.getUnderlyingToken(expectedStreamId), dai, "token");
         assertEq(lockup.isCancelable(expectedStreamId), defaults.CANCELABLE(), "is cancelable");
