@@ -74,22 +74,7 @@
   repository = "https://github.com/sablier-labs/airdrops"
 
 [etherscan]
-  arbitrum = { key = "${ARBISCAN_API_KEY}" }
-  arbitrum_sepolia = { key = "${ARBISCAN_API_KEY}" }
-  avalanche = { key = "${SNOWTRACE_API_KEY}" }
-  base = { key = "${BASESCAN_API_KEY}" }
-  base_sepolia = { key = "${BASESCAN_API_KEY}" }
-  bnb = { key = "${BSCSCAN_API_KEY}" }
-  gnosis = { key = "${GNOSISSCAN_API_KEY}" }
-  linea = { key = "${LINEASCAN_API_KEY}" }
-  linea_sepolia = { key = "${LINEASCAN_API_KEY}" }
-  mainnet = { key = "${ETHERSCAN_API_KEY}" }
-  optimism = { key = "${OPTIMISTIC_API_KEY}" }
-  optimism_sepolia = { key = "${OPTIMISTIC_API_KEY}" }
-  polygon = { key = "${POLYGONSCAN_API_KEY}" }
-  scroll = { key = "${SCROLLSCAN_API_KEY}" }
-  sepolia = { key = "${SEPOLIASCAN_KEY}" }
-  taiko_mainnet = { key = "${TAIKO_MAINNET_API_KEY}" }
+  etherscan = { key = "${ETHERSCAN_API_KEY}" }
 
 [fmt]
   bracket_spacing = true
