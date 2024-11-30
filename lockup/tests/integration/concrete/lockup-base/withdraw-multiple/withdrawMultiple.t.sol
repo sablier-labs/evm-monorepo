@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Solarray } from "solarray/src/Solarray.sol";
 import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
@@ -25,23 +24,9 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
 
         originalTime = defaults.START_TIME();
 
-        withdrawMultipleStreamIds = warpAndCreateStreams(defaults.START_TIME());
-
         withdrawAmounts.push(defaults.WITHDRAW_AMOUNT());
         withdrawAmounts.push(defaults.DEPOSIT_AMOUNT());
         withdrawAmounts.push(defaults.WITHDRAW_AMOUNT() / 2);
-    }
-
-    function warpAndCreateStreams(uint40 warpTime) internal returns (uint256[3] memory streamIds) {
-        vm.warp({ newTimestamp: warpTime });
-
-        // Create three test streams:
-        // 1. A default stream
-        // 2. A stream with an early end time
-        // 3. A stream meant to be canceled before the withdrawal is made
-        streamIds[0] = createDefaultStream();
-        streamIds[1] = createDefaultStreamWithEndTime(defaults.WARP_26_PERCENT() + 1);
-        streamIds[2] = createDefaultStream();
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -69,121 +54,85 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         lockup.withdrawMultiple(streamIds, amounts);
     }
 
-    function test_RevertGiven_AtleastOneNullStream()
-        external
-        whenNoDelegateCall
-        whenEqualArraysLength
-        whenNonZeroArrayLength
-    {
-        uint256[] memory streamIds =
-            Solarray.uint256s(nullStreamId, withdrawMultipleStreamIds[0], withdrawMultipleStreamIds[1]);
-
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 1 });
-
-        // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, nullStreamId));
-
-        // Withdraw from multiple streams.
-        lockup.withdrawMultiple({ streamIds: streamIds, amounts: withdrawAmounts });
-    }
-
-    function test_RevertGiven_AtleastOneDEPLETEDStream()
-        external
-        whenNoDelegateCall
-        whenEqualArraysLength
-        whenNonZeroArrayLength
-        givenNoNullStreams
-    {
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: defaults.END_TIME() });
-
-        // Deplete the first test stream.
-        lockup.withdrawMax({ streamId: withdrawMultipleStreamIds[0], to: users.recipient });
-
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_StreamDepleted.selector, withdrawMultipleStreamIds[0])
-        );
-
-        // Withdraw from multiple streams.
-        lockup.withdrawMultiple({ streamIds: withdrawMultipleStreamIds, amounts: withdrawAmounts });
-    }
-
-    function test_RevertWhen_AtleastOneZeroAmount()
-        external
-        whenNoDelegateCall
-        whenEqualArraysLength
-        whenNonZeroArrayLength
-        givenNoNullStreams
-        givenNoDEPLETEDStreams
-    {
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 1 });
-
-        // Run the test.
-        uint128[] memory amounts = Solarray.uint128s(defaults.WITHDRAW_AMOUNT(), 0, 0);
-
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_WithdrawAmountZero.selector, withdrawMultipleStreamIds[1])
-        );
-        lockup.withdrawMultiple({ streamIds: withdrawMultipleStreamIds, amounts: amounts });
-    }
-
-    function test_RevertWhen_AtleastOneAmountOverdraws()
-        external
-        whenNoDelegateCall
-        whenEqualArraysLength
-        whenNonZeroArrayLength
-        givenNoNullStreams
-        givenNoDEPLETEDStreams
-        whenNoZeroAmounts
-    {
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 1 });
-
-        // Run the test.
-        uint128 withdrawableAmount = lockup.withdrawableAmountOf(withdrawMultipleStreamIds[2]);
-        uint128[] memory amounts = Solarray.uint128s(withdrawAmounts[0], withdrawAmounts[1], MAX_UINT128);
-
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierLockupBase_Overdraw.selector,
-                withdrawMultipleStreamIds[2],
-                MAX_UINT128,
-                withdrawableAmount
-            )
-        );
-        lockup.withdrawMultiple({ streamIds: withdrawMultipleStreamIds, amounts: amounts });
-    }
-
-    /// @dev This modifier runs the test in three different modes:
+    /// @dev This modifier runs the test in four different modes:
     /// - Stream's sender as caller
     /// - Stream's recipient as caller
     /// - Approved NFT operator as caller
+    /// - Random caller (Alice)
     modifier whenCallerAuthorizedForAllStreams() override {
+        withdrawMultipleStreamIds = _warpAndCreateStreams({ warpTime: originalTime });
         caller = users.sender;
         _;
 
-        withdrawMultipleStreamIds = warpAndCreateStreams({ warpTime: originalTime });
+        withdrawMultipleStreamIds = _warpAndCreateStreams({ warpTime: originalTime });
         caller = users.recipient;
         _;
 
-        withdrawMultipleStreamIds = warpAndCreateStreams({ warpTime: originalTime });
+        withdrawMultipleStreamIds = _warpAndCreateStreams({ warpTime: originalTime });
         caller = users.operator;
+        _;
+
+        withdrawMultipleStreamIds = _warpAndCreateStreams({ warpTime: originalTime });
+        caller = users.alice;
         _;
     }
 
-    function test_WhenNoAmountsOverdraw()
+    function test_WhenOneStreamIDReverts()
         external
         whenNoDelegateCall
         whenEqualArraysLength
         whenNonZeroArrayLength
-        givenNoNullStreams
-        givenNoDEPLETEDStreams
-        whenNoZeroAmounts
+        whenCallerAuthorizedForAllStreams
+    {
+        // Simulate the passage of time.
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 1 });
+
+        // Run the test with the caller provided in {whenCallerAuthorizedForAllStreams}.
+        resetPrank({ msgSender: caller });
+
+        // It should emit {WithdrawFromLockupStream} events for first two streams.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit ISablierLockupBase.WithdrawFromLockupStream({
+            streamId: withdrawMultipleStreamIds[0],
+            to: users.recipient,
+            token: dai,
+            amount: withdrawAmounts[0]
+        });
+        vm.expectEmit({ emitter: address(lockup) });
+        emit ISablierLockupBase.WithdrawFromLockupStream({
+            streamId: withdrawMultipleStreamIds[1],
+            to: users.recipient,
+            token: dai,
+            amount: withdrawAmounts[1]
+        });
+
+        // It should emit {InvalidWithdrawalInWithdrawMultiple} event for third stream.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit ISablierLockupBase.InvalidWithdrawalInWithdrawMultiple({
+            streamId: withdrawMultipleStreamIds[2],
+            revertData: abi.encodeWithSelector(
+                Errors.SablierLockupBase_Overdraw.selector,
+                withdrawMultipleStreamIds[2],
+                MAX_UINT128,
+                lockup.withdrawableAmountOf(withdrawMultipleStreamIds[2])
+            )
+        });
+
+        // Make the withdrawals with overdrawn withdraw amount for the third stream.
+        withdrawAmounts[2] = MAX_UINT128;
+        lockup.withdrawMultiple({ streamIds: withdrawMultipleStreamIds, amounts: withdrawAmounts });
+
+        // It should update the withdrawn amounts only for first two streams.
+        assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[0]), withdrawAmounts[0], "withdrawnAmount0");
+        assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[1]), withdrawAmounts[1], "withdrawnAmount1");
+        assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[2]), 0, "withdrawnAmount2");
+    }
+
+    function test_WhenNoStreamIDsRevert()
+        external
+        whenNoDelegateCall
+        whenEqualArraysLength
+        whenNonZeroArrayLength
         whenCallerAuthorizedForAllStreams
     {
         // Simulate the passage of time.
@@ -196,12 +145,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         // Run the test with the caller provided in {whenCallerAuthorizedForAllStreams}.
         resetPrank({ msgSender: caller });
 
-        // It should make the withdrawals.
-        expectCallToTransfer({ to: users.recipient, value: withdrawAmounts[0] });
-        expectCallToTransfer({ to: users.recipient, value: withdrawAmounts[1] });
-        expectCallToTransfer({ to: users.recipient, value: withdrawAmounts[2] });
-
-        // It should emit multiple {WithdrawFromLockupStream} events.
+        // It should emit {WithdrawFromLockupStream} events for all streams.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: withdrawMultipleStreamIds[0],
@@ -241,5 +185,18 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         assertEq(lockup.getRecipient(withdrawMultipleStreamIds[0]), users.recipient, "NFT owner0");
         assertEq(lockup.getRecipient(withdrawMultipleStreamIds[1]), users.recipient, "NFT owner1");
         assertEq(lockup.getRecipient(withdrawMultipleStreamIds[2]), users.recipient, "NFT owner2");
+    }
+
+    // A helper function to warp to the original time and create test streams.
+    function _warpAndCreateStreams(uint40 warpTime) private returns (uint256[3] memory streamIds) {
+        vm.warp({ newTimestamp: warpTime });
+
+        // Create three test streams:
+        // 1. A default stream
+        // 2. A stream with an early end time
+        // 3. A stream meant to be canceled before the withdrawal is made
+        streamIds[0] = createDefaultStream();
+        streamIds[1] = createDefaultStreamWithEndTime(defaults.WARP_26_PERCENT() + 1);
+        streamIds[2] = createDefaultStream();
     }
 }

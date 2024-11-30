@@ -43,6 +43,10 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
+    modifier givenNoNullStreams() {
+        _;
+    }
+
     modifier givenNotCanceledStream() {
         _;
     }
@@ -452,32 +456,11 @@ abstract contract Modifiers is Fuzzers {
                                  WITHDRAW-MULTIPLE
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenArraysEqual() {
-        _;
-    }
-
-    modifier givenNoDEPLETEDStreams() {
-        vm.warp({ newTimestamp: defaults.START_TIME() });
-        _;
-    }
-
-    modifier givenNoNullStreams() {
-        _;
-    }
-
     modifier whenEqualArraysLength() {
         _;
     }
 
     modifier whenNonZeroArrayLength() {
-        _;
-    }
-
-    modifier whenNoAmountOverdraws() {
-        _;
-    }
-
-    modifier whenNoZeroAmounts() {
         _;
     }
 

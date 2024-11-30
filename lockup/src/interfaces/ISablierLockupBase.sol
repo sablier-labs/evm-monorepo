@@ -51,6 +51,11 @@ interface ISablierLockupBase is
     /// @param feeAmount The amount of collected fees.
     event CollectFees(address indexed admin, uint256 indexed feeAmount);
 
+    /// @notice Emitted when withdrawing from multiple streams and one particular withdrawal reverts.
+    /// @param streamId The stream ID that reverted during withdraw.
+    /// @param revertData The error data returned by the reverted withdraw.
+    event InvalidWithdrawalInWithdrawMultiple(uint256 streamId, bytes revertData);
+
     /// @notice Emitted when a sender gives up the right to cancel a stream.
     /// @param streamId The ID of the stream.
     event RenounceLockupStream(uint256 indexed streamId);
@@ -375,7 +380,8 @@ interface ISablierLockupBase is
 
     /// @notice Withdraws tokens from streams to the recipient of each stream.
     ///
-    /// @dev Emits multiple {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} events.
+    /// @dev Emits multiple {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} events. For each stream that
+    /// reverted the withdrawal, it emits an {InvalidWithdrawalInWithdrawMultiple} event.
     ///
     /// Notes:
     /// - This function attempts to call a hook on the recipient of each stream, unless `msg.sender` is the recipient.
