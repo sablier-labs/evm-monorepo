@@ -3,11 +3,11 @@ pragma solidity >=0.8.22;
 
 import { ud21x18 } from "@prb/math/src/UD21x18.sol";
 
-import { Integration_Test } from "./../tests/integration/Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "./../tests/integration/concrete/Concrete.t.sol";
 
 /// @notice A contract to benchmark Flow functions.
 /// @dev This contract creates a Markdown file with the gas usage of each function.
-contract Flow_Gas_Test is Integration_Test {
+contract Flow_Gas_Test is Shared_Integration_Concrete_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -22,7 +22,7 @@ contract Flow_Gas_Test is Integration_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public override {
-        Integration_Test.setUp();
+        Shared_Integration_Concrete_Test.setUp();
 
         // Setup a few streams with usdc.
         for (uint8 count; count < 100; ++count) {
