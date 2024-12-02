@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
-contract UncoveredDebtOf_Integration_Concrete_Test is Integration_Test {
+contract UncoveredDebtOf_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function setUp() public override {
-        Integration_Test.setUp();
+        Shared_Integration_Concrete_Test.setUp();
 
         // Deposit into the stream.
         depositToDefaultStream();

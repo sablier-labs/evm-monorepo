@@ -5,9 +5,9 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { FlowNFTDescriptor } from "src/FlowNFTDescriptor.sol";
 import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Integration_Test } from "./../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
-contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
+contract SetNFTDescriptor_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));

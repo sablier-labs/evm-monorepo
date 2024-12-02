@@ -6,13 +6,13 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Integration_Test } from "./../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
-contract CollectProtocolRevenue_Integration_Concrete_Test is Integration_Test {
+contract CollectProtocolRevenue_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     uint256 internal streamIdWithProtocolFee;
 
     function setUp() public override {
-        Integration_Test.setUp();
+        Shared_Integration_Concrete_Test.setUp();
 
         // Go back in time to create a stream with a protocol fee.
         vm.warp({ newTimestamp: OCT_1_2024 });

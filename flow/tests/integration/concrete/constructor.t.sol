@@ -4,9 +4,9 @@ pragma solidity >=0.8.22;
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { SablierFlow } from "src/SablierFlow.sol";
 
-import { Integration_Test } from "../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "./Concrete.t.sol";
 
-contract Constructor_Integration_Concrete_Test is Integration_Test {
+contract Constructor_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_Constructor() external {
         // Construct the contract.
         SablierFlow constructedFlow = new SablierFlow(users.admin, nftDescriptor);

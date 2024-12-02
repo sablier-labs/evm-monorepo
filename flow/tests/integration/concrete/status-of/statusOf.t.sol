@@ -3,11 +3,11 @@ pragma solidity >=0.8.22;
 
 import { Flow } from "src/types/DataTypes.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
-contract StatusOf_Integration_Concrete_Test is Integration_Test {
+contract StatusOf_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function setUp() public override {
-        Integration_Test.setUp();
+        Shared_Integration_Concrete_Test.setUp();
 
         depositToDefaultStream();
     }

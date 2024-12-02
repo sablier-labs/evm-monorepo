@@ -6,9 +6,9 @@ import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
-contract Pause_Integration_Concrete_Test is Integration_Test {
+contract Pause_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(flow.pause, (defaultStreamId));
         expectRevert_DelegateCall(callData);

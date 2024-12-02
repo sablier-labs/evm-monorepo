@@ -10,9 +10,9 @@ import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Flow } from "src/types/DataTypes.sol";
 import { ERC20Mock } from "./../../../mocks/ERC20Mock.sol";
-import { Integration_Test } from "./../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
-contract Create_Integration_Concrete_Test is Integration_Test {
+contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
             abi.encodeCall(flow.create, (users.sender, users.recipient, RATE_PER_SECOND, dai, TRANSFERABLE));

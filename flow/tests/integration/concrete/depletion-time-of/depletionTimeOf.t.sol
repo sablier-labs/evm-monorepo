@@ -4,9 +4,9 @@ pragma solidity >=0.8.22;
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
-contract DepletionTimeOf_Integration_Concrete_Test is Integration_Test {
+contract DepletionTimeOf_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_RevertGiven_Null() external {
         bytes memory callData = abi.encodeCall(flow.depletionTimeOf, nullStreamId);
         expectRevert_Null(callData);

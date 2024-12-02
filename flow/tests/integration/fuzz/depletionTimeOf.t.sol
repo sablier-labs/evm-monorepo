@@ -10,7 +10,15 @@ contract DepletionTimeOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Multiple streams, each with different rate per second and decimals.
-    function testFuzz_DepletionTimeOf(uint256 streamId, uint8 decimals) external givenNotNull givenPaused {
+    function testFuzz_DepletionTimeOf(
+        uint256 streamId,
+        uint8 decimals
+    )
+        external
+        givenNotNull
+        givenPaused
+        givenBalanceNotZero
+    {
         (streamId, decimals,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Calculate the solvency period based on the stream deposit.

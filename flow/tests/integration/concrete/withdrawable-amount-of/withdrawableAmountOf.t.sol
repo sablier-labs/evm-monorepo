@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
-contract WithdrawableAmountOf_Integration_Concrete_Test is Integration_Test {
+contract WithdrawableAmountOf_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_WithdrawableAmountOf() external givenNotNull givenBalanceNotZero {
         // Deposit into stream.
         depositToDefaultStream();

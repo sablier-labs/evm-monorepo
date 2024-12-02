@@ -10,10 +10,9 @@ import { ERC20Mock } from "./mocks/ERC20Mock.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
 import { Users } from "./utils/Types.sol";
-import { Utils } from "./utils/Utils.sol";
 import { Vars } from "./utils/Vars.sol";
 
-abstract contract Base_Test is Assertions, Modifiers, Test, Utils {
+abstract contract Base_Test is Assertions, Modifiers, Test {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -64,6 +63,9 @@ abstract contract Base_Test is Assertions, Modifiers, Test, Utils {
         users.operator = createUser("operator");
         users.recipient = createUser("recipient");
         users.sender = createUser("sender");
+
+        // Set the variables in Modifiers contract.
+        setVariables(users);
 
         resetPrank(users.sender);
 

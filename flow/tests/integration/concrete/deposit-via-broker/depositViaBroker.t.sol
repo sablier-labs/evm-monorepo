@@ -8,9 +8,9 @@ import { ud } from "@prb/math/src/UD60x18.sol";
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
-contract DepositViaBroker_Integration_Concrete_Test is Integration_Test {
+contract DepositViaBroker_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(
             flow.depositViaBroker,

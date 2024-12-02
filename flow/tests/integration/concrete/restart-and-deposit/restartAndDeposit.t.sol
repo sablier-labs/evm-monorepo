@@ -7,11 +7,11 @@ import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
-contract RestartAndDeposit_Integration_Concrete_Test is Integration_Test {
+contract RestartAndDeposit_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function setUp() public override {
-        Integration_Test.setUp();
+        Shared_Integration_Concrete_Test.setUp();
 
         // Pause the stream for this test.
         flow.pause({ streamId: defaultStreamId });

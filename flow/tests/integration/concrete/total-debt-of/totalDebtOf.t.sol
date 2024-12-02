@@ -3,9 +3,9 @@ pragma solidity >=0.8.22;
 
 import { ud21x18 } from "@prb/math/src/UD21x18.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
-contract TotalDebtOf_Integration_Concrete_Test is Integration_Test {
+contract TotalDebtOf_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_RevertGiven_Null() external {
         bytes memory callData = abi.encodeCall(flow.totalDebtOf, nullStreamId);
         expectRevert_Null(callData);

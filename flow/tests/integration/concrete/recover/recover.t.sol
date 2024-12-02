@@ -4,13 +4,13 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Integration_Test } from "./../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
-contract Recover_Integration_Concrete_Test is Integration_Test {
+contract Recover_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     uint256 internal surplusAmount = 1e6;
 
     function setUp() public override {
-        Integration_Test.setUp();
+        Shared_Integration_Concrete_Test.setUp();
 
         // Increase the flow contract balance in order to have a surplus.
         deal({ token: address(usdc), to: address(flow), give: surplusAmount });

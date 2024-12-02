@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
-contract CoveredDebtOf_Integration_Concrete_Test is Integration_Test {
+contract CoveredDebtOf_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_RevertGiven_Null() external {
         bytes memory callData = abi.encodeCall(flow.coveredDebtOf, nullStreamId);
         expectRevert_Null(callData);

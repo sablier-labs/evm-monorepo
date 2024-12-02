@@ -6,13 +6,13 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Integration_Test } from "./../../Integration.t.sol";
+import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
-contract Batch_Integration_Concrete_Test is Integration_Test {
+contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     uint256[] internal defaultStreamIds;
 
     function setUp() public override {
-        Integration_Test.setUp();
+        Shared_Integration_Concrete_Test.setUp();
         defaultStreamIds.push(defaultStreamId);
 
         // Create a second stream
