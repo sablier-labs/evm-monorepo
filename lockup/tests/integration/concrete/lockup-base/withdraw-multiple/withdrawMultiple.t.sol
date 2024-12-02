@@ -77,7 +77,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         _;
     }
 
-    function test_WhenOneStreamIDReverts()
+    function test_WhenOneStreamReverts()
         external
         whenNoDelegateCall
         whenEqualArraysLength
@@ -90,7 +90,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         // Run the test with the caller provided in {whenCallerAuthorizedForAllStreams}.
         resetPrank({ msgSender: caller });
 
-        // It should emit {WithdrawFromLockupStream} events for first two streams.
+        // It should emit {WithdrawFromLockupStream} events for non-reverting streams.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
             streamId: withdrawMultipleStreamIds[0],
@@ -106,7 +106,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
             amount: withdrawAmounts[1]
         });
 
-        // It should emit {InvalidWithdrawalInWithdrawMultiple} event for third stream.
+        // It should emit {InvalidWithdrawalInWithdrawMultiple} event for reverting stream.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.InvalidWithdrawalInWithdrawMultiple({
             streamId: withdrawMultipleStreamIds[2],
@@ -118,17 +118,17 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
             )
         });
 
-        // Make the withdrawals with overdrawn withdraw amount for the third stream.
+        // Make the withdrawals with overdrawn withdraw amount for reverting stream.
         withdrawAmounts[2] = MAX_UINT128;
         lockup.withdrawMultiple({ streamIds: withdrawMultipleStreamIds, amounts: withdrawAmounts });
 
-        // It should update the withdrawn amounts only for first two streams.
+        // It should update the withdrawn amounts only for non-reverting streams.
         assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[0]), withdrawAmounts[0], "withdrawnAmount0");
         assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[1]), withdrawAmounts[1], "withdrawnAmount1");
         assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[2]), 0, "withdrawnAmount2");
     }
 
-    function test_WhenNoStreamIDsRevert()
+    function test_WhenNoStreamsRevert()
         external
         whenNoDelegateCall
         whenEqualArraysLength

@@ -8,11 +8,11 @@ WithdrawMultiple_Integration_Concrete_Test
       ├── when zero array length
       │  └── it should do nothing
       └── when non zero array length
-         ├── when one stream ID reverts
-         │  ├── it should emit {WithdrawFromLockupStream} events for first two streams
-         │  ├── it should emit {InvalidWithdrawalInWithdrawMultiple} event for third stream
-         │  └── it should update the withdrawn amounts only for first two streams
-         └── when no stream IDs revert
+         ├── when one stream reverts
+         │  ├── it should emit {WithdrawFromLockupStream} events for non-reverting streams
+         │  ├── it should emit {InvalidWithdrawalInWithdrawMultiple} event for reverting stream
+         │  └── it should update the withdrawn amounts only for non-reverting streams
+         └── when no streams revert
             ├── it should make the withdrawals on all streams
             ├── it should update the statuses
             ├── it should update the withdrawn amounts
