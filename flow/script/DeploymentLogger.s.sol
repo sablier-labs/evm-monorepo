@@ -175,7 +175,8 @@ contract DeploymentLogger is BaseScript {
             contractAddress,
             ") | [",
             version,
-            "](https://github.com/sablier-labs/v2-deployments/tree/main/",
+            "](https://github.com/sablier-labs/v2-deployments/tree/main/flow/",
+            version,
             ") |"
         );
     }
