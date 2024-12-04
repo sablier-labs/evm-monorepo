@@ -92,60 +92,74 @@ contract DeploymentLogger is BaseScript {
 
     /// @dev Populates the chain name map.
     function populateChainNameMap() internal {
+        // Mainnets
         chainNameMap[42_161] = "Arbitrum";
         chainNameMap[43_114] = "Avalanche";
         chainNameMap[8453] = "Base";
-        chainNameMap[84_532] = "Base Sepolia";
-        chainNameMap[80_084] = "Berachain Bartio";
         chainNameMap[81_457] = "Blast";
-        chainNameMap[168_587_773] = "Blast Sepolia";
         chainNameMap[56] = "BNB Smart Chain";
+        chainNameMap[1116] = "Core Dao";
         chainNameMap[100] = "Gnosis";
         chainNameMap[1890] = "Lightlink";
         chainNameMap[59_144] = "Linea";
-        chainNameMap[59_141] = "Linea Sepolia";
         chainNameMap[1] = "Mainnet";
         chainNameMap[333_000_333] = "Meld";
         chainNameMap[34_443] = "Mode";
-        chainNameMap[919] = "Mode Sepolia";
-        chainNameMap[2810] = "Morph Holesky";
+        chainNameMap[2818] = "Morph";
         chainNameMap[10] = "Optimism";
-        chainNameMap[11_155_420] = "Optimism Sepolia";
         chainNameMap[137] = "Polygon";
         chainNameMap[534_352] = "Scroll";
+        chainNameMap[5330] = "Superseed";
+        chainNameMap[167_000] = "Taiko Mainnet";
+
+        // Testnets
+        chainNameMap[80_084] = "Berachain Bartio";
+        chainNameMap[421_614] = "Arbitrum Sepolia";
+        chainNameMap[84_532] = "Base Sepolia";
+        chainNameMap[168_587_773] = "Blast Sepolia";
+        chainNameMap[59_141] = "Linea Sepolia";
+        chainNameMap[919] = "Mode Sepolia";
+        chainNameMap[2810] = "Morph Holesky";
+        chainNameMap[11_155_420] = "Optimism Sepolia";
         chainNameMap[11_155_111] = "Sepolia";
         chainNameMap[53_302] = "Superseed Sepolia";
         chainNameMap[167_009] = "Taiko Hekla";
-        chainNameMap[167_000] = "Taiko Mainnet";
     }
 
     /// @dev Populates the explorer map.
     function populateExplorerMap() internal {
+        // Mainnets
+        explorerMap[1] = "https://etherscan.io/address/";
+        explorerMap[56] = "https://bscscan.com/address/";
+        explorerMap[100] = "https://gnosisscan.io/address/";
+        explorerMap[137] = "https://polygonscan.com/address/";
+        explorerMap[1116] = "https://scan.coredao.org/address/";
+        explorerMap[1890] = "https://phoenix.lightlink.io/address/";
+        explorerMap[2818] = "https://explorer.morphl2.io/address/";
+        explorerMap[5330] = "https://explorer.superseed.xyz/address/";
+        explorerMap[8453] = "https://basescan.org/address/";
         explorerMap[42_161] = "https://arbiscan.io/address/";
         explorerMap[43_114] = "https://snowtrace.io/address/";
-        explorerMap[8453] = "https://basescan.org/address/";
-        explorerMap[84_532] = "https://sepolia.basescan.org/address/";
-        explorerMap[80_084] = "https://bartio.beratrail.io/address/";
-        explorerMap[81_457] = "https://blastscan.io/address/";
-        explorerMap[168_587_773] = "https://sepolia.blastscan.io/address/";
-        explorerMap[56] = "https://bscscan.com/address/";
-        explorerMap[1] = "https://etherscan.io/address/";
-        explorerMap[100] = "https://gnosisscan.io/address/";
-        explorerMap[59_144] = "https://lineascan.build/address/";
-        explorerMap[59_141] = "https://sepolia.lineascan.build/address/";
-        explorerMap[1890] = "https://phoenix.lightlink.io/address/";
         explorerMap[34_443] = "https://explorer.mode.network/address/";
+        explorerMap[59_144] = "https://lineascan.build/address/";
+        explorerMap[81_457] = "https://blastscan.io/address/";
+        explorerMap[167_000] = "https://taikoscan.io/address/";
+        explorerMap[534_352] = "https://scrollscan.com/address/";
+        explorerMap[333_000_333] = "https://meldscan.io/address/";
+
+        // Testnets
+        explorerMap[10] = "https://optimistic.etherscan.io/address/";
         explorerMap[919] = "https://sepolia.explorer.mode.network/address/";
         explorerMap[2810] = "https://explorer-holesky.morphl2.io/address/";
-        explorerMap[333_000_333] = "https://meldscan.io/address/";
-        explorerMap[10] = "https://optimistic.etherscan.io/address/";
-        explorerMap[11_155_420] = "https://sepolia-optimistic.etherscan.io/address/";
-        explorerMap[137] = "https://polygonscan.com/address/";
-        explorerMap[534_352] = "https://scrollscan.com/address/";
-        explorerMap[11_155_111] = "https://sepolia.etherscan.io/address/";
         explorerMap[53_302] = "https://sepolia-explorer.superseed.xyz/address/";
+        explorerMap[59_141] = "https://sepolia.lineascan.build/address/";
+        explorerMap[80_084] = "https://bartio.beratrail.io/address/";
+        explorerMap[84_532] = "https://sepolia.basescan.org/address/";
         explorerMap[167_009] = "https://explorer.hekla.taiko.xyz/address/";
-        explorerMap[167_000] = "https://taikoscan.io/address/";
+        explorerMap[421_614] = "https://sepolia.arbiscan.io/address/";
+        explorerMap[11_155_111] = "https://sepolia.etherscan.io/address/";
+        explorerMap[11_155_420] = "https://sepolia-optimistic.etherscan.io/address/";
+        explorerMap[168_587_773] = "https://sepolia.blastscan.io/address/";
     }
 
     /// @dev Append a line to the deployment file path.
