@@ -57,7 +57,7 @@ contract DeploymentLogger is BaseScript {
         deploymentFile = string.concat("script/", deterministicOrNot, ".md");
 
         // Append the chain name to the deployment file.
-        _appendToFile(string.concat("## ", chainNameMap[block.chainid], "\n"));
+        _appendToFile(string.concat("### ", chainNameMap[block.chainid], "\n"));
     }
 
     /// @dev Function to append the deployed addresses to the deployment file.
