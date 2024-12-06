@@ -13,7 +13,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "5.0.2",
     "@prb/math": "4.1.0",
-    "@sablier/lockup": "github:sablier-labs/v2-core#staging"
+    "@sablier/lockup": "github:sablier-labs/v2-core#b2b3328"
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std#v1.8.2",
