@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Test } from "forge-std/src/Test.sol";
 import { FlowNFTDescriptor } from "src/FlowNFTDescriptor.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { SablierFlow } from "src/SablierFlow.sol";
 import { ERC20MissingReturn } from "./mocks/ERC20MissingReturn.sol";
 import { ERC20Mock } from "./mocks/ERC20Mock.sol";
@@ -30,7 +31,7 @@ abstract contract Base_Test is Assertions, Modifiers, Test {
     ERC20Mock internal usdc;
     ERC20MissingReturn internal usdt;
 
-    SablierFlow internal flow;
+    ISablierFlow internal flow;
     FlowNFTDescriptor internal nftDescriptor;
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -24,7 +24,7 @@ contract SetNFTDescriptor_Integration_Concrete_Test is Shared_Integration_Concre
         // It should re-set the NFT descriptor
         flow.setNFTDescriptor(nftDescriptor);
         vm.expectCall(address(nftDescriptor), abi.encodeCall(FlowNFTDescriptor.tokenURI, (flow, 1)));
-        flow.tokenURI({ streamId: defaultStreamId });
+        flow.tokenURI(defaultStreamId);
     }
 
     function test_WhenNewAndOldNFTDescriptorsAreNotSame() external whenCallerAdmin {
