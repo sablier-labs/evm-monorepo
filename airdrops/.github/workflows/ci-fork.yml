@@ -32,7 +32,8 @@ jobs:
       name: "Utils tests"
 
   notify-on-failure:
-    if: always()
+    if: failure()
+    needs: ["lint", "build", "test-fork", "test-utils"]
     runs-on: "ubuntu-latest"
     steps:
       - name: "Send Slack notification"

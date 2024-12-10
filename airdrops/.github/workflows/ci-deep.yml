@@ -49,11 +49,11 @@ jobs:
       name: "Fork tests"
 
   notify-on-failure:
-    if: always()
+    if: failure()
+    needs: ["lint", "build", "test-integration", "test-fork"]
     runs-on: "ubuntu-latest"
     steps:
       - name: "Send Slack notification"
-        if: failure() # Runs only if a failure occurs in any previous job
         uses: "rtCamp/action-slack-notify@v2"
         env:
           SLACK_CHANNEL: "#ci-notifications"

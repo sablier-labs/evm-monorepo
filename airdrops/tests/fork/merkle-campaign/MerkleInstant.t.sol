@@ -145,6 +145,8 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
         resetPrank({ msgSender: vars.recipients[params.posBeforeSort] });
         vm.deal(vars.recipients[params.posBeforeSort], 1 ether);
 
+        uint256 initialAdminBalance = users.admin.balance;
+
         assertFalse(vars.merkleInstant.hasClaimed(vars.indexes[params.posBeforeSort]));
 
         vars.leafToClaim = MerkleBuilder.computeLeaf(
@@ -223,6 +225,6 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
         merkleFactory.collectFees({ merkleBase: vars.merkleInstant });
 
         assertEq(address(vars.merkleInstant).balance, 0, "merkleInstant ETH balance");
-        assertEq(users.admin.balance, fee, "admin ETH balance");
+        assertEq(users.admin.balance, initialAdminBalance + fee, "admin ETH balance");
     }
 }
