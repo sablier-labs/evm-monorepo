@@ -11,14 +11,12 @@ contract GenerateDescription_Unit_Concrete_Test is Base_Test {
         unicode"⚠️ WARNING: Transferring the NFT makes the new owner the recipient of the stream. The funds are not automatically withdrawn for the previous recipient.";
 
     function test_GenerateDescription_Empty() external view {
-        string memory actualDescription = nftDescriptorMock.generateDescription_("", "", "", "", "", true);
+        string memory actualDescription = nftDescriptorMock.generateDescription_("", "", "", "", true);
         string memory expectedDescription = string.concat(
-            "This NFT represents a payment stream in a Sablier Lockup ",
-            " contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
-            ".\\n\\n",
-            "- Stream ID: ",
+            "This NFT represents a stream in Sablier Lockup contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
+            ".\\n\\n- Stream ID: ",
             "\\n- ",
-            " Address: ",
+            "Sablier Lockup Address: ",
             "\\n- ",
             " Address: ",
             "\\n\\n",
@@ -29,7 +27,6 @@ contract GenerateDescription_Unit_Concrete_Test is Base_Test {
 
     function test_GenerateDescription_NonTransferable() external view {
         string memory actualDescription = nftDescriptorMock.generateDescription_(
-            "Lockup Linear",
             dai.symbol(),
             "0x78B190C1E493752f85E02b00a0C98851A5638A30",
             "0xFEbD67A34821d1607a57DD31aae5f246D7dE2ca2",
@@ -37,16 +34,12 @@ contract GenerateDescription_Unit_Concrete_Test is Base_Test {
             false
         );
         string memory expectedDescription = string.concat(
-            "This NFT represents a payment stream in a Sablier Lockup ",
-            "Lockup Linear",
-            " contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
+            "This NFT represents a stream in Sablier Lockup contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
             dai.symbol(),
-            ".\\n\\n",
-            "- Stream ID: ",
+            ".\\n\\n- Stream ID: ",
             "42",
             "\\n- ",
-            "Lockup Linear",
-            " Address: ",
+            "Sablier Lockup Address: ",
             "0x78B190C1E493752f85E02b00a0C98851A5638A30",
             "\\n- ",
             "DAI",
@@ -60,7 +53,6 @@ contract GenerateDescription_Unit_Concrete_Test is Base_Test {
 
     function test_GenerateDescription() external view {
         string memory actualDescription = nftDescriptorMock.generateDescription_(
-            "Lockup Linear",
             dai.symbol(),
             "0x78B190C1E493752f85E02b00a0C98851A5638A30",
             "0xFEbD67A34821d1607a57DD31aae5f246D7dE2ca2",
@@ -68,16 +60,12 @@ contract GenerateDescription_Unit_Concrete_Test is Base_Test {
             true
         );
         string memory expectedDescription = string.concat(
-            "This NFT represents a payment stream in a Sablier Lockup ",
-            "Lockup Linear",
-            " contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
+            "This NFT represents a stream in Sablier Lockup contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
             dai.symbol(),
-            ".\\n\\n",
-            "- Stream ID: ",
+            ".\\n\\n- Stream ID: ",
             "42",
             "\\n- ",
-            "Lockup Linear",
-            " Address: ",
+            "Sablier Lockup Address: ",
             "0x78B190C1E493752f85E02b00a0C98851A5638A30",
             "\\n- ",
             "DAI",

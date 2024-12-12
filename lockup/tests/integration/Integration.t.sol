@@ -36,7 +36,7 @@ abstract contract Integration_Test is Base_Test {
     uint256 internal recipientInvalidSelectorStreamId;
     // A stream with a reentrant contract as the recipient.
     uint256 internal recipientReentrantStreamId;
-    // Astream with a reverting contract as the stream's recipient.
+    // A stream with a reverting contract as the stream's recipient.
     uint256 internal recipientRevertStreamId;
 
     struct CreateParams {

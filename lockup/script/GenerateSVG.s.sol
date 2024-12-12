@@ -39,7 +39,6 @@ contract GenerateSVG is BaseScript, LockupNFTDescriptor {
                 progress: stringifyPercentage(progress),
                 progressNumerical: progress,
                 lockupAddress: LOCKUP.toHexString(),
-                lockupModel: "Lockup Linear",
                 status: status
             })
         );

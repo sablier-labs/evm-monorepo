@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { NFTSVG } from "src/libraries/NFTSVG.sol";
 import { SVGElements } from "src/libraries/SVGElements.sol";
 import { LockupNFTDescriptor } from "src/LockupNFTDescriptor.sol";
@@ -51,7 +50,6 @@ contract NFTDescriptorMock is LockupNFTDescriptor {
     }
 
     function generateDescription_(
-        string memory lockupModel,
         string memory tokenSymbol,
         string memory lockupAddress,
         string memory tokenAddress,
@@ -62,11 +60,7 @@ contract NFTDescriptorMock is LockupNFTDescriptor {
         pure
         returns (string memory)
     {
-        return generateDescription(lockupModel, tokenSymbol, lockupAddress, tokenAddress, streamId, isTransferable);
-    }
-
-    function generateName_(string memory lockupModel, string memory streamId) external pure returns (string memory) {
-        return generateName(lockupModel, streamId);
+        return generateDescription(tokenSymbol, lockupAddress, tokenAddress, streamId, isTransferable);
     }
 
     function generateSVG_(NFTSVG.SVGParams memory params) external pure returns (string memory) {
@@ -79,10 +73,6 @@ contract NFTDescriptorMock is LockupNFTDescriptor {
 
     function isAllowedCharacter_(string memory symbol) external pure returns (bool) {
         return isAllowedCharacter(symbol);
-    }
-
-    function mapSymbol_(IERC721Metadata nft) external view returns (string memory) {
-        return mapSymbol(nft);
     }
 
     function safeTokenDecimals_(address token) external view returns (uint8) {

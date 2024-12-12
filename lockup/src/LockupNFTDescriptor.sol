@@ -8,11 +8,10 @@ import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockup } from "./interfaces/ISablierLockup.sol";
-import { ISablierLockupBase } from "./interfaces/ISablierLockupBase.sol";
-import { Errors } from "./libraries/Errors.sol";
 import { NFTSVG } from "./libraries/NFTSVG.sol";
 import { SVGElements } from "./libraries/SVGElements.sol";
 import { Lockup } from "./types/DataTypes.sol";
+
 /*
 
 ██╗      ██████╗  ██████╗██╗  ██╗██╗   ██╗██████╗     ███╗   ██╗███████╗████████╗
@@ -47,16 +46,12 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
         address token;
         string tokenSymbol;
         uint128 depositedAmount;
-        bool isTransferable;
         string json;
         ISablierLockup lockup;
-        string lockupModel;
         string lockupStringified;
-        bytes returnData;
         string status;
         string svg;
         uint256 streamedPercentage;
-        bool success;
     }
 
     /// @inheritdoc ILockupNFTDescriptor
@@ -65,22 +60,12 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
 
         // Load the contracts.
         vars.lockup = ISablierLockup(address(lockup));
-        vars.lockupModel = mapSymbol(lockup);
         vars.lockupStringified = address(lockup).toHexString();
-        vars.tokenSymbol = safeTokenSymbol(vars.token);
         vars.depositedAmount = vars.lockup.getDepositedAmount(streamId);
 
         // Retrieve the underlying token contract's address.
-        if (vars.lockupModel.equal("Sablier Lockup")) {
-            // For Lockup contract versions v2.0.0 and later, use the `getUnderlyingToken` function.
-            vars.token = address(vars.lockup.getUnderlyingToken(streamId));
-        }
-        // For Lockup contract versions earlier than v2.0.0, use the `getAsset` function.
-        else {
-            (, bytes memory returnData) =
-                address(lockup).staticcall(abi.encodeWithSignature("getAsset(uint256)", streamId));
-            vars.token = abi.decode(returnData, (address));
-        }
+        vars.token = address(vars.lockup.getUnderlyingToken(streamId));
+        vars.tokenSymbol = safeTokenSymbol(vars.token);
 
         // Load the stream's data.
         vars.status = stringifyStatus(vars.lockup.statusOf(streamId));
@@ -103,17 +88,9 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
                 lockupAddress: vars.lockupStringified,
                 progress: stringifyPercentage(vars.streamedPercentage),
                 progressNumerical: vars.streamedPercentage,
-                status: vars.status,
-                lockupModel: vars.lockupModel
+                status: vars.status
             })
         );
-
-        // Performs a low-level call to handle older deployments that miss the `isTransferable` function.
-        (vars.success, vars.returnData) =
-            address(vars.lockup).staticcall(abi.encodeCall(ISablierLockupBase.isTransferable, (streamId)));
-
-        // When the call has failed, the stream NFT is assumed to be transferable.
-        vars.isTransferable = vars.success ? abi.decode(vars.returnData, (bool)) : true;
 
         // Generate the JSON metadata.
         vars.json = string.concat(
@@ -125,15 +102,14 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
             }),
             ',"description":"',
             generateDescription({
-                lockupModel: vars.lockupModel,
                 tokenSymbol: vars.tokenSymbol,
                 lockupStringified: vars.lockupStringified,
                 tokenAddress: vars.token.toHexString(),
                 streamId: streamId.toString(),
-                isTransferable: vars.isTransferable
+                isTransferable: vars.lockup.isTransferable(streamId)
             }),
             '","external_url":"https://sablier.com","name":"',
-            generateName({ lockupModel: vars.lockupModel, streamId: streamId.toString() }),
+            string.concat("Sablier Lockup #", streamId.toString()),
             '","image":"data:image/svg+xml;base64,',
             Base64.encode(bytes(vars.svg)),
             '"}'
@@ -286,7 +262,6 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
 
     /// @notice Generates a string with the NFT's JSON metadata description, which provides a high-level overview.
     function generateDescription(
-        string memory lockupModel,
         string memory tokenSymbol,
         string memory lockupStringified,
         string memory tokenAddress,
@@ -304,15 +279,12 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
             : unicode"❕INFO: This NFT is non-transferable. It cannot be sold or transferred to another account.";
 
         return string.concat(
-            "This NFT represents a payment stream in a Sablier Lockup ",
-            lockupModel,
-            " contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
+            "This NFT represents a stream in Sablier Lockup contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
             tokenSymbol,
             ".\\n\\n- Stream ID: ",
             streamId,
             "\\n- ",
-            lockupModel,
-            " Address: ",
+            "Sablier Lockup Address: ",
             lockupStringified,
             "\\n- ",
             tokenSymbol,
@@ -321,12 +293,6 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
             "\\n\\n",
             info
         );
-    }
-
-    /// @notice Generates a string with the NFT's JSON metadata name, which is unique for each stream.
-    /// @dev The `streamId` is equivalent to the ERC-721 `tokenId`.
-    function generateName(string memory lockupModel, string memory streamId) internal pure returns (string memory) {
-        return string.concat("Sablier ", lockupModel, " #", streamId);
     }
 
     /// @notice Checks whether the provided string contains only alphanumeric characters, spaces, and dashes.
@@ -350,23 +316,6 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
             }
         }
         return true;
-    }
-
-    /// @notice Maps ERC-721 symbols to human-readable model names.
-    /// @dev Reverts if the symbol is unknown.
-    function mapSymbol(IERC721Metadata sablier) internal view returns (string memory) {
-        string memory symbol = sablier.symbol();
-        if (symbol.equal("SAB-LOCKUP")) {
-            return "Sablier Lockup";
-        } else if (symbol.equal("SAB-LOCKUP-LIN") || symbol.equal("SAB-V2-LOCKUP-LIN")) {
-            return "Sablier Lockup Linear";
-        } else if (symbol.equal("SAB-LOCKUP-DYN") || symbol.equal("SAB-V2-LOCKUP-DYN")) {
-            return "Sablier Lockup Dynamic";
-        } else if (symbol.equal("SAB-LOCKUP-TRA") || symbol.equal("SAB-V2-LOCKUP-TRA")) {
-            return "Sablier Lockup Tranched";
-        } else {
-            revert Errors.LockupNFTDescriptor_UnknownNFT(sablier, symbol);
-        }
     }
 
     /// @notice Retrieves the token's decimals safely, defaulting to "0" if an error occurs.

@@ -1,5 +1,0 @@
-MapSymbol_Integration_Concrete_Test
-├── given unknown NFT contract
-│  └── it should revert
-└── given known NFT contract
-   └── it should map the ERC-721 symbol to Lockup Linear

@@ -18,7 +18,6 @@ library NFTSVG {
         string tokenSymbol;
         string duration;
         string lockupAddress;
-        string lockupModel;
         string progress;
         uint256 progressNumerical;
         string status;
@@ -89,7 +88,7 @@ library NFTSVG {
             '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">',
             SVGElements.BACKGROUND,
             generateDefs(params.accentColor, params.status, vars.cards),
-            generateFloatingText(params.lockupAddress, params.lockupModel, params.tokenAddress, params.tokenSymbol),
+            generateFloatingText(params.lockupAddress, params.tokenAddress, params.tokenSymbol),
             generateHrefs(vars.progressXPosition, vars.statusXPosition, vars.amountXPosition, vars.durationXPosition),
             "</svg>"
         );
@@ -119,7 +118,6 @@ library NFTSVG {
 
     function generateFloatingText(
         string memory lockupAddress,
-        string memory lockupModel,
         string memory tokenAddress,
         string memory tokenSymbol
     )
@@ -131,12 +129,9 @@ library NFTSVG {
             '<text text-rendering="optimizeSpeed">',
             SVGElements.floatingText({
                 offset: "-100%",
-                text: string.concat(lockupAddress, unicode" • ", "Sablier ", lockupModel)
+                text: string.concat(lockupAddress, unicode" • ", "Sablier Lockup")
             }),
-            SVGElements.floatingText({
-                offset: "0%",
-                text: string.concat(lockupAddress, unicode" • ", "Sablier ", lockupModel)
-            }),
+            SVGElements.floatingText({ offset: "0%", text: string.concat(lockupAddress, unicode" • ", "Sablier Lockup") }),
             SVGElements.floatingText({ offset: "-50%", text: string.concat(tokenAddress, unicode" • ", tokenSymbol) }),
             SVGElements.floatingText({ offset: "50%", text: string.concat(tokenAddress, unicode" • ", tokenSymbol) }),
             "</text>"
