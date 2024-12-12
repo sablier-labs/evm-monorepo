@@ -18,7 +18,7 @@ streaming. A Flow stream is characterized by its rate per second (rps). The rela
 time elapsed is linear is be defined as:
 
 ```math
-\text{amount owed} = rps * \text{elapsed time}
+\text{amount owed} = rps \cdot \text{elapsed time}
 ```
 
 Sablier Flow can be used in several areas of everyday finance, such as payroll, subscriptions, grant distributions,
