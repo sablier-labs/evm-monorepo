@@ -13,8 +13,8 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 
 ## Background
 
-Sablier Lockup Protocol is a token distribution protocol used by DAOs and businesses for vesting, payroll, airdrops, and
-more. Our flagship model is the linear stream, which distributes tokens on a continuous, by-the-second basis.
+Sablier Lockup is a token distribution protocol that enables onchain vesting and airdrops. Our flagship model is the
+linear stream, which distributes tokens on a continuous, by-the-second basis.
 
 The way it works is that the sender of a payment stream first deposits a specific amount of ERC-20 tokens in a contract.
 Then, the contract progressively allocates the funds to the recipient, who can access them as they become available over
