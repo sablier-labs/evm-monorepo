@@ -9,29 +9,34 @@
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
-This repository contains the smart contracts for Sablier Flow protocol. Flow is a debt tracking protocol that tracks
-tokens owed between two parties, enabling indefinite token streaming. A Flow stream is characterized by its rate per
-second (rps). The relationship between the amount owed and time elapsed is linear and can be defined as:
+In-depth documentation is available at [docs.sablier.com](https://docs.sablier.com).
+
+## Background
+
+Sablier Flow is a debt tracking protocol that tracks tokens owed between two parties, enabling open-ended token
+streaming. A Flow stream is characterized by its rate per second (rps). The relationship between the amount owed and
+time elapsed is linear is be defined as:
 
 ```math
-\text{amount owed} = rps \cdot \text{elapsed time}
+\text{amount owed} = rps * \text{elapsed time}
 ```
 
-Flow protocol can be used in several areas of everyday finance, such as payroll, distributing grants, insurance
-premiums, loans interest, token ESOPs etc. If you are looking for vesting and airdrops, please refer to our
+Sablier Flow can be used in several areas of everyday finance, such as payroll, subscriptions, grant distributions,
+insurance premiums, loans interest, token ESOPs etc. If you are looking for vesting and airdrops, please refer to our
 [Lockup](https://github.com/sablier-labs/v2-core/) protocol.
 
 ## Features
 
-1. **Flexible deposit:** A stream can be funded with any amount, at any time, by anyone, in full or in parts.
-2. **Flexible duration:** A stream can be created with no specific start or end time. It can run indefinitely.
+1. **Open-ended:** A stream can be created with no specific end time. It runs indefinitely until it is paused or voided.
+2. **Top-ups:** No upfront deposit requirements. A stream can be funded with any amount, at any time, by anyone, in full
+   or partially.
 3. **Pause:** A stream can be paused by the sender and can later be restarted without losing track of previously accrued
    debt.
-4. **Refund:** Unstreamed amount can be refunded back to the sender at any time.
-5. **Void:** Voiding a stream implies it cannot be restarted anymore. Voiding an insolvent stream forfeits the uncovered
-   debt. Either party can void a stream at any time.
-6. **Withdraw:** it is publicly callable as long as `to` is set to the recipient. However, a stream’s recipient is
-   allowed to withdraw funds to any address.
+4. **Void:** A voided stream cannot be restarted anymore. Voiding an insolvent stream forfeits the uncovered debt.
+   Either the sender or the recipient can void a stream at any time.
+5. **Refund:** Unstreamed amount can be refunded back to the sender at any time.
+6. **Withdraw:** A publicly callable function as long as `to` is set to the recipient. A stream's recipient is allowed
+   to withdraw funds to any address.
 
 ## Install
 
