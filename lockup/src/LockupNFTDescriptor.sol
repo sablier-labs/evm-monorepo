@@ -279,7 +279,7 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
             : unicode"❕INFO: This NFT is non-transferable. It cannot be sold or transferred to another account.";
 
         return string.concat(
-            "This NFT represents a stream in Sablier Lockup contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
+            "This NFT represents a stream in a Sablier Lockup contract. The owner of this NFT can withdraw the streamed tokens, which are denominated in ",
             tokenSymbol,
             ".\\n\\n- Stream ID: ",
             streamId,
