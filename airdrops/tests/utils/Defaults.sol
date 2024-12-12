@@ -33,7 +33,8 @@ contract Defaults is Constants, Merkle {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 public constant AGGREGATE_AMOUNT = CLAIM_AMOUNT * RECIPIENT_COUNT;
-    string public constant CAMPAIGN_NAME = "Airdrop Campaign";
+    // Since Factory stores campaign name as bytes32, extra spaces are padded to it.
+    string public constant CAMPAIGN_NAME = "Airdrop Campaign                ";
     bool public constant CANCELABLE = false;
     uint128 public constant CLAIM_AMOUNT = 10_000e18;
     uint40 public immutable EXPIRATION;
@@ -47,7 +48,8 @@ contract Defaults is Constants, Merkle {
     uint256[] public LEAVES = new uint256[](RECIPIENT_COUNT);
     uint256 public constant RECIPIENT_COUNT = 4;
     bytes32 public MERKLE_ROOT;
-    string public constant SHAPE = "A custom stream shape";
+    // Since Factory stores shape as bytes32, extra spaces are padded to it.
+    string public constant SHAPE = "A custom stream shape           ";
     uint40 public immutable STREAM_START_TIME_NON_ZERO = JULY_1_2024 - 2 days;
     uint40 public immutable STREAM_START_TIME_ZERO = 0;
     uint64 public constant TOTAL_PERCENTAGE = uUNIT;

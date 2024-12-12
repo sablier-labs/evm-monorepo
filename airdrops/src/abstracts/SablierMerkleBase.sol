@@ -24,6 +24,9 @@ abstract contract SablierMerkleBase is
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev The name of the campaign stored as bytes32.
+    bytes32 internal immutable CAMPAIGN_NAME;
+
     /// @inheritdoc ISablierMerkleBase
     uint40 public immutable override EXPIRATION;
 
@@ -36,17 +39,14 @@ abstract contract SablierMerkleBase is
     /// @inheritdoc ISablierMerkleBase
     bytes32 public immutable override MERKLE_ROOT;
 
+    /// @dev The shape of Lockup stream stored as bytes32.
+    bytes32 internal immutable SHAPE;
+
     /// @inheritdoc ISablierMerkleBase
     IERC20 public immutable override TOKEN;
 
     /// @inheritdoc ISablierMerkleBase
-    string public override campaignName;
-
-    /// @inheritdoc ISablierMerkleBase
     string public override ipfsCID;
-
-    /// @inheritdoc ISablierMerkleBase
-    string public override shape;
 
     /// @dev Packed booleans that record the history of claims.
     BitMaps.BitMap internal _claimedBitMap;
@@ -65,14 +65,19 @@ abstract contract SablierMerkleBase is
         FEE = fee;
         MERKLE_ROOT = params.merkleRoot;
         TOKEN = params.token;
-        campaignName = _truncateString(params.campaignName);
+        CAMPAIGN_NAME = bytes32(abi.encodePacked(params.campaignName));
         ipfsCID = params.ipfsCID;
-        shape = _truncateString(params.shape);
+        SHAPE = bytes32(abi.encodePacked(params.shape));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierMerkleBase
+    function campaignName() external view override returns (string memory) {
+        return string(abi.encodePacked(CAMPAIGN_NAME));
+    }
 
     /// @inheritdoc ISablierMerkleBase
     function getFirstClaimTime() external view override returns (uint40) {
@@ -87,6 +92,11 @@ abstract contract SablierMerkleBase is
     /// @inheritdoc ISablierMerkleBase
     function hasExpired() public view override returns (bool) {
         return EXPIRATION > 0 && EXPIRATION <= block.timestamp;
+    }
+
+    /// @inheritdoc ISablierMerkleBase
+    function shape() external view override returns (string memory) {
+        return string(abi.encodePacked(SHAPE));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -184,15 +194,6 @@ abstract contract SablierMerkleBase is
     /// @dev The grace period is 7 days after the first claim.
     function _hasGracePeriodPassed() internal view returns (bool) {
         return _firstClaimTime > 0 && block.timestamp > _firstClaimTime + 7 days;
-    }
-
-    /// @notice Truncates a string to a maximum length of 32 bytes.
-    /// @dev If the string's length is 32 bytes or less, it is returned unchanged.
-    function _truncateString(string memory s) private pure returns (string memory) {
-        if (bytes(s).length > 32) {
-            return string(abi.encodePacked(bytes32(abi.encodePacked(s))));
-        }
-        return s;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

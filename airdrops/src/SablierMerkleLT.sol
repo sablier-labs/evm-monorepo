@@ -137,7 +137,7 @@ contract SablierMerkleLT is
                 cancelable: STREAM_CANCELABLE,
                 transferable: STREAM_TRANSFERABLE,
                 timestamps: Lockup.Timestamps({ start: startTime, end: endTime }),
-                shape: shape,
+                shape: string(abi.encodePacked(SHAPE)),
                 broker: Broker({ account: address(0), fee: ZERO })
             }),
             tranches

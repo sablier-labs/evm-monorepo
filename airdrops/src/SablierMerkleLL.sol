@@ -122,7 +122,7 @@ contract SablierMerkleLL is
                 cancelable: STREAM_CANCELABLE,
                 transferable: STREAM_TRANSFERABLE,
                 timestamps: timestamps,
-                shape: shape,
+                shape: string(abi.encodePacked(SHAPE)),
                 broker: Broker({ account: address(0), fee: ZERO })
             }),
             LockupLinear.UnlockAmounts({ start: _schedule.startAmount, cliff: _schedule.cliffAmount }),
