@@ -2,6 +2,10 @@ Payable_Integration_Concrete_Test::adjustRatePerSecond
 └── when ETH value not zero
    └── it should make the call
 
+Payable_Integration_Concrete_Test::batch
+└── when ETH value not zero
+   └── it should make the call
+
 Payable_Integration_Concrete_Test::create
 └── when ETH value not zero
    └── it should make the call

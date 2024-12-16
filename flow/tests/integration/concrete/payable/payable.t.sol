@@ -20,6 +20,11 @@ contract Payable_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         flow.adjustRatePerSecond{ value: FEE }(defaultStreamId, ud21x18(RATE_PER_SECOND_U128 + 1));
     }
 
+    function test_BatchWhenETHValueNotZero() external {
+        bytes[] memory calls = new bytes[](0);
+        flow.batch{ value: FEE }(calls);
+    }
+
     function test_CreateWhenETHValueNotZero() external {
         flow.create{ value: FEE }(users.sender, users.recipient, RATE_PER_SECOND, usdc, TRANSFERABLE);
     }
