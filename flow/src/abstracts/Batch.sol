@@ -13,7 +13,7 @@ abstract contract Batch is IBatch {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IBatch
-    function batch(bytes[] calldata calls) external override {
+    function batch(bytes[] calldata calls) external payable override {
         uint256 count = calls.length;
 
         for (uint256 i = 0; i < count; ++i) {

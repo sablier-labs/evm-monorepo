@@ -8,6 +8,7 @@ abstract contract Constants {
     // Amounts
     uint128 internal constant DEPOSIT_AMOUNT_18D = 50_000e18;
     uint128 internal constant DEPOSIT_AMOUNT_6D = 50_000e6;
+    uint256 internal constant FEE = 0.001e18;
     uint128 internal constant REFUND_AMOUNT_18D = 10_000e18;
     uint128 internal constant REFUND_AMOUNT_6D = 10_000e6;
     uint128 internal constant TOTAL_AMOUNT_WITH_BROKER_FEE_18D = DEPOSIT_AMOUNT_18D + BROKER_FEE_AMOUNT_18D;

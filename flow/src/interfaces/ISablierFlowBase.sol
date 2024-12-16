@@ -19,6 +19,11 @@ interface ISablierFlowBase is
     IERC721Metadata, // 2 inherited components
     IAdminable // 0 inherited components
 {
+    /// @notice Emitted when the accrued fees are collected.
+    /// @param admin The address of the current contract admin, which has received the fees.
+    /// @param feeAmount The amount of collected fees.
+    event CollectFees(address indexed admin, uint256 indexed feeAmount);
+
     /// @notice Emitted when the contract admin collects protocol revenue accrued.
     /// @param admin The address of the contract admin.
     /// @param token The address of the ERC-20 token the protocol revenue has been collected for.
@@ -144,6 +149,14 @@ interface ISablierFlowBase is
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Collects the accrued fees by transferring them to the contract admin.
+    ///
+    /// @dev Emits a {CollectFees} event.
+    ///
+    /// Notes:
+    /// - If the admin is a contract, it must be able to receive ETH.
+    function collectFees() external;
 
     /// @notice Collect the protocol revenue accrued for the provided ERC-20 token.
     ///

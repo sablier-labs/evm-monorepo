@@ -8,6 +8,7 @@ import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { SablierFlow } from "src/SablierFlow.sol";
 import { ERC20MissingReturn } from "./mocks/ERC20MissingReturn.sol";
 import { ERC20Mock } from "./mocks/ERC20Mock.sol";
+import { ContractWithoutReceive, ContractWithReceive } from "./mocks/Receive.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
 import { Users } from "./utils/Types.sol";
@@ -25,9 +26,11 @@ abstract contract Base_Test is Assertions, Modifiers, Test {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    ContractWithoutReceive internal contractWithoutReceive;
+    ContractWithReceive internal contractWithReceive;
+    ERC20Mock internal dai;
     ERC20Mock internal tokenWithoutDecimals;
     ERC20Mock internal tokenWithProtocolFee;
-    ERC20Mock internal dai;
     ERC20Mock internal usdc;
     ERC20MissingReturn internal usdt;
 
@@ -48,8 +51,13 @@ abstract contract Base_Test is Assertions, Modifiers, Test {
             flow = deployOptimizedSablierFlow();
         }
 
-        // Label the flow contract.
-        vm.label(address(flow), "Flow");
+        contractWithoutReceive = new ContractWithoutReceive();
+        contractWithReceive = new ContractWithReceive();
+
+        // Label the contracts.
+        vm.label({ account: address(flow), newLabel: "Flow" });
+        vm.label({ account: address(contractWithoutReceive), newLabel: "Contract without Receive" });
+        vm.label({ account: address(contractWithReceive), newLabel: "Contract with Receive" });
 
         // Create new tokens and label them.
         createAndLabelTokens();

@@ -178,7 +178,7 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to adjust.
     /// @param newRatePerSecond The new rate per second, denoted as a fixed-point number where 1e18 is 1 token
     /// per second.
-    function adjustRatePerSecond(uint256 streamId, UD21x18 newRatePerSecond) external;
+    function adjustRatePerSecond(uint256 streamId, UD21x18 newRatePerSecond) external payable;
 
     /// @notice Creates a new Flow stream by setting the snapshot time to `block.timestamp` and leaving the balance to
     /// zero. The stream is wrapped in an ERC-721 NFT.
@@ -208,6 +208,7 @@ interface ISablierFlow is
         bool transferable
     )
         external
+        payable
         returns (uint256 streamId);
 
     /// @notice Creates a new Flow stream by setting the snapshot time to `block.timestamp` and the balance to `amount`.
@@ -239,6 +240,7 @@ interface ISablierFlow is
         uint128 amount
     )
         external
+        payable
         returns (uint256 streamId);
 
     /// @notice Makes a deposit in a stream.
@@ -255,7 +257,7 @@ interface ISablierFlow is
     /// @param amount The deposit amount, denoted in token's decimals.
     /// @param sender The stream's sender address.
     /// @param recipient The stream's recipient address.
-    function deposit(uint256 streamId, uint128 amount, address sender, address recipient) external;
+    function deposit(uint256 streamId, uint128 amount, address sender, address recipient) external payable;
 
     /// @notice Deposits tokens in a stream and pauses it.
     ///
@@ -269,7 +271,7 @@ interface ISablierFlow is
     ///
     /// @param streamId The ID of the stream to deposit to, and then pause.
     /// @param amount The deposit amount, denoted in token's decimals.
-    function depositAndPause(uint256 streamId, uint128 amount) external;
+    function depositAndPause(uint256 streamId, uint128 amount) external payable;
 
     /// @notice Deposits tokens in a stream.
     ///
@@ -298,7 +300,8 @@ interface ISablierFlow is
         address recipient,
         Broker calldata broker
     )
-        external;
+        external
+        payable;
 
     /// @notice Pauses the stream.
     ///
@@ -314,7 +317,7 @@ interface ISablierFlow is
     /// - `msg.sender` must be the stream's sender.
     ///
     /// @param streamId The ID of the stream to pause.
-    function pause(uint256 streamId) external;
+    function pause(uint256 streamId) external payable;
 
     /// @notice Refunds the provided amount of tokens from the stream to the sender's address.
     ///
@@ -328,7 +331,7 @@ interface ISablierFlow is
     ///
     /// @param streamId The ID of the stream to refund from.
     /// @param amount The amount to refund, denoted in token's decimals.
-    function refund(uint256 streamId, uint128 amount) external;
+    function refund(uint256 streamId, uint128 amount) external payable;
 
     /// @notice Refunds the provided amount of tokens from the stream to the sender's address.
     ///
@@ -342,7 +345,7 @@ interface ISablierFlow is
     ///
     /// @param streamId The ID of the stream to refund from and then pause.
     /// @param amount The amount to refund, denoted in token's decimals.
-    function refundAndPause(uint256 streamId, uint128 amount) external;
+    function refundAndPause(uint256 streamId, uint128 amount) external payable;
 
     /// @notice Refunds the entire refundable amount of tokens from the stream to the sender's address.
     ///
@@ -352,7 +355,7 @@ interface ISablierFlow is
     /// - Refer to the requirements in {refund}.
     ///
     /// @param streamId The ID of the stream to refund from.
-    function refundMax(uint256 streamId) external;
+    function refundMax(uint256 streamId) external payable;
 
     /// @notice Restarts the stream with the provided rate per second.
     ///
@@ -370,7 +373,7 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to restart.
     /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
     /// where 1e18 is 1 token per second.
-    function restart(uint256 streamId, UD21x18 ratePerSecond) external;
+    function restart(uint256 streamId, UD21x18 ratePerSecond) external payable;
 
     /// @notice Restarts the stream with the provided rate per second, and makes a deposit.
     ///
@@ -387,7 +390,7 @@ interface ISablierFlow is
     /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
     /// where 1e18 is 1 token per second.
     /// @param amount The deposit amount, denoted in token's decimals.
-    function restartAndDeposit(uint256 streamId, UD21x18 ratePerSecond, uint128 amount) external;
+    function restartAndDeposit(uint256 streamId, UD21x18 ratePerSecond, uint128 amount) external payable;
 
     /// @notice Voids a stream.
     ///
@@ -407,7 +410,7 @@ interface ISablierFlow is
     /// - `msg.sender` must either be the stream's sender, recipient or an approved third party.
     ///
     /// @param streamId The ID of the stream to void.
-    function void(uint256 streamId) external;
+    function void(uint256 streamId) external payable;
 
     /// @notice Withdraws the provided `amount` minus the protocol fee to the provided `to` address.
     ///
@@ -436,6 +439,7 @@ interface ISablierFlow is
         uint128 amount
     )
         external
+        payable
         returns (uint128 withdrawnAmount, uint128 protocolFeeAmount);
 
     /// @notice Withdraws the entire withdrawable amount minus the protocol fee to the provided `to` address.
@@ -458,5 +462,6 @@ interface ISablierFlow is
         address to
     )
         external
+        payable
         returns (uint128 withdrawnAmount, uint128 protocolFeeAmount);
 }
