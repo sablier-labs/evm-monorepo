@@ -437,10 +437,10 @@ abstract contract Modifiers is Fuzzers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   WITHDRAW-FEES
+                                   COLLECT-FEES
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenAdminIsContract() {
+    modifier givenAdminIsContract() {
         _;
     }
 

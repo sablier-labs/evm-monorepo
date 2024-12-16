@@ -7,11 +7,11 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract CollectFees_Integration_Concrete_Test is Integration_Test {
-    function test_WhenAdminIsNotContract() external {
+    function test_GivenAdminIsNotContract() external {
         _test_CollectFees(users.admin);
     }
 
-    function test_RevertWhen_AdminDoesNotImplementReceiveFunction() external whenAdminIsContract {
+    function test_RevertGiven_AdminDoesNotImplementReceiveFunction() external givenAdminIsContract {
         // Transfer the admin to a contract that does not implement the receive function.
         resetPrank({ msgSender: users.admin });
         lockup.transferAdmin(address(contractWithoutReceive));
@@ -32,7 +32,7 @@ contract CollectFees_Integration_Concrete_Test is Integration_Test {
         lockup.collectFees();
     }
 
-    function test_WhenAdminImplementsReceiveFunction() external whenAdminIsContract {
+    function test_GivenAdminImplementsReceiveFunction() external givenAdminIsContract {
         // Transfer the admin to a contract that implements the receive function.
         resetPrank({ msgSender: users.admin });
         lockup.transferAdmin(address(contractWithReceive));
