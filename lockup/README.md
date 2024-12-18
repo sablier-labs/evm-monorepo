@@ -88,8 +88,8 @@ Lockup uses a singleton-style architecture, where all streams are managed in the
 Sablier does not deploy a new contract for each distribution model or stream. It bundles all streams into a single
 contract, which is more gas-efficient and easier to maintain.
 
-For more information, see the [Technical Overview](https://docs.sablier.com/contracts/v2/reference/overview) in our
-docs, as well as these [diagrams](https://docs.sablier.com/contracts/v2/reference/diagrams).
+For more information, see the [Technical Overview](https://docs.sablier.com/reference/overview) in our docs, as well as
+these [diagrams](https://docs.sablier.com/reference/lockup/diagrams).
 
 ### Branching Tree Technique
 
