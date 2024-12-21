@@ -119,6 +119,10 @@ abstract contract Modifiers is Utils {
         _;
     }
 
+    modifier whenTotalPercentageNotGreaterThan100() {
+        _;
+    }
+
     modifier whenWithdrawalAddressNotZero() {
         _;
     }

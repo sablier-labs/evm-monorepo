@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
-import { ud2x18, uUNIT } from "@prb/math/src/UD2x18.sol";
+import { ud2x18, UD2x18, uUNIT } from "@prb/math/src/UD2x18.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
 import { LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol";
 import { Merkle } from "murky/src/Merkle.sol";
@@ -37,6 +37,7 @@ contract Defaults is Constants, Merkle {
     string public constant CAMPAIGN_NAME = "Airdrop Campaign                ";
     bool public constant CANCELABLE = false;
     uint128 public constant CLAIM_AMOUNT = 10_000e18;
+    UD2x18 public constant CLIFF_PERCENTAGE = UD2x18.wrap(0.25e18); // 25% of the claim amount
     uint40 public immutable EXPIRATION;
     uint256 public constant FEE = 0.005e18;
     uint40 public constant FIRST_CLAIM_TIME = JULY_1_2024;
@@ -50,6 +51,7 @@ contract Defaults is Constants, Merkle {
     bytes32 public MERKLE_ROOT;
     // Since Factory stores shape as bytes32, extra spaces are padded to it.
     string public constant SHAPE = "A custom stream shape           ";
+    UD2x18 public constant START_PERCENTAGE = UD2x18.wrap(0.01e18); // 1% of the claim amount
     uint40 public immutable STREAM_START_TIME_NON_ZERO = JULY_1_2024 - 2 days;
     uint40 public immutable STREAM_START_TIME_ZERO = 0;
     uint64 public constant TOTAL_PERCENTAGE = uUNIT;
@@ -147,9 +149,9 @@ contract Defaults is Constants, Merkle {
 
     function schedule() public pure returns (MerkleLL.Schedule memory schedule_) {
         schedule_.startTime = STREAM_START_TIME_ZERO;
-        schedule_.startAmount = START_AMOUNT;
+        schedule_.startPercentage = START_PERCENTAGE;
         schedule_.cliffDuration = CLIFF_DURATION;
-        schedule_.cliffAmount = CLIFF_AMOUNT;
+        schedule_.cliffPercentage = CLIFF_PERCENTAGE;
         schedule_.totalDuration = TOTAL_DURATION;
     }
 

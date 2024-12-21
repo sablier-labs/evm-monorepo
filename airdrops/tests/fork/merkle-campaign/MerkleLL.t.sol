@@ -3,7 +3,8 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
-import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
+import { ud60x18 } from "@prb/math/src/UD60x18.sol";
+import { Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
 
 import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleBase, ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
@@ -46,6 +47,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         bytes32 merkleRoot;
         address[] recipients;
         uint256 recipientCount;
+        LockupLinear.UnlockAmounts expectedUnlockAmounts;
     }
 
     // We need the leaves as a storage variable so that we can use OpenZeppelin's {Arrays.findUpperBound}.
@@ -75,11 +77,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             vars.indexes[i] = params.leafData[i].index;
 
             // Bound each leaf amount so that `aggregateAmount` does not overflow.
-            vars.amounts[i] = boundUint128(
-                params.leafData[i].amount,
-                defaults.START_AMOUNT() + defaults.CLIFF_AMOUNT(),
-                uint128(MAX_UINT128 / vars.recipientCount - 1)
-            );
+            vars.amounts[i] = boundUint128(params.leafData[i].amount, 1, uint128(MAX_UINT128 / vars.recipientCount - 1));
             vars.aggregateAmount += vars.amounts[i];
 
             // Avoid zero recipient addresses.
@@ -199,6 +197,11 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             merkleProof: vars.merkleProof
         });
 
+        vars.expectedUnlockAmounts.start =
+            ud60x18(vars.amounts[params.posBeforeSort]).mul(defaults.START_PERCENTAGE().intoUD60x18()).intoUint128();
+        vars.expectedUnlockAmounts.cliff =
+            ud60x18(vars.amounts[params.posBeforeSort]).mul(defaults.CLIFF_PERCENTAGE().intoUD60x18()).intoUint128();
+
         // Assert that the stream has been created successfully.
         assertEq(
             lockup.getCliffTime(vars.expectedStreamId), getBlockTimestamp() + defaults.CLIFF_DURATION(), "cliff time"
@@ -213,8 +216,16 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         assertEq(lockup.getSender(vars.expectedStreamId), params.campaignOwner, "sender");
         assertEq(lockup.getStartTime(vars.expectedStreamId), getBlockTimestamp(), "start time");
         assertEq(lockup.getUnderlyingToken(vars.expectedStreamId), FORK_TOKEN, "token");
-        assertEq(lockup.getUnlockAmounts(vars.expectedStreamId).cliff, defaults.CLIFF_AMOUNT(), "unlock amounts cliff");
-        assertEq(lockup.getUnlockAmounts(vars.expectedStreamId).start, defaults.START_AMOUNT(), "unlock amounts start");
+        assertEq(
+            lockup.getUnlockAmounts(vars.expectedStreamId).cliff,
+            vars.expectedUnlockAmounts.cliff,
+            "unlock amounts cliff"
+        );
+        assertEq(
+            lockup.getUnlockAmounts(vars.expectedStreamId).start,
+            vars.expectedUnlockAmounts.start,
+            "unlock amounts start"
+        );
         assertEq(lockup.getWithdrawnAmount(vars.expectedStreamId), 0, "withdrawn amount");
         assertEq(lockup.isCancelable(vars.expectedStreamId), defaults.CANCELABLE(), "is cancelable");
         assertEq(lockup.isDepleted(vars.expectedStreamId), false, "is depleted");

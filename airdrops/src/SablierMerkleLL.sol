@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { ZERO } from "@prb/math/src/UD60x18.sol";
+import { ud60x18, ZERO } from "@prb/math/src/UD60x18.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 import { Broker, Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
 
@@ -112,6 +112,11 @@ contract SablierMerkleLL is
             timestamps.end = timestamps.start + _schedule.totalDuration;
         }
 
+        // Calculate the unlock amounts based on the percentages.
+        LockupLinear.UnlockAmounts memory unlockAmounts;
+        unlockAmounts.start = ud60x18(amount).mul(_schedule.startPercentage.intoUD60x18()).intoUint128();
+        unlockAmounts.cliff = ud60x18(amount).mul(_schedule.cliffPercentage.intoUD60x18()).intoUint128();
+
         // Interaction: create the stream via {SablierLockup}.
         uint256 streamId = LOCKUP.createWithTimestampsLL(
             Lockup.CreateWithTimestamps({
@@ -125,7 +130,7 @@ contract SablierMerkleLL is
                 shape: string(abi.encodePacked(SHAPE)),
                 broker: Broker({ account: address(0), fee: ZERO })
             }),
-            LockupLinear.UnlockAmounts({ start: _schedule.startAmount, cliff: _schedule.cliffAmount }),
+            unlockAmounts,
             cliffTime
         );
 

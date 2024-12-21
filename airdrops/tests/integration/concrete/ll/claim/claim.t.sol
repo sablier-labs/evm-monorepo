@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ud2x18 } from "@prb/math/src/UD2x18.sol";
+import { ud60x18 } from "@prb/math/src/UD60x18.sol";
+import { Errors as LockupErrors } from "@sablier/lockup/src/libraries/Errors.sol";
+
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { MerkleLL } from "src/types/DataTypes.sol";
 
@@ -15,9 +19,54 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         schedule = defaults.schedule();
     }
 
-    function test_WhenScheduledCliffDurationZero() external whenMerkleProofValid whenScheduledStartTimeZero {
+    function test_RevertWhen_TotalPercentageGreaterThan100() external whenMerkleProofValid {
+        uint256 fee = defaults.FEE();
+
+        // Crate a MerkleLL campaign with a total percentage greater than 100.
+        schedule.startPercentage = ud2x18(0.5e18);
+        schedule.cliffPercentage = ud2x18(0.6e18);
+
+        merkleLL = merkleFactory.createMerkleLL({
+            baseParams: defaults.baseParams(),
+            lockup: lockup,
+            cancelable: defaults.CANCELABLE(),
+            transferable: defaults.TRANSFERABLE(),
+            schedule: schedule,
+            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
+            recipientCount: defaults.RECIPIENT_COUNT()
+        });
+
+        uint128 depositAmount = defaults.CLAIM_AMOUNT();
+        uint128 startUnlockAmount = ud60x18(depositAmount).mul(schedule.startPercentage.intoUD60x18()).intoUint128();
+        uint128 cliffUnlockAmount = ud60x18(depositAmount).mul(schedule.cliffPercentage.intoUD60x18()).intoUint128();
+        bytes32[] memory merkleProof = defaults.index1Proof();
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                LockupErrors.SablierHelpers_UnlockAmountsSumTooHigh.selector,
+                depositAmount,
+                startUnlockAmount,
+                cliffUnlockAmount
+            )
+        );
+
+        // Claim an airstream.
+        merkleLL.claim{ value: fee }({
+            index: 1,
+            recipient: users.recipient1,
+            amount: depositAmount,
+            merkleProof: merkleProof
+        });
+    }
+
+    function test_WhenScheduledCliffDurationZero()
+        external
+        whenMerkleProofValid
+        whenTotalPercentageNotGreaterThan100
+        whenScheduledStartTimeZero
+    {
         schedule.cliffDuration = 0;
-        schedule.cliffAmount = 0;
+        schedule.cliffPercentage = ud2x18(0);
 
         merkleLL = merkleFactory.createMerkleLL({
             baseParams: defaults.baseParams(),
@@ -34,13 +83,18 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         _test_Claim({ startTime: getBlockTimestamp(), cliffTime: 0 });
     }
 
-    function test_WhenScheduledCliffDurationNotZero() external whenMerkleProofValid whenScheduledStartTimeZero {
+    function test_WhenScheduledCliffDurationNotZero()
+        external
+        whenMerkleProofValid
+        whenTotalPercentageNotGreaterThan100
+        whenScheduledStartTimeZero
+    {
         // It should create a stream with block.timestamp as start time.
         // It should create a stream with cliff as start time + cliff duration.
         _test_Claim({ startTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + defaults.CLIFF_DURATION() });
     }
 
-    function test_WhenScheduledStartTimeNotZero() external whenMerkleProofValid {
+    function test_WhenScheduledStartTimeNotZero() external whenMerkleProofValid whenTotalPercentageNotGreaterThan100 {
         schedule.startTime = defaults.STREAM_START_TIME_NON_ZERO();
 
         merkleLL = merkleFactory.createMerkleLL({
