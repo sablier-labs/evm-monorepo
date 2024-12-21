@@ -27,7 +27,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_RevertWhen_CustomError() external {
-        // The calls declared as bytes
+        // The calls declared as bytes.
         bytes[] memory calls = new bytes[](1);
         calls[0] = abi.encodeCall(flow.withdrawMax, (1, users.recipient));
 
@@ -51,7 +51,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         address noAllowanceAddress = address(0xBEEF);
         resetPrank({ msgSender: noAllowanceAddress });
 
-        // The calls declared as bytes
+        // The calls declared as bytes.
         bytes[] memory calls = new bytes[](1);
         calls[0] = abi.encodeCall(flow.deposit, (streamId, DEPOSIT_AMOUNT_6D, users.sender, users.recipient));
 
@@ -78,7 +78,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                          ADJUST-RATE-PER-SECOND-MULTIPLE
+                               ADJUST-RATE-PER-SECOND
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_Batch_AdjustRatePerSecond() external {
@@ -122,22 +122,22 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  CREATE-MULTIPLE
+                                      CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_Batch_CreateMultiple() external {
+    function test_Batch_Create() external {
         uint256[] memory expectedStreamIds = new uint256[](2);
         expectedStreamIds[0] = flow.nextStreamId();
-        expectedStreamIds[1] = expectedStreamIds[0] + 1;
+        expectedStreamIds[1] = flow.nextStreamId() + 1;
 
-        // The calls declared as bytes
+        // The calls declared as bytes.
         bytes[] memory calls = new bytes[](2);
         calls[0] = abi.encodeCall(flow.create, (users.sender, users.recipient, RATE_PER_SECOND, usdc, TRANSFERABLE));
         calls[1] = abi.encodeCall(flow.create, (users.sender, users.recipient, RATE_PER_SECOND, usdc, TRANSFERABLE));
 
-        // It should emit events: 2 {MetadataUpdate}, 2 {CreateFlowStream}
+        // It should emit 2 {MetadataUpdate} and 2 {CreateFlowStream} events.
 
-        // First stream to create
+        // First stream to create.
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamIds[0] });
 
@@ -151,7 +151,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
             transferable: TRANSFERABLE
         });
 
-        // Second stream to create
+        // Second stream to create.
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamIds[1] });
 
@@ -170,18 +170,18 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  DEPOSIT-MULTIPLE
+                                      DEPOSIT
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_Batch_DepositMultiple() external {
-        // The calls declared as bytes
+    function test_Batch_Deposit() external {
+        // The calls declared as bytes.
         bytes[] memory calls = new bytes[](2);
         calls[0] = abi.encodeCall(flow.deposit, (defaultStreamIds[0], DEPOSIT_AMOUNT_6D, users.sender, users.recipient));
         calls[1] = abi.encodeCall(flow.deposit, (defaultStreamIds[1], DEPOSIT_AMOUNT_6D, users.sender, users.recipient));
 
         // It should emit 2 {Transfer}, 2 {DepositFlowStream}, 2 {MetadataUpdate} events.
 
-        // First stream to deposit
+        // First stream to deposit.
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: users.sender, to: address(flow), value: DEPOSIT_AMOUNT_6D });
 
@@ -195,7 +195,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[0] });
 
-        // Second stream to deposit
+        // Second stream to deposit.
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: users.sender, to: address(flow), value: DEPOSIT_AMOUNT_6D });
 
@@ -218,11 +218,11 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   PAUSE-MULTIPLE
+                                       PAUSE
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_Batch_PauseMultiple() external {
-        // The calls declared as bytes
+    function test_Batch_Pause() external {
+        // The calls declared as bytes.
         bytes[] memory calls = new bytes[](2);
         calls[0] = abi.encodeCall(flow.pause, (defaultStreamIds[0]));
         calls[1] = abi.encodeCall(flow.pause, (defaultStreamIds[1]));
@@ -230,9 +230,9 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         uint256 previousTotalDebt0 = flow.totalDebtOf(defaultStreamId);
         uint256 previousTotalDebt1 = flow.totalDebtOf(defaultStreamIds[1]);
 
-        // It should emit 2 {PauseFlowStream}, 2 {MetadataUpdate} events.
+        // It should emit 2 {PauseFlowStream} and 2 {MetadataUpdate} events.
 
-        // First stream pause
+        // First stream pause.
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.PauseFlowStream({
             streamId: defaultStreamIds[0],
@@ -244,7 +244,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[0] });
 
-        // Second stream pause
+        // Second stream pause.
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.PauseFlowStream({
             streamId: defaultStreamIds[1],
@@ -261,19 +261,21 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  REFUND-MULTIPLE
+                                       REFUND
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_Batch_RefundMultiple() external {
+    function test_Batch_Refund() external {
         depositDefaultAmount(defaultStreamIds[0]);
         depositDefaultAmount(defaultStreamIds[1]);
 
-        // The calls declared as bytes
+        // The calls declared as bytes.
         bytes[] memory calls = new bytes[](2);
         calls[0] = abi.encodeCall(flow.refund, (defaultStreamIds[0], REFUND_AMOUNT_6D));
         calls[1] = abi.encodeCall(flow.refund, (defaultStreamIds[1], REFUND_AMOUNT_6D));
 
         // It should emit 2 {Transfer} and 2 {RefundFromFlowStream} events.
+
+        // First stream refund.
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: address(flow), to: users.sender, value: REFUND_AMOUNT_6D });
 
@@ -284,7 +286,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
             amount: REFUND_AMOUNT_6D
         });
 
-        // Second stream refund
+        // Second stream refund.
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: address(flow), to: users.sender, value: REFUND_AMOUNT_6D });
 
@@ -304,21 +306,21 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  RESTART-MULTIPLE
+                                      RESTART
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_Batch_RestartMultiple() external {
+    function test_Batch_Restart() external {
         flow.pause({ streamId: defaultStreamIds[0] });
         flow.pause({ streamId: defaultStreamIds[1] });
 
-        // The calls declared as bytes
+        // The calls declared as bytes.
         bytes[] memory calls = new bytes[](2);
         calls[0] = abi.encodeCall(flow.restart, (defaultStreamIds[0], RATE_PER_SECOND));
         calls[1] = abi.encodeCall(flow.restart, (defaultStreamIds[1], RATE_PER_SECOND));
 
         // It should emit 2 {RestartFlowStream} and 2 {MetadataUpdate} events.
 
-        // First stream restart
+        // First stream restart.
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.RestartFlowStream({
             streamId: defaultStreamIds[0],
@@ -329,7 +331,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[0] });
 
-        // Second stream restart
+        // Second stream restart.
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.RestartFlowStream({
             streamId: defaultStreamIds[1],
@@ -345,21 +347,21 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 WITHDRAW-MULTIPLE
+                                      WITHDRAW
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_Batch_WithdrawMultiple() external {
+    function test_Batch_Withdraw() external {
         depositDefaultAmount(defaultStreamIds[0]);
         depositDefaultAmount(defaultStreamIds[1]);
 
-        // The calls declared as bytes
+        // The calldata encoded as a bytes array.
         bytes[] memory calls = new bytes[](2);
         calls[0] = abi.encodeCall(flow.withdraw, (defaultStreamIds[0], users.recipient, WITHDRAW_AMOUNT_6D));
         calls[1] = abi.encodeCall(flow.withdraw, (defaultStreamIds[1], users.recipient, WITHDRAW_AMOUNT_6D));
 
         // It should emit 2 {Transfer}, 2 {WithdrawFromFlowStream} and 2 {MetadataUpdated} events.
 
-        // First stream withdraw
+        // First stream withdrawal.
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: WITHDRAW_AMOUNT_6D });
 
@@ -376,7 +378,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[0] });
 
-        // Second stream withdraw
+        // Second stream withdrawal.
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: WITHDRAW_AMOUNT_6D });
 
