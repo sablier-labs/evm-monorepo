@@ -1,0 +1,28 @@
+# Full reference https://github.com/foundry-rs/foundry/tree/master/crates/config
+
+[profile.default]
+  evm_version = "shanghai"
+  fuzz = { runs = 1_000 }
+  gas_reports = ["*"]
+  optimizer = true
+  optimizer_runs = 10_000
+  out = "out"
+  script = "script"
+  solc = "0.8.26"
+  src = "src"
+  test = "test"
+
+[fmt]
+  bracket_spacing = true
+  int_types = "long"
+  line_length = 120
+  multiline_func_header = "all"
+  number_underscore = "thousands"
+  quote_style = "double"
+  tab_width = 4
+  wrap_comments = true
+
+[rpc_endpoints]
+  localhost = "http://localhost:8545"
+  mainnet = "${MAINNET_RPC_URL}"
+  sepolia = "${SEPOLIA_RPC_URL}"

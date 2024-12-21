@@ -1,0 +1,56 @@
+{
+  "name": "@sablier/solidity-utils",
+  "description": "Utilities solidity files used accros Sablier's smart contracts",
+  "license": "GPL-3.0",
+  "version": "1.0.0",
+  "author": {
+    "name": "Sablier Labs Ltd",
+    "url": "https://sablier.com"
+  },
+  "bugs": {
+    "url": "https://github.com/sablier-labs/solidity-utils/issues"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "5.0.2",
+    "forge-std": "github:foundry-rs/forge-std#v1.8.2",
+    "husky": "^9.1.4",
+    "lint-staged": "^15.2.8",
+    "prettier": "^3.3.2",
+    "solhint": "^5.0.3"
+  },
+  "files": [
+    "src",
+    "script",
+    "tests",
+    "CHANGELOG.md",
+    "LICENSE-GPL.md"
+  ],
+  "homepage": "https://github.com/sablier-labs/solidity-utils#readme",
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "foundry",
+    "sablier",
+    "sablier-v2",
+    "smart-contracts",
+    "solidity",
+    "web3"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "github.com/sablier-labs/solidity-utils",
+  "scripts": {
+    "build": "forge build",
+    "clean": "rm -rf broadcast cache out out-optimized",
+    "lint": "bun run lint:sol && bun run prettier:check",
+    "lint:fix": "bun run lint:sol:fix && forge fmt",
+    "lint:sol": "forge fmt --check && bun solhint \"{precompiles,script,src,tests}/**/*.sol\"",
+    "lint:sol:fix": "bun solhint \"{precompiles,script,src,tests}/**/*.sol\" --fix --noPrompt",
+    "prepack": "bun install",
+    "prepare": "husky",
+    "prettier:check": "prettier --check \"**/*.{json,md,yml}\"",
+    "prettier:write": "prettier --write \"**/*.{json,md,yml}\"",
+    "test": "forge test"
+  }
+}
