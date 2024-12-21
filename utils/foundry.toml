@@ -10,7 +10,7 @@
   script = "script"
   solc = "0.8.26"
   src = "src"
-  test = "test"
+  test = "tests"
 
 [fmt]
   bracket_spacing = true
