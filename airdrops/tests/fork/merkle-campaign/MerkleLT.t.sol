@@ -80,7 +80,10 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
 
             // Avoid zero recipient addresses.
             uint256 boundedRecipientSeed = _bound(params.leafData[i].recipientSeed, 1, type(uint160).max);
-            vars.recipients[i] = address(uint160(boundedRecipientSeed));
+            // Avoid recipient to be the protocol admin.
+            vars.recipients[i] = address(uint160(boundedRecipientSeed)) != users.admin
+                ? address(uint160(boundedRecipientSeed))
+                : address(uint160(boundedRecipientSeed) + 1);
         }
 
         leaves = new uint256[](vars.recipientCount);
