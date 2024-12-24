@@ -91,9 +91,9 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         vars.actualSchedule = constructedLL.getSchedule();
         vars.expectedSchedule = defaults.schedule();
         assertEq(vars.actualSchedule.startTime, vars.expectedSchedule.startTime, "schedule.startTime");
-        assertEq(vars.actualSchedule.startPercentage, vars.expectedSchedule.startPercentage, "schedule.startAmount");
+        assertEq(vars.actualSchedule.startPercentage, vars.expectedSchedule.startPercentage, "schedule.startPercentage");
         assertEq(vars.actualSchedule.cliffDuration, vars.expectedSchedule.cliffDuration, "schedule.cliffDuration");
-        assertEq(vars.actualSchedule.cliffPercentage, vars.expectedSchedule.cliffPercentage, "schedule.cliffAmount");
+        assertEq(vars.actualSchedule.cliffPercentage, vars.expectedSchedule.cliffPercentage, "schedule.cliffPercentage");
         assertEq(vars.actualSchedule.totalDuration, vars.expectedSchedule.totalDuration, "schedule.totalDuration");
 
         assertEq(constructedLL.shape(), defaults.SHAPE(), "shape");
