@@ -70,16 +70,8 @@ abstract contract Integration_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        recipientInterfaceIDIncorrect = new RecipientInterfaceIDIncorrect();
-        recipientInterfaceIDMissing = new RecipientInterfaceIDMissing();
-        recipientInvalidSelector = new RecipientInvalidSelector();
-        recipientReentrant = new RecipientReentrant();
-        recipientReverting = new RecipientReverting();
-        vm.label({ account: address(recipientInterfaceIDIncorrect), newLabel: "Recipient Interface ID Incorrect" });
-        vm.label({ account: address(recipientInterfaceIDMissing), newLabel: "Recipient Interface ID Missing" });
-        vm.label({ account: address(recipientInvalidSelector), newLabel: "Recipient Invalid Selector" });
-        vm.label({ account: address(recipientReentrant), newLabel: "Recipient Reentrant" });
-        vm.label({ account: address(recipientReverting), newLabel: "Recipient Reverting" });
+        // Initialize the recipients with Hook implementations.
+        initializeRecipientsWithHooks();
 
         _defaultParams.createWithTimestamps = defaults.createWithTimestamps();
         _defaultParams.createWithDurations = defaults.createWithDurations();
@@ -104,8 +96,40 @@ abstract contract Integration_Test is Base_Test {
         // Set the default Lockup model as Dynamic, we will override the default stream IDs where necessary.
         lockupModel = Lockup.Model.LOCKUP_DYNAMIC;
 
-        // Initialize default streams IDs.
-        initializeDefaultStreamIds();
+        // Initialize default streams.
+        initializeDefaultStreams();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INITIALIZE-FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function initializeDefaultStreams() internal {
+        defaultStreamId = createDefaultStream();
+        notCancelableStreamId = createDefaultStreamNonCancelable();
+        notTransferableStreamId = createDefaultStreamNonTransferable();
+        recipientGoodStreamId = createDefaultStreamWithRecipient(address(recipientGood));
+        recipientInvalidSelectorStreamId = createDefaultStreamWithRecipient(address(recipientInvalidSelector));
+        recipientReentrantStreamId = createDefaultStreamWithRecipient(address(recipientReentrant));
+        recipientRevertStreamId = createDefaultStreamWithRecipient(address(recipientReverting));
+    }
+
+    function initializeRecipientsWithHooks() internal {
+        recipientInterfaceIDIncorrect = new RecipientInterfaceIDIncorrect();
+        recipientInterfaceIDMissing = new RecipientInterfaceIDMissing();
+        recipientInvalidSelector = new RecipientInvalidSelector();
+        recipientReentrant = new RecipientReentrant();
+        recipientReverting = new RecipientReverting();
+        vm.label({ account: address(recipientInterfaceIDIncorrect), newLabel: "Recipient Interface ID Incorrect" });
+        vm.label({ account: address(recipientInterfaceIDMissing), newLabel: "Recipient Interface ID Missing" });
+        vm.label({ account: address(recipientInvalidSelector), newLabel: "Recipient Invalid Selector" });
+        vm.label({ account: address(recipientReentrant), newLabel: "Recipient Reentrant" });
+        vm.label({ account: address(recipientReverting), newLabel: "Recipient Reverting" });
+
+        // Allow the recipients to Hook.
+        resetPrank({ msgSender: users.admin });
+        lockup.allowToHook(address(recipientReverting));
+        resetPrank({ msgSender: users.sender });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -177,16 +201,6 @@ abstract contract Integration_Test is Base_Test {
         params.recipient = recipient;
         params.sender = sender;
         streamId = createDefaultStream(params);
-    }
-
-    function initializeDefaultStreamIds() internal {
-        defaultStreamId = createDefaultStream();
-        notCancelableStreamId = createDefaultStreamNonCancelable();
-        notTransferableStreamId = createDefaultStreamNonTransferable();
-        recipientGoodStreamId = createDefaultStreamWithRecipient(address(recipientGood));
-        recipientInvalidSelectorStreamId = createDefaultStreamWithRecipient(address(recipientInvalidSelector));
-        recipientReentrantStreamId = createDefaultStreamWithRecipient(address(recipientReentrant));
-        recipientRevertStreamId = createDefaultStreamWithRecipient(address(recipientReverting));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

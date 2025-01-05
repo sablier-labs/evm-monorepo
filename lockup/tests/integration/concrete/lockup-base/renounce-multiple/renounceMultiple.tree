@@ -5,16 +5,16 @@ RenounceMultiple_Integration_Concrete_Test
    ├── when zero array length
    │  └── it should do nothing
    └── when non zero array length
-      ├── given atleast one null stream
+      ├── given at least one null stream
       │  └── it should revert
       └── given no null streams
-         ├── given atleast one cold stream
+         ├── given at least one cold stream
          │  └── it should revert
          └── given no cold streams
             ├── when caller unauthorized for any
             │  └── it should revert
             └── when caller authorized for all streams
-               ├── given atleast one non cancelable stream
+               ├── given at least one non cancelable stream
                │  └── it should revert
                └── given all streams cancelable
                   ├── it should emit {MetadataUpdate} and {RenounceLockupStream} events

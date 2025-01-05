@@ -31,13 +31,13 @@ contract RenounceMultiple_Integration_Concrete_Test is Integration_Test {
         lockup.renounceMultiple(nullStreamIds);
     }
 
-    function test_RevertGiven_AtleastOneNullStream() external whenNoDelegateCall whenNonZeroArrayLength {
+    function test_RevertGiven_AtLeastOneNullStream() external whenNoDelegateCall whenNonZeroArrayLength {
         expectRevert_Null({
             callData: abi.encodeCall(lockup.renounceMultiple, Solarray.uint256s(streamIds[0], nullStreamId))
         });
     }
 
-    function test_RevertGiven_AtleastOneColdStream()
+    function test_RevertGiven_AtLeastOneColdStream()
         external
         whenNoDelegateCall
         whenNonZeroArrayLength
@@ -68,7 +68,7 @@ contract RenounceMultiple_Integration_Concrete_Test is Integration_Test {
         lockup.renounceMultiple(streamIds);
     }
 
-    function test_RevertGiven_AtleastOneNonCancelableStream()
+    function test_RevertGiven_AtLeastOneNonCancelableStream()
         external
         whenNoDelegateCall
         whenNonZeroArrayLength

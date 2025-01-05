@@ -15,7 +15,7 @@ abstract contract Lockup_Linear_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         lockupModel = Lockup.Model.LOCKUP_LINEAR;
-        initializeDefaultStreamIds();
+        initializeDefaultStreams();
     }
 }
 

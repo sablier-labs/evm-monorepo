@@ -135,11 +135,6 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         givenSTREAMINGStatus
         givenRecipientAllowedToHook
     {
-        // Allow the recipient to hook.
-        resetPrank({ msgSender: users.admin });
-        lockup.allowToHook(address(recipientReverting));
-        resetPrank({ msgSender: users.sender });
-
         // It should revert.
         vm.expectRevert("You shall not pass");
 

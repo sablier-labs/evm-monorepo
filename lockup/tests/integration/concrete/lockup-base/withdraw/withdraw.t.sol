@@ -336,11 +336,6 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         givenNotCanceledStream
         givenRecipientAllowedToHook
     {
-        // Allow the recipient to hook.
-        resetPrank({ msgSender: users.admin });
-        lockup.allowToHook(address(recipientReverting));
-        resetPrank({ msgSender: users.sender });
-
         // Expect a revert.
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert("You shall not pass");
