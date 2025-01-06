@@ -160,7 +160,7 @@ interface ISablierFlowBase is
 
     /// @notice Collect the protocol revenue accrued for the provided ERC-20 token.
     ///
-    /// @dev Emits {CollectProtocolRevenue} event.
+    /// @dev Emits a {CollectProtocolRevenue} event.
     ///
     /// Requirements:
     /// - `msg.sender` must be the contract admin.
@@ -172,7 +172,7 @@ interface ISablierFlowBase is
 
     /// @notice Recover the surplus amount of tokens.
     ///
-    /// @dev Emits {Recover} event.
+    /// @dev Emits a {Recover} event.
     ///
     /// Notes:
     /// - The surplus amount is defined as the difference between the total balance of the contract for the provided
@@ -188,7 +188,7 @@ interface ISablierFlowBase is
 
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
     ///
-    /// @dev Emits {SetNFTDescriptor} and {BatchMetadataUpdate} events.
+    /// @dev Emits a {SetNFTDescriptor} and {BatchMetadataUpdate} event.
     ///
     /// Notes:
     /// - Does not revert if the NFT descriptor is the same.
@@ -202,7 +202,7 @@ interface ISablierFlowBase is
     /// @notice Sets a new protocol fee that will be charged on all the withdrawals from streams created with the
     /// provided ERC-20 token.
     ///
-    /// @dev Emits {SetProtocolFee} and {BatchMetadataUpdate} events.
+    /// @dev Emits a {SetProtocolFee} and {BatchMetadataUpdate} event.
     ///
     /// Notes:
     /// - Does not revert if the fee is the same.
