@@ -155,7 +155,7 @@ interface ISablierFlowBase is
     /// @dev Emits a {CollectFees} event.
     ///
     /// Notes:
-    /// - If the admin is a contract, it must be able to receive ETH.
+    /// - If the admin is a contract, it must be able to receive native token payments, e.g., ETH for Ethereum Mainnet.
     function collectFees() external;
 
     /// @notice Collect the protocol revenue accrued for the provided ERC-20 token.
