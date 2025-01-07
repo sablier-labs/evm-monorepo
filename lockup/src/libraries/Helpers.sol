@@ -13,16 +13,16 @@ library Helpers {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Calculate the timestamps and return the segments.
-    function calculateSegmentTimestamps(LockupDynamic.SegmentWithDuration[] memory segmentsWithDuration)
+    function calculateSegmentTimestamps(
+        LockupDynamic.SegmentWithDuration[] memory segmentsWithDuration,
+        uint40 startTime
+    )
         public
-        view
+        pure
         returns (LockupDynamic.Segment[] memory segmentsWithTimestamps)
     {
         uint256 segmentCount = segmentsWithDuration.length;
         segmentsWithTimestamps = new LockupDynamic.Segment[](segmentCount);
-
-        // Make the block timestamp the stream's start time.
-        uint40 startTime = uint40(block.timestamp);
 
         // It is safe to use unchecked arithmetic because {SablierLockup._createLD} will nonetheless
         // check the correctness of the calculated segment timestamps.
@@ -46,16 +46,16 @@ library Helpers {
     }
 
     /// @dev Calculate the timestamps and return the tranches.
-    function calculateTrancheTimestamps(LockupTranched.TrancheWithDuration[] memory tranchesWithDuration)
+    function calculateTrancheTimestamps(
+        LockupTranched.TrancheWithDuration[] memory tranchesWithDuration,
+        uint40 startTime
+    )
         public
-        view
+        pure
         returns (LockupTranched.Tranche[] memory tranchesWithTimestamps)
     {
         uint256 trancheCount = tranchesWithDuration.length;
         tranchesWithTimestamps = new LockupTranched.Tranche[](trancheCount);
-
-        // Make the block timestamp the stream's start time.
-        uint40 startTime = uint40(block.timestamp);
 
         // It is safe to use unchecked arithmetic because {SablierLockup-_createLT} will nonetheless check the
         // correctness of the calculated tranche timestamps.

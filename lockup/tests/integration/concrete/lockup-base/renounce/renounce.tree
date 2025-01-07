@@ -19,5 +19,5 @@ Renounce_Integration_Concrete_Test
             ├── given non cancelable stream
             │  └── it should revert
             └── given cancelable stream
-               ├── it should emit {MetadataUpdate} and {RenounceLockupStream} events
+               ├── it should emit {RenounceLockupStream} event
                └── it should make stream non cancelable

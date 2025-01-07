@@ -4,7 +4,6 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Lockup_Linear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
@@ -19,47 +18,11 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
         });
     }
 
-    function test_RevertWhen_CliffTimeCalculationOverflows() external whenNoDelegateCall whenCliffDurationNotZero {
-        uint40 startTime = getBlockTimestamp();
-        _defaultParams.durations.cliff = MAX_UINT40 - startTime + 2 seconds;
-
-        // Calculate the end time. Needs to be "unchecked" to avoid an overflow.
-        uint40 cliffTime;
-        unchecked {
-            cliffTime = startTime + _defaultParams.durations.cliff;
-        }
-
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierHelpers_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime)
-        );
-        createDefaultStreamWithDurations();
-    }
-
-    function test_WhenCliffTimeCalculationNotOverflow() external whenNoDelegateCall whenCliffDurationNotZero {
+    function test_WhenCliffDurationNotZero() external whenNoDelegateCall {
         _test_CreateWithDurations(_defaultParams.durations);
     }
 
-    function test_RevertWhen_EndTimeCalculationOverflows() external whenNoDelegateCall whenCliffDurationZero {
-        uint40 startTime = getBlockTimestamp();
-        _defaultParams.durations = LockupLinear.Durations({ cliff: 0, total: MAX_UINT40 - startTime + 1 seconds });
-        _defaultParams.unlockAmounts.cliff = 0;
-
-        // Calculate the end time. Needs to be "unchecked" to allow an overflow.
-        uint40 endTime;
-        unchecked {
-            endTime = startTime + _defaultParams.durations.total;
-        }
-
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierHelpers_StartTimeNotLessThanEndTime.selector, startTime, endTime)
-        );
-
-        createDefaultStreamWithDurations();
-    }
-
-    function test_WhenEndTimeCalculationNotOverflow() external whenNoDelegateCall whenCliffDurationZero {
+    function test_WhenCliffDurationZero() external whenNoDelegateCall {
         _defaultParams.durations.cliff = 0;
         _test_CreateWithDurations(_defaultParams.durations);
     }

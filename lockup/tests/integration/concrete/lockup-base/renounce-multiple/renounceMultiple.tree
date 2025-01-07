@@ -17,5 +17,5 @@ RenounceMultiple_Integration_Concrete_Test
                ├── given at least one non cancelable stream
                │  └── it should revert
                └── given all streams cancelable
-                  ├── it should emit {MetadataUpdate} and {RenounceLockupStream} events
+                  ├── it should emit {RenounceLockupStream} events
                   └── it should make streams non cancelable

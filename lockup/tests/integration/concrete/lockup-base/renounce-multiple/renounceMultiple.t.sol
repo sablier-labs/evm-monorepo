@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 
 import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
@@ -90,15 +89,11 @@ contract RenounceMultiple_Integration_Concrete_Test is Integration_Test {
         givenNoColdStreams
         whenCallerAuthorizedForAllStreams
     {
-        // It should emit {MetadataUpdate} and {RenounceLockupStream} events for both the streams.
+        // It should emit {RenounceLockupStream} events for both streams.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.RenounceLockupStream(streamIds[0]);
         vm.expectEmit({ emitter: address(lockup) });
-        emit IERC4906.MetadataUpdate({ _tokenId: streamIds[0] });
-        vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.RenounceLockupStream(streamIds[1]);
-        vm.expectEmit({ emitter: address(lockup) });
-        emit IERC4906.MetadataUpdate({ _tokenId: streamIds[1] });
 
         // Renounce the streams.
         lockup.renounceMultiple(streamIds);

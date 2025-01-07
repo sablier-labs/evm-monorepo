@@ -3,20 +3,14 @@ CreateWithDurationsLL_Integration_Concrete_Test
 │  └── it should revert
 └── when no delegate call
    ├── when cliff duration not zero
-   │  ├── when cliff time calculation overflows
-   │  │  └── it should revert
-   │  └── when cliff time calculation not overflow
-   │     ├── it should create the stream
-   │     ├── it should bump the next stream ID
-   │     ├── it should mint the NFT
-   │     ├── it should perform the ERC-20 transfers
-   │     └── it should emit {CreateLockupLinearStream} and {MetadataUpdate} events
+   │  ├── it should create the stream
+   │  ├── it should bump the next stream ID
+   │  ├── it should mint the NFT
+   │  ├── it should perform the ERC-20 transfers
+   │  └── it should emit {CreateLockupLinearStream} and {MetadataUpdate} events
    └── when cliff duration zero
-      ├── when end time calculation overflows
-      │  └── it should revert
-      └── when end time calculation not overflow
-         ├── it should create the stream
-         ├── it should bump the next stream ID
-         ├── it should mint the NFT
-         ├── it should perform the ERC-20 transfers
-         └── it should emit {CreateLockupLinearStream} and {MetadataUpdate} events
+      ├── it should create the stream
+      ├── it should bump the next stream ID
+      ├── it should mint the NFT
+      ├── it should perform the ERC-20 transfers
+      └── it should emit {CreateLockupLinearStream} and {MetadataUpdate} events

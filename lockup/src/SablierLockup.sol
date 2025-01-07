@@ -141,12 +141,15 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         noDelegateCall
         returns (uint256 streamId)
     {
+        // Use the block timestamp as the start time.
+        uint40 startTime = uint40(block.timestamp);
+
         // Generate the canonical segments.
-        LockupDynamic.Segment[] memory segments = Helpers.calculateSegmentTimestamps(segmentsWithDuration);
+        LockupDynamic.Segment[] memory segments = Helpers.calculateSegmentTimestamps(segmentsWithDuration, startTime);
 
         // Declare the timestamps for the stream.
         Lockup.Timestamps memory timestamps =
-            Lockup.Timestamps({ start: uint40(block.timestamp), end: segments[segments.length - 1].timestamp });
+            Lockup.Timestamps({ start: startTime, end: segments[segments.length - 1].timestamp });
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createLD(
@@ -182,15 +185,11 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
 
         uint40 cliffTime;
 
-        // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because {_createLL} will
-        // nonetheless check that the end time is greater than the cliff time, and also that the cliff time, if set,
-        // is greater than the start time.
-        unchecked {
-            if (durations.cliff > 0) {
-                cliffTime = timestamps.start + durations.cliff;
-            }
-            timestamps.end = timestamps.start + durations.total;
+        // Calculate the cliff time and the end time.
+        if (durations.cliff > 0) {
+            cliffTime = timestamps.start + durations.cliff;
         }
+        timestamps.end = timestamps.start + durations.total;
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createLL(
@@ -221,12 +220,15 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         noDelegateCall
         returns (uint256 streamId)
     {
+        // Use the block timestamp as the start time.
+        uint40 startTime = uint40(block.timestamp);
+
         // Generate the canonical tranches.
-        LockupTranched.Tranche[] memory tranches = Helpers.calculateTrancheTimestamps(tranchesWithDuration);
+        LockupTranched.Tranche[] memory tranches = Helpers.calculateTrancheTimestamps(tranchesWithDuration, startTime);
 
         // Declare the timestamps for the stream.
         Lockup.Timestamps memory timestamps =
-            Lockup.Timestamps({ start: uint40(block.timestamp), end: tranches[tranches.length - 1].timestamp });
+            Lockup.Timestamps({ start: startTime, end: tranches[tranches.length - 1].timestamp });
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createLT(

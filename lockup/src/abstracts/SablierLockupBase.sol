@@ -357,9 +357,6 @@ abstract contract SablierLockupBase is
 
         // Log the renouncement.
         emit ISablierLockupBase.RenounceLockupStream(streamId);
-
-        // Emit an ERC-4906 event to trigger an update of the NFT metadata.
-        emit MetadataUpdate({ _tokenId: streamId });
     }
 
     /// @inheritdoc ISablierLockupBase

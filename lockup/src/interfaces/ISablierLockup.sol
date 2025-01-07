@@ -82,7 +82,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// `block.timestamp` and all specified time durations. The segment timestamps are derived from these
     /// durations. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {Transfer} and {CreateLockupDynamicStream} event.
+    /// @dev Emits a {Transfer}, {CreateLockupDynamicStream} and {MetadataUpdate} event.
     ///
     /// Requirements:
     /// - All requirements in {createWithTimestampsLD} must be met for the calculated parameters.
@@ -103,7 +103,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// the sum of `block.timestamp` and `durations.total`. The stream is funded by `msg.sender` and is wrapped in an
     /// ERC-721 NFT.
     ///
-    /// @dev Emits a {Transfer} and {CreateLockupLinearStream} event.
+    /// @dev Emits a {Transfer}, {CreateLockupLinearStream} and {MetadataUpdate} event.
     ///
     /// Requirements:
     /// - All requirements in {createWithTimestampsLL} must be met for the calculated parameters.
@@ -126,7 +126,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// `block.timestamp` and all specified time durations. The tranche timestamps are derived from these
     /// durations. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {Transfer} and {CreateLockupTrancheStream} event.
+    /// @dev Emits a {Transfer}, {CreateLockupTrancheStream} and {MetadataUpdate} event.
     ///
     /// Requirements:
     /// - All requirements in {createWithTimestampsLT} must be met for the calculated parameters.
@@ -146,7 +146,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// @notice Creates a stream with the provided segment timestamps, implying the end time from the last timestamp.
     /// The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {Transfer} and {CreateLockupDynamicStream} event.
+    /// @dev Emits a {Transfer}, {CreateLockupDynamicStream} and {MetadataUpdate} event.
     ///
     /// Notes:
     /// - As long as the segment timestamps are arranged in ascending order, it is not an error for some
@@ -180,7 +180,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// @notice Creates a stream with the provided start time and end time. The stream is funded by `msg.sender` and is
     /// wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {Transfer} and {CreateLockupLinearStream} event.
+    /// @dev Emits a {Transfer}, {CreateLockupLinearStream} and {MetadataUpdate} event.
     ///
     /// Notes:
     /// - A cliff time of zero means there is no cliff.
@@ -218,7 +218,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// @notice Creates a stream with the provided tranche timestamps, implying the end time from the last timestamp.
     /// The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {Transfer} and {CreateLockupTrancheStream} event.
+    /// @dev Emits a {Transfer}, {CreateLockupTrancheStream} and {MetadataUpdate} event.
     ///
     /// Notes:
     /// - As long as the tranche timestamps are arranged in ascending order, it is not an error for some

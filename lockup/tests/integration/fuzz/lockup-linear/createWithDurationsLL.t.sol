@@ -2,45 +2,12 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
 contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integration_Fuzz_Test {
-    function testFuzz_RevertWhen_TotalDurationCalculationOverflows(LockupLinear.Durations memory durations)
-        external
-        whenNoDelegateCall
-        WhenCliffTimeCalculationNotOverflow
-    {
-        uint40 startTime = getBlockTimestamp();
-        durations.cliff = boundUint40(durations.cliff, 1 seconds, MAX_UINT40 - startTime);
-        durations.total = boundUint40(durations.total, MAX_UINT40 - startTime + 1 seconds, MAX_UINT40);
-
-        // Calculate the cliff time and the end time. Needs to be "unchecked" to allow an overflow.
-        uint40 cliffTime;
-        uint40 endTime;
-        unchecked {
-            cliffTime = startTime + durations.cliff;
-            endTime = startTime + durations.total;
-        }
-
-        // Expect the relevant error to be thrown.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierHelpers_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime)
-        );
-
-        // Create the stream.
-        _defaultParams.durations = durations;
-        createDefaultStreamWithDurations();
-    }
-
-    function testFuzz_CreateWithDurationsLL(LockupLinear.Durations memory durations)
-        external
-        whenNoDelegateCall
-        WhenCliffTimeCalculationNotOverflow
-        whenEndTimeCalculationNotOverflow
-    {
+    function testFuzz_CreateWithDurationsLL(LockupLinear.Durations memory durations) external whenNoDelegateCall {
         durations.total = boundUint40(durations.total, 1 seconds, MAX_UNIX_TIMESTAMP);
         vm.assume(durations.cliff < durations.total);
 

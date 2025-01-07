@@ -295,22 +295,6 @@ abstract contract Modifiers is Fuzzers {
                                 CREATE-WITH-DURATION
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenCliffDurationNotZero() {
-        _;
-    }
-
-    modifier whenCliffDurationZero() {
-        _;
-    }
-
-    modifier WhenCliffTimeCalculationNotOverflow() {
-        _;
-    }
-
-    modifier whenEndTimeCalculationNotOverflow() {
-        _;
-    }
-
     modifier whenFirstIndexHasNonZeroDuration() {
         _;
     }

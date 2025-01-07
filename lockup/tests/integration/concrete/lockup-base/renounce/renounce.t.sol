@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
-
 import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
@@ -66,11 +64,9 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test {
         givenWarmStreamRenounce
         whenCallerSender
     {
-        // It should emit {MetadataUpdate} and {RenounceLockupStream} events.
+        // It should emit {RenounceLockupStream} event.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.RenounceLockupStream(streamId);
-        vm.expectEmit({ emitter: address(lockup) });
-        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Renounce the stream.
         lockup.renounce(streamId);
