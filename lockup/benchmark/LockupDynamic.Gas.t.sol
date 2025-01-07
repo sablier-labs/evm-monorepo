@@ -38,7 +38,7 @@ contract Lockup_Dynamic_Gas_Test is Benchmark_Test {
         vm.writeFile({
             path: benchmarkResultsFile,
             data: string.concat(
-                "# Benchmarks for Lockup Dynamic Model\n\n", "| Implementation | Gas Usage |\n", "| --- | --- |\n"
+                "# Benchmarks for the Lockup Dynamic model\n\n", "| Implementation | Gas Usage |\n", "| --- | --- |\n"
             )
         });
 

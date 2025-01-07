@@ -1,4 +1,4 @@
-# Benchmarks for Lockup Linear Model
+# Benchmarks for the Lockup Linear model
 
 | Implementation                                                | Gas Usage |
 | ------------------------------------------------------------- | --------- |

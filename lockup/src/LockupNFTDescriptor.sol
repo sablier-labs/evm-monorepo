@@ -200,7 +200,7 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
     {
         // This cannot overflow because both inputs are uint128s, and zero deposit amounts are not allowed in Sablier.
         unchecked {
-            return streamedAmount * 10_000 / depositedAmount;
+            return uint256(streamedAmount) * 10_000 / depositedAmount;
         }
     }
 

@@ -1,4 +1,4 @@
-# Benchmarks for Lockup Tranched Model
+# Benchmarks for the Lockup Tranched model
 
 | Implementation                                               | Gas Usage |
 | ------------------------------------------------------------ | --------- |

@@ -1,4 +1,4 @@
-# Benchmarks for Lockup Dynamic Model
+# Benchmarks for the Lockup Dynamic model
 
 | Implementation                                               | Gas Usage |
 | ------------------------------------------------------------ | --------- |

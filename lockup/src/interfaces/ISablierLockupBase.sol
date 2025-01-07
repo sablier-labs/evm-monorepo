@@ -246,7 +246,7 @@ interface ISablierLockupBase is
     /// Notes:
     /// - If there any tokens left for the recipient to withdraw, the stream is marked as canceled. Otherwise, the
     /// stream is marked as depleted.
-    /// - This function attempts to invoke a hook on the recipient, if the resolved address is a contract.
+    /// - If the address is on the allowlist, this function will invoke a hook on the recipient.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -274,7 +274,7 @@ interface ISablierLockupBase is
     /// @dev Emits a {CollectFees} event.
     ///
     /// Notes:
-    /// - If the admin is a contract, it must be able to receive ETH.
+    /// - If the admin is a contract, it must be able to receive native token payments, e.g., ETH for Ethereum Mainnet.
     function collectFees() external;
 
     /// @notice Removes the right of the stream's sender to cancel the stream.
@@ -324,7 +324,8 @@ interface ISablierLockupBase is
     /// @dev Emits a {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} event.
     ///
     /// Notes:
-    /// - This function attempts to call a hook on the recipient of the stream, unless `msg.sender` is the recipient.
+    /// - If `msg.sender` is not the recipient and the address is on the allowlist, this function will invoke a hook on
+    /// the recipient.
     ///
     /// Requirements:
     /// - Must not be delegate called.
