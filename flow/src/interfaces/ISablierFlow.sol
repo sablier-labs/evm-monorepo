@@ -138,6 +138,8 @@ interface ISablierFlow is
 
     /// @notice Returns the stream's status.
     /// @dev Reverts if `streamId` references a null stream.
+    /// Integrators should exercise caution when depending on the return value of this function as streams can be paused
+    /// and resumed at any moment.
     /// @param streamId The stream ID for the query.
     function statusOf(uint256 streamId) external view returns (Flow.Status status);
 
