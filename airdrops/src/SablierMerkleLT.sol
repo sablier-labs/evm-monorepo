@@ -69,14 +69,14 @@ contract SablierMerkleLT is
     /// contract.
     constructor(
         MerkleBase.ConstructorParams memory baseParams,
+        address campaignCreator,
         ISablierLockup lockup,
         bool cancelable,
         bool transferable,
         uint40 streamStartTime,
-        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages,
-        uint256 fee
+        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages
     )
-        SablierMerkleBase(baseParams, fee)
+        SablierMerkleBase(baseParams, campaignCreator)
     {
         STREAM_CANCELABLE = cancelable;
         LOCKUP = lockup;

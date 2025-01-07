@@ -103,10 +103,8 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         // Make the campaign owner as the caller.
         resetPrank({ msgSender: params.campaignOwner });
 
-        uint256 fee = defaults.FEE();
-
         vars.expectedLT = computeMerkleLTAddress(
-            params.campaignOwner, params.campaignOwner, FORK_TOKEN, vars.merkleRoot, params.expiration, fee
+            params.campaignOwner, params.campaignOwner, FORK_TOKEN, vars.merkleRoot, params.expiration
         );
 
         vars.baseParams = defaults.baseParams({
@@ -128,7 +126,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
             totalDuration: defaults.TOTAL_DURATION(),
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.recipientCount,
-            fee: fee
+            fee: defaults.FEE()
         });
 
         vars.merkleLT = merkleFactory.createMerkleLT({
@@ -186,14 +184,14 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
 
         expectCallToClaimWithData({
             merkleLockup: address(vars.merkleLT),
-            fee: fee,
+            fee: defaults.FEE(),
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
             merkleProof: vars.merkleProof
         });
 
-        vars.merkleLT.claim{ value: fee }({
+        vars.merkleLT.claim{ value: defaults.FEE() }({
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
@@ -254,10 +252,14 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ISablierMerkleFactory.CollectFees({ admin: users.admin, merkleBase: vars.merkleLT, feeAmount: fee });
+        emit ISablierMerkleFactory.CollectFees({
+            admin: users.admin,
+            merkleBase: vars.merkleLT,
+            feeAmount: defaults.FEE()
+        });
         merkleFactory.collectFees({ merkleBase: vars.merkleLT });
 
         assertEq(address(vars.merkleLT).balance, 0, "merkleLT ETH balance");
-        assertEq(users.admin.balance, initialAdminBalance + fee, "admin ETH balance");
+        assertEq(users.admin.balance, initialAdminBalance + defaults.FEE(), "admin ETH balance");
     }
 }

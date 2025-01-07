@@ -91,10 +91,6 @@ abstract contract Modifiers is Utils {
         _;
     }
 
-    modifier whenPercentagesSumNotOverflow() {
-        _;
-    }
-
     modifier whenProvidedMerkleLockupValid() {
         _;
     }

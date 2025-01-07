@@ -22,7 +22,7 @@ contract ResetCustomFee_Integration_Test is Integration_Test {
         // Reset the custom fee.
         merkleFactory.resetCustomFee({ campaignCreator: users.campaignOwner });
 
-        MerkleFactory.CustomFee memory customFee = merkleFactory.customFee(users.campaignOwner);
+        MerkleFactory.CustomFee memory customFee = merkleFactory.getCustomFee(users.campaignOwner);
 
         // It should return false.
         assertFalse(customFee.enabled, "enabled");
@@ -36,7 +36,7 @@ contract ResetCustomFee_Integration_Test is Integration_Test {
         merkleFactory.setCustomFee({ campaignCreator: users.campaignOwner, newFee: 1 ether });
 
         // Check that its enabled.
-        MerkleFactory.CustomFee memory customFee = merkleFactory.customFee(users.campaignOwner);
+        MerkleFactory.CustomFee memory customFee = merkleFactory.getCustomFee(users.campaignOwner);
 
         assertTrue(customFee.enabled, "enabled");
         assertEq(customFee.fee, 1 ether, "fee");
@@ -48,7 +48,7 @@ contract ResetCustomFee_Integration_Test is Integration_Test {
         // Reset the custom fee.
         merkleFactory.resetCustomFee({ campaignCreator: users.campaignOwner });
 
-        customFee = merkleFactory.customFee(users.campaignOwner);
+        customFee = merkleFactory.getCustomFee(users.campaignOwner);
 
         // It should disable the custom fee
         assertFalse(customFee.enabled, "enabled");

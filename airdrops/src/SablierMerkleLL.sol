@@ -61,13 +61,13 @@ contract SablierMerkleLL is
     /// contract.
     constructor(
         MerkleBase.ConstructorParams memory baseParams,
+        address campaignCreator,
         ISablierLockup lockup,
         bool cancelable,
         bool transferable,
-        MerkleLL.Schedule memory schedule,
-        uint256 fee
+        MerkleLL.Schedule memory schedule
     )
-        SablierMerkleBase(baseParams, fee)
+        SablierMerkleBase(baseParams, campaignCreator)
     {
         LOCKUP = lockup;
         STREAM_CANCELABLE = cancelable;
@@ -103,14 +103,10 @@ contract SablierMerkleLL is
 
         uint40 cliffTime;
 
-        // It is safe to use unchecked arithmetic because the `createWithTimestamps` function in the Lockup contract
-        // will nonetheless make the relevant checks.
-        unchecked {
-            if (_schedule.cliffDuration > 0) {
-                cliffTime = timestamps.start + _schedule.cliffDuration;
-            }
-            timestamps.end = timestamps.start + _schedule.totalDuration;
+        if (_schedule.cliffDuration > 0) {
+            cliffTime = timestamps.start + _schedule.cliffDuration;
         }
+        timestamps.end = timestamps.start + _schedule.totalDuration;
 
         // Calculate the unlock amounts based on the percentages.
         LockupLinear.UnlockAmounts memory unlockAmounts;

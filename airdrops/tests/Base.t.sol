@@ -181,12 +181,11 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     //////////////////////////////////////////////////////////////////////////*/
 
     function computeMerkleInstantAddress(
-        address caller,
+        address campaignCreator,
         address campaignOwner,
         IERC20 token_,
         bytes32 merkleRoot,
-        uint40 expiration,
-        uint256 fee
+        uint40 expiration
     )
         internal
         view
@@ -198,9 +197,9 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         baseParams.initialAdmin = campaignOwner;
         baseParams.merkleRoot = merkleRoot;
 
-        bytes32 salt = keccak256(abi.encodePacked(caller, abi.encode(baseParams)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, abi.encode(baseParams)));
         bytes32 creationBytecodeHash =
-            keccak256(getMerkleInstantBytecode(campaignOwner, token_, merkleRoot, expiration, fee));
+            keccak256(getMerkleInstantBytecode(campaignCreator, campaignOwner, token_, merkleRoot, expiration));
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
@@ -209,12 +208,11 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     }
 
     function computeMerkleLLAddress(
-        address caller,
+        address campaignCreator,
         address campaignOwner,
         IERC20 token_,
         bytes32 merkleRoot,
-        uint40 expiration,
-        uint256 fee
+        uint40 expiration
     )
         internal
         view
@@ -227,7 +225,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         baseParams.merkleRoot = merkleRoot;
         bytes32 salt = keccak256(
             abi.encodePacked(
-                caller,
+                campaignCreator,
                 abi.encode(baseParams),
                 lockup,
                 defaults.CANCELABLE(),
@@ -236,7 +234,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
             )
         );
         bytes32 creationBytecodeHash =
-            keccak256(getMerkleLLBytecode(campaignOwner, token_, merkleRoot, expiration, fee));
+            keccak256(getMerkleLLBytecode(campaignCreator, campaignOwner, token_, merkleRoot, expiration));
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
@@ -245,12 +243,11 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     }
 
     function computeMerkleLTAddress(
-        address caller,
+        address campaignCreator,
         address campaignOwner,
         IERC20 token_,
         bytes32 merkleRoot,
-        uint40 expiration,
-        uint256 fee
+        uint40 expiration
     )
         internal
         view
@@ -263,7 +260,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         baseParams.merkleRoot = merkleRoot;
         bytes32 salt = keccak256(
             abi.encodePacked(
-                caller,
+                campaignCreator,
                 abi.encode(baseParams),
                 lockup,
                 defaults.CANCELABLE(),
@@ -273,7 +270,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
             )
         );
         bytes32 creationBytecodeHash =
-            keccak256(getMerkleLTBytecode(campaignOwner, token_, merkleRoot, expiration, fee));
+            keccak256(getMerkleLTBytecode(campaignCreator, campaignOwner, token_, merkleRoot, expiration));
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
@@ -282,18 +279,18 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     }
 
     function getMerkleInstantBytecode(
+        address campaignCreator,
         address campaignOwner,
         IERC20 token_,
         bytes32 merkleRoot,
-        uint40 expiration,
-        uint256 fee
+        uint40 expiration
     )
         internal
         view
         returns (bytes memory)
     {
         bytes memory constructorArgs =
-            abi.encode(defaults.baseParams(campaignOwner, token_, expiration, merkleRoot), fee);
+            abi.encode(defaults.baseParams(campaignOwner, token_, expiration, merkleRoot), campaignCreator);
         if (!isTestOptimizedProfile()) {
             return bytes.concat(type(SablierMerkleInstant).creationCode, constructorArgs);
         } else {
@@ -304,11 +301,11 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     }
 
     function getMerkleLLBytecode(
+        address campaignCreator,
         address campaignOwner,
         IERC20 token_,
         bytes32 merkleRoot,
-        uint40 expiration,
-        uint256 fee
+        uint40 expiration
     )
         internal
         view
@@ -316,11 +313,11 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     {
         bytes memory constructorArgs = abi.encode(
             defaults.baseParams(campaignOwner, token_, expiration, merkleRoot),
+            campaignCreator,
             lockup,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
-            defaults.schedule(),
-            fee
+            defaults.schedule()
         );
         if (!isTestOptimizedProfile()) {
             return bytes.concat(type(SablierMerkleLL).creationCode, constructorArgs);
@@ -330,11 +327,11 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     }
 
     function getMerkleLTBytecode(
+        address campaignCreator,
         address campaignOwner,
         IERC20 token_,
         bytes32 merkleRoot,
-        uint40 expiration,
-        uint256 fee
+        uint40 expiration
     )
         internal
         view
@@ -342,12 +339,12 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     {
         bytes memory constructorArgs = abi.encode(
             defaults.baseParams(campaignOwner, token_, expiration, merkleRoot),
+            campaignCreator,
             lockup,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
             defaults.STREAM_START_TIME_ZERO(),
-            defaults.tranchesWithPercentages(),
-            fee
+            defaults.tranchesWithPercentages()
         );
         if (!isTestOptimizedProfile()) {
             return bytes.concat(type(SablierMerkleLT).creationCode, constructorArgs);

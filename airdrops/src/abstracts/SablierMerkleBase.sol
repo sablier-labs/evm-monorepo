@@ -8,6 +8,7 @@ import { BitMaps } from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 import { Adminable } from "@sablier/lockup/src/abstracts/Adminable.sol";
 
 import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
+import { ISablierMerkleFactory } from "./../interfaces/ISablierMerkleFactory.sol";
 import { Errors } from "./../libraries/Errors.sol";
 import { MerkleBase } from "./../types/DataTypes.sol";
 
@@ -59,15 +60,15 @@ abstract contract SablierMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Constructs the contract by initializing the immutable state variables.
-    constructor(MerkleBase.ConstructorParams memory params, uint256 fee) Adminable(params.initialAdmin) {
+    constructor(MerkleBase.ConstructorParams memory params, address campaignCreator) Adminable(params.initialAdmin) {
+        CAMPAIGN_NAME = bytes32(abi.encodePacked(params.campaignName));
         EXPIRATION = params.expiration;
         FACTORY = msg.sender;
-        FEE = fee;
+        FEE = ISablierMerkleFactory(FACTORY).getFee(campaignCreator);
         MERKLE_ROOT = params.merkleRoot;
-        TOKEN = params.token;
-        CAMPAIGN_NAME = bytes32(abi.encodePacked(params.campaignName));
-        ipfsCID = params.ipfsCID;
         SHAPE = bytes32(abi.encodePacked(params.shape));
+        TOKEN = params.token;
+        ipfsCID = params.ipfsCID;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

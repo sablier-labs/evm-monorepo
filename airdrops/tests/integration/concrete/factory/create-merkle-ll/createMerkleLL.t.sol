@@ -85,7 +85,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         merkleFactory.setCustomFee(users.campaignOwner, customFee);
 
         resetPrank(users.campaignOwner);
-        address expectedLL = computeMerkleLLAddress(campaignOwner, expiration, customFee);
+        address expectedLL = computeMerkleLLAddress(campaignOwner, expiration);
 
         MerkleBase.ConstructorParams memory baseParams = defaults.baseParams({
             campaignOwner: campaignOwner,

@@ -65,25 +65,12 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function computeMerkleInstantAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleInstantAddress(campaignOwner, expiration, defaults.FEE());
-    }
-
-    function computeMerkleInstantAddress(
-        address campaignOwner,
-        uint40 expiration,
-        uint256 fee
-    )
-        internal
-        view
-        returns (address)
-    {
         return computeMerkleInstantAddress({
-            caller: users.campaignOwner,
+            campaignCreator: users.campaignOwner,
             campaignOwner: campaignOwner,
             token_: dai,
             merkleRoot: defaults.MERKLE_ROOT(),
-            expiration: expiration,
-            fee: fee
+            expiration: expiration
         });
     }
 
@@ -112,25 +99,12 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function computeMerkleLLAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleLLAddress(campaignOwner, expiration, defaults.FEE());
-    }
-
-    function computeMerkleLLAddress(
-        address campaignOwner,
-        uint40 expiration,
-        uint256 fee
-    )
-        internal
-        view
-        returns (address)
-    {
         return computeMerkleLLAddress({
-            caller: users.campaignOwner,
+            campaignCreator: users.campaignOwner,
             campaignOwner: campaignOwner,
             token_: dai,
             merkleRoot: defaults.MERKLE_ROOT(),
-            expiration: expiration,
-            fee: fee
+            expiration: expiration
         });
     }
 
@@ -163,25 +137,12 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function computeMerkleLTAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleLTAddress(campaignOwner, expiration, defaults.FEE());
-    }
-
-    function computeMerkleLTAddress(
-        address campaignOwner,
-        uint40 expiration,
-        uint256 fee
-    )
-        internal
-        view
-        returns (address)
-    {
         return computeMerkleLTAddress({
-            caller: users.campaignOwner,
+            campaignCreator: users.campaignOwner,
             campaignOwner: campaignOwner,
             token_: dai,
             merkleRoot: defaults.MERKLE_ROOT(),
-            expiration: expiration,
-            fee: fee
+            expiration: expiration
         });
     }
 

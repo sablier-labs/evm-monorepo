@@ -43,11 +43,11 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
 
         SablierMerkleLL constructedLL = new SablierMerkleLL(
             defaults.baseParams(),
+            users.campaignOwner,
             lockup,
             defaults.CANCELABLE(),
             defaults.TRANSFERABLE(),
-            defaults.schedule(),
-            defaults.FEE()
+            defaults.schedule()
         );
 
         Vars memory vars;
