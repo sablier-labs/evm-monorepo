@@ -80,7 +80,7 @@ interface ISablierMerkleFactory is IAdminable {
     function customFee(address campaignCreator) external view returns (MerkleFactory.CustomFee memory);
 
     /// @notice Verifies if the sum of percentages in `tranches` equals 100%, i.e. 1e18.
-    /// @dev Reverts if the sum of percentages overflows.
+    /// @dev This is a helper function for the frontend. It is not used anywhere in the contracts.
     /// @param tranches The tranches with their respective unlock percentages.
     /// @return result True if the sum of percentages equals 100%, otherwise false.
     function isPercentagesSum100(MerkleLT.TrancheWithPercentage[] calldata tranches)
@@ -88,8 +88,8 @@ interface ISablierMerkleFactory is IAdminable {
         pure
         returns (bool result);
 
-    /// @notice Retrieves the default fee required to claim an airdrop.
-    /// @dev A minimum of this fee must be paid in ETH during {SablierMerkleBase.claim}.
+    /// @notice Retrieves the default fee charged for claiming an airdrop. The fee is denominated in the native token of
+    /// the chain, e.g., ETH for Ethereum Mainnet.
     function defaultFee() external view returns (uint256);
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ interface ISablierMerkleFactory is IAdminable {
     /// @dev Emits a {CollectFees} event.
     ///
     /// Notes:
-    /// - If the admin is a contract, it must be able to receive ETH.
+    /// - If the admin is a contract, it must be able to receive native token payments, e.g., ETH for Ethereum Mainnet.
     ///
     /// @param merkleBase The address of the Merkle contract where the fees are collected from.
     function collectFees(ISablierMerkleBase merkleBase) external;

@@ -50,7 +50,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
             )
         );
 
-        // Claim an airstream.
+        // Claim the airdrop.
         merkleLL.claim{ value: fee }({
             index: 1,
             recipient: users.recipient1,

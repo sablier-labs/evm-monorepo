@@ -7,7 +7,8 @@ import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 library MerkleBase {
     /// @notice Struct encapsulating the base constructor parameters of a Merkle campaign.
     /// @param token The contract address of the ERC-20 token to be distributed.
-    /// @param expiration The expiration of the campaign, as a Unix timestamp.
+    /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
+    /// not expire.
     /// @param initialAdmin The initial admin of the campaign.
     /// @param ipfsCID The content identifier for indexing the contract on IPFS.
     /// @param merkleRoot The Merkle root of the claim data.

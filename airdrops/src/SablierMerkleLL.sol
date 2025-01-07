@@ -88,7 +88,7 @@ contract SablierMerkleLL is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                         USER-FACING NON-CONSTANT FUNCTIONS
+                           INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierMerkleBase

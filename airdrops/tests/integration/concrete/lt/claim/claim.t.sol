@@ -37,7 +37,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         uint64 totalPercentage =
             tranchesWithPercentages[0].unlockPercentage.unwrap() + tranchesWithPercentages[1].unlockPercentage.unwrap();
 
-        // Claim an airstream.
+        // Claim the airdrop.
         bytes32[] memory merkleProof = defaults.index1Proof();
 
         vm.expectRevert(
@@ -73,7 +73,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         uint64 totalPercentage =
             tranchesWithPercentages[0].unlockPercentage.unwrap() + tranchesWithPercentages[1].unlockPercentage.unwrap();
 
-        // Claim an airstream.
+        // Claim the airdrop.
         bytes32[] memory merkleProof = defaults.index1Proof();
 
         vm.expectRevert(

@@ -204,10 +204,6 @@ contract SablierMerkleLT is
             }
         }
 
-        // It should never be the case that the sum of the calculated amounts is greater than the claim amount because
-        // PRBMath always rounds down.
-        assert(calculatedAmountsSum <= claimAmount);
-
         // Since there can be rounding errors, the last tranche amount needs to be adjusted to ensure the sum of all
         // tranche amounts equals the claim amount.
         if (calculatedAmountsSum < claimAmount) {
