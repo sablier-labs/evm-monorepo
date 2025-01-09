@@ -5,5 +5,7 @@ import { NoDelegateCall } from "src/NoDelegateCall.sol";
 
 contract NoDelegateCallMock is NoDelegateCall {
     /// @dev An empty function that uses the `noDelegateCall` modifier.
-    function foo() public noDelegateCall { }
+    function foo() public view noDelegateCall returns (uint256) {
+        return 420;
+    }
 }

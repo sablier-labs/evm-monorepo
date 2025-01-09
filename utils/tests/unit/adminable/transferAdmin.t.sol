@@ -4,8 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IAdminable } from "src/interfaces/IAdminable.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { CommonBase } from "../../../Base.t.sol";
-import { AdminableMock } from "../../../mocks/AdminableMock.sol";
+import { CommonBase } from "../../Base.t.sol";
+import { AdminableMock } from "../../mocks/AdminableMock.sol";
 
 contract TransferAdmin_Unit_Concrete_Test is CommonBase {
     AdminableMock internal adminableMock;
