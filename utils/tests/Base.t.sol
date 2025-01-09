@@ -12,7 +12,7 @@ contract CommonBase is Test {
     ERC20Mock internal usdc;
     ERC20MissingReturn internal usdt;
 
-    function setUp() public {
+    function setUp() public virtual {
         // Deploy the tokens.
         dai = new ERC20Mock("Dai stablecoin", "DAI", 18);
         usdc = new ERC20Mock("USD Coin", "USDC", 6);
