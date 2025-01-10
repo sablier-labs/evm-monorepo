@@ -9,6 +9,8 @@ import { Adminable } from "./Adminable.sol";
 /// @title SablierFees
 /// @notice See the documentation in {ISablierFees}.
 abstract contract SablierFees is Adminable, ISablierFees {
+    constructor(address initialAdmin) Adminable(initialAdmin) { }
+
     /// @inheritdoc ISablierFees
     function collectFees() external override {
         uint256 feeAmount = address(this).balance;
