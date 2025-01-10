@@ -5,7 +5,7 @@
 [codecov]: https://codecov.io/gh/sablier-labs/airdrops
 [codecov-badge]: https://codecov.io/gh/sablier-labs/airdrops/branch/main/graph/badge.svg
 [discord]: https://discord.gg/bSwRCwWRsT
-[discord-badge]: https://dcbadge.vercel.app/api/server/bSwRCwWRsT?style=flat
+[discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
