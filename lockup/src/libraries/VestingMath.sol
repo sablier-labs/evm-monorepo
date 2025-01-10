@@ -35,7 +35,7 @@ library VestingMath {
     /// bounds" error.
     ///
     /// Assumptions:
-    /// 1. The sum of all segment amounts does not overflow uint128.
+    /// 1. The sum of all segment amounts does not overflow uint128 and equals the deposited amount.
     /// 2. The first segment's timestamp is greater than the start time and the last segment's timestamp
     /// equals the end time.
     /// 3. The segment timestamps are arranged in ascending order.
@@ -212,7 +212,7 @@ library VestingMath {
     /// - $\Sigma(eta)$ is the sum of all vested tranches' amounts.
     ///
     /// Assumptions:
-    /// 1. The sum of all tranche amounts does not overflow uint128.
+    /// 1. The sum of all tranche amounts does not overflow uint128 and equals the deposited amount.
     /// 2. The first tranche's timestamp is greater than the start time and the last tranche's timestamp
     /// equals the end time.
     /// 3. The tranche timestamps are arranged in ascending order.
