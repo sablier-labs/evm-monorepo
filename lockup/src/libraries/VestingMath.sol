@@ -36,8 +36,9 @@ library VestingMath {
     ///
     /// Assumptions:
     /// 1. The sum of all segment amounts does not overflow uint128.
-    /// 2. The segment timestamps are ordered chronologically.
-    /// 3. There are no duplicate segment timestamps.
+    /// 2. The first segment's timestamp is greater than the start time and the last segment's timestamp
+    /// equals the end time.
+    /// 3. The segment timestamps are arranged in ascending order.
     function calculateLockupDynamicStreamedAmount(
         uint128 depositedAmount,
         LockupDynamic.Segment[] memory segments,
@@ -128,8 +129,9 @@ library VestingMath {
     /// - $c$ is the cliff unlock amount.
     ///
     /// Assumptions:
-    /// 1. The sum of the unlock amounts (start and cliff) does not overflow uint128.
-    /// 2. The start time is before the end time, and the block timestamp is between the start and end times.
+    /// 1. The sum of the unlock amounts (start and cliff) does not overflow uint128 and is less than or equal to
+    /// deposit amount.
+    /// 2. The start time is before the end time.
     /// 3. If the cliff time is not zero, it is after the start time and before the end time.
     function calculateLockupLinearStreamedAmount(
         uint128 depositedAmount,
@@ -211,8 +213,9 @@ library VestingMath {
     ///
     /// Assumptions:
     /// 1. The sum of all tranche amounts does not overflow uint128.
-    /// 2. The tranche timestamps are ordered chronologically.
-    /// 3. There are no duplicate tranche timestamps.
+    /// 2. The first tranche's timestamp is greater than the start time and the last tranche's timestamp
+    /// equals the end time.
+    /// 3. The tranche timestamps are arranged in ascending order.
     function calculateLockupTranchedStreamedAmount(
         uint128 depositedAmount,
         uint40 blockTimestamp,
