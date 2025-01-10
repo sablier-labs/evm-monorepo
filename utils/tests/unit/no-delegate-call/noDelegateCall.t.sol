@@ -3,14 +3,14 @@ pragma solidity >=0.8.22;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { CommonBase } from "../../Base.t.sol";
+import { Unit_Test } from "../Unit.t.sol";
 import { NoDelegateCallMock } from "../../mocks/NoDelegateCallMock.sol";
 
-contract NoDelegateCall_Unit_Concrete_Test is CommonBase {
+contract NoDelegateCall_Unit_Concrete_Test is Unit_Test {
     NoDelegateCallMock internal noDelegateCallMock;
 
     function setUp() public virtual override {
-        CommonBase.setUp();
+        Unit_Test.setUp();
 
         noDelegateCallMock = new NoDelegateCallMock();
     }

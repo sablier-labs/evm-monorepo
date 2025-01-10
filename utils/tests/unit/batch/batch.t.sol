@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { CommonBase } from "../../Base.t.sol";
+import { Unit_Test } from "../Unit.t.sol";
 import { BatchMock } from "../../mocks/BatchMock.sol";
 
-contract Batch_Unit_Concrete_Test is CommonBase {
+contract Batch_Unit_Concrete_Test is Unit_Test {
     BatchMock internal batchMock;
     bytes[] internal calls;
     uint256 internal newNumber = 100;
     bytes[] internal results;
 
     function setUp() public virtual override {
-        CommonBase.setUp();
+        Unit_Test.setUp();
 
         batchMock = new BatchMock();
     }

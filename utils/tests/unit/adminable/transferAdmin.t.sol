@@ -4,16 +4,14 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IAdminable } from "src/interfaces/IAdminable.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { CommonBase } from "../../Base.t.sol";
+import { Unit_Test } from "../Unit.t.sol";
 import { AdminableMock } from "../../mocks/AdminableMock.sol";
 
-contract TransferAdmin_Unit_Concrete_Test is CommonBase {
+contract TransferAdmin_Unit_Concrete_Test is Unit_Test {
     AdminableMock internal adminableMock;
-    address internal admin;
-    address internal eve;
 
     function setUp() public virtual override {
-        CommonBase.setUp();
+        Unit_Test.setUp();
 
         admin = createUser("admin");
         eve = createUser("eve");
