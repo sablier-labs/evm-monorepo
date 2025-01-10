@@ -6,7 +6,7 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { BaseScript } from "./Base.s.sol";
 
 /// @dev This contract appends to the `script` directory a markdown file with the deployed addresses in the format used
-/// in the docs: https://docs.sablier.com/contracts/v2/deployments.
+/// in the docs: https://docs.sablier.com/guides/lockup/deployments.
 abstract contract DeploymentLogger is BaseScript {
     using Strings for address;
     using Strings for string;
@@ -179,7 +179,7 @@ abstract contract DeploymentLogger is BaseScript {
             contractAddress,
             ") | [ Lockup-",
             version,
-            "](https://github.com/sablier-labs/v2-deployments/tree/main/lockup/",
+            "](https://github.com/sablier-labs/deployments/tree/main/lockup/",
             version,
             ") |"
         );
