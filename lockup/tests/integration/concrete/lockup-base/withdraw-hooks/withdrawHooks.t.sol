@@ -16,11 +16,6 @@ contract WithdrawHooks_Integration_Concrete_Test is Integration_Test {
 
         differentSenderRecipientStreamId = createDefaultStreamWithRecipient(address(recipientGood));
         withdrawAmount = defaults.WITHDRAW_AMOUNT();
-
-        // Allow the good recipient to hook.
-        resetPrank({ msgSender: users.admin });
-        lockup.allowToHook(address(recipientGood));
-        resetPrank({ msgSender: users.sender });
     }
 
     function test_GivenRecipientSameAsSender() external {

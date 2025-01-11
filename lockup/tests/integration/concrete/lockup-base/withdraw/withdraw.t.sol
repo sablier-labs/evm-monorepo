@@ -303,21 +303,25 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         givenNotCanceledStream
     {
         // It should not make Sablier run the recipient hook.
-        uint128 withdrawAmount = lockup.withdrawableAmountOf(recipientGoodStreamId);
+        uint128 withdrawAmount = lockup.withdrawableAmountOf(notAllowedtoHookStreamId);
         vm.expectCall({
             callee: address(recipientGood),
             data: abi.encodeCall(
                 ISablierLockupRecipient.onSablierLockupWithdraw,
-                (recipientGoodStreamId, users.sender, address(recipientGood), withdrawAmount)
+                (notAllowedtoHookStreamId, users.sender, address(recipientInterfaceIDIncorrect), withdrawAmount)
             ),
             count: 0
         });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: recipientGoodStreamId, to: address(recipientGood), amount: withdrawAmount });
+        lockup.withdraw({
+            streamId: notAllowedtoHookStreamId,
+            to: address(recipientInterfaceIDIncorrect),
+            amount: withdrawAmount
+        });
 
         // It should update the withdrawn amount.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(recipientGoodStreamId);
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(notAllowedtoHookStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
@@ -359,11 +363,6 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         givenRecipientAllowedToHook
         whenNonRevertingRecipient
     {
-        // Allow the recipient to hook.
-        resetPrank({ msgSender: users.admin });
-        lockup.allowToHook(address(recipientInvalidSelector));
-        resetPrank({ msgSender: users.sender });
-
         // Expect a revert.
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(
@@ -396,11 +395,6 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         whenNonRevertingRecipient
         whenHookReturnsValidSelector
     {
-        // Allow the recipient to hook.
-        resetPrank({ msgSender: users.admin });
-        lockup.allowToHook(address(recipientReentrant));
-        resetPrank({ msgSender: users.sender });
-
         // Halve the withdraw amount so that the recipient can re-entry and make another withdrawal.
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT() / 2;
 
@@ -443,11 +437,6 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         whenNonRevertingRecipient
         whenHookReturnsValidSelector
     {
-        // Allow the recipient to hook.
-        resetPrank({ msgSender: users.admin });
-        lockup.allowToHook(address(recipientGood));
-        resetPrank({ msgSender: users.sender });
-
         // Set the withdraw amount to the default amount.
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
 

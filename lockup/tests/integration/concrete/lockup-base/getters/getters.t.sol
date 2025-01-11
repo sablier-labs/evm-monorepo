@@ -211,14 +211,11 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_IsAllowedToHookGivenProvidedAddressNotAllowedToHook() external view {
-        bool result = lockup.isAllowedToHook(address(recipientGood));
+        bool result = lockup.isAllowedToHook(address(recipientInterfaceIDIncorrect));
         assertFalse(result, "isAllowedToHook");
     }
 
-    function test_IsAllowedToHookGivenProvidedAddressAllowedToHook() external {
-        resetPrank({ msgSender: users.admin });
-        lockup.allowToHook(address(recipientGood));
-
+    function test_IsAllowedToHookGivenProvidedAddressAllowedToHook() external view {
         bool result = lockup.isAllowedToHook(address(recipientGood));
         assertTrue(result, "isAllowedToHook");
     }

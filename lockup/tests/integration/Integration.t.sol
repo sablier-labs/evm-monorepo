@@ -24,6 +24,8 @@ abstract contract Integration_Test is Base_Test {
     // Common stream IDs to be used across the tests.
     // Default stream ID.
     uint256 internal defaultStreamId;
+    // A stream with a recipient contract that is not allowed to hook.
+    uint256 internal notAllowedtoHookStreamId;
     // A non-cancelable stream ID.
     uint256 internal notCancelableStreamId;
     // A non-transferable stream ID.
@@ -57,8 +59,11 @@ abstract contract Integration_Test is Base_Test {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    // The following recipients are not allowed to hook.
     RecipientInterfaceIDIncorrect internal recipientInterfaceIDIncorrect;
     RecipientInterfaceIDMissing internal recipientInterfaceIDMissing;
+
+    // The following recipients are allowed to hook.
     RecipientInvalidSelector internal recipientInvalidSelector;
     RecipientReentrant internal recipientReentrant;
     RecipientReverting internal recipientReverting;
@@ -106,6 +111,7 @@ abstract contract Integration_Test is Base_Test {
 
     function initializeDefaultStreams() internal {
         defaultStreamId = createDefaultStream();
+        notAllowedtoHookStreamId = createDefaultStreamWithRecipient(address(recipientInterfaceIDIncorrect));
         notCancelableStreamId = createDefaultStreamNonCancelable();
         notTransferableStreamId = createDefaultStreamNonTransferable();
         recipientGoodStreamId = createDefaultStreamWithRecipient(address(recipientGood));
@@ -126,8 +132,11 @@ abstract contract Integration_Test is Base_Test {
         vm.label({ account: address(recipientReentrant), newLabel: "Recipient Reentrant" });
         vm.label({ account: address(recipientReverting), newLabel: "Recipient Reverting" });
 
-        // Allow the recipients to Hook.
+        // Allow the selected recipients to hook.
         resetPrank({ msgSender: users.admin });
+        lockup.allowToHook(address(recipientGood));
+        lockup.allowToHook(address(recipientInvalidSelector));
+        lockup.allowToHook(address(recipientReentrant));
         lockup.allowToHook(address(recipientReverting));
         resetPrank({ msgSender: users.sender });
     }

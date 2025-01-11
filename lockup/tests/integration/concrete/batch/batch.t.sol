@@ -108,7 +108,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
 
         uint256[] memory streamIds = new uint256[](2);
         streamIds[0] = recipientGoodStreamId;
-        streamIds[1] = recipientInvalidSelectorStreamId;
+        streamIds[1] = notTransferableStreamId;
         calls[1] = abi.encodeCall(lockup.cancelMultiple, (streamIds));
 
         calls[2] = abi.encodeCall(lockup.renounce, (recipientReentrantStreamId));

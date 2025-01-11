@@ -4,6 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
+import { RecipientGood } from "../../../../mocks/Hooks.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract AllowToHook_Integration_Concrete_Test is Integration_Test {
@@ -41,15 +42,18 @@ contract AllowToHook_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenProvidedAddressReturnsInterfaceId() external whenCallerAdmin whenProvidedAddressContract {
+        // Define a recipient that implementes the interface correctly.
+        RecipientGood recipientWithInterfaceId = new RecipientGood();
+
         // It should emit a {AllowToHook} event.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.AllowToHook(users.admin, address(recipientGood));
+        emit ISablierLockupBase.AllowToHook(users.admin, address(recipientWithInterfaceId));
 
         // Allow the provided address to hook.
-        lockup.allowToHook(address(recipientGood));
+        lockup.allowToHook(address(recipientWithInterfaceId));
 
         // It should put the address on the allowlist.
-        bool isAllowedToHook = lockup.isAllowedToHook(address(recipientGood));
+        bool isAllowedToHook = lockup.isAllowedToHook(address(recipientWithInterfaceId));
         assertTrue(isAllowedToHook, "address not put on the allowlist");
     }
 }

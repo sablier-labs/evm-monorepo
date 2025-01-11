@@ -105,22 +105,22 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         givenSTREAMINGStatus
     {
         // It should not make Sablier run the recipient hook.
-        uint128 senderAmount = lockup.refundableAmountOf(recipientGoodStreamId);
-        uint128 recipientAmount = lockup.withdrawableAmountOf(recipientGoodStreamId);
+        uint128 senderAmount = lockup.refundableAmountOf(notAllowedtoHookStreamId);
+        uint128 recipientAmount = lockup.withdrawableAmountOf(notAllowedtoHookStreamId);
         vm.expectCall({
             callee: address(recipientGood),
             data: abi.encodeCall(
                 ISablierLockupRecipient.onSablierLockupCancel,
-                (recipientGoodStreamId, users.sender, senderAmount, recipientAmount)
+                (notAllowedtoHookStreamId, users.sender, senderAmount, recipientAmount)
             ),
             count: 0
         });
 
         // Cancel the stream.
-        lockup.cancel(recipientGoodStreamId);
+        lockup.cancel(notAllowedtoHookStreamId);
 
         // It should mark the stream as canceled.
-        Lockup.Status actualStatus = lockup.statusOf(recipientGoodStreamId);
+        Lockup.Status actualStatus = lockup.statusOf(notAllowedtoHookStreamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
@@ -153,11 +153,6 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         givenRecipientAllowedToHook
         whenNonRevertingRecipient
     {
-        // Allow the recipient to hook.
-        resetPrank({ msgSender: users.admin });
-        lockup.allowToHook(address(recipientInvalidSelector));
-        resetPrank({ msgSender: users.sender });
-
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -181,11 +176,6 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         whenNonRevertingRecipient
         whenRecipientReturnsValidSelector
     {
-        // Allow the recipient to hook.
-        resetPrank({ msgSender: users.admin });
-        lockup.allowToHook(address(recipientReentrant));
-        resetPrank({ msgSender: users.sender });
-
         // It should make Sablier run the recipient hook.
         uint128 senderAmount = lockup.refundableAmountOf(recipientReentrantStreamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(recipientReentrantStreamId);
@@ -230,11 +220,6 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         whenNonRevertingRecipient
         whenRecipientReturnsValidSelector
     {
-        // Allow the recipient to hook.
-        resetPrank({ msgSender: users.admin });
-        lockup.allowToHook(address(recipientGood));
-        resetPrank({ msgSender: users.sender });
-
         // It should refund the sender.
         uint128 senderAmount = lockup.refundableAmountOf(recipientGoodStreamId);
         expectCallToTransfer({ to: users.sender, value: senderAmount });
