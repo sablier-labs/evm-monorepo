@@ -107,7 +107,8 @@ library Errors {
     /// @notice Thrown when trying to create a tranched stream with unordered tranche timestamps.
     error SablierHelpers_TrancheTimestampsNotOrdered(uint256 index, uint40 previousTimestamp, uint40 currentTimestamp);
 
-    /// @notice Thrown when trying to create a stream with the sum of the unlock amounts greater than deposit amount.
+    /// @notice Thrown when trying to create a stream with the sum of the unlock amounts greater than the deposit
+    /// amount.
     error SablierHelpers_UnlockAmountsSumTooHigh(
         uint128 depositAmount, uint128 startUnlockAmount, uint128 cliffUnlockAmount
     );

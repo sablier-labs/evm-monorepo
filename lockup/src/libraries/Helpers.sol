@@ -223,7 +223,7 @@ library Helpers {
             revert Errors.SablierHelpers_StartTimeNotLessThanEndTime(timestamps.start, timestamps.end);
         }
 
-        // Check: the sum of the start and cliff unlock amounts is not greater than deposit amount.
+        // Check: the sum of the start and cliff unlock amounts is not greater than the deposit amount.
         if (unlockAmounts.start + unlockAmounts.cliff > depositAmount) {
             revert Errors.SablierHelpers_UnlockAmountsSumTooHigh(
                 depositAmount, unlockAmounts.start, unlockAmounts.cliff
