@@ -7,8 +7,10 @@
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
-This repository contains a collection of utility smart contracts used across all Solidity projects. The list of projects
-using these contracts includes:
+This repository contains a collection of utility smart contracts used across various Solidity projects. The motivation
+behind this repository is to reduce code duplication.
+
+The following projects uses these contracts:
 
 - [Sablier Airdrops](https://github.com/sablier-labs/airdrops/)
 - [Sablier Flow](https://github.com/sablier-labs/flow/)
