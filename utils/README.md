@@ -62,9 +62,9 @@ contract MyContract is Adminable, Batch, NoDelegateCall, SablierFees {
     constructor(address initialAdmin) SablierFees(initialAdmin) { }
 
     // Use the `noDelegateCall` modifier to prevent delegate calls.
-    function foo() public noDelegateCall {  }
+    function foo() public noDelegateCall { }
 
     // Use the `onlyAdmin` modifier to restrict access to the admin.
-    function editFee(uint256 newFee) public onlyAdmin {  }
+    function editFee(uint256 newFee) public onlyAdmin { }
 }
 ```
