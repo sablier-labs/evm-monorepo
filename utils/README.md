@@ -1,4 +1,4 @@
-# Sablier Solidity Utils [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
+# Sablier Solidity Utils [![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
 
 [gha]: https://github.com/sablier-labs/v2-core/actions
 [gha-badge]: https://github.com/sablier-labs/v2-core/actions/workflows/ci.yml/badge.svg
