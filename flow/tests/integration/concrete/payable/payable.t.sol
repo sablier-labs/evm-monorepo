@@ -10,7 +10,7 @@ contract Payable_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         Shared_Integration_Concrete_Test.setUp();
         depositToDefaultStream();
 
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+        vm.warp({ newTimestamp: ONE_MONTH_SINCE_START });
 
         // Make the sender the caller.
         resetPrank({ msgSender: users.sender });

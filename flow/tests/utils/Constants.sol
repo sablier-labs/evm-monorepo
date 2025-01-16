@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
 abstract contract Constants {
     // Amounts
@@ -14,8 +14,8 @@ abstract contract Constants {
     uint128 internal constant TOTAL_AMOUNT_WITH_BROKER_FEE_18D = DEPOSIT_AMOUNT_18D + BROKER_FEE_AMOUNT_18D;
     uint128 internal constant TOTAL_AMOUNT_WITH_BROKER_FEE_6D = DEPOSIT_AMOUNT_6D + BROKER_FEE_AMOUNT_6D;
     uint128 internal constant TRANSFER_VALUE = 50_000;
-    uint128 internal constant WITHDRAW_AMOUNT_18D = 2500e18;
-    uint128 internal constant WITHDRAW_AMOUNT_6D = 2500e6;
+    uint128 internal constant WITHDRAW_AMOUNT_18D = 500e18;
+    uint128 internal constant WITHDRAW_AMOUNT_6D = 500e6;
 
     // Fees
     UD60x18 internal constant BROKER_FEE = UD60x18.wrap(0.01e18); // 1%
@@ -23,8 +23,8 @@ abstract contract Constants {
     uint128 internal constant BROKER_FEE_AMOUNT_6D = 505.050505e6; // 1% of total amount
     UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18); // 10%
     UD60x18 internal constant PROTOCOL_FEE = UD60x18.wrap(0.01e18); // 1%
-    uint128 internal constant PROTOCOL_FEE_AMOUNT_18D = 25e18; // 1% of withdraw amount
-    uint128 internal constant PROTOCOL_FEE_AMOUNT_6D = 25e6; // 1% of withdraw amount
+    uint128 internal immutable PROTOCOL_FEE_AMOUNT_18D = ud(WITHDRAW_AMOUNT_18D).mul(PROTOCOL_FEE).intoUint128();
+    uint128 internal immutable PROTOCOL_FEE_AMOUNT_6D = ud(WITHDRAW_AMOUNT_6D).mul(PROTOCOL_FEE).intoUint128();
 
     // Max value
     uint128 internal constant UINT128_MAX = type(uint128).max;
@@ -45,9 +45,9 @@ abstract contract Constants {
     // Time
     uint40 internal constant OCT_1_2024 = 1_727_740_800;
     uint40 internal constant ONE_MONTH = 30 days; // "30/360" convention
+    uint40 internal constant ONE_MONTH_SINCE_START = OCT_1_2024 + ONE_MONTH;
     // Solvency period is 49999999.999999 seconds.
     uint40 internal constant SOLVENCY_PERIOD = uint40(DEPOSIT_AMOUNT_18D / RATE_PER_SECOND_U128); // ~578 days
-    uint40 internal constant WARP_ONE_MONTH = OCT_1_2024 + ONE_MONTH;
     // The following variable represents the timestamp at which the stream depletes all its balance.
     uint40 internal constant WARP_SOLVENCY_PERIOD = OCT_1_2024 + SOLVENCY_PERIOD;
     uint40 internal constant WITHDRAW_TIME = OCT_1_2024 + 2_500_000;

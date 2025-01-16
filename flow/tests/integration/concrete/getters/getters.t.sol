@@ -83,7 +83,7 @@ contract Getters_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function test_GetSnapshotDebtScaledGivenNotZero() external givenNotNull {
-        vm.warp(WARP_ONE_MONTH);
+        vm.warp(ONE_MONTH_SINCE_START);
         flow.adjustRatePerSecond(defaultStreamId, ud21x18(1));
         assertEq(flow.getSnapshotDebtScaled(defaultStreamId), ONE_MONTH_DEBT_18D, "snapshot debt scaled");
     }

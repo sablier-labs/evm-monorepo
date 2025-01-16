@@ -24,7 +24,7 @@ contract Flow_Gas_Test is Shared_Integration_Concrete_Test {
     function setUp() public override {
         Shared_Integration_Concrete_Test.setUp();
 
-        // Setup a few streams with usdc.
+        // Setup a few streams with USDC.
         for (uint8 count; count < 100; ++count) {
             depositDefaultAmount({ streamId: createDefaultStream() });
         }

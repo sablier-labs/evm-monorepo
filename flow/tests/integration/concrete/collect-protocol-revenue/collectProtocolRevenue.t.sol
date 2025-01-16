@@ -21,7 +21,7 @@ contract CollectProtocolRevenue_Integration_Concrete_Test is Shared_Integration_
         depositDefaultAmount(streamIdWithProtocolFee);
 
         // Simulate one month of streaming.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+        vm.warp({ newTimestamp: ONE_MONTH_SINCE_START });
     }
 
     function test_RevertWhen_CallerNotAdmin() external {

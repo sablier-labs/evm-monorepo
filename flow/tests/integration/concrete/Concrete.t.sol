@@ -36,7 +36,7 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
         defaultStreamId = createDefaultStream();
 
         // Simulate one month of streaming.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+        vm.warp({ newTimestamp: ONE_MONTH_SINCE_START });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

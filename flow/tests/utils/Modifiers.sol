@@ -152,27 +152,27 @@ abstract contract Modifiers is Utils {
                                       WITHDRAW
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier givenBalanceExceedsTotalDebt() virtual {
+        _;
+    }
+
+    modifier givenBalanceNotExceedTotalDebt() {
+        _;
+    }
+
     modifier givenProtocolFeeZero() {
         _;
     }
 
-    modifier whenAmountEqualTotalDebt() {
+    modifier whenAmountGreaterThanSnapshotDebt() {
         _;
     }
 
-    modifier whenAmountNotOverdraw() {
+    modifier whenAmountLessThanTotalDebt() {
         _;
     }
 
     modifier whenAmountNotZero() {
-        _;
-    }
-
-    modifier whenAmountOverdraws() {
-        _;
-    }
-
-    modifier whenWithdrawalAddressOwner() {
         _;
     }
 
@@ -181,6 +181,10 @@ abstract contract Modifiers is Utils {
     }
 
     modifier whenWithdrawalAddressNotZero() {
+        _;
+    }
+
+    modifier whenWithdrawalAddressOwner() {
         _;
     }
 }
