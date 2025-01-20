@@ -10,7 +10,7 @@
 This repository contains a collection of utility smart contracts used across various Solidity projects. The motivation
 behind this repository is to reduce code duplication.
 
-The following projects uses these contracts:
+The following projects use these contracts:
 
 - [Sablier Airdrops](https://github.com/sablier-labs/airdrops/)
 - [Sablier Flow](https://github.com/sablier-labs/flow/)
