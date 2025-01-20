@@ -5,10 +5,10 @@ import { LockupNFTDescriptor } from "../src/LockupNFTDescriptor.sol";
 import { SablierBatchLockup } from "../src/SablierBatchLockup.sol";
 import { SablierLockup } from "../src/SablierLockup.sol";
 
-import { DeploymentLogger } from "./DeploymentLogger.s.sol";
+import { BaseScript } from "./Base.s.sol";
 
 /// @notice Deploys the Lockup Protocol.
-contract DeployProtocol is DeploymentLogger("non_deterministic") {
+contract DeployProtocol is BaseScript {
     /// @dev Deploys the protocol with the admin set in `adminMap`.
     function run()
         public
@@ -17,7 +17,6 @@ contract DeployProtocol is DeploymentLogger("non_deterministic") {
         returns (LockupNFTDescriptor nftDescriptor, SablierLockup lockup, SablierBatchLockup batchLockup)
     {
         address initialAdmin = adminMap[block.chainid];
-
         (nftDescriptor, lockup, batchLockup) = _run(initialAdmin);
     }
 
@@ -37,7 +36,5 @@ contract DeployProtocol is DeploymentLogger("non_deterministic") {
         batchLockup = new SablierBatchLockup();
         nftDescriptor = new LockupNFTDescriptor();
         lockup = new SablierLockup(initialAdmin, nftDescriptor, maxCountMap[block.chainid]);
-
-        appendToFileDeployedAddresses(address(lockup), address(nftDescriptor), address(batchLockup));
     }
 }
