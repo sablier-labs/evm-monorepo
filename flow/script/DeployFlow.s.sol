@@ -4,10 +4,11 @@ pragma solidity >=0.8.22;
 import { FlowNFTDescriptor } from "src/FlowNFTDescriptor.sol";
 import { FlowNFTDescriptor } from "src/FlowNFTDescriptor.sol";
 import { SablierFlow } from "src/SablierFlow.sol";
-import { DeploymentLogger } from "./DeploymentLogger.s.sol";
+
+import { BaseScript } from "./Base.s.sol";
 
 /// @notice Deploys {SablierFlow}.
-contract DeployFlow is DeploymentLogger("not-deterministic") {
+contract DeployFlow is BaseScript {
     function run() public returns (SablierFlow flow, FlowNFTDescriptor nftDescriptor) {
         (flow, nftDescriptor) = _run(adminMap[block.chainid]);
     }
@@ -23,7 +24,5 @@ contract DeployFlow is DeploymentLogger("not-deterministic") {
     {
         nftDescriptor = new FlowNFTDescriptor();
         flow = new SablierFlow(initialAdmin, nftDescriptor);
-
-        appendToFileDeployedAddresses(address(flow), address(nftDescriptor));
     }
 }
