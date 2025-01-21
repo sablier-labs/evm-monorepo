@@ -4,8 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IAdminable } from "src/interfaces/IAdminable.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Unit_Test } from "../Unit.t.sol";
-import { AdminableMock } from "../../mocks/AdminableMock.sol";
+import { AdminableMock } from "tests/mocks/AdminableMock.sol";
+import { Unit_Test } from "../../Unit.t.sol";
 
 contract TransferAdmin_Unit_Concrete_Test is Unit_Test {
     AdminableMock internal adminableMock;
@@ -13,8 +13,6 @@ contract TransferAdmin_Unit_Concrete_Test is Unit_Test {
     function setUp() public virtual override {
         Unit_Test.setUp();
 
-        admin = createUser("admin");
-        eve = createUser("eve");
         adminableMock = new AdminableMock(admin);
         resetPrank(admin);
     }

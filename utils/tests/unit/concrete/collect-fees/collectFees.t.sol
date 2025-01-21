@@ -4,8 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ISablierFees } from "src/interfaces/ISablierFees.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Unit_Test } from "../Unit.t.sol";
-import { SablierFeesMock } from "../../mocks/SablierFeesMock.sol";
+import { SablierFeesMock } from "tests/mocks/SablierFeesMock.sol";
+import { Unit_Test } from "../../Unit.t.sol";
 
 contract CollectFees_Unit_Concrete_Test is Unit_Test {
     SablierFeesMock internal sablierFeesMock;

@@ -3,8 +3,8 @@ pragma solidity >=0.8.22;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Unit_Test } from "../Unit.t.sol";
-import { NoDelegateCallMock } from "../../mocks/NoDelegateCallMock.sol";
+import { NoDelegateCallMock } from "tests/mocks/NoDelegateCallMock.sol";
+import { Unit_Test } from "../../Unit.t.sol";
 
 contract NoDelegateCall_Unit_Concrete_Test is Unit_Test {
     NoDelegateCallMock internal noDelegateCallMock;
