@@ -7,7 +7,7 @@ import { LockupNFTDescriptor } from "src/LockupNFTDescriptor.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 /// @dev This mock is needed for:
-/// - Running the tests against the `--via-ir` precompiles
+/// - Running the tests against optimized contracts compiled with `--via-ir`
 /// - Testing reverts: https://github.com/foundry-rs/foundry/issues/864
 contract NFTDescriptorMock is LockupNFTDescriptor {
     function abbreviateAmount_(uint256 amount, uint256 decimals) external pure returns (string memory) {

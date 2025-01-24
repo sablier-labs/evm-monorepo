@@ -52,6 +52,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - No longer support backward compatibility with previous versions of `Lockup` contract in `NFTDescriptor`
   ([#1113](https://github.com/sablier-labs/v2-core/pull/1113))
 - Remove `V2` from the contract names and related references ([#994](https://github.com/sablier-labs/v2-core/pull/994))
+- Remove `precompiles` from the NPM release ([#1158](https://github.com/sablier-labs/v2-core/pull/1158))
 
 ## [1.2.0] - 2024-07-04
 

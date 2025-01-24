@@ -5,7 +5,6 @@ coverage:
   status:
     patch: off
 ignore:
-  - "precompiles"
   - "script"
   - "src/libraries/NFTSVG.sol"
   - "src/libraries/SVGElements.sol"
