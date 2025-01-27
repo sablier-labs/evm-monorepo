@@ -1,0 +1,24 @@
+CreateWithTimestamps_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── when shape exceeds 32 bytes
+   │  └── it should revert
+   └── when shape not exceed 32 bytes
+      ├── when broker fee exceeds max value
+      │  └── it should revert
+      └── when broker fee not exceed max value
+         ├── when sender zero address
+         │  └── it should revert
+         └── when sender not zero address
+            ├── when recipient zero address
+            │  └── it should revert
+            └── when recipient not zero address
+               ├── when deposit amount zero
+               │  └── it should revert
+               └── when deposit amount not zero
+                  ├── when start time zero
+                  │  └── it should revert
+                  └── when start time not zero
+                     └── when token not contract
+                        └── it should revert

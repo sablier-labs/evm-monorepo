@@ -1,0 +1,21 @@
+RenounceMultiple_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── when zero array length
+   │  └── it should do nothing
+   └── when non zero array length
+      ├── given at least one null stream
+      │  └── it should revert
+      └── given no null streams
+         ├── given at least one cold stream
+         │  └── it should revert
+         └── given no cold streams
+            ├── when caller unauthorized for any
+            │  └── it should revert
+            └── when caller authorized for all streams
+               ├── given at least one non cancelable stream
+               │  └── it should revert
+               └── given all streams cancelable
+                  ├── it should emit {RenounceLockupStream} events
+                  └── it should make streams non cancelable

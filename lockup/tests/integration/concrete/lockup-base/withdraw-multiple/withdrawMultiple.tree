@@ -1,0 +1,19 @@
+WithdrawMultiple_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── when unequal arrays length
+   │  └── it should revert
+   └── when equal arrays length
+      ├── when zero array length
+      │  └── it should do nothing
+      └── when non zero array length
+         ├── when one stream reverts
+         │  ├── it should emit {WithdrawFromLockupStream} events for non-reverting streams
+         │  ├── it should emit {InvalidWithdrawalInWithdrawMultiple} event for reverting stream
+         │  └── it should update the withdrawn amounts only for non-reverting streams
+         └── when no streams revert
+            ├── it should make the withdrawals on all streams
+            ├── it should update the statuses
+            ├── it should update the withdrawn amounts
+            └── it should emit {WithdrawFromLockupStream} events for all streams

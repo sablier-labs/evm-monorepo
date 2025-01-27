@@ -1,0 +1,25 @@
+CancelMultiple_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── when zero array length
+   │  └── it should do nothing
+   └── when non zero array length
+      ├── given atleast one null stream
+      │  └── it should revert
+      └── given no null streams
+         ├── given atleast one cold stream
+         │  └── it should revert
+         └── given no cold streams
+            ├── when caller unauthorized for any
+            │  └── it should revert
+            └── when caller authorized for all streams
+               ├── given atleast one non cancelable stream
+               │  └── it should revert
+               └── given all streams cancelable
+                  ├── it should mark the streams as canceled
+                  ├── it should make the streams as non cancelable
+                  ├── it should refund the sender
+                  ├── it should update the refunded amounts
+                  ├── it should not burn the NFT for all streams
+                  └── it should emit {CancelLockupStream} events for all streams

@@ -2,9 +2,8 @@
 pragma solidity >=0.8.22;
 
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
-import { ISablierV2Lockup } from "../src/interfaces/ISablierV2Lockup.sol";
 
-import { Base_Test } from "../test/Base.t.sol";
+import { Base_Test } from "../tests/Base.t.sol";
 
 /// @notice Benchmark contract with common logic needed by all tests.
 abstract contract Benchmark_Test is Base_Test {
@@ -14,7 +13,6 @@ abstract contract Benchmark_Test is Base_Test {
 
     uint128 internal immutable AMOUNT_PER_SEGMENT = 100e18;
     uint128 internal immutable AMOUNT_PER_TRANCHE = 100e18;
-    uint256[7] internal streamIds = [50, 51, 52, 53, 54, 55, 56];
 
     /// @dev The directory where the benchmark files are stored.
     string internal benchmarkResults = "benchmark/results/";
@@ -25,14 +23,14 @@ abstract contract Benchmark_Test is Base_Test {
     /// @dev A variable used to store the content to append to the results file.
     string internal contentToAppend;
 
-    ISablierV2Lockup internal lockup;
+    uint256[7] internal streamIds = [50, 51, 52, 53, 54, 55, 56];
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        super.setUp();
+        Base_Test.setUp();
 
         deal({ token: address(dai), to: users.sender, give: type(uint256).max });
         resetPrank({ msgSender: users.sender });
@@ -166,9 +164,11 @@ abstract contract Benchmark_Test is Base_Test {
     /// @dev Internal function to creates a few streams in each Lockup contract.
     function _createFewStreams() internal {
         for (uint128 i = 0; i < 100; ++i) {
-            lockupDynamic.createWithTimestamps(defaults.createWithTimestampsLD());
-            lockupLinear.createWithTimestamps(defaults.createWithTimestampsLL());
-            lockupTranched.createWithTimestamps(defaults.createWithTimestampsLT());
+            lockup.createWithTimestampsLD(defaults.createWithTimestamps(), defaults.segments());
+            lockup.createWithTimestampsLL(
+                defaults.createWithTimestamps(), defaults.unlockAmounts(), defaults.CLIFF_TIME()
+            );
+            lockup.createWithTimestampsLT(defaults.createWithTimestamps(), defaults.tranches());
         }
     }
 }

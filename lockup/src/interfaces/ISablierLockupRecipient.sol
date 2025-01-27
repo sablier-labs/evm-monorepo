@@ -19,10 +19,10 @@ interface ISablierLockupRecipient is IERC165 {
     ///
     /// @param streamId The ID of the canceled stream.
     /// @param sender The stream's sender, who canceled the stream.
-    /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in units of the asset's
+    /// @param senderAmount The amount of tokens refunded to the stream's sender, denoted in units of the token's
     /// decimals.
-    /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of
-    /// the asset's decimals.
+    /// @param recipientAmount The amount of tokens left for the stream's recipient to withdraw, denoted in units of
+    /// the token's decimals.
     ///
     /// @return selector The selector of this function needed to validate the hook.
     function onSablierLockupCancel(
@@ -42,8 +42,8 @@ interface ISablierLockupRecipient is IERC165 {
     ///
     /// @param streamId The ID of the stream being withdrawn from.
     /// @param caller The original `msg.sender` address that triggered the withdrawal.
-    /// @param to The address receiving the withdrawn assets.
-    /// @param amount The amount of assets withdrawn, denoted in units of the asset's decimals.
+    /// @param to The address receiving the withdrawn tokens.
+    /// @param amount The amount of tokens withdrawn, denoted in units of the token's decimals.
     ///
     /// @return selector The selector of this function needed to validate the hook.
     function onSablierLockupWithdraw(

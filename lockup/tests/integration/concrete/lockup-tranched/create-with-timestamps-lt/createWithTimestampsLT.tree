@@ -1,0 +1,34 @@
+CreateWithTimestampsLT_Integration_Concrete_Test
+└── when token contract
+   ├── when tranche count zero
+   │  └── it should revert
+   └── when tranche count not zero
+      ├── when tranche count exceeds max value
+      │  └── it should revert
+      └── when tranche count not exceed max value
+         ├── when tranche amounts sum overflows
+         │  └── it should revert
+         └── when tranche amounts sum not overflow
+            ├── when start time greater than first timestamp
+            │  └── it should revert
+            ├── when start time equals first timestamp
+            │  └── it should revert
+            └── when start time less than first timestamp
+               ├── when timestamps not strictly increasing
+               │  └── it should revert
+               └── when timestamps strictly increasing
+                  ├── when deposit amount not equal tranche amounts sum
+                  │  └── it should revert
+                  └── when deposit amount equals tranche amounts sum
+                     ├── when token misses ERC20 return value
+                     │  ├── it should create the stream
+                     │  ├── it should bump the next stream ID
+                     │  ├── it should mint the NFT
+                     │  ├── it should emit {CreateLockupTranchedStream} and {MetadataUpdate} events
+                     │  └── it should perform the ERC-20 transfers
+                     └── when token not miss ERC20 return value
+                        ├── it should create the stream
+                        ├── it should bump the next stream ID
+                        ├── it should mint the NFT
+                        ├── it should emit {CreateLockupTranchedStream} and {MetadataUpdate} events
+                        └── it should perform the ERC-20 transfers

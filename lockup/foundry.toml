@@ -6,22 +6,17 @@
     { access = "read", path = "./out-optimized" },
     { access = "read", path = "package.json" },
     { access = "read-write", path = "./benchmark/results" },
+    { access = "read-write", path = "./script/"}
   ]
   gas_limit = 9223372036854775807
-  gas_reports = [
-    "SablierV2LockupDynamic",
-    "SablierV2LockupLinear",
-    "SablierV2LockupTranched",
-    "SablierV2NFTDescriptor",
-  ]
   optimizer = true
-  optimizer_runs = 1000
+  optimizer_runs = 570
   out = "out"
   script = "script"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
   solc = "0.8.26"
   src = "src"
-  test = "test"
+  test = "tests"
 
 [profile.default.fuzz]
   max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
@@ -44,8 +39,9 @@
 # Compile only the production code and the test mocks with via IR
 [profile.optimized]
   out = "out-optimized"
-  test = "test/mocks"
+  test = "tests/mocks"
   via_ir = true
+
 
 # See "SMTChecker and Formal Verification" in the Solidity docs
 [profile.smt]
@@ -74,44 +70,21 @@
   ]
 
 [profile.smt.model_checker.contracts]
-  "src/SablierV2LockupDynamic.sol" = ["SablierV2LockupDynamic"]
-  "src/SablierV2LockupLinear.sol" = ["SablierV2LockupLinear"]
-  "src/SablierV2LockupTranched.sol" = ["SablierV2LockupTranched"]
-  "src/SablierV2NFTDescriptor.sol" = ["SablierV2NFTDescriptor"]
+  "src/LockupNFTDescriptor.sol" = ["LockupNFTDescriptor"]
+  "src/SablierLockup.sol" = ["SablierLockup"]
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
-  src = "test"
+  src = "tests"
 
 [doc]
   ignore = ["**/*.t.sol"]
   out = "docs"
-  repository = "https://github.com/sablier-labs/v2-core"
+  repository = "https://github.com/sablier-labs/lockup"
 
 [etherscan]
-  arbitrum = { key = "${ARBISCAN_API_KEY}" }
-  arbitrum_sepolia = { key = "${ARBISCAN_API_KEY}" }
-  avalanche = { key = "${SNOWTRACE_API_KEY}" }
-  base = { key = "${BASESCAN_API_KEY}" }
-  base_sepolia = { key = "${BASESCAN_API_KEY}" }
-  berachain_artio = { key = "verifyContract", url = "https://api.routescan.io/v2/network/testnet/evm/80085/etherscan" }
-  bnb = { key = "${BSCSCAN_API_KEY}" }
-  gnosis = { key = "${GNOSISSCAN_API_KEY}" }
-  linea = { key = "${LINEASCAN_API_KEY}" }
-  linea_sepolia = { key = "${LINEASCAN_API_KEY}" }
-  mainnet = { key = "${ETHERSCAN_API_KEY}" }
-  mode = { key = "verifyContract", url = "https://explorer.mode.network/api?" }
-  mode_sepolia = { key = "verifyContract", url = "https://sepolia.explorer.mode.network/api?" }
-  optimism = { key = "${OPTIMISTIC_API_KEY}" }
-  optimism_sepolia = { key = "${OPTIMISTIC_API_KEY}" }
-  polygon = { key = "${POLYGONSCAN_API_KEY}" }
-  scroll = { key = "${SCROLLSCAN_API_KEY}" }
-  sei = { key = "verifyContract", url = "https://seitrace/pacific-1/api?" }
-  sei_testnet = { key = "verifyContract", url = "https://blockscout.com/poa/core/api?" }
-  sepolia = { key = "${SEPOLIASCAN_KEY}" }
-  taiko_hekla = { key = "verifyContract", url = "https://blockscoutapi.hekla.taiko.xyz/api?" }
-  taiko_mainnet = { key = "${TAIKO_MAINNET_API_KEY}" }
-  
+  etherscan = { key = "${ETHERSCAN_API_KEY}" }
+
 [fmt]
   bracket_spacing = true
   int_types = "long"
@@ -124,7 +97,7 @@
 
 [rpc_endpoints]
   arbitrum = "${ARBITRUM_RPC_URL}"
-  arbitrum_sepolia = "https://arbitrum-sepolia.blockpi.network/v1/rpc/public"
+  arbitrum_sepolia = "https://sepolia-rollup.arbitrum.io/rpc"
   avalanche = "${AVALANCHE_RPC_URL}"
   base = "https://mainnet.base.org"
   base_sepolia = "https://sepolia.base.org"

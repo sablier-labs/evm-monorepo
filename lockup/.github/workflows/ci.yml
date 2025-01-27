@@ -17,6 +17,13 @@ jobs:
   lint:
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-lint.yml@main"
 
+  bulloak:
+    needs: ["lint"]
+    uses: "sablier-labs/reusable-workflows/.github/workflows/bulloak-check.yml@main"
+    with:
+      skip-modifiers: true
+      tree-path: "tests"
+
   build:
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@main"
 
@@ -24,18 +31,18 @@ jobs:
     needs: ["lint", "build"]
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
     with:
-      foundry-fuzz-runs: 5000
+      foundry-fuzz-runs: 2000
       foundry-profile: "test-optimized"
-      match-path: "test/unit/**/*.sol"
+      match-path: "tests/unit/**/*.sol"
       name: "Unit tests"
 
   test-integration:
     needs: ["lint", "build"]
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
     with:
-      foundry-fuzz-runs: 5000
+      foundry-fuzz-runs: 2000
       foundry-profile: "test-optimized"
-      match-path: "test/integration/**/*.sol"
+      match-path: "tests/integration/**/*.sol"
       name: "Integration tests"
 
   test-invariant:
@@ -43,7 +50,7 @@ jobs:
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
     with:
       foundry-profile: "test-optimized"
-      match-path: "test/invariant/**/*.sol"
+      match-path: "tests/invariant/**/*.sol"
       name: "Invariant tests"
 
   test-fork:
@@ -54,13 +61,14 @@ jobs:
     with:
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
-      match-path: "test/fork/**/*.sol"
+      match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
 
   coverage:
     needs: ["lint", "build"]
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-coverage.yml@main"
     with:
-      match-path: "test/{integration,unit}/**/*.sol"
+      match-path: "tests/{fork,integration,unit}/**/*.sol"

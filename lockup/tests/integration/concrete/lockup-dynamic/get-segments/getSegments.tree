@@ -1,0 +1,8 @@
+GetSegments_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given not dynamic model
+   │  └── it should revert
+   └── given dynamic model
+      └── it should return the correct segments

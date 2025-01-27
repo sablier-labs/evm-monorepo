@@ -1,14 +1,18 @@
 # directories
 artifacts
+artifacts-zk
 broadcast
 cache
+cache_hardhat-zk
 coverage
 deployments
+deployments-zk
 docs
 node_modules
 out
 out-optimized
 out-svg
+typechain-types
 
 # files
 *.env
@@ -16,6 +20,7 @@ out-svg
 *.log
 .DS_Store
 .pnp.*
+deployments.md
 lcov.info
 package-lock.json
 pnpm-lock.yaml

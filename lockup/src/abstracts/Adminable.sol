@@ -27,6 +27,17 @@ abstract contract Adminable is IAdminable {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                     CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Emits a {TransferAdmin} event.
+    /// @param initialAdmin The address of the initial admin.
+    constructor(address initialAdmin) {
+        admin = initialAdmin;
+        emit TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 

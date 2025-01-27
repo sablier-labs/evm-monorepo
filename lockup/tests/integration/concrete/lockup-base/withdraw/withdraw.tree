@@ -1,0 +1,65 @@
+Withdraw_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      ├── given DEPLETED status
+      │  └── it should revert
+      └── given not DEPLETED status
+         ├── when withdrawal address zero
+         │  └── it should revert
+         └── when withdrawal address not zero
+            ├── when zero withdraw amount
+            │  └── it should revert
+            └── when non zero withdraw amount
+               ├── when withdraw amount overdraws
+               │  └── it should revert
+               └── when withdraw amount not overdraw
+                  ├── when withdrawal address not recipient
+                  │  ├── when caller not approved third party or recipient
+                  │  │  └── it should revert
+                  │  └── when caller approved third party or recipient
+                  │     ├── it should make the withdrawal
+                  │     ├── it should update the withdrawn amount
+                  │     └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events
+                  └── when withdrawal address recipient
+                     ├── when caller unknown
+                     │  ├── it should make the withdrawal
+                     │  └── it should update the withdrawn amount
+                     ├── when caller recipient
+                     │  ├── it should make the withdrawal
+                     │  └── it should update the withdrawn amount
+                     └── when caller sender
+                        ├── given end time not in future
+                        │  ├── it should make the withdrawal
+                        │  ├── it should mark the stream as depleted
+                        │  └── it should make the stream not cancelable
+                        └── given end time in future
+                           ├── given canceled stream
+                           │  ├── it should make the withdrawal
+                           │  ├── it should mark the stream as depleted
+                           │  ├── it should update the withdrawn amount
+                           │  └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events
+                           └── given not canceled stream
+                              ├── given recipient not allowed to hook
+                              │  ├── it should make the withdrawal
+                              │  ├── it should update the withdrawn amount
+                              │  └── it should not make Sablier run the recipient hook
+                              └── given recipient allowed to hook
+                                 ├── when reverting recipient
+                                 │  └── it should revert
+                                 └── when non reverting recipient
+                                    ├── when hook returns invalid selector
+                                    │  └── it should revert
+                                    └── when hook returns valid selector
+                                       ├── when reentrancy
+                                       │  ├── it should make multiple withdrawals
+                                       │  ├── it should update the withdrawn amounts
+                                       │  └── it should make Sablier run the recipient hook
+                                       └── when no reentrancy
+                                          ├── it should make the withdrawal
+                                          ├── it should update the withdrawn amount
+                                          ├── it should make Sablier run the recipient hook
+                                          └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events

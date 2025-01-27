@@ -1,0 +1,17 @@
+StatusOf_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given tokens fully withdrawn
+   │  └── it should return DEPLETED
+   └── given tokens not fully withdrawn
+      ├── given canceled stream
+      │  └── it should return CANCELED
+      └── given not canceled stream
+         ├── given start time in future
+         │  └── it should return PENDING
+         └── given start time not in future
+            ├── given zero refundable amount
+            │  └── it should return SETTLED
+            └── given non zero refundable amount
+               └── it should return STREAMING

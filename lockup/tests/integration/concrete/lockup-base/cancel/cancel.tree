@@ -1,0 +1,51 @@
+Cancel_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      ├── given cold stream
+      │  ├── given DEPLETED status
+      │  │  └── it should revert
+      │  ├── given CANCELED status
+      │  │  └── it should revert
+      │  └── given SETTLED status
+      │     └── it should revert
+      └── given warm stream
+         ├── when caller not sender
+         │  ├── when caller malicious third party
+         │  │  └── it should revert
+         │  └── when caller recipient
+         │     └── it should revert
+         └── when caller sender
+            ├── given non cancelable stream
+            │  └── it should revert
+            └── given cancelable stream
+               ├── given PENDING status
+               │  ├── it should mark the stream as depleted
+               │  └── it should make the stream not cancelable
+               └── given STREAMING status
+                  ├── given recipient not allowed to hook
+                  │  ├── it should mark the stream as canceled
+                  │  └── it should not make Sablier run the recipient hook
+                  └── given recipient allowed to hook
+                     ├── when reverting recipient
+                     │  └── it should revert the entire transaction
+                     └── when non reverting recipient
+                        ├── when recipient returns invalid selector
+                        │  └── it should revert
+                        └── when recipient returns valid selector
+                           ├── when reentrancy
+                           │  ├── it should mark the stream as depleted
+                           │  ├── it should make Sablier run the recipient hook
+                           │  ├── it should perform a reentrancy call to the Lockup contract
+                           │  └── it should make the withdrawal via the reentrancy
+                           └── when no reentrancy
+                              ├── it should mark the stream as canceled
+                              ├── it should make the stream as non cancelable
+                              ├── it should update the refunded amount
+                              ├── it should refund the sender
+                              ├── it should make Sablier run the recipient hook
+                              ├── it should not burn the NFT
+                              └── it should emit {MetadataUpdate} and {CancelLockupStream} events

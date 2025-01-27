@@ -12,14 +12,20 @@ contract BaseScript is Script {
     using Strings for uint256;
     using stdJson for string;
 
-    /// @dev The default value for `segmentCountMap` and `trancheCountMap`.
+    /// @dev The default value for `maxCountMap`.
     uint256 internal constant DEFAULT_MAX_COUNT = 500;
+
+    /// @dev The address of the default Sablier admin.
+    address internal constant DEFAULT_SABLIER_ADMIN = 0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F;
+
+    /// @dev The salt used for deterministic deployments.
+    bytes32 internal immutable SALT;
 
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
 
-    /// @dev Needed for the deterministic deployments.
-    bytes32 internal constant ZERO_SALT = bytes32(0);
+    /// @dev Admin address mapped by the chain Id.
+    mapping(uint256 chainId => address admin) internal adminMap;
 
     /// @dev The address of the transaction broadcaster.
     address internal broadcaster;
@@ -27,11 +33,8 @@ contract BaseScript is Script {
     /// @dev Used to derive the broadcaster's address if $EOA is not defined.
     string internal mnemonic;
 
-    /// @dev Maximum segment count mapped by the chain Id.
-    mapping(uint256 chainId => uint256 count) internal segmentCountMap;
-
-    /// @dev Maximum tranche count mapped by the chain Id.
-    mapping(uint256 chainId => uint256 count) internal trancheCountMap;
+    /// @dev Maximum count for segments and tranches mapped by the chain Id.
+    mapping(uint256 chainId => uint256 count) internal maxCountMap;
 
     /// @dev Initializes the transaction broadcaster like this:
     ///
@@ -49,15 +52,23 @@ contract BaseScript is Script {
             (broadcaster,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
         }
 
-        // Populate the segment and tranche count map.
-        populateSegmentAndTrancheCountMap();
+        // Construct the salt for deterministic deployments.
+        SALT = constructCreate2Salt();
+
+        // Populate the admin map.
+        populateAdminMap();
+
+        // Populate the max count map for segments and tranches.
+        populateMaxCountMap();
+
+        // If there is no admin set for a specific chain, use the default Sablier admin.
+        if (adminMap[block.chainid] == address(0)) {
+            adminMap[block.chainid] = DEFAULT_SABLIER_ADMIN;
+        }
 
         // If there is no maximum value set for a specific chain, use the default value.
-        if (segmentCountMap[block.chainid] == 0) {
-            segmentCountMap[block.chainid] = DEFAULT_MAX_COUNT;
-        }
-        if (trancheCountMap[block.chainid] == 0) {
-            trancheCountMap[block.chainid] = DEFAULT_MAX_COUNT;
+        if (maxCountMap[block.chainid] == 0) {
+            maxCountMap[block.chainid] = DEFAULT_MAX_COUNT;
         }
     }
 
@@ -72,63 +83,71 @@ contract BaseScript is Script {
     ///
     /// Notes:
     /// - The salt format is "ChainID <chainid>, Version <version>".
-    /// - The version is obtained from `package.json`.
     function constructCreate2Salt() public view returns (bytes32) {
         string memory chainId = block.chainid.toString();
-        string memory json = vm.readFile("package.json");
-        string memory version = json.readString(".version");
+        string memory version = getVersion();
         string memory create2Salt = string.concat("ChainID ", chainId, ", Version ", version);
         console2.log("The CREATE2 salt is \"%s\"", create2Salt);
         return bytes32(abi.encodePacked(create2Salt));
     }
 
-    /// @dev Populates the segment & tranche count map. Values can be updated using the `update-counts.sh` script.
-    function populateSegmentAndTrancheCountMap() internal {
+    /// @dev The version is obtained from `package.json`.
+    function getVersion() internal view returns (string memory) {
+        string memory json = vm.readFile("package.json");
+        return json.readString(".version");
+    }
+
+    /// @dev Populates the admin map. The reason the chain IDs configured for the admin map do not match the other
+    /// maps is that we only have multisigs for the chains listed below, otherwise, the default admin is used.​
+    function populateAdminMap() internal {
+        adminMap[42_161] = 0xF34E41a6f6Ce5A45559B1D3Ee92E141a3De96376; // Arbitrum
+        adminMap[43_114] = 0x4735517616373c5137dE8bcCDc887637B8ac85Ce; // Avalanche
+        adminMap[8453] = 0x83A6fA8c04420B3F9C7A4CF1c040b63Fbbc89B66; // Base
+        adminMap[56] = 0x6666cA940D2f4B65883b454b7Bc7EEB039f64fa3; // BNB
+        adminMap[100] = 0x72ACB57fa6a8fa768bE44Db453B1CDBa8B12A399; // Gnosis
+        adminMap[1] = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844; // Mainnet
+        adminMap[59_144] = 0x72dCfa0483d5Ef91562817C6f20E8Ce07A81319D; // Linea
+        adminMap[10] = 0x43c76FE8Aec91F63EbEfb4f5d2a4ba88ef880350; // Optimism
+        adminMap[137] = 0x40A518C5B9c1d3D6d62Ba789501CE4D526C9d9C6; // Polygon
+        adminMap[534_352] = 0x0F7Ad835235Ede685180A5c611111610813457a9; // Scroll
+    }
+
+    /// @dev Updates max values for segments and tranches. Values can be updated using the `update-counts.sh` script.
+    function populateMaxCountMap() internal {
         // forgefmt: disable-start
 
         // Arbitrum chain ID
-        segmentCountMap[42161] = 1160;
-        trancheCountMap[42161] = 1200;
+        maxCountMap[42161] = 1090;
 
         // Avalanche chain ID.
-        segmentCountMap[43114] = 520;
-        trancheCountMap[43114] = 540;
+        maxCountMap[43114] = 490;
 
         // Base chain ID.
-        segmentCountMap[8453] = 2170;
-        trancheCountMap[8453] = 2270;
+        maxCountMap[8453] = 2030;
 
         // Blast chain ID.
-        segmentCountMap[81457] = 1080;
-        trancheCountMap[81457] = 1120;
+        maxCountMap[81457] = 1020;
 
         // BNB chain ID.
-        segmentCountMap[56] = 4820;
-        trancheCountMap[56] = 5130;
+        maxCountMap[56] = 4460;
 
         // Ethereum chain ID.
-        segmentCountMap[1] = 1080;
-        trancheCountMap[1] = 1120;
+        maxCountMap[1] = 1020;
 
         // Gnosis chain ID.
-        segmentCountMap[100] = 600;
-        trancheCountMap[100] = 620;
+        maxCountMap[100] = 560;
 
         // Optimism chain ID.
-        segmentCountMap[10] = 1080;
-        trancheCountMap[10] = 1120;
+        maxCountMap[10] = 1020;
 
         // Polygon chain ID.
-        segmentCountMap[137] = 1080;
-        trancheCountMap[137] = 1120;
+        maxCountMap[137] = 1020;
 
         // Scroll chain ID.
-        segmentCountMap[534352] = 330;
-        trancheCountMap[534352] = 340;
+        maxCountMap[534352] = 320;
 
         // Sepolia chain ID.
-        segmentCountMap[11155111] = 1080;
-        trancheCountMap[11155111] = 1120;
+        maxCountMap[11155111] = 1020;
 
         // forgefmt: disable-end
     }

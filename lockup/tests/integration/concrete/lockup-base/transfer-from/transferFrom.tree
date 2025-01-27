@@ -1,0 +1,6 @@
+TransferFrom_Integration_Concrete_Test
+├── given non transferable stream
+│  └── it should revert
+└── given transferable stream
+   ├── it should change the stream recipient (and NFT owner)
+   └── it should emit {MetadataUpdate} and {Transfer} events

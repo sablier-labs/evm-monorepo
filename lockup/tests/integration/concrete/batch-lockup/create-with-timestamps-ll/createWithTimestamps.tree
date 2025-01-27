@@ -1,0 +1,6 @@
+CreateWithTimestampsLL_Integration_Test
+├── when batch size zero
+│  └── it should revert
+└── when batch size not zero
+   ├── it should create a batch of streams with timestamps
+   └── it should perform the ERC-20 transfers

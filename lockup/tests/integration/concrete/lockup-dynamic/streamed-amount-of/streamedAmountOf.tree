@@ -1,0 +1,6 @@
+StreamedAmountOf_Lockup_Dynamic_Integration_Concrete_Test
+└── given STREAMING status
+   ├── given single segment
+   │  └── it should return the correct streamed amount
+   └── given multiple segments
+      └── it should return the correct streamed amount

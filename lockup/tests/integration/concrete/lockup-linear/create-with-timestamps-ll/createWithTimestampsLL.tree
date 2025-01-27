@@ -1,0 +1,31 @@
+CreateWithTimestampsLL_Integration_Concrete_Test
+└── when token contract
+   ├── when cliff time zero
+   │  ├── when cliff unlock amount not zero
+   │  │  └── it should revert
+   │  ├── when start time not less than end time
+   │  │  └── it should revert
+   │  └── when start time less than end time
+   │     └── it should create the stream
+   └── when cliff time not zero
+      ├── when start time not less than cliff time
+      │  └── it should revert
+      └── when start time less than cliff time
+         ├── when cliff time not less than end time
+         │  └── it should revert
+         └── when cliff time less than end time
+            ├── when unlock amounts sum exceeds deposit amount
+            │  └── it should revert
+            └── when unlock amounts sum not exceed deposit amount
+               ├── when token misses ERC20 return value
+               │  ├── it should create the stream
+               │  ├── it should bump the next stream ID
+               │  ├── it should mint the NFT
+               │  ├── it should emit {MetadataUpdate} and {CreateLockupLinearStream} events
+               │  └── it should perform the ERC-20 transfers
+               └── when token not miss ERC20 return value
+                  ├── it should create the stream
+                  ├── it should bump the next stream ID
+                  ├── it should mint the NFT
+                  ├── it should emit {MetadataUpdate} and {CreateLockupLinearStream} events
+                  └── it should perform the ERC-20 transfers

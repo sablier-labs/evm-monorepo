@@ -42,7 +42,7 @@ jobs:
     with:
       foundry-fuzz-runs: ${{ fromJSON(inputs.unitFuzzRuns || '50000') }}
       foundry-profile: "test-optimized"
-      match-path: "test/unit/**/*.sol"
+      match-path: "tests/unit/**/*.sol"
       name: "Unit tests"
 
   test-integration:
@@ -51,7 +51,7 @@ jobs:
     with:
       foundry-fuzz-runs: ${{ fromJSON(inputs.integrationFuzzRuns || '50000') }}
       foundry-profile: "test-optimized"
-      match-path: "test/integration/**/*.sol"
+      match-path: "tests/integration/**/*.sol"
       name: "Integration tests"
 
   test-invariant:
@@ -61,7 +61,7 @@ jobs:
       foundry-invariant-depth: ${{ fromJSON(inputs.invariantDepth || '100') }}
       foundry-invariant-runs: ${{ fromJSON(inputs.invariantRuns || '100') }}
       foundry-profile: "test-optimized"
-      match-path: "test/invariant/**/*.sol"
+      match-path: "tests/invariant/**/*.sol"
       name: "Invariant tests"
 
   test-fork:
@@ -72,7 +72,7 @@ jobs:
     with:
       foundry-fuzz-runs: ${{ fromJSON(inputs.forkFuzzRuns || '1000') }}
       foundry-profile: "test-optimized"
-      match-path: "test/fork/**/*.sol"
+      match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
 
   notify-on-failure:

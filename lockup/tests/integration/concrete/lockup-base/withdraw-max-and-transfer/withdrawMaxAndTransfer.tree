@@ -1,0 +1,26 @@
+WithdrawMaxAndTransfer_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      ├── given non transferable stream
+      │  └── it should revert
+      └── given transferable stream
+         ├── given burned NFT
+         │  └── it should revert
+         └── given not burned NFT
+            ├── given zero withdrawable amount
+            │  ├── it should not expect a transfer call on token
+            │  └── it should emit {Transfer} event on NFT
+            └── given non zero withdrawable amount
+               ├── when caller not current recipient
+               │  └── it should revert
+               ├── when caller approved third party
+               │  ├── it should update the withdrawn amount
+               │  └── it should transfer the NFT
+               └── when caller current recipient
+                  ├── it should update the withdrawn amount
+                  ├── it should transfer the NFT
+                  └── it should emit {Transfer}, {WithdrawFromLockupStream} and {MetadataUpdate} events

@@ -1,23 +1,20 @@
-# Sablier V2 Core [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
+# Sablier Lockup [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
 
-[gha]: https://github.com/sablier-labs/v2-core/actions
-[gha-badge]: https://github.com/sablier-labs/v2-core/actions/workflows/ci.yml/badge.svg
-[codecov]: https://codecov.io/gh/sablier-labs/v2-core
-[codecov-badge]: https://codecov.io/gh/sablier-labs/v2-core/branch/main/graph/badge.svg
+[gha]: https://github.com/sablier-labs/lockup/actions
+[gha-badge]: https://github.com/sablier-labs/lockup/actions/workflows/ci.yml/badge.svg
+[codecov]: https://codecov.io/gh/sablier-labs/lockup
+[codecov-badge]: https://codecov.io/gh/sablier-labs/lockup/branch/main/graph/badge.svg
 [discord]: https://discord.gg/bSwRCwWRsT
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
-This repository contains the core smart contracts of the Sablier V2 Protocol. For higher-level logic, see the
-[sablier-labs/v2-periphery](https://github.com/sablier-labs/v2-periphery) repository.
-
 In-depth documentation is available at [docs.sablier.com](https://docs.sablier.com).
 
 ## Background
 
-Sablier V2 is a token distribution protocol used by DAOs and businesses for vesting, payroll, airdrops, and more. Our
-flagship model is the linear stream, which distributes assets on a continuous, by-the-second basis.
+Sablier Lockup is a token distribution protocol that enables onchain vesting and airdrops. Our flagship model is the
+linear stream, which distributes tokens on a continuous, by-the-second basis.
 
 The way it works is that the sender of a payment stream first deposits a specific amount of ERC-20 tokens in a contract.
 Then, the contract progressively allocates the funds to the recipient, who can access them as they become available over
@@ -30,16 +27,16 @@ of tokens deposited.
 
 This is the recommended approach.
 
-Install Sablier V2 Core using your favorite package manager, e.g., with Bun:
+Install Lockup using your favorite package manager, e.g., with Bun:
 
 ```shell
-bun add @sablier/v2-core
+bun add @sablier/lockup
 ```
 
 Then, if you are using Foundry, you need to add these to your `remappings.txt` file:
 
 ```text
-@sablier/v2-core/=node_modules/@sablier/v2-core/
+@sablier/lockup/=node_modules/@sablier/lockup/
 @openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
 @prb/math/=node_modules/@prb/math/
 ```
@@ -51,33 +48,33 @@ This installation method is not recommended, but it is available for those who p
 First, install the submodule using Forge:
 
 ```shell
-forge install --no-commit sablier-labs/v2-core
+forge install --no-commit sablier-labs/lockup
 ```
 
 Second, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.0.3
+forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.1.0
 ```
 
 Finally, add these to your `remappings.txt` file:
 
 ```text
-@sablier/v2-core/=lib/v2-core/
+@sablier/lockup/=lib/lockup/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 @prb/math/=lib/prb-math/
 ```
 
 ## Usage
 
-This is just a glimpse of Sablier V2 Core. For more guides and examples, see the
+This is just a glimpse of Sablier Lockup. For more guides and examples, see the
 [documentation](https://docs.sablier.com).
 
 ```solidity
-import { ISablierV2LockupLinear } from "@sablier/v2-core/src/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
 contract MyContract {
-  ISablierV2LockupLinear sablier;
+  ISablierLockup lockup;
 
   function buildSomethingWithSablier() external {
     // ...
@@ -87,22 +84,22 @@ contract MyContract {
 
 ## Architecture
 
-V2 Core uses a singleton-style architecture, where all streams are managed in the `LockupLinear`, `LockupDynamic` and
-`LockupTranched` contracts. That is, Sablier does not deploy a new contract for each stream. It bundles all streams into
-a single contract, which is more gas-efficient and easier to maintain.
+Lockup uses a singleton-style architecture, where all streams are managed in the `SablierLockup` contract. That is,
+Sablier does not deploy a new contract for each distribution model or stream. It bundles all streams into a single
+contract, which is more gas-efficient and easier to maintain.
 
-For more information, see the [Technical Overview](https://docs.sablier.com/contracts/v2/reference/overview) in our
-docs, as well as these [diagrams](https://docs.sablier.com/contracts/v2/reference/diagrams).
+For more information, see the [Technical Overview](https://docs.sablier.com/reference/overview) in our docs, as well as
+these [diagrams](https://docs.sablier.com/reference/lockup/diagrams).
 
 ### Branching Tree Technique
 
 You may notice that some test files are accompanied by `.tree` files. This is called the Branching Tree Technique, and
-it is explained in depth [here](https://github.com/sablier-labs/v2-core/wiki/Tests#branching-tree-technique).
+it is explained in depth [here](https://www.bulloak.dev/).
 
 ## Deployments
 
 The list of all deployment addresses can be found [here](https://docs.sablier.com). For guidance on the deploy scripts,
-see the [Deployments wiki](https://github.com/sablier-labs/v2-core/wiki/Deployments).
+see the [Deployments wiki](https://github.com/sablier-labs/lockup/wiki/Deployments).
 
 ## Security
 
@@ -114,19 +111,19 @@ bug bounty program per the terms outlined in the aforementioned policy.
 
 ## Contributing
 
-Feel free to dive in! [Open](https://github.com/sablier-labs/v2-core/issues/new) an issue,
-[start](https://github.com/sablier-labs/v2-core/discussions/new) a discussion or submit a PR. For any informal concerns
+Feel free to dive in! [Open](https://github.com/sablier-labs/lockup/issues/new) an issue,
+[start](https://github.com/sablier-labs/lockup/discussions/new) a discussion or submit a PR. For any informal concerns
 or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
 For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) guide.
 
 ## License
 
-The primary license for Sablier V2 Core is the Business Source License 1.1 (`BUSL-1.1`), see
+The primary license for Sablier Lockup is the Business Source License 1.1 (`BUSL-1.1`), see
 [`LICENSE.md`](./LICENSE.md). However, there are exceptions:
 
 - All files in `src/interfaces/` and `src/types` are licensed under `GPL-3.0-or-later`, see
   [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Several files in `src`, `script`, and `test` are licensed under `GPL-3.0-or-later`, see
+- Several files in `src`, `script`, and `tests` are licensed under `GPL-3.0-or-later`, see
   [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Many files in `test/` remain unlicensed (as indicated in their SPDX headers).
+- Many files in `tests/` remain unlicensed (as indicated in their SPDX headers).

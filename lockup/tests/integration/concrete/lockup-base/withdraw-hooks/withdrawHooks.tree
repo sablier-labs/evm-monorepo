@@ -1,0 +1,12 @@
+WithdrawHooks_Integration_Concrete_Test
+├── given recipient same as sender
+│  └── it should not make Sablier run the user hook
+└── given recipient not same as sender
+   ├── when caller unknown
+   │  └── it should make Sablier run the recipient hook
+   ├── when caller approved third party
+   │  └── it should make Sablier run the recipient hook
+   ├── when caller sender
+   │  └── it should make Sablier run the recipient hook
+   └── when caller recipient
+      └── it should not make Sablier run the recipient hook

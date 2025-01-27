@@ -16,8 +16,8 @@ bun run build:optimized
 
 # Generalized function to update counts
 update_counts() {
-    local test_name=$1
-    local map_name=$2
+    local test_name="Segments"
+    local map_name="maxCountMap" 
     echo -e "\nRunning forge test for estimating $test_name..."
     local output=$(FOUNDRY_PROFILE=benchmark forge t --mt "test_Estimate${test_name}" -vv)
     echo -e "\nParsing output for $test_name..."
@@ -43,8 +43,7 @@ update_counts() {
 }
 
 # Call the function with specific parameters for segments and tranches
-update_counts "Segments" "segmentCountMap"
-update_counts "Tranches" "trancheCountMap"
+update_counts
 
 # Reformat the code with Forge
 forge fmt $BASE_SCRIPT

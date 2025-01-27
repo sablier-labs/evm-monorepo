@@ -2,20 +2,18 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-
-import { NFTSVG } from "../src/libraries/NFTSVG.sol";
-import { SVGElements } from "../src/libraries/SVGElements.sol";
-import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
-
-import { BaseScript } from "./Base.s.sol";
+import { NFTSVG } from "./../src/libraries/NFTSVG.sol";
+import { SVGElements } from "./../src/libraries/SVGElements.sol";
+import { LockupNFTDescriptor } from "./../src/LockupNFTDescriptor.sol";
+import { BaseScript } from "././Base.s.sol";
 
 /// @notice Generates an NFT SVG using the user-provided parameters.
-contract GenerateSVG is BaseScript, SablierV2NFTDescriptor {
+contract GenerateSVG is BaseScript, LockupNFTDescriptor {
     using Strings for address;
     using Strings for string;
 
     address internal constant DAI = address(uint160(uint256(keccak256("DAI"))));
-    address internal constant LOCKUP_LINEAR = address(uint160(uint256(keccak256("SablierV2LockupLinear"))));
+    address internal constant LOCKUP = address(uint160(uint256(keccak256("SablierLockup"))));
 
     /// @param progress The streamed amount as a numerical percentage with 4 implied decimals.
     /// @param status The status of the stream, as a string.
@@ -33,15 +31,14 @@ contract GenerateSVG is BaseScript, SablierV2NFTDescriptor {
     {
         svg = NFTSVG.generateSVG(
             NFTSVG.SVGParams({
-                accentColor: generateAccentColor({ sablier: LOCKUP_LINEAR, streamId: uint256(keccak256(msg.data)) }),
+                accentColor: generateAccentColor({ sablier: LOCKUP, streamId: uint256(keccak256(msg.data)) }),
                 amount: string.concat(SVGElements.SIGN_GE, " ", amount),
-                assetAddress: DAI.toHexString(),
-                assetSymbol: "DAI",
+                tokenAddress: DAI.toHexString(),
+                tokenSymbol: "DAI",
                 duration: calculateDurationInDays({ startTime: 0, endTime: duration * 1 days }),
                 progress: stringifyPercentage(progress),
                 progressNumerical: progress,
-                sablierAddress: LOCKUP_LINEAR.toHexString(),
-                sablierModel: "Lockup Linear",
+                lockupAddress: LOCKUP.toHexString(),
                 status: status
             })
         );
