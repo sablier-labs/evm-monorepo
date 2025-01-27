@@ -14,8 +14,8 @@ out-svg
 *.log
 .DS_Store
 .pnp.*
+deployments.md
 lcov.info
 package-lock.json
 pnpm-lock.yaml
-script/*.md
 yarn.lock

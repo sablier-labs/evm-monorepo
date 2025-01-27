@@ -98,7 +98,7 @@
   superseed = "https://mainnet.superseed.xyz"
   taiko_mainnet = "https://rpc.mainnet.taiko.xyz"
   # testnets
-  arbitrum_sepolia = "https://arbitrum-sepolia.blockpi.network/v1/rpc/public"
+  arbitrum_sepolia = "https://sepolia-rollup.arbitrum.io/rpc"
   base_sepolia = "https://sepolia.base.org"
   berachain_artio = "https://bartio.rpc.berachain.com/"
   blast_sepolia = "https://sepolia.blast.io"

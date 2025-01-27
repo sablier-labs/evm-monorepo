@@ -52,8 +52,8 @@ contract OngoingDebtScaledOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
         // Simulate the passage of time.
         vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
-        // Update the snapshot time and warp the current block timestamp to it.
-        updateSnapshotTimeAndWarp(streamId);
+        // Take snapshot.
+        updateSnapshot(streamId);
 
         // Assert that ongoing debt is zero.
         uint256 actualOngoingDebtScaled = flow.ongoingDebtScaledOf(streamId);
@@ -76,8 +76,8 @@ contract OngoingDebtScaledOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
     {
         (streamId, decimals,) = useFuzzedStreamOrCreate(streamId, decimals);
 
-        // Update the snapshot time and warp the current block timestamp to it.
-        updateSnapshotTimeAndWarp(streamId);
+        // Take snapshot.
+        updateSnapshot(streamId);
 
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);

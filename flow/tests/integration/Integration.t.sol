@@ -62,18 +62,22 @@ abstract contract Integration_Test is Base_Test {
         deposit(streamId, depositAmount);
     }
 
-    /// @dev Update the snapshot using `adjustRatePerSecond` and then warp block timestamp to it.
-    function updateSnapshotTimeAndWarp(uint256 streamId) internal {
+    /// @dev Updates the snapshot time and snapshot debt by temporarily adjusting the rate per second..
+    function updateSnapshot(uint256 streamId) internal {
+        // Read the current caller.
+        (, address originalCaller,) = vm.readCallers();
+
+        // Switch to the sender and adjust the rate per second.
         resetPrank(users.sender);
         UD21x18 ratePerSecond = flow.getRatePerSecond(streamId);
 
-        // Updates the snapshot time via `adjustRatePerSecond`.
+        // Take the snapshot by temporarily setting the rate per second to 1.
         flow.adjustRatePerSecond(streamId, ud21x18(1));
 
-        // Restores the rate per second.
+        // Restore the original rate per second.
         flow.adjustRatePerSecond(streamId, ratePerSecond);
 
-        // Warp to the snapshot time.
-        vm.warp({ newTimestamp: flow.getSnapshotTime(streamId) });
+        // Switch back to the original caller.
+        resetPrank(originalCaller);
     }
 }

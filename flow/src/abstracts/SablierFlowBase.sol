@@ -206,6 +206,22 @@ abstract contract SablierFlowBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFlowBase
+    function collectFees() external override {
+        uint256 feeAmount = address(this).balance;
+
+        // Effect: transfer the fees to the admin.
+        (bool success,) = admin.call{ value: feeAmount }("");
+
+        // Revert if the call failed.
+        if (!success) {
+            revert Errors.SablierFlowBase_FeeTransferFail(admin, feeAmount);
+        }
+
+        // Log the fee withdrawal.
+        emit ISablierFlowBase.CollectFees({ admin: admin, feeAmount: feeAmount });
+    }
+
+    /// @inheritdoc ISablierFlowBase
     function collectProtocolRevenue(IERC20 token, address to) external override onlyAdmin {
         uint128 revenue = protocolRevenue[token];
 

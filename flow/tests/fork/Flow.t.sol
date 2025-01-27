@@ -95,6 +95,9 @@ contract Flow_Fork_Test is Fork_Test {
             // Make sure that fuzzed users don't overlap with Flow address.
             checkUsers(params.recipient, params.sender);
 
+            // Make sure that the sender has enough funds.
+            vm.deal({ account: params.sender, newBalance: 1_000_000 ether });
+
             // Warp to a different time.
             params.timeJump = _passTime(params.timeJump);
 
@@ -148,6 +151,9 @@ contract Flow_Fork_Test is Fork_Test {
     )
         private
     {
+        uint256 initialFlowBalance = address(flow).balance;
+
+        // Each function is going to pay a fee.
         if (flowFunc == FlowFunc.adjustRatePerSecond) {
             _test_AdjustRatePerSecond(streamId, ratePerSecond);
         } else if (flowFunc == FlowFunc.deposit) {
@@ -163,6 +169,10 @@ contract Flow_Fork_Test is Fork_Test {
         } else if (flowFunc == FlowFunc.withdraw) {
             _test_Withdraw(streamId, withdrawAmount);
         }
+
+        // Assert that the flow balance has changed.
+        uint256 expectedFlowBalance = initialFlowBalance + FEE;
+        assertEq(address(flow).balance, expectedFlowBalance, "Flow balance");
     }
 
     /// @notice Find the first non-voided stream ID with the same token.
@@ -247,7 +257,7 @@ contract Flow_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
-        flow.adjustRatePerSecond({ streamId: streamId, newRatePerSecond: newRatePerSecond });
+        flow.adjustRatePerSecond{ value: FEE }({ streamId: streamId, newRatePerSecond: newRatePerSecond });
 
         // It should update snapshot debt.
         vars.actualSnapshotDebtScaled = flow.getSnapshotDebtScaled(streamId);
@@ -287,7 +297,7 @@ contract Flow_Fork_Test is Fork_Test {
             transferable: transferable
         });
 
-        vars.actualStreamId = flow.create({
+        vars.actualStreamId = flow.create{ value: FEE }({
             recipient: recipient,
             sender: sender,
             ratePerSecond: ratePerSecond,
@@ -357,7 +367,7 @@ contract Flow_Fork_Test is Fork_Test {
         expectCallToTransferFrom({ token: token, from: sender, to: address(flow), amount: depositAmount });
 
         // Make the deposit.
-        flow.deposit(streamId, depositAmount, sender, flow.getRecipient(streamId));
+        flow.deposit{ value: FEE }(streamId, depositAmount, sender, flow.getRecipient(streamId));
 
         // Assert that the token balance of stream has been updated.
         vars.actualTokenBalance = token.balanceOf(address(flow));
@@ -381,7 +391,8 @@ contract Flow_Fork_Test is Fork_Test {
 
     function _test_Pause(uint256 streamId) private {
         // Make sure the requirements are respected.
-        resetPrank({ msgSender: flow.getSender(streamId) });
+        address sender = flow.getSender(streamId);
+        resetPrank({ msgSender: sender });
         if (flow.isPaused(streamId)) {
             flow.restart(streamId, RATE_PER_SECOND);
         }
@@ -390,7 +401,7 @@ contract Flow_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.PauseFlowStream({
             streamId: streamId,
-            sender: flow.getSender(streamId),
+            sender: sender,
             recipient: flow.getRecipient(streamId),
             totalDebt: flow.totalDebtOf(streamId)
         });
@@ -399,7 +410,7 @@ contract Flow_Fork_Test is Fork_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Pause the stream.
-        flow.pause(streamId);
+        flow.pause{ value: FEE }(streamId);
 
         // Assert that the stream is paused.
         assertTrue(flow.isPaused(streamId), "Pause: paused");
@@ -442,7 +453,7 @@ contract Flow_Fork_Test is Fork_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Request the refund.
-        flow.refund(streamId, refundAmount);
+        flow.refund{ value: FEE }(streamId, refundAmount);
 
         // Assert that the token balance of stream has been updated.
         vars.actualTokenBalance = token.balanceOf(address(flow));
@@ -468,6 +479,7 @@ contract Flow_Fork_Test is Fork_Test {
         // Make sure the requirements are respected.
         address sender = flow.getSender(streamId);
         resetPrank({ msgSender: sender });
+
         if (!flow.isPaused(streamId)) {
             flow.pause(streamId);
         }
@@ -482,7 +494,7 @@ contract Flow_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
-        flow.restart({ streamId: streamId, ratePerSecond: ratePerSecond });
+        flow.restart{ value: FEE }({ streamId: streamId, ratePerSecond: ratePerSecond });
 
         // It should restart the stream.
         assertFalse(flow.isPaused(streamId));
@@ -529,7 +541,7 @@ contract Flow_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
-        flow.void(streamId);
+        flow.void{ value: FEE }(streamId);
 
         // It should set the rate per second to zero.
         assertEq(flow.getRatePerSecond(streamId), 0, "Void: rate per second");
@@ -590,7 +602,7 @@ contract Flow_Fork_Test is Fork_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Withdraw the tokens.
-        flow.withdraw(streamId, recipient, withdrawAmount);
+        flow.withdraw{ value: FEE }(streamId, recipient, withdrawAmount);
 
         // It should update snapshot time.
         vars.actualSnapshotTime = flow.getSnapshotTime(streamId);

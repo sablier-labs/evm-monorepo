@@ -9,7 +9,7 @@ contract WithdrawableAmountOf_Integration_Concrete_Test is Shared_Integration_Co
         depositToDefaultStream();
 
         // Simulate one month of streaming.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+        vm.warp({ newTimestamp: ONE_MONTH_SINCE_START });
 
         // It should return the correct withdrawable amount.
         uint128 withdrawableAmount = flow.withdrawableAmountOf(defaultStreamId);

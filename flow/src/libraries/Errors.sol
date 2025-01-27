@@ -91,6 +91,9 @@ library Errors {
                                  SABLIER-FLOW-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when the fee transfer fails.
+    error SablierFlowBase_FeeTransferFail(address admin, uint256 feeAmount);
+
     /// @notice Thrown when trying to claim protocol revenue when the accrued amount is zero.
     error SablierFlowBase_NoProtocolRevenue(address token);
 

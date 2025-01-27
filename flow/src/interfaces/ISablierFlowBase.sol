@@ -19,6 +19,11 @@ interface ISablierFlowBase is
     IERC721Metadata, // 2 inherited components
     IAdminable // 0 inherited components
 {
+    /// @notice Emitted when the accrued fees are collected.
+    /// @param admin The address of the current contract admin, which has received the fees.
+    /// @param feeAmount The amount of collected fees.
+    event CollectFees(address indexed admin, uint256 indexed feeAmount);
+
     /// @notice Emitted when the contract admin collects protocol revenue accrued.
     /// @param admin The address of the contract admin.
     /// @param token The address of the ERC-20 token the protocol revenue has been collected for.
@@ -145,9 +150,17 @@ interface ISablierFlowBase is
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Collects the accrued fees by transferring them to the contract admin.
+    ///
+    /// @dev Emits a {CollectFees} event.
+    ///
+    /// Notes:
+    /// - If the admin is a contract, it must be able to receive native token payments, e.g., ETH for Ethereum Mainnet.
+    function collectFees() external;
+
     /// @notice Collect the protocol revenue accrued for the provided ERC-20 token.
     ///
-    /// @dev Emits {CollectProtocolRevenue} event.
+    /// @dev Emits a {CollectProtocolRevenue} event.
     ///
     /// Requirements:
     /// - `msg.sender` must be the contract admin.
@@ -159,7 +172,7 @@ interface ISablierFlowBase is
 
     /// @notice Recover the surplus amount of tokens.
     ///
-    /// @dev Emits {Recover} event.
+    /// @dev Emits a {Recover} event.
     ///
     /// Notes:
     /// - The surplus amount is defined as the difference between the total balance of the contract for the provided
@@ -175,7 +188,7 @@ interface ISablierFlowBase is
 
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
     ///
-    /// @dev Emits {SetNFTDescriptor} and {BatchMetadataUpdate} events.
+    /// @dev Emits a {SetNFTDescriptor} and {BatchMetadataUpdate} event.
     ///
     /// Notes:
     /// - Does not revert if the NFT descriptor is the same.
@@ -189,7 +202,7 @@ interface ISablierFlowBase is
     /// @notice Sets a new protocol fee that will be charged on all the withdrawals from streams created with the
     /// provided ERC-20 token.
     ///
-    /// @dev Emits {SetProtocolFee} and {BatchMetadataUpdate} events.
+    /// @dev Emits a {SetProtocolFee} and {BatchMetadataUpdate} event.
     ///
     /// Notes:
     /// - Does not revert if the fee is the same.

@@ -191,6 +191,7 @@ contract SablierFlow is
         UD21x18 newRatePerSecond
     )
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -221,6 +222,7 @@ contract SablierFlow is
         bool transferable
     )
         external
+        payable
         override
         noDelegateCall
         returns (uint256 streamId)
@@ -239,6 +241,7 @@ contract SablierFlow is
         uint128 amount
     )
         external
+        payable
         override
         noDelegateCall
         returns (uint256 streamId)
@@ -258,6 +261,7 @@ contract SablierFlow is
         address recipient
     )
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -277,6 +281,7 @@ contract SablierFlow is
         uint128 amount
     )
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -300,6 +305,7 @@ contract SablierFlow is
         Broker calldata broker
     )
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -316,6 +322,7 @@ contract SablierFlow is
     /// @inheritdoc ISablierFlow
     function pause(uint256 streamId)
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -333,6 +340,7 @@ contract SablierFlow is
         uint128 amount
     )
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -349,6 +357,7 @@ contract SablierFlow is
         uint128 amount
     )
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -366,6 +375,7 @@ contract SablierFlow is
     /// @inheritdoc ISablierFlow
     function refundMax(uint256 streamId)
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -384,6 +394,7 @@ contract SablierFlow is
         UD21x18 ratePerSecond
     )
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -402,6 +413,7 @@ contract SablierFlow is
         uint128 amount
     )
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -419,6 +431,7 @@ contract SablierFlow is
     /// @inheritdoc ISablierFlow
     function void(uint256 streamId)
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -436,6 +449,7 @@ contract SablierFlow is
         uint128 amount
     )
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)
@@ -452,6 +466,7 @@ contract SablierFlow is
         address to
     )
         external
+        payable
         override
         noDelegateCall
         notNull(streamId)

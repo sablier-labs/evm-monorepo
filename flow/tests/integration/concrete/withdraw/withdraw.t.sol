@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ud, ZERO } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -13,28 +14,39 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
     function setUp() public override {
         Shared_Integration_Concrete_Test.setUp();
 
-        depositToDefaultStream();
+        // Deposit amount equals to one months of streaming.
+        deposit(defaultStreamId, ONE_MONTH_DEBT_6D);
+
+        // Take a snapshot after one month of streaming.
+        updateSnapshot(defaultStreamId);
+
+        // Forward time by one more month, so that total debt becomes (2 * ONE_MONTH_DEBT_6D).
+        vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
 
         // Set recipient as the caller for this test.
         resetPrank({ msgSender: users.recipient });
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(flow.withdraw, (defaultStreamId, users.recipient, WITHDRAW_TIME));
+        // It should revert.
+        bytes memory callData = abi.encodeCall(flow.withdraw, (defaultStreamId, users.recipient, WITHDRAW_AMOUNT_6D));
         expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNoDelegateCall {
-        bytes memory callData = abi.encodeCall(flow.withdraw, (nullStreamId, users.recipient, WITHDRAW_TIME));
+        // It should revert.
+        bytes memory callData = abi.encodeCall(flow.withdraw, (nullStreamId, users.recipient, WITHDRAW_AMOUNT_6D));
         expectRevert_Null(callData);
     }
 
     function test_RevertWhen_AmountZero() external whenNoDelegateCall givenNotNull {
+        // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_WithdrawAmountZero.selector, defaultStreamId));
         flow.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
     }
 
     function test_RevertWhen_WithdrawalAddressZero() external whenNoDelegateCall givenNotNull whenAmountNotZero {
+        // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_WithdrawToZeroAddress.selector, defaultStreamId));
         flow.withdraw({ streamId: defaultStreamId, to: address(0), amount: WITHDRAW_AMOUNT_6D });
     }
@@ -49,12 +61,13 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
     {
         resetPrank({ msgSender: users.sender });
 
+        // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierFlow_WithdrawalAddressNotRecipient.selector, defaultStreamId, users.sender, users.sender
+                Errors.SablierFlow_WithdrawalAddressNotRecipient.selector, defaultStreamId, users.sender, users.eve
             )
         );
-        flow.withdraw({ streamId: defaultStreamId, to: users.sender, amount: WITHDRAW_AMOUNT_6D });
+        flow.withdraw({ streamId: defaultStreamId, to: users.eve, amount: WITHDRAW_AMOUNT_6D });
     }
 
     function test_RevertWhen_CallerUnknown()
@@ -67,6 +80,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
     {
         resetPrank({ msgSender: users.eve });
 
+        // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierFlow_WithdrawalAddressNotRecipient.selector, defaultStreamId, users.eve, users.eve
@@ -84,99 +98,164 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         whenWithdrawalAddressNotOwner
     {
         // It should withdraw.
-        _test_Withdraw({
-            streamId: defaultStreamId,
-            to: users.eve,
-            depositAmount: DEPOSIT_AMOUNT_6D,
-            protocolFeeAmount: 0,
-            withdrawAmount: WITHDRAW_AMOUNT_6D
-        });
+        _test_Withdraw({ streamId: defaultStreamId, to: users.operator, withdrawAmount: WITHDRAW_AMOUNT_6D });
     }
 
-    function test_RevertGiven_StreamHasUncoveredDebt()
-        external
-        whenNoDelegateCall
-        givenNotNull
-        whenAmountNotZero
-        whenWithdrawalAddressNotZero
-        whenWithdrawalAddressOwner
-        whenAmountOverdraws
-    {
-        // Warp to the moment when stream accumulates uncovered debt.
-        vm.warp({ newTimestamp: uint40(flow.depletionTimeOf(defaultStreamId)) });
+    modifier whenAuthorizedCaller() {
+        // Use recipient as the caller. No need to do anything here since its already set.
+        _;
 
-        uint128 overdrawAmount = flow.getBalance(defaultStreamId) + 1;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierFlow_Overdraw.selector, defaultStreamId, overdrawAmount, overdrawAmount - 1
-            )
-        );
-        flow.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: overdrawAmount });
-    }
-
-    function test_RevertGiven_StreamHasNoUncoveredDebt()
-        external
-        whenNoDelegateCall
-        givenNotNull
-        whenAmountNotZero
-        whenWithdrawalAddressNotZero
-        whenWithdrawalAddressOwner
-        whenAmountOverdraws
-    {
-        uint128 overdrawAmount = flow.withdrawableAmountOf(defaultStreamId) + 1;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierFlow_Overdraw.selector, defaultStreamId, overdrawAmount, overdrawAmount - 1
-            )
-        );
-        flow.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: overdrawAmount });
-    }
-
-    function test_WhenAmountNotEqualTotalDebt()
-        external
-        whenNoDelegateCall
-        givenNotNull
-        whenAmountNotZero
-        whenWithdrawalAddressNotZero
-        whenWithdrawalAddressOwner
-        whenAmountNotOverdraw
-    {
-        // It should update snapshot debt
-        // It should make the withdrawal
-        _test_Withdraw({
-            streamId: defaultStreamId,
-            to: users.recipient,
-            depositAmount: DEPOSIT_AMOUNT_6D,
-            protocolFeeAmount: 0,
-            withdrawAmount: uint128(flow.totalDebtOf(defaultStreamId)) - 1
-        });
-    }
-
-    function test_WhenAmountNotExceedSnapshotDebt()
-        external
-        whenNoDelegateCall
-        givenNotNull
-        whenAmountNotZero
-        whenWithdrawalAddressNotZero
-        whenWithdrawalAddressOwner
-        whenAmountNotOverdraw
-    {
-        // It should not update snapshot time
-        // It should make the withdrawal
+        // Use sender as the caller.
         resetPrank({ msgSender: users.sender });
-        flow.pause(defaultStreamId);
+        // Forward time by 1 month, take snaphsot and then forward time by 1 more month.
+        vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
+        updateSnapshot(defaultStreamId);
+        vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
+        _;
 
-        vm.warp({ newTimestamp: getBlockTimestamp() + 1 });
+        // Use operator as the caller.
+        resetPrank({ msgSender: users.operator });
+        // Forward time by 1 month, take snaphsot and then forward time by 1 more month.
+        vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
+        updateSnapshot(defaultStreamId);
+        vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
+        _;
+    }
 
-        resetPrank({ msgSender: users.recipient });
+    function test_RevertWhen_AmountExceedsBalance()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        whenAmountNotZero
+        whenWithdrawalAddressNotZero
+        whenWithdrawalAddressOwner
+        whenAuthorizedCaller
+        givenBalanceNotExceedTotalDebt
+    {
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierFlow_Overdraw.selector, defaultStreamId, ONE_MONTH_DEBT_6D + 1, ONE_MONTH_DEBT_6D
+            )
+        );
+        flow.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: ONE_MONTH_DEBT_6D + 1 });
+    }
+
+    function test_WhenAmountNotExceedBalance()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        whenAmountNotZero
+        whenWithdrawalAddressNotZero
+        whenWithdrawalAddressOwner
+        whenAuthorizedCaller
+        givenBalanceNotExceedTotalDebt
+    {
+        // It should withdraw.
+        _test_Withdraw({ streamId: defaultStreamId, to: users.recipient, withdrawAmount: WITHDRAW_AMOUNT_6D });
+    }
+
+    modifier givenBalanceExceedsTotalDebt() override {
+        // Deposit so that the stream has surplus balance.
+        deposit(defaultStreamId, DEPOSIT_AMOUNT_6D);
+        _;
+    }
+
+    function test_RevertWhen_AmountGreaterThanTotalDebt()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        whenAmountNotZero
+        whenWithdrawalAddressNotZero
+        whenWithdrawalAddressOwner
+        whenAuthorizedCaller
+        givenBalanceExceedsTotalDebt
+    {
+        uint128 totalDebt = uint128(flow.totalDebtOf(defaultStreamId));
+
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierFlow_Overdraw.selector, defaultStreamId, totalDebt + 1, totalDebt)
+        );
+        flow.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: totalDebt + 1 });
+    }
+
+    function test_WhenAmountEqualsTotalDebt()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        whenAmountNotZero
+        whenWithdrawalAddressNotZero
+        whenWithdrawalAddressOwner
+        whenAuthorizedCaller
+        givenBalanceExceedsTotalDebt
+    {
+        uint128 withdrawAmount = uint128(flow.totalDebtOf(defaultStreamId)); // amount = total debt
+
+        // It should make the withdrawal.
+        _test_Withdraw({ streamId: defaultStreamId, to: users.recipient, withdrawAmount: withdrawAmount });
+
+        // It should update snapshot debt to zero.
+        assertEq(flow.getSnapshotDebtScaled(defaultStreamId), 0, "snapshot debt");
+        // It should update snapshot time to current time.
+        assertEq(flow.getSnapshotTime(defaultStreamId), getBlockTimestamp(), "snapshot time");
+    }
+
+    function test_WhenAmountLessThanSnapshotDebt()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        whenAmountNotZero
+        whenWithdrawalAddressNotZero
+        whenWithdrawalAddressOwner
+        whenAuthorizedCaller
+        givenBalanceExceedsTotalDebt
+        whenAmountLessThanTotalDebt
+    {
+        uint256 initialSnapshotDebt = flow.getSnapshotDebtScaled(defaultStreamId);
+        uint40 initialSnapshotTime = flow.getSnapshotTime(defaultStreamId);
+
+        assertTrue(WITHDRAW_AMOUNT_18D < initialSnapshotDebt, "amount < total debt");
+
         // It should make the withdrawal.
         _test_Withdraw({
             streamId: defaultStreamId,
             to: users.recipient,
-            depositAmount: DEPOSIT_AMOUNT_6D,
-            protocolFeeAmount: 0,
-            withdrawAmount: WITHDRAW_AMOUNT_6D
-        });
+            withdrawAmount: WITHDRAW_AMOUNT_6D // amount < snapshot debt => amount < total debt
+         });
+
+        // It should reduce snapshot debt by amount withdrawn.
+        assertEq(
+            flow.getSnapshotDebtScaled(defaultStreamId), initialSnapshotDebt - WITHDRAW_AMOUNT_18D, "snapshot debt"
+        );
+        // It should not update snapshot time.
+        assertEq(flow.getSnapshotTime(defaultStreamId), initialSnapshotTime, "snapshot time");
+    }
+
+    function test_WhenAmountEqualsSnapshotDebt()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        whenAmountNotZero
+        whenWithdrawalAddressNotZero
+        whenWithdrawalAddressOwner
+        whenAuthorizedCaller
+        givenBalanceExceedsTotalDebt
+        whenAmountLessThanTotalDebt
+    {
+        uint256 initialSnapshotDebt = getDescaledAmount(flow.getSnapshotDebtScaled(defaultStreamId), 6);
+        uint40 initialSnapshotTime = flow.getSnapshotTime(defaultStreamId);
+        uint128 withdrawAmount = uint128(initialSnapshotDebt); // amount = snapshot debt
+
+        assertTrue(withdrawAmount < flow.totalDebtOf(defaultStreamId), "amount < total debt");
+
+        // It should make the withdrawal.
+        _test_Withdraw({ streamId: defaultStreamId, to: users.recipient, withdrawAmount: withdrawAmount });
+
+        // It should update snapshot debt to zero.
+        assertEq(flow.getSnapshotDebtScaled(defaultStreamId), 0, "snapshot debt");
+        // It should not update snapshot time.
+        assertEq(flow.getSnapshotTime(defaultStreamId), initialSnapshotTime, "snapshot time");
     }
 
     function test_GivenProtocolFeeNotZero()
@@ -186,32 +265,37 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressOwner
-        whenAmountNotOverdraw
-        whenAmountEqualTotalDebt
+        whenAuthorizedCaller
+        givenBalanceExceedsTotalDebt
+        whenAmountLessThanTotalDebt
+        whenAmountGreaterThanSnapshotDebt
     {
-        // Go back to the starting point.
-        vm.warp({ newTimestamp: OCT_1_2024 });
+        (, address originalCaller,) = vm.readCallers();
 
-        resetPrank({ msgSender: users.sender });
+        // Turn on the protocol fee for USDC.
+        resetPrank(users.admin);
+        flow.setProtocolFee(usdc, PROTOCOL_FEE);
 
-        // Create the stream and make a deposit.
-        uint256 streamId = createDefaultStream(tokenWithProtocolFee);
-        deposit(streamId, DEPOSIT_AMOUNT_6D);
+        // Switch back to the original caller.
+        resetPrank(originalCaller);
 
-        // Simulate the one month of streaming.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+        uint256 initialSnapshotDebt = getDescaledAmount(flow.getSnapshotDebtScaled(defaultStreamId), 6);
+        uint256 initalTotalDebt = flow.totalDebtOf(defaultStreamId);
+        uint128 withdrawAmount = uint128(initialSnapshotDebt) + WITHDRAW_AMOUNT_6D; // amount > snapshot debt
 
-        // Make recipient the caller test.
-        resetPrank({ msgSender: users.recipient });
+        assertTrue(withdrawAmount < initalTotalDebt, "amount < total debt");
 
-        // It should make the withdrawal.
-        _test_Withdraw({
-            streamId: streamId,
-            to: users.recipient,
-            depositAmount: DEPOSIT_AMOUNT_6D,
-            protocolFeeAmount: PROTOCOL_FEE_AMOUNT_6D,
-            withdrawAmount: WITHDRAW_AMOUNT_6D
-        });
+        // It should withdraw the net amount.
+        _test_Withdraw({ streamId: defaultStreamId, to: users.recipient, withdrawAmount: withdrawAmount });
+
+        // It should set snapshot debt to difference between total debt and amount withdrawn.
+        assertEq(
+            flow.getSnapshotDebtScaled(defaultStreamId),
+            getScaledAmount(initalTotalDebt - withdrawAmount, 6),
+            "snapshot debt"
+        );
+        // It should update snapshot time to current time
+        assertEq(flow.getSnapshotTime(defaultStreamId), getBlockTimestamp(), "snapshot time");
     }
 
     function test_GivenTokenHas18Decimals()
@@ -220,8 +304,11 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         givenNotNull
         whenAmountNotZero
         whenWithdrawalAddressNotZero
-        whenWithdrawalAddressNotOwner
-        whenAmountEqualTotalDebt
+        whenWithdrawalAddressOwner
+        whenAuthorizedCaller
+        givenBalanceExceedsTotalDebt
+        whenAmountLessThanTotalDebt
+        whenAmountGreaterThanSnapshotDebt
         givenProtocolFeeZero
     {
         // Go back to the starting point.
@@ -232,16 +319,19 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         deposit(streamId, DEPOSIT_AMOUNT_18D);
 
         // Simulate the one month of streaming.
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+        vm.warp({ newTimestamp: ONE_MONTH_SINCE_START });
 
-        // It should withdraw the total debt.
+        // It should make the withdrawal.
         _test_Withdraw({
             streamId: streamId,
             to: users.recipient,
-            depositAmount: DEPOSIT_AMOUNT_18D,
-            protocolFeeAmount: 0,
-            withdrawAmount: WITHDRAW_AMOUNT_18D
-        });
+            withdrawAmount: WITHDRAW_AMOUNT_18D // withdrawAmount < total debt and > snapshot debt
+         });
+
+        // It should set snapshot debt to difference between total debt and amount withdrawn.
+        assertEq(flow.getSnapshotDebtScaled(streamId), ONE_MONTH_DEBT_18D - WITHDRAW_AMOUNT_18D, "snapshot debt");
+        // It should update snapshot time to current time
+        assertEq(flow.getSnapshotTime(streamId), getBlockTimestamp(), "snapshot time");
     }
 
     function test_GivenTokenNotHave18Decimals()
@@ -251,87 +341,87 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressOwner
-        whenAmountEqualTotalDebt
+        whenAuthorizedCaller
+        givenBalanceExceedsTotalDebt
+        whenAmountLessThanTotalDebt
+        whenAmountGreaterThanSnapshotDebt
         givenProtocolFeeZero
     {
-        // It should withdraw the total debt.
-        _test_Withdraw({
-            streamId: defaultStreamId,
-            to: users.recipient,
-            depositAmount: DEPOSIT_AMOUNT_6D,
-            protocolFeeAmount: 0,
-            withdrawAmount: WITHDRAW_AMOUNT_6D
-        });
+        uint256 initialSnapshotDebt = getDescaledAmount(flow.getSnapshotDebtScaled(defaultStreamId), 6);
+        uint256 initalTotalDebt = flow.totalDebtOf(defaultStreamId);
+        uint128 withdrawAmount = uint128(initialSnapshotDebt) + WITHDRAW_AMOUNT_6D; // amount > snapshot debt
+
+        assertTrue(withdrawAmount < initalTotalDebt, "amount < total debt");
+
+        // It should make the withdrawal.
+        _test_Withdraw({ streamId: defaultStreamId, to: users.recipient, withdrawAmount: withdrawAmount });
+
+        // It should set snapshot debt to difference between total debt and amount withdrawn.
+        assertEq(
+            flow.getSnapshotDebtScaled(defaultStreamId),
+            getScaledAmount(initalTotalDebt - withdrawAmount, 6),
+            "snapshot debt"
+        );
+        // It should update snapshot time to current time
+        assertEq(flow.getSnapshotTime(defaultStreamId), getBlockTimestamp(), "snapshot time");
     }
 
-    function _test_Withdraw(
-        uint256 streamId,
-        address to,
-        uint128 depositAmount,
-        uint128 protocolFeeAmount,
-        uint128 withdrawAmount
-    )
-        private
-    {
+    function _test_Withdraw(uint256 streamId, address to, uint128 withdrawAmount) private {
         vars.token = flow.getToken(streamId);
-        vars.previousSnapshotTime = flow.getSnapshotTime(streamId);
-        vars.previousTotalDebt = flow.totalDebtOf(streamId);
+        vars.previousTokenBalance = vars.token.balanceOf(address(flow));
         vars.previousAggregateAmount = flow.aggregateBalance(vars.token);
-
-        vars.expectedProtocolRevenue = flow.protocolRevenue(vars.token) + protocolFeeAmount;
+        vars.previousStreamBalance = flow.getBalance(streamId);
+        vars.previousTotalDebt = flow.totalDebtOf(streamId);
+        if (flow.protocolFee(vars.token) > ZERO) {
+            vars.expectedProtocolFeeAmount = ud(withdrawAmount).mul(PROTOCOL_FEE).intoUint128();
+        }
+        vars.expectedProtocolRevenue = flow.protocolRevenue(vars.token) + vars.expectedProtocolFeeAmount;
+        vars.expectedWithdrawAmount = withdrawAmount - vars.expectedProtocolFeeAmount;
+        (, address caller,) = vm.readCallers();
 
         // It should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdated} events.
         vm.expectEmit({ emitter: address(vars.token) });
-        emit IERC20.Transfer({ from: address(flow), to: to, value: withdrawAmount - protocolFeeAmount });
+        emit IERC20.Transfer({ from: address(flow), to: to, value: vars.expectedWithdrawAmount });
 
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.WithdrawFromFlowStream({
             streamId: streamId,
             to: to,
             token: vars.token,
-            caller: users.recipient,
-            protocolFeeAmount: protocolFeeAmount,
-            withdrawAmount: withdrawAmount - protocolFeeAmount
+            caller: caller,
+            protocolFeeAmount: vars.expectedProtocolFeeAmount,
+            withdrawAmount: vars.expectedWithdrawAmount
         });
 
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
-        // It should perform the ERC-20 transfer.
-        expectCallToTransfer({ token: vars.token, to: to, amount: withdrawAmount - protocolFeeAmount });
-
-        vars.previousTokenBalance = vars.token.balanceOf(address(flow));
-
         (vars.actualWithdrawnAmount, vars.actualProtocolFeeAmount) =
             flow.withdraw({ streamId: streamId, to: to, amount: withdrawAmount });
 
         // Check the returned values.
-        assertEq(vars.actualProtocolFeeAmount, protocolFeeAmount, "protocol fee amount");
-        assertEq(vars.actualWithdrawnAmount, withdrawAmount - protocolFeeAmount, "withdrawn amount");
+        assertEq(vars.actualProtocolFeeAmount, vars.expectedProtocolFeeAmount, "protocol fee amount");
+        assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawAmount, "withdrawn amount");
 
         // Assert the protocol revenue.
         assertEq(flow.protocolRevenue(vars.token), vars.expectedProtocolRevenue, "protocol revenue");
 
-        // It should update snapshot time.
-        vars.expectedSnapshotTime = flow.isPaused(streamId) ? vars.previousSnapshotTime : getBlockTimestamp();
-        assertEq(flow.getSnapshotTime(streamId), vars.expectedSnapshotTime, "snapshot time");
-
-        // It should decrease the total debt by the withdrawn value and fee amount.
+        // It should decrease the total debt by the withdrawn amount requested.
         vars.expectedTotalDebt = vars.previousTotalDebt - withdrawAmount;
         assertEq(flow.totalDebtOf(streamId), vars.expectedTotalDebt, "total debt");
 
-        // It should reduce the stream balance by the withdrawn value and fee amount.
-        vars.expectedStreamBalance = depositAmount - withdrawAmount;
+        // It should reduce the stream balance by the withdrawn amount requested.
+        vars.expectedStreamBalance = vars.previousStreamBalance - withdrawAmount;
         assertEq(flow.getBalance(streamId), vars.expectedStreamBalance, "stream balance");
 
         // It should reduce the token balance of stream.
-        vars.expectedTokenBalance = vars.previousTokenBalance - vars.actualWithdrawnAmount;
+        vars.expectedTokenBalance = vars.previousTokenBalance - vars.expectedWithdrawAmount;
         assertEq(vars.token.balanceOf(address(flow)), vars.expectedTokenBalance, "token balance");
 
-        // It should decrease the aggregate amount.
+        // It should reduce the aggregate amount by the withdrawn amount.
         assertEq(
             flow.aggregateBalance(vars.token),
-            vars.previousAggregateAmount - vars.actualWithdrawnAmount,
+            vars.previousAggregateAmount - vars.expectedWithdrawAmount,
             "aggregate amount"
         );
     }

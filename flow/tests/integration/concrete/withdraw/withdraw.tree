@@ -19,31 +19,40 @@ Withdraw_Integration_Concrete_Test
             │  └── when caller recipient
             │     └── it should withdraw
             └── when withdrawal address owner
-               ├── when amount overdraws
-               │  ├── given stream has uncovered debt
-               │  │  └── it should revert
-               │  └── given stream has no uncovered debt
-               │     └── it should revert
-               └── when amount not overdraw
-                  ├── when amount not equal total debt
-                  │  ├── it should update snapshot debt
-                  │  └── it should make the withdrawal
-                  └── when amount equal total debt
-                     ├── when amount not exceed snapshot debt
-                     │   ├── it should not update snapshot time
-                     │   └── it should make the withdrawal
-                     └── when amount exceed snapshot debt
-                        ├── given protocol fee not zero
-                        │  ├── it should update the protocol revenue
-                        │  └── it should withdraw the net amount
-                        └── given protocol fee zero
-                           ├── given token has 18 decimals
-                           │  └── it should make the withdrawal
-                           └── given token not have 18 decimals
-                              ├── it should withdraw the withdrawable amount
-                              ├── it should reduce the stream balance by the withdrawn amount
-                              ├── it should reduce the aggregate amount by the withdrawn amount
-                              ├── it should update snapshot debt to zero
-                              ├── it should update snapshot time
-                              ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
-                              └── it should return the withdrawn amount
+               └── when authorized caller
+                  ├── given balance not exceed total debt
+                  │  ├── when amount exceeds balance
+                  │  │  └── it should revert
+                  │  └── when amount not exceed balance
+                  │     └── it should withdraw
+                  └── given balance exceeds total debt
+                     ├── when amount greater than total debt
+                     │  └── it should revert
+                     ├── when amount equals total debt
+                     │  ├── it should make the withdrawal
+                     │  ├── it should update snapshot debt to zero
+                     │  └── it should update snapshot time to current time
+                     └── when amount less than total debt
+                        ├── when amount less than snapshot debt
+                        │  ├── it should make the withdrawal
+                        │  ├── it should reduce snapshot debt by amount withdrawn
+                        │  └── it should not update snapshot time
+                        ├── when amount equals snapshot debt
+                        │  ├── it should make the withdrawal
+                        │  ├── it should update snapshot debt to zero
+                        │  └── it should not update snapshot time
+                        └── when amount greater than snapshot debt
+                           ├── given protocol fee not zero
+                           │  ├── it should update the protocol revenue
+                           │  └── it should withdraw the net amount
+                           └── given protocol fee zero
+                              ├── given token has 18 decimals
+                              │  └── it should make the withdrawal
+                              └── given token not have 18 decimals
+                                 ├── it should make the withdrawal
+                                 ├── it should reduce the stream balance by the withdrawn amount
+                                 ├── it should reduce the aggregate amount by the withdrawn amount
+                                 ├── it should set snapshot debt to difference between total debt and amount withdrawn
+                                 ├── it should update snapshot time to current time
+                                 ├── it should emit 1 {Transfer}, 1 {WithdrawFromFlowStream}  and 1 {MetadataUpdated} events
+                                 └── it should return the withdrawn amount
