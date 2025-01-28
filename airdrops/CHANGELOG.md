@@ -8,7 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 > [!NOTE]
 > Versioning begins at 1.3.0 as this repository is the successor of [V2 Periphery](https://github.com/sablier-labs/v2-periphery). For previous changes, please refer to the [V2 Periphery Changelog](https://github.com/sablier-labs/v2-periphery/blob/main/CHANGELOG.md).
 
-## 1.3.0 - 2025-01-24
+## 1.3.0 - 2025-01-29
 
 ### Changed
 
