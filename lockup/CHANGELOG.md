@@ -13,7 +13,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [1.0.1]: https://github.com/sablier-labs/lockup/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/sablier-labs/lockup/releases/tag/v1.0.0
 
-## [2.0.0] - 2025-01-24
+## [2.0.0] - 2025-01-28
 
 ### Changed
 
