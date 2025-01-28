@@ -10,7 +10,8 @@ import { BaseScript } from "./Base.s.sol";
 /// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicMerkleFactory is BaseScript {
     /// @dev Deploy via Forge.
-    function run(address initialAdmin) public virtual broadcast returns (SablierMerkleFactory merkleFactory) {
+    function run() public virtual broadcast returns (SablierMerkleFactory merkleFactory) {
+        address initialAdmin = adminMap[block.chainid];
         merkleFactory = new SablierMerkleFactory{ salt: SALT }(initialAdmin);
     }
 }
