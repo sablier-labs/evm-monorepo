@@ -1,13 +1,17 @@
 # directories
 artifacts
+artifacts-zk
 broadcast
 cache
+cache_hardhat-zk
 coverage
 deployments
+deployments-zk
 docs
 node_modules
 out
 out-optimized
+typechain-types
 
 # files
 *.env
