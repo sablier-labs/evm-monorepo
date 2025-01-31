@@ -11,8 +11,7 @@ import { BaseScript } from "./Base.s.sol";
 contract CreateMerkleInstant is BaseScript {
     /// @dev Deploy via Forge.
     function run() public virtual broadcast returns (ISablierMerkleInstant merkleInstant) {
-        // TODO: Update address once deployed.
-        ISablierMerkleFactory merkleFactory = ISablierMerkleFactory(0xF35aB407CF28012Ba57CAF5ee2f6d6E4420253bc);
+        ISablierMerkleFactory merkleFactory = ISablierMerkleFactory(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
 
         // Prepare the constructor parameters.
         MerkleBase.ConstructorParams memory baseParams;

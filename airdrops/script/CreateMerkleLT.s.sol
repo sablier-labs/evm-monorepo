@@ -15,8 +15,7 @@ import { BaseScript } from "./Base.s.sol";
 contract CreateMerkleLT is BaseScript {
     /// @dev Deploy via Forge.
     function run() public virtual broadcast returns (ISablierMerkleLT merkleLT) {
-        // TODO: Update address once deployed.
-        ISablierMerkleFactory merkleFactory = ISablierMerkleFactory(0xF35aB407CF28012Ba57CAF5ee2f6d6E4420253bc);
+        ISablierMerkleFactory merkleFactory = ISablierMerkleFactory(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
 
         // Prepare the constructor parameters.
         MerkleBase.ConstructorParams memory baseParams;
@@ -43,10 +42,9 @@ contract CreateMerkleLT is BaseScript {
             MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.5e18), duration: 7200 });
 
         // Deploy the MerkleLT contract.
-        // TODO: Update address once deployed.
         merkleLT = merkleFactory.createMerkleLT({
             baseParams: baseParams,
-            lockup: ISablierLockup(0xf86B359035208e4529686A1825F2D5BeE38c28A8),
+            lockup: ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056),
             cancelable: true,
             transferable: true,
             streamStartTime: 0, // i.e. block.timestamp

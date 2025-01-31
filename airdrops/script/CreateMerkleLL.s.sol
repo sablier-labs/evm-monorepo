@@ -15,8 +15,7 @@ import { BaseScript } from "./Base.s.sol";
 contract CreateMerkleLL is BaseScript {
     /// @dev Deploy via Forge.
     function run() public virtual broadcast returns (ISablierMerkleLL merkleLL) {
-        // TODO: Update address once deployed.
-        ISablierMerkleFactory merkleFactory = ISablierMerkleFactory(0xF35aB407CF28012Ba57CAF5ee2f6d6E4420253bc);
+        ISablierMerkleFactory merkleFactory = ISablierMerkleFactory(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
 
         // Prepare the constructor parameters.
         MerkleBase.ConstructorParams memory baseParams;
@@ -36,10 +35,9 @@ contract CreateMerkleLL is BaseScript {
         baseParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
 
         // Deploy the MerkleLL contract.
-        // TODO: Update address once deployed.
         merkleLL = merkleFactory.createMerkleLL({
             baseParams: baseParams,
-            lockup: ISablierLockup(0x3962f6585946823440d274aD7C719B02b49DE51E),
+            lockup: ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056),
             cancelable: true,
             transferable: true,
             schedule: MerkleLL.Schedule({
