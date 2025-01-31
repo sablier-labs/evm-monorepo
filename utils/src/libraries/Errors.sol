@@ -13,7 +13,4 @@ library Errors {
 
     /// @notice Thrown when trying to delegate call to a function that disallows delegate calls.
     error DelegateCall();
-
-    /// @notice Thrown when the fee transfer fails.
-    error SablierFees_FeeTransferFail(address admin, uint256 feeAmount);
 }

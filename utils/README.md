@@ -58,10 +58,9 @@ Second, if you are using Foundry, you need to add these to your `remappings.txt`
 import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
-import { SablierFees } from "@sablier/evm-utils/src/SablierFees.sol";
 
-contract MyContract is Adminable, Batch, NoDelegateCall, SablierFees {
-    constructor(address initialAdmin) SablierFees(initialAdmin) { }
+contract MyContract is Adminable, Batch, NoDelegateCall {
+    constructor(address initialAdmin) Adminable(initialAdmin) { }
 
     // Use the `noDelegateCall` modifier to prevent delegate calls.
     function foo() public noDelegateCall { }
