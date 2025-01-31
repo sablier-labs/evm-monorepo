@@ -18,9 +18,6 @@ abstract contract BaseScript is Script {
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
 
-    /// @dev Needed for the deterministic deployments.
-    bytes32 internal constant ZERO_SALT = bytes32(0);
-
     /// @dev Admin address mapped by the chain Id.
     mapping(uint256 chainId => address admin) internal adminMap;
 
