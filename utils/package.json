@@ -1,5 +1,5 @@
 {
-  "name": "@sablier/solidity-utils",
+  "name": "@sablier/sol-utils",
   "description": "Utilities solidity files used accros Sablier's smart contracts",
   "license": "GPL-3.0",
   "version": "1.0.0",
@@ -8,7 +8,7 @@
     "url": "https://sablier.com"
   },
   "bugs": {
-    "url": "https://github.com/sablier-labs/solidity-utils/issues"
+    "url": "https://github.com/sablier-labs/sol-utils/issues"
   },
   "devDependencies": {
     "@openzeppelin/contracts": "5.0.2",
@@ -25,7 +25,7 @@
     "CHANGELOG.md",
     "LICENSE-GPL.md"
   ],
-  "homepage": "https://github.com/sablier-labs/solidity-utils#readme",
+  "homepage": "https://github.com/sablier-labs/sol-utils#readme",
   "keywords": [
     "blockchain",
     "ethereum",
@@ -39,7 +39,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": "github.com/sablier-labs/solidity-utils",
+  "repository": "github.com/sablier-labs/sol-utils",
   "scripts": {
     "build": "forge build",
     "clean": "rm -rf broadcast cache out out-optimized",

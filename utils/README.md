@@ -27,13 +27,13 @@ This is the recommended approach.
 Install using your favorite package manager, e.g., with Bun:
 
 ```shell
-bun add @sablier/solidity-utils
+bun add @sablier/sol-utils
 ```
 
 Then, if you are using Foundry, you need to add these to your `remappings.txt` file:
 
 ```text
-@sablier/solidity-utils/=node_modules/@sablier/solidity-utils/
+@sablier/sol-utils/=node_modules/@sablier/sol-utils/
 ```
 
 ### Git Submodules
@@ -43,22 +43,22 @@ This installation method is not recommended, but it is available for those who p
 First, install the submodule using Forge:
 
 ```shell
-forge install --no-commit sablier-labs/solidity-utils
+forge install --no-commit sablier-labs/sol-utils
 ```
 
 Second, if you are using Foundry, you need to add these to your `remappings.txt` file:
 
 ```text
-@sablier/solidity-utils/=lib/solidity-utils/
+@sablier/sol-utils/=lib/sol-utils/
 ```
 
 ## Usage
 
 ```solidity
-import { Adminable } from "@sablier/solidity-utils/src/Adminable.sol";
-import { Batch } from "@sablier/solidity-utils/src/Batch.sol";
-import { NoDelegateCall } from "@sablier/solidity-utils/src/NoDelegateCall.sol";
-import { SablierFees } from "@sablier/solidity-utils/src/SablierFees.sol";
+import { Adminable } from "@sablier/sol-utils/src/Adminable.sol";
+import { Batch } from "@sablier/sol-utils/src/Batch.sol";
+import { NoDelegateCall } from "@sablier/sol-utils/src/NoDelegateCall.sol";
+import { SablierFees } from "@sablier/sol-utils/src/SablierFees.sol";
 
 contract MyContract is Adminable, Batch, NoDelegateCall, SablierFees {
     constructor(address initialAdmin) SablierFees(initialAdmin) { }
