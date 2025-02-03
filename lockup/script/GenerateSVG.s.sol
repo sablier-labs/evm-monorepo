@@ -26,7 +26,7 @@ contract GenerateSVG is BaseScript, LockupNFTDescriptor {
         uint256 duration
     )
         public
-        virtual
+        view
         returns (string memory svg)
     {
         svg = NFTSVG.generateSVG(

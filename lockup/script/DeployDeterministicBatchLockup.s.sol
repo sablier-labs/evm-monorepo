@@ -7,7 +7,7 @@ import { BaseScript } from "./Base.s.sol";
 
 contract DeployDeterministicBatchLockup is BaseScript {
     /// @dev Deploy via Forge.
-    function run() public virtual broadcast returns (SablierBatchLockup batchLockup) {
+    function run() public broadcast returns (SablierBatchLockup batchLockup) {
         batchLockup = new SablierBatchLockup{ salt: SALT }();
     }
 }

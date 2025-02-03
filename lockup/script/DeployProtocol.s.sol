@@ -12,8 +12,6 @@ contract DeployProtocol is BaseScript {
     /// @dev Deploys the protocol with the admin set in `adminMap`.
     function run()
         public
-        virtual
-        broadcast
         returns (LockupNFTDescriptor nftDescriptor, SablierLockup lockup, SablierBatchLockup batchLockup)
     {
         address initialAdmin = adminMap[block.chainid];
@@ -22,7 +20,7 @@ contract DeployProtocol is BaseScript {
 
     /// @dev Deploys the protocol with the given `initialAdmin`.
     function run(address initialAdmin)
-        internal
+        public
         returns (LockupNFTDescriptor nftDescriptor, SablierLockup lockup, SablierBatchLockup batchLockup)
     {
         (nftDescriptor, lockup, batchLockup) = _run(initialAdmin);
@@ -31,6 +29,7 @@ contract DeployProtocol is BaseScript {
     /// @dev Common logic for the run functions.
     function _run(address initialAdmin)
         internal
+        broadcast
         returns (LockupNFTDescriptor nftDescriptor, SablierLockup lockup, SablierBatchLockup batchLockup)
     {
         batchLockup = new SablierBatchLockup();

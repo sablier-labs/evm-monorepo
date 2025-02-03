@@ -13,7 +13,6 @@ contract DeployLockup is BaseScript {
         ILockupNFTDescriptor nftDescriptor
     )
         public
-        virtual
         broadcast
         returns (SablierLockup lockup)
     {

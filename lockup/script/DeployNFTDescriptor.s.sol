@@ -7,7 +7,7 @@ import { BaseScript } from "./Base.s.sol";
 
 /// @notice Deploys {LockupNFTDescriptor} contract.
 contract DeployNFTDescriptor is BaseScript {
-    function run() public virtual broadcast returns (LockupNFTDescriptor nftDescriptor) {
+    function run() public broadcast returns (LockupNFTDescriptor nftDescriptor) {
         nftDescriptor = new LockupNFTDescriptor();
     }
 }

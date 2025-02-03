@@ -9,10 +9,9 @@ import { Lockup_Tranched_Fork_Test } from "../LockupTranched.t.sol";
 
 /// @dev An ERC-20 token with 6 decimals.
 IERC20 constant FORK_TOKEN = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
-address constant FORK_TOKEN_HOLDER = 0x09528d637deb5857dc059dddE6316D465a8b3b69;
 
-contract USDC_Lockup_Dynamic_Fork_Test is Lockup_Dynamic_Fork_Test(FORK_TOKEN, FORK_TOKEN_HOLDER) { }
+contract USDC_Lockup_Dynamic_Fork_Test is Lockup_Dynamic_Fork_Test(FORK_TOKEN) { }
 
-contract USDC_Lockup_Linear_Fork_Test is Lockup_Linear_Fork_Test(FORK_TOKEN, FORK_TOKEN_HOLDER) { }
+contract USDC_Lockup_Linear_Fork_Test is Lockup_Linear_Fork_Test(FORK_TOKEN) { }
 
-contract USDC_Lockup_Tranched_Fork_Test is Lockup_Tranched_Fork_Test(FORK_TOKEN, FORK_TOKEN_HOLDER) { }
+contract USDC_Lockup_Tranched_Fork_Test is Lockup_Tranched_Fork_Test(FORK_TOKEN) { }

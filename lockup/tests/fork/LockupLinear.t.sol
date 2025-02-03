@@ -15,7 +15,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 forkToken, address forkTokenHolder) Fork_Test(forkToken, forkTokenHolder) { }
+    constructor(IERC20 forkToken) Fork_Test(forkToken) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -149,7 +149,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
             : 0;
 
         // Make the holder the caller.
-        resetPrank(FORK_TOKEN_HOLDER);
+        resetPrank(forkTokenHolder);
 
         /*//////////////////////////////////////////////////////////////////////////
                                             CREATE
@@ -170,7 +170,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         emit ISablierLockup.CreateLockupLinearStream({
             streamId: vars.streamId,
             commonParams: Lockup.CreateEventCommon({
-                funder: FORK_TOKEN_HOLDER,
+                funder: forkTokenHolder,
                 sender: params.sender,
                 recipient: params.recipient,
                 amounts: vars.createAmounts,
@@ -258,7 +258,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
 
         // Load the post-create token balances.
         vars.balances = getTokenBalances(
-            address(FORK_TOKEN), Solarray.addresses(address(lockup), FORK_TOKEN_HOLDER, params.broker.account)
+            address(FORK_TOKEN), Solarray.addresses(address(lockup), forkTokenHolder, params.broker.account)
         );
         vars.actualLockupBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];

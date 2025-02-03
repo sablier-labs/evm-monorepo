@@ -8,7 +8,7 @@ import { BaseScript } from "./Base.s.sol";
 /// @dev Deploys {LockupNFTDescriptor} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
 contract DeployDeterministicNFTDescriptor is BaseScript {
-    function run() public virtual broadcast returns (LockupNFTDescriptor nftDescriptor) {
+    function run() public broadcast returns (LockupNFTDescriptor nftDescriptor) {
         nftDescriptor = new LockupNFTDescriptor{ salt: SALT }();
     }
 }
