@@ -18,7 +18,11 @@ contract DeployDeterministicFlow is BaseScript {
         (flow, nftDescriptor) = _run(initialAdmin);
     }
 
-    function _run(address initialAdmin) public broadcast returns (SablierFlow flow, FlowNFTDescriptor nftDescriptor) {
+    function _run(address initialAdmin)
+        internal
+        broadcast
+        returns (SablierFlow flow, FlowNFTDescriptor nftDescriptor)
+    {
         bytes32 salt = constructCreate2Salt();
         nftDescriptor = new FlowNFTDescriptor{ salt: salt }();
         flow = new SablierFlow{ salt: salt }(initialAdmin, nftDescriptor);

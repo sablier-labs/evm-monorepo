@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SablierFlow } from "src/SablierFlow.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
@@ -39,11 +39,10 @@ abstract contract Fork_Test is Base_Test {
 
     function setUp() public virtual override {
         // Fork Ethereum Mainnet at a block number after the Sablier deployment.
-        vm.createSelectFork({ blockNumber: 21_330_578, urlOrAlias: "mainnet" });
+        vm.createSelectFork({ blockNumber: 21_718_689, urlOrAlias: "mainnet" });
 
-        // TODO: update the flow address once deployed.
-        // flow = ISablierFlow(0x2D9221a63E12AA796619cb381Ec4A71b201281f5);
-        flow = new SablierFlow(users.admin, nftDescriptor);
+        // Load mainnet address.
+        flow = ISablierFlow(0x3DF2AAEdE81D2F6b261F79047517713B8E844E04);
 
         // Label the flow contract.
         vm.label(address(flow), "Flow");
