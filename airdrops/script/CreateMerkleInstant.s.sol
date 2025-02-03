@@ -10,7 +10,7 @@ import { BaseScript } from "./Base.s.sol";
 /// @dev Creates a dummy campaign to airdrop tokens instantly.
 contract CreateMerkleInstant is BaseScript {
     /// @dev Deploy via Forge.
-    function run() public virtual broadcast returns (ISablierMerkleInstant merkleInstant) {
+    function run() public broadcast returns (ISablierMerkleInstant merkleInstant) {
         ISablierMerkleFactory merkleFactory = ISablierMerkleFactory(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
 
         // Prepare the constructor parameters.

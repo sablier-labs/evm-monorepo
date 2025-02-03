@@ -54,7 +54,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
     uint256[] public leaves;
 
     function testForkFuzz_MerkleLL(Params memory params) external {
-        vm.assume(params.campaignOwner != address(0) && params.campaignOwner != users.campaignOwner);
+        vm.assume(params.campaignOwner != address(0));
         vm.assume(params.leafData.length > 0);
         assumeNoBlacklisted({ token: address(FORK_TOKEN), addr: params.campaignOwner });
         params.posBeforeSort = _bound(params.posBeforeSort, 0, params.leafData.length - 1);
@@ -83,7 +83,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             // Avoid zero recipient addresses.
             uint256 boundedRecipientSeed = _bound(params.leafData[i].recipientSeed, 1, type(uint160).max);
             // Avoid recipient to be the protocol admin.
-            vars.recipients[i] = address(uint160(boundedRecipientSeed)) != users.admin
+            vars.recipients[i] = address(uint160(boundedRecipientSeed)) != factoryAdmin
                 ? address(uint160(boundedRecipientSeed))
                 : address(uint160(boundedRecipientSeed) + 1);
         }
@@ -112,8 +112,8 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         vars.baseParams = defaults.baseParams({
             campaignOwner: params.campaignOwner,
             token_: FORK_TOKEN,
-            merkleRoot: vars.merkleRoot,
-            expiration: params.expiration
+            expiration: params.expiration,
+            merkleRoot: vars.merkleRoot
         });
 
         vm.expectEmit({ emitter: address(merkleFactory) });
@@ -153,7 +153,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         resetPrank({ msgSender: vars.recipients[params.posBeforeSort] });
         vm.deal(vars.recipients[params.posBeforeSort], 1 ether);
 
-        uint256 initialAdminBalance = users.admin.balance;
+        uint256 initialAdminBalance = factoryAdmin.balance;
 
         assertFalse(vars.merkleLL.hasClaimed(vars.indexes[params.posBeforeSort]));
 
@@ -263,13 +263,13 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
 
         vm.expectEmit({ emitter: address(merkleFactory) });
         emit ISablierMerkleFactory.CollectFees({
-            admin: users.admin,
+            admin: factoryAdmin,
             merkleBase: vars.merkleLL,
             feeAmount: defaults.FEE()
         });
         merkleFactory.collectFees({ merkleBase: vars.merkleLL });
 
         assertEq(address(vars.merkleLL).balance, 0, "merkleLL ETH balance");
-        assertEq(users.admin.balance, initialAdminBalance + defaults.FEE(), "admin ETH balance");
+        assertEq(factoryAdmin.balance, initialAdminBalance + defaults.FEE(), "admin ETH balance");
     }
 }

@@ -191,11 +191,12 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         view
         returns (address)
     {
-        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
-        baseParams.token = token_;
-        baseParams.expiration = expiration;
-        baseParams.initialAdmin = campaignOwner;
-        baseParams.merkleRoot = merkleRoot;
+        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams({
+            campaignOwner: campaignOwner,
+            token_: token_,
+            expiration: expiration,
+            merkleRoot: merkleRoot
+        });
 
         bytes32 salt = keccak256(abi.encodePacked(campaignCreator, abi.encode(baseParams)));
         bytes32 creationBytecodeHash =
@@ -218,11 +219,12 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         view
         returns (address)
     {
-        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
-        baseParams.token = token_;
-        baseParams.expiration = expiration;
-        baseParams.initialAdmin = campaignOwner;
-        baseParams.merkleRoot = merkleRoot;
+        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams({
+            campaignOwner: campaignOwner,
+            token_: token_,
+            expiration: expiration,
+            merkleRoot: merkleRoot
+        });
         bytes32 salt = keccak256(
             abi.encodePacked(
                 campaignCreator,
@@ -253,11 +255,12 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         view
         returns (address)
     {
-        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams();
-        baseParams.token = token_;
-        baseParams.expiration = expiration;
-        baseParams.initialAdmin = campaignOwner;
-        baseParams.merkleRoot = merkleRoot;
+        MerkleBase.ConstructorParams memory baseParams = defaults.baseParams({
+            campaignOwner: campaignOwner,
+            token_: token_,
+            expiration: expiration,
+            merkleRoot: merkleRoot
+        });
         bytes32 salt = keccak256(
             abi.encodePacked(
                 campaignCreator,
