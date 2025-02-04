@@ -12,6 +12,9 @@ abstract contract BaseScript is Script {
     /// @dev The address of the default Sablier admin.
     address internal constant DEFAULT_SABLIER_ADMIN = 0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F;
 
+    /// @dev The salt used for deterministic deployments.
+    bytes32 internal immutable SALT;
+
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
 
@@ -39,6 +42,9 @@ abstract contract BaseScript is Script {
             mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (broadcaster,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
         }
+
+        // Construct the salt for deterministic deployments.
+        SALT = constructCreate2Salt();
 
         // Populate the admin map.
         populateAdminMap();
