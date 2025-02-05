@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+[2.0.1]: https://github.com/sablier-labs/lockup/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/sablier-labs/lockup/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/sablier-labs/lockup/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/sablier-labs/lockup/compare/v1.1.1...v1.1.2
@@ -12,6 +13,17 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [1.0.2]: https://github.com/sablier-labs/lockup/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/sablier-labs/lockup/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/sablier-labs/lockup/releases/tag/v1.0.0
+
+## [2.0.1] - 2025-02-05
+
+### Changed
+
+- Use relative path to import source contracts in test utils files
+  ([#1169](https://github.com/sablier-labs/lockup/pull/1169))
+
+### Removed
+
+- Remove `DeployOptimized.sol` from npm package ([#1169](https://github.com/sablier-labs/lockup/pull/1169))
 
 ## [2.0.0] - 2025-01-28
 

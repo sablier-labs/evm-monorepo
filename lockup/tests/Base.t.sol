@@ -20,7 +20,7 @@ import { ContractWithoutReceive, ContractWithReceive } from "./mocks/Receive.sol
 import { Assertions } from "./utils/Assertions.sol";
 import { Calculations } from "./utils/Calculations.sol";
 import { Defaults } from "./utils/Defaults.sol";
-import { DeployOptimized } from "./utils/DeployOptimized.sol";
+import { DeployOptimized } from "./utils/DeployOptimized.t.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
 import { Users } from "./utils/Types.sol";
 
