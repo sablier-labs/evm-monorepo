@@ -2,15 +2,16 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Test } from "forge-std/src/Test.sol";
+import { StdCheats } from "forge-std/src/StdCheats.sol";
 
 import { CommonConstants } from "./utils/Constants.sol";
 import { CommonUtils } from "./utils/Utils.sol";
+
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
 import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { ContractWithoutReceive, ContractWithReceive } from "./mocks/Receive.sol";
 
-contract CommonBase is CommonConstants, Test, CommonUtils {
+contract CommonBase is CommonConstants, CommonUtils, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -64,7 +65,7 @@ contract CommonBase is CommonConstants, Test, CommonUtils {
 
         for (uint256 i = 0; i < spenders.length; ++i) {
             for (uint256 j = 0; j < tokens.length; ++j) {
-                approveContract(tokens[j], spenders[i], user);
+                approveContract(tokens[j], user, spenders[i]);
             }
         }
 
@@ -73,7 +74,8 @@ contract CommonBase is CommonConstants, Test, CommonUtils {
 
     /// @dev Approve `spender` to spend tokens from `from`.
     function approveContract(address token_, address from, address spender) internal {
-        resetPrank({ msgSender: from });
+        vm.stopPrank();
+        vm.startPrank(from);
         (bool success,) = token_.call(abi.encodeCall(IERC20.approve, (spender, UINT256_MAX)));
         success;
     }
