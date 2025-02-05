@@ -4,40 +4,77 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Test } from "forge-std/src/Test.sol";
 
+import { CommonConstants } from "./utils/Constants.sol";
+import { CommonUtils } from "./utils/Utils.sol";
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
 import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
+import { ContractWithoutReceive, ContractWithReceive } from "./mocks/Receive.sol";
 
-contract CommonBase is Test {
+contract CommonBase is CommonConstants, Test, CommonUtils {
+    /*//////////////////////////////////////////////////////////////////////////
+                                   TEST CONTRACTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    ContractWithoutReceive internal contractWithoutReceive;
+    ContractWithReceive internal contractWithReceive;
     ERC20Mock internal dai;
+    address[] internal tokens;
     ERC20Mock internal usdc;
     ERC20MissingReturn internal usdt;
 
     function setUp() public virtual {
+        contractWithoutReceive = new ContractWithoutReceive();
+        contractWithReceive = new ContractWithReceive();
+
         // Deploy the tokens.
         dai = new ERC20Mock("Dai stablecoin", "DAI", 18);
         usdc = new ERC20Mock("USD Coin", "USDC", 6);
         usdt = new ERC20MissingReturn("Tether", "USDT", 6);
 
+        // Push in the tokens array.
+        tokens.push(address(dai));
+        tokens.push(address(usdc));
+        tokens.push(address(usdt));
+
         // Label the tokens.
+        vm.label({ account: address(contractWithoutReceive), newLabel: "Contract without Receive" });
+        vm.label({ account: address(contractWithReceive), newLabel: "Contract with Receive" });
         vm.label(address(dai), "DAI");
         vm.label(address(usdc), "USDC");
         vm.label(address(usdt), "USDT");
     }
 
+    /// @dev Creates a new ERC-20 token with `decimals`.
+    function createToken(uint8 decimals) internal returns (ERC20Mock) {
+        return createToken("", "", decimals);
+    }
+
+    /// @dev Creates a new ERC-20 token with `name`, `symbol` and `decimals`.
+    function createToken(string memory name, string memory symbol, uint8 decimals) internal returns (ERC20Mock) {
+        return new ERC20Mock(name, symbol, decimals);
+    }
+
     /// @dev Generates a user, labels its address and funds it with test tokens.
-    function createUser(string memory name) internal returns (address payable) {
+    function createUser(string memory name, address[] memory spenders) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
         deal({ token: address(dai), to: user, give: 1e28 });
         deal({ token: address(usdt), to: user, give: 1e28 });
         deal({ token: address(usdc), to: user, give: 1e16 });
+
+        for (uint256 i = 0; i < spenders.length; ++i) {
+            for (uint256 j = 0; j < tokens.length; ++j) {
+                approveContract(tokens[j], spenders[i], user);
+            }
+        }
+
         return user;
     }
 
     /// @dev Approve `spender` to spend tokens from `from`.
-    function approveContract(IERC20 token_, address from, address spender) internal {
+    function approveContract(address token_, address from, address spender) internal {
         resetPrank({ msgSender: from });
-        (bool success,) = address(token_).call(abi.encodeCall(IERC20.approve, (spender, UINT256_MAX)));
+        (bool success,) = token_.call(abi.encodeCall(IERC20.approve, (spender, UINT256_MAX)));
         success;
     }
 
@@ -90,35 +127,5 @@ contract CommonBase is Test {
             count: count,
             data: abi.encodeCall(IERC20.transferFrom, (from, to, value))
         });
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                       UTILS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Bounds a `uint128` number.
-    function boundUint128(uint128 x, uint128 min, uint128 max) internal pure returns (uint128) {
-        return uint128(_bound(x, min, max));
-    }
-
-    /// @dev Bounds a `uint40` number.
-    function boundUint40(uint40 x, uint40 min, uint40 max) internal pure returns (uint40) {
-        return uint40(_bound(x, min, max));
-    }
-
-    /// @dev Bounds a `uint8` number.
-    function boundUint8(uint8 x, uint8 min, uint8 max) internal pure returns (uint8) {
-        return uint8(_bound(x, min, max));
-    }
-
-    /// @dev Retrieves the current block timestamp as an `uint40`.
-    function getBlockTimestamp() internal view returns (uint40) {
-        return uint40(block.timestamp);
-    }
-
-    /// @dev Stops the active prank and sets a new one.
-    function resetPrank(address msgSender) internal {
-        vm.stopPrank();
-        vm.startPrank(msgSender);
     }
 }

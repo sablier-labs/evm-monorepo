@@ -63,7 +63,6 @@ contract TransferAdmin_Unit_Concrete_Test is Unit_Test {
     }
 
     function test_WhenNewAdminNotZeroAddress() external whenCallerAdmin whenNewAdminNotSameAsCurrentAdmin {
-        address alice = createUser("alice");
         // It should emit a {TransferAdmin} event.
         vm.expectEmit({ emitter: address(adminableMock) });
         emit IAdminable.TransferAdmin({ oldAdmin: admin, newAdmin: alice });
