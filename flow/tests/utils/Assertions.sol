@@ -3,7 +3,8 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/utils/Assertions.sol";
-import { Flow } from "src/types/DataTypes.sol";
+
+import { Flow } from "../../src/types/DataTypes.sol";
 
 abstract contract Assertions is PRBMathAssertions {
     /*//////////////////////////////////////////////////////////////////////////

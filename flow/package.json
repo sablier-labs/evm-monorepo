@@ -2,7 +2,7 @@
   "name": "@sablier/flow",
   "description": "Flow smart contracts of the Sablier token distribution protocol",
   "license": "BUSL-1.1",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
