@@ -4,7 +4,6 @@ pragma solidity >=0.8.22;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Lockup } from "../types/DataTypes.sol";
 import { IAdminable } from "./IAdminable.sol";
@@ -78,11 +77,6 @@ interface ISablierLockupBase is
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Retrieves the maximum broker fee that can be charged by the broker, denoted as a fixed-point
-    /// number where 1e18 is 100%.
-    /// @dev This value is hard coded as a constant.
-    function MAX_BROKER_FEE() external view returns (UD60x18);
 
     /// @notice Retrieves the amount deposited in the stream, denoted in units of the token's decimals.
     /// @dev Reverts if `streamId` references a null stream.

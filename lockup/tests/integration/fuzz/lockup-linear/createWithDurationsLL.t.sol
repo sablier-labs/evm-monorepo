@@ -18,9 +18,6 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         // Expect the tokens to be transferred from the funder to {SablierLockup}.
         expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
-        // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({ from: funder, to: users.broker, value: defaults.BROKER_FEE_AMOUNT() });
-
         // Create the timestamps struct by calculating the start time, cliff time and the end time.
         Lockup.Timestamps memory timestamps =
             Lockup.Timestamps({ start: getBlockTimestamp(), end: getBlockTimestamp() + durations.total });

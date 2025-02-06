@@ -154,8 +154,7 @@ interface ISablierLockup is ISablierLockupBase {
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `params.totalAmount` must be greater than zero.
-    /// - If set, `params.broker.fee` must not be greater than `MAX_BROKER_FEE`.
+    /// - `params.depositAmount` must be greater than zero.
     /// - `params.timestamps.start` must be greater than zero and less than the first segment's timestamp.
     /// - `segments` must have at least one segment, but not more than `MAX_COUNT`.
     /// - The segment timestamps must be arranged in ascending order.
@@ -163,7 +162,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// - The sum of the segment amounts must equal the deposit amount.
     /// - `params.recipient` must not be the zero address.
     /// - `params.sender` must not be the zero address.
-    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` tokens.
+    /// - `msg.sender` must have allowed this contract to spend at least `params.depositAmount` tokens.
     /// - `params.shape.length` must not be greater than 32 characters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
@@ -188,8 +187,7 @@ interface ISablierLockup is ISablierLockupBase {
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `params.totalAmount` must be greater than zero.
-    /// - If set, `params.broker.fee` must not be greater than `MAX_BROKER_FEE`.
+    /// - `params.depositAmount` must be greater than zero.
     /// - `params.timestamps.start` must be greater than zero and less than `params.timestamps.end`.
     /// - If set, `cliffTime` must be greater than `params.timestamps.start` and less than
     /// `params.timestamps.end`.
@@ -198,7 +196,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// - The sum of `params.unlockAmounts.start` and `params.unlockAmounts.cliff` must be less than or equal to
     /// deposit amount.
     /// - If `params.timestamps.cliff` not set, the `params.unlockAmounts.cliff` must be zero.
-    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` tokens.
+    /// - `msg.sender` must have allowed this contract to spend at least `params.depositAmount` tokens.
     /// - `params.shape.length` must not be greater than 32 characters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
@@ -226,8 +224,7 @@ interface ISablierLockup is ISablierLockupBase {
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `params.totalAmount` must be greater than zero.
-    /// - If set, `params.broker.fee` must not be greater than `MAX_BROKER_FEE`.
+    /// - `params.depositAmount` must be greater than zero.
     /// - `params.timestamps.start` must be greater than zero and less than the first tranche's timestamp.
     /// - `tranches` must have at least one tranche, but not more than `MAX_COUNT`.
     /// - The tranche timestamps must be arranged in ascending order.
@@ -235,7 +232,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// - The sum of the tranche amounts must equal the deposit amount.
     /// - `params.recipient` must not be the zero address.
     /// - `params.sender` must not be the zero address.
-    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` tokens.
+    /// - `msg.sender` must have allowed this contract to spend at least `params.depositAmount` tokens.
     /// - `params.shape.length` must not be greater than 32 characters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.

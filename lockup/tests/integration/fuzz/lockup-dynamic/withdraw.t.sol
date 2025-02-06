@@ -29,14 +29,13 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
     struct Vars {
         Lockup.Status actualStatus;
         uint256 actualWithdrawnAmount;
-        Lockup.CreateAmounts createAmounts;
         Lockup.Status expectedStatus;
         uint256 expectedWithdrawnAmount;
         bool isDepleted;
         bool isSettled;
         address funder;
         uint256 streamId;
-        uint128 totalAmount;
+        uint128 depositAmount;
         uint40 totalDuration;
         uint128 withdrawAmount;
         uint128 withdrawableAmount;
@@ -61,21 +60,21 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         fuzzSegmentTimestamps(params.segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
-        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(params.segments, defaults.BROKER_FEE());
+        vars.depositAmount = fuzzDynamicStreamAmounts(params.segments);
 
         // Bound the time jump.
         vars.totalDuration = params.segments[params.segments.length - 1].timestamp - defaults.START_TIME();
         params.timeJump = _bound(params.timeJump, 1 seconds, vars.totalDuration + 100 seconds);
 
         // Mint enough tokens to the funder.
-        deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
+        deal({ token: address(dai), to: vars.funder, give: vars.depositAmount });
 
         // Make the Sender the caller.
         resetPrank({ msgSender: users.sender });
 
         // Create the stream with the fuzzed segments.
         Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestamps();
-        createParams.totalAmount = vars.totalAmount;
+        createParams.depositAmount = vars.depositAmount;
         createParams.timestamps.end = params.segments[params.segments.length - 1].timestamp;
 
         vars.streamId = lockup.createWithTimestampsLD(createParams, params.segments);
@@ -116,7 +115,7 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
 
         // Check if the stream is depleted or settled. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.
-        vars.isDepleted = vars.withdrawAmount == vars.createAmounts.deposit;
+        vars.isDepleted = vars.withdrawAmount == vars.depositAmount;
         vars.isSettled = lockup.refundableAmountOf(vars.streamId) == 0;
 
         // Assert that the stream's status is correct.

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup } from "src/types/DataTypes.sol";
-
 import { Lockup_Dynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
 contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic_Integration_Fuzz_Test {
@@ -16,17 +14,12 @@ contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dyn
     function testFuzz_WithdrawableAmountOf_NoPreviousWithdrawals(uint40 timeJump) external givenStartTimeInPast {
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
-        // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
-        // the calculations.
-        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
-        uint256 streamId = lockup.createWithTimestampsLD(params, defaults.segments());
-
         // Simulate the passage of time.
         uint40 blockTimestamp = defaults.START_TIME() + timeJump;
         vm.warp({ newTimestamp: blockTimestamp });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(streamId);
+        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount =
             calculateLockupDynamicStreamedAmount(defaults.segments(), defaults.START_TIME(), defaults.DEPOSIT_AMOUNT());
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
@@ -50,12 +43,6 @@ contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dyn
         givenStartTimeInPast
         givenPreviousWithdrawal
     {
-        // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
-        // the calculations.
-        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
-        params.totalAmount = defaults.DEPOSIT_AMOUNT();
-        uint256 streamId = lockup.createWithTimestampsLD(params, defaults.segments());
-
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
@@ -67,10 +54,10 @@ contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dyn
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(streamId);
+        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = streamedAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }

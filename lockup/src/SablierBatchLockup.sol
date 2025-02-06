@@ -58,7 +58,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -73,12 +73,11 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithDurations({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    shape: batch[i].shape,
-                    broker: batch[i].broker
+                    shape: batch[i].shape
                 }),
                 batch[i].segmentsWithDuration
             );
@@ -107,7 +106,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -129,13 +128,12 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithTimestamps({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
                     timestamps: Lockup.Timestamps({ start: batch[i].startTime, end: endTime }),
-                    shape: batch[i].shape,
-                    broker: batch[i].broker
+                    shape: batch[i].shape
                 }),
                 batch[i].segments
             );
@@ -168,7 +166,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -183,11 +181,10 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithDurations({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    broker: batch[i].broker,
                     shape: batch[i].shape
                 }),
                 batch[i].unlockAmounts,
@@ -218,7 +215,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -233,13 +230,12 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithTimestamps({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
                     timestamps: batch[i].timestamps,
-                    shape: batch[i].shape,
-                    broker: batch[i].broker
+                    shape: batch[i].shape
                 }),
                 batch[i].unlockAmounts,
                 batch[i].cliffTime
@@ -273,7 +269,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -288,12 +284,11 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithDurations({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    shape: batch[i].shape,
-                    broker: batch[i].broker
+                    shape: batch[i].shape
                 }),
                 batch[i].tranchesWithDuration
             );
@@ -322,7 +317,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -344,13 +339,12 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithTimestamps({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
                     timestamps: Lockup.Timestamps({ start: batch[i].startTime, end: endTime }),
-                    shape: batch[i].shape,
-                    broker: batch[i].broker
+                    shape: batch[i].shape
                 }),
                 batch[i].tranches
             );

@@ -6,8 +6,6 @@ struct Users {
     address payable admin;
     // Impartial user.
     address payable alice;
-    // Default stream broker.
-    address payable broker;
     // Malicious user.
     address payable eve;
     // Default NFT operator.

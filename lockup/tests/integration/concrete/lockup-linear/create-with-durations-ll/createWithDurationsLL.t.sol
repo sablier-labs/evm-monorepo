@@ -47,9 +47,6 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
         // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
-        // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({ from: funder, to: users.broker, value: defaults.BROKER_FEE_AMOUNT() });
-
         // It should emit {CreateLockupLinearStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });

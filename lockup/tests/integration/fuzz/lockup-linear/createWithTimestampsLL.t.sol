@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { MAX_UD60x18, ud } from "@prb/math/src/UD60x18.sol";
-
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
+import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
@@ -23,24 +21,6 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         );
 
         _defaultParams.createWithTimestamps.shape = shapeName;
-        createDefaultStream();
-    }
-
-    function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
-        external
-        whenNoDelegateCall
-        whenShapeNotExceed32Bytes
-        whenSenderNotZeroAddress
-        whenRecipientNotZeroAddress
-        whenDepositAmountNotZero
-    {
-        vm.assume(broker.account != address(0));
-        broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierHelpers_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
-        );
-
-        _defaultParams.createWithTimestamps.broker = broker;
         createDefaultStream();
     }
 
@@ -94,7 +74,6 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         uint256 actualNextStreamId;
         address actualNFTOwner;
         Lockup.Status actualStatus;
-        Lockup.CreateAmounts createAmounts;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
         Lockup.Status expectedStatus;
@@ -102,7 +81,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
-    /// - All possible permutations for the funder, sender, recipient, and broker
+    /// - All possible permutations for the funder, sender and recipient
     /// - Multiple values for the total amount
     /// - Cancelable and not cancelable
     /// - Start time in the past
@@ -112,7 +91,6 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
     /// - Cliff time zero and not zero
     /// - Multiple values for the cliff time and the end time
     /// - Multiple values for start unlock amount and cliff unlock amount
-    /// - Multiple values for the broker fee, including zero
     function testFuzz_CreateWithTimestampsLL(
         address funder,
         Lockup.CreateWithTimestamps memory params,
@@ -127,18 +105,13 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeLessThanEndTime
-        whenBrokerFeeNotExceedMaxValue
         whenTokenContract
         whenTokenERC20
     {
-        vm.assume(
-            funder != address(0) && params.sender != address(0) && params.recipient != address(0)
-                && params.broker.account != address(0)
-        );
-        vm.assume(params.totalAmount != 0);
+        vm.assume(funder != address(0) && params.sender != address(0) && params.recipient != address(0));
+        vm.assume(params.depositAmount != 0);
         params.timestamps.start =
             boundUint40(params.timestamps.start, defaults.START_TIME(), defaults.START_TIME() + 10_000 seconds);
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.transferable = true;
 
         // The cliff time must be either zero or greater than the start time.
@@ -156,30 +129,22 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         // Calculate the fee amounts and the deposit amount.
         Vars memory vars;
 
-        vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.brokerFee;
-
-        unlockAmounts.start = boundUint128(unlockAmounts.start, 0, vars.createAmounts.deposit);
+        unlockAmounts.start = boundUint128(unlockAmounts.start, 0, params.depositAmount);
         unlockAmounts.cliff =
-            cliffTime > 0 ? boundUint128(unlockAmounts.cliff, 0, vars.createAmounts.deposit - unlockAmounts.start) : 0;
+            cliffTime > 0 ? boundUint128(unlockAmounts.cliff, 0, params.depositAmount - unlockAmounts.start) : 0;
 
         // Make the fuzzed funder the caller in this test.
         resetPrank(funder);
         vars.expectedStreamId = lockup.nextStreamId();
 
         // Mint enough tokens to the funder.
-        deal({ token: address(dai), to: funder, give: params.totalAmount });
+        deal({ token: address(dai), to: funder, give: params.depositAmount });
 
         // Approve {SablierLockup} to transfer the tokens from the fuzzed funder.
         dai.approve({ spender: address(lockup), value: MAX_UINT256 });
 
         // Expect the tokens to be transferred from the funder to {SablierLockup}.
-        expectCallToTransferFrom({ from: funder, to: address(lockup), value: vars.createAmounts.deposit });
-
-        // Expect the broker fee to be paid to the broker, if not zero.
-        if (vars.createAmounts.brokerFee > 0) {
-            expectCallToTransferFrom({ from: funder, to: params.broker.account, value: vars.createAmounts.brokerFee });
-        }
+        expectCallToTransferFrom({ from: funder, to: address(lockup), value: params.depositAmount });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
@@ -189,13 +154,12 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
                 funder: funder,
                 sender: params.sender,
                 recipient: params.recipient,
-                amounts: vars.createAmounts,
+                depositAmount: params.depositAmount,
                 token: dai,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: Lockup.Timestamps({ start: params.timestamps.start, end: params.timestamps.end }),
-                shape: params.shape,
-                broker: params.broker.account
+                shape: params.shape
             }),
             cliffTime: cliffTime,
             unlockAmounts: unlockAmounts
@@ -208,7 +172,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
 
         // It should create the stream.
         assertEq(lockup.getCliffTime(vars.actualStreamId), cliffTime, "cliffTime");
-        assertEq(lockup.getDepositedAmount(vars.actualStreamId), vars.createAmounts.deposit, "depositedAmount");
+        assertEq(lockup.getDepositedAmount(vars.actualStreamId), params.depositAmount, "depositedAmount");
         assertEq(lockup.getEndTime(vars.actualStreamId), params.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(vars.actualStreamId), params.cancelable, "isCancelable");
         assertFalse(lockup.isDepleted(vars.actualStreamId), "isDepleted");

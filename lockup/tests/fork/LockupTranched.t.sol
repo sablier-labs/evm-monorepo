@@ -6,7 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
-import { Broker, Lockup, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup, LockupTranched } from "src/types/DataTypes.sol";
 import { Fork_Test } from "./Fork.t.sol";
 
 abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
@@ -40,7 +40,6 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
         uint40 startTime;
         uint40 warpTimestamp;
         LockupTranched.Tranche[] tranches;
-        Broker broker;
     }
 
     struct Vars {
@@ -62,15 +61,11 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
         uint256 streamId;
         Lockup.Timestamps timestamps;
         // Create vars
-        uint256 actualBrokerBalance;
         uint256 actualHolderBalance;
         uint256 actualNextStreamId;
-        Lockup.CreateAmounts createAmounts;
-        uint256 expectedBrokerBalance;
         uint256 expectedHolderBalance;
         uint256 expectedNextStreamId;
-        uint256 initialBrokerBalance;
-        uint128 totalAmount;
+        uint128 depositAmount;
         // Withdraw vars
         uint128 actualWithdrawnAmount;
         uint128 expectedWithdrawnAmount;
@@ -99,31 +94,26 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
     ///
     /// Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
-    /// - Multiple values for the funder, recipient, sender, and broker
+    /// - Multiple values for the funder, recipient, and sender
     /// - Multiple values for the total amount
     /// - Start time in the past
     /// - Start time in the present
     /// - Start time in the future
     /// - Start time equal and not equal to the first tranche timestamp
-    /// - Multiple values for the broker fee, including zero.
     /// - Multiple values for the withdraw amount, including zero
     /// - The whole gamut of stream statuses
     function testForkFuzz_CreateWithdrawCancel(Params memory params) external {
-        checkUsers(params.sender, params.recipient, params.broker.account, address(lockup));
+        checkUsers(params.sender, params.recipient, address(lockup));
         vm.assume(params.tranches.length != 0);
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.startTime = boundUint40(params.startTime, 1, getBlockTimestamp() + 2 days);
 
         // Fuzz the tranche timestamps.
         fuzzTrancheTimestamps(params.tranches, params.startTime);
 
-        // Fuzz the tranche amounts and calculate the total and create amounts (deposit and broker fee).
+        // Fuzz the tranche amounts and calculate the deposit amount.
         Vars memory vars;
-        (vars.totalAmount, vars.createAmounts) = fuzzTranchedStreamAmounts({
-            upperBound: uint128(initialHolderBalance),
-            tranches: params.tranches,
-            brokerFee: params.broker.fee
-        });
+        vars.depositAmount =
+            fuzzTranchedStreamAmounts({ upperBound: uint128(initialHolderBalance), tranches: params.tranches });
 
         // Make the holder the caller.
         resetPrank(forkTokenHolder);
@@ -133,10 +123,8 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Load the pre-create token balances.
-        vars.balances =
-            getTokenBalances(address(FORK_TOKEN), Solarray.addresses(address(lockup), params.broker.account));
+        vars.balances = getTokenBalances(address(FORK_TOKEN), Solarray.addresses(address(lockup)));
         vars.initialLockupBalance = vars.balances[0];
-        vars.initialBrokerBalance = vars.balances[1];
 
         vars.streamId = lockup.nextStreamId();
         vars.timestamps =
@@ -152,13 +140,12 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
                 funder: forkTokenHolder,
                 sender: params.sender,
                 recipient: params.recipient,
-                amounts: vars.createAmounts,
+                depositAmount: vars.depositAmount,
                 token: FORK_TOKEN,
                 cancelable: true,
                 transferable: true,
                 timestamps: vars.timestamps,
-                shape: "Tranched Shape",
-                broker: params.broker.account
+                shape: "Tranched Shape"
             }),
             tranches: params.tranches
         });
@@ -168,13 +155,12 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
             Lockup.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
-                totalAmount: vars.totalAmount,
+                depositAmount: vars.depositAmount,
                 token: FORK_TOKEN,
                 cancelable: true,
                 transferable: true,
                 timestamps: vars.timestamps,
-                shape: "Tranched Shape",
-                broker: params.broker
+                shape: "Tranched Shape"
             }),
             params.tranches
         );
@@ -189,7 +175,7 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
         assertFalse(lockup.isDepleted(vars.streamId), "isDepleted");
         assertTrue(lockup.isStream(vars.streamId), "isStream");
         assertTrue(lockup.isTransferable(vars.streamId), "isTransferable");
-        assertEq(lockup.getDepositedAmount(vars.streamId), vars.createAmounts.deposit, "depositedAmount");
+        assertEq(lockup.getDepositedAmount(vars.streamId), vars.depositAmount, "depositedAmount");
         assertEq(lockup.getEndTime(vars.streamId), vars.timestamps.end, "endTime");
         assertEq(lockup.getRecipient(vars.streamId), params.recipient, "recipient");
         assertEq(lockup.getSender(vars.streamId), params.sender, "sender");
@@ -220,24 +206,17 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "post-create NFT owner");
 
         // Load the post-create token balances.
-        vars.balances = getTokenBalances(
-            address(FORK_TOKEN), Solarray.addresses(address(lockup), forkTokenHolder, params.broker.account)
-        );
+        vars.balances = getTokenBalances(address(FORK_TOKEN), Solarray.addresses(address(lockup), forkTokenHolder));
         vars.actualLockupBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
-        vars.actualBrokerBalance = vars.balances[2];
 
         // Assert that the contract's balance has been updated.
-        vars.expectedLockupBalance = vars.initialLockupBalance + vars.createAmounts.deposit;
+        vars.expectedLockupBalance = vars.initialLockupBalance + vars.depositAmount;
         assertEq(vars.actualLockupBalance, vars.expectedLockupBalance, "post-create Lockup contract balance");
 
         // Assert that the holder's balance has been updated.
-        vars.expectedHolderBalance = initialHolderBalance - vars.totalAmount;
+        vars.expectedHolderBalance = initialHolderBalance - vars.depositAmount;
         assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "post-create Holder balance");
-
-        // Assert that the broker's balance has been updated.
-        vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.createAmounts.brokerFee;
-        assertEq(vars.actualBrokerBalance, vars.expectedBrokerBalance, "post-create Broker balance");
 
         /*//////////////////////////////////////////////////////////////////////////
                                           WITHDRAW
@@ -254,7 +233,7 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
 
         // Check if the stream has settled or will get depleted. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.
-        vars.isDepleted = params.withdrawAmount == vars.createAmounts.deposit;
+        vars.isDepleted = params.withdrawAmount == vars.depositAmount;
         vars.isSettled = lockup.refundableAmountOf(vars.streamId) == 0;
 
         // Only run the withdraw tests if the withdraw amount is not zero.

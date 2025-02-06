@@ -12,12 +12,6 @@ abstract contract Calculations {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
 
-    /// @dev Calculates the deposit amount by calculating and subtracting the broker fee amount from the total amount.
-    function calculateDepositAmount(uint128 totalAmount, UD60x18 brokerFee) internal pure returns (uint128) {
-        uint128 brokerFeeAmount = ud(totalAmount).mul(brokerFee).intoUint128();
-        return totalAmount - brokerFeeAmount;
-    }
-
     /// @dev Replicates the logic of {VestingMath.calculateLockupDynamicStreamedAmount}.
     function calculateLockupDynamicStreamedAmount(
         LockupDynamic.Segment[] memory segments,

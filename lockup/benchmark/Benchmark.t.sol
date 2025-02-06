@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
-
 import { Base_Test } from "../tests/Base.t.sol";
 
 /// @notice Benchmark contract with common logic needed by all tests.
@@ -152,13 +150,6 @@ abstract contract Benchmark_Test is Base_Test {
     /// @dev Append a line to the file at given path.
     function _appendToFile(string memory path, string memory line) internal {
         vm.writeLine({ path: path, data: line });
-    }
-
-    /// @dev Calculates the total amount to be deposited in the stream, by accounting for the broker fee.
-    function _calculateTotalAmount(uint128 depositAmount, UD60x18 brokerFee) internal pure returns (uint128) {
-        UD60x18 factor = ud(1e18);
-        UD60x18 totalAmount = ud(depositAmount).mul(factor).div(factor.sub(brokerFee));
-        return totalAmount.intoUint128();
     }
 
     /// @dev Internal function to creates a few streams in each Lockup contract.

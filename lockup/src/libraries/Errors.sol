@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22;
 
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Lockup } from "../types/DataTypes.sol";
 
@@ -38,9 +37,6 @@ library Errors {
     /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when the broker fee exceeds the maximum allowed fee.
-    error SablierHelpers_BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxBrokerFee);
 
     /// @notice Thrown when trying to create a linear stream with a cliff time not strictly less than the end time.
     error SablierHelpers_CliffTimeNotLessThanEndTime(uint40 cliffTime, uint40 endTime);

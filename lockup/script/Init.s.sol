@@ -3,11 +3,10 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
-import { ud60x18 } from "@prb/math/src/UD60x18.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 
 import { ISablierLockup } from "../src/interfaces/ISablierLockup.sol";
-import { Broker, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../src/types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupLinear } from "../src/types/DataTypes.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
@@ -38,7 +37,8 @@ contract Init is BaseScript {
         // - 5th stream: meant to be renounced.
         // - 6th stream: meant to canceled.
         // - 7th stream: meant to be transferred to a third party.
-        uint128[] memory totalAmounts = Solarray.uint128s(0.1e18, 1e18, 100e18, 1000e18, 5000e18, 25_000e18, 100_000e18);
+        uint128[] memory depositAmounts =
+            Solarray.uint128s(0.1e18, 1e18, 100e18, 1000e18, 5000e18, 25_000e18, 100_000e18);
         uint40[] memory cliffDurations = Solarray.uint40s(0, 0, 0, 0, 24 hours, 1 weeks, 12 weeks);
         uint40[] memory totalDurations =
             Solarray.uint40s(1 seconds, 1 hours, 24 hours, 1 weeks, 4 weeks, 12 weeks, 48 weeks);
@@ -47,12 +47,11 @@ contract Init is BaseScript {
                 Lockup.CreateWithDurations({
                     sender: sender,
                     recipient: recipient,
-                    totalAmount: totalAmounts[i],
+                    depositAmount: depositAmounts[i],
                     token: token,
                     cancelable: true,
                     transferable: true,
-                    shape: "Cliff Linear",
-                    broker: Broker(address(0), ud60x18(0))
+                    shape: "Cliff Linear"
                 }),
                 LockupLinear.UnlockAmounts({ start: 0, cliff: 0 }),
                 LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] })
@@ -79,12 +78,11 @@ contract Init is BaseScript {
             Lockup.CreateWithDurations({
                 sender: sender,
                 recipient: recipient,
-                totalAmount: 10_000e18,
+                depositAmount: 10_000e18,
                 token: token,
                 cancelable: true,
                 transferable: true,
-                shape: "Exponential Dynamic",
-                broker: Broker(address(0), ud60x18(0))
+                shape: "Exponential Dynamic"
             }),
             segments
         );

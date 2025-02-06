@@ -23,7 +23,6 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -44,7 +43,6 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -69,7 +67,6 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -85,7 +82,6 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -111,7 +107,6 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -136,7 +131,6 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -162,7 +156,6 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -180,7 +173,6 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -212,14 +204,6 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
             from: funder,
             to: address(lockup),
             value: defaults.DEPOSIT_AMOUNT()
-        });
-
-        // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({
-            token: IERC20(token),
-            from: funder,
-            to: users.broker,
-            value: defaults.BROKER_FEE_AMOUNT()
         });
 
         // It should emit {MetadataUpdate} and {CreateLockupLinearStream} events.

@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
-import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
 import { Lockup, LockupDynamic } from "../src/types/DataTypes.sol";
 
@@ -76,7 +75,7 @@ contract Lockup_Dynamic_Gas_Test is Benchmark_Test {
     // The following function is used in the estimations of `MAX_COUNT`.
     function computeGas_CreateWithDurationsLD(uint128 totalSegments) public returns (uint256 gasUsed) {
         (Lockup.CreateWithDurations memory params, LockupDynamic.SegmentWithDuration[] memory segments) =
-            _createWithDurationParamsLD(totalSegments, defaults.BROKER_FEE());
+            _createWithDurationParamsLD(totalSegments);
 
         uint256 beforeGas = gasleft();
         lockup.createWithDurationsLD(params, segments);
@@ -89,34 +88,16 @@ contract Lockup_Dynamic_Gas_Test is Benchmark_Test {
         resetPrank({ msgSender: users.sender });
 
         (Lockup.CreateWithDurations memory params, LockupDynamic.SegmentWithDuration[] memory segments) =
-            _createWithDurationParamsLD(totalSegments, defaults.BROKER_FEE());
+            _createWithDurationParamsLD(totalSegments);
 
         uint256 beforeGas = gasleft();
         lockup.createWithDurationsLD(params, segments);
         string memory gasUsed = vm.toString(beforeGas - gasleft());
 
-        contentToAppend = string.concat(
-            "| `createWithDurationsLD` (", vm.toString(totalSegments), " segments) (Broker fee set) | ", gasUsed, " |"
-        );
+        contentToAppend =
+            string.concat("| `createWithDurationsLD` (", vm.toString(totalSegments), " segments) | ", gasUsed, " |");
 
         // Append the content to the file.
-        _appendToFile(benchmarkResultsFile, contentToAppend);
-
-        // Calculate gas usage without broker fee.
-        (params, segments) = _createWithDurationParamsLD(totalSegments, ud(0));
-
-        beforeGas = gasleft();
-        lockup.createWithDurationsLD(params, segments);
-        gasUsed = vm.toString(beforeGas - gasleft());
-
-        contentToAppend = string.concat(
-            "| `createWithDurationsLD` (",
-            vm.toString(totalSegments),
-            " segments) (Broker fee not set) | ",
-            gasUsed,
-            " |"
-        );
-
         _appendToFile(benchmarkResultsFile, contentToAppend);
 
         // Store the last 2 streams IDs for withdraw gas benchmark.
@@ -133,34 +114,15 @@ contract Lockup_Dynamic_Gas_Test is Benchmark_Test {
         resetPrank({ msgSender: users.sender });
 
         (Lockup.CreateWithTimestamps memory params, LockupDynamic.Segment[] memory segments) =
-            _createWithTimestampParamsLD(totalSegments, defaults.BROKER_FEE());
+            _createWithTimestampParamsLD(totalSegments);
 
         uint256 beforeGas = gasleft();
         lockup.createWithTimestampsLD(params, segments);
 
         string memory gasUsed = vm.toString(beforeGas - gasleft());
 
-        contentToAppend = string.concat(
-            "| `createWithTimestampsLD` (", vm.toString(totalSegments), " segments) (Broker fee set) | ", gasUsed, " |"
-        );
-
-        // Append the data to the file
-        _appendToFile(benchmarkResultsFile, contentToAppend);
-
-        // Calculate gas usage without broker fee.
-        (params, segments) = _createWithTimestampParamsLD(totalSegments, ud(0));
-
-        beforeGas = gasleft();
-        lockup.createWithTimestampsLD(params, segments);
-        gasUsed = vm.toString(beforeGas - gasleft());
-
-        contentToAppend = string.concat(
-            "| `createWithTimestampsLD` (",
-            vm.toString(totalSegments),
-            " segments) (Broker fee not set) | ",
-            gasUsed,
-            " |"
-        );
+        contentToAppend =
+            string.concat("| `createWithTimestampsLD` (", vm.toString(totalSegments), " segments) | ", gasUsed, " |");
 
         // Append the data to the file
         _appendToFile(benchmarkResultsFile, contentToAppend);
@@ -170,10 +132,7 @@ contract Lockup_Dynamic_Gas_Test is Benchmark_Test {
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _createWithDurationParamsLD(
-        uint128 totalSegments,
-        UD60x18 brokerFee
-    )
+    function _createWithDurationParamsLD(uint128 totalSegments)
         private
         view
         returns (Lockup.CreateWithDurations memory params, LockupDynamic.SegmentWithDuration[] memory segments_)
@@ -194,15 +153,11 @@ contract Lockup_Dynamic_Gas_Test is Benchmark_Test {
         uint128 depositAmount = AMOUNT_PER_SEGMENT * totalSegments;
 
         params = defaults.createWithDurations();
-        params.totalAmount = _calculateTotalAmount(depositAmount, brokerFee);
-        params.broker.fee = brokerFee;
+        params.depositAmount = depositAmount;
         return (params, segments_);
     }
 
-    function _createWithTimestampParamsLD(
-        uint128 totalSegments,
-        UD60x18 brokerFee
-    )
+    function _createWithTimestampParamsLD(uint128 totalSegments)
         private
         view
         returns (Lockup.CreateWithTimestamps memory params, LockupDynamic.Segment[] memory segments_)
@@ -223,10 +178,9 @@ contract Lockup_Dynamic_Gas_Test is Benchmark_Test {
         uint128 depositAmount = AMOUNT_PER_SEGMENT * totalSegments;
 
         params = defaults.createWithTimestamps();
-        params.totalAmount = _calculateTotalAmount(depositAmount, brokerFee);
+        params.depositAmount = depositAmount;
         params.timestamps.start = getBlockTimestamp();
         params.timestamps.end = segments_[totalSegments - 1].timestamp;
-        params.broker.fee = brokerFee;
         return (params, segments_);
     }
 }

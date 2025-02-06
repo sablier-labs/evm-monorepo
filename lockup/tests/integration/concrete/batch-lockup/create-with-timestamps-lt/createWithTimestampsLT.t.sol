@@ -24,7 +24,7 @@ contract CreateWithTimestampsLT_Integration_Test is Integration_Test {
 
         expectMultipleCallsToCreateWithTimestampsLT({
             count: defaults.BATCH_SIZE(),
-            params: defaults.createWithTimestampsBrokerNull(),
+            params: defaults.createWithTimestamps(),
             tranches: defaults.tranches()
         });
         expectMultipleCallsToTransferFrom({

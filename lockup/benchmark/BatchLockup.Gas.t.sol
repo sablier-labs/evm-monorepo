@@ -58,8 +58,8 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function gasCreateWithDurationsLD(uint256 batchSize, uint256 segmentsCount) internal {
-        Lockup.CreateWithDurations memory createParams = defaults.createWithDurationsBrokerNull();
-        createParams.totalAmount = uint128(AMOUNT_PER_ITEM * segmentsCount);
+        Lockup.CreateWithDurations memory createParams = defaults.createWithDurations();
+        createParams.depositAmount = uint128(AMOUNT_PER_ITEM * segmentsCount);
         LockupDynamic.SegmentWithDuration[] memory segments = _generateSegmentsWithDuration(segmentsCount);
         BatchLockup.CreateWithDurationsLD[] memory params =
             BatchLockupBuilder.fillBatch(createParams, segments, batchSize);
@@ -83,11 +83,11 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     }
 
     function gasCreateWithTimestampsLD(uint256 batchSize, uint256 segmentsCount) internal {
-        Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestampsBrokerNull();
+        Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestamps();
         LockupDynamic.Segment[] memory segments = _generateSegments(segmentsCount);
         createParams.timestamps.start = getBlockTimestamp();
         createParams.timestamps.end = segments[segments.length - 1].timestamp;
-        createParams.totalAmount = uint128(AMOUNT_PER_ITEM * segmentsCount);
+        createParams.depositAmount = uint128(AMOUNT_PER_ITEM * segmentsCount);
         BatchLockup.CreateWithTimestampsLD[] memory params =
             BatchLockupBuilder.fillBatch(createParams, segments, batchSize);
 
@@ -111,7 +111,7 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
 
     function gasCreateWithDurationsLL(uint256 batchSize) internal {
         BatchLockup.CreateWithDurationsLL[] memory params = BatchLockupBuilder.fillBatch({
-            params: defaults.createWithDurationsBrokerNull(),
+            params: defaults.createWithDurations(),
             unlockAmounts: defaults.unlockAmounts(),
             durations: defaults.durations(),
             batchSize: batchSize
@@ -131,7 +131,7 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
 
     function gasCreateWithTimestampsLL(uint256 batchSize) internal {
         BatchLockup.CreateWithTimestampsLL[] memory params = BatchLockupBuilder.fillBatch({
-            params: defaults.createWithTimestampsBrokerNull(),
+            params: defaults.createWithTimestamps(),
             unlockAmounts: defaults.unlockAmounts(),
             cliffTime: defaults.CLIFF_TIME(),
             batchSize: batchSize
@@ -150,9 +150,9 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     }
 
     function gasCreateWithDurationsLT(uint256 batchSize, uint256 tranchesCount) internal {
-        Lockup.CreateWithDurations memory createParams = defaults.createWithDurationsBrokerNull();
+        Lockup.CreateWithDurations memory createParams = defaults.createWithDurations();
         LockupTranched.TrancheWithDuration[] memory tranches = _generateTranchesWithDuration(tranchesCount);
-        createParams.totalAmount = uint128(AMOUNT_PER_ITEM * tranchesCount);
+        createParams.depositAmount = uint128(AMOUNT_PER_ITEM * tranchesCount);
         BatchLockup.CreateWithDurationsLT[] memory params =
             BatchLockupBuilder.fillBatch(createParams, tranches, batchSize);
 
@@ -175,11 +175,11 @@ contract BatchLockup_Gas_Test is Benchmark_Test {
     }
 
     function gasCreateWithTimestampsLT(uint256 batchSize, uint256 tranchesCount) internal {
-        Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestampsBrokerNull();
+        Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestamps();
         LockupTranched.Tranche[] memory tranches = _generateTranches(tranchesCount);
         createParams.timestamps.start = getBlockTimestamp();
         createParams.timestamps.end = tranches[tranches.length - 1].timestamp;
-        createParams.totalAmount = uint128(AMOUNT_PER_ITEM * tranchesCount);
+        createParams.depositAmount = uint128(AMOUNT_PER_ITEM * tranchesCount);
         BatchLockup.CreateWithTimestampsLT[] memory params =
             BatchLockupBuilder.fillBatch(createParams, tranches, batchSize);
 

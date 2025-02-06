@@ -38,7 +38,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -56,7 +55,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -75,7 +73,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -106,7 +103,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -130,11 +126,10 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStream();
     }
 
-    function test_RevertWhen_TimestampsNotStrictlyIncreasing()
+    function test_RevertWhen_EndTimeNotEqualLastTimestamp()
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -144,6 +139,32 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+    {
+        _defaultParams.createWithTimestamps.timestamps.end = defaults.END_TIME() + 1 seconds;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierHelpers_EndTimeNotEqualToLastTrancheTimestamp.selector,
+                _defaultParams.createWithTimestamps.timestamps.end,
+                _defaultParams.createWithTimestamps.timestamps.end - 1
+            )
+        );
+        createDefaultStream();
+    }
+
+    function test_RevertWhen_TimestampsNotStrictlyIncreasing()
+        external
+        whenNoDelegateCall
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenContract
+        whenTrancheCountNotZero
+        whenTrancheCountNotExceedMaxValue
+        whenTrancheAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
     {
         // Swap the tranche timestamps.
         // LockupTranched.Tranche[] memory tranches = defaults.tranches();
@@ -168,7 +189,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -178,6 +198,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
     {
         resetPrank({ msgSender: users.sender });
@@ -185,8 +206,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         // Adjust the default deposit amount.
         uint128 defaultDepositAmount = defaults.DEPOSIT_AMOUNT();
         uint128 depositAmount = defaultDepositAmount + 100;
-        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
-        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
+        _defaultParams.createWithTimestamps.depositAmount = depositAmount;
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
@@ -203,7 +223,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -213,6 +232,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
         whenDepositAmountEqualsTrancheAmountsSum
     {
@@ -223,7 +243,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -233,6 +252,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
         whenDepositAmountEqualsTrancheAmountsSum
     {
@@ -251,14 +271,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
             from: funder,
             to: address(lockup),
             value: defaults.DEPOSIT_AMOUNT()
-        });
-
-        // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({
-            token: IERC20(token),
-            from: funder,
-            to: users.broker,
-            value: defaults.BROKER_FEE_AMOUNT()
         });
 
         // It should emit {CreateLockupTranchedStream} and {MetadataUpdate} events.

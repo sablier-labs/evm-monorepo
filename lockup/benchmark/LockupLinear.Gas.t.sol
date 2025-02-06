@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { ud } from "@prb/math/src/UD60x18.sol";
-
 import { Lockup, LockupLinear } from "../src/types/DataTypes.sol";
 
 import { Benchmark_Test } from "./Benchmark.t.sol";
@@ -54,9 +52,9 @@ contract Lockup_Linear_Gas_Test is Benchmark_Test {
 
         Lockup.CreateWithDurations memory params = defaults.createWithDurations();
         LockupLinear.Durations memory durations = defaults.durations();
-        durations.cliff = cliffDuration;
-
         LockupLinear.UnlockAmounts memory unlockAmounts = defaults.unlockAmounts();
+
+        durations.cliff = cliffDuration;
         if (cliffDuration == 0) unlockAmounts.cliff = 0;
 
         uint256 beforeGas = gasleft();
@@ -65,22 +63,11 @@ contract Lockup_Linear_Gas_Test is Benchmark_Test {
 
         string memory cliffSetOrNot = cliffDuration == 0 ? " (cliff not set)" : " (cliff set)";
 
-        contentToAppend =
-            string.concat("| `createWithDurationsLL` (Broker fee set)", cliffSetOrNot, " | ", gasUsed, " |");
-
-        // Append the content to the file.
-        _appendToFile(benchmarkResultsFile, contentToAppend);
-
-        // Calculate gas usage without broker fee.
-        params.broker.fee = ud(0);
-        params.totalAmount = _calculateTotalAmount(defaults.DEPOSIT_AMOUNT(), ud(0));
-
         beforeGas = gasleft();
         lockup.createWithDurationsLL(params, unlockAmounts, durations);
         gasUsed = vm.toString(beforeGas - gasleft());
 
-        contentToAppend =
-            string.concat("| `createWithDurationsLL` (Broker fee not set)", cliffSetOrNot, " | ", gasUsed, " |");
+        contentToAppend = string.concat("| `createWithDurationsLL` ", cliffSetOrNot, " | ", gasUsed, " |");
 
         // Append the content to the file.
         _appendToFile(benchmarkResultsFile, contentToAppend);
@@ -92,6 +79,7 @@ contract Lockup_Linear_Gas_Test is Benchmark_Test {
 
         Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
         LockupLinear.UnlockAmounts memory unlockAmounts = defaults.unlockAmounts();
+
         if (cliffTime == 0) unlockAmounts.cliff = 0;
 
         uint256 beforeGas = gasleft();
@@ -100,22 +88,7 @@ contract Lockup_Linear_Gas_Test is Benchmark_Test {
 
         string memory cliffSetOrNot = cliffTime == 0 ? " (cliff not set)" : " (cliff set)";
 
-        contentToAppend =
-            string.concat("| `createWithTimestampsLL` (Broker fee set)", cliffSetOrNot, " | ", gasUsed, " |");
-
-        // Append the content to the file.
-        _appendToFile(benchmarkResultsFile, contentToAppend);
-
-        // Calculate gas usage without broker fee.
-        params.broker.fee = ud(0);
-        params.totalAmount = _calculateTotalAmount(defaults.DEPOSIT_AMOUNT(), ud(0));
-
-        beforeGas = gasleft();
-        lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime);
-        gasUsed = vm.toString(beforeGas - gasleft());
-
-        contentToAppend =
-            string.concat("| `createWithTimestampsLL` (Broker fee not set)", cliffSetOrNot, " | ", gasUsed, " |");
+        contentToAppend = string.concat("| `createWithTimestampsLL` ", cliffSetOrNot, " | ", gasUsed, " |");
 
         // Append the content to the file.
         _appendToFile(benchmarkResultsFile, contentToAppend);

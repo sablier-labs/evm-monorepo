@@ -3,9 +3,8 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
-import { UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
 
-import { BatchLockup, Broker, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
+import { BatchLockup, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
 
 import { ArrayBuilder } from "./ArrayBuilder.sol";
 import { BatchLockupBuilder } from "./BatchLockupBuilder.sol";
@@ -19,8 +18,6 @@ contract Defaults is Constants {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint64 public constant BATCH_SIZE = 10;
-    UD60x18 public constant BROKER_FEE = UD60x18.wrap(0.003e18); // 0.3%
-    uint128 public constant BROKER_FEE_AMOUNT = 30.090270812437311935e18; // 0.3% of total amount
     uint128 public constant CLIFF_AMOUNT = 2500e18 + 2534;
     uint40 public immutable CLIFF_TIME;
     uint40 public constant CLIFF_DURATION = 2500 seconds;
@@ -35,7 +32,6 @@ contract Defaults is Constants {
     uint40 public immutable START_TIME;
     uint128 public constant START_AMOUNT = 0;
     uint128 public constant STREAMED_AMOUNT_26_PERCENT = 2600e18;
-    uint128 public constant TOTAL_AMOUNT = 10_030.090270812437311935e18; // deposit + broker fee
     uint40 public constant TOTAL_DURATION = 10_000 seconds;
     uint256 public constant TRANCHE_COUNT = 2;
     uint128 public constant TOTAL_TRANSFER_AMOUNT = DEPOSIT_AMOUNT * uint128(BATCH_SIZE);
@@ -78,14 +74,6 @@ contract Defaults is Constants {
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function broker() public view returns (Broker memory) {
-        return Broker({ account: users.broker, fee: BROKER_FEE });
-    }
-
-    function brokerNull() public pure returns (Broker memory) {
-        return Broker({ account: address(0), fee: ZERO });
-    }
-
     function durations() public pure returns (LockupLinear.Durations memory) {
         return LockupLinear.Durations({ cliff: CLIFF_DURATION, total: TOTAL_DURATION });
     }
@@ -94,12 +82,8 @@ contract Defaults is Constants {
         return Lockup.Amounts({ deposited: DEPOSIT_AMOUNT, refunded: 0, withdrawn: 0 });
     }
 
-    function lockupCreateAmounts() public pure returns (Lockup.CreateAmounts memory) {
-        return Lockup.CreateAmounts({ deposit: DEPOSIT_AMOUNT, brokerFee: BROKER_FEE_AMOUNT });
-    }
-
     function lockupCreateEvent(IERC20 token_) public view returns (Lockup.CreateEventCommon memory) {
-        return lockupCreateEvent(token_, lockupCreateAmounts(), lockupTimestamps());
+        return lockupCreateEvent(DEPOSIT_AMOUNT, token_, lockupTimestamps());
     }
 
     function lockupCreateEvent(Lockup.Timestamps memory timestamps)
@@ -107,23 +91,23 @@ contract Defaults is Constants {
         view
         returns (Lockup.CreateEventCommon memory)
     {
-        return lockupCreateEvent(token, lockupCreateAmounts(), timestamps);
+        return lockupCreateEvent(DEPOSIT_AMOUNT, token, timestamps);
     }
 
     function lockupCreateEvent(
-        Lockup.CreateAmounts memory createAmounts,
+        uint128 depositAmount,
         Lockup.Timestamps memory timestamps
     )
         public
         view
         returns (Lockup.CreateEventCommon memory)
     {
-        return lockupCreateEvent(token, createAmounts, timestamps);
+        return lockupCreateEvent(depositAmount, token, timestamps);
     }
 
     function lockupCreateEvent(
+        uint128 depositAmount,
         IERC20 token_,
-        Lockup.CreateAmounts memory createAmounts,
         Lockup.Timestamps memory timestamps
     )
         public
@@ -134,13 +118,12 @@ contract Defaults is Constants {
             funder: users.sender,
             sender: users.sender,
             recipient: users.recipient,
-            amounts: createAmounts,
+            depositAmount: depositAmount,
             token: token_,
             cancelable: true,
             transferable: true,
             timestamps: timestamps,
-            shape: SHAPE,
-            broker: users.broker
+            shape: SHAPE
         });
     }
 
@@ -217,39 +200,25 @@ contract Defaults is Constants {
         return Lockup.CreateWithDurations({
             sender: users.sender,
             recipient: users.recipient,
-            totalAmount: TOTAL_AMOUNT,
+            depositAmount: DEPOSIT_AMOUNT,
             token: token,
             cancelable: true,
             transferable: true,
-            shape: SHAPE,
-            broker: broker()
+            shape: SHAPE
         });
-    }
-
-    function createWithDurationsBrokerNull() public view returns (Lockup.CreateWithDurations memory params_) {
-        params_ = createWithDurations();
-        params_.totalAmount = DEPOSIT_AMOUNT;
-        params_.broker = brokerNull();
     }
 
     function createWithTimestamps() public view returns (Lockup.CreateWithTimestamps memory) {
         return Lockup.CreateWithTimestamps({
             sender: users.sender,
             recipient: users.recipient,
-            totalAmount: TOTAL_AMOUNT,
+            depositAmount: DEPOSIT_AMOUNT,
             token: token,
             cancelable: true,
             transferable: true,
             timestamps: lockupTimestamps(),
-            shape: SHAPE,
-            broker: broker()
+            shape: SHAPE
         });
-    }
-
-    function createWithTimestampsBrokerNull() public view returns (Lockup.CreateWithTimestamps memory params_) {
-        params_ = createWithTimestamps();
-        params_.totalAmount = DEPOSIT_AMOUNT;
-        params_.broker = brokerNull();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -262,17 +231,17 @@ contract Defaults is Constants {
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithDurationsLD} parameters.
     function batchCreateWithDurationsLD() public view returns (BatchLockup.CreateWithDurationsLD[] memory batch) {
-        batch = BatchLockupBuilder.fillBatch(createWithDurationsBrokerNull(), segmentsWithDurations(), BATCH_SIZE);
+        batch = BatchLockupBuilder.fillBatch(createWithDurations(), segmentsWithDurations(), BATCH_SIZE);
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithDurationsLL} parameters.
     function batchCreateWithDurationsLL() public view returns (BatchLockup.CreateWithDurationsLL[] memory batch) {
-        batch = BatchLockupBuilder.fillBatch(createWithDurationsBrokerNull(), unlockAmounts(), durations(), BATCH_SIZE);
+        batch = BatchLockupBuilder.fillBatch(createWithDurations(), unlockAmounts(), durations(), BATCH_SIZE);
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithDurationsLT} parameters.
     function batchCreateWithDurationsLT() public view returns (BatchLockup.CreateWithDurationsLT[] memory batch) {
-        batch = BatchLockupBuilder.fillBatch(createWithDurationsBrokerNull(), tranchesWithDurations(), BATCH_SIZE);
+        batch = BatchLockupBuilder.fillBatch(createWithDurations(), tranchesWithDurations(), BATCH_SIZE);
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithTimestampsLD} parameters.
@@ -286,7 +255,7 @@ contract Defaults is Constants {
         view
         returns (BatchLockup.CreateWithTimestampsLD[] memory batch)
     {
-        batch = BatchLockupBuilder.fillBatch(createWithTimestampsBrokerNull(), segments(), batchSize);
+        batch = BatchLockupBuilder.fillBatch(createWithTimestamps(), segments(), batchSize);
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithTimestampsLL} parameters.
@@ -300,7 +269,7 @@ contract Defaults is Constants {
         view
         returns (BatchLockup.CreateWithTimestampsLL[] memory batch)
     {
-        batch = BatchLockupBuilder.fillBatch(createWithTimestampsBrokerNull(), unlockAmounts(), CLIFF_TIME, batchSize);
+        batch = BatchLockupBuilder.fillBatch(createWithTimestamps(), unlockAmounts(), CLIFF_TIME, batchSize);
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithTimestampsLT} parameters.
@@ -314,6 +283,6 @@ contract Defaults is Constants {
         view
         returns (BatchLockup.CreateWithTimestampsLT[] memory batch)
     {
-        batch = BatchLockupBuilder.fillBatch(createWithTimestampsBrokerNull(), tranches(), batchSize);
+        batch = BatchLockupBuilder.fillBatch(createWithTimestamps(), tranches(), batchSize);
     }
 }

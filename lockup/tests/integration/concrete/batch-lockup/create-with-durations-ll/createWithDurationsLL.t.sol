@@ -24,7 +24,7 @@ contract CreateWithDurationsLL_Integration_Test is Integration_Test {
 
         expectMultipleCallsToCreateWithDurationsLL({
             count: defaults.BATCH_SIZE(),
-            params: defaults.createWithDurationsBrokerNull(),
+            params: defaults.createWithDurations(),
             unlockAmounts: defaults.unlockAmounts(),
             durations: defaults.durations()
         });

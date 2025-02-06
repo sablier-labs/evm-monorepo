@@ -10,7 +10,6 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
         uint256 actualNextStreamId;
         address actualNFTOwner;
         Lockup.Status actualStatus;
-        Lockup.CreateAmounts createAmounts;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
         Lockup.Status expectedStatus;
@@ -18,7 +17,7 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
         bool isCancelable;
         bool isSettled;
         LockupDynamic.Segment[] segmentsWithTimestamps;
-        uint128 totalAmount;
+        uint128 depositAmount;
     }
 
     function testFuzz_CreateWithDurationsLD(LockupDynamic.SegmentWithDuration[] memory segments)
@@ -33,8 +32,8 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
         Vars memory vars;
         fuzzSegmentDurations(segments);
 
-        // Fuzz the segment amounts and calculate the total and create amounts (deposit and broker fee).
-        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(segments, defaults.BROKER_FEE());
+        // Fuzz the segment amounts and calculate the deposit amount.
+        vars.depositAmount = fuzzDynamicStreamAmounts(segments);
 
         // Make the Sender the stream's funder (recall that the Sender is the default caller).
         vars.funder = users.sender;
@@ -42,15 +41,10 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Mint enough tokens to the fuzzed funder.
-        deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
+        deal({ token: address(dai), to: vars.funder, give: vars.depositAmount });
 
         // Expect the tokens to be transferred from the funder to {SablierLockup}.
-        expectCallToTransferFrom({ from: vars.funder, to: address(lockup), value: vars.createAmounts.deposit });
-
-        // Expect the broker fee to be paid to the broker, if not zero.
-        if (vars.createAmounts.brokerFee > 0) {
-            expectCallToTransferFrom({ from: vars.funder, to: users.broker, value: vars.createAmounts.brokerFee });
-        }
+        expectCallToTransferFrom({ from: vars.funder, to: address(lockup), value: vars.depositAmount });
 
         // Create the timestamps struct.
         vars.segmentsWithTimestamps = getSegmentsWithTimestamps(segments);
@@ -63,12 +57,12 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupDynamicStream({
             streamId: expectedStreamId,
-            commonParams: defaults.lockupCreateEvent(vars.createAmounts, timestamps),
+            commonParams: defaults.lockupCreateEvent(vars.depositAmount, timestamps),
             segments: vars.segmentsWithTimestamps
         });
 
         // Create the stream.
-        _defaultParams.createWithDurations.totalAmount = vars.totalAmount;
+        _defaultParams.createWithDurations.depositAmount = vars.depositAmount;
         _defaultParams.createWithDurations.transferable = true;
         uint256 streamId = lockup.createWithDurationsLD(_defaultParams.createWithDurations, segments);
 
@@ -78,7 +72,7 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
         vars.isCancelable = vars.isSettled ? false : true;
 
         // It should create the stream.
-        assertEq(lockup.getDepositedAmount(streamId), vars.createAmounts.deposit, "depositedAmount");
+        assertEq(lockup.getDepositedAmount(streamId), vars.depositAmount, "depositedAmount");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), vars.isCancelable, "isCancelable");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");

@@ -86,7 +86,6 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
 
         // Create users for testing. Note that due to ERC-20 approvals, this has to go after the protocol deployment.
         users.alice = createUser("Alice");
-        users.broker = createUser("Broker");
         users.eve = createUser("Eve");
         users.operator = createUser("Operator");
         users.recipient = createUser("Recipient");

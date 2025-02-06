@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ZERO } from "@prb/math/src/UD60x18.sol";
-import { Broker, Lockup, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup, LockupTranched } from "src/types/DataTypes.sol";
 
 import { Lockup_Tranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
 
@@ -32,8 +31,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranch
         fuzzTrancheTimestamps(tranches, defaults.START_TIME());
 
         // Fuzz the tranche amounts.
-        (uint128 totalAmount,) =
-            fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches, brokerFee: ZERO });
+        uint128 depositAmount = fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches });
 
         // Bound the time jump.
         uint40 firstTrancheDuration = tranches[1].timestamp - tranches[0].timestamp;
@@ -41,12 +39,11 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranch
         timeJump = boundUint40(timeJump, firstTrancheDuration, totalDuration + 100 seconds);
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(dai), to: users.sender, give: totalAmount });
+        deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed tranches.
         Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
-        params.broker = Broker({ account: address(0), fee: ZERO });
-        params.totalAmount = totalAmount;
+        params.depositAmount = depositAmount;
         params.timestamps.end = tranches[tranches.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
 
@@ -55,7 +52,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranch
 
         // Run the test.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateLockupTranchedStreamedAmount(tranches, totalAmount);
+        uint128 expectedStreamedAmount = calculateLockupTranchedStreamedAmount(tranches, depositAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -78,8 +75,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranch
         fuzzTrancheTimestamps(tranches, defaults.START_TIME());
 
         // Fuzz the tranche amounts.
-        (uint128 totalAmount,) =
-            fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches, brokerFee: ZERO });
+        uint128 depositAmount = fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches });
 
         // Bound the time warps.
         uint40 firstTrancheDuration = tranches[1].timestamp - tranches[0].timestamp;
@@ -88,12 +84,12 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranch
         timeWarp1 = boundUint40(timeWarp1, timeWarp0, totalDuration);
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(dai), to: users.sender, give: totalAmount });
+        deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed tranches.
         Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
-        params.broker = Broker({ account: address(0), fee: ZERO });
-        params.totalAmount = totalAmount;
+
+        params.depositAmount = depositAmount;
         params.timestamps.end = tranches[tranches.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
 

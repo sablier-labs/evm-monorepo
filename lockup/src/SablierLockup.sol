@@ -156,13 +156,12 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             Lockup.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
-                totalAmount: params.totalAmount,
+                depositAmount: params.depositAmount,
                 token: params.token,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: timestamps,
-                shape: params.shape,
-                broker: params.broker
+                shape: params.shape
             }),
             segments
         );
@@ -196,13 +195,12 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             Lockup.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
-                totalAmount: params.totalAmount,
+                depositAmount: params.depositAmount,
                 token: params.token,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: timestamps,
-                shape: params.shape,
-                broker: params.broker
+                shape: params.shape
             }),
             unlockAmounts,
             cliffTime
@@ -235,13 +233,12 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             Lockup.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
-                totalAmount: params.totalAmount,
+                depositAmount: params.depositAmount,
                 token: params.token,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
                 timestamps: timestamps,
-                shape: params.shape,
-                broker: params.broker
+                shape: params.shape
             }),
             tranches
         );
@@ -350,7 +347,6 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
     function _create(
         uint256 streamId,
         Lockup.CreateWithTimestamps memory params,
-        Lockup.CreateAmounts memory createAmounts,
         Lockup.Model lockupModel
     )
         internal
@@ -368,7 +364,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             isStream: true,
             isTransferable: params.transferable,
             lockupModel: lockupModel,
-            amounts: Lockup.Amounts({ deposited: createAmounts.deposit, withdrawn: 0, refunded: 0 })
+            amounts: Lockup.Amounts({ deposited: params.depositAmount, withdrawn: 0, refunded: 0 })
         });
 
         // Effect: mint the NFT to the recipient.
@@ -380,24 +376,18 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         }
 
         // Interaction: transfer the deposit amount.
-        params.token.safeTransferFrom({ from: msg.sender, to: address(this), value: createAmounts.deposit });
-
-        // Interaction: pay the broker fee, if not zero.
-        if (createAmounts.brokerFee > 0) {
-            params.token.safeTransferFrom({ from: msg.sender, to: params.broker.account, value: createAmounts.brokerFee });
-        }
+        params.token.safeTransferFrom({ from: msg.sender, to: address(this), value: params.depositAmount });
 
         return Lockup.CreateEventCommon({
             funder: msg.sender,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: createAmounts,
+            depositAmount: params.depositAmount,
             token: params.token,
             cancelable: params.cancelable,
             transferable: params.transferable,
             timestamps: params.timestamps,
-            shape: params.shape,
-            broker: params.broker.account
+            shape: params.shape
         });
     }
 
@@ -410,15 +400,13 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         returns (uint256 streamId)
     {
         // Check: validate the user-provided parameters and segments.
-        Lockup.CreateAmounts memory createAmounts = Helpers.checkCreateLockupDynamic({
+        Helpers.checkCreateLockupDynamic({
             sender: params.sender,
             timestamps: params.timestamps,
-            totalAmount: params.totalAmount,
+            depositAmount: params.depositAmount,
             segments: segments,
             maxCount: MAX_COUNT,
-            brokerFee: params.broker.fee,
-            shape: params.shape,
-            maxBrokerFee: MAX_BROKER_FEE
+            shape: params.shape
         });
 
         // Load the stream ID in a variable.
@@ -432,12 +420,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         }
 
         // Effect: create the stream,  mint the NFT and transfer the deposit amount.
-        Lockup.CreateEventCommon memory commonParams = _create({
-            streamId: streamId,
-            params: params,
-            createAmounts: createAmounts,
-            lockupModel: Lockup.Model.LOCKUP_DYNAMIC
-        });
+        Lockup.CreateEventCommon memory commonParams =
+            _create({ streamId: streamId, params: params, lockupModel: Lockup.Model.LOCKUP_DYNAMIC });
 
         // Log the newly created stream.
         emit ISablierLockup.CreateLockupDynamicStream({
@@ -457,15 +441,13 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         returns (uint256 streamId)
     {
         // Check: validate the user-provided parameters and cliff time.
-        Lockup.CreateAmounts memory createAmounts = Helpers.checkCreateLockupLinear({
+        Helpers.checkCreateLockupLinear({
             sender: params.sender,
             timestamps: params.timestamps,
             cliffTime: cliffTime,
-            totalAmount: params.totalAmount,
+            depositAmount: params.depositAmount,
             unlockAmounts: unlockAmounts,
-            brokerFee: params.broker.fee,
-            shape: params.shape,
-            maxBrokerFee: MAX_BROKER_FEE
+            shape: params.shape
         });
 
         // Load the stream ID in a variable.
@@ -487,12 +469,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         }
 
         // Effect: create the stream,  mint the NFT and transfer the deposit amount.
-        Lockup.CreateEventCommon memory commonParams = _create({
-            streamId: streamId,
-            params: params,
-            createAmounts: createAmounts,
-            lockupModel: Lockup.Model.LOCKUP_LINEAR
-        });
+        Lockup.CreateEventCommon memory commonParams =
+            _create({ streamId: streamId, params: params, lockupModel: Lockup.Model.LOCKUP_LINEAR });
 
         // Log the newly created stream.
         emit ISablierLockup.CreateLockupLinearStream({
@@ -512,15 +490,13 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         returns (uint256 streamId)
     {
         // Check: validate the user-provided parameters and tranches.
-        Lockup.CreateAmounts memory createAmounts = Helpers.checkCreateLockupTranched({
+        Helpers.checkCreateLockupTranched({
             sender: params.sender,
             timestamps: params.timestamps,
-            totalAmount: params.totalAmount,
+            depositAmount: params.depositAmount,
             tranches: tranches,
             maxCount: MAX_COUNT,
-            brokerFee: params.broker.fee,
-            shape: params.shape,
-            maxBrokerFee: MAX_BROKER_FEE
+            shape: params.shape
         });
 
         // Load the stream ID in a variable.
@@ -534,12 +510,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         }
 
         // Effect: create the stream,  mint the NFT and transfer the deposit amount.
-        Lockup.CreateEventCommon memory commonParams = _create({
-            streamId: streamId,
-            params: params,
-            createAmounts: createAmounts,
-            lockupModel: Lockup.Model.LOCKUP_TRANCHED
-        });
+        Lockup.CreateEventCommon memory commonParams =
+            _create({ streamId: streamId, params: params, lockupModel: Lockup.Model.LOCKUP_TRANCHED });
 
         // Log the newly created stream.
         emit ISablierLockup.CreateLockupTranchedStream({

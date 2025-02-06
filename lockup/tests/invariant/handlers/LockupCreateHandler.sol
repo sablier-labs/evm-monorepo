@@ -38,7 +38,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         public
         instrument("createWithDurationsLD")
         adjustTimestamp(timeJumpSeed)
-        checkUsers(params.sender, params.recipient, params.broker.account)
+        checkUsers(params.sender, params.recipient)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
@@ -47,21 +47,17 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // The protocol doesn't allow empty segment arrays.
         vm.assume(segments.length != 0);
 
-        // Bound the broker fee.
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
-
         // Fuzz the durations.
         fuzzSegmentDurations(segments);
 
         // Fuzz the segment amounts and calculate the total amount.
-        (params.totalAmount,) =
-            fuzzDynamicStreamAmounts({ upperBound: 1_000_000_000e18, segments: segments, brokerFee: params.broker.fee });
+        params.depositAmount = fuzzDynamicStreamAmounts({ upperBound: 1_000_000_000e18, segments: segments });
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
-        token.approve({ spender: address(lockup), value: params.totalAmount });
+        token.approve({ spender: address(lockup), value: params.depositAmount });
 
         // Create the stream.
         params.token = token;
@@ -81,7 +77,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         public
         instrument("createWithDurationsLL")
         adjustTimestamp(timeJumpSeed)
-        checkUsers(params.sender, params.recipient, params.broker.account)
+        checkUsers(params.sender, params.recipient)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
@@ -90,10 +86,10 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         (params, unlockAmounts, durations) = _boundCreateWithDurationsLLParams(params, unlockAmounts, durations);
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
-        token.approve({ spender: address(lockup), value: params.totalAmount });
+        token.approve({ spender: address(lockup), value: params.depositAmount });
 
         // Create the stream.
         params.token = token;
@@ -112,7 +108,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         public
         instrument("createWithDurationsLT")
         adjustTimestamp(timeJumpSeed)
-        checkUsers(params.sender, params.recipient, params.broker.account)
+        checkUsers(params.sender, params.recipient)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
@@ -121,24 +117,17 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // The protocol doesn't allow empty tranche arrays.
         vm.assume(tranches.length != 0);
 
-        // Bound the broker fee.
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
-
         // Fuzz the durations.
         fuzzTrancheDurations(tranches);
 
         // Fuzz the tranche amounts and calculate the total amount.
-        (params.totalAmount,) = fuzzTranchedStreamAmounts({
-            upperBound: 1_000_000_000e18,
-            tranches: tranches,
-            brokerFee: params.broker.fee
-        });
+        params.depositAmount = fuzzTranchedStreamAmounts({ upperBound: 1_000_000_000e18, tranches: tranches });
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
-        token.approve({ spender: address(lockup), value: params.totalAmount });
+        token.approve({ spender: address(lockup), value: params.depositAmount });
 
         // Create the stream.
         params.token = token;
@@ -157,7 +146,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         public
         instrument("createWithTimestampsLD")
         adjustTimestamp(timeJumpSeed)
-        checkUsers(params.sender, params.recipient, params.broker.account)
+        checkUsers(params.sender, params.recipient)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
@@ -166,21 +155,19 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // The protocol doesn't allow empty segment arrays.
         vm.assume(segments.length != 0);
 
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.timestamps.start = boundUint40(params.timestamps.start, 1, getBlockTimestamp());
 
         // Fuzz the segment timestamps.
         fuzzSegmentTimestamps(segments, params.timestamps.start);
 
         // Fuzz the segment amounts and calculate the total amount.
-        (params.totalAmount,) =
-            fuzzDynamicStreamAmounts({ upperBound: 1_000_000_000e18, segments: segments, brokerFee: params.broker.fee });
+        params.depositAmount = fuzzDynamicStreamAmounts({ upperBound: 1_000_000_000e18, segments: segments });
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
-        token.approve({ spender: address(lockup), value: params.totalAmount });
+        token.approve({ spender: address(lockup), value: params.depositAmount });
 
         // Create the stream.
         params.token = token;
@@ -201,7 +188,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         public
         instrument("createWithTimestampsLL")
         adjustTimestamp(timeJumpSeed)
-        checkUsers(params.sender, params.recipient, params.broker.account)
+        checkUsers(params.sender, params.recipient)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
@@ -210,10 +197,10 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         (params, unlockAmounts, cliffTime) = _boundCreateWithTimestampsLLParams(params, unlockAmounts, cliffTime);
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
-        token.approve({ spender: address(lockup), value: params.totalAmount });
+        token.approve({ spender: address(lockup), value: params.depositAmount });
 
         // Create the stream.
         params.token = token;
@@ -232,7 +219,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         public
         instrument("createWithTimestampsLT")
         adjustTimestamp(timeJumpSeed)
-        checkUsers(params.sender, params.recipient, params.broker.account)
+        checkUsers(params.sender, params.recipient)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
@@ -241,24 +228,19 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // The protocol doesn't allow empty tranche arrays.
         vm.assume(tranches.length != 0);
 
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.timestamps.start = boundUint40(params.timestamps.start, 1, getBlockTimestamp());
 
         // Fuzz the tranche timestamps.
         fuzzTrancheTimestamps(tranches, params.timestamps.start);
 
         // Fuzz the tranche amounts and calculate the total amount.
-        (params.totalAmount,) = fuzzTranchedStreamAmounts({
-            upperBound: 1_000_000_000e18,
-            tranches: tranches,
-            brokerFee: params.broker.fee
-        });
+        params.depositAmount = fuzzTranchedStreamAmounts({ upperBound: 1_000_000_000e18, tranches: tranches });
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.totalAmount });
+        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
-        token.approve({ spender: address(lockup), value: params.totalAmount });
+        token.approve({ spender: address(lockup), value: params.depositAmount });
 
         // Create the stream.
         params.token = token;
@@ -287,15 +269,14 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         returns (Lockup.CreateWithDurations memory, LockupLinear.UnlockAmounts memory, LockupLinear.Durations memory)
     {
         // Bound the stream parameters.
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
+
         durations.cliff = boundUint40(durations.cliff, 1 seconds, 2500 seconds);
         durations.total = boundUint40(durations.total, durations.cliff + 1 seconds, MAX_UNIX_TIMESTAMP);
-        params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
-        uint128 depositAmount = calculateDepositAmount(params.totalAmount, params.broker.fee);
-        unlockAmounts.start = boundUint128(unlockAmounts.start, 0, depositAmount);
-        unlockAmounts.cliff = depositAmount == unlockAmounts.start
+        params.depositAmount = boundUint128(params.depositAmount, 1, 1_000_000_000e18);
+        unlockAmounts.start = boundUint128(unlockAmounts.start, 0, params.depositAmount);
+        unlockAmounts.cliff = params.depositAmount == unlockAmounts.start
             ? 0
-            : boundUint128(unlockAmounts.cliff, 0, depositAmount - unlockAmounts.start);
+            : boundUint128(unlockAmounts.cliff, 0, params.depositAmount - unlockAmounts.start);
 
         return (params, unlockAmounts, durations);
     }
@@ -313,20 +294,19 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         returns (Lockup.CreateWithTimestamps memory, LockupLinear.UnlockAmounts memory, uint40)
     {
         uint40 blockTimestamp = getBlockTimestamp();
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
+
         params.timestamps.start = boundUint40(params.timestamps.start, 1 seconds, blockTimestamp);
-        params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
-        uint128 depositAmount = calculateDepositAmount(params.totalAmount, params.broker.fee);
-        unlockAmounts.start = boundUint128(unlockAmounts.start, 0, depositAmount);
+        params.depositAmount = boundUint128(params.depositAmount, 1, 1_000_000_000e18);
+        unlockAmounts.start = boundUint128(unlockAmounts.start, 0, params.depositAmount);
         unlockAmounts.cliff = 0;
 
         // The cliff time must be either zero or greater than the start time.
         if (cliffTime > 0) {
             cliffTime = boundUint40(cliffTime, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks);
 
-            unlockAmounts.cliff = depositAmount == unlockAmounts.start
+            unlockAmounts.cliff = params.depositAmount == unlockAmounts.start
                 ? 0
-                : boundUint128(unlockAmounts.cliff, 0, depositAmount - unlockAmounts.start);
+                : boundUint128(unlockAmounts.cliff, 0, params.depositAmount - unlockAmounts.start);
         }
 
         // Bound the end time so that it is always greater than the start time, and the cliff time.

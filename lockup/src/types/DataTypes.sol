@@ -3,7 +3,6 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD2x18 } from "@prb/math/src/UD2x18.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 // This file defines all structs used in Lockup, most of which are organized under three namespaces:
 //
@@ -23,86 +22,72 @@ library BatchLockup {
     struct CreateWithDurationsLD {
         address sender;
         address recipient;
-        uint128 totalAmount;
+        uint128 depositAmount;
         bool cancelable;
         bool transferable;
         LockupDynamic.SegmentWithDuration[] segmentsWithDuration;
         string shape;
-        Broker broker;
     }
 
     /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLL} except for the token.
     struct CreateWithDurationsLL {
         address sender;
         address recipient;
-        uint128 totalAmount;
+        uint128 depositAmount;
         bool cancelable;
         bool transferable;
         LockupLinear.Durations durations;
         LockupLinear.UnlockAmounts unlockAmounts;
         string shape;
-        Broker broker;
     }
 
     /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLT} except for the token.
     struct CreateWithDurationsLT {
         address sender;
         address recipient;
-        uint128 totalAmount;
+        uint128 depositAmount;
         bool cancelable;
         bool transferable;
         LockupTranched.TrancheWithDuration[] tranchesWithDuration;
         string shape;
-        Broker broker;
     }
 
     /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLD} except for the token.
     struct CreateWithTimestampsLD {
         address sender;
         address recipient;
-        uint128 totalAmount;
+        uint128 depositAmount;
         bool cancelable;
         bool transferable;
         uint40 startTime;
         LockupDynamic.Segment[] segments;
         string shape;
-        Broker broker;
     }
 
     /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLL} except for the token.
     struct CreateWithTimestampsLL {
         address sender;
         address recipient;
-        uint128 totalAmount;
+        uint128 depositAmount;
         bool cancelable;
         bool transferable;
         Lockup.Timestamps timestamps;
         uint40 cliffTime;
         LockupLinear.UnlockAmounts unlockAmounts;
         string shape;
-        Broker broker;
     }
 
     /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLT} except for the token.
     struct CreateWithTimestampsLT {
         address sender;
         address recipient;
-        uint128 totalAmount;
+        uint128 depositAmount;
         bool cancelable;
         bool transferable;
         uint40 startTime;
         LockupTranched.Tranche[] tranches;
         string shape;
-        Broker broker;
     }
-}
-
-/// @notice Struct encapsulating the broker parameters passed to the create functions. Both can be set to zero.
-/// @param account The address receiving the broker's fee.
-/// @param fee The broker's percentage fee from the total amount, denoted as a fixed-point number where 1e18 is 100%.
-struct Broker {
-    address account;
-    UD60x18 fee;
 }
 
 /// @notice Namespace for the structs used in all Lockup models.
@@ -111,7 +96,7 @@ library Lockup {
     /// decimals.
     /// @dev Because the deposited and the withdrawn amount are often read together, declaring them in the same slot
     /// saves gas.
-    /// @param deposited The initial amount deposited in the stream, net of broker fee.
+    /// @param deposited The amount deposited in the stream.
     /// @param withdrawn The cumulative amount withdrawn from the stream.
     /// @param refunded The amount refunded to the sender. Unless the stream was canceled, this is always zero.
     struct Amounts {
@@ -122,89 +107,69 @@ library Lockup {
         uint128 refunded;
     }
 
-    /// @notice Struct encapsulating (i) the deposit amount and (ii) the broker fee amount, both denoted in units of the
-    /// token's decimals.
-    /// @param deposit The amount to deposit in the stream.
-    /// @param brokerFee The broker fee amount.
-    struct CreateAmounts {
-        uint128 deposit;
-        uint128 brokerFee;
-    }
-
     /// @notice Struct encapsulating the common parameters emitted in the `Create` event.
     /// @param funder The address which has funded the stream.
     /// @param sender The address distributing the tokens, which is able to cancel the stream.
     /// @param recipient The address receiving the tokens, as well as the NFT owner.
-    /// @param amounts Struct encapsulating (i) the deposit amount, and (ii) the broker fee amount, both denoted
-    /// in units of the token's decimals.
+    /// @param depositAmount The deposit amount, denoted in units of the token's decimals.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param cancelable Boolean indicating whether the stream is cancelable or not.
     /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
     /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, all as Unix timestamps.
     /// @param shape An optional parameter to specify the shape of the distribution function. This helps differentiate
     /// streams in the UI.
-    /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     struct CreateEventCommon {
         address funder;
         address sender;
         address recipient;
-        Lockup.CreateAmounts amounts;
+        uint128 depositAmount;
         IERC20 token;
         bool cancelable;
         bool transferable;
         Lockup.Timestamps timestamps;
         string shape;
-        address broker;
     }
 
     /// @notice Struct encapsulating the parameters of the `createWithDurations` functions.
     /// @param sender The address distributing the tokens, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the tokens, as well as the NFT owner.
-    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the token's
-    /// decimals.
+    /// @param depositAmount The deposit amount, denoted in units of the token's decimals.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param shape An optional parameter to specify the shape of the distribution function. This helps differentiate
     /// streams in the UI.
-    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
-    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithDurations {
         address sender;
         address recipient;
-        uint128 totalAmount;
+        uint128 depositAmount;
         IERC20 token;
         bool cancelable;
         bool transferable;
         string shape;
-        Broker broker;
     }
 
     /// @notice Struct encapsulating the parameters of the `createWithTimestamps` functions.
     /// @param sender The address distributing the tokens, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the tokens, as well as the NFT owner.
-    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in units of the token's
-    /// decimals.
+    /// @param depositAmount The deposit amount, denoted in units of the token's decimals.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, both as Unix timestamps.
     /// @param shape An optional parameter to specify the shape of the distribution function. This helps differentiate
     /// streams in the UI.
-    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
-    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithTimestamps {
         address sender;
         address recipient;
-        uint128 totalAmount;
+        uint128 depositAmount;
         IERC20 token;
         bool cancelable;
         bool transferable;
         Timestamps timestamps;
         string shape;
-        Broker broker;
     }
 
     /// @notice Enum representing the different distribution models used to create lockup streams.

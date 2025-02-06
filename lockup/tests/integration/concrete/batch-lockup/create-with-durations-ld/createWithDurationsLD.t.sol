@@ -24,7 +24,7 @@ contract CreateWithDurationsLD_Integration_Test is Integration_Test {
 
         expectMultipleCallsToCreateWithDurationsLD({
             count: defaults.BATCH_SIZE(),
-            params: defaults.createWithDurationsBrokerNull(),
+            params: defaults.createWithDurations(),
             segmentsWithDuration: defaults.segmentsWithDurations()
         });
         expectMultipleCallsToTransferFrom({

@@ -40,10 +40,8 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
         // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
-        // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
-        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
         _defaultParams.unlockAmounts = defaults.unlockAmountsZero();
-        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
+        _defaultParams.createWithTimestamps.depositAmount = depositAmount;
         uint256 streamId = createDefaultStream();
 
         // Simulate the passage of time.
@@ -88,9 +86,9 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
         // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
-        // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
-        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
-        params.totalAmount = depositAmount;
+        // Create the stream.
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
+        params.depositAmount = depositAmount;
         LockupLinear.UnlockAmounts memory unlockAmounts = defaults.unlockAmountsZero();
         uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, defaults.CLIFF_TIME());
 

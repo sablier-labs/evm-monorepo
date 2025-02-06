@@ -3,9 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
-import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 
 import { Base_Test } from "./../Base.t.sol";
 
@@ -35,10 +32,12 @@ abstract contract Fork_Test is Base_Test {
         // Fork Ethereum Mainnet at the latest block number.
         vm.createSelectFork({ urlOrAlias: "ethereum" });
 
+        // TODO: update once the contracts are deployed.
+        Base_Test.setUp();
         // Load deployed addresses from Ethereum mainnet.
-        batchLockup = ISablierBatchLockup(0x3F6E8a8Cffe377c4649aCeB01e6F20c60fAA356c);
-        nftDescriptor = ILockupNFTDescriptor(0xA9dC6878C979B5cc1d98a1803F0664ad725A1f56);
-        lockup = ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056);
+        // batchLockup = ISablierBatchLockup(0x3F6E8a8Cffe377c4649aCeB01e6F20c60fAA356c);
+        // nftDescriptor = ILockupNFTDescriptor(0xA9dC6878C979B5cc1d98a1803F0664ad725A1f56);
+        // lockup = ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056);
 
         // Create a custom user for this test suite.
         forkTokenHolder = payable(makeAddr(string.concat(IERC20Metadata(address(FORK_TOKEN)).symbol(), "_HOLDER")));
@@ -58,19 +57,18 @@ abstract contract Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks the user assumptions.
-    function checkUsers(address sender, address recipient, address broker, address lockupContract) internal virtual {
+    function checkUsers(address sender, address recipient, address lockupContract) internal virtual {
         // The protocol does not allow the zero address to interact with it.
-        vm.assume(sender != address(0) && recipient != address(0) && broker != address(0));
+        vm.assume(sender != address(0) && recipient != address(0));
 
         // The goal is to not have overlapping users because the forked token balance tests would fail otherwise.
-        vm.assume(sender != recipient && sender != broker && recipient != broker);
-        vm.assume(sender != forkTokenHolder && recipient != forkTokenHolder && broker != forkTokenHolder);
-        vm.assume(sender != lockupContract && recipient != lockupContract && broker != lockupContract);
+        vm.assume(sender != recipient);
+        vm.assume(sender != forkTokenHolder && recipient != forkTokenHolder);
+        vm.assume(sender != lockupContract && recipient != lockupContract);
 
         // Avoid users blacklisted by USDC or USDT.
         assumeNoBlacklisted(address(FORK_TOKEN), sender);
         assumeNoBlacklisted(address(FORK_TOKEN), recipient);
-        assumeNoBlacklisted(address(FORK_TOKEN), broker);
     }
 
     /// @dev Labels the most relevant addresses.

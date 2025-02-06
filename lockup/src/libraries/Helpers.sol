@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
 import { Errors } from "./Errors.sol";
 
@@ -80,25 +79,19 @@ library Helpers {
     function checkCreateLockupDynamic(
         address sender,
         Lockup.Timestamps memory timestamps,
-        uint128 totalAmount,
+        uint128 depositAmount,
         LockupDynamic.Segment[] memory segments,
         uint256 maxCount,
-        UD60x18 brokerFee,
-        string memory shape,
-        UD60x18 maxBrokerFee
+        string memory shape
     )
         public
         pure
-        returns (Lockup.CreateAmounts memory createAmounts)
     {
-        // Check: verify the broker fee and calculate the amounts.
-        createAmounts = _checkAndCalculateBrokerFee(totalAmount, brokerFee, maxBrokerFee);
-
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, createAmounts.deposit, timestamps.start, shape);
+        _checkCreateStream(sender, depositAmount, timestamps.start, shape);
 
         // Check: validate the user-provided segments.
-        _checkSegments(segments, createAmounts.deposit, timestamps, maxCount);
+        _checkSegments(segments, depositAmount, timestamps, maxCount);
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLL} function.
@@ -106,90 +99,42 @@ library Helpers {
         address sender,
         Lockup.Timestamps memory timestamps,
         uint40 cliffTime,
-        uint128 totalAmount,
+        uint128 depositAmount,
         LockupLinear.UnlockAmounts memory unlockAmounts,
-        UD60x18 brokerFee,
-        string memory shape,
-        UD60x18 maxBrokerFee
+        string memory shape
     )
         public
         pure
-        returns (Lockup.CreateAmounts memory createAmounts)
     {
-        // Check: verify the broker fee and calculate the amounts.
-        createAmounts = _checkAndCalculateBrokerFee(totalAmount, brokerFee, maxBrokerFee);
-
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, createAmounts.deposit, timestamps.start, shape);
+        _checkCreateStream(sender, depositAmount, timestamps.start, shape);
 
         // Check: validate the user-provided cliff and end times.
-        _checkTimestampsAndUnlockAmounts(createAmounts.deposit, timestamps, cliffTime, unlockAmounts);
+        _checkTimestampsAndUnlockAmounts(depositAmount, timestamps, cliffTime, unlockAmounts);
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLT} function.
     function checkCreateLockupTranched(
         address sender,
         Lockup.Timestamps memory timestamps,
-        uint128 totalAmount,
+        uint128 depositAmount,
         LockupTranched.Tranche[] memory tranches,
         uint256 maxCount,
-        UD60x18 brokerFee,
-        string memory shape,
-        UD60x18 maxBrokerFee
+        string memory shape
     )
         public
         pure
-        returns (Lockup.CreateAmounts memory createAmounts)
     {
-        // Check: verify the broker fee and calculate the amounts.
-        createAmounts = _checkAndCalculateBrokerFee(totalAmount, brokerFee, maxBrokerFee);
-
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, createAmounts.deposit, timestamps.start, shape);
+        _checkCreateStream(sender, depositAmount, timestamps.start, shape);
 
         // Check: validate the user-provided segments.
-        _checkTranches(tranches, createAmounts.deposit, timestamps, maxCount);
+        _checkTranches(tranches, depositAmount, timestamps, maxCount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Checks the broker fee is not greater than `maxBrokerFee`, and then calculates the broker fee amount and
-    /// the deposit amount from the total amount.
-    function _checkAndCalculateBrokerFee(
-        uint128 totalAmount,
-        UD60x18 brokerFee,
-        UD60x18 maxBrokerFee
-    )
-        private
-        pure
-        returns (Lockup.CreateAmounts memory amounts)
-    {
-        // When the total amount is zero, the broker fee is also zero.
-        if (totalAmount == 0) {
-            return Lockup.CreateAmounts(0, 0);
-        }
-
-        // If the broker fee is zero, the deposit amount is the total amount.
-        if (brokerFee.isZero()) {
-            return Lockup.CreateAmounts(totalAmount, 0);
-        }
-
-        // Check: the broker fee is not greater than `maxBrokerFee`.
-        if (brokerFee.gt(maxBrokerFee)) {
-            revert Errors.SablierHelpers_BrokerFeeTooHigh(brokerFee, maxBrokerFee);
-        }
-
-        // Calculate the broker fee amount.
-        amounts.brokerFee = ud(totalAmount).mul(brokerFee).intoUint128();
-
-        // Assert that the total amount is strictly greater than the broker fee amount.
-        assert(totalAmount > amounts.brokerFee);
-
-        // Calculate the deposit amount (the amount to stream, net of the broker fee).
-        amounts.deposit = totalAmount - amounts.brokerFee;
-    }
 
     /// @dev Checks the user-provided cliff, end times and unlock amounts of a lockup linear stream.
     function _checkTimestampsAndUnlockAmounts(

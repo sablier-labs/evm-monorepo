@@ -32,7 +32,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -48,7 +47,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -67,7 +65,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -87,7 +84,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -116,7 +112,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -141,11 +136,10 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_TimestampsNotStrictlyIncreasing()
+    function test_RevertWhen_EndTimeNotEqualLastTimestamp()
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -155,6 +149,32 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+    {
+        _defaultParams.createWithTimestamps.timestamps.end = defaults.END_TIME() + 1 seconds;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierHelpers_EndTimeNotEqualToLastSegmentTimestamp.selector,
+                _defaultParams.createWithTimestamps.timestamps.end,
+                _defaultParams.createWithTimestamps.timestamps.end - 1
+            )
+        );
+        createDefaultStream();
+    }
+
+    function test_RevertWhen_TimestampsNotStrictlyIncreasing()
+        external
+        whenNoDelegateCall
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenContract
+        whenSegmentCountNotZero
+        whenSegmentCountNotExceedMaxValue
+        whenSegmentAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
     {
         // Swap the segment timestamps.
         LockupDynamic.Segment[] memory segments = defaults.segments();
@@ -186,6 +206,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
     {
         resetPrank({ msgSender: users.sender });
@@ -195,8 +216,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         uint128 depositAmount = defaultDepositAmount + 100;
 
         // Prepare the params.
-        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
-        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
+        _defaultParams.createWithTimestamps.depositAmount = depositAmount;
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
@@ -213,7 +233,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
@@ -223,6 +242,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
         whenDepositAmountEqualsSegmentAmountsSum
     {
@@ -241,9 +261,9 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
         whenDepositAmountNotEqualSegmentAmountsSum
-        whenBrokerFeeNotExceedMaxValue
         whenTokenContract
     {
         _testCreateWithTimestampsLD(address(dai));
@@ -261,14 +281,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
             from: funder,
             to: address(lockup),
             value: defaults.DEPOSIT_AMOUNT()
-        });
-
-        // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({
-            token: IERC20(token),
-            from: funder,
-            to: users.broker,
-            value: defaults.BROKER_FEE_AMOUNT()
         });
 
         // It should emit {CreateLockupDynamicStream} and {MetadataUpdate} events.

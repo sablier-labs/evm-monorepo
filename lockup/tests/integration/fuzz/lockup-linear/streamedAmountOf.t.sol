@@ -29,8 +29,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
         dai.approve(address(lockup), depositAmount);
 
         // Create the stream with the fuzzed deposit amount.
-        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
-        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
+        _defaultParams.createWithTimestamps.depositAmount = depositAmount;
         _defaultParams.unlockAmounts = unlockAmounts;
         uint256 streamId = createDefaultStream();
 
@@ -72,8 +71,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
         dai.approve(address(lockup), depositAmount);
 
         // Create the stream with the fuzzed deposit amount.
-        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
-        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
+        _defaultParams.createWithTimestamps.depositAmount = depositAmount;
         _defaultParams.unlockAmounts = unlockAmounts;
         uint256 streamId = createDefaultStream();
 
@@ -116,8 +114,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
 
         // Create the stream with the fuzzed deposit amount.
         _defaultParams.unlockAmounts = unlockAmounts;
-        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
-        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
+        _defaultParams.createWithTimestamps.depositAmount = depositAmount;
         uint256 streamId = createDefaultStream();
 
         // Warp to the future for the first time.

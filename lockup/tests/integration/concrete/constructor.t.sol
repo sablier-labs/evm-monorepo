@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
-
 import { IAdminable } from "src/interfaces/IAdminable.sol";
 import { SablierLockup } from "src/SablierLockup.sol";
 
@@ -20,11 +18,6 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
             initialNFTDescriptor: nftDescriptor,
             maxCount: defaults.MAX_COUNT()
         });
-
-        // {SablierLockupBase.constant}
-        UD60x18 actualMaxBrokerFee = constructedLockup.MAX_BROKER_FEE();
-        UD60x18 expectedMaxBrokerFee = UD60x18.wrap(0.1e18);
-        assertEq(actualMaxBrokerFee, expectedMaxBrokerFee, "MAX_BROKER_FEE");
 
         // {Adminable.constructor}
         address actualAdmin = constructedLockup.admin();

@@ -3,11 +3,11 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ud } from "@prb/math/src/UD60x18.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
+
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
-import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
+import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 import { Fork_Test } from "./Fork.t.sol";
 
 abstract contract Lockup_Linear_Fork_Test is Fork_Test {
@@ -37,13 +37,12 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
     struct Params {
         address sender;
         address recipient;
-        uint128 totalAmount;
+        uint128 depositAmount;
         uint128 withdrawAmount;
         uint40 warpTimestamp;
         Lockup.Timestamps timestamps;
         LockupLinear.UnlockAmounts unlockAmounts;
         uint40 cliffTime;
-        Broker broker;
     }
 
     struct Vars {
@@ -70,12 +69,8 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         uint256 streamId;
         uint128 streamedAmount;
         // Create vars
-        uint256 actualBrokerBalance;
         uint256 actualNextStreamId;
-        Lockup.CreateAmounts createAmounts;
-        uint256 expectedBrokerBalance;
         uint256 expectedNextStreamId;
-        uint256 initialBrokerBalance;
         // Withdraw vars
         uint128 actualWithdrawnAmount;
         uint128 expectedWithdrawnAmount;
@@ -105,27 +100,25 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
     ///
     /// Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
-    /// - Multiple values for the sender, recipient, and broker
-    /// - Multiple values for the total amount
+    /// - Multiple values for the sender, and recipient
+    /// - Multiple values for the deposit amount
     /// - Multiple values for the withdraw amount, including zero
     /// - Start time in the past
     /// - Start time in the present
     /// - Start time in the future
     /// - Multiple values for the cliff time and the end time
     /// - Cliff time zero and not zero
-    /// - Multiple values for the broker fee, including zero
     /// - The whole gamut of stream statuses
     function testForkFuzz_CreateWithdrawCancel(Params memory params) external {
-        checkUsers(params.sender, params.recipient, params.broker.account, address(lockup));
+        checkUsers(params.sender, params.recipient, address(lockup));
 
         // Bound the parameters.
         Vars memory vars;
         vars.blockTimestamp = getBlockTimestamp();
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.timestamps.start = boundUint40(
             params.timestamps.start, vars.blockTimestamp - 1000 seconds, vars.blockTimestamp + 10_000 seconds
         );
-        params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
+        params.depositAmount = boundUint128(params.depositAmount, 1, uint128(initialHolderBalance));
 
         // The cliff time must be either zero or greater than the start time.
         vars.hasCliff = params.cliffTime > 0;
@@ -138,14 +131,10 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         params.timestamps.end =
             boundUint40(params.timestamps.end, vars.endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
 
-        // Calculate the broker fee amount and the deposit amount.
-        vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.brokerFee;
-
         // Bound the unlock amounts.
-        params.unlockAmounts.start = boundUint128(params.unlockAmounts.start, 0, vars.createAmounts.deposit);
+        params.unlockAmounts.start = boundUint128(params.unlockAmounts.start, 0, params.depositAmount);
         params.unlockAmounts.cliff = vars.hasCliff
-            ? boundUint128(params.unlockAmounts.cliff, 0, vars.createAmounts.deposit - params.unlockAmounts.start)
+            ? boundUint128(params.unlockAmounts.cliff, 0, params.depositAmount - params.unlockAmounts.start)
             : 0;
 
         // Make the holder the caller.
@@ -156,10 +145,8 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Load the pre-create token balances.
-        vars.balances =
-            getTokenBalances(address(FORK_TOKEN), Solarray.addresses(address(lockup), params.broker.account));
+        vars.balances = getTokenBalances(address(FORK_TOKEN), Solarray.addresses(address(lockup)));
         vars.initialLockupBalance = vars.balances[0];
-        vars.initialBrokerBalance = vars.balances[1];
 
         vars.streamId = lockup.nextStreamId();
 
@@ -173,13 +160,12 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
                 funder: forkTokenHolder,
                 sender: params.sender,
                 recipient: params.recipient,
-                amounts: vars.createAmounts,
+                depositAmount: params.depositAmount,
                 token: FORK_TOKEN,
                 cancelable: true,
                 transferable: true,
                 timestamps: params.timestamps,
-                shape: "Linear Shape",
-                broker: params.broker.account
+                shape: "Linear Shape"
             }),
             cliffTime: params.cliffTime,
             unlockAmounts: params.unlockAmounts
@@ -190,29 +176,24 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
             Lockup.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
-                totalAmount: params.totalAmount,
+                depositAmount: params.depositAmount,
                 token: FORK_TOKEN,
                 cancelable: true,
                 transferable: true,
                 timestamps: params.timestamps,
-                shape: "Linear Shape",
-                broker: params.broker
+                shape: "Linear Shape"
             }),
             params.unlockAmounts,
             params.cliffTime
         );
 
         vars.streamedAmount = calculateLockupLinearStreamedAmount(
-            params.timestamps.start,
-            params.cliffTime,
-            params.timestamps.end,
-            vars.createAmounts.deposit,
-            params.unlockAmounts
+            params.timestamps.start, params.cliffTime, params.timestamps.end, params.depositAmount, params.unlockAmounts
         );
 
         // Check if the stream is settled. It is possible for a Lockup Linear stream to settle at the time of creation
         // in case 1. the start unlock amount equals the deposited amount 2. end time is in the past.
-        if (vars.streamedAmount == vars.createAmounts.deposit) {
+        if (vars.streamedAmount == params.depositAmount) {
             vars.isSettled = true;
         } else {
             vars.isSettled = false;
@@ -221,7 +202,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
 
         // Assert that the stream has been created.
         assertEq(lockup.getCliffTime(vars.streamId), params.cliffTime, "cliffTime");
-        assertEq(lockup.getDepositedAmount(vars.streamId), vars.createAmounts.deposit, "depositedAmount");
+        assertEq(lockup.getDepositedAmount(vars.streamId), params.depositAmount, "depositedAmount");
         assertEq(lockup.isCancelable(vars.streamId), vars.isCancelable, "isCancelable");
         assertFalse(lockup.isDepleted(vars.streamId), "isDepleted");
         assertTrue(lockup.isStream(vars.streamId), "isStream");
@@ -237,7 +218,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
 
         // Assert that the stream's status is correct.
         vars.actualStatus = lockup.statusOf(vars.streamId);
-        if (vars.streamedAmount == vars.createAmounts.deposit) {
+        if (vars.streamedAmount == params.depositAmount) {
             vars.expectedStatus = Lockup.Status.SETTLED;
         } else if (params.timestamps.start > vars.blockTimestamp) {
             vars.expectedStatus = Lockup.Status.PENDING;
@@ -257,24 +238,17 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "post-create NFT owner");
 
         // Load the post-create token balances.
-        vars.balances = getTokenBalances(
-            address(FORK_TOKEN), Solarray.addresses(address(lockup), forkTokenHolder, params.broker.account)
-        );
+        vars.balances = getTokenBalances(address(FORK_TOKEN), Solarray.addresses(address(lockup), forkTokenHolder));
         vars.actualLockupBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
-        vars.actualBrokerBalance = vars.balances[2];
 
         // Assert that the Lockup contract's balance has been updated.
-        vars.expectedLockupBalance = vars.initialLockupBalance + vars.createAmounts.deposit;
+        vars.expectedLockupBalance = vars.initialLockupBalance + params.depositAmount;
         assertEq(vars.actualLockupBalance, vars.expectedLockupBalance, "post-create Lockup balance");
 
         // Assert that the holder's balance has been updated.
-        vars.expectedHolderBalance = initialHolderBalance - params.totalAmount;
+        vars.expectedHolderBalance = initialHolderBalance - params.depositAmount;
         assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "post-create Holder balance");
-
-        // Assert that the broker's balance has been updated.
-        vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.createAmounts.brokerFee;
-        assertEq(vars.actualBrokerBalance, vars.expectedBrokerBalance, "post-create Broker balance");
 
         /*//////////////////////////////////////////////////////////////////////////
                                           WITHDRAW
@@ -295,7 +269,7 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
         // Check if the stream has settled or will get depleted. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.
         vars.isSettled = lockup.refundableAmountOf(vars.streamId) == 0;
-        vars.isDepleted = params.withdrawAmount == vars.createAmounts.deposit;
+        vars.isDepleted = params.withdrawAmount == params.depositAmount;
 
         // Only run the withdraw tests if the withdraw amount is not zero.
         if (params.withdrawAmount > 0) {

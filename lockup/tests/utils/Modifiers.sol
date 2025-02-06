@@ -195,7 +195,7 @@ abstract contract Modifiers is Fuzzers {
                                    CREATE-COMMON
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenBrokerFeeNotExceedMaxValue() {
+    modifier whenEndTimeEqualsLastTimestamp() {
         _;
     }
 
