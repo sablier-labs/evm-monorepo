@@ -5,7 +5,7 @@ env:
 
 on:
   schedule:
-    - cron: "0 3 * * 3,6" # at 3:00am UTC on Wednesday and Saturday
+    - cron: "0 3 * * 6" # at 3:00am UTC on Saturday
   workflow_dispatch:
     inputs:
       integrationFuzzRuns:
