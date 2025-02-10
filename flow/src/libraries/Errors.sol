@@ -24,12 +24,6 @@ library Errors {
                                     SABLIER-FLOW
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when trying to create a stream with a broker recipient address as zero.
-    error SablierFlow_BrokerAddressZero();
-
-    /// @notice Thrown when trying to create a stream with a broker fee more than the allowed.
-    error SablierFlow_BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxFee);
-
     /// @notice Thrown when trying to create a stream with a zero deposit amount.
     error SablierFlow_DepositAmountZero(uint256 streamId);
 

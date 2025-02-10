@@ -43,12 +43,6 @@ contract Payable_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         flow.depositAndPause{ value: FEE }(defaultStreamId, DEPOSIT_AMOUNT_6D);
     }
 
-    function test_DepositViaBrokerWhenETHValueNotZero() external {
-        flow.depositViaBroker{ value: FEE }(
-            defaultStreamId, DEPOSIT_AMOUNT_6D, users.sender, users.recipient, defaultBroker
-        );
-    }
-
     function test_PauseWhenETHValueNotZero() external {
         flow.pause{ value: FEE }(defaultStreamId);
     }

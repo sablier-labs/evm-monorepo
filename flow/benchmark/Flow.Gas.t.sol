@@ -60,15 +60,6 @@ contract Flow_Gas_Test is Shared_Integration_Concrete_Test {
             "deposit", abi.encodeCall(flow.deposit, (streamId, DEPOSIT_AMOUNT_6D, users.sender, users.recipient))
         );
 
-        // {flow.depositViaBroker}
-        computeGas(
-            "depositViaBroker",
-            abi.encodeCall(
-                flow.depositViaBroker,
-                (streamId, TOTAL_AMOUNT_WITH_BROKER_FEE_6D, users.sender, users.recipient, defaultBroker)
-            )
-        );
-
         // {flow.pause}
         computeGas("pause", abi.encodeCall(flow.pause, (streamId)));
 

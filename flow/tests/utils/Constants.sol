@@ -11,16 +11,11 @@ abstract contract Constants {
     uint256 internal constant FEE = 0.001e18;
     uint128 internal constant REFUND_AMOUNT_18D = 10_000e18;
     uint128 internal constant REFUND_AMOUNT_6D = 10_000e6;
-    uint128 internal constant TOTAL_AMOUNT_WITH_BROKER_FEE_18D = DEPOSIT_AMOUNT_18D + BROKER_FEE_AMOUNT_18D;
-    uint128 internal constant TOTAL_AMOUNT_WITH_BROKER_FEE_6D = DEPOSIT_AMOUNT_6D + BROKER_FEE_AMOUNT_6D;
     uint128 internal constant TRANSFER_VALUE = 50_000;
     uint128 internal constant WITHDRAW_AMOUNT_18D = 500e18;
     uint128 internal constant WITHDRAW_AMOUNT_6D = 500e6;
 
     // Fees
-    UD60x18 internal constant BROKER_FEE = UD60x18.wrap(0.01e18); // 1%
-    uint128 internal constant BROKER_FEE_AMOUNT_18D = 505.050505050505050505e18; // 1% of total amount
-    uint128 internal constant BROKER_FEE_AMOUNT_6D = 505.050505e6; // 1% of total amount
     UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18); // 10%
     UD60x18 internal constant PROTOCOL_FEE = UD60x18.wrap(0.01e18); // 1%
     uint128 internal immutable PROTOCOL_FEE_AMOUNT_18D = ud(WITHDRAW_AMOUNT_18D).mul(PROTOCOL_FEE).intoUint128();

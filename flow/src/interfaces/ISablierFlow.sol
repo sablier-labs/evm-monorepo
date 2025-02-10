@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
-import { Broker, Flow } from "./../types/DataTypes.sol";
+import { Flow } from "./../types/DataTypes.sol";
 import { IBatch } from "./IBatch.sol";
 import { ISablierFlowBase } from "./ISablierFlowBase.sol";
 
@@ -274,36 +274,6 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to deposit to, and then pause.
     /// @param amount The deposit amount, denoted in token's decimals.
     function depositAndPause(uint256 streamId, uint128 amount) external payable;
-
-    /// @notice Deposits tokens in a stream.
-    ///
-    /// @dev Emits a {Transfer} and {DepositFlowStream} event.
-    ///
-    /// Notes:
-    /// - Refer to the notes in {deposit}.
-    ///
-    /// Requirements:
-    /// - Must not be delegate called.
-    /// - `streamId` must not reference a null stream.
-    /// - `totalAmount` must be greater than zero. Otherwise it will revert inside {deposit}.
-    /// - `broker.account` must not be 0 address.
-    /// - `broker.fee` must not be greater than `MAX_FEE`. It can be zero.
-    ///
-    /// @param streamId The ID of the stream to deposit on.
-    /// @param totalAmount The total amount, including the deposit and any broker fee, denoted in token's decimals.
-    /// @param sender The stream's sender address.
-    /// @param recipient The stream's recipient address.
-    /// @param broker Struct encapsulating (i) the address of the broker assisting in creating the stream, and (ii) the
-    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point percentage.
-    function depositViaBroker(
-        uint256 streamId,
-        uint128 totalAmount,
-        address sender,
-        address recipient,
-        Broker calldata broker
-    )
-        external
-        payable;
 
     /// @notice Pauses the stream.
     ///

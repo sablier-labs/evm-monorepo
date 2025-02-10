@@ -96,14 +96,6 @@ abstract contract Modifiers is Utils {
                                       DEPOSIT
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenBrokerAddressNotZero() {
-        _;
-    }
-
-    modifier whenBrokerFeeNotGreaterThanMaxFee() {
-        _;
-    }
-
     modifier whenDepositAmountNotZero() {
         _;
     }

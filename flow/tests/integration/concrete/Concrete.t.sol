@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Broker, Flow } from "src/types/DataTypes.sol";
+import { Flow } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
 
@@ -11,7 +11,6 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    Broker internal defaultBroker;
     uint256 internal defaultStreamId;
     uint256 internal nullStreamId = 420;
 
@@ -32,7 +31,6 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
     function setUp() public virtual override {
         Integration_Test.setUp();
 
-        defaultBroker = Broker({ account: users.broker, fee: BROKER_FEE });
         defaultStreamId = createDefaultStream();
 
         // Simulate one month of streaming.

@@ -3,17 +3,6 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
-
-/// @notice Struct encapsulating the broker parameters.
-///
-/// @param account The address receiving the broker's fee.
-/// @param fee The broker's percentage fee charged from the deposit amount, denoted as a fixed-point percentage where
-/// 1e18 is 100%.
-struct Broker {
-    address account;
-    UD60x18 fee;
-}
 
 library Flow {
     /// @notice Enum representing the different statuses of a stream.

@@ -57,8 +57,8 @@ interface ISablierFlowBase is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the maximum fee that can be charged by the broker and the protocol, denoted as a fixed-point
-    /// percentage where 1e18 is 100%.
+    /// @notice Retrieves the maximum fee that can be charged by the protocol, denoted as a fixed-point percentage where
+    /// 1e18 is 100%.
     /// @dev This value is hard coded as a constant.
     function MAX_FEE() external view returns (UD60x18 fee);
 

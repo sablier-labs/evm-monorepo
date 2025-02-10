@@ -67,7 +67,6 @@ abstract contract Base_Test is Assertions, Modifiers, Test {
         flow.setProtocolFee(tokenWithProtocolFee, PROTOCOL_FEE);
 
         // Create the users.
-        users.broker = createUser("broker");
         users.eve = createUser("eve");
         users.operator = createUser("operator");
         users.recipient = createUser("recipient");

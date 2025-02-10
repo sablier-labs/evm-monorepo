@@ -16,7 +16,7 @@ import { IFlowNFTDescriptor } from "./interfaces/IFlowNFTDescriptor.sol";
 import { ISablierFlow } from "./interfaces/ISablierFlow.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Helpers } from "./libraries/Helpers.sol";
-import { Broker, Flow } from "./types/DataTypes.sol";
+import { Flow } from "./types/DataTypes.sol";
 
 /// @title SablierFlow
 /// @notice See the documentation in {ISablierFlow}.
@@ -294,29 +294,6 @@ contract SablierFlow is
 
         // Checks, Effects, and Interactions: pause the stream.
         _pause(streamId);
-    }
-
-    /// @inheritdoc ISablierFlow
-    function depositViaBroker(
-        uint256 streamId,
-        uint128 totalAmount,
-        address sender,
-        address recipient,
-        Broker calldata broker
-    )
-        external
-        payable
-        override
-        noDelegateCall
-        notNull(streamId)
-        notVoided(streamId)
-        updateMetadata(streamId)
-    {
-        // Check: the provided sender and recipient match the stream's sender and recipient.
-        _verifyStreamSenderRecipient(streamId, sender, recipient);
-
-        // Checks, Effects, and Interactions: deposit on stream through broker.
-        _depositViaBroker(streamId, totalAmount, broker);
     }
 
     /// @inheritdoc ISablierFlow
@@ -672,19 +649,6 @@ contract SablierFlow is
 
         // Log the deposit.
         emit ISablierFlow.DepositFlowStream({ streamId: streamId, funder: msg.sender, amount: amount });
-    }
-
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _depositViaBroker(uint256 streamId, uint128 totalAmount, Broker memory broker) internal {
-        // Check: verify the `broker` and calculate the amounts.
-        (uint128 brokerFeeAmount, uint128 depositAmount) =
-            Helpers.checkAndCalculateBrokerFee(totalAmount, broker, MAX_FEE);
-
-        // Checks, Effects, and Interactions: deposit on stream.
-        _deposit(streamId, depositAmount);
-
-        // Interaction: transfer the broker's amount.
-        _streams[streamId].token.safeTransferFrom({ from: msg.sender, to: broker.account, value: brokerFeeAmount });
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
