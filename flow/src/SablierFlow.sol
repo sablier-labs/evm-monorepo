@@ -7,7 +7,6 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
-import { UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
 
 import { Batch } from "./abstracts/Batch.sol";
 import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
@@ -431,10 +430,9 @@ contract SablierFlow is
         noDelegateCall
         notNull(streamId)
         updateMetadata(streamId)
-        returns (uint128 withdrawnAmount, uint128 protocolFeeAmount)
     {
         // Checks, Effects, and Interactions: make the withdrawal.
-        (withdrawnAmount, protocolFeeAmount) = _withdraw(streamId, to, amount);
+        _withdraw(streamId, to, amount);
     }
 
     /// @inheritdoc ISablierFlow
@@ -448,12 +446,12 @@ contract SablierFlow is
         noDelegateCall
         notNull(streamId)
         updateMetadata(streamId)
-        returns (uint128 withdrawnAmount, uint128 protocolFeeAmount)
+        returns (uint128 withdrawnAmount)
     {
-        uint128 coveredDebt = _coveredDebtOf(streamId);
+        withdrawnAmount = _coveredDebtOf(streamId);
 
         // Checks, Effects, and Interactions: make the withdrawal.
-        (withdrawnAmount, protocolFeeAmount) = _withdraw(streamId, to, coveredDebt);
+        _withdraw(streamId, to, withdrawnAmount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -763,14 +761,7 @@ contract SablierFlow is
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdraw(
-        uint256 streamId,
-        address to,
-        uint128 amount
-    )
-        internal
-        returns (uint128 withdrawnAmount, uint128 protocolFeeAmount)
-    {
+    function _withdraw(uint256 streamId, address to, uint128 amount) internal {
         // Check: the withdraw amount is not zero.
         if (amount == 0) {
             revert Errors.SablierFlow_WithdrawAmountZero(streamId);
@@ -835,18 +826,6 @@ contract SablierFlow is
 
         // Load the variables in memory.
         IERC20 token = _streams[streamId].token;
-        UD60x18 protocolFee = protocolFee[token];
-
-        if (protocolFee > ZERO) {
-            // Calculate the protocol fee amount and the net withdraw amount.
-            (protocolFeeAmount, amount) = Helpers.calculateAmountsFromFee({ totalAmount: amount, fee: protocolFee });
-
-            // Safe to use unchecked because addition cannot overflow.
-            unchecked {
-                // Effect: update the protocol revenue.
-                protocolRevenue[token] += protocolFeeAmount;
-            }
-        }
 
         unchecked {
             // Effect: update the aggregate balance.
@@ -865,10 +844,7 @@ contract SablierFlow is
             to: to,
             token: token,
             caller: msg.sender,
-            withdrawAmount: amount,
-            protocolFeeAmount: protocolFeeAmount
+            withdrawAmount: amount
         });
-
-        return (amount, protocolFeeAmount);
     }
 }

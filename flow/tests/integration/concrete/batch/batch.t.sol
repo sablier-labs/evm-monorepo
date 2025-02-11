@@ -233,7 +233,6 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
             to: users.recipient,
             token: usdc,
             caller: users.sender,
-            protocolFeeAmount: 0,
             withdrawAmount: WITHDRAW_AMOUNT_6D
         });
         vm.expectEmit({ emitter: address(flow) });
@@ -241,7 +240,6 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
             streamId: defaultStreamIds[1],
             to: users.recipient,
             token: usdc,
-            protocolFeeAmount: 0,
             caller: users.sender,
             withdrawAmount: WITHDRAW_AMOUNT_6D
         });
@@ -254,14 +252,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         expectCallToTransfer({ token: usdc, to: users.recipient, amount: WITHDRAW_AMOUNT_6D });
 
         // Call the batch function.
-        bytes[] memory results = flow.batch{ value: 1 wei }(calls);
-        assertEq(results.length, 2, "batch results length");
-        (uint128 actualWithdrawnAmount, uint128 actualProtocolFeeAmount) = abi.decode(results[0], (uint128, uint128));
-        assertEq(actualWithdrawnAmount, WITHDRAW_AMOUNT_6D, "batch results[0]");
-        assertEq(actualProtocolFeeAmount, 0, "batch results[0]");
-        (actualWithdrawnAmount, actualProtocolFeeAmount) = abi.decode(results[1], (uint128, uint128));
-        assertEq(actualWithdrawnAmount, WITHDRAW_AMOUNT_6D, "batch results[1]");
-        assertEq(actualProtocolFeeAmount, 0, "batch results[1]");
+        flow.batch{ value: 1 wei }(calls);
         assertEq(address(flow).balance, initialEthBalance + 1 wei, "lockup contract balance");
     }
 }

@@ -53,7 +53,6 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
             to: users.recipient,
             token: IERC20(address(usdc)),
             caller: users.sender,
-            protocolFeeAmount: 0,
             withdrawAmount: vars.expectedWithdrawAmount
         });
 
@@ -63,7 +62,7 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         // It should perform the ERC-20 transfer.
         expectCallToTransfer({ token: usdc, to: users.recipient, amount: vars.expectedWithdrawAmount });
 
-        (vars.actualWithdrawnAmount, vars.actualProtocolFeeAmount) = flow.withdrawMax(defaultStreamId, users.recipient);
+        vars.actualWithdrawnAmount = flow.withdrawMax(defaultStreamId, users.recipient);
 
         // It should update the stream balance.
         vars.actualStreamBalance = flow.getBalance(defaultStreamId);
@@ -82,7 +81,6 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
 
         // It should return the actual withdrawn amount.
         assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawAmount, "withdrawn amount");
-        assertEq(vars.actualProtocolFeeAmount, 0, "protocol fee amount");
 
         // It should decrease the aggregate amount.
         assertEq(

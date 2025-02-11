@@ -95,17 +95,9 @@ interface ISablierFlow is
     /// @param to The address that received the withdrawn tokens.
     /// @param token The contract address of the ERC-20 token that was withdrawn.
     /// @param caller The address that performed the withdrawal, which can be the recipient or an approved operator.
-    /// @param withdrawAmount The amount withdrawn to the recipient after subtracting the protocol fee, denoted in
-    /// token's decimals.
-    /// @param protocolFeeAmount The amount of protocol fee deducted from the withdrawn amount, denoted in token's
-    /// decimals.
+    /// @param withdrawAmount The amount withdrawn to the recipient, denoted in token's decimals.
     event WithdrawFromFlowStream(
-        uint256 indexed streamId,
-        address indexed to,
-        IERC20 indexed token,
-        address caller,
-        uint128 withdrawAmount,
-        uint128 protocolFeeAmount
+        uint256 indexed streamId, address indexed to, IERC20 indexed token, address caller, uint128 withdrawAmount
     );
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -384,13 +376,12 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to void.
     function void(uint256 streamId) external payable;
 
-    /// @notice Withdraws the provided `amount` minus the protocol fee to the provided `to` address.
+    /// @notice Withdraws the provided `amount` to the provided `to` address.
     ///
     /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
     ///
     /// Notes:
     /// - It sets the snapshot time to the `block.timestamp` if `amount` is greater than snapshot debt.
-    /// - A protocol fee may be charged on the withdrawn amount if the protocol fee is enabled for the streaming token.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -402,19 +393,9 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn tokens.
     /// @param amount The amount to withdraw, denoted in token's decimals.
-    /// @return withdrawnAmount The amount withdrawn to the recipient, denoted in token's decimals. This is input amount
-    /// minus the protocol fee.
-    /// @return protocolFeeAmount The protocol fee amount, denoted in the token's decimals.
-    function withdraw(
-        uint256 streamId,
-        address to,
-        uint128 amount
-    )
-        external
-        payable
-        returns (uint128 withdrawnAmount, uint128 protocolFeeAmount);
+    function withdraw(uint256 streamId, address to, uint128 amount) external payable;
 
-    /// @notice Withdraws the entire withdrawable amount minus the protocol fee to the provided `to` address.
+    /// @notice Withdraws the entire withdrawable amount to the provided `to` address.
     ///
     /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
     ///
@@ -428,12 +409,5 @@ interface ISablierFlow is
     /// @param to The address receiving the withdrawn tokens.
     ///
     /// @return withdrawnAmount The amount withdrawn to the recipient, denoted in token's decimals.
-    /// @return protocolFeeAmount The protocol fee amount, denoted in the token's decimals.
-    function withdrawMax(
-        uint256 streamId,
-        address to
-    )
-        external
-        payable
-        returns (uint128 withdrawnAmount, uint128 protocolFeeAmount);
+    function withdrawMax(uint256 streamId, address to) external payable returns (uint128 withdrawnAmount);
 }

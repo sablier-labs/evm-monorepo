@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22;
 
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 /// @title Errors
 /// @notice Library with custom errors used across the Flow contract.
@@ -88,14 +87,8 @@ library Errors {
     /// @notice Thrown when the fee transfer fails.
     error SablierFlowBase_FeeTransferFail(address admin, uint256 feeAmount);
 
-    /// @notice Thrown when trying to claim protocol revenue when the accrued amount is zero.
-    error SablierFlowBase_NoProtocolRevenue(address token);
-
     /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
     error SablierFlowBase_NotTransferable(uint256 streamId);
-
-    /// @notice Thrown when trying to set protocol fee more than the allowed.
-    error SablierFlowBase_ProtocolFeeTooHigh(UD60x18 newProtocolFee, UD60x18 maxFee);
 
     /// @notice Thrown when trying to recover for a token with zero surplus.
     error SablierFlowBase_SurplusZero(address token);

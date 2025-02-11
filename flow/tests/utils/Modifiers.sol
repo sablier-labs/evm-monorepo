@@ -152,10 +152,6 @@ abstract contract Modifiers is Utils {
         _;
     }
 
-    modifier givenProtocolFeeZero() {
-        _;
-    }
-
     modifier whenAmountGreaterThanSnapshotDebt() {
         _;
     }

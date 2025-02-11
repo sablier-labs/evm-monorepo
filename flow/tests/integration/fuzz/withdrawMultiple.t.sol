@@ -38,7 +38,7 @@ contract WithdrawMaxMultiple_NoDelay_Fuzz_Test is Shared_Integration_Fuzz_Test {
             vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
             // Withdraw the tokens.
-            (uint128 withdrawnAmount,) = flow.withdrawMax(streamId, users.recipient);
+            uint128 withdrawnAmount = flow.withdrawMax(streamId, users.recipient);
             actualTotalWithdrawnAmount += withdrawnAmount;
         }
 
@@ -98,7 +98,7 @@ contract WithdrawMaxMultiple_NoDelay_Fuzz_Test is Shared_Integration_Fuzz_Test {
             timeJump = boundUint40(timeJump, 1 hours, 1 days);
             vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
 
-            (uint128 withdrawAmount,) = flow.withdrawMax(streamId, users.recipient);
+            uint128 withdrawAmount = flow.withdrawMax(streamId, users.recipient);
 
             // Update the actual total amount withdrawn.
             actualTotalWithdrawnAmount += withdrawAmount;

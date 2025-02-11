@@ -31,7 +31,6 @@ contract Flow_Invariant_Test is Base_Test {
 
         // Declare the default tokens.
         tokens.push(tokenWithoutDecimals);
-        tokens.push(tokenWithProtocolFee);
         tokens.push(dai);
         tokens.push(usdc);
         tokens.push(IERC20(address(usdt)));
@@ -81,19 +80,18 @@ contract Flow_Invariant_Test is Base_Test {
     }
 
     /// @dev For a given token,
-    /// - the sum of all stream balances plus the protocol revenue should equal the aggregate balance.
-    /// - token balance of the flow contract should be greater or equal to the sum of all stream balances and
-    /// protocol revenue accrued for that token.
+    /// - the sum of all stream balances should equal the aggregate balance.
+    /// - token balance of the flow contract should be greater or equal to the sum of all stream balances
     /// - sum of all stream balances should equal to the sum of all deposited amounts minus the sum of all refunded and
     /// sum of all withdrawn.
-    function invariant_ContractBalanceStreamBalancesProtocolRevenue() external view {
+    function invariant_ContractBalanceStreamBalances() external view {
         // Check the invariant for each token.
         for (uint256 i = 0; i < tokens.length; ++i) {
-            contractBalanceStreamBalancesProtocolRevenue(tokens[i]);
+            contractBalanceStreamBalances(tokens[i]);
         }
     }
 
-    function contractBalanceStreamBalancesProtocolRevenue(IERC20 token) internal view {
+    function contractBalanceStreamBalances(IERC20 token) internal view {
         uint256 contractBalance = token.balanceOf(address(flow));
         uint256 streamBalancesSum;
 
@@ -107,15 +105,13 @@ contract Flow_Invariant_Test is Base_Test {
         }
 
         assertEq(
-            streamBalancesSum + flow.protocolRevenue(token),
+            streamBalancesSum,
             flow.aggregateBalance(token),
-            unicode"Invariant violation: balance sum + revenue sum == aggregate balance"
+            unicode"Invariant violation: balance sum == aggregate balance"
         );
 
         assertGe(
-            contractBalance,
-            streamBalancesSum + flow.protocolRevenue(token),
-            unicode"Invariant violation: contract balance >= Σ stream balances + protocol revenue"
+            contractBalance, streamBalancesSum, unicode"Invariant violation: contract balance >= Σ stream balances"
         );
 
         assertEq(

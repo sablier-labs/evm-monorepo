@@ -2,24 +2,20 @@
 pragma solidity >=0.8.22;
 
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
-import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
 abstract contract Constants {
     // Amounts
     uint128 internal constant DEPOSIT_AMOUNT_18D = 50_000e18;
     uint128 internal constant DEPOSIT_AMOUNT_6D = 50_000e6;
-    uint256 internal constant FEE = 0.001e18;
+
+    // Fee
+    uint256 internal constant FEE = 0.0001e18;
+
     uint128 internal constant REFUND_AMOUNT_18D = 10_000e18;
     uint128 internal constant REFUND_AMOUNT_6D = 10_000e6;
     uint128 internal constant TRANSFER_VALUE = 50_000;
     uint128 internal constant WITHDRAW_AMOUNT_18D = 500e18;
     uint128 internal constant WITHDRAW_AMOUNT_6D = 500e6;
-
-    // Fees
-    UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18); // 10%
-    UD60x18 internal constant PROTOCOL_FEE = UD60x18.wrap(0.01e18); // 1%
-    uint128 internal immutable PROTOCOL_FEE_AMOUNT_18D = ud(WITHDRAW_AMOUNT_18D).mul(PROTOCOL_FEE).intoUint128();
-    uint128 internal immutable PROTOCOL_FEE_AMOUNT_6D = ud(WITHDRAW_AMOUNT_6D).mul(PROTOCOL_FEE).intoUint128();
 
     // Max value
     uint128 internal constant UINT128_MAX = type(uint128).max;

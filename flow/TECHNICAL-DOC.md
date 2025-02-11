@@ -59,8 +59,8 @@ can only withdraw the available balance.
 
 2. for a given token:
 
-   - $\sum$ stream balances + protocol revenue = aggregate balance
-   - token.balanceOf(SablierFlow) $`\ge \sum`$ stream balances + flow.protocolRevenue(token)
+   - $\sum$ stream balances = aggregate balance
+   - token.balanceOf(SablierFlow) $`\ge \sum`$ stream balances
    - $\sum$ stream balances = $\sum$ deposited amount - $\sum$ refunded amount - $\sum$ withdrawn amount
 
 3. For a given token, token.balanceOf(SablierFlow) $\ge$ flow.aggregateBalance(token)

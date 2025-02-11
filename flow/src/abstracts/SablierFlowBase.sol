@@ -7,7 +7,6 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { IFlowNFTDescriptor } from "./../interfaces/IFlowNFTDescriptor.sol";
 import { ISablierFlowBase } from "./../interfaces/ISablierFlowBase.sol";
@@ -29,9 +28,6 @@ abstract contract SablierFlowBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFlowBase
-    UD60x18 public constant override MAX_FEE = UD60x18.wrap(0.1e18);
-
-    /// @inheritdoc ISablierFlowBase
     mapping(IERC20 token => uint256 amount) public override aggregateBalance;
 
     /// @inheritdoc ISablierFlowBase
@@ -39,12 +35,6 @@ abstract contract SablierFlowBase is
 
     /// @inheritdoc ISablierFlowBase
     IFlowNFTDescriptor public override nftDescriptor;
-
-    /// @inheritdoc ISablierFlowBase
-    mapping(IERC20 token => UD60x18 fee) public override protocolFee;
-
-    /// @inheritdoc ISablierFlowBase
-    mapping(IERC20 token => uint128 revenue) public override protocolRevenue;
 
     /// @dev Sablier Flow streams mapped by unsigned integers.
     mapping(uint256 id => Flow.Stream stream) internal _streams;
@@ -222,29 +212,6 @@ abstract contract SablierFlowBase is
     }
 
     /// @inheritdoc ISablierFlowBase
-    function collectProtocolRevenue(IERC20 token, address to) external override onlyAdmin {
-        uint128 revenue = protocolRevenue[token];
-
-        // Check: there is protocol revenue to collect.
-        if (revenue == 0) {
-            revert Errors.SablierFlowBase_NoProtocolRevenue(address(token));
-        }
-
-        // Effect: reset the protocol revenue.
-        protocolRevenue[token] = 0;
-
-        unchecked {
-            // Effect: update the aggregate balance.
-            aggregateBalance[token] -= revenue;
-        }
-
-        // Interaction: transfer the protocol revenue to the provided address.
-        token.safeTransfer({ to: to, value: revenue });
-
-        emit ISablierFlowBase.CollectProtocolRevenue({ admin: msg.sender, token: token, to: to, revenue: revenue });
-    }
-
-    /// @inheritdoc ISablierFlowBase
     function recover(IERC20 token, address to) external override onlyAdmin {
         uint256 surplus = token.balanceOf(address(this)) - aggregateBalance[token];
 
@@ -270,30 +237,6 @@ abstract contract SablierFlowBase is
             admin: msg.sender,
             oldNFTDescriptor: oldNftDescriptor,
             newNFTDescriptor: newNFTDescriptor
-        });
-
-        // Refresh the NFT metadata for all streams.
-        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
-    }
-
-    /// @inheritdoc ISablierFlowBase
-    function setProtocolFee(IERC20 token, UD60x18 newProtocolFee) external override onlyAdmin {
-        // Check: the new protocol fee is not greater than the maximum allowed.
-        if (newProtocolFee > MAX_FEE) {
-            revert Errors.SablierFlowBase_ProtocolFeeTooHigh(newProtocolFee, MAX_FEE);
-        }
-
-        UD60x18 oldProtocolFee = protocolFee[token];
-
-        // Effects: set the new protocol fee.
-        protocolFee[token] = newProtocolFee;
-
-        // Log the change of the protocol fee.
-        emit ISablierFlowBase.SetProtocolFee({
-            admin: msg.sender,
-            token: token,
-            oldProtocolFee: oldProtocolFee,
-            newProtocolFee: newProtocolFee
         });
 
         // Refresh the NFT metadata for all streams.
