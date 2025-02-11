@@ -37,11 +37,13 @@ Cancel_Integration_Concrete_Test
                         │  └── it should revert
                         └── when recipient returns valid selector
                            ├── when reentrancy
+                           │  ├── it should return the correct refunded amount
                            │  ├── it should mark the stream as depleted
                            │  ├── it should make Sablier run the recipient hook
                            │  ├── it should perform a reentrancy call to the Lockup contract
                            │  └── it should make the withdrawal via the reentrancy
                            └── when no reentrancy
+                              ├── it should return the correct refunded amount
                               ├── it should mark the stream as canceled
                               ├── it should make the stream as non cancelable
                               ├── it should update the refunded amount

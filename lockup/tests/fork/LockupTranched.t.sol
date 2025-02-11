@@ -322,7 +322,10 @@ abstract contract Lockup_Tranched_Fork_Test is Fork_Test {
 
             // Cancel the stream.
             resetPrank({ msgSender: params.sender });
-            lockup.cancel(vars.streamId);
+            uint128 refundedAmount = lockup.cancel(vars.streamId);
+
+            // Assert that the refunded amount is correct.
+            assertEq(refundedAmount, vars.senderAmount, "refundedAmount");
 
             // Assert that the stream's status is correct.
             vars.actualStatus = lockup.statusOf(vars.streamId);

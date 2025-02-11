@@ -93,7 +93,10 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: recipientGoodStreamId });
 
         // Cancel the stream.
-        lockup.cancel(recipientGoodStreamId);
+        uint128 refundedAmount = lockup.cancel(recipientGoodStreamId);
+
+        // Assert that the amount refunded matches the expected value.
+        assertEq(refundedAmount, senderAmount, "refundedAmount");
 
         // Assert that the stream's status is "CANCELED".
         Lockup.Status actualStatus = lockup.statusOf(recipientGoodStreamId);

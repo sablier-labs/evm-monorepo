@@ -50,6 +50,11 @@ interface ISablierLockupBase is
     /// @param feeAmount The amount of collected fees.
     event CollectFees(address indexed admin, uint256 indexed feeAmount);
 
+    /// @notice Emitted when canceling multiple streams and one particular cancellation reverts.
+    /// @param streamId The stream ID that reverted during cancel.
+    /// @param revertData The error data returned by the reverted cancel.
+    event InvalidStreamInCancelMultiple(uint256 streamId, bytes revertData);
+
     /// @notice Emitted when withdrawing from multiple streams and one particular withdrawal reverts.
     /// @param streamId The stream ID that reverted during withdraw.
     /// @param revertData The error data returned by the reverted withdraw.
@@ -248,20 +253,23 @@ interface ISablierLockupBase is
     /// - `msg.sender` must be the stream's sender.
     ///
     /// @param streamId The ID of the stream to cancel.
-    function cancel(uint256 streamId) external payable;
+    /// @return refundedAmount The amount refunded to the sender, denoted in units of the token's decimals.
+    function cancel(uint256 streamId) external payable returns (uint128 refundedAmount);
 
     /// @notice Cancels multiple streams and refunds any remaining tokens to the sender.
     ///
-    /// @dev Emits multiple {Transfer}, {CancelLockupStream} and {MetadataUpdate} events.
+    /// @dev Emits multiple {Transfer}, {CancelLockupStream} and {MetadataUpdate} events. For each stream that
+    /// failed, it emits an {InvalidStreamInCancelMultiple} event.
     ///
     /// Notes:
-    /// - Refer to the notes in {cancel}.
-    ///
-    /// Requirements:
-    /// - All requirements from {cancel} must be met for each stream.
+    /// - This function will not revert if a {cancel} call for one ID fails. A zero amount is returned
+    /// for the failed stream.
+    /// - Refer to the notes and requirements from {cancel}.
     ///
     /// @param streamIds The IDs of the streams to cancel.
-    function cancelMultiple(uint256[] calldata streamIds) external payable;
+    /// @return refundedAmounts An array of amounts refunded to the sender for each stream ID, denoted in units of the
+    /// token's decimals.
+    function cancelMultiple(uint256[] calldata streamIds) external payable returns (uint128[] memory refundedAmounts);
 
     /// @notice Collects the accrued fees by transferring them to the contract admin.
     ///
@@ -376,16 +384,16 @@ interface ISablierLockupBase is
     /// @notice Withdraws tokens from streams to the recipient of each stream.
     ///
     /// @dev Emits multiple {Transfer}, {WithdrawFromLockupStream} and {MetadataUpdate} events. For each stream that
-    /// reverted the withdrawal, it emits an {InvalidWithdrawalInWithdrawMultiple} event.
+    /// failed the withdrawal, it emits an {InvalidWithdrawalInWithdrawMultiple} event.
     ///
     /// Notes:
+    /// - This function will not revert if a {withdraw} call for one ID fails.
     /// - This function attempts to call a hook on the recipient of each stream, unless `msg.sender` is the recipient.
+    /// - Refer to the notes and requirements from {withdraw}.
     ///
     /// Requirements:
     /// - Must not be delegate called.
     /// - There must be an equal number of `streamIds` and `amounts`.
-    /// - Each stream ID in the array must not reference a null or depleted stream.
-    /// - Each amount in the array must be greater than zero and must not exceed the withdrawable amount.
     ///
     /// @param streamIds The IDs of the streams to withdraw from.
     /// @param amounts The amounts to withdraw, denoted in units of the token's decimals.

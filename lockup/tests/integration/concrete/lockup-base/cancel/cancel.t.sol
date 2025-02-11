@@ -117,7 +117,10 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         });
 
         // Cancel the stream.
-        lockup.cancel(notAllowedtoHookStreamId);
+        uint128 refundedAmount = lockup.cancel(notAllowedtoHookStreamId);
+
+        // It should return the correct refunded amount.
+        assertEq(refundedAmount, senderAmount, "refundedAmount");
 
         // It should mark the stream as canceled.
         Lockup.Status actualStatus = lockup.statusOf(notAllowedtoHookStreamId);
@@ -196,7 +199,10 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         );
 
         // Cancel the stream.
-        lockup.cancel(recipientReentrantStreamId);
+        uint128 refundedAmount = lockup.cancel(recipientReentrantStreamId);
+
+        // It should return the correct refunded amount.
+        assertEq(refundedAmount, senderAmount, "refundedAmount");
 
         // It should mark the stream as depleted. The reentrant recipient withdrew all the funds.
         Lockup.Status actualStatus = lockup.statusOf(recipientReentrantStreamId);
@@ -243,7 +249,10 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: recipientGoodStreamId });
 
         // Cancel the stream.
-        lockup.cancel(recipientGoodStreamId);
+        uint128 refundedAmount = lockup.cancel(recipientGoodStreamId);
+
+        // It should return the correct refunded amount.
+        assertEq(refundedAmount, senderAmount, "refundedAmount");
 
         // It should mark the stream as canceled.
         Lockup.Status actualStatus = lockup.statusOf(recipientGoodStreamId);

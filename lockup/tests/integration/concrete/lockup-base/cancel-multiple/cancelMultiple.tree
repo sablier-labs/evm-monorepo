@@ -5,21 +5,18 @@ CancelMultiple_Integration_Concrete_Test
    ├── when zero array length
    │  └── it should do nothing
    └── when non zero array length
-      ├── given atleast one null stream
-      │  └── it should revert
-      └── given no null streams
-         ├── given atleast one cold stream
-         │  └── it should revert
-         └── given no cold streams
-            ├── when caller unauthorized for any
-            │  └── it should revert
-            └── when caller authorized for all streams
-               ├── given atleast one non cancelable stream
-               │  └── it should revert
-               └── given all streams cancelable
-                  ├── it should mark the streams as canceled
-                  ├── it should make the streams as non cancelable
-                  ├── it should refund the sender
-                  ├── it should update the refunded amounts
-                  ├── it should not burn the NFT for all streams
-                  └── it should emit {CancelLockupStream} events for all streams
+      ├── when one stream reverts
+      │  ├── it should emit {CancelLockupStream} events for non-reverting streams
+      │  ├── it should emit {InvalidStreamInCancelMultiple} event for reverting stream
+      │  ├── it should return the expected refunded amounts
+      │  ├── it should mark the streams as canceled only for non-reverting streams
+      │  ├── it should mark the streams as non cancelable only for non-reverting streams
+      │  └── it should update the refunded amounts only for non-reverting streams
+      └── when no streams revert
+         ├── it should return the expected refunded amounts
+         ├── it should mark the streams as canceled
+         ├── it should make the streams as non cancelable
+         ├── it should refund the sender
+         ├── it should update the refunded amounts
+         ├── it should not burn the NFT for any stream
+         └── it should emit {CancelLockupStream} events for all streams
