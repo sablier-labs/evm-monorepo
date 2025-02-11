@@ -23,7 +23,7 @@ contract Defaults is CommonConstants {
     uint40 public constant CLIFF_DURATION = 2500 seconds;
     uint128 public constant DEPOSIT_AMOUNT = 10_000e18;
     uint40 public immutable END_TIME;
-    uint40 public constant FEB_1_2025 = 1_732_076_800;
+    uint40 public constant FEB_1_2025 = 1_738_368_000;
     uint256 public constant MAX_COUNT = 10_000;
     uint40 public immutable MAX_SEGMENT_DURATION;
     uint256 public constant MAX_TRANCHE_COUNT = 10_000;
