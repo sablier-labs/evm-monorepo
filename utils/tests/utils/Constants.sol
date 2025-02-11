@@ -3,7 +3,6 @@ pragma solidity >=0.8.22;
 
 abstract contract CommonConstants {
     uint256 internal constant FEE = 0.001e18;
-    uint40 internal constant FEB_1_2025 = 1_732_073_600;
     uint128 internal constant MAX_UINT128 = type(uint128).max;
     uint256 internal constant MAX_UINT256 = type(uint256).max;
     uint40 internal constant MAX_UINT40 = type(uint40).max;
