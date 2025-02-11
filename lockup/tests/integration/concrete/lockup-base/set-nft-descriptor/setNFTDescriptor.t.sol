@@ -2,9 +2,10 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
+import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
+
 import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
-import { Errors } from "src/libraries/Errors.sol";
 import { LockupNFTDescriptor } from "src/LockupNFTDescriptor.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
@@ -14,7 +15,7 @@ contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
         resetPrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.CallerNotAdmin.selector, users.admin, users.eve));
         lockup.setNFTDescriptor(ILockupNFTDescriptor(users.eve));
     }
 

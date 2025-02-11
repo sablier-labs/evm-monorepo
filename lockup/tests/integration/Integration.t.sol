@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
+
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/types/DataTypes.sol";
 
@@ -243,7 +245,7 @@ abstract contract Integration_Test is Base_Test {
     function expectRevert_DelegateCall(bytes memory callData) internal {
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         assertFalse(success, "delegatecall success");
-        assertEq(returnData, abi.encodeWithSelector(Errors.DelegateCall.selector), "delegatecall return data");
+        assertEq(returnData, abi.encodeWithSelector(EvmUtilsErrors.DelegateCall.selector), "delegatecall return data");
     }
 
     function expectRevert_DEPLETEDStatus(bytes memory callData) internal {

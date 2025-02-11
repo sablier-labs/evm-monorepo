@@ -5,10 +5,10 @@ import { LockupNFTDescriptor } from "../src/LockupNFTDescriptor.sol";
 import { SablierBatchLockup } from "../src/SablierBatchLockup.sol";
 import { SablierLockup } from "../src/SablierLockup.sol";
 
-import { BaseScript } from "./Base.s.sol";
+import { MaxCountScript } from "./MaxCount.s.sol";
 
 /// @notice Deploys the Lockup Protocol at deterministic addresses across chains.
-contract DeployDeterministicProtocol is BaseScript {
+contract DeployDeterministicProtocol is MaxCountScript {
     /// @dev Deploys the protocol with the admin set in `adminMap`.
     function run()
         public

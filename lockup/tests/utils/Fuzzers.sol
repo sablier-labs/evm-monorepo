@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { CommonConstants } from "@sablier/evm-utils/tests/utils/Constants.sol";
+
 import { LockupDynamic, LockupTranched } from "../../src/types/DataTypes.sol";
 
-import { Constants } from "./Constants.sol";
 import { Utils } from "./Utils.sol";
 
-abstract contract Fuzzers is Constants, Utils {
+abstract contract Fuzzers is CommonConstants, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                    LOCKUP-DYNAMIC
     //////////////////////////////////////////////////////////////////////////*/

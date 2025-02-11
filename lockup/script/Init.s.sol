@@ -8,14 +8,14 @@ import { Solarray } from "solarray/src/Solarray.sol";
 import { ISablierLockup } from "../src/interfaces/ISablierLockup.sol";
 import { Lockup, LockupDynamic, LockupLinear } from "../src/types/DataTypes.sol";
 
-import { BaseScript } from "./Base.s.sol";
+import { MaxCountScript } from "./MaxCount.s.sol";
 
 interface IERC20Mint {
     function mint(address beneficiary, uint256 value) external;
 }
 
 /// @notice Initializes the protocol by creating some streams.
-contract Init is BaseScript {
+contract Init is MaxCountScript {
     function run(ISablierLockup lockup, IERC20 token) public broadcast {
         address sender = broadcaster;
         address recipient = vm.addr(vm.deriveKey({ mnemonic: mnemonic, index: 1 }));

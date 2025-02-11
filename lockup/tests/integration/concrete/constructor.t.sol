@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IAdminable } from "src/interfaces/IAdminable.sol";
+import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
 import { SablierLockup } from "src/SablierLockup.sol";
 
 import { Integration_Test } from "../Integration.t.sol";

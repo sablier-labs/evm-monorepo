@@ -6,15 +6,15 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
+import { Batch } from "@sablier/evm-utils/src/Batch.sol";
+import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
 
 import { ILockupNFTDescriptor } from "./../interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockupBase } from "./../interfaces/ISablierLockupBase.sol";
 import { ISablierLockupRecipient } from "./../interfaces/ISablierLockupRecipient.sol";
 import { Errors } from "./../libraries/Errors.sol";
 import { Lockup } from "./../types/DataTypes.sol";
-import { Adminable } from "./Adminable.sol";
-import { Batch } from "./Batch.sol";
-import { NoDelegateCall } from "./NoDelegateCall.sol";
 
 /// @title SablierLockupBase
 /// @notice See the documentation in {ISablierLockupBase}.

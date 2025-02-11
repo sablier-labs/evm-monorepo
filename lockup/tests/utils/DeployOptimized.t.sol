@@ -2,15 +2,14 @@
 // solhint-disable no-inline-assembly
 pragma solidity >=0.8.22 <0.9.0;
 
-import { CommonBase } from "forge-std/src/Base.sol";
-import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { stdJson } from "forge-std/src/StdJson.sol";
+import { CommonBase } from "@sablier/evm-utils/tests/Base.sol";
 
 import { ILockupNFTDescriptor } from "../../src/interfaces/ILockupNFTDescriptor.sol";
 import { ISablierBatchLockup } from "../../src/interfaces/ISablierBatchLockup.sol";
 import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
 
-abstract contract DeployOptimized is StdCheats, CommonBase {
+abstract contract DeployOptimized is CommonBase {
     using stdJson for string;
 
     /// @dev Deploys {SablierBatchLockup} from an optimized source compiled with `--via-ir`.

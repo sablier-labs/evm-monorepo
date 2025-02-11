@@ -5,10 +5,10 @@ import { LockupNFTDescriptor } from "../src/LockupNFTDescriptor.sol";
 import { SablierBatchLockup } from "../src/SablierBatchLockup.sol";
 import { SablierLockup } from "../src/SablierLockup.sol";
 
-import { BaseScript } from "./Base.s.sol";
+import { MaxCountScript } from "./MaxCount.s.sol";
 
 /// @notice Deploys the Lockup Protocol.
-contract DeployProtocol is BaseScript {
+contract DeployProtocol is MaxCountScript {
     /// @dev Deploys the protocol with the admin set in `adminMap`.
     function run()
         public

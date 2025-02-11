@@ -5,10 +5,10 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { NFTSVG } from "./../src/libraries/NFTSVG.sol";
 import { SVGElements } from "./../src/libraries/SVGElements.sol";
 import { LockupNFTDescriptor } from "./../src/LockupNFTDescriptor.sol";
-import { BaseScript } from "././Base.s.sol";
+import { MaxCountScript } from "./MaxCount.s.sol";
 
 /// @notice Generates an NFT SVG using the user-provided parameters.
-contract GenerateSVG is BaseScript, LockupNFTDescriptor {
+contract GenerateSVG is MaxCountScript, LockupNFTDescriptor {
     using Strings for address;
     using Strings for string;
 

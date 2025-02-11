@@ -9,7 +9,7 @@
 set -euo pipefail
 
 # Path to the Base Script
-BASE_SCRIPT="script/Base.s.sol"
+BASE_SCRIPT="script/MaxCount.s.sol"
 
 # Compile the contracts with the optimized profile
 bun run build:optimized

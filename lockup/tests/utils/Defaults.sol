@@ -3,16 +3,16 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
+import { CommonConstants } from "@sablier/evm-utils/tests/utils/Constants.sol";
 
 import { BatchLockup, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
 
 import { ArrayBuilder } from "./ArrayBuilder.sol";
 import { BatchLockupBuilder } from "./BatchLockupBuilder.sol";
-import { Constants } from "./Constants.sol";
 import { Users } from "./Types.sol";
 
 /// @notice Contract with default values used throughout the tests.
-contract Defaults is Constants {
+contract Defaults is CommonConstants {
     /*//////////////////////////////////////////////////////////////////////////
                                       GENERICS
     //////////////////////////////////////////////////////////////////////////*/
@@ -23,6 +23,7 @@ contract Defaults is Constants {
     uint40 public constant CLIFF_DURATION = 2500 seconds;
     uint128 public constant DEPOSIT_AMOUNT = 10_000e18;
     uint40 public immutable END_TIME;
+    uint40 public constant FEB_1_2025 = 1_732_076_800;
     uint256 public constant MAX_COUNT = 10_000;
     uint40 public immutable MAX_SEGMENT_DURATION;
     uint256 public constant MAX_TRANCHE_COUNT = 10_000;
@@ -51,7 +52,7 @@ contract Defaults is Constants {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
-        START_TIME = JULY_1_2024 + 2 days;
+        START_TIME = FEB_1_2025 + 2 days;
         CLIFF_TIME = START_TIME + CLIFF_DURATION;
         END_TIME = START_TIME + TOTAL_DURATION;
         MAX_SEGMENT_DURATION = TOTAL_DURATION / uint40(MAX_COUNT);

@@ -2,8 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Base_Test } from "tests/Base.t.sol";
-import { ERC20Bytes32 } from "tests/mocks/erc20/ERC20Bytes32.sol";
-import { ERC20Mock } from "tests/mocks/erc20/ERC20Mock.sol";
+import { ERC20Bytes32 } from "@sablier/evm-utils/tests/mocks/erc20/ERC20Bytes32.sol";
+import { ERC20Mock } from "@sablier/evm-utils/tests/mocks/erc20/ERC20Mock.sol";
 
 contract SafeTokenSymbol_Integration_Concrete_Test is Base_Test {
     function test_WhenTokenNotContract() external view {
@@ -33,8 +33,9 @@ contract SafeTokenSymbol_Integration_Concrete_Test is Base_Test {
         givenSymbolAsString
     {
         ERC20Mock token = new ERC20Mock({
-            name: "Token",
-            symbol: "This symbol is has more than 30 characters and it should be ignored"
+            name_: "Token",
+            symbol_: "This symbol is has more than 30 characters and it should be ignored",
+            decimals_: 18
         });
         string memory actualSymbol = nftDescriptorMock.safeTokenSymbol_(address(token));
         string memory expectedSymbol = "Long Symbol";
@@ -48,7 +49,7 @@ contract SafeTokenSymbol_Integration_Concrete_Test is Base_Test {
         givenSymbolAsString
         givenSymbolNotLongerThan30Chars
     {
-        ERC20Mock token = new ERC20Mock({ name: "Token", symbol: "<svg/onload=alert(\"xss\")>" });
+        ERC20Mock token = new ERC20Mock({ name_: "Token", symbol_: "<svg/onload=alert(\"xss\")>", decimals_: 18 });
         string memory actualSymbol = nftDescriptorMock.safeTokenSymbol_(address(token));
         string memory expectedSymbol = "Unsupported Symbol";
         assertEq(actualSymbol, expectedSymbol, "symbol");

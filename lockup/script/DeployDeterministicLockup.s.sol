@@ -3,11 +3,11 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ILockupNFTDescriptor } from "../src/interfaces/ILockupNFTDescriptor.sol";
 import { SablierLockup } from "../src/SablierLockup.sol";
-import { BaseScript } from "./Base.s.sol";
+import { MaxCountScript } from "./MaxCount.s.sol";
 
 /// @notice Deploys {SablierLockup} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
-contract DeployDeterministicLockup is BaseScript {
+contract DeployDeterministicLockup is MaxCountScript {
     function run(
         address initialAdmin,
         ILockupNFTDescriptor nftDescriptor
