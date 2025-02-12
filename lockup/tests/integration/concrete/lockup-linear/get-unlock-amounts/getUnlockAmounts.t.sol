@@ -8,7 +8,7 @@ import { Lockup_Linear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
 
 contract GetUnlockAmounts_Integration_Concrete_Test is Lockup_Linear_Integration_Concrete_Test {
     function test_RevertGiven_Null() external {
-        expectRevert_Null({ callData: abi.encodeCall(lockup.getUnlockAmounts, nullStreamId) });
+        expectRevert_Null({ callData: abi.encodeCall(lockup.getUnlockAmounts, ids.nullStream) });
     }
 
     function test_RevertGiven_NotLinearModel() external givenNotNull {
@@ -31,7 +31,7 @@ contract GetUnlockAmounts_Integration_Concrete_Test is Lockup_Linear_Integration
     }
 
     function test_GivenStartUnlockAmountZero() external view givenNotNull givenLinearModel givenOnlyOneAmountZero {
-        LockupLinear.UnlockAmounts memory unlockAmounts = lockup.getUnlockAmounts(defaultStreamId);
+        LockupLinear.UnlockAmounts memory unlockAmounts = lockup.getUnlockAmounts(ids.defaultStream);
         assertEq(unlockAmounts.start, 0, "unlockAmounts.start");
         assertEq(unlockAmounts.cliff, defaults.CLIFF_AMOUNT(), "unlockAmounts.cliff");
     }

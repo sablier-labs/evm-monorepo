@@ -7,25 +7,25 @@ import { Integration_Test } from "../../../Integration.t.sol";
 
 contract StatusOf_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_Null() external {
-        expectRevert_Null({ callData: abi.encodeCall(lockup.statusOf, nullStreamId) });
+        expectRevert_Null({ callData: abi.encodeCall(lockup.statusOf, ids.nullStream) });
     }
 
     function test_GivenTokensFullyWithdrawn() external givenNotNull {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: ids.defaultStream, to: users.recipient });
 
         // It should return DEPLETED.
-        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
+        Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
     }
 
     function test_GivenCanceledStream() external givenNotNull givenTokensNotFullyWithdrawn {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
-        lockup.cancel(defaultStreamId);
+        lockup.cancel(ids.defaultStream);
 
         // It should return CANCELED.
-        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
+        Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
@@ -34,7 +34,7 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
 
         // It should return PENDING.
-        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
+        Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
         Lockup.Status expectedStatus = Lockup.Status.PENDING;
         assertEq(actualStatus, expectedStatus);
     }
@@ -49,7 +49,7 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.END_TIME() });
 
         // It should return SETTLED.
-        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
+        Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
         Lockup.Status expectedStatus = Lockup.Status.SETTLED;
         assertEq(actualStatus, expectedStatus);
     }
@@ -64,7 +64,7 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.START_TIME() + 1 seconds });
 
         // It should return STREAMING.
-        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
+        Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
     }

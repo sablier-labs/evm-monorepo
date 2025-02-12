@@ -19,31 +19,31 @@ contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
-            streamId: defaultStreamId,
+            streamId: ids.defaultStream,
             to: users.recipient,
             token: dai,
             amount: defaults.DEPOSIT_AMOUNT()
         });
 
         // Make the max withdrawal.
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: ids.defaultStream, to: users.recipient });
 
         // Assert that the withdrawn amount has been updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ids.defaultStream);
         uint128 expectedWithdrawnAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the stream's status is "DEPLETED".
-        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
+        Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the stream is not cancelable anymore.
-        bool isCancelable = lockup.isCancelable(defaultStreamId);
+        bool isCancelable = lockup.isCancelable(ids.defaultStream);
         assertFalse(isCancelable, "isCancelable");
 
         // Assert that the not burned NFT.
-        address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
+        address actualNFTowner = lockup.ownerOf({ tokenId: ids.defaultStream });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
@@ -55,7 +55,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Get the withdraw amount.
-        uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
+        uint128 withdrawAmount = lockup.withdrawableAmountOf(ids.defaultStream);
 
         // Expect the tokens to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: withdrawAmount });
@@ -63,17 +63,17 @@ contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
-            streamId: defaultStreamId,
+            streamId: ids.defaultStream,
             to: users.recipient,
             token: dai,
             amount: withdrawAmount
         });
 
         // Make the max withdrawal.
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: ids.defaultStream, to: users.recipient });
 
         // Assert that the withdrawn amount has been updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ids.defaultStream);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }

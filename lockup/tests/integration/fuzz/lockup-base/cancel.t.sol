@@ -24,15 +24,15 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         vm.warp({ newTimestamp: getBlockTimestamp() - timeJump });
 
         // Cancel the stream.
-        lockup.cancel(defaultStreamId);
+        lockup.cancel(ids.defaultStream);
 
         // Assert that the stream's status is "DEPLETED".
-        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
+        Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the stream is not cancelable anymore.
-        bool isCancelable = lockup.isCancelable(defaultStreamId);
+        bool isCancelable = lockup.isCancelable(ids.defaultStream);
         assertFalse(isCancelable, "isCancelable");
     }
 
@@ -62,53 +62,53 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
-        uint128 streamedAmount = lockup.streamedAmountOf(recipientGoodStreamId);
+        uint128 streamedAmount = lockup.streamedAmountOf(ids.recipientGoodStream);
         withdrawAmount = boundUint128(withdrawAmount, 0, streamedAmount - 1);
 
         // Make the withdrawal only if the amount is greater than zero.
         if (withdrawAmount > 0) {
-            lockup.withdraw({ streamId: recipientGoodStreamId, to: address(recipientGood), amount: withdrawAmount });
+            lockup.withdraw({ streamId: ids.recipientGoodStream, to: address(recipientGood), amount: withdrawAmount });
         }
 
         // Expect the tokens to be refunded to the Sender.
-        uint128 senderAmount = lockup.refundableAmountOf(recipientGoodStreamId);
+        uint128 senderAmount = lockup.refundableAmountOf(ids.recipientGoodStream);
         expectCallToTransfer({ to: users.sender, value: senderAmount });
 
         // Expect the recipient to be called.
-        uint128 recipientAmount = lockup.withdrawableAmountOf(recipientGoodStreamId);
+        uint128 recipientAmount = lockup.withdrawableAmountOf(ids.recipientGoodStream);
         vm.expectCall(
             address(recipientGood),
             abi.encodeCall(
                 ISablierLockupRecipient.onSablierLockupCancel,
-                (recipientGoodStreamId, users.sender, senderAmount, recipientAmount)
+                (ids.recipientGoodStream, users.sender, senderAmount, recipientAmount)
             )
         );
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.CancelLockupStream(
-            recipientGoodStreamId, users.sender, address(recipientGood), dai, senderAmount, recipientAmount
+            ids.recipientGoodStream, users.sender, address(recipientGood), dai, senderAmount, recipientAmount
         );
         vm.expectEmit({ emitter: address(lockup) });
-        emit IERC4906.MetadataUpdate({ _tokenId: recipientGoodStreamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: ids.recipientGoodStream });
 
         // Cancel the stream.
-        uint128 refundedAmount = lockup.cancel(recipientGoodStreamId);
+        uint128 refundedAmount = lockup.cancel(ids.recipientGoodStream);
 
         // Assert that the amount refunded matches the expected value.
         assertEq(refundedAmount, senderAmount, "refundedAmount");
 
         // Assert that the stream's status is "CANCELED".
-        Lockup.Status actualStatus = lockup.statusOf(recipientGoodStreamId);
+        Lockup.Status actualStatus = lockup.statusOf(ids.recipientGoodStream);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the stream is not cancelable anymore.
-        bool isCancelable = lockup.isCancelable(recipientGoodStreamId);
+        bool isCancelable = lockup.isCancelable(ids.recipientGoodStream);
         assertFalse(isCancelable, "isCancelable");
 
         // Assert that the not burned NFT.
-        address actualNFTOwner = lockup.ownerOf({ tokenId: recipientGoodStreamId });
+        address actualNFTOwner = lockup.ownerOf({ tokenId: ids.recipientGoodStream });
         address expectedNFTOwner = address(recipientGood);
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }

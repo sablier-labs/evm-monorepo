@@ -12,19 +12,19 @@ import { Integration_Test } from "../../../Integration.t.sol";
 contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_DelegateCall() external {
         expectRevert_DelegateCall({
-            callData: abi.encodeCall(lockup.withdrawMaxAndTransfer, (defaultStreamId, users.alice))
+            callData: abi.encodeCall(lockup.withdrawMaxAndTransfer, (ids.defaultStream, users.alice))
         });
     }
 
     function test_RevertGiven_Null() external whenNoDelegateCall {
-        expectRevert_Null({ callData: abi.encodeCall(lockup.withdrawMaxAndTransfer, (nullStreamId, users.alice)) });
+        expectRevert_Null({ callData: abi.encodeCall(lockup.withdrawMaxAndTransfer, (ids.nullStream, users.alice)) });
     }
 
     function test_RevertGiven_NonTransferableStream() external whenCallerRecipient whenNoDelegateCall givenNotNull {
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_NotTransferable.selector, notTransferableStreamId)
+            abi.encodeWithSelector(Errors.SablierLockupBase_NotTransferable.selector, ids.notTransferableStream)
         );
-        lockup.withdrawMaxAndTransfer({ streamId: notTransferableStreamId, newRecipient: users.recipient });
+        lockup.withdrawMaxAndTransfer({ streamId: ids.notTransferableStream, newRecipient: users.recipient });
     }
 
     function test_RevertGiven_BurnedNFT()
@@ -36,14 +36,14 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
     {
         // Deplete the stream.
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: ids.defaultStream, to: users.recipient });
 
         // Burn the NFT.
-        lockup.burn({ streamId: defaultStreamId });
+        lockup.burn({ streamId: ids.defaultStream });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, defaultStreamId));
-        lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
+        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, ids.defaultStream));
+        lockup.withdrawMaxAndTransfer({ streamId: ids.defaultStream, newRecipient: users.alice });
     }
 
     function test_GivenZeroWithdrawableAmount()
@@ -55,16 +55,16 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         whenCallerRecipient
     {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: ids.defaultStream, to: users.recipient });
 
         // It should not expect a transfer call on token.
         vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transfer, (users.recipient, 0)), count: 0 });
 
         // It should emit {Transfer} event on NFT.
         vm.expectEmit({ emitter: address(lockup) });
-        emit IERC721.Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
+        emit IERC721.Transfer({ from: users.recipient, to: users.alice, tokenId: ids.defaultStream });
 
-        lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
+        lockup.withdrawMaxAndTransfer({ streamId: ids.defaultStream, newRecipient: users.alice });
     }
 
     function test_RevertWhen_CallerNotCurrentRecipient()
@@ -80,9 +80,9 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
 
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, defaultStreamId, users.eve)
+            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, ids.defaultStream, users.eve)
         );
-        lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.eve });
+        lockup.withdrawMaxAndTransfer({ streamId: ids.defaultStream, newRecipient: users.eve });
     }
 
     function test_WhenCallerApprovedThirdParty()
@@ -100,7 +100,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Get the withdraw amount.
-        uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(defaultStreamId);
+        uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(ids.defaultStream);
 
         // Expect the tokens to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: expectedWithdrawnAmount });
@@ -108,23 +108,23 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         // It should emit {Transfer} and {WithdrawFromLockupStream} events.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
-            streamId: defaultStreamId,
+            streamId: ids.defaultStream,
             to: users.recipient,
             amount: expectedWithdrawnAmount,
             token: dai
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit IERC721.Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
+        emit IERC721.Transfer({ from: users.recipient, to: users.alice, tokenId: ids.defaultStream });
 
         // Make the max withdrawal and transfer the NFT.
         uint128 actualWithdrawnAmount =
-            lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
+            lockup.withdrawMaxAndTransfer({ streamId: ids.defaultStream, newRecipient: users.alice });
 
         // Assert that the withdrawn amount has been updated.
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the operator is the new stream recipient (and NFT owner).
-        address actualRecipient = lockup.getRecipient(defaultStreamId);
+        address actualRecipient = lockup.getRecipient(ids.defaultStream);
         address expectedRecipient = users.alice;
         assertEq(actualRecipient, expectedRecipient, "recipient");
     }
@@ -143,7 +143,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Get the withdraw amount.
-        uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(defaultStreamId);
+        uint128 expectedWithdrawnAmount = lockup.withdrawableAmountOf(ids.defaultStream);
 
         // Expect the tokens to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: expectedWithdrawnAmount });
@@ -151,25 +151,25 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         // It should emit {Transfer}, {WithdrawFromLockupStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
-            streamId: defaultStreamId,
+            streamId: ids.defaultStream,
             to: users.recipient,
             amount: expectedWithdrawnAmount,
             token: dai
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: ids.defaultStream });
         vm.expectEmit({ emitter: address(lockup) });
-        emit IERC721.Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
+        emit IERC721.Transfer({ from: users.recipient, to: users.alice, tokenId: ids.defaultStream });
 
         // Make the max withdrawal and transfer the NFT.
         uint128 actualWithdrawnAmount =
-            lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
+            lockup.withdrawMaxAndTransfer({ streamId: ids.defaultStream, newRecipient: users.alice });
 
         // it should update the withdrawn amount.abi
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // It should transfer the NFT.
-        address actualRecipient = lockup.getRecipient(defaultStreamId);
+        address actualRecipient = lockup.getRecipient(ids.defaultStream);
         address expectedRecipient = users.alice;
         assertEq(actualRecipient, expectedRecipient, "recipient");
     }

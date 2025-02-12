@@ -19,7 +19,7 @@ import { Calculations } from "./utils/Calculations.sol";
 import { Defaults } from "./utils/Defaults.sol";
 import { DeployOptimized } from "./utils/DeployOptimized.t.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
-import { Users } from "./utils/Types.sol";
+import { StreamIds, Users } from "./utils/Types.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
 abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifiers {
@@ -27,6 +27,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
+    StreamIds internal ids;
     Users internal users;
 
     /*//////////////////////////////////////////////////////////////////////////

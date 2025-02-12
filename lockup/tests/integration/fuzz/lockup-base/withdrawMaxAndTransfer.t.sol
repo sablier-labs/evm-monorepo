@@ -30,7 +30,7 @@ contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Get the withdraw amount.
-        uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
+        uint128 withdrawAmount = lockup.withdrawableAmountOf(ids.defaultStream);
 
         if (withdrawAmount > 0) {
             // Expect the tokens to be transferred to the fuzzed recipient.
@@ -39,7 +39,7 @@ contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is Integration_Test {
             // Expect the relevant event to be emitted.
             vm.expectEmit({ emitter: address(lockup) });
             emit ISablierLockupBase.WithdrawFromLockupStream({
-                streamId: defaultStreamId,
+                streamId: ids.defaultStream,
                 to: users.recipient,
                 token: dai,
                 amount: withdrawAmount
@@ -48,18 +48,18 @@ contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is Integration_Test {
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit IERC721.Transfer({ from: users.recipient, to: newRecipient, tokenId: defaultStreamId });
+        emit IERC721.Transfer({ from: users.recipient, to: newRecipient, tokenId: ids.defaultStream });
 
         // Make the max withdrawal and transfer the NFT.
-        lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: newRecipient });
+        lockup.withdrawMaxAndTransfer({ streamId: ids.defaultStream, newRecipient: newRecipient });
 
         // Assert that the withdrawn amount has been updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ids.defaultStream);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the fuzzed recipient is the new stream recipient (and NFT owner).
-        address actualRecipient = lockup.getRecipient(defaultStreamId);
+        address actualRecipient = lockup.getRecipient(ids.defaultStream);
         address expectedRecipient = newRecipient;
         assertEq(actualRecipient, expectedRecipient, "recipient");
     }

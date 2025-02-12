@@ -15,10 +15,10 @@ abstract contract RefundableAmountOf_Integration_Fuzz_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Get the streamed amount.
-        uint128 streamedAmount = lockup.streamedAmountOf(defaultStreamId);
+        uint128 streamedAmount = lockup.streamedAmountOf(ids.defaultStream);
 
         // Run the test.
-        uint256 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
+        uint256 actualRefundableAmount = lockup.refundableAmountOf(ids.defaultStream);
         uint256 expectedRefundableAmount = defaults.DEPOSIT_AMOUNT() - streamedAmount;
         assertEq(actualRefundableAmount, expectedRefundableAmount, "refundableAmount");
     }

@@ -8,7 +8,7 @@ import { Lockup_Tranched_Integration_Concrete_Test } from "../LockupTranched.t.s
 
 contract GetTranches_Integration_Concrete_Test is Lockup_Tranched_Integration_Concrete_Test {
     function test_RevertGiven_Null() external {
-        expectRevert_Null({ callData: abi.encodeCall(lockup.getTranches, nullStreamId) });
+        expectRevert_Null({ callData: abi.encodeCall(lockup.getTranches, ids.nullStream) });
     }
 
     function test_RevertGiven_NotTranchedModel() external givenNotNull {
@@ -23,7 +23,7 @@ contract GetTranches_Integration_Concrete_Test is Lockup_Tranched_Integration_Co
     }
 
     function test_GivenTranchedModel() external givenNotNull {
-        LockupTranched.Tranche[] memory actualTranches = lockup.getTranches(defaultStreamId);
+        LockupTranched.Tranche[] memory actualTranches = lockup.getTranches(ids.defaultStream);
         LockupTranched.Tranche[] memory expectedTranches = defaults.tranches();
         assertEq(actualTranches, expectedTranches);
     }

@@ -19,7 +19,7 @@ contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dyn
         vm.warp({ newTimestamp: blockTimestamp });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
+        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(ids.defaultStream);
         uint128 expectedWithdrawableAmount =
             calculateLockupDynamicStreamedAmount(defaults.segments(), defaults.START_TIME(), defaults.DEPOSIT_AMOUNT());
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
@@ -54,10 +54,10 @@ contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dyn
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
+        lockup.withdraw({ streamId: ids.defaultStream, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
+        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(ids.defaultStream);
         uint128 expectedWithdrawableAmount = streamedAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }

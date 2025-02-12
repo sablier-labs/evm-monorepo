@@ -17,7 +17,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
     uint128[] internal withdrawAmounts;
 
     // An array of stream IDs to be withdrawn from.
-    uint256[] internal withdrawMultipleStreamIds;
+    uint256[] internal withdrawMultipleIds;
 
     function setUp() public virtual override {
         Integration_Test.setUp();
@@ -31,7 +31,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCall() external {
         expectRevert_DelegateCall({
-            callData: abi.encodeCall(lockup.withdrawMultiple, (withdrawMultipleStreamIds, withdrawAmounts))
+            callData: abi.encodeCall(lockup.withdrawMultiple, (withdrawMultipleIds, withdrawAmounts))
         });
     }
 
@@ -60,19 +60,19 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
     /// - Approved NFT operator as caller
     /// - Random caller (Alice)
     modifier whenCallerAuthorizedForAllStreams() override {
-        withdrawMultipleStreamIds = _warpAndCreateStreams({ warpTime: originalTime });
+        withdrawMultipleIds = _warpAndCreateStreams({ warpTime: originalTime });
         caller = users.sender;
         _;
 
-        withdrawMultipleStreamIds = _warpAndCreateStreams({ warpTime: originalTime });
+        withdrawMultipleIds = _warpAndCreateStreams({ warpTime: originalTime });
         caller = users.recipient;
         _;
 
-        withdrawMultipleStreamIds = _warpAndCreateStreams({ warpTime: originalTime });
+        withdrawMultipleIds = _warpAndCreateStreams({ warpTime: originalTime });
         caller = users.operator;
         _;
 
-        withdrawMultipleStreamIds = _warpAndCreateStreams({ warpTime: originalTime });
+        withdrawMultipleIds = _warpAndCreateStreams({ warpTime: originalTime });
         caller = users.alice;
         _;
     }
@@ -93,14 +93,14 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         // It should emit {WithdrawFromLockupStream} events for non-reverting streams.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
-            streamId: withdrawMultipleStreamIds[0],
+            streamId: withdrawMultipleIds[0],
             to: users.recipient,
             token: dai,
             amount: withdrawAmounts[0]
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
-            streamId: withdrawMultipleStreamIds[1],
+            streamId: withdrawMultipleIds[1],
             to: users.recipient,
             token: dai,
             amount: withdrawAmounts[1]
@@ -109,23 +109,23 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         // It should emit {InvalidWithdrawalInWithdrawMultiple} event for reverting stream.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.InvalidWithdrawalInWithdrawMultiple({
-            streamId: withdrawMultipleStreamIds[2],
+            streamId: withdrawMultipleIds[2],
             revertData: abi.encodeWithSelector(
                 Errors.SablierLockupBase_Overdraw.selector,
-                withdrawMultipleStreamIds[2],
+                withdrawMultipleIds[2],
                 MAX_UINT128,
-                lockup.withdrawableAmountOf(withdrawMultipleStreamIds[2])
+                lockup.withdrawableAmountOf(withdrawMultipleIds[2])
             )
         });
 
         // Make the withdrawals with overdrawn withdraw amount for reverting stream.
         withdrawAmounts[2] = MAX_UINT128;
-        lockup.withdrawMultiple({ streamIds: withdrawMultipleStreamIds, amounts: withdrawAmounts });
+        lockup.withdrawMultiple({ streamIds: withdrawMultipleIds, amounts: withdrawAmounts });
 
         // It should update the withdrawn amounts only for non-reverting streams.
-        assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[0]), withdrawAmounts[0], "withdrawnAmount0");
-        assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[1]), withdrawAmounts[1], "withdrawnAmount1");
-        assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[2]), 0, "withdrawnAmount2");
+        assertEq(lockup.getWithdrawnAmount(withdrawMultipleIds[0]), withdrawAmounts[0], "withdrawnAmount0");
+        assertEq(lockup.getWithdrawnAmount(withdrawMultipleIds[1]), withdrawAmounts[1], "withdrawnAmount1");
+        assertEq(lockup.getWithdrawnAmount(withdrawMultipleIds[2]), 0, "withdrawnAmount2");
     }
 
     function test_WhenNoStreamsRevert()
@@ -140,7 +140,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
 
         // Cancel the 3rd stream.
         resetPrank({ msgSender: users.sender });
-        lockup.cancel(withdrawMultipleStreamIds[2]);
+        lockup.cancel(withdrawMultipleIds[2]);
 
         // Run the test with the caller provided in {whenCallerAuthorizedForAllStreams}.
         resetPrank({ msgSender: caller });
@@ -148,43 +148,43 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         // It should emit {WithdrawFromLockupStream} events for all streams.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
-            streamId: withdrawMultipleStreamIds[0],
+            streamId: withdrawMultipleIds[0],
             to: users.recipient,
             token: dai,
             amount: withdrawAmounts[0]
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
-            streamId: withdrawMultipleStreamIds[1],
+            streamId: withdrawMultipleIds[1],
             to: users.recipient,
             token: dai,
             amount: withdrawAmounts[1]
         });
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupBase.WithdrawFromLockupStream({
-            streamId: withdrawMultipleStreamIds[2],
+            streamId: withdrawMultipleIds[2],
             to: users.recipient,
             token: dai,
             amount: withdrawAmounts[2]
         });
 
         // Make the withdrawals.
-        lockup.withdrawMultiple({ streamIds: withdrawMultipleStreamIds, amounts: withdrawAmounts });
+        lockup.withdrawMultiple({ streamIds: withdrawMultipleIds, amounts: withdrawAmounts });
 
         // It should update the statuses.
-        assertEq(lockup.statusOf(withdrawMultipleStreamIds[0]), Lockup.Status.STREAMING, "status0");
-        assertEq(lockup.statusOf(withdrawMultipleStreamIds[1]), Lockup.Status.DEPLETED, "status1");
-        assertEq(lockup.statusOf(withdrawMultipleStreamIds[2]), Lockup.Status.CANCELED, "status2");
+        assertEq(lockup.statusOf(withdrawMultipleIds[0]), Lockup.Status.STREAMING, "status0");
+        assertEq(lockup.statusOf(withdrawMultipleIds[1]), Lockup.Status.DEPLETED, "status1");
+        assertEq(lockup.statusOf(withdrawMultipleIds[2]), Lockup.Status.CANCELED, "status2");
 
         // It should update the withdrawn amounts.
-        assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[0]), withdrawAmounts[0], "withdrawnAmount0");
-        assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[1]), withdrawAmounts[1], "withdrawnAmount1");
-        assertEq(lockup.getWithdrawnAmount(withdrawMultipleStreamIds[2]), withdrawAmounts[2], "withdrawnAmount2");
+        assertEq(lockup.getWithdrawnAmount(withdrawMultipleIds[0]), withdrawAmounts[0], "withdrawnAmount0");
+        assertEq(lockup.getWithdrawnAmount(withdrawMultipleIds[1]), withdrawAmounts[1], "withdrawnAmount1");
+        assertEq(lockup.getWithdrawnAmount(withdrawMultipleIds[2]), withdrawAmounts[2], "withdrawnAmount2");
 
         // Assert that the stream NFTs have not been burned.
-        assertEq(lockup.getRecipient(withdrawMultipleStreamIds[0]), users.recipient, "NFT owner0");
-        assertEq(lockup.getRecipient(withdrawMultipleStreamIds[1]), users.recipient, "NFT owner1");
-        assertEq(lockup.getRecipient(withdrawMultipleStreamIds[2]), users.recipient, "NFT owner2");
+        assertEq(lockup.getRecipient(withdrawMultipleIds[0]), users.recipient, "NFT owner0");
+        assertEq(lockup.getRecipient(withdrawMultipleIds[1]), users.recipient, "NFT owner1");
+        assertEq(lockup.getRecipient(withdrawMultipleIds[2]), users.recipient, "NFT owner2");
     }
 
     // A helper function to warp to the original time and create test streams.

@@ -54,7 +54,7 @@ contract CollectFees_Integration_Concrete_Test is Integration_Test {
         resetPrank({ msgSender: users.alice });
 
         // Make a withdrawal and pay the fee.
-        lockup.withdrawMax{ value: FEE }({ streamId: defaultStreamId, to: users.recipient });
+        lockup.withdrawMax{ value: FEE }({ streamId: ids.defaultStream, to: users.recipient });
 
         // It should emit a {CollectFees} event.
         vm.expectEmit({ emitter: address(lockup) });

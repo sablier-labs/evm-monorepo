@@ -10,37 +10,37 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test {
     uint256 internal streamId;
 
     function test_RevertWhen_DelegateCall() external {
-        expectRevert_DelegateCall({ callData: abi.encodeCall(lockup.renounce, defaultStreamId) });
+        expectRevert_DelegateCall({ callData: abi.encodeCall(lockup.renounce, ids.defaultStream) });
     }
 
     function test_RevertGiven_Null() external whenNoDelegateCall {
-        expectRevert_Null({ callData: abi.encodeCall(lockup.renounce, nullStreamId) });
+        expectRevert_Null({ callData: abi.encodeCall(lockup.renounce, ids.nullStream) });
     }
 
     function test_RevertGiven_DEPLETEDStatus() external whenNoDelegateCall givenNotNull givenColdStream {
-        expectRevert_DEPLETEDStatus({ callData: abi.encodeCall(lockup.renounce, defaultStreamId) });
+        expectRevert_DEPLETEDStatus({ callData: abi.encodeCall(lockup.renounce, ids.defaultStream) });
     }
 
     function test_RevertGiven_CANCELEDStatus() external whenNoDelegateCall givenNotNull givenColdStream {
-        expectRevert_CANCELEDStatus({ callData: abi.encodeCall(lockup.renounce, defaultStreamId) });
+        expectRevert_CANCELEDStatus({ callData: abi.encodeCall(lockup.renounce, ids.defaultStream) });
     }
 
     function test_RevertGiven_SETTLEDStatus() external whenNoDelegateCall givenNotNull givenColdStream {
-        expectRevert_SETTLEDStatus({ callData: abi.encodeCall(lockup.renounce, defaultStreamId) });
+        expectRevert_SETTLEDStatus({ callData: abi.encodeCall(lockup.renounce, ids.defaultStream) });
     }
 
     modifier givenWarmStreamRenounce() {
         vm.warp({ newTimestamp: defaults.START_TIME() - 1 seconds });
-        streamId = defaultStreamId;
+        streamId = ids.defaultStream;
         _;
 
         vm.warp({ newTimestamp: defaults.START_TIME() });
-        streamId = recipientGoodStreamId;
+        streamId = ids.recipientGoodStream;
         _;
     }
 
     function test_RevertWhen_CallerNotSender() external whenNoDelegateCall givenNotNull givenWarmStreamRenounce {
-        expectRevert_CallerMaliciousThirdParty({ callData: abi.encodeCall(lockup.renounce, defaultStreamId) });
+        expectRevert_CallerMaliciousThirdParty({ callData: abi.encodeCall(lockup.renounce, ids.defaultStream) });
     }
 
     function test_RevertGiven_NonCancelableStream()
@@ -52,9 +52,9 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test {
     {
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_StreamNotCancelable.selector, notCancelableStreamId)
+            abi.encodeWithSelector(Errors.SablierLockupBase_StreamNotCancelable.selector, ids.notCancelableStream)
         );
-        lockup.renounce(notCancelableStreamId);
+        lockup.renounce(ids.notCancelableStream);
     }
 
     function test_GivenCancelableStream()

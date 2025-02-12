@@ -39,7 +39,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 740 seconds });
 
         // It should return the correct streamed amount.
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
         uint128 expectedStreamedAmount = defaults.segments()[0].amount + 2340.0854685246007116e18; // ~7,400*0.1^{0.5}
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }

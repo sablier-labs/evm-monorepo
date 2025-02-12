@@ -14,7 +14,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Concrete_Test is
 
     function test_GivenStartTimeInPresent() external givenSTREAMINGStatus {
         vm.warp({ newTimestamp: defaults.START_TIME() });
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -23,7 +23,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.END_TIME() + 1 seconds });
 
         // It should return the deposited amount.
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
         uint128 expectedStreamedAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -37,7 +37,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.START_TIME() + 1 seconds });
 
         // It should return 0.
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -51,7 +51,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.END_TIME() - 1 seconds });
 
         // It should return the correct streamed amount.
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
         uint128 expectedStreamedAmount = defaults.tranches()[0].amount;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }

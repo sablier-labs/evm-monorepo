@@ -13,7 +13,7 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
     {
         timeJump = boundUint40(timeJump, 0, defaults.CLIFF_DURATION() - 1);
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
-        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
+        uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(ids.defaultStream);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
