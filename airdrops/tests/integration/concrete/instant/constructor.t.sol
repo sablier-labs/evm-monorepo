@@ -30,7 +30,8 @@ contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
         // Make Factory the caller for the constructor test.
         resetPrank(address(merkleFactory));
 
-        SablierMerkleInstant constructedInstant = new SablierMerkleInstant(defaults.baseParams(), users.campaignOwner);
+        SablierMerkleInstant constructedInstant =
+            new SablierMerkleInstant(merkleInstantConstructorParams(), users.campaignOwner);
 
         Vars memory vars;
 

@@ -5,9 +5,11 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol";
 import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
+import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
-import { ISablierMerkleBase, ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
-import { MerkleBase } from "src/types/DataTypes.sol";
+import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
+import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
+import { MerkleLT } from "src/types/DataTypes.sol";
 import { MerkleBuilder } from "./../../utils/MerkleBuilder.sol";
 import { Fork_Test } from "./../Fork.t.sol";
 
@@ -31,10 +33,10 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
     }
 
     struct Vars {
-        LockupTranched.Tranche[] actualTranches;
         uint256 aggregateAmount;
+        LockupTranched.Tranche[] actualTranches;
         uint128[] amounts;
-        MerkleBase.ConstructorParams baseParams;
+        MerkleLT.ConstructorParams params;
         uint128 clawbackAmount;
         address expectedLT;
         uint256 expectedStreamId;
@@ -44,8 +46,8 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         ISablierMerkleLT merkleLT;
         bytes32[] merkleProof;
         bytes32 merkleRoot;
-        address[] recipients;
         uint256 recipientCount;
+        address[] recipients;
     }
 
     // We need the leaves as a storage variable so that we can use OpenZeppelin's {Arrays.findUpperBound}.
@@ -67,6 +69,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         Vars memory vars;
+
         vars.recipientCount = params.leafData.length;
         vars.amounts = new uint128[](vars.recipientCount);
         vars.indexes = new uint256[](vars.recipientCount);
@@ -103,42 +106,33 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         // Make the campaign owner as the caller.
         resetPrank({ msgSender: params.campaignOwner });
 
-        vars.expectedLT = computeMerkleLTAddress(
-            params.campaignOwner, params.campaignOwner, FORK_TOKEN, vars.merkleRoot, params.expiration
-        );
-
-        vars.baseParams = defaults.baseParams({
+        vars.expectedLT = computeMerkleLTAddress({
+            campaignCreator: params.campaignOwner,
             campaignOwner: params.campaignOwner,
-            token_: FORK_TOKEN,
             expiration: params.expiration,
-            merkleRoot: vars.merkleRoot
+            merkleRoot: vars.merkleRoot,
+            token_: FORK_TOKEN
+        });
+
+        vars.params = defaults.merkleLTConstructorParams({
+            campaignOwner: params.campaignOwner,
+            expiration: params.expiration,
+            lockup: lockup,
+            merkleRoot: vars.merkleRoot,
+            token_: FORK_TOKEN
         });
 
         vm.expectEmit({ emitter: address(merkleFactory) });
         emit ISablierMerkleFactory.CreateMerkleLT({
             merkleLT: ISablierMerkleLT(vars.expectedLT),
-            baseParams: vars.baseParams,
-            lockup: lockup,
-            cancelable: defaults.CANCELABLE(),
-            transferable: defaults.TRANSFERABLE(),
-            streamStartTime: defaults.STREAM_START_TIME_ZERO(),
-            tranchesWithPercentages: defaults.tranchesWithPercentages(),
-            totalDuration: defaults.TOTAL_DURATION(),
+            params: vars.params,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.recipientCount,
+            totalDuration: defaults.TOTAL_DURATION(),
             fee: defaults.FEE()
         });
 
-        vars.merkleLT = merkleFactory.createMerkleLT({
-            baseParams: vars.baseParams,
-            lockup: lockup,
-            cancelable: defaults.CANCELABLE(),
-            transferable: defaults.TRANSFERABLE(),
-            streamStartTime: defaults.STREAM_START_TIME_ZERO(),
-            tranchesWithPercentages: defaults.tranchesWithPercentages(),
-            aggregateAmount: vars.aggregateAmount,
-            recipientCount: vars.recipientCount
-        });
+        vars.merkleLT = merkleFactory.createMerkleLT(vars.params, vars.aggregateAmount, vars.recipientCount);
 
         // Fund the MerkleLT contract.
         deal({ token: address(FORK_TOKEN), to: address(vars.merkleLT), give: vars.aggregateAmount });
@@ -167,7 +161,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
 
         vars.expectedStreamId = lockup.nextStreamId();
         vm.expectEmit({ emitter: address(vars.merkleLT) });
-        emit ISablierMerkleLT.Claim(
+        emit ISablierMerkleLockup.Claim(
             vars.indexes[params.posBeforeSort],
             vars.recipients[params.posBeforeSort],
             vars.amounts[params.posBeforeSort],

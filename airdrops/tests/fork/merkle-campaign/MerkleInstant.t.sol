@@ -7,7 +7,7 @@ import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleBase, ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 
-import { MerkleBase } from "src/types/DataTypes.sol";
+import { MerkleInstant } from "src/types/DataTypes.sol";
 
 import { MerkleBuilder } from "./../../utils/MerkleBuilder.sol";
 import { Fork_Test } from "./../Fork.t.sol";
@@ -34,7 +34,7 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
     struct Vars {
         uint256 aggregateAmount;
         uint128[] amounts;
-        MerkleBase.ConstructorParams baseParams;
+        MerkleInstant.ConstructorParams params;
         uint128 clawbackAmount;
         address expectedMerkleInstant;
         uint256[] indexes;
@@ -43,8 +43,8 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
         ISablierMerkleInstant merkleInstant;
         bytes32[] merkleProof;
         bytes32 merkleRoot;
-        address[] recipients;
         uint256 recipientCount;
+        address[] recipients;
     }
 
     // We need the leaves as a storage variable so that we can use OpenZeppelin's {Arrays.findUpperBound}.
@@ -66,6 +66,7 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         Vars memory vars;
+
         vars.recipientCount = params.leafData.length;
         vars.amounts = new uint128[](vars.recipientCount);
         vars.indexes = new uint256[](vars.recipientCount);
@@ -102,31 +103,31 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
         // Make the campaign owner as the caller.
         resetPrank({ msgSender: params.campaignOwner });
 
-        vars.expectedMerkleInstant = computeMerkleInstantAddress(
-            params.campaignOwner, params.campaignOwner, FORK_TOKEN, vars.merkleRoot, params.expiration
-        );
-
-        vars.baseParams = defaults.baseParams({
+        vars.expectedMerkleInstant = computeMerkleInstantAddress({
+            campaignCreator: params.campaignOwner,
             campaignOwner: params.campaignOwner,
-            token_: FORK_TOKEN,
             expiration: params.expiration,
-            merkleRoot: vars.merkleRoot
+            merkleRoot: vars.merkleRoot,
+            token_: FORK_TOKEN
+        });
+
+        vars.params = defaults.merkleInstantConstructorParams({
+            campaignOwner: params.campaignOwner,
+            expiration: params.expiration,
+            merkleRoot: vars.merkleRoot,
+            token_: FORK_TOKEN
         });
 
         vm.expectEmit({ emitter: address(merkleFactory) });
         emit ISablierMerkleFactory.CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(vars.expectedMerkleInstant),
-            baseParams: vars.baseParams,
+            params: vars.params,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.recipientCount,
             fee: defaults.FEE()
         });
 
-        vars.merkleInstant = merkleFactory.createMerkleInstant({
-            baseParams: vars.baseParams,
-            aggregateAmount: vars.aggregateAmount,
-            recipientCount: vars.recipientCount
-        });
+        vars.merkleInstant = merkleFactory.createMerkleInstant(vars.params, vars.aggregateAmount, vars.recipientCount);
 
         // Fund the MerkleInstant contract.
         deal({ token: address(FORK_TOKEN), to: address(vars.merkleInstant), give: vars.aggregateAmount });

@@ -6,7 +6,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleInstant } from "./interfaces/ISablierMerkleInstant.sol";
-import { MerkleBase } from "./types/DataTypes.sol";
+import { MerkleInstant } from "./types/DataTypes.sol";
 
 /*
 
@@ -30,7 +30,7 @@ import { MerkleBase } from "./types/DataTypes.sol";
 /// @notice See the documentation in {ISablierMerkleInstant}.
 contract SablierMerkleInstant is
     ISablierMerkleInstant, // 2 inherited components
-    SablierMerkleBase // 4 inherited components
+    SablierMerkleBase // 3 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -40,10 +40,18 @@ contract SablierMerkleInstant is
 
     /// @dev Constructs the contract by initializing the immutable state variables.
     constructor(
-        MerkleBase.ConstructorParams memory baseParams,
+        MerkleInstant.ConstructorParams memory params,
         address campaignCreator
     )
-        SablierMerkleBase(baseParams, campaignCreator)
+        SablierMerkleBase(
+            campaignCreator,
+            params.campaignName,
+            params.expiration,
+            params.initialAdmin,
+            params.ipfsCID,
+            params.merkleRoot,
+            params.token
+        )
     { }
 
     /*//////////////////////////////////////////////////////////////////////////

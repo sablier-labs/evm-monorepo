@@ -4,7 +4,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
-import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
 import { stdJson } from "forge-std/src/StdJson.sol";
 
@@ -72,7 +71,6 @@ contract BaseScript is Script {
         string memory chainId = block.chainid.toString();
         string memory version = getVersion();
         string memory create2Salt = string.concat("ChainID ", chainId, ", Version ", version);
-        console2.log("The CREATE2 salt is \"%s\"", create2Salt);
         return bytes32(abi.encodePacked(create2Salt));
     }
 

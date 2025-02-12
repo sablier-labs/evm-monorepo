@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
+import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { MerkleLT } from "src/types/DataTypes.sol";
 
@@ -18,31 +18,18 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
     function test_RevertWhen_TotalPercentageLessThan100() external whenMerkleProofValid whenTotalPercentageNot100 {
         uint256 fee = defaults.FEE();
 
+        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
+
         // Create a MerkleLT campaign with a total percentage less than 100.
-        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
-        tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);
-        tranchesWithPercentages[1].unlockPercentage = ud2x18(0.2e18);
+        params.tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);
+        params.tranchesWithPercentages[1].unlockPercentage = ud2x18(0.2e18);
 
-        merkleLT = merkleFactory.createMerkleLT(
-            defaults.baseParams(),
-            lockup,
-            defaults.CANCELABLE(),
-            defaults.TRANSFERABLE(),
-            defaults.STREAM_START_TIME_ZERO(),
-            tranchesWithPercentages,
-            defaults.AGGREGATE_AMOUNT(),
-            defaults.RECIPIENT_COUNT()
-        );
-
-        uint64 totalPercentage =
-            tranchesWithPercentages[0].unlockPercentage.unwrap() + tranchesWithPercentages[1].unlockPercentage.unwrap();
+        merkleLT = merkleFactory.createMerkleLT(params, defaults.AGGREGATE_AMOUNT(), defaults.RECIPIENT_COUNT());
 
         // Claim the airdrop.
         bytes32[] memory merkleProof = defaults.index1Proof();
 
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 0.25e18));
 
         merkleLT.claim{ value: fee }({
             index: 1,
@@ -54,31 +41,19 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
     function test_RevertWhen_TotalPercentageGreaterThan100() external whenMerkleProofValid whenTotalPercentageNot100 {
         uint256 fee = defaults.FEE();
+
+        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
+
         // Create a MerkleLT campaign with a total percentage less than 100.
-        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
-        tranchesWithPercentages[0].unlockPercentage = ud2x18(0.75e18);
-        tranchesWithPercentages[1].unlockPercentage = ud2x18(0.8e18);
+        params.tranchesWithPercentages[0].unlockPercentage = ud2x18(0.75e18);
+        params.tranchesWithPercentages[1].unlockPercentage = ud2x18(0.8e18);
 
-        merkleLT = merkleFactory.createMerkleLT(
-            defaults.baseParams(),
-            lockup,
-            defaults.CANCELABLE(),
-            defaults.TRANSFERABLE(),
-            defaults.STREAM_START_TIME_ZERO(),
-            tranchesWithPercentages,
-            defaults.AGGREGATE_AMOUNT(),
-            defaults.RECIPIENT_COUNT()
-        );
-
-        uint64 totalPercentage =
-            tranchesWithPercentages[0].unlockPercentage.unwrap() + tranchesWithPercentages[1].unlockPercentage.unwrap();
+        merkleLT = merkleFactory.createMerkleLT(params, defaults.AGGREGATE_AMOUNT(), defaults.RECIPIENT_COUNT());
 
         // Claim the airdrop.
         bytes32[] memory merkleProof = defaults.index1Proof();
 
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, totalPercentage)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 1.55e18));
 
         merkleLT.claim{ value: fee }({
             index: 1,
@@ -94,16 +69,10 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
     }
 
     function test_WhenStreamStartTimeNotZero() external whenMerkleProofValid whenTotalPercentage100 {
-        merkleLT = merkleFactory.createMerkleLT({
-            baseParams: defaults.baseParams(),
-            lockup: lockup,
-            cancelable: defaults.CANCELABLE(),
-            transferable: defaults.TRANSFERABLE(),
-            streamStartTime: defaults.STREAM_START_TIME_NON_ZERO(),
-            tranchesWithPercentages: defaults.tranchesWithPercentages(),
-            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT()
-        });
+        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
+        params.streamStartTime = defaults.STREAM_START_TIME_NON_ZERO();
+
+        merkleLT = merkleFactory.createMerkleLT(params, defaults.AGGREGATE_AMOUNT(), defaults.RECIPIENT_COUNT());
 
         // It should create a stream with `STREAM_START_TIME` as start time.
         _test_Claim({
@@ -123,7 +92,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
-        emit ISablierMerkleLT.Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
+        emit ISablierMerkleLockup.Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: defaults.CLAIM_AMOUNT() });
         expectCallToClaimWithMsgValue(address(merkleLT), fee);

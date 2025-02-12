@@ -31,7 +31,6 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         string expectedIpfsCID;
         address expectedLockup;
         bytes32 expectedMerkleRoot;
-        MerkleLL.Schedule expectedSchedule;
         bool expectedStreamCancelable;
         bool expectedStreamTransferable;
         address expectedToken;
@@ -41,14 +40,7 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         // Make Factory the caller for the constructor test.
         resetPrank(address(merkleFactory));
 
-        SablierMerkleLL constructedLL = new SablierMerkleLL(
-            defaults.baseParams(),
-            users.campaignOwner,
-            lockup,
-            defaults.CANCELABLE(),
-            defaults.TRANSFERABLE(),
-            defaults.schedule()
-        );
+        SablierMerkleLL constructedLL = new SablierMerkleLL(merkleLLConstructorParams(), users.campaignOwner);
 
         Vars memory vars;
 
@@ -89,12 +81,11 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         assertEq(vars.actualMerkleRoot, vars.expectedMerkleRoot, "merkleRoot");
 
         vars.actualSchedule = constructedLL.getSchedule();
-        vars.expectedSchedule = defaults.schedule();
-        assertEq(vars.actualSchedule.startTime, vars.expectedSchedule.startTime, "schedule.startTime");
-        assertEq(vars.actualSchedule.startPercentage, vars.expectedSchedule.startPercentage, "schedule.startPercentage");
-        assertEq(vars.actualSchedule.cliffDuration, vars.expectedSchedule.cliffDuration, "schedule.cliffDuration");
-        assertEq(vars.actualSchedule.cliffPercentage, vars.expectedSchedule.cliffPercentage, "schedule.cliffPercentage");
-        assertEq(vars.actualSchedule.totalDuration, vars.expectedSchedule.totalDuration, "schedule.totalDuration");
+        assertEq(vars.actualSchedule.startTime, defaults.STREAM_START_TIME_ZERO(), "schedule.startTime");
+        assertEq(vars.actualSchedule.startPercentage, defaults.START_PERCENTAGE(), "schedule.startPercentage");
+        assertEq(vars.actualSchedule.cliffDuration, defaults.CLIFF_DURATION(), "schedule.cliffDuration");
+        assertEq(vars.actualSchedule.cliffPercentage, defaults.CLIFF_PERCENTAGE(), "schedule.cliffPercentage");
+        assertEq(vars.actualSchedule.totalDuration, defaults.TOTAL_DURATION(), "schedule.totalDuration");
 
         assertEq(constructedLL.shape(), defaults.SHAPE(), "shape");
 

@@ -10,12 +10,11 @@ import { Adminable } from "@sablier/lockup/src/abstracts/Adminable.sol";
 import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleFactory } from "./../interfaces/ISablierMerkleFactory.sol";
 import { Errors } from "./../libraries/Errors.sol";
-import { MerkleBase } from "./../types/DataTypes.sol";
 
 /// @title SablierMerkleBase
 /// @notice See the documentation in {ISablierMerkleBase}.
 abstract contract SablierMerkleBase is
-    ISablierMerkleBase, // 2 inherited component
+    ISablierMerkleBase, // 1 inherited component
     Adminable // 1 inherited component
 {
     using BitMaps for BitMaps.BitMap;
@@ -24,9 +23,6 @@ abstract contract SablierMerkleBase is
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev The name of the campaign stored as bytes32.
-    bytes32 internal immutable CAMPAIGN_NAME;
 
     /// @inheritdoc ISablierMerkleBase
     uint40 public immutable override EXPIRATION;
@@ -40,11 +36,11 @@ abstract contract SablierMerkleBase is
     /// @inheritdoc ISablierMerkleBase
     bytes32 public immutable override MERKLE_ROOT;
 
-    /// @dev The shape of Lockup stream stored as bytes32.
-    bytes32 internal immutable SHAPE;
-
     /// @inheritdoc ISablierMerkleBase
     IERC20 public immutable override TOKEN;
+
+    /// @inheritdoc ISablierMerkleBase
+    string public override campaignName;
 
     /// @inheritdoc ISablierMerkleBase
     string public override ipfsCID;
@@ -60,25 +56,29 @@ abstract contract SablierMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Constructs the contract by initializing the immutable state variables.
-    constructor(MerkleBase.ConstructorParams memory params, address campaignCreator) Adminable(params.initialAdmin) {
-        CAMPAIGN_NAME = bytes32(abi.encodePacked(params.campaignName));
-        EXPIRATION = params.expiration;
+    constructor(
+        address campaignCreator,
+        string memory _campaignName,
+        uint40 expiration,
+        address initialAdmin,
+        string memory _ipfsCID,
+        bytes32 merkleRoot,
+        IERC20 token
+    )
+        Adminable(initialAdmin)
+    {
+        campaignName = _campaignName;
+        EXPIRATION = expiration;
         FACTORY = msg.sender;
         FEE = ISablierMerkleFactory(FACTORY).getFee(campaignCreator);
-        MERKLE_ROOT = params.merkleRoot;
-        SHAPE = bytes32(abi.encodePacked(params.shape));
-        TOKEN = params.token;
-        ipfsCID = params.ipfsCID;
+        MERKLE_ROOT = merkleRoot;
+        TOKEN = token;
+        ipfsCID = _ipfsCID;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierMerkleBase
-    function campaignName() external view override returns (string memory) {
-        return string(abi.encodePacked(CAMPAIGN_NAME));
-    }
 
     /// @inheritdoc ISablierMerkleBase
     function getFirstClaimTime() external view override returns (uint40) {
@@ -93,11 +93,6 @@ abstract contract SablierMerkleBase is
     /// @inheritdoc ISablierMerkleBase
     function hasExpired() public view override returns (bool) {
         return EXPIRATION > 0 && EXPIRATION <= block.timestamp;
-    }
-
-    /// @inheritdoc ISablierMerkleBase
-    function shape() external view override returns (string memory) {
-        return string(abi.encodePacked(SHAPE));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

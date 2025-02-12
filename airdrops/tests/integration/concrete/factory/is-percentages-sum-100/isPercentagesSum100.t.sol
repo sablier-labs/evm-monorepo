@@ -9,7 +9,7 @@ import { Integration_Test } from "../../../Integration.t.sol";
 
 contract IsPercentagesSum100_Integration_Test is Integration_Test {
     function test_WhenPercentagesSumLessThan100Pct() external view whenPercentagesSumNot100Pct {
-        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
+        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = new MerkleLT.TrancheWithPercentage[](2);
         tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);
         tranchesWithPercentages[1].unlockPercentage = ud2x18(0.2e18);
 
@@ -17,7 +17,7 @@ contract IsPercentagesSum100_Integration_Test is Integration_Test {
     }
 
     function test_WhenPercentagesSumGreaterThan100Pct() external view whenPercentagesSumNot100Pct {
-        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = defaults.tranchesWithPercentages();
+        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = new MerkleLT.TrancheWithPercentage[](2);
         tranchesWithPercentages[0].unlockPercentage = ud2x18(0.5e18);
         tranchesWithPercentages[1].unlockPercentage = ud2x18(0.6e18);
 
@@ -25,6 +25,10 @@ contract IsPercentagesSum100_Integration_Test is Integration_Test {
     }
 
     function test_WhenPercentagesSum100Pct() external view {
-        assertTrue(merkleFactory.isPercentagesSum100(defaults.tranchesWithPercentages()), "isPercentagesSum100");
+        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = new MerkleLT.TrancheWithPercentage[](2);
+        tranchesWithPercentages[0].unlockPercentage = ud2x18(0.25e18);
+        tranchesWithPercentages[1].unlockPercentage = ud2x18(0.75e18);
+
+        assertTrue(merkleFactory.isPercentagesSum100(tranchesWithPercentages), "isPercentagesSum100");
     }
 }

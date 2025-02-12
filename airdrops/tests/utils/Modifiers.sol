@@ -63,10 +63,6 @@ abstract contract Modifiers is Utils {
         _;
     }
 
-    modifier whenCampaignNameNotExceed32Bytes() {
-        _;
-    }
-
     modifier whenExpirationNotZero() {
         _;
     }
@@ -100,10 +96,6 @@ abstract contract Modifiers is Utils {
     }
 
     modifier whenScheduledStartTimeZero() {
-        _;
-    }
-
-    modifier whenShapeNotExceed32Bytes() {
         _;
     }
 

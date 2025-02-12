@@ -7,7 +7,7 @@ import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.so
 
 import { ISablierMerkleFactory } from "../src/interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleLL } from "../src/interfaces/ISablierMerkleLL.sol";
-import { MerkleBase, MerkleLL } from "../src/types/DataTypes.sol";
+import { MerkleLL } from "../src/types/DataTypes.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
@@ -25,37 +25,28 @@ contract CreateMerkleLL is BaseScript {
         returns (ISablierMerkleLL merkleLL)
     {
         // Prepare the constructor parameters.
-        MerkleBase.ConstructorParams memory baseParams;
-
-        // The token to distribute through the campaign.
-        baseParams.token = token;
-
-        // The campaign will expire in 30 days.
-        baseParams.expiration = uint40(block.timestamp + 30 days);
-
-        // The admin of the campaign.
-        baseParams.initialAdmin = broadcaster;
-
-        // Dummy values for the campaign name, IPFS CID, and the Merkle root hash.
-        baseParams.campaignName = "The Boys LL";
-        baseParams.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
-        baseParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        MerkleLL.ConstructorParams memory params;
+        params.campaignName = "The Boys LL";
+        params.cancelable = true;
+        params.expiration = uint40(block.timestamp + 30 days);
+        params.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
+        params.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
+        params.lockup = ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056);
+        params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        params.shape = "LL";
+        params.schedule = MerkleLL.Schedule({
+            startTime: 0, // i.e. block.timestamp
+            startPercentage: ud2x18(0.01e18),
+            cliffDuration: 30 days,
+            cliffPercentage: ud2x18(0.01e18),
+            totalDuration: 90 days
+        });
+        params.token = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+        params.transferable = true;
+        uint256 aggregateAmount = 10_000e18;
+        uint256 recipientCount = 100;
 
         // Deploy the MerkleLL contract.
-        merkleLL = merkleFactory.createMerkleLL({
-            baseParams: baseParams,
-            lockup: lockup,
-            cancelable: true,
-            transferable: true,
-            schedule: MerkleLL.Schedule({
-                startTime: 0, // i.e. block.timestamp
-                startPercentage: ud2x18(0.01e18),
-                cliffDuration: 30 days,
-                cliffPercentage: ud2x18(0.01e18),
-                totalDuration: 90 days
-            }),
-            aggregateAmount: 10_000e18,
-            recipientCount: 100
-        });
+        merkleLL = merkleFactory.createMerkleLL(params, aggregateAmount, recipientCount);
     }
 }

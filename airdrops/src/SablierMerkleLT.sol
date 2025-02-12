@@ -5,13 +5,13 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { uUNIT } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud60x18, ZERO } from "@prb/math/src/UD60x18.sol";
-import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 import { Broker, Lockup, LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol";
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
+import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { MerkleBase, MerkleLT } from "./types/DataTypes.sol";
+import { MerkleLT } from "./types/DataTypes.sol";
 
 /*
 
@@ -34,8 +34,8 @@ import { MerkleBase, MerkleLT } from "./types/DataTypes.sol";
 /// @title SablierMerkleLT
 /// @notice See the documentation in {ISablierMerkleLT}.
 contract SablierMerkleLT is
-    ISablierMerkleLT, // 2 inherited components
-    SablierMerkleBase // 4 inherited components
+    ISablierMerkleLT, // 3 inherited components
+    SablierMerkleLockup // 5 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -44,16 +44,7 @@ contract SablierMerkleLT is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLT
-    ISablierLockup public immutable override LOCKUP;
-
-    /// @inheritdoc ISablierMerkleLT
-    bool public immutable override STREAM_CANCELABLE;
-
-    /// @inheritdoc ISablierMerkleLT
     uint40 public immutable override STREAM_START_TIME;
-
-    /// @inheritdoc ISablierMerkleLT
-    bool public immutable override STREAM_TRANSFERABLE;
 
     /// @inheritdoc ISablierMerkleLT
     uint64 public immutable override TOTAL_PERCENTAGE;
@@ -68,34 +59,35 @@ contract SablierMerkleLT is
     /// @dev Constructs the contract by initializing the immutable state variables, and max approving the Lockup
     /// contract.
     constructor(
-        MerkleBase.ConstructorParams memory baseParams,
-        address campaignCreator,
-        ISablierLockup lockup,
-        bool cancelable,
-        bool transferable,
-        uint40 streamStartTime,
-        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages
+        MerkleLT.ConstructorParams memory params,
+        address campaignCreator
     )
-        SablierMerkleBase(baseParams, campaignCreator)
+        SablierMerkleLockup(
+            campaignCreator,
+            params.campaignName,
+            params.cancelable,
+            params.lockup,
+            params.expiration,
+            params.initialAdmin,
+            params.ipfsCID,
+            params.merkleRoot,
+            params.shape,
+            params.token,
+            params.transferable
+        )
     {
-        STREAM_CANCELABLE = cancelable;
-        LOCKUP = lockup;
-        STREAM_START_TIME = streamStartTime;
-        STREAM_TRANSFERABLE = transferable;
+        STREAM_START_TIME = params.streamStartTime;
 
-        uint256 count = tranchesWithPercentages.length;
+        uint256 count = params.tranchesWithPercentages.length;
 
         // Calculate the total percentage of the tranches and save them in the contract state.
         uint64 totalPercentage;
         for (uint256 i = 0; i < count; ++i) {
-            uint64 percentage = tranchesWithPercentages[i].unlockPercentage.unwrap();
+            uint64 percentage = params.tranchesWithPercentages[i].unlockPercentage.unwrap();
             totalPercentage += percentage;
-            _tranchesWithPercentages.push(tranchesWithPercentages[i]);
+            _tranchesWithPercentages.push(params.tranchesWithPercentages[i]);
         }
         TOTAL_PERCENTAGE = totalPercentage;
-
-        // Max approve the Lockup contract to spend funds from the MerkleLT contract.
-        TOKEN.forceApprove(address(LOCKUP), type(uint256).max);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -137,7 +129,7 @@ contract SablierMerkleLT is
                 cancelable: STREAM_CANCELABLE,
                 transferable: STREAM_TRANSFERABLE,
                 timestamps: Lockup.Timestamps({ start: startTime, end: endTime }),
-                shape: string(abi.encodePacked(SHAPE)),
+                shape: shape,
                 broker: Broker({ account: address(0), fee: ZERO })
             }),
             tranches

@@ -5,6 +5,7 @@ import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
+import { MerkleInstant, MerkleLL, MerkleLT } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "../Base.t.sol";
 import { ContractWithoutReceiveEth, ContractWithReceiveEth } from "../mocks/ReceiveEth.sol";
@@ -68,9 +69,9 @@ contract Integration_Test is Base_Test {
         return computeMerkleInstantAddress({
             campaignCreator: users.campaignOwner,
             campaignOwner: campaignOwner,
-            token_: dai,
+            expiration: expiration,
             merkleRoot: defaults.MERKLE_ROOT(),
-            expiration: expiration
+            token_: dai
         });
     }
 
@@ -87,10 +88,35 @@ contract Integration_Test is Base_Test {
     }
 
     function createMerkleInstant(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleInstant) {
-        return merkleFactory.createMerkleInstant({
-            baseParams: defaults.baseParams(campaignOwner, dai, expiration, defaults.MERKLE_ROOT()),
-            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT()
+        return merkleFactory.createMerkleInstant(
+            defaults.merkleInstantConstructorParams({
+                campaignOwner: campaignOwner,
+                expiration: expiration,
+                merkleRoot: defaults.MERKLE_ROOT(),
+                token_: dai
+            }),
+            defaults.AGGREGATE_AMOUNT(),
+            defaults.RECIPIENT_COUNT()
+        );
+    }
+
+    function merkleInstantConstructorParams() public view returns (MerkleInstant.ConstructorParams memory) {
+        return merkleInstantConstructorParams(users.campaignOwner, defaults.EXPIRATION());
+    }
+
+    function merkleInstantConstructorParams(
+        address campaignOwner,
+        uint40 expiration
+    )
+        public
+        view
+        returns (MerkleInstant.ConstructorParams memory)
+    {
+        return defaults.merkleInstantConstructorParams({
+            campaignOwner: campaignOwner,
+            expiration: expiration,
+            merkleRoot: defaults.MERKLE_ROOT(),
+            token_: dai
         });
     }
 
@@ -102,9 +128,9 @@ contract Integration_Test is Base_Test {
         return computeMerkleLLAddress({
             campaignCreator: users.campaignOwner,
             campaignOwner: campaignOwner,
-            token_: dai,
+            expiration: expiration,
             merkleRoot: defaults.MERKLE_ROOT(),
-            expiration: expiration
+            token_: dai
         });
     }
 
@@ -121,14 +147,37 @@ contract Integration_Test is Base_Test {
     }
 
     function createMerkleLL(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLL) {
-        return merkleFactory.createMerkleLL({
-            baseParams: defaults.baseParams(campaignOwner, dai, expiration, defaults.MERKLE_ROOT()),
+        return merkleFactory.createMerkleLL(
+            defaults.merkleLLConstructorParams({
+                campaignOwner: campaignOwner,
+                expiration: expiration,
+                lockup: lockup,
+                merkleRoot: defaults.MERKLE_ROOT(),
+                token_: dai
+            }),
+            defaults.AGGREGATE_AMOUNT(),
+            defaults.RECIPIENT_COUNT()
+        );
+    }
+
+    function merkleLLConstructorParams() public view returns (MerkleLL.ConstructorParams memory) {
+        return merkleLLConstructorParams(users.campaignOwner, defaults.EXPIRATION());
+    }
+
+    function merkleLLConstructorParams(
+        address campaignOwner,
+        uint40 expiration
+    )
+        public
+        view
+        returns (MerkleLL.ConstructorParams memory)
+    {
+        return defaults.merkleLLConstructorParams({
+            campaignOwner: campaignOwner,
+            expiration: expiration,
             lockup: lockup,
-            cancelable: defaults.CANCELABLE(),
-            transferable: defaults.TRANSFERABLE(),
-            schedule: defaults.schedule(),
-            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT()
+            merkleRoot: defaults.MERKLE_ROOT(),
+            token_: dai
         });
     }
 
@@ -140,9 +189,9 @@ contract Integration_Test is Base_Test {
         return computeMerkleLTAddress({
             campaignCreator: users.campaignOwner,
             campaignOwner: campaignOwner,
-            token_: dai,
+            expiration: expiration,
             merkleRoot: defaults.MERKLE_ROOT(),
-            expiration: expiration
+            token_: dai
         });
     }
 
@@ -159,15 +208,37 @@ contract Integration_Test is Base_Test {
     }
 
     function createMerkleLT(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLT) {
-        return merkleFactory.createMerkleLT({
-            baseParams: defaults.baseParams(campaignOwner, dai, expiration, defaults.MERKLE_ROOT()),
+        return merkleFactory.createMerkleLT(
+            defaults.merkleLTConstructorParams({
+                campaignOwner: campaignOwner,
+                expiration: expiration,
+                lockup: lockup,
+                merkleRoot: defaults.MERKLE_ROOT(),
+                token_: dai
+            }),
+            defaults.AGGREGATE_AMOUNT(),
+            defaults.RECIPIENT_COUNT()
+        );
+    }
+
+    function merkleLTConstructorParams() public view returns (MerkleLT.ConstructorParams memory) {
+        return merkleLTConstructorParams(users.campaignOwner, defaults.EXPIRATION());
+    }
+
+    function merkleLTConstructorParams(
+        address campaignOwner,
+        uint40 expiration
+    )
+        public
+        view
+        returns (MerkleLT.ConstructorParams memory)
+    {
+        return defaults.merkleLTConstructorParams({
+            campaignOwner: campaignOwner,
+            expiration: expiration,
             lockup: lockup,
-            cancelable: defaults.CANCELABLE(),
-            transferable: defaults.TRANSFERABLE(),
-            streamStartTime: defaults.STREAM_START_TIME_ZERO(),
-            tranchesWithPercentages: defaults.tranchesWithPercentages(),
-            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT()
+            merkleRoot: defaults.MERKLE_ROOT(),
+            token_: dai
         });
     }
 }

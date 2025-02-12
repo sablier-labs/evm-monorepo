@@ -2,10 +2,9 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import { ISablierMerkleFactory } from "../src/interfaces/ISablierMerkleFactory.sol";
-import { ISablierMerkleInstant } from "../src/interfaces/ISablierMerkleInstant.sol";
-import { MerkleBase } from "../src/types/DataTypes.sol";
+import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
+import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
+import { MerkleInstant } from "src/types/DataTypes.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
@@ -22,29 +21,21 @@ contract CreateMerkleInstant is BaseScript {
         returns (ISablierMerkleInstant merkleInstant)
     {
         // Prepare the constructor parameters.
-        MerkleBase.ConstructorParams memory baseParams;
-
-        // The token to distribute through the campaign.
-        baseParams.token = token;
-
-        // The campaign will expire in 30 days.
-        baseParams.expiration = uint40(block.timestamp + 30 days);
-
-        // The admin of the campaign.
-        baseParams.initialAdmin = broadcaster;
-
-        // Dummy values for the campaign name, IPFS CID, and the Merkle root hash.
-        baseParams.campaignName = "The Boys Instant";
-        baseParams.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
-        baseParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        MerkleInstant.ConstructorParams memory params;
+        params.campaignName = "The Boys Instant";
+        params.expiration = uint40(block.timestamp + 30 days);
+        params.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
+        params.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
+        params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        params.token = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
         // The total amount to airdrop through the campaign.
-        uint256 campaignTotalAmount = 10_000e18;
+        uint256 aggregateAmount = 10_000e18;
 
         // The number of eligible users for the airdrop.
         uint256 recipientCount = 100;
 
         // Deploy the MerkleInstant contract.
-        merkleInstant = merkleFactory.createMerkleInstant(baseParams, campaignTotalAmount, recipientCount);
+        merkleInstant = merkleFactory.createMerkleInstant(params, aggregateAmount, recipientCount);
     }
 }

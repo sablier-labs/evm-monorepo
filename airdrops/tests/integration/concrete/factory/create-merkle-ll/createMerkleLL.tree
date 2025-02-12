@@ -2,17 +2,11 @@ CreateMerkleLL_Integration_Test
 ├── given campaign already exists
 │  └── it should revert
 └── given campaign not exists
-   ├── when campaign name exceeds 32 bytes
-   │  └── it should create the campaign with campaign name truncated to 32 bytes
-   └── when campaign name not exceed 32 bytes
-      ├── when shape exceeds 32 bytes
-      │  └── it should create the campaign with shape truncated to 32 bytes
-      └── when shape not exceed 32 bytes
-         ├── given custom fee set
-         │  ├── it should create the campaign with custom fee
-         │  ├── it should set the current factory address
-         │  └── it should emit a {CreateMerkleLL} event
-         └── given custom fee not set
-            ├── it should create the campaign with default fee
-            ├── it should set the current factory address
-            └── it should emit a {CreateMerkleLL} event
+   ├── given custom fee set
+   │  ├── it should create the campaign with custom fee
+   │  ├── it should set the current factory address
+   │  └── it should emit a {CreateMerkleLL} event
+   └── given custom fee not set
+      ├── it should create the campaign with default fee
+      ├── it should set the current factory address
+      └── it should emit a {CreateMerkleLL} event

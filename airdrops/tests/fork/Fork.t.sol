@@ -4,7 +4,6 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 import { Merkle } from "murky/src/Merkle.sol";
-import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
 
 import { Base_Test } from "../Base.t.sol";
 import { Defaults } from "../utils/Defaults.sol";
@@ -34,8 +33,9 @@ abstract contract Fork_Test is Base_Test, Merkle {
         // Fork Ethereum Mainnet at the latest block number.
         vm.createSelectFork({ urlOrAlias: "ethereum" });
 
-        // Load deployed addresses from Ethereum mainnet.
-        merkleFactory = ISablierMerkleFactory(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
+        // TODO: Load deployed addresses from Ethereum mainnet.
+        // merkleFactory = ISablierMerkleFactory(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
+        deployMerkleFactoryConditionally();
         lockup = ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056);
 
         // Load the factory admin from mainnet.

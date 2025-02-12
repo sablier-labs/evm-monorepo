@@ -45,15 +45,9 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         // Make Factory the caller for the constructor test.
         resetPrank(address(merkleFactory));
 
-        SablierMerkleLT constructedLT = new SablierMerkleLT(
-            defaults.baseParams(),
-            users.campaignOwner,
-            lockup,
-            defaults.CANCELABLE(),
-            defaults.TRANSFERABLE(),
-            defaults.STREAM_START_TIME_ZERO(),
-            defaults.tranchesWithPercentages()
-        );
+        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
+
+        SablierMerkleLT constructedLT = new SablierMerkleLT(params, users.campaignOwner);
 
         Vars memory vars;
 
@@ -116,7 +110,7 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         assertEq(vars.actualTotalPercentage, vars.expectedTotalPercentage, "totalPercentage");
 
         vars.actualTranchesWithPercentages = constructedLT.getTranchesWithPercentages();
-        vars.expectedTranchesWithPercentages = defaults.tranchesWithPercentages();
+        vars.expectedTranchesWithPercentages = params.tranchesWithPercentages;
         assertEq(vars.actualTranchesWithPercentages, vars.expectedTranchesWithPercentages);
     }
 }
