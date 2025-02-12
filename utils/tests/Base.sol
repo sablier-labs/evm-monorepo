@@ -19,7 +19,7 @@ contract CommonBase is CommonConstants, CommonUtils, StdCheats {
     ContractWithoutReceive internal contractWithoutReceive;
     ContractWithReceive internal contractWithReceive;
     ERC20Mock internal dai;
-    address[] internal tokens;
+    IERC20[] internal tokens;
     ERC20Mock internal usdc;
     ERC20MissingReturn internal usdt;
 
@@ -33,9 +33,9 @@ contract CommonBase is CommonConstants, CommonUtils, StdCheats {
         usdt = new ERC20MissingReturn("Tether", "USDT", 6);
 
         // Push in the tokens array.
-        tokens.push(address(dai));
-        tokens.push(address(usdc));
-        tokens.push(address(usdt));
+        tokens.push(dai);
+        tokens.push(usdc);
+        tokens.push(IERC20(address(usdt)));
 
         // Label the tokens.
         vm.label({ account: address(contractWithoutReceive), newLabel: "Contract without Receive" });
@@ -65,7 +65,7 @@ contract CommonBase is CommonConstants, CommonUtils, StdCheats {
 
         for (uint256 i = 0; i < spenders.length; ++i) {
             for (uint256 j = 0; j < tokens.length; ++j) {
-                approveContract(tokens[j], user, spenders[i]);
+                approveContract(address(tokens[j]), user, spenders[i]);
             }
         }
 
