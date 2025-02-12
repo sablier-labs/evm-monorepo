@@ -405,6 +405,12 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
+    function transferFrom(IERC20 token, address to, uint128 amount) external payable {
+        // Interaction: transfer the amount.
+        token.transferFrom({ from: msg.sender, to: to, value: amount });
+    }
+
+    /// @inheritdoc ISablierFlow
     function void(uint256 streamId)
         external
         payable
