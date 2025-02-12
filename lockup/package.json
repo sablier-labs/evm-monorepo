@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std#v1.8.2",
-    "evm-utils": "github:sablier-labs/evm-utils#a58deb6",
+    "evm-utils": "github:sablier-labs/evm-utils#64d5af9",
     "husky": "^9.1.4",
     "lint-staged": "^15.2.8",
     "prettier": "^3.3.2",
