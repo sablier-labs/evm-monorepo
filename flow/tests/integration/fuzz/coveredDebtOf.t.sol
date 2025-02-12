@@ -31,7 +31,7 @@ contract CoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         flow.pause(streamId);
 
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: boundUint40(warpTimestamp, getBlockTimestamp() + 1, UINT40_MAX) });
+        vm.warp({ newTimestamp: boundUint40(warpTimestamp, getBlockTimestamp() + 1, MAX_UINT40) });
 
         // Assert that the covered debt did not change.
         uint256 actualCoveredDebt = flow.coveredDebtOf(streamId);
@@ -64,7 +64,7 @@ contract CoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Assert that the covered debt equals the ongoing debt.
         uint256 actualCoveredDebt = flow.coveredDebtOf(streamId);
-        uint256 expectedCoveredDebt = getDescaledAmount(ratePerSecond * (warpTimestamp - OCT_1_2024), decimals);
+        uint256 expectedCoveredDebt = getDescaledAmount(ratePerSecond * (warpTimestamp - FEB_1_2025), decimals);
         assertEq(actualCoveredDebt, expectedCoveredDebt);
     }
 
@@ -78,7 +78,7 @@ contract CoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,, depositedAmount) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump so it is greater than depletion timestamp.
-        warpTimestamp = boundUint40(warpTimestamp, uint40(flow.depletionTimeOf(streamId)) + 1, UINT40_MAX);
+        warpTimestamp = boundUint40(warpTimestamp, uint40(flow.depletionTimeOf(streamId)) + 1, MAX_UINT40);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: warpTimestamp });

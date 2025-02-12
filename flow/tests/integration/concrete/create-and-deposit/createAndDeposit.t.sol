@@ -47,7 +47,7 @@ contract CreateAndDeposit_Integration_Concrete_Test is Shared_Integration_Concre
         });
 
         // It should perform the ERC-20 transfers
-        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), amount: DEPOSIT_AMOUNT_6D });
+        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), value: DEPOSIT_AMOUNT_6D });
 
         uint256 actualStreamId = flow.createAndDeposit({
             sender: users.sender,

@@ -3,9 +3,9 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { IBatch } from "@sablier/evm-utils/src/interfaces/IBatch.sol";
 
 import { Flow } from "./../types/DataTypes.sol";
-import { IBatch } from "./IBatch.sol";
 import { ISablierFlowBase } from "./ISablierFlowBase.sol";
 
 /// @title ISablierFlow

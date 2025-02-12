@@ -82,7 +82,7 @@ contract DepositAndPause_Integration_Concrete_Test is Shared_Integration_Concret
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         // It should perform the ERC-20 transfer
-        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), amount: DEPOSIT_AMOUNT_6D });
+        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), value: DEPOSIT_AMOUNT_6D });
 
         flow.depositAndPause(defaultStreamId, DEPOSIT_AMOUNT_6D);
 

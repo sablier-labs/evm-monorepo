@@ -7,19 +7,6 @@ import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 /// @notice Library with custom errors used across the Flow contract.
 library Errors {
     /*//////////////////////////////////////////////////////////////////////////
-                                      GENERICS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when an unexpected error occurs during a batch call.
-    error BatchError(bytes errorData);
-
-    /// @notice Thrown when `msg.sender` is not the admin.
-    error CallerNotAdmin(address admin, address caller);
-
-    /// @notice Thrown when trying to delegate call to a function that disallows delegate calls.
-    error DelegateCall();
-
-    /*//////////////////////////////////////////////////////////////////////////
                                     SABLIER-FLOW
     //////////////////////////////////////////////////////////////////////////*/
 

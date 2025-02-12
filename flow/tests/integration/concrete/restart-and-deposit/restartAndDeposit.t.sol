@@ -83,7 +83,7 @@ contract RestartAndDeposit_Integration_Concrete_Test is Shared_Integration_Concr
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), amount: DEPOSIT_AMOUNT_6D });
+        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), value: DEPOSIT_AMOUNT_6D });
 
         flow.restartAndDeposit({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND, amount: DEPOSIT_AMOUNT_6D });
 

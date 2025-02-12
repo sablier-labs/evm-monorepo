@@ -65,7 +65,7 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransferFrom({ token: token, from: caller, to: address(flow), amount: depositAmount });
+        expectCallToTransferFrom({ token: token, from: caller, to: address(flow), value: depositAmount });
 
         // Make the deposit.
         flow.deposit(streamId, depositAmount, users.sender, users.recipient);

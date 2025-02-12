@@ -2,6 +2,8 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { StdInvariant } from "forge-std/src/StdInvariant.sol";
+
 import { Flow } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "./../Base.t.sol";
@@ -11,12 +13,11 @@ import { FlowHandler } from "./handlers/FlowHandler.sol";
 import { FlowStore } from "./stores/FlowStore.sol";
 
 /// @notice Common invariant test logic needed across contracts that inherit from {SablierFlow}.
-contract Flow_Invariant_Test is Base_Test {
+contract Flow_Invariant_Test is Base_Test, StdInvariant {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20[] internal tokens;
     FlowAdminHandler internal flowAdminHandler;
     FlowCreateHandler internal flowCreateHandler;
     FlowHandler internal flowHandler;
@@ -28,12 +29,6 @@ contract Flow_Invariant_Test is Base_Test {
 
     function setUp() public virtual override {
         Base_Test.setUp();
-
-        // Declare the default tokens.
-        tokens.push(tokenWithoutDecimals);
-        tokens.push(dai);
-        tokens.push(usdc);
-        tokens.push(IERC20(address(usdt)));
 
         // Deploy and the FlowStore contract.
         flowStore = new FlowStore(tokens);
@@ -87,7 +82,7 @@ contract Flow_Invariant_Test is Base_Test {
     function invariant_ContractBalanceStreamBalances() external view {
         // Check the invariant for each token.
         for (uint256 i = 0; i < tokens.length; ++i) {
-            contractBalanceStreamBalances(tokens[i]);
+            contractBalanceStreamBalances(IERC20(tokens[i]));
         }
     }
 
@@ -127,8 +122,8 @@ contract Flow_Invariant_Test is Base_Test {
     function invariant_ContractBalanceGeAggregateBalance() external view {
         for (uint256 i = 0; i < tokens.length; ++i) {
             assertGe(
-                tokens[i].balanceOf(address(flow)),
-                flow.aggregateBalance(tokens[i]),
+                IERC20(tokens[i]).balanceOf(address(flow)),
+                flow.aggregateBalance(IERC20(tokens[i])),
                 unicode"Invariant violation: contract balance >= aggregate balance"
             );
         }
@@ -211,9 +206,9 @@ contract Flow_Invariant_Test is Base_Test {
     /// refunded amounts.
     function invariant_InflowsSumGeOutflowsSum() external view {
         for (uint256 i = 0; i < tokens.length; ++i) {
-            uint256 depositedAmountsSum = flowStore.depositedAmountsSum(tokens[i]);
-            uint256 refundedAmountsSum = flowStore.refundedAmountsSum(tokens[i]);
-            uint256 withdrawnAmountsSum = flowStore.withdrawnAmountsSum(tokens[i]);
+            uint256 depositedAmountsSum = flowStore.depositedAmountsSum(IERC20(tokens[i]));
+            uint256 refundedAmountsSum = flowStore.refundedAmountsSum(IERC20(tokens[i]));
+            uint256 withdrawnAmountsSum = flowStore.withdrawnAmountsSum(IERC20(tokens[i]));
 
             assertGe(
                 depositedAmountsSum,

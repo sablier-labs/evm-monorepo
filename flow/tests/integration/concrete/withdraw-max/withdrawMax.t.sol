@@ -60,7 +60,7 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransfer({ token: usdc, to: users.recipient, amount: vars.expectedWithdrawAmount });
+        expectCallToTransfer({ token: usdc, to: users.recipient, value: vars.expectedWithdrawAmount });
 
         vars.actualWithdrawnAmount = flow.withdrawMax(defaultStreamId, users.recipient);
 

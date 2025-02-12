@@ -28,7 +28,7 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
     {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
-        newRatePerSecond = ud21x18(boundUint128(newRatePerSecond.unwrap(), 1, UINT128_MAX));
+        newRatePerSecond = ud21x18(boundUint128(newRatePerSecond.unwrap(), 1, MAX_UINT128));
 
         // Make the stream paused.
         flow.pause(streamId);
@@ -73,7 +73,7 @@ contract AdjustRatePerSecond_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
     {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
-        newRatePerSecond = ud21x18(boundUint128(newRatePerSecond.unwrap(), 1, UINT128_MAX));
+        newRatePerSecond = ud21x18(boundUint128(newRatePerSecond.unwrap(), 1, MAX_UINT128));
 
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);

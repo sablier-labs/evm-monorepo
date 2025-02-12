@@ -63,7 +63,7 @@ contract RefundMax_Integration_Concrete_Test is Shared_Integration_Concrete_Test
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransfer({ token: token, to: users.sender, amount: refundableAmount });
+        expectCallToTransfer({ token: token, to: users.sender, value: refundableAmount });
         flow.refundMax(streamId);
 
         // It should update the stream balance.

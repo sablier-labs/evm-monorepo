@@ -29,8 +29,16 @@ abstract contract Fork_Test is Base_Test {
 
     IERC20 internal token;
 
-    /// @dev The list of tokens to test.
-    IERC20[5] internal tokens = [DAI, EURS, SHIBA, USDC, USDT];
+    constructor() {
+        // Since we are using the real tokens in the fork tests, we need to remove the pre-deployed tokens from
+        // `CommonBase` and push the tokens addresses from mainnet.
+        delete tokens;
+        tokens.push(DAI);
+        tokens.push(EURS);
+        tokens.push(SHIBA);
+        tokens.push(USDC);
+        tokens.push(USDT);
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -72,7 +80,7 @@ abstract contract Fork_Test is Base_Test {
         }
 
         // Avoid users blacklisted by USDC or USDT.
-        if (token == USDC || token == USDT) {
+        if (token == IERC20(USDC) || token == IERC20(USDT)) {
             // 4-byte selector for `isBlacklisted(address)`, used by USDC.
             (bool isSenderBlacklisted,) = address(token).staticcall(abi.encodeWithSelector(0xfe575a87, sender));
             if (isSenderBlacklisted) {

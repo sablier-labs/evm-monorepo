@@ -77,7 +77,7 @@ contract RefundAndPause_Integration_Concrete_Test is Shared_Integration_Concrete
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         // It should perform the ERC-20 transfer
-        expectCallToTransfer({ token: usdc, to: users.sender, amount: REFUND_AMOUNT_6D });
+        expectCallToTransfer({ token: usdc, to: users.sender, value: REFUND_AMOUNT_6D });
 
         flow.refundAndPause(defaultStreamId, REFUND_AMOUNT_6D);
 

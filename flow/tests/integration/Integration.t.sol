@@ -49,8 +49,8 @@ abstract contract Integration_Test is Base_Test {
     function deposit(uint256 streamId, uint128 amount) internal {
         IERC20 token = flow.getToken(streamId);
 
-        deal({ token: address(token), to: users.sender, give: UINT128_MAX });
-        token.approve(address(flow), UINT128_MAX);
+        deal({ token: address(token), to: users.sender, give: MAX_UINT128 });
+        token.approve(address(flow), MAX_UINT128);
 
         flow.deposit(streamId, amount, users.sender, users.recipient);
     }

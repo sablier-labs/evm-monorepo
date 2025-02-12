@@ -270,7 +270,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         whenAmountGreaterThanSnapshotDebt
     {
         // Go back to the starting point.
-        vm.warp({ newTimestamp: OCT_1_2024 });
+        vm.warp({ newTimestamp: FEB_1_2025 });
 
         // Create the stream and make a deposit.
         uint256 streamId = createDefaultStream(dai);

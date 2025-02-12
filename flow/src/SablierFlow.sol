@@ -7,9 +7,9 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { Batch } from "@sablier/evm-utils/src/Batch.sol";
+import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
 
-import { Batch } from "./abstracts/Batch.sol";
-import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
 import { SablierFlowBase } from "./abstracts/SablierFlowBase.sol";
 import { IFlowNFTDescriptor } from "./interfaces/IFlowNFTDescriptor.sol";
 import { ISablierFlow } from "./interfaces/ISablierFlow.sol";

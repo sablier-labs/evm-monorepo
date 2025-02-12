@@ -98,7 +98,7 @@ contract Getters_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function test_GetSnapshotTimeGivenNotNull() external view {
-        assertEq(flow.getSnapshotTime(defaultStreamId), OCT_1_2024, "snapshot time");
+        assertEq(flow.getSnapshotTime(defaultStreamId), FEB_1_2025, "snapshot time");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ contract Getters_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
 
     function test_GetStreamGivenNotNull() external view {
         Flow.Stream memory stream = defaultStream();
-        stream.snapshotTime = OCT_1_2024;
+        stream.snapshotTime = FEB_1_2025;
         assertEq(abi.encode(flow.getStream(defaultStreamId)), abi.encode(stream), "stream");
     }
 

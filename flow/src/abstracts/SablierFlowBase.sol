@@ -7,12 +7,12 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
 
 import { IFlowNFTDescriptor } from "./../interfaces/IFlowNFTDescriptor.sol";
 import { ISablierFlowBase } from "./../interfaces/ISablierFlowBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
 import { Flow } from "./../types/DataTypes.sol";
-import { Adminable } from "./Adminable.sol";
 
 /// @title SablierFlowBase
 /// @notice See the documentation in {ISablierFlowBase}.
@@ -46,11 +46,9 @@ abstract contract SablierFlowBase is
     /// @dev Emits {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
-    constructor(address initialAdmin, IFlowNFTDescriptor initialNFTDescriptor) {
+    constructor(address initialAdmin, IFlowNFTDescriptor initialNFTDescriptor) Adminable(initialAdmin) {
         nextStreamId = 1;
-        admin = initialAdmin;
         nftDescriptor = initialNFTDescriptor;
-        emit TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

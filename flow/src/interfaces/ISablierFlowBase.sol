@@ -5,9 +5,9 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
 
 import { Flow } from "./../types/DataTypes.sol";
-import { IAdminable } from "./IAdminable.sol";
 import { IFlowNFTDescriptor } from "./IFlowNFTDescriptor.sol";
 
 /// @title ISablierFlowBase

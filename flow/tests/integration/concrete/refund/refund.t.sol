@@ -155,7 +155,7 @@ contract Refund_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransfer({ token: token, to: users.sender, amount: refundAmount });
+        expectCallToTransfer({ token: token, to: users.sender, value: refundAmount });
         flow.refund({ streamId: streamId, amount: refundAmount });
 
         // It should update the stream balance.

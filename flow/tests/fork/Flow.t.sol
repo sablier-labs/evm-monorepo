@@ -68,7 +68,7 @@ contract Flow_Fork_Test is Fork_Test {
 
         // Run the tests for each token.
         for (uint256 i = 0; i < tokens.length; ++i) {
-            token = tokens[i];
+            token = IERC20(tokens[i]);
             _executeSequence(params, flowFunc);
         }
     }
@@ -364,7 +364,7 @@ contract Flow_Fork_Test is Fork_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransferFrom({ token: token, from: sender, to: address(flow), amount: depositAmount });
+        expectCallToTransferFrom({ token: token, from: sender, to: address(flow), value: depositAmount });
 
         // Make the deposit.
         flow.deposit{ value: FEE }(streamId, depositAmount, sender, flow.getRecipient(streamId));

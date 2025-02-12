@@ -6,10 +6,11 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { ud21x18 } from "@prb/math/src/UD21x18.sol";
+import { ERC20Mock } from "@sablier/evm-utils/tests/mocks/erc20/ERC20Mock.sol";
+
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Flow } from "src/types/DataTypes.sol";
-import { ERC20Mock } from "./../../../mocks/ERC20Mock.sol";
 import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
 contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {

@@ -116,7 +116,7 @@ contract Deposit_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransferFrom({ token: token, from: users.sender, to: address(flow), amount: depositAmount });
+        expectCallToTransferFrom({ token: token, from: users.sender, to: address(flow), value: depositAmount });
         flow.deposit(streamId, depositAmount, users.sender, users.recipient);
 
         // It should update the stream balance.

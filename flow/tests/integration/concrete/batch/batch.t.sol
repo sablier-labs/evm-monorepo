@@ -106,8 +106,8 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         });
 
         // It should perform the ERC-20 transfers.
-        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), amount: DEPOSIT_AMOUNT_6D });
-        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), amount: DEPOSIT_AMOUNT_6D });
+        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), value: DEPOSIT_AMOUNT_6D });
+        expectCallToTransferFrom({ token: usdc, from: users.sender, to: address(flow), value: DEPOSIT_AMOUNT_6D });
 
         // Call the batch function.
         flow.batch(calls);
@@ -170,8 +170,8 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         });
 
         // It should perform the ERC-20 transfers.
-        expectCallToTransfer({ token: usdc, to: users.sender, amount: REFUND_AMOUNT_6D });
-        expectCallToTransfer({ token: usdc, to: users.sender, amount: REFUND_AMOUNT_6D });
+        expectCallToTransfer({ token: usdc, to: users.sender, value: REFUND_AMOUNT_6D });
+        expectCallToTransfer({ token: usdc, to: users.sender, value: REFUND_AMOUNT_6D });
 
         // Call the batch function.
         flow.batch(calls);
@@ -248,8 +248,8 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamIds[1] });
 
         // It should perform the ERC-20 transfers.
-        expectCallToTransfer({ token: usdc, to: users.recipient, amount: WITHDRAW_AMOUNT_6D });
-        expectCallToTransfer({ token: usdc, to: users.recipient, amount: WITHDRAW_AMOUNT_6D });
+        expectCallToTransfer({ token: usdc, to: users.recipient, value: WITHDRAW_AMOUNT_6D });
+        expectCallToTransfer({ token: usdc, to: users.recipient, value: WITHDRAW_AMOUNT_6D });
 
         // Call the batch function.
         flow.batch{ value: 1 wei }(calls);

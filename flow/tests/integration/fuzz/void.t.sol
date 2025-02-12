@@ -67,7 +67,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Bound the time jump so that it exceeds depletion timestamp.
         uint40 depletionTime = uint40(flow.depletionTimeOf(streamId));
-        timeJump = boundUint40(timeJump, depletionTime + 1, UINT40_MAX);
+        timeJump = boundUint40(timeJump, depletionTime + 1, MAX_UINT40);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: timeJump });
@@ -107,7 +107,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Bound the time jump so that it exceeds depletion timestamp.
         uint40 depletionTime = uint40(flow.depletionTimeOf(streamId));
-        timeJump = boundUint40(timeJump, depletionTime + 1, UINT40_MAX);
+        timeJump = boundUint40(timeJump, depletionTime + 1, MAX_UINT40);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: timeJump });
