@@ -17,7 +17,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
     }
 
     function test_RevertWhen_TotalPercentageGreaterThan100() external whenMerkleProofValid {
-        uint256 fee = defaults.FEE();
+        uint256 fee = defaults.MINIMUM_FEE();
 
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
 
@@ -93,7 +93,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
     /// @dev Helper function to test claim.
     function _test_Claim(uint40 startTime, uint40 cliffTime) private {
-        uint256 fee = defaults.FEE();
+        uint256 fee = defaults.MINIMUM_FEE();
         deal({ token: address(dai), to: address(merkleLL), give: defaults.AGGREGATE_AMOUNT() });
 
         uint256 expectedStreamId = lockup.nextStreamId();
@@ -131,6 +131,6 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         assertTrue(merkleLL.hasClaimed(defaults.INDEX1()), "not claimed");
 
-        assertEq(address(merkleLL).balance, previousFeeAccrued + defaults.FEE(), "fee collected");
+        assertEq(address(merkleLL).balance, previousFeeAccrued + defaults.MINIMUM_FEE(), "fee collected");
     }
 }

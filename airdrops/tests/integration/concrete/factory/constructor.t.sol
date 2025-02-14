@@ -12,7 +12,7 @@ contract Constructor_MerkleFactory_Integration_Test is Integration_Test {
         address actualAdmin = constructedFactory.admin();
         assertEq(actualAdmin, users.admin, "factory admin");
 
-        uint256 actualDefaultFee = constructedFactory.defaultFee();
-        assertEq(actualDefaultFee, 0, "default fee");
+        uint256 actualMinimumFee = constructedFactory.minimumFee();
+        assertEq(actualMinimumFee, 0, "minimum fee");
     }
 }

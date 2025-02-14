@@ -31,10 +31,10 @@ abstract contract SablierMerkleBase is
     address public immutable override FACTORY;
 
     /// @inheritdoc ISablierMerkleBase
-    uint256 public immutable override FEE;
+    bytes32 public immutable override MERKLE_ROOT;
 
     /// @inheritdoc ISablierMerkleBase
-    bytes32 public immutable override MERKLE_ROOT;
+    uint256 public immutable override MINIMUM_FEE;
 
     /// @inheritdoc ISablierMerkleBase
     IERC20 public immutable override TOKEN;
@@ -70,7 +70,7 @@ abstract contract SablierMerkleBase is
         campaignName = _campaignName;
         EXPIRATION = expiration;
         FACTORY = msg.sender;
-        FEE = ISablierMerkleFactory(FACTORY).getFee(campaignCreator);
+        MINIMUM_FEE = ISablierMerkleFactory(FACTORY).getFee(campaignCreator);
         MERKLE_ROOT = merkleRoot;
         TOKEN = token;
         ipfsCID = _ipfsCID;
@@ -115,9 +115,9 @@ abstract contract SablierMerkleBase is
             revert Errors.SablierMerkleBase_CampaignExpired({ blockTimestamp: block.timestamp, expiration: EXPIRATION });
         }
 
-        // Check: `msg.value` is not less than the fee.
-        if (msg.value < FEE) {
-            revert Errors.SablierMerkleBase_InsufficientFeePayment(msg.value, FEE);
+        // Check: `msg.value` is not less than the minimum fee.
+        if (msg.value < MINIMUM_FEE) {
+            revert Errors.SablierMerkleBase_InsufficientFeePayment(msg.value, MINIMUM_FEE);
         }
 
         // Check: the index has not been claimed.

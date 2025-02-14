@@ -25,13 +25,13 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice Retrieves the address of the factory contract.
     function FACTORY() external view returns (address);
 
-    /// @notice Retrieves the minimum fee required to claim the airdrop, which is paid in the native token of the chain,
-    /// e.g. ETH for Ethereum Mainnet.
-    function FEE() external view returns (uint256);
-
     /// @notice The root of the Merkle tree used to validate the proofs of inclusion.
     /// @dev This is an immutable state variable.
     function MERKLE_ROOT() external returns (bytes32);
+
+    /// @notice Retrieves the minimum fee required to claim the airdrop, which is paid in the native token of the chain,
+    /// e.g. ETH for Ethereum Mainnet.
+    function MINIMUM_FEE() external view returns (uint256);
 
     /// @notice The ERC-20 token to distribute.
     /// @dev This is an immutable state variable.
@@ -67,7 +67,7 @@ interface ISablierMerkleBase is IAdminable {
     /// - The campaign must not have expired.
     /// - The stream must not have been claimed already.
     /// - The Merkle proof must be valid.
-    /// - The `msg.value` must not be less than `FEE`.
+    /// - The `msg.value` must not be less than `MINIMUM_FEE`.
     ///
     /// @param index The index of the recipient in the Merkle tree.
     /// @param recipient The address of the airdrop recipient.

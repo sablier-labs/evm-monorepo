@@ -129,7 +129,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.recipientCount,
             totalDuration: defaults.TOTAL_DURATION(),
-            fee: defaults.FEE()
+            fee: defaults.MINIMUM_FEE()
         });
 
         vars.merkleLT = merkleFactory.createMerkleLT(vars.params, vars.aggregateAmount, vars.recipientCount);
@@ -178,14 +178,14 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
 
         expectCallToClaimWithData({
             merkleLockup: address(vars.merkleLT),
-            fee: defaults.FEE(),
+            fee: defaults.MINIMUM_FEE(),
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
             merkleProof: vars.merkleProof
         });
 
-        vars.merkleLT.claim{ value: defaults.FEE() }({
+        vars.merkleLT.claim{ value: defaults.MINIMUM_FEE() }({
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
@@ -249,11 +249,11 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         emit ISablierMerkleFactory.CollectFees({
             admin: factoryAdmin,
             merkleBase: vars.merkleLT,
-            feeAmount: defaults.FEE()
+            feeAmount: defaults.MINIMUM_FEE()
         });
         merkleFactory.collectFees({ merkleBase: vars.merkleLT });
 
         assertEq(address(vars.merkleLT).balance, 0, "merkleLT ETH balance");
-        assertEq(factoryAdmin.balance, initialAdminBalance + defaults.FEE(), "admin ETH balance");
+        assertEq(factoryAdmin.balance, initialAdminBalance + defaults.MINIMUM_FEE(), "admin ETH balance");
     }
 }

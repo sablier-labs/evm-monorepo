@@ -130,7 +130,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             params: vars.params,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.recipientCount,
-            fee: defaults.FEE()
+            fee: defaults.MINIMUM_FEE()
         });
 
         vars.merkleLL = merkleFactory.createMerkleLL(vars.params, vars.aggregateAmount, vars.recipientCount);
@@ -180,14 +180,14 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
 
         expectCallToClaimWithData({
             merkleLockup: address(vars.merkleLL),
-            fee: defaults.FEE(),
+            fee: defaults.MINIMUM_FEE(),
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
             merkleProof: vars.merkleProof
         });
 
-        vars.merkleLL.claim{ value: defaults.FEE() }({
+        vars.merkleLL.claim{ value: defaults.MINIMUM_FEE() }({
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
@@ -261,11 +261,11 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         emit ISablierMerkleFactory.CollectFees({
             admin: factoryAdmin,
             merkleBase: vars.merkleLL,
-            feeAmount: defaults.FEE()
+            feeAmount: defaults.MINIMUM_FEE()
         });
         merkleFactory.collectFees({ merkleBase: vars.merkleLL });
 
         assertEq(address(vars.merkleLL).balance, 0, "merkleLL ETH balance");
-        assertEq(factoryAdmin.balance, initialAdminBalance + defaults.FEE(), "admin ETH balance");
+        assertEq(factoryAdmin.balance, initialAdminBalance + defaults.MINIMUM_FEE(), "admin ETH balance");
     }
 }

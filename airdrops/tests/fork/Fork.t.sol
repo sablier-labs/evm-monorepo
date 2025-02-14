@@ -44,8 +44,8 @@ abstract contract Fork_Test is Base_Test, Merkle {
         // Initialize the defaults contract.
         defaults = new Defaults();
 
-        // Set the default fee for campaign.
+        // Set the minimum fee for campaign.
         resetPrank({ msgSender: factoryAdmin });
-        merkleFactory.setDefaultFee(defaults.FEE());
+        merkleFactory.setMinimumFee(defaults.MINIMUM_FEE());
     }
 }

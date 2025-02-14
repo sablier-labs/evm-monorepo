@@ -5,24 +5,24 @@ import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol"
 import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
 
-contract SetDefaultFee_Integration_Test is Integration_Test {
+contract SetMinimumFee_Integration_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
-        uint256 fee = defaults.FEE();
+        uint256 minimumFee = defaults.MINIMUM_FEE();
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));
-        merkleFactory.setDefaultFee({ defaultFee: fee });
+        merkleFactory.setMinimumFee({ minimumFee: minimumFee });
     }
 
     function test_WhenCallerAdmin() external {
         resetPrank({ msgSender: users.admin });
 
-        // It should emit a {SetDefaultFee} event.
+        // It should emit a {SetMinimumFee} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ISablierMerkleFactory.SetDefaultFee({ admin: users.admin, defaultFee: defaults.FEE() });
+        emit ISablierMerkleFactory.SetMinimumFee({ admin: users.admin, minimumFee: defaults.MINIMUM_FEE() });
 
-        merkleFactory.setDefaultFee({ defaultFee: defaults.FEE() });
+        merkleFactory.setMinimumFee({ minimumFee: defaults.MINIMUM_FEE() });
 
-        // It should set the default fee.
-        assertEq(merkleFactory.defaultFee(), defaults.FEE(), "default fee");
+        // It should set the minimum fee.
+        assertEq(merkleFactory.minimumFee(), defaults.MINIMUM_FEE(), "minimum fee");
     }
 }

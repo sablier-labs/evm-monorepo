@@ -52,7 +52,7 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
         );
 
         // It should create the campaign with custom fee.
-        assertEq(actualInstant.FEE(), customFee, "fee");
+        assertEq(actualInstant.MINIMUM_FEE(), customFee, "custom fee");
 
         // It should set the current factory address.
         assertEq(actualInstant.FACTORY(), address(merkleFactory), "factory");
@@ -68,7 +68,7 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
             params: merkleInstantConstructorParams(campaignOwner, expiration),
             aggregateAmount: defaults.AGGREGATE_AMOUNT(),
             recipientCount: defaults.RECIPIENT_COUNT(),
-            fee: defaults.FEE()
+            fee: defaults.MINIMUM_FEE()
         });
 
         ISablierMerkleInstant actualInstant = createMerkleInstant(campaignOwner, expiration);
@@ -78,7 +78,7 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
         );
 
         // It should create the campaign with custom fee.
-        assertEq(actualInstant.FEE(), defaults.FEE(), "default fee");
+        assertEq(actualInstant.MINIMUM_FEE(), defaults.MINIMUM_FEE(), "minimum fee");
 
         // It should set the current factory address.
         assertEq(actualInstant.FACTORY(), address(merkleFactory), "factory");

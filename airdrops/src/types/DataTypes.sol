@@ -7,7 +7,7 @@ import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.so
 
 library MerkleFactory {
     /// @notice Struct encapsulating the custom fee details for a given campaign creator.
-    /// @param enabled Whether the fee is enabled. If false, the default fee will be applied for campaigns created by
+    /// @param enabled Whether the fee is enabled. If false, the minimum fee will be applied for campaigns created by
     /// the given creator.
     /// @param fee The fee amount.
     struct CustomFee {

@@ -71,9 +71,9 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         vars.expectedFactory = address(merkleFactory);
         assertEq(vars.actualFactory, vars.expectedFactory, "factory");
 
-        vars.actualFee = constructedLT.FEE();
-        vars.expectedFee = defaults.FEE();
-        assertEq(vars.actualFee, vars.expectedFee, "fee");
+        vars.actualFee = constructedLT.MINIMUM_FEE();
+        vars.expectedFee = defaults.MINIMUM_FEE();
+        assertEq(vars.actualFee, vars.expectedFee, "minimum fee");
 
         vars.actualIpfsCID = constructedLT.ipfsCID();
         vars.expectedIpfsCID = defaults.IPFS_CID();

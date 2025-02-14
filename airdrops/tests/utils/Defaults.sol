@@ -39,7 +39,6 @@ contract Defaults is Constants, Merkle {
     uint128 public constant CLAIM_AMOUNT = 10_000e18;
     UD2x18 public constant CLIFF_PERCENTAGE = UD2x18.wrap(0.25e18); // 25% of the claim amount
     uint40 public immutable EXPIRATION;
-    uint256 public constant FEE = 0.005e18;
     uint40 public constant FIRST_CLAIM_TIME = JULY_1_2024;
     uint256 public constant INDEX1 = 1;
     uint256 public constant INDEX2 = 2;
@@ -47,6 +46,7 @@ contract Defaults is Constants, Merkle {
     uint256 public constant INDEX4 = 4;
     string public constant IPFS_CID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
     uint256[] public LEAVES = new uint256[](RECIPIENT_COUNT);
+    uint256 public constant MINIMUM_FEE = 0.005e18;
     uint256 public constant RECIPIENT_COUNT = 4;
     bytes32 public MERKLE_ROOT;
     string public SHAPE = "A custom stream shape";

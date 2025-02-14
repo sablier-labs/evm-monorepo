@@ -16,7 +16,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
     }
 
     function test_RevertWhen_TotalPercentageLessThan100() external whenMerkleProofValid whenTotalPercentageNot100 {
-        uint256 fee = defaults.FEE();
+        uint256 fee = defaults.MINIMUM_FEE();
 
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
 
@@ -40,7 +40,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
     }
 
     function test_RevertWhen_TotalPercentageGreaterThan100() external whenMerkleProofValid whenTotalPercentageNot100 {
-        uint256 fee = defaults.FEE();
+        uint256 fee = defaults.MINIMUM_FEE();
 
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
 
@@ -83,7 +83,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
     /// @dev Helper function to test claim.
     function _test_Claim(uint40 streamStartTime, uint40 startTime) private {
-        uint256 fee = defaults.FEE();
+        uint256 fee = defaults.MINIMUM_FEE();
 
         deal({ token: address(dai), to: address(merkleLT), give: defaults.AGGREGATE_AMOUNT() });
 
@@ -122,6 +122,6 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         assertTrue(merkleLT.hasClaimed(defaults.INDEX1()), "not claimed");
 
-        assertEq(address(merkleLT).balance, previousFeeAccrued + defaults.FEE(), "fee collected");
+        assertEq(address(merkleLT).balance, previousFeeAccrued + defaults.MINIMUM_FEE(), "fee collected");
     }
 }

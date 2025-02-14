@@ -29,10 +29,10 @@ contract SetCustomFee_Integration_Test is Integration_Test {
         MerkleFactory.CustomFee memory customFee = merkleFactory.getCustomFee(users.campaignOwner);
 
         // It should enable the custom fee.
-        assertTrue(customFee.enabled, "enabled");
+        assertTrue(customFee.enabled, "custom fee not enabled");
 
         // It should set the custom fee.
-        assertEq(customFee.fee, 0, "fee");
+        assertEq(customFee.fee, 0, "custom fee");
     }
 
     function test_WhenEnabled() external whenCallerAdmin {
@@ -40,8 +40,8 @@ contract SetCustomFee_Integration_Test is Integration_Test {
         merkleFactory.setCustomFee({ campaignCreator: users.campaignOwner, newFee: 0.001 ether });
         // Check that its enabled.
         MerkleFactory.CustomFee memory customFee = merkleFactory.getCustomFee(users.campaignOwner);
-        assertTrue(customFee.enabled, "enabled");
-        assertEq(customFee.fee, 0.001 ether, "fee");
+        assertTrue(customFee.enabled, "custom fee not enabled");
+        assertEq(customFee.fee, 0.001 ether, "custom fee");
 
         // It should emit a {SetCustomFee} event.
         vm.expectEmit({ emitter: address(merkleFactory) });
@@ -57,9 +57,9 @@ contract SetCustomFee_Integration_Test is Integration_Test {
         customFee = merkleFactory.getCustomFee(users.campaignOwner);
 
         // It should enable the custom fee.
-        assertTrue(customFee.enabled, "enabled");
+        assertTrue(customFee.enabled, "custom fee not enabled");
 
         // It should set the custom fee.
-        assertEq(customFee.fee, 1 ether, "fee");
+        assertEq(customFee.fee, 1 ether, "custom fee");
     }
 }

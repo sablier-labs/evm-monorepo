@@ -53,7 +53,7 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function claim() internal {
-        merkleBase.claim{ value: defaults.FEE() }({
+        merkleBase.claim{ value: defaults.MINIMUM_FEE() }({
             index: defaults.INDEX1(),
             recipient: users.recipient1,
             amount: defaults.CLAIM_AMOUNT(),

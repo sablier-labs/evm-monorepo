@@ -44,7 +44,7 @@ contract SablierMerkleFactory is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleFactory
-    uint256 public override defaultFee;
+    uint256 public override minimumFee;
 
     /// @dev A mapping of custom fees mapped by campaign creator addresses.
     mapping(address campaignCreator => MerkleFactory.CustomFee customFee) private _customFees;
@@ -211,19 +211,19 @@ contract SablierMerkleFactory is
     }
 
     /// @inheritdoc ISablierMerkleFactory
-    function setDefaultFee(uint256 defaultFee_) external override onlyAdmin {
-        // Effect: update the default fee.
-        defaultFee = defaultFee_;
+    function setMinimumFee(uint256 newFee) external override onlyAdmin {
+        // Effect: update the minimum fee.
+        minimumFee = newFee;
 
-        emit SetDefaultFee(msg.sender, defaultFee_);
+        emit SetMinimumFee({ admin: msg.sender, minimumFee: newFee });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the fee for the provided campaign creator, using the default fee if no custom fee is set.
+    /// @notice Retrieves the fee for the provided campaign creator, using the minimum fee if no custom fee is set.
     function _getFee(address campaignCreator) private view returns (uint256) {
-        return _customFees[campaignCreator].enabled ? _customFees[campaignCreator].fee : defaultFee;
+        return _customFees[campaignCreator].enabled ? _customFees[campaignCreator].fee : minimumFee;
     }
 }

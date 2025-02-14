@@ -5,8 +5,8 @@ import { Integration_Test } from "../../../Integration.t.sol";
 
 contract GetFee_Integration_Test is Integration_Test {
     function test_GivenCustomFeeNotSet() external view {
-        // It should return default fee.
-        assertEq(merkleFactory.getFee(users.campaignOwner), defaults.FEE(), "default fee");
+        // It should return minimum fee.
+        assertEq(merkleFactory.getFee(users.campaignOwner), defaults.MINIMUM_FEE(), "minimum fee");
     }
 
     function test_GivenCustomFeeSet() external {

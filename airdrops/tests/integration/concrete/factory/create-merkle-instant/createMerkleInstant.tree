@@ -7,6 +7,6 @@ CreateMerkleInstant_Integration_Test
    │  ├── it should set the current factory address
    │  └── it should emit a {CreateMerkleInstant} event
    └── given custom fee not set
-      ├── it should create the campaign with default fee
+      ├── it should create the campaign with minimum fee
       ├── it should set the current factory address
       └── it should emit a {CreateMerkleInstant} event

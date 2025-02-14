@@ -50,7 +50,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         assertEq(address(actualLL), expectedLL, "MerkleLL contract does not match computed address");
 
         // It should create the campaign with custom fee.
-        assertEq(actualLL.FEE(), customFee, "fee");
+        assertEq(actualLL.MINIMUM_FEE(), customFee, "custom fee");
 
         // It should set the current factory address.
         assertEq(actualLL.FACTORY(), address(merkleFactory), "factory");
@@ -66,7 +66,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
             params: merkleLLConstructorParams(campaignOwner, expiration),
             aggregateAmount: defaults.AGGREGATE_AMOUNT(),
             recipientCount: defaults.RECIPIENT_COUNT(),
-            fee: defaults.FEE()
+            fee: defaults.MINIMUM_FEE()
         });
 
         ISablierMerkleLL actualLL = createMerkleLL(campaignOwner, expiration);
@@ -77,7 +77,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         assertEq(actualLL.shape(), defaults.SHAPE(), "shape");
 
         // It should create the campaign with custom fee.
-        assertEq(actualLL.FEE(), defaults.FEE(), "default fee");
+        assertEq(actualLL.MINIMUM_FEE(), defaults.MINIMUM_FEE(), "minimum fee");
 
         // It should set the current factory address.
         assertEq(actualLL.FACTORY(), address(merkleFactory), "factory");

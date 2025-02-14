@@ -68,8 +68,8 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         // Deploy the Merkle Factory.
         deployMerkleFactoryConditionally();
 
-        // Set the default fee on the Merkle factory.
-        merkleFactory.setDefaultFee(defaults.FEE());
+        // Set the minimum fee on the Merkle factory.
+        merkleFactory.setMinimumFee(defaults.MINIMUM_FEE());
 
         // Create users for testing.
         users.campaignOwner = createUser("CampaignOwner");

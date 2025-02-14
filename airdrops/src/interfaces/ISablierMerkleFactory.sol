@@ -52,29 +52,25 @@ interface ISablierMerkleFactory is IAdminable {
         uint256 fee
     );
 
-    /// @notice Emitted when the admin resets the custom fee for the provided campaign creator to the default fee.
+    /// @notice Emitted when the admin resets the custom fee for the provided campaign creator to the minimum fee.
     event ResetCustomFee(address indexed admin, address indexed campaignCreator);
 
     /// @notice Emitted when the admin sets a custom fee for the provided campaign creator.
     event SetCustomFee(address indexed admin, address indexed campaignCreator, uint256 customFee);
 
-    /// @notice Emitted when the default fee is set by the admin.
-    event SetDefaultFee(address indexed admin, uint256 defaultFee);
+    /// @notice Emitted when the minimum fee is set by the admin.
+    event SetMinimumFee(address indexed admin, uint256 minimumFee);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Retrieves the default fee charged for claiming an airdrop.
-    /// @dev The fee is denominated in the native token of the chain, e.g., ETH for Ethereum Mainnet.
-    function defaultFee() external view returns (uint256);
 
     /// @notice Retrieves the custom fee struct for the provided campaign creator.
     /// @dev The fee is denominated in the native token of the chain, e.g., ETH for Ethereum Mainnet.
     /// @param campaignCreator The address of the campaign creator.
     function getCustomFee(address campaignCreator) external view returns (MerkleFactory.CustomFee memory);
 
-    /// @notice Retrieves the fee for the provided campaign creator, using the default fee if no custom fee is set.
+    /// @notice Retrieves the fee for the provided campaign creator, using the minimum fee if no custom fee is set.
     /// @dev The fee is denominated in the native token of the chain, e.g., ETH for Ethereum Mainnet.
     /// @param campaignCreator The address of the campaign creator.
     function getFee(address campaignCreator) external view returns (uint256);
@@ -87,6 +83,10 @@ interface ISablierMerkleFactory is IAdminable {
         external
         pure
         returns (bool result);
+
+    /// @notice Retrieves the minimum fee charged for claiming an airdrop.
+    /// @dev The fee is denominated in the native token of the chain, e.g., ETH for Ethereum Mainnet.
+    function minimumFee() external view returns (uint256);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
@@ -147,7 +147,7 @@ interface ISablierMerkleFactory is IAdminable {
     ///
     /// Notes:
     /// - The MerkleLT contract is created with CREATE2.
-    /// - The immutable fee will be set to the default value unless a custom fee is set.
+    /// - The immutable fee will be set to the minimum value unless a custom fee is set.
     ///
     /// @param params Struct encapsulating the input parameters, which are documented in {DataTypes}.
     /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.
@@ -161,11 +161,11 @@ interface ISablierMerkleFactory is IAdminable {
         external
         returns (ISablierMerkleLT merkleLT);
 
-    /// @notice Resets the custom fee for the provided campaign creator to the default fee.
+    /// @notice Resets the custom fee for the provided campaign creator to the minimum fee.
     /// @dev Emits a {ResetCustomFee} event.
     ///
     /// Notes:
-    /// - The default fee will only be applied to future campaigns.
+    /// - The minimum fee will only be applied to future campaigns.
     ///
     /// Requirements:
     /// - `msg.sender` must be the admin.
@@ -186,16 +186,16 @@ interface ISablierMerkleFactory is IAdminable {
     /// @param newFee The new fee to be set.
     function setCustomFee(address campaignCreator, uint256 newFee) external;
 
-    /// @notice Sets the default fee to be applied when claiming airdrops.
-    /// @dev Emits a {SetDefaultFee} event.
+    /// @notice Sets the minimum fee to be applied when claiming airdrops.
+    /// @dev Emits a {SetMinimumFee} event.
     ///
     /// Notes:
-    /// - The new default fee will only be applied to the future campaigns and will not affect the ones already
+    /// - The new minimum fee will only be applied to the future campaigns and will not affect the ones already
     /// deployed.
     ///
     /// Requirements:
     /// - `msg.sender` must be the admin.
     ///
-    /// @param defaultFee The new default fee to be set.
-    function setDefaultFee(uint256 defaultFee) external;
+    /// @param minimumFee The new minimum fee to be set.
+    function setMinimumFee(uint256 minimumFee) external;
 }
