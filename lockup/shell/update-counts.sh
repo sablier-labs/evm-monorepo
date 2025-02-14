@@ -17,9 +17,9 @@ bun run build:optimized
 # Generalized function to update counts
 update_counts() {
     local test_name="Segments"
-    local map_name="maxCountMap" 
+    local map_name="maxCountMap"
     echo -e "\nRunning forge test for estimating $test_name..."
-    local output=$(FOUNDRY_PROFILE=benchmark forge t --mt "test_Estimate${test_name}" -vv)
+    local output=$(FOUNDRY_PROFILE=test-optimized forge t --mt "test_Estimate${test_name}" -vv)
     echo -e "\nParsing output for $test_name..."
 
     # Define a table with headers. This table is not put in the Solidity script file,

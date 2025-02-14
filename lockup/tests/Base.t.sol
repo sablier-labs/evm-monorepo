@@ -110,7 +110,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     /// deployer's nonce, which would in turn lead to different addresses (recall that the addresses
     /// for contracts deployed via `CREATE` are based on the caller-and-nonce-hash).
     function deployProtocolConditionally() internal {
-        if (!isBenchmarkProfile() && !isTestOptimizedProfile()) {
+        if (!isTestOptimizedProfile()) {
             batchLockup = new SablierBatchLockup();
             nftDescriptor = new LockupNFTDescriptor();
             lockup = new SablierLockup(users.admin, nftDescriptor, defaults.MAX_COUNT());

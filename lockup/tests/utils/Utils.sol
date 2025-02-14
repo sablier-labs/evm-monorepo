@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
 import { CommonUtils } from "@sablier/evm-utils/tests/utils/Utils.sol";
 
@@ -50,12 +49,6 @@ abstract contract Utils is CommonUtils, PRBMathUtils {
                 });
             }
         }
-    }
-
-    /// @dev Checks if the Foundry profile is "benchmark".
-    function isBenchmarkProfile() internal view returns (bool) {
-        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
-        return Strings.equal(profile, "benchmark");
     }
 
     /// @dev Returns the largest of the provided `uint40` numbers.
