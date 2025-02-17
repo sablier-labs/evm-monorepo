@@ -93,8 +93,8 @@ these [diagrams](https://docs.sablier.com/reference/lockup/diagrams).
 
 ### Branching Tree Technique
 
-You may notice that some test files are accompanied by `.tree` files. This is called the Branching Tree Technique, and
-it is explained in depth [here](https://www.bulloak.dev/).
+You may notice that some test files are accompanied by `.tree` files. This is because we are using Branching Tree
+Technique and [Bulloak](https://bulloak.dev/).
 
 ## Deployments
 
