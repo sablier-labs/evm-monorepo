@@ -165,8 +165,8 @@ abstract contract Lockup_Dynamic_Fork_Test is Fork_Test {
             params.segments
         );
 
-        // Check if the stream is settled. It is possible for a Lockup Dynamic stream to settle at the time of creation
-        // because some segment amounts can be zero or the last segment timestamp can be in the past.
+        // Check if the stream is settled. It is possible for a stream to settle at the time of creation because some
+        // segment amounts can be zero or the last segment timestamp can be in the past.
         vars.isSettled = lockup.refundableAmountOf(vars.streamId) == 0 || vars.timestamps.end <= getBlockTimestamp();
         vars.isCancelable = vars.isSettled ? false : true;
 

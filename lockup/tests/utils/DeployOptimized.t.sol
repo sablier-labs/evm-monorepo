@@ -17,11 +17,11 @@ abstract contract DeployOptimized is CommonBase {
         return ISablierBatchLockup(deployCode("out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json"));
     }
 
-    /// @dev Deploys the optimized {Helpers} and {VestingMath} libraries.
-    function deployOptimizedLibraries() internal returns (address helpers, address vestingMath) {
+    /// @dev Deploys the optimized {Helpers} and {StreamingMath} libraries.
+    function deployOptimizedLibraries() internal returns (address helpers, address streamingMath) {
         // Deploy public libraries.
         helpers = deployCode("out-optimized/Helpers.sol/Helpers.json");
-        vestingMath = deployCode("out-optimized/VestingMath.sol/VestingMath.json");
+        streamingMath = deployCode("out-optimized/StreamingMath.sol/StreamingMath.json");
     }
 
     /// @dev Deploys {SablierLockup} from an optimized source compiled with `--via-ir`.
@@ -34,7 +34,7 @@ abstract contract DeployOptimized is CommonBase {
         returns (ISablierLockup lockup)
     {
         // Deploy the libraries.
-        (address helpers, address vestingMath) = deployOptimizedLibraries();
+        (address helpers, address streamingMath) = deployOptimizedLibraries();
 
         // Get the bytecode from {SablierLockup} artifact.
         string memory artifactJson = vm.readFile("out-optimized/SablierLockup.sol/SablierLockup.json");
@@ -48,8 +48,8 @@ abstract contract DeployOptimized is CommonBase {
         });
         rawBytecode = vm.replace({
             input: rawBytecode,
-            from: libraryPlaceholder("src/libraries/VestingMath.sol:VestingMath"),
-            to: vm.replace(vm.toString(vestingMath), "0x", "")
+            from: libraryPlaceholder("src/libraries/StreamingMath.sol:StreamingMath"),
+            to: vm.replace(vm.toString(streamingMath), "0x", "")
         });
 
         // Generate the creation bytecode with the constructor arguments.

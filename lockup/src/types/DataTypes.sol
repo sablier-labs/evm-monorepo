@@ -173,7 +173,7 @@ library Lockup {
     }
 
     /// @notice Enum representing the different distribution models used to create lockup streams.
-    /// @dev These distribution models determine the vesting function used in the calculations of the unlocked tokens.
+    /// @dev These distribution models determine the streaming function used in the calculations of the unlocked tokens.
     enum Model {
         LOCKUP_LINEAR,
         LOCKUP_DYNAMIC,
@@ -239,9 +239,9 @@ library Lockup {
     }
 }
 
-/// @notice Namespace for the structs used only in Lockup Dynamic model.
+/// @notice Namespace for the structs used only in LD model.
 library LockupDynamic {
-    /// @notice Segment struct to be stored in the Lockup Dynamic model.
+    /// @notice Segment struct stored to represent streams with LD model.
     /// @param amount The amount of tokens streamed in the segment, denoted in units of the token's decimals.
     /// @param exponent The exponent of the segment, denoted as a fixed-point number.
     /// @param timestamp The Unix timestamp indicating the segment's end.
@@ -263,7 +263,7 @@ library LockupDynamic {
     }
 }
 
-/// @notice Namespace for the structs used only in Lockup Linear model.
+/// @notice Namespace for the structs used only in LL model.
 library LockupLinear {
     /// @notice Struct encapsulating the cliff duration and the total duration used at runtime in
     /// {SablierLockup.createWithDurationsLL} function.
@@ -285,9 +285,9 @@ library LockupLinear {
     }
 }
 
-/// @notice Namespace for the structs used only in Lockup Tranched model.
+/// @notice Namespace for the structs used only in LT model.
 library LockupTranched {
-    /// @notice Tranche struct to be stored in the Lockup Tranched model.
+    /// @notice Tranche struct stored to represent streams with LT model.
     /// @param amount The amount of tokens to be unlocked in the tranche, denoted in units of the token's decimals.
     /// @param timestamp The Unix timestamp indicating the tranche's end.
     struct Tranche {

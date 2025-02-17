@@ -76,7 +76,7 @@ library Helpers {
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLD} function.
-    function checkCreateLockupDynamic(
+    function checkCreateLD(
         address sender,
         Lockup.Timestamps memory timestamps,
         uint128 depositAmount,
@@ -95,7 +95,7 @@ library Helpers {
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLL} function.
-    function checkCreateLockupLinear(
+    function checkCreateLL(
         address sender,
         Lockup.Timestamps memory timestamps,
         uint40 cliffTime,
@@ -114,7 +114,7 @@ library Helpers {
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLT} function.
-    function checkCreateLockupTranched(
+    function checkCreateLT(
         address sender,
         Lockup.Timestamps memory timestamps,
         uint128 depositAmount,
@@ -136,7 +136,7 @@ library Helpers {
                             PRIVATE CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks the user-provided cliff, end times and unlock amounts of a lockup linear stream.
+    /// @dev Checks the user-provided cliff, end times and unlock amounts of a stream with LL model.
     function _checkTimestampsAndUnlockAmounts(
         uint128 depositAmount,
         Lockup.Timestamps memory timestamps,

@@ -66,8 +66,8 @@ contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Tranched_Integrat
         _defaultParams.createWithDurations.transferable = true;
         uint256 streamId = lockup.createWithDurationsLT(_defaultParams.createWithDurations, tranches);
 
-        // Check if the stream is settled. It is possible for a Lockup Tranched stream to settle at the time of creation
-        // because some tranche amounts can be zero.
+        // Check if the stream is settled. It is possible for a stream to settle at the time of creation because some
+        // tranche amounts can be zero.
         vars.isSettled = lockup.refundableAmountOf(streamId) == 0;
         vars.isCancelable = vars.isSettled ? false : true;
 

@@ -187,12 +187,12 @@ abstract contract Lockup_Linear_Fork_Test is Fork_Test {
             params.cliffTime
         );
 
-        vars.streamedAmount = calculateLockupLinearStreamedAmount(
+        vars.streamedAmount = calculateStreamedAmountLL(
             params.timestamps.start, params.cliffTime, params.timestamps.end, params.depositAmount, params.unlockAmounts
         );
 
-        // Check if the stream is settled. It is possible for a Lockup Linear stream to settle at the time of creation
-        // in case 1. the start unlock amount equals the deposited amount 2. end time is in the past.
+        // Check if the stream is settled. It is possible for a stream to settle at the time of creation in case 1. the
+        // start unlock amount equals the deposited amount 2. end time is in the past.
         if (vars.streamedAmount == params.depositAmount) {
             vars.isSettled = true;
         } else {

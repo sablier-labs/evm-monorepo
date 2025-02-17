@@ -40,7 +40,7 @@ cp out-optimized/ISablierLockup.sol/ISablierLockup.json $lockup_interfaces
 lockup_libraries=./artifacts/libraries
 cp out-optimized/Errors.sol/Errors.json $lockup_libraries
 cp out-optimized/Helpers.sol/Helpers.json $lockup_libraries
-cp out-optimized/VestingMath.sol/VestingMath.json $lockup_libraries
+cp out-optimized/StreamingMath.sol/StreamingMath.json $lockup_libraries
 
 
 ################################################

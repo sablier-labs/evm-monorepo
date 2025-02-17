@@ -30,7 +30,7 @@ contract Init is MaxCountScript {
         // Approve the Lockup contracts to transfer the ERC-20 tokens from the sender.
         token.approve({ spender: address(lockup), value: type(uint256).max });
 
-        // Create 7 Lockup Linear streams with various amounts and durations.
+        // Create 7 LL streams with various amounts and durations.
         //
         // - 1st stream: meant to be depleted.
         // - 2th to 4th streams: pending or streaming.

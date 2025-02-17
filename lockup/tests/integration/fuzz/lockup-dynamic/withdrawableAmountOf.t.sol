@@ -21,7 +21,7 @@ contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dyn
         // Run the test.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(ids.defaultStream);
         uint128 expectedWithdrawableAmount =
-            calculateLockupDynamicStreamedAmount(defaults.segments(), defaults.START_TIME(), defaults.DEPOSIT_AMOUNT());
+            calculateStreamedAmountLD(defaults.segments(), defaults.START_TIME(), defaults.DEPOSIT_AMOUNT());
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -50,7 +50,7 @@ contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dyn
 
         // Bound the withdraw amount.
         uint128 streamedAmount =
-            calculateLockupDynamicStreamedAmount(defaults.segments(), defaults.START_TIME(), defaults.DEPOSIT_AMOUNT());
+            calculateStreamedAmountLD(defaults.segments(), defaults.START_TIME(), defaults.DEPOSIT_AMOUNT());
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.

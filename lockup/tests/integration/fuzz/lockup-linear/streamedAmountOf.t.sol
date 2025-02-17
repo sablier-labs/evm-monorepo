@@ -80,7 +80,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
 
         // Run the test.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateLockupLinearStreamedAmount(
+        uint128 expectedStreamedAmount = calculateStreamedAmountLL(
             defaults.START_TIME(), defaults.CLIFF_TIME(), defaults.END_TIME(), depositAmount, unlockAmounts
         );
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");

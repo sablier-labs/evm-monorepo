@@ -14,7 +14,7 @@ interface ISablierBatchLockup {
                                SABLIER-LOCKUP-DYNAMIC
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a batch of Lockup Dynamic streams using `createWithDurationsLD`.
+    /// @notice Creates a batch of LD streams using `createWithDurationsLD`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.
@@ -33,7 +33,7 @@ interface ISablierBatchLockup {
         external
         returns (uint256[] memory streamIds);
 
-    /// @notice Creates a batch of Lockup Dynamic streams using `createWithTimestampsLD`.
+    /// @notice Creates a batch of LD streams using `createWithTimestampsLD`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.
@@ -56,7 +56,7 @@ interface ISablierBatchLockup {
                                SABLIER-LOCKUP-LINEAR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a batch of Lockup Linear streams using `createWithDurationsLL`.
+    /// @notice Creates a batch of LL streams using `createWithDurationsLL`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.
@@ -75,7 +75,7 @@ interface ISablierBatchLockup {
         external
         returns (uint256[] memory streamIds);
 
-    /// @notice Creates a batch of Lockup Linear streams using `createWithTimestampsLL`.
+    /// @notice Creates a batch of LL streams using `createWithTimestampsLL`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.
@@ -98,7 +98,7 @@ interface ISablierBatchLockup {
                               SABLIER-LOCKUP-TRANCHED
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a batch of Lockup Tranched streams using `createWithDurationsLT`.
+    /// @notice Creates a batch of LT streams using `createWithDurationsLT`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.
@@ -117,7 +117,7 @@ interface ISablierBatchLockup {
         external
         returns (uint256[] memory streamIds);
 
-    /// @notice Creates a batch of Lockup Tranched streams using `createWithTimestampsLT`.
+    /// @notice Creates a batch of LT streams using `createWithTimestampsLT`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.

@@ -23,8 +23,7 @@ contract WithdrawableAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tr
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(streamId);
-        uint128 expectedWithdrawableAmount =
-            calculateLockupTranchedStreamedAmount(defaults.tranches(), defaults.DEPOSIT_AMOUNT());
+        uint128 expectedWithdrawableAmount = calculateStreamedAmountLT(defaults.tranches(), defaults.DEPOSIT_AMOUNT());
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -55,7 +54,7 @@ contract WithdrawableAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tr
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
-        uint128 streamedAmount = calculateLockupTranchedStreamedAmount(defaults.tranches(), defaults.DEPOSIT_AMOUNT());
+        uint128 streamedAmount = calculateStreamedAmountLT(defaults.tranches(), defaults.DEPOSIT_AMOUNT());
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.

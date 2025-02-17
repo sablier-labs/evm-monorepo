@@ -49,7 +49,7 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(streamId);
-        uint128 expectedWithdrawableAmount = calculateLockupLinearStreamedAmount(
+        uint128 expectedWithdrawableAmount = calculateStreamedAmountLL(
             defaults.START_TIME(),
             defaults.CLIFF_TIME(),
             defaults.END_TIME(),
@@ -98,7 +98,7 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
-        uint128 streamedAmount = calculateLockupLinearStreamedAmount(
+        uint128 streamedAmount = calculateStreamedAmountLL(
             defaults.START_TIME(), defaults.CLIFF_TIME(), defaults.END_TIME(), depositAmount, unlockAmounts
         );
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);

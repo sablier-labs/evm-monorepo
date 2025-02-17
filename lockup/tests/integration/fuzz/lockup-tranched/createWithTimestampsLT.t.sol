@@ -225,8 +225,8 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         // Fuzz the tranche amounts and calculate the deposit amount.
         Vars memory vars;
 
-        // Check if the stream is settled. It is possible for a Lockup Tranched stream to settle at the time of creation
-        // because some tranche amounts can be zero.
+        // Check if the stream is settled. It is possible for a stream to settle at the time of creation because some
+        // tranche amounts can be zero.
         vars.isSettled = (lockup.getDepositedAmount(streamId) - lockup.streamedAmountOf(streamId)) == 0;
         vars.isCancelable = vars.isSettled ? false : params.cancelable;
 

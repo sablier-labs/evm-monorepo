@@ -66,7 +66,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateLockupLinearStreamedAmount(
+        uint128 expectedStreamedAmount = calculateStreamedAmountLL(
             _defaultParams.createWithTimestamps.timestamps.start,
             _defaultParams.cliffTime,
             _defaultParams.createWithTimestamps.timestamps.end,

@@ -351,7 +351,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   LOCKUP DYNAMIC
+                                    LD MODEL
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Unordered segment timestamps are not allowed.
@@ -373,7 +373,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   LOCKUP LINEAR
+                                    LL MODEL
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev If it is not zero, the cliff time must be strictly greater than the start time.
@@ -409,7 +409,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  LOCKUP TRANCHED
+                                    LT MODEL
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Unordered tranche timestamps are not allowed.

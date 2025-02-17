@@ -10,7 +10,7 @@ import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockup } from "./interfaces/ISablierLockup.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Helpers } from "./libraries/Helpers.sol";
-import { VestingMath } from "./libraries/VestingMath.sol";
+import { StreamingMath } from "./libraries/StreamingMath.sol";
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./types/DataTypes.sol";
 
 /*
@@ -36,16 +36,16 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
     /// @inheritdoc ISablierLockup
     uint256 public immutable override MAX_COUNT;
 
-    /// @dev Cliff timestamp mapped by stream IDs. This is used in Lockup Linear models.
+    /// @dev Cliff timestamp mapped by stream IDs. This is used in LL models.
     mapping(uint256 streamId => uint40 cliffTime) internal _cliffs;
 
-    /// @dev Stream segments mapped by stream IDs. This is used in Lockup Dynamic models.
+    /// @dev Stream segments mapped by stream IDs. This is used in LD models.
     mapping(uint256 streamId => LockupDynamic.Segment[] segments) internal _segments;
 
-    /// @dev Stream tranches mapped by stream IDs. This is used in Lockup Tranched models.
+    /// @dev Stream tranches mapped by stream IDs. This is used in LT models.
     mapping(uint256 streamId => LockupTranched.Tranche[] tranches) internal _tranches;
 
-    /// @dev Unlock amounts mapped by stream IDs. This is used in Lockup Linear models.
+    /// @dev Unlock amounts mapped by stream IDs. This is used in LL models.
     mapping(uint256 streamId => LockupLinear.UnlockAmounts unlockAmounts) internal _unlockAmounts;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -54,8 +54,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
 
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the NFT descriptor contract.
-    /// @param maxCount The maximum number of segments and tranched allowed in Lockup Dynamic and Lockup Tranched
-    /// models, respectively.
+    /// @param maxCount The maximum number of segments and tranched allowed in LD and LT models, respectively.
     constructor(
         address initialAdmin,
         ILockupNFTDescriptor initialNFTDescriptor,
@@ -296,7 +295,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
 
     /// @inheritdoc SablierLockupBase
     function _calculateStreamedAmount(uint256 streamId) internal view override returns (uint128) {
-        // Load in memory the parameters used in {VestingMath}.
+        // Load in memory the parameters used in {StreamingMath}.
         uint40 blockTimestamp = uint40(block.timestamp);
         uint128 depositedAmount = _streams[streamId].amounts.deposited;
         Lockup.Model lockupModel = _streams[streamId].lockupModel;
@@ -304,9 +303,9 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         Lockup.Timestamps memory timestamps =
             Lockup.Timestamps({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
 
-        // Calculate the streamed amount for the Lockup Dynamic model.
+        // Calculate the streamed amount in case of LD model.
         if (lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {
-            streamedAmount = VestingMath.calculateLockupDynamicStreamedAmount({
+            streamedAmount = StreamingMath.calculateStreamedAmountLD({
                 depositedAmount: depositedAmount,
                 segments: _segments[streamId],
                 blockTimestamp: blockTimestamp,
@@ -314,9 +313,9 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
                 withdrawnAmount: _streams[streamId].amounts.withdrawn
             });
         }
-        // Calculate the streamed amount for the Lockup Linear model.
+        // Calculate the streamed amount in case of LL model.
         else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
-            streamedAmount = VestingMath.calculateLockupLinearStreamedAmount({
+            streamedAmount = StreamingMath.calculateStreamedAmountLL({
                 depositedAmount: depositedAmount,
                 blockTimestamp: blockTimestamp,
                 timestamps: timestamps,
@@ -325,9 +324,9 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
                 withdrawnAmount: _streams[streamId].amounts.withdrawn
             });
         }
-        // Calculate the streamed amount for the Lockup Tranched model.
+        // Calculate the streamed amount in case of LT model.
         else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
-            streamedAmount = VestingMath.calculateLockupTranchedStreamedAmount({
+            streamedAmount = StreamingMath.calculateStreamedAmountLT({
                 depositedAmount: depositedAmount,
                 blockTimestamp: blockTimestamp,
                 timestamps: timestamps,
@@ -400,7 +399,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         returns (uint256 streamId)
     {
         // Check: validate the user-provided parameters and segments.
-        Helpers.checkCreateLockupDynamic({
+        Helpers.checkCreateLD({
             sender: params.sender,
             timestamps: params.timestamps,
             depositAmount: params.depositAmount,
@@ -441,7 +440,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         returns (uint256 streamId)
     {
         // Check: validate the user-provided parameters and cliff time.
-        Helpers.checkCreateLockupLinear({
+        Helpers.checkCreateLL({
             sender: params.sender,
             timestamps: params.timestamps,
             cliffTime: cliffTime,
@@ -490,7 +489,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         returns (uint256 streamId)
     {
         // Check: validate the user-provided parameters and tranches.
-        Helpers.checkCreateLockupTranched({
+        Helpers.checkCreateLT({
             sender: params.sender,
             timestamps: params.timestamps,
             depositAmount: params.depositAmount,

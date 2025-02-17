@@ -217,8 +217,8 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         // Create the stream.
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
 
-        // Check if the stream is settled. It is possible for a Lockup Dynamic stream to settle at the time of creation
-        // because some segment amounts can be zero.
+        // Check if the stream is settled. It is possible for a stream to settle at the time of creation because some
+        // segment amounts can be zero.
         vars.isSettled = (lockup.getDepositedAmount(streamId) - lockup.streamedAmountOf(streamId)) == 0;
         vars.isCancelable = vars.isSettled ? false : params.cancelable;
 

@@ -45,7 +45,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         // Run the test.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount =
-            calculateLockupDynamicStreamedAmount(segments, defaults.START_TIME(), params.depositAmount);
+            calculateStreamedAmountLD(segments, defaults.START_TIME(), params.depositAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -95,8 +95,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
 
         // Run the test.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount =
-            calculateLockupDynamicStreamedAmount(segments, defaults.START_TIME(), depositAmount);
+        uint128 expectedStreamedAmount = calculateStreamedAmountLD(segments, defaults.START_TIME(), depositAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 

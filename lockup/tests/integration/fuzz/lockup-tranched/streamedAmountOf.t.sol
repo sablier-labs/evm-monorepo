@@ -52,7 +52,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranch
 
         // Run the test.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateLockupTranchedStreamedAmount(tranches, depositAmount);
+        uint128 expectedStreamedAmount = calculateStreamedAmountLT(tranches, depositAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
