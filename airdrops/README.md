@@ -81,8 +81,8 @@ Finally, add these to your `remappings.txt` file:
 
 ### Branching Tree Technique
 
-You may notice that some test files are accompanied by `.tree` files. This is called the Branching Tree Technique, and
-it is explained in depth [here](https://bulloak.dev/).
+You may notice that some test files are accompanied by `.tree` files. This is because we are using Branching Tree
+Technique and [Bulloak](https://bulloak.dev/).
 
 ### Deployments
 
