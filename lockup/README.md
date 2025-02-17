@@ -65,6 +65,11 @@ Finally, add these to your `remappings.txt` file:
 @prb/math/=lib/prb-math/
 ```
 
+### Branching Tree Technique
+
+You may notice that some test files are accompanied by `.tree` files. This is because we are using Branching Tree
+Technique and [Bulloak](https://bulloak.dev/).
+
 ## Usage
 
 This is just a glimpse of Sablier Lockup. For more guides and examples, see the
@@ -91,15 +96,10 @@ contract, which is more gas-efficient and easier to maintain.
 For more information, see the [Technical Overview](https://docs.sablier.com/reference/overview) in our docs, as well as
 these [diagrams](https://docs.sablier.com/reference/lockup/diagrams).
 
-### Branching Tree Technique
-
-You may notice that some test files are accompanied by `.tree` files. This is because we are using Branching Tree
-Technique and [Bulloak](https://bulloak.dev/).
-
 ## Deployments
 
-The list of all deployment addresses can be found [here](https://docs.sablier.com). For guidance on the deploy scripts,
-see the [Deployments wiki](https://github.com/sablier-labs/lockup/wiki/Deployments).
+The list of all deployment addresses can be found [here](https://docs.sablier.com/guides/lockup/deployments). For
+guidance on the deployment scripts, see the [Deployments wiki](https://github.com/sablier-labs/lockup/wiki/Deployments).
 
 ## Security
 
