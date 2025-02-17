@@ -86,7 +86,7 @@ Technique and [Bulloak](https://bulloak.dev/).
 
 ### Deployments
 
-The list of all deployment addresses can be found [here](https://docs.sablier.com).
+The list of all deployment addresses can be found [here](https://docs.sablier.com/guides/airdrops/deployments).
 
 ## Security
 
