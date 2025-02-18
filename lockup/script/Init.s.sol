@@ -7,7 +7,7 @@ import { ud60x18 } from "@prb/math/src/UD60x18.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 
 import { ISablierLockup } from "../src/interfaces/ISablierLockup.sol";
-import { Broker, Lockup, LockupDynamic, LockupLinear } from "../src/types/DataTypes.sol";
+import { Broker, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../src/types/DataTypes.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
@@ -69,7 +69,7 @@ contract Init is BaseScript {
                                        LOCKUP-DYNAMIC
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Create the default lockupDynamic stream.
+        // Create the default Lockup Dynamic stream.
         LockupDynamic.SegmentWithDuration[] memory segments = new LockupDynamic.SegmentWithDuration[](2);
         segments[0] =
             LockupDynamic.SegmentWithDuration({ amount: 2500e18, exponent: ud2x18(3.14e18), duration: 1 hours });
@@ -87,6 +87,28 @@ contract Init is BaseScript {
                 broker: Broker(address(0), ud60x18(0))
             }),
             segments
+        );
+
+        /*//////////////////////////////////////////////////////////////////////////
+                                       LOCKUP-TRANCHED
+        //////////////////////////////////////////////////////////////////////////*/
+
+        // Create the default Lockup Tranched stream.
+        LockupTranched.TrancheWithDuration[] memory tranches = new LockupTranched.TrancheWithDuration[](2);
+        tranches[0] = LockupTranched.TrancheWithDuration({ amount: 1e18, duration: 1 hours });
+        tranches[1] = LockupTranched.TrancheWithDuration({ amount: 1.5e18, duration: 1 weeks });
+        lockup.createWithDurationsLT(
+            Lockup.CreateWithDurations({
+                sender: sender,
+                recipient: recipient,
+                totalAmount: 2.5e18,
+                token: token,
+                cancelable: true,
+                transferable: true,
+                shape: "Two Tranches",
+                broker: Broker(address(0), ud60x18(0))
+            }),
+            tranches
         );
     }
 }
