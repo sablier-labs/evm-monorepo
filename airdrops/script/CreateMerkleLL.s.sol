@@ -14,20 +14,27 @@ import { BaseScript } from "./Base.s.sol";
 /// @dev Creates a dummy campaign to airdrop tokens through Lockup Linear.
 contract CreateMerkleLL is BaseScript {
     /// @dev Deploy via Forge.
-    function run() public broadcast returns (ISablierMerkleLL merkleLL) {
-        ISablierMerkleFactory merkleFactory = ISablierMerkleFactory(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
-
+    function run(
+        ISablierMerkleFactory merkleFactory,
+        ISablierLockup lockup,
+        IERC20 token
+    )
+        public
+        virtual
+        broadcast
+        returns (ISablierMerkleLL merkleLL)
+    {
         // Prepare the constructor parameters.
         MerkleBase.ConstructorParams memory baseParams;
 
         // The token to distribute through the campaign.
-        baseParams.token = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+        baseParams.token = token;
 
         // The campaign will expire in 30 days.
         baseParams.expiration = uint40(block.timestamp + 30 days);
 
         // The admin of the campaign.
-        baseParams.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
+        baseParams.initialAdmin = broadcaster;
 
         // Dummy values for the campaign name, IPFS CID, and the Merkle root hash.
         baseParams.campaignName = "The Boys LL";
@@ -37,7 +44,7 @@ contract CreateMerkleLL is BaseScript {
         // Deploy the MerkleLL contract.
         merkleLL = merkleFactory.createMerkleLL({
             baseParams: baseParams,
-            lockup: ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056),
+            lockup: lockup,
             cancelable: true,
             transferable: true,
             schedule: MerkleLL.Schedule({
