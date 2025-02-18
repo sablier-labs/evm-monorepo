@@ -9,7 +9,7 @@ import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.so
 import { LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol";
 import { Merkle } from "murky/src/Merkle.sol";
 
-import { MerkleInstant, MerkleLL, MerkleLT } from "../../src/types/DataTypes.sol";
+import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "../../src/types/DataTypes.sol";
 
 import { Constants } from "./Constants.sol";
 import { MerkleBuilder } from "./MerkleBuilder.sol";
@@ -23,11 +23,10 @@ contract Defaults is Constants, Merkle {
                                       GENERICS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint128 public constant CLIFF_AMOUNT = 2500e18;
-    uint40 public constant CLIFF_DURATION = 2500 seconds;
-    uint40 public immutable START_TIME;
+    uint128 public immutable CLIFF_AMOUNT;
+    uint40 public constant CLIFF_DURATION = 2 days;
     uint128 public constant START_AMOUNT = 100e18;
-    uint40 public constant TOTAL_DURATION = 10_000 seconds;
+    uint40 public constant TOTAL_DURATION = 10 days;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   MERKLE-LOCKUP
@@ -37,7 +36,7 @@ contract Defaults is Constants, Merkle {
     string public CAMPAIGN_NAME = "Airdrop Campaign";
     bool public constant CANCELABLE = false;
     uint128 public constant CLAIM_AMOUNT = 10_000e18;
-    UD2x18 public constant CLIFF_PERCENTAGE = UD2x18.wrap(0.25e18); // 25% of the claim amount
+    UD2x18 public immutable CLIFF_PERCENTAGE;
     uint40 public immutable EXPIRATION;
     uint40 public constant FIRST_CLAIM_TIME = JULY_1_2024;
     uint256 public constant INDEX1 = 1;
@@ -50,9 +49,9 @@ contract Defaults is Constants, Merkle {
     uint256 public constant RECIPIENT_COUNT = 4;
     bytes32 public MERKLE_ROOT;
     string public SHAPE = "A custom stream shape";
-    UD2x18 public constant START_PERCENTAGE = UD2x18.wrap(0.01e18); // 1% of the claim amount
-    uint40 public immutable STREAM_START_TIME_NON_ZERO = JULY_1_2024 - 2 days;
-    uint40 public immutable STREAM_START_TIME_ZERO = 0;
+    UD2x18 public immutable START_PERCENTAGE;
+    uint40 public constant RANGED_STREAM_START_TIME = JULY_1_2024 - 2 days;
+    uint40 public immutable RANGED_STREAM_END_TIME;
     uint64 public constant TOTAL_PERCENTAGE = uUNIT;
     bool public constant TRANSFERABLE = false;
 
@@ -68,8 +67,11 @@ contract Defaults is Constants, Merkle {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
-        START_TIME = JULY_1_2024 + 2 days;
+        CLIFF_AMOUNT = (CLAIM_AMOUNT * CLIFF_DURATION) / TOTAL_DURATION;
+        CLIFF_PERCENTAGE = (ud(CLIFF_AMOUNT).div(ud(CLAIM_AMOUNT)).intoUD2x18()); // 20% of the claim amount
         EXPIRATION = JULY_1_2024 + 12 weeks;
+        RANGED_STREAM_END_TIME = RANGED_STREAM_START_TIME + TOTAL_DURATION;
+        START_PERCENTAGE = (ud(START_AMOUNT).div(ud(CLAIM_AMOUNT)).intoUD2x18()); // 1% of the claim amount
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -161,7 +163,7 @@ contract Defaults is Constants, Merkle {
             lockup: lockup,
             merkleRoot: merkleRoot,
             schedule: MerkleLL.Schedule({
-                startTime: STREAM_START_TIME_ZERO,
+                startTime: ZERO,
                 startPercentage: START_PERCENTAGE,
                 cliffDuration: CLIFF_DURATION,
                 cliffPercentage: CLIFF_PERCENTAGE,
@@ -190,9 +192,9 @@ contract Defaults is Constants, Merkle {
     {
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages_ = new MerkleLT.TrancheWithPercentage[](2);
         tranchesWithPercentages_[0] =
-            MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.25e18), duration: 2500 seconds });
+            MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.2e18), duration: 2 days });
         tranchesWithPercentages_[1] =
-            MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.75e18), duration: 7500 seconds });
+            MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.8e18), duration: 8 days });
 
         return MerkleLT.ConstructorParams({
             campaignName: CAMPAIGN_NAME,
@@ -203,7 +205,7 @@ contract Defaults is Constants, Merkle {
             lockup: lockup,
             merkleRoot: merkleRoot,
             shape: SHAPE,
-            streamStartTime: STREAM_START_TIME_ZERO,
+            streamStartTime: ZERO,
             token: token_,
             tranchesWithPercentages: tranchesWithPercentages_,
             transferable: TRANSFERABLE
@@ -228,8 +230,8 @@ contract Defaults is Constants, Merkle {
             tranches_[1].timestamp = streamStartTime + TOTAL_DURATION;
         }
 
-        uint128 amount0 = ud(totalAmount).mul(ud(0.25e18)).intoUint128();
-        uint128 amount1 = ud(totalAmount).mul(ud(0.75e18)).intoUint128();
+        uint128 amount0 = ud(totalAmount).mul(ud(0.2e18)).intoUint128();
+        uint128 amount1 = ud(totalAmount).mul(ud(0.8e18)).intoUint128();
 
         tranches_[0].amount = amount0;
         tranches_[1].amount = amount1;
@@ -239,5 +241,35 @@ contract Defaults is Constants, Merkle {
         if (amountsSum != totalAmount) {
             tranches_[1].amount += totalAmount - amountsSum;
         }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    MERKLE-VCA
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function merkleVCAConstructorParams(
+        address campaignOwner,
+        uint40 expiration,
+        bytes32 merkleRoot,
+        MerkleVCA.Timestamps memory timestamps,
+        IERC20 token_
+    )
+        public
+        view
+        returns (MerkleVCA.ConstructorParams memory)
+    {
+        return MerkleVCA.ConstructorParams({
+            campaignName: CAMPAIGN_NAME,
+            expiration: expiration,
+            initialAdmin: campaignOwner,
+            ipfsCID: IPFS_CID,
+            merkleRoot: merkleRoot,
+            timestamps: timestamps,
+            token: token_
+        });
+    }
+
+    function merkleVCATimestamps() public view returns (MerkleVCA.Timestamps memory) {
+        return MerkleVCA.Timestamps({ start: RANGED_STREAM_START_TIME, end: RANGED_STREAM_END_TIME });
     }
 }

@@ -70,14 +70,14 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
     function test_WhenStreamStartTimeNotZero() external whenMerkleProofValid whenTotalPercentage100 {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
-        params.streamStartTime = defaults.STREAM_START_TIME_NON_ZERO();
+        params.streamStartTime = defaults.RANGED_STREAM_START_TIME();
 
         merkleLT = merkleFactory.createMerkleLT(params, defaults.AGGREGATE_AMOUNT(), defaults.RECIPIENT_COUNT());
 
         // It should create a stream with `STREAM_START_TIME` as start time.
         _test_Claim({
-            streamStartTime: defaults.STREAM_START_TIME_NON_ZERO(),
-            startTime: defaults.STREAM_START_TIME_NON_ZERO()
+            streamStartTime: defaults.RANGED_STREAM_START_TIME(),
+            startTime: defaults.RANGED_STREAM_START_TIME()
         });
     }
 

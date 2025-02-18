@@ -8,7 +8,7 @@ import { MerkleInstant } from "src/types/DataTypes.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
-/// @dev Creates a dummy campaign to airdrop tokens instantly.
+/// @dev Creates a dummy MerkleInstant campaign.
 contract CreateMerkleInstant is BaseScript {
     /// @dev Deploy via Forge.
     function run(

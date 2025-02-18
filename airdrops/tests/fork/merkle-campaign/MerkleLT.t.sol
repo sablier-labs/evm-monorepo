@@ -204,10 +204,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
         assertEq(lockup.getStartTime(vars.expectedStreamId), getBlockTimestamp(), "start time");
         assertEq(
             lockup.getTranches(vars.expectedStreamId),
-            defaults.tranchesMerkleLT({
-                streamStartTime: defaults.STREAM_START_TIME_ZERO(),
-                totalAmount: vars.amounts[params.posBeforeSort]
-            })
+            defaults.tranchesMerkleLT({ streamStartTime: ZERO, totalAmount: vars.amounts[params.posBeforeSort] })
         );
         assertEq(lockup.getUnderlyingToken(vars.expectedStreamId), FORK_TOKEN, "token");
         assertEq(lockup.getWithdrawnAmount(vars.expectedStreamId), 0, "withdrawn amount");
@@ -228,7 +225,7 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
 
         if (params.expiration > 0) {
             vars.clawbackAmount = uint128(FORK_TOKEN.balanceOf(address(vars.merkleLT)));
-            vm.warp({ newTimestamp: uint256(params.expiration) + 1 seconds });
+            vm.warp({ newTimestamp: params.expiration + 1 seconds });
 
             resetPrank({ msgSender: params.campaignOwner });
             expectCallToTransfer({ token: FORK_TOKEN, to: params.campaignOwner, value: vars.clawbackAmount });

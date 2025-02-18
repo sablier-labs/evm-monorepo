@@ -24,12 +24,14 @@ cp out-optimized/SablierMerkleFactory.sol/SablierMerkleFactory.json $artifacts
 cp out-optimized/SablierMerkleInstant.sol/SablierMerkleInstant.json $artifacts
 cp out-optimized/SablierMerkleLL.sol/SablierMerkleLL.json $artifacts
 cp out-optimized/SablierMerkleLT.sol/SablierMerkleLT.json $artifacts
+cp out-optimized/SablierMerkleVCA.sol/SablierMerkleVCA.json $artifacts
 
 interfaces=./artifacts/interfaces
 cp out-optimized/ISablierMerkleFactory.sol/ISablierMerkleFactory.json $interfaces
 cp out-optimized/ISablierMerkleInstant.sol/ISablierMerkleInstant.json $interfaces
 cp out-optimized/ISablierMerkleLL.sol/ISablierMerkleLL.json $interfaces
 cp out-optimized/ISablierMerkleLT.sol/ISablierMerkleLT.json $interfaces
+cp out-optimized/ISablierMerkleVCA.sol/ISablierMerkleVCA.json $interfaces
 
 libraries=./artifacts/libraries
 cp out-optimized/libraries/Errors.sol/Errors.json $libraries

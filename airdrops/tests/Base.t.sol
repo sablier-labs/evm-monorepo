@@ -10,11 +10,13 @@ import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol"
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
+import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { SablierMerkleFactory } from "src/SablierMerkleFactory.sol";
 import { SablierMerkleInstant } from "src/SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "src/SablierMerkleLL.sol";
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
-import { MerkleInstant, MerkleLL, MerkleLT } from "src/types/DataTypes.sol";
+import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
+import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Constants } from "./utils/Constants.sol";
@@ -42,6 +44,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     ISablierMerkleInstant internal merkleInstant;
     ISablierMerkleLL internal merkleLL;
     ISablierMerkleLT internal merkleLT;
+    ISablierMerkleVCA internal merkleVCA;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -291,6 +294,47 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
             );
         }
 
+        return vm.computeCreate2Address({
+            salt: salt,
+            initCodeHash: creationBytecodeHash,
+            deployer: address(merkleFactory)
+        });
+    }
+
+    function computeMerkleVCAAddress(
+        address campaignCreator,
+        address campaignOwner,
+        uint40 expiration,
+        bytes32 merkleRoot,
+        MerkleVCA.Timestamps memory timestamps,
+        IERC20 token_
+    )
+        internal
+        view
+        returns (address)
+    {
+        MerkleVCA.ConstructorParams memory params = defaults.merkleVCAConstructorParams({
+            campaignOwner: campaignOwner,
+            expiration: expiration,
+            merkleRoot: merkleRoot,
+            timestamps: timestamps,
+            token_: token_
+        });
+
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, abi.encode(params)));
+
+        bytes32 creationBytecodeHash;
+        if (!isTestOptimizedProfile()) {
+            creationBytecodeHash =
+                keccak256(bytes.concat(type(SablierMerkleVCA).creationCode, abi.encode(params, campaignCreator)));
+        } else {
+            creationBytecodeHash = keccak256(
+                bytes.concat(
+                    vm.getCode("out-optimized/SablierMerkleVCA.sol/SablierMerkleVCA.json"),
+                    abi.encode(params, campaignCreator)
+                )
+            );
+        }
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,

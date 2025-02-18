@@ -26,8 +26,8 @@ contract IsPercentagesSum100_Integration_Test is Integration_Test {
 
     function test_WhenPercentagesSum100Pct() external view {
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = new MerkleLT.TrancheWithPercentage[](2);
-        tranchesWithPercentages[0].unlockPercentage = ud2x18(0.25e18);
-        tranchesWithPercentages[1].unlockPercentage = ud2x18(0.75e18);
+        tranchesWithPercentages[0].unlockPercentage = ud2x18(0.2e18);
+        tranchesWithPercentages[1].unlockPercentage = ud2x18(0.8e18);
 
         assertTrue(merkleFactory.isPercentagesSum100(tranchesWithPercentages), "isPercentagesSum100");
     }

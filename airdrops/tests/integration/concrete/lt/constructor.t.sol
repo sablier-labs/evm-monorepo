@@ -34,7 +34,6 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         bytes32 expectedMerkleRoot;
         uint256 expectedFee;
         bool expectedStreamCancelable;
-        uint40 expectedStreamStartTime;
         bool expectedStreamTransferable;
         address expectedToken;
         uint64 expectedTotalPercentage;
@@ -94,8 +93,7 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         assertEq(vars.actualStreamCancelable, vars.expectedStreamCancelable, "stream cancelable");
 
         vars.actualStreamStartTime = constructedLT.STREAM_START_TIME();
-        vars.expectedStreamStartTime = defaults.STREAM_START_TIME_ZERO();
-        assertEq(vars.actualStreamStartTime, vars.expectedStreamStartTime, "stream start time");
+        assertEq(vars.actualStreamStartTime, ZERO, "stream start time");
 
         vars.actualStreamTransferable = constructedLT.STREAM_TRANSFERABLE();
         vars.expectedStreamTransferable = defaults.TRANSFERABLE();

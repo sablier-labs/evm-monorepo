@@ -46,7 +46,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
         uint128 amount = defaults.CLAIM_AMOUNT();
         uint256 fee = defaults.MINIMUM_FEE();
         bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
+        vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
         merkleBase.claim{ value: fee }(invalidIndex, users.recipient1, amount, merkleProof);
     }
 
@@ -62,7 +62,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
         uint128 amount = defaults.CLAIM_AMOUNT();
         uint256 fee = defaults.MINIMUM_FEE();
         bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
+        vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
         merkleBase.claim{ value: fee }(index1, invalidRecipient, amount, merkleProof);
     }
 
@@ -78,7 +78,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
         uint128 invalidAmount = 1337;
         uint256 fee = defaults.MINIMUM_FEE();
         bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
+        vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
         merkleBase.claim{ value: fee }(index1, users.recipient1, invalidAmount, merkleProof);
     }
 
@@ -95,7 +95,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
         uint128 amount = defaults.CLAIM_AMOUNT();
         uint256 fee = defaults.MINIMUM_FEE();
         bytes32[] memory invalidMerkleProof = defaults.index2Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InvalidProof.selector));
+        vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
         merkleBase.claim{ value: fee }(index1, users.recipient1, amount, invalidMerkleProof);
     }
 

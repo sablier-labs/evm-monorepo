@@ -80,14 +80,14 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
     function test_WhenScheduledStartTimeNotZero() external whenMerkleProofValid whenTotalPercentageNotGreaterThan100 {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
-        params.schedule.startTime = defaults.STREAM_START_TIME_NON_ZERO();
+        params.schedule.startTime = defaults.RANGED_STREAM_START_TIME();
 
         merkleLL = merkleFactory.createMerkleLL(params, defaults.AGGREGATE_AMOUNT(), defaults.RECIPIENT_COUNT());
 
         // It should create a stream with scheduled start time as start time.
         _test_Claim({
-            startTime: defaults.STREAM_START_TIME_NON_ZERO(),
-            cliffTime: defaults.STREAM_START_TIME_NON_ZERO() + defaults.CLIFF_DURATION()
+            startTime: defaults.RANGED_STREAM_START_TIME(),
+            cliffTime: defaults.RANGED_STREAM_START_TIME() + defaults.CLIFF_DURATION()
         });
     }
 

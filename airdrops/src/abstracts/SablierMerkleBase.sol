@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -158,7 +158,7 @@ abstract contract SablierMerkleBase is
         }
 
         // Effect: transfer the tokens to the provided address.
-        TOKEN.safeTransfer(to, amount);
+        TOKEN.safeTransfer({ to: to, value: amount });
 
         // Log the clawback.
         emit Clawback(admin, to, amount);

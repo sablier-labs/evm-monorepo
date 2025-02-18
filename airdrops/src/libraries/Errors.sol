@@ -42,4 +42,23 @@ library Errors {
 
     /// @notice Thrown when trying to claim from an LT campaign with tranches' unlock percentages not adding up to 100%.
     error SablierMerkleLT_TotalPercentageNotOneHundred(uint64 totalPercentage);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                 SABLIER-MERKLE-VCA
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown while claiming when unlock start time is in the future.
+    error SablierMerkleVCA_ClaimNotStarted(uint40 startTime);
+
+    /// @notice Thrown if expiry of a VCA campaign is zero.
+    error SablierMerkleVCA_ExpiryTimeZero();
+
+    /// @notice Thrown if expiry of a VCA campaign is within 1 week from the unlock end time.
+    error SablierMerkleVCA_ExpiryWithinOneWeekOfUnlockEndTime(uint40 endTime, uint40 expiration);
+
+    /// @notice Thrown if end time of unlock is less than the start time.
+    error SablierMerkleVCA_StartTimeExceedsEndTime(uint40 startTime, uint40 endTime);
+
+    /// @notice Thrown if the unlock start time is zero.
+    error SablierMerkleVCA_StartTimeZero();
 }

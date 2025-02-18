@@ -10,10 +10,12 @@ import { ISablierMerkleFactory } from "./interfaces/ISablierMerkleFactory.sol";
 import { ISablierMerkleInstant } from "./interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
+import { ISablierMerkleVCA } from "./interfaces/ISablierMerkleVCA.sol";
 import { SablierMerkleInstant } from "./SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "./SablierMerkleLL.sol";
 import { SablierMerkleLT } from "./SablierMerkleLT.sol";
-import { MerkleFactory, MerkleInstant, MerkleLL, MerkleLT } from "./types/DataTypes.sol";
+import { SablierMerkleVCA } from "./SablierMerkleVCA.sol";
+import { MerkleFactory, MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "./types/DataTypes.sol";
 
 /*
 
@@ -182,6 +184,31 @@ contract SablierMerkleFactory is
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount,
             totalDuration: totalDuration,
+            fee: _getFee(msg.sender)
+        });
+    }
+
+    /// @inheritdoc ISablierMerkleFactory
+    function createMerkleVCA(
+        MerkleVCA.ConstructorParams memory params,
+        uint256 aggregateAmount,
+        uint256 recipientCount
+    )
+        external
+        returns (ISablierMerkleVCA merkleVCA)
+    {
+        // Hash the parameters to generate a salt.
+        bytes32 salt = keccak256(abi.encodePacked(msg.sender, abi.encode(params)));
+
+        // Deploy the MerkleVCA contract with CREATE2.
+        merkleVCA = new SablierMerkleVCA{ salt: salt }({ params: params, campaignCreator: msg.sender });
+
+        // Log the creation of the MerkleVCA contract, including some metadata that is not stored on-chain.
+        emit CreateMerkleVCA({
+            merkleVCA: merkleVCA,
+            params: params,
+            aggregateAmount: aggregateAmount,
+            recipientCount: recipientCount,
             fee: _getFee(msg.sender)
         });
     }

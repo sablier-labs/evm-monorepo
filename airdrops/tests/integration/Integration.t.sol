@@ -5,7 +5,8 @@ import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
-import { MerkleInstant, MerkleLL, MerkleLT } from "src/types/DataTypes.sol";
+import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
+import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "../Base.t.sol";
 import { ContractWithoutReceiveEth, ContractWithReceiveEth } from "../mocks/ReceiveEth.sol";
@@ -18,8 +19,7 @@ contract Integration_Test is Base_Test {
     ContractWithoutReceiveEth internal contractWithoutReceiveEth;
     ContractWithReceiveEth internal contractWithReceiveEth;
 
-    /// @dev A test contract meant to be overridden by the implementing contract, which will be either
-    /// {SablierMerkleLL}, {SablierMerkleLT} or {SablierMerkleInstant}.
+    /// @dev A test contract meant to be overridden by the implementing Merkle campaign contracts.
     ISablierMerkleBase internal merkleBase;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -41,11 +41,13 @@ contract Integration_Test is Base_Test {
         merkleInstant = createMerkleInstant();
         merkleLL = createMerkleLL();
         merkleLT = createMerkleLT();
+        merkleVCA = createMerkleVCA();
 
         // Fund the contracts.
         deal({ token: address(dai), to: address(merkleInstant), give: defaults.AGGREGATE_AMOUNT() });
         deal({ token: address(dai), to: address(merkleLL), give: defaults.AGGREGATE_AMOUNT() });
         deal({ token: address(dai), to: address(merkleLT), give: defaults.AGGREGATE_AMOUNT() });
+        deal({ token: address(dai), to: address(merkleVCA), give: defaults.AGGREGATE_AMOUNT() });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -238,6 +240,68 @@ contract Integration_Test is Base_Test {
             expiration: expiration,
             lockup: lockup,
             merkleRoot: defaults.MERKLE_ROOT(),
+            token_: dai
+        });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    MERKLE-VCA
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function computeMerkleVCAAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
+        return computeMerkleVCAAddress({
+            campaignCreator: users.campaignOwner,
+            campaignOwner: campaignOwner,
+            expiration: expiration,
+            merkleRoot: defaults.MERKLE_ROOT(),
+            timestamps: defaults.merkleVCATimestamps(),
+            token_: dai
+        });
+    }
+
+    function createMerkleVCA() internal returns (ISablierMerkleVCA) {
+        return createMerkleVCA(users.campaignOwner, defaults.EXPIRATION());
+    }
+
+    function createMerkleVCA(address campaignOwner) internal returns (ISablierMerkleVCA) {
+        return createMerkleVCA(campaignOwner, defaults.EXPIRATION());
+    }
+
+    function createMerkleVCA(uint40 expiration) internal returns (ISablierMerkleVCA) {
+        return createMerkleVCA(users.campaignOwner, expiration);
+    }
+
+    function createMerkleVCA(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleVCA) {
+        return merkleFactory.createMerkleVCA(
+            defaults.merkleVCAConstructorParams({
+                campaignOwner: campaignOwner,
+                expiration: expiration,
+                merkleRoot: defaults.MERKLE_ROOT(),
+                timestamps: defaults.merkleVCATimestamps(),
+                token_: dai
+            }),
+            defaults.AGGREGATE_AMOUNT(),
+            defaults.RECIPIENT_COUNT()
+        );
+    }
+
+    function merkleVCAConstructorParams() public view returns (MerkleVCA.ConstructorParams memory) {
+        return merkleVCAConstructorParams(users.campaignOwner, defaults.EXPIRATION());
+    }
+
+    function merkleVCAConstructorParams(
+        address campaignOwner,
+        uint40 expiration
+    )
+        public
+        view
+        returns (MerkleVCA.ConstructorParams memory)
+    {
+        return defaults.merkleVCAConstructorParams({
+            campaignOwner: campaignOwner,
+            expiration: expiration,
+            merkleRoot: defaults.MERKLE_ROOT(),
+            timestamps: defaults.merkleVCATimestamps(),
             token_: dai
         });
     }

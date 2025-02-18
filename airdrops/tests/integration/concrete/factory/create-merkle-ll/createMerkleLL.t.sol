@@ -8,7 +8,7 @@ import { MerkleLL } from "src/types/DataTypes.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract CreateMerkleLL_Integration_Test is Integration_Test {
-    /// @dev This test works because a default MerkleLL contract is deployed in {Integration_Test.setUp}
+    /// @dev This test reverts because a default MerkleLL contract is deployed in {Integration_Test.setUp}
     function test_RevertGiven_CampaignAlreadyExists() external {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
 
@@ -28,7 +28,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         external
         givenCampaignNotExists
     {
-        // Set the custom fee to 0 for this test.
+        // Set the custom fee for this test.
         resetPrank(users.admin);
         merkleFactory.setCustomFee(users.campaignOwner, customFee);
 
