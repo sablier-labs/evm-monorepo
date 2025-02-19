@@ -56,14 +56,13 @@
     "access": "public"
   },
   "scripts": {
-    "benchmark": "bun run build:optimized && FOUNDRY_PROFILE=benchmark forge test --mt testGas && bun run prettier:write",
     "build": "forge build",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
     "clean": "rm -rf artifacts broadcast cache docs out out-optimized out-svg",
     "lint": "bun run lint:sol && bun run prettier:check",
     "lint:fix": "bun run lint:sol:fix && forge fmt",
-    "lint:sol": "forge fmt --check && bun solhint \"{benchmark,script,src,tests}/**/*.sol\"",
-    "lint:sol:fix": "bun solhint \"{benchmark,script,src,tests}/**/*.sol\" --fix --noPrompt",
+    "lint:sol": "forge fmt --check && bun solhint \"{script,src,tests}/**/*.sol\"",
+    "lint:sol:fix": "bun solhint \"{script,src,tests}/**/*.sol\" --fix --noPrompt",
     "prepack": "bun install && bash ./shell/prepare-artifacts.sh",
     "prepare": "husky",
     "prettier:check": "prettier --check \"**/*.{json,md,svg,yml}\"",

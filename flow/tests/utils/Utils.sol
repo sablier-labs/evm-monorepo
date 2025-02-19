@@ -59,10 +59,4 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
         uint256 scaleFactor = (10 ** (18 - decimals));
         return amount * scaleFactor;
     }
-
-    /// @dev Checks if the Foundry profile is "benchmark".
-    function isBenchmarkProfile() internal view returns (bool) {
-        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
-        return Strings.equal(profile, "benchmark");
-    }
 }

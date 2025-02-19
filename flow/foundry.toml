@@ -5,7 +5,6 @@
   fs_permissions = [
     { access = "read", path = "./out-optimized" },
     { access = "read", path = "package.json" },
-    { access = "read-write", path = "./benchmark/results"},
     { access = "read-write", path = "./script"}
   ]
   gas_limit = 9223372036854775807
@@ -30,10 +29,6 @@
   fail_on_revert = true
   runs = 1000
   shrink_run_limit = 0 # Disable shrinking of a failed sequence
-
-# Run only the code inside benchmark directory
-[profile.benchmark]
-  test = "benchmark"
 
 # Speed up compilation and tests during development
 [profile.lite]

@@ -38,7 +38,7 @@ abstract contract Base_Test is Assertions, Modifiers {
 
         users.admin = payable(makeAddr("admin"));
 
-        if (!isBenchmarkProfile() && !isTestOptimizedProfile()) {
+        if (!isTestOptimizedProfile()) {
             nftDescriptor = new FlowNFTDescriptor();
             flow = new SablierFlow(users.admin, nftDescriptor);
         } else {
