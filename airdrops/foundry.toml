@@ -9,7 +9,7 @@
   ]
   gas_limit = 9223372036854775807
   optimizer = true
-  optimizer_runs = 1000
+  optimizer_runs = 1_000_000
   out = "out"
   script = "script"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
