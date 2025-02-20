@@ -74,7 +74,11 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
 
         for (uint256 i = 0; i < spenders.length; ++i) {
             for (uint256 j = 0; j < tokens.length; ++j) {
-                deal({ token: address(tokens[j]), to: user, give: 1e10 * ERC20Mock(address(tokens[j])).decimals() });
+                deal({
+                    token: address(tokens[j]),
+                    to: user,
+                    give: 1e10 * (10 ** ERC20Mock(address(tokens[j])).decimals())
+                });
                 approveContract(address(tokens[j]), user, spenders[i]);
             }
         }
