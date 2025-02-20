@@ -2,24 +2,18 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
-import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
-import { MerkleInstant } from "src/types/DataTypes.sol";
-
+import { ISablierMerkleInstant } from "./../src/interfaces/ISablierMerkleInstant.sol";
+import { SablierMerkleFactoryInstant } from "./../src/SablierMerkleFactoryInstant.sol";
+import { MerkleInstant } from "./../src/types/DataTypes.sol";
 import { BaseScript } from "./Base.s.sol";
 
 /// @dev Creates a dummy MerkleInstant campaign.
 contract CreateMerkleInstant is BaseScript {
     /// @dev Deploy via Forge.
-    function run(
-        ISablierMerkleFactory merkleFactory,
-        IERC20 token
-    )
-        public
-        virtual
-        broadcast
-        returns (ISablierMerkleInstant merkleInstant)
-    {
+    function run() public broadcast returns (ISablierMerkleInstant merkleInstant) {
+        // TODO: Load deployed addresses from Ethereum mainnet.
+        SablierMerkleFactoryInstant merkleFactory = new SablierMerkleFactoryInstant(DEFAULT_SABLIER_ADMIN, 0);
+
         // Prepare the constructor parameters.
         MerkleInstant.ConstructorParams memory params;
         params.campaignName = "The Boys Instant";

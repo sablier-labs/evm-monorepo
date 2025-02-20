@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
+import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
@@ -21,6 +22,9 @@ contract Integration_Test is Base_Test {
 
     /// @dev A test contract meant to be overridden by the implementing Merkle campaign contracts.
     ISablierMerkleBase internal merkleBase;
+
+    /// @dev A test contract meant to be overridden by the implementing Merkle factory contracts.
+    ISablierMerkleFactoryBase internal merkleFactoryBase;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -90,7 +94,7 @@ contract Integration_Test is Base_Test {
     }
 
     function createMerkleInstant(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleInstant) {
-        return merkleFactory.createMerkleInstant(
+        return merkleFactoryInstant.createMerkleInstant(
             defaults.merkleInstantConstructorParams({
                 campaignOwner: campaignOwner,
                 expiration: expiration,
@@ -149,7 +153,7 @@ contract Integration_Test is Base_Test {
     }
 
     function createMerkleLL(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLL) {
-        return merkleFactory.createMerkleLL(
+        return merkleFactoryLL.createMerkleLL(
             defaults.merkleLLConstructorParams({
                 campaignOwner: campaignOwner,
                 expiration: expiration,
@@ -210,7 +214,7 @@ contract Integration_Test is Base_Test {
     }
 
     function createMerkleLT(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLT) {
-        return merkleFactory.createMerkleLT(
+        return merkleFactoryLT.createMerkleLT(
             defaults.merkleLTConstructorParams({
                 campaignOwner: campaignOwner,
                 expiration: expiration,
@@ -272,7 +276,7 @@ contract Integration_Test is Base_Test {
     }
 
     function createMerkleVCA(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleVCA) {
-        return merkleFactory.createMerkleVCA(
+        return merkleFactoryVCA.createMerkleVCA(
             defaults.merkleVCAConstructorParams({
                 campaignOwner: campaignOwner,
                 expiration: expiration,

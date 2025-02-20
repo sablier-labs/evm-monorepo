@@ -4,7 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 
-import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
+import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
+import { ISablierMerkleFactoryVCA } from "src/interfaces/ISablierMerkleFactoryVCA.sol";
 import { ISablierMerkleBase, ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 
 import { MerkleVCA } from "src/types/DataTypes.sol";
@@ -78,6 +79,9 @@ abstract contract MerkleVCA_Fork_Test is Fork_Test {
 
         Vars memory vars;
 
+        // Load the factory admin from mainnet.
+        factoryAdmin = merkleFactoryVCA.admin();
+
         vars.recipientCount = params.leafData.length;
         vars.amounts = new uint128[](vars.recipientCount);
         vars.indexes = new uint256[](vars.recipientCount);
@@ -131,8 +135,8 @@ abstract contract MerkleVCA_Fork_Test is Fork_Test {
             token_: FORK_TOKEN
         });
 
-        vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ISablierMerkleFactory.CreateMerkleVCA({
+        vm.expectEmit({ emitter: address(merkleFactoryVCA) });
+        emit ISablierMerkleFactoryVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(vars.expectedMerkleVCA),
             params: vars.params,
             aggregateAmount: vars.aggregateAmount,
@@ -140,7 +144,7 @@ abstract contract MerkleVCA_Fork_Test is Fork_Test {
             fee: defaults.MINIMUM_FEE()
         });
 
-        vars.merkleVCA = merkleFactory.createMerkleVCA(vars.params, vars.aggregateAmount, vars.recipientCount);
+        vars.merkleVCA = merkleFactoryVCA.createMerkleVCA(vars.params, vars.aggregateAmount, vars.recipientCount);
 
         // Fund the MerkleVCA contract.
         deal({ token: address(FORK_TOKEN), to: address(vars.merkleVCA), give: vars.aggregateAmount });
@@ -242,13 +246,13 @@ abstract contract MerkleVCA_Fork_Test is Fork_Test {
                                         COLLECT-FEES
         //////////////////////////////////////////////////////////////////////////*/
 
-        vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ISablierMerkleFactory.CollectFees({
+        vm.expectEmit({ emitter: address(merkleFactoryVCA) });
+        emit ISablierMerkleFactoryBase.CollectFees({
             admin: factoryAdmin,
             merkleBase: vars.merkleVCA,
             feeAmount: defaults.MINIMUM_FEE()
         });
-        merkleFactory.collectFees({ merkleBase: vars.merkleVCA });
+        merkleFactoryVCA.collectFees({ merkleBase: vars.merkleVCA });
 
         assertEq(address(vars.merkleVCA).balance, 0, "merkleVCA ETH balance");
         assertEq(factoryAdmin.balance, initialAdminBalance + defaults.MINIMUM_FEE(), "admin ETH balance");

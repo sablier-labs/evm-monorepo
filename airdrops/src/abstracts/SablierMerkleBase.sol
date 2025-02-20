@@ -8,7 +8,7 @@ import { BitMaps } from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 import { Adminable } from "@sablier/lockup/src/abstracts/Adminable.sol";
 
 import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
-import { ISablierMerkleFactory } from "./../interfaces/ISablierMerkleFactory.sol";
+import { ISablierMerkleFactoryBase } from "./../interfaces/ISablierMerkleFactoryBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
 
 /// @title SablierMerkleBase
@@ -70,7 +70,7 @@ abstract contract SablierMerkleBase is
         campaignName = _campaignName;
         EXPIRATION = expiration;
         FACTORY = msg.sender;
-        MINIMUM_FEE = ISablierMerkleFactory(FACTORY).getFee(campaignCreator);
+        MINIMUM_FEE = ISablierMerkleFactoryBase(FACTORY).getFee(campaignCreator);
         MERKLE_ROOT = merkleRoot;
         TOKEN = token;
         ipfsCID = _ipfsCID;

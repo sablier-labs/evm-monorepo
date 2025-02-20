@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
-import { SablierMerkleFactory } from "src/SablierMerkleFactory.sol";
+import { SablierMerkleFactoryVCA } from "src/SablierMerkleFactoryVCA.sol";
 import { MerkleVCA } from "src/types/DataTypes.sol";
 
 import { BaseScript } from "./Base.s.sol";
@@ -13,8 +13,7 @@ contract CreateMerkleVCA is BaseScript {
     /// @dev Deploy via Forge.
     function run() public broadcast returns (ISablierMerkleVCA merkleVCA) {
         // TODO: Load deployed addresses from Ethereum mainnet.
-        // ISablierMerkleFactory merkleFactory = ISablierMerkleFactory(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
-        SablierMerkleFactory merkleFactory = new SablierMerkleFactory(DEFAULT_SABLIER_ADMIN);
+        SablierMerkleFactoryVCA merkleFactory = new SablierMerkleFactoryVCA(DEFAULT_SABLIER_ADMIN, 0);
 
         // Prepare the constructor parameters.
         MerkleVCA.ConstructorParams memory params;

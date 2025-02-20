@@ -4,7 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 
-import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
+import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
+import { ISablierMerkleFactoryInstant } from "src/interfaces/ISablierMerkleFactoryInstant.sol";
 import { ISablierMerkleBase, ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 
 import { MerkleInstant } from "src/types/DataTypes.sol";
@@ -67,6 +68,9 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
 
         Vars memory vars;
 
+        // Load the factory admin from mainnet.
+        factoryAdmin = merkleFactoryInstant.admin();
+
         vars.recipientCount = params.leafData.length;
         vars.amounts = new uint128[](vars.recipientCount);
         vars.indexes = new uint256[](vars.recipientCount);
@@ -118,8 +122,8 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
             token_: FORK_TOKEN
         });
 
-        vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ISablierMerkleFactory.CreateMerkleInstant({
+        vm.expectEmit({ emitter: address(merkleFactoryInstant) });
+        emit ISablierMerkleFactoryInstant.CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(vars.expectedMerkleInstant),
             params: vars.params,
             aggregateAmount: vars.aggregateAmount,
@@ -127,7 +131,8 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
             fee: defaults.MINIMUM_FEE()
         });
 
-        vars.merkleInstant = merkleFactory.createMerkleInstant(vars.params, vars.aggregateAmount, vars.recipientCount);
+        vars.merkleInstant =
+            merkleFactoryInstant.createMerkleInstant(vars.params, vars.aggregateAmount, vars.recipientCount);
 
         // Fund the MerkleInstant contract.
         deal({ token: address(FORK_TOKEN), to: address(vars.merkleInstant), give: vars.aggregateAmount });
@@ -222,13 +227,13 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
                                         COLLECT-FEES
         //////////////////////////////////////////////////////////////////////////*/
 
-        vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ISablierMerkleFactory.CollectFees({
+        vm.expectEmit({ emitter: address(merkleFactoryInstant) });
+        emit ISablierMerkleFactoryBase.CollectFees({
             admin: factoryAdmin,
             merkleBase: vars.merkleInstant,
             feeAmount: defaults.MINIMUM_FEE()
         });
-        merkleFactory.collectFees({ merkleBase: vars.merkleInstant });
+        merkleFactoryInstant.collectFees({ merkleBase: vars.merkleInstant });
 
         assertEq(address(vars.merkleInstant).balance, 0, "merkleInstant ETH balance");
         assertEq(factoryAdmin.balance, initialAdminBalance + defaults.MINIMUM_FEE(), "admin ETH balance");

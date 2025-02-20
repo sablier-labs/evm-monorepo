@@ -2,11 +2,9 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 import { Merkle } from "murky/src/Merkle.sol";
 
 import { Base_Test } from "../Base.t.sol";
-import { Defaults } from "../utils/Defaults.sol";
 
 /// @notice Common logic needed by all fork tests.
 abstract contract Fork_Test is Base_Test, Merkle {
@@ -34,18 +32,11 @@ abstract contract Fork_Test is Base_Test, Merkle {
         vm.createSelectFork({ urlOrAlias: "ethereum" });
 
         // TODO: Load deployed addresses from Ethereum mainnet.
-        // merkleFactory = ISablierMerkleFactory(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
+        // merkleFactoryInstant = ISablierMerkleFactoryInstant(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
+        // merkleFactoryLL = ISablierMerkleFactoryLL(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
+        // merkleFactoryLT = ISablierMerkleFactoryLT(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
+        // merkleFactoryVCA = ISablierMerkleFactoryVCA(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
+        // lockup = ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056);
         Base_Test.setUp();
-        lockup = ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056);
-
-        // Load the factory admin from mainnet.
-        factoryAdmin = merkleFactory.admin();
-
-        // Initialize the defaults contract.
-        defaults = new Defaults();
-
-        // Set the minimum fee for campaign.
-        resetPrank({ msgSender: factoryAdmin });
-        merkleFactory.setMinimumFee(defaults.MINIMUM_FEE());
     }
 }

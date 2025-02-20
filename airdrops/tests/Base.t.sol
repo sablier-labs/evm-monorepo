@@ -6,12 +6,18 @@ import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.so
 import { LockupNFTDescriptor } from "@sablier/lockup/src/LockupNFTDescriptor.sol";
 import { SablierLockup } from "@sablier/lockup/src/SablierLockup.sol";
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
-import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
+import { ISablierMerkleFactoryInstant } from "src/interfaces/ISablierMerkleFactoryInstant.sol";
+import { ISablierMerkleFactoryLL } from "src/interfaces/ISablierMerkleFactoryLL.sol";
+import { ISablierMerkleFactoryLT } from "src/interfaces/ISablierMerkleFactoryLT.sol";
+import { ISablierMerkleFactoryVCA } from "src/interfaces/ISablierMerkleFactoryVCA.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
-import { SablierMerkleFactory } from "src/SablierMerkleFactory.sol";
+import { SablierMerkleFactoryInstant } from "src/SablierMerkleFactoryInstant.sol";
+import { SablierMerkleFactoryLL } from "src/SablierMerkleFactoryLL.sol";
+import { SablierMerkleFactoryLT } from "src/SablierMerkleFactoryLT.sol";
+import { SablierMerkleFactoryVCA } from "src/SablierMerkleFactoryVCA.sol";
 import { SablierMerkleInstant } from "src/SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "src/SablierMerkleLL.sol";
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
@@ -40,7 +46,10 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     ERC20Mock internal dai;
     Defaults internal defaults;
     ISablierLockup internal lockup;
-    ISablierMerkleFactory internal merkleFactory;
+    ISablierMerkleFactoryInstant internal merkleFactoryInstant;
+    ISablierMerkleFactoryLL internal merkleFactoryLL;
+    ISablierMerkleFactoryLT internal merkleFactoryLT;
+    ISablierMerkleFactoryVCA internal merkleFactoryVCA;
     ISablierMerkleInstant internal merkleInstant;
     ISablierMerkleLL internal merkleLL;
     ISablierMerkleLT internal merkleLT;
@@ -68,11 +77,8 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         LockupNFTDescriptor nftDescriptor = new LockupNFTDescriptor();
         lockup = new SablierLockup(users.admin, nftDescriptor, 1000);
 
-        // Deploy the Merkle Factory.
-        deployMerkleFactoryConditionally();
-
-        // Set the minimum fee on the Merkle factory.
-        merkleFactory.setMinimumFee(defaults.MINIMUM_FEE());
+        // Deploy the Merkle Factory contracts.
+        deployMerkleFactoriesConditionally();
 
         // Create users for testing.
         users.campaignOwner = createUser("CampaignOwner");
@@ -102,9 +108,12 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Approves all contracts to spend tokens from the address passed.
-    function approveFactory(address from) internal {
+    function approveFactories(address from) internal {
         resetPrank({ msgSender: from });
-        dai.approve({ spender: address(merkleFactory), value: MAX_UINT256 });
+        dai.approve({ spender: address(merkleFactoryInstant), value: MAX_UINT256 });
+        dai.approve({ spender: address(merkleFactoryLL), value: MAX_UINT256 });
+        dai.approve({ spender: address(merkleFactoryLT), value: MAX_UINT256 });
+        dai.approve({ spender: address(merkleFactoryVCA), value: MAX_UINT256 });
     }
 
     /// @dev Generates a user, labels its address, funds it with test tokens, and approves the protocol contracts.
@@ -112,19 +121,25 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
         deal({ token: address(dai), to: user, give: 1_000_000e18 });
-        approveFactory({ from: user });
+        approveFactories({ from: user });
         return user;
     }
 
-    /// @dev Deploys the Merkle Factory contract conditionally based on the test profile.
-    function deployMerkleFactoryConditionally() internal {
-        // Deploy the Merkle Factory.
+    /// @dev Deploys the Merkle Factory contracts conditionally based on the test profile.
+    function deployMerkleFactoriesConditionally() internal {
         if (!isTestOptimizedProfile()) {
-            merkleFactory = new SablierMerkleFactory(users.admin);
+            merkleFactoryInstant = new SablierMerkleFactoryInstant(users.admin, defaults.MINIMUM_FEE());
+            merkleFactoryLL = new SablierMerkleFactoryLL(users.admin, defaults.MINIMUM_FEE());
+            merkleFactoryLT = new SablierMerkleFactoryLT(users.admin, defaults.MINIMUM_FEE());
+            merkleFactoryVCA = new SablierMerkleFactoryVCA(users.admin, defaults.MINIMUM_FEE());
         } else {
-            merkleFactory = deployOptimizedMerkleFactory(users.admin);
+            (merkleFactoryInstant, merkleFactoryLL, merkleFactoryLT, merkleFactoryVCA) =
+                deployOptimizedMerkleFactories(users.admin, defaults.MINIMUM_FEE());
         }
-        vm.label({ account: address(merkleFactory), newLabel: "MerkleFactory" });
+        vm.label({ account: address(merkleFactoryInstant), newLabel: "MerkleFactoryInstant" });
+        vm.label({ account: address(merkleFactoryLL), newLabel: "MerkleFactoryLL" });
+        vm.label({ account: address(merkleFactoryLT), newLabel: "MerkleFactoryLT" });
+        vm.label({ account: address(merkleFactoryVCA), newLabel: "MerkleFactoryVCA" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -218,7 +233,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
-            deployer: address(merkleFactory)
+            deployer: address(merkleFactoryInstant)
         });
     }
 
@@ -257,7 +272,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
-            deployer: address(merkleFactory)
+            deployer: address(merkleFactoryLL)
         });
     }
 
@@ -297,7 +312,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
-            deployer: address(merkleFactory)
+            deployer: address(merkleFactoryLT)
         });
     }
 
@@ -338,7 +353,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Modifiers
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
-            deployer: address(merkleFactory)
+            deployer: address(merkleFactoryVCA)
         });
     }
 }

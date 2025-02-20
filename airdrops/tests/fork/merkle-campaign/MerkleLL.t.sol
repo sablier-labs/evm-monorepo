@@ -7,7 +7,8 @@ import { ud60x18 } from "@prb/math/src/UD60x18.sol";
 import { Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
 
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
-import { ISablierMerkleFactory } from "src/interfaces/ISablierMerkleFactory.sol";
+import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
+import { ISablierMerkleFactoryLL } from "src/interfaces/ISablierMerkleFactoryLL.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
 import { MerkleLL } from "src/types/DataTypes.sol";
@@ -72,6 +73,9 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
 
         Vars memory vars;
 
+        // Load the factory admin from mainnet.
+        factoryAdmin = merkleFactoryLL.admin();
+
         vars.recipientCount = params.leafData.length;
         vars.amounts = new uint128[](vars.recipientCount);
         vars.indexes = new uint256[](vars.recipientCount);
@@ -124,8 +128,8 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             token_: FORK_TOKEN
         });
 
-        vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ISablierMerkleFactory.CreateMerkleLL({
+        vm.expectEmit({ emitter: address(merkleFactoryLL) });
+        emit ISablierMerkleFactoryLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(vars.expectedLL),
             params: vars.params,
             aggregateAmount: vars.aggregateAmount,
@@ -133,7 +137,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             fee: defaults.MINIMUM_FEE()
         });
 
-        vars.merkleLL = merkleFactory.createMerkleLL(vars.params, vars.aggregateAmount, vars.recipientCount);
+        vars.merkleLL = merkleFactoryLL.createMerkleLL(vars.params, vars.aggregateAmount, vars.recipientCount);
 
         // Fund the MerkleLL contract.
         deal({ token: address(FORK_TOKEN), to: address(vars.merkleLL), give: vars.aggregateAmount });
@@ -257,13 +261,13 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
                                         COLLECT-FEES
         //////////////////////////////////////////////////////////////////////////*/
 
-        vm.expectEmit({ emitter: address(merkleFactory) });
-        emit ISablierMerkleFactory.CollectFees({
+        vm.expectEmit({ emitter: address(merkleFactoryLL) });
+        emit ISablierMerkleFactoryBase.CollectFees({
             admin: factoryAdmin,
             merkleBase: vars.merkleLL,
             feeAmount: defaults.MINIMUM_FEE()
         });
-        merkleFactory.collectFees({ merkleBase: vars.merkleLL });
+        merkleFactoryLL.collectFees({ merkleBase: vars.merkleLL });
 
         assertEq(address(vars.merkleLL).balance, 0, "merkleLL ETH balance");
         assertEq(factoryAdmin.balance, initialAdminBalance + defaults.MINIMUM_FEE(), "admin ETH balance");
