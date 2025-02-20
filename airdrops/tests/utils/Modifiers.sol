@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { Defaults } from "./Defaults.sol";
 import { Users } from "./Types.sol";
 
 import { Utils } from "./Utils.sol";
@@ -11,11 +10,9 @@ abstract contract Modifiers is Utils {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    Defaults private defaults;
     Users private users;
 
-    function setVariables(Defaults _defaults, Users memory _users) public {
-        defaults = _defaults;
+    function setVariables(Users memory _users) public {
         users = _users;
     }
 

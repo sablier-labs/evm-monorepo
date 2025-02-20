@@ -7,33 +7,29 @@ import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract Claim_Integration_Test is Integration_Test {
     function test_RevertGiven_CampaignExpired() external {
-        uint40 expiration = defaults.EXPIRATION();
-        uint256 fee = defaults.MINIMUM_FEE();
-        uint256 warpTime = expiration + 1 seconds;
+        uint256 warpTime = EXPIRATION + 1 seconds;
         bytes32[] memory merkleProof;
         vm.warp({ newTimestamp: warpTime });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_CampaignExpired.selector, warpTime, expiration));
-        merkleBase.claim{ value: fee }({ index: 1, recipient: users.recipient1, amount: 1, merkleProof: merkleProof });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_CampaignExpired.selector, warpTime, EXPIRATION));
+        merkleBase.claim{ value: MINIMUM_FEE }({
+            index: 1,
+            recipient: users.recipient1,
+            amount: 1,
+            merkleProof: merkleProof
+        });
     }
 
     function test_RevertGiven_MsgValueLessThanFee() external givenCampaignNotExpired {
-        uint256 index1 = defaults.INDEX1();
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        bytes32[] memory merkleProof = defaults.index1Proof();
-        uint256 fee = defaults.MINIMUM_FEE();
-
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_InsufficientFeePayment.selector, 0, fee));
-        merkleBase.claim{ value: 0 }(index1, users.recipient1, amount, merkleProof);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierMerkleBase_InsufficientFeePayment.selector, 0, MINIMUM_FEE)
+        );
+        merkleBase.claim{ value: 0 }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
     }
 
     function test_RevertGiven_RecipientClaimed() external givenCampaignNotExpired givenMsgValueNotLessThanFee {
         claim();
-        uint256 index1 = defaults.INDEX1();
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        uint256 fee = defaults.MINIMUM_FEE();
-        bytes32[] memory merkleProof = defaults.index1Proof();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_StreamClaimed.selector, index1));
-        merkleBase.claim{ value: fee }(index1, users.recipient1, amount, merkleProof);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_StreamClaimed.selector, INDEX1));
+        merkleBase.claim{ value: MINIMUM_FEE }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
     }
 
     function test_RevertWhen_IndexNotValid()
@@ -43,11 +39,8 @@ abstract contract Claim_Integration_Test is Integration_Test {
         givenRecipientNotClaimed
     {
         uint256 invalidIndex = 1337;
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        uint256 fee = defaults.MINIMUM_FEE();
-        bytes32[] memory merkleProof = defaults.index1Proof();
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
-        merkleBase.claim{ value: fee }(invalidIndex, users.recipient1, amount, merkleProof);
+        merkleBase.claim{ value: MINIMUM_FEE }(invalidIndex, users.recipient1, CLAIM_AMOUNT, index1Proof());
     }
 
     function test_RevertWhen_RecipientNotValid()
@@ -57,13 +50,9 @@ abstract contract Claim_Integration_Test is Integration_Test {
         givenRecipientNotClaimed
         whenIndexValid
     {
-        uint256 index1 = defaults.INDEX1();
         address invalidRecipient = address(1337);
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        uint256 fee = defaults.MINIMUM_FEE();
-        bytes32[] memory merkleProof = defaults.index1Proof();
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
-        merkleBase.claim{ value: fee }(index1, invalidRecipient, amount, merkleProof);
+        merkleBase.claim{ value: MINIMUM_FEE }(INDEX1, invalidRecipient, CLAIM_AMOUNT, index1Proof());
     }
 
     function test_RevertWhen_AmountNotValid()
@@ -74,12 +63,9 @@ abstract contract Claim_Integration_Test is Integration_Test {
         whenIndexValid
         whenRecipientValid
     {
-        uint256 index1 = defaults.INDEX1();
         uint128 invalidAmount = 1337;
-        uint256 fee = defaults.MINIMUM_FEE();
-        bytes32[] memory merkleProof = defaults.index1Proof();
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
-        merkleBase.claim{ value: fee }(index1, users.recipient1, invalidAmount, merkleProof);
+        merkleBase.claim{ value: MINIMUM_FEE }(INDEX1, users.recipient1, invalidAmount, index1Proof());
     }
 
     function test_RevertWhen_MerkleProofNotValid()
@@ -91,12 +77,8 @@ abstract contract Claim_Integration_Test is Integration_Test {
         whenRecipientValid
         whenAmountValid
     {
-        uint256 index1 = defaults.INDEX1();
-        uint128 amount = defaults.CLAIM_AMOUNT();
-        uint256 fee = defaults.MINIMUM_FEE();
-        bytes32[] memory invalidMerkleProof = defaults.index2Proof();
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
-        merkleBase.claim{ value: fee }(index1, users.recipient1, amount, invalidMerkleProof);
+        merkleBase.claim{ value: MINIMUM_FEE }(INDEX1, users.recipient1, CLAIM_AMOUNT, index2Proof());
     }
 
     /// @dev Since the implementation of `_claim()` differs in each Merkle campaign, we declare this dummy test and

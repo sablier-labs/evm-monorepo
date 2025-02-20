@@ -39,10 +39,7 @@ abstract contract Clawback_Integration_Test is Integration_Test {
     {
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleBase_ClawbackNotAllowed.selector,
-                getBlockTimestamp(),
-                defaults.EXPIRATION(),
-                defaults.FIRST_CLAIM_TIME()
+                Errors.SablierMerkleBase_ClawbackNotAllowed.selector, getBlockTimestamp(), EXPIRATION, FIRST_CLAIM_TIME
             )
         );
         merkleBase.clawback({ to: users.campaignOwner, amount: 1 });
@@ -54,7 +51,7 @@ abstract contract Clawback_Integration_Test is Integration_Test {
         whenFirstClaimMade
         givenSevenDaysPassed
     {
-        vm.warp({ newTimestamp: defaults.EXPIRATION() + 1 seconds });
+        vm.warp({ newTimestamp: EXPIRATION + 1 seconds });
         vm.assume(to != address(0));
         test_Clawback(to);
     }

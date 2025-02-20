@@ -17,36 +17,31 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
     }
 
     function test_RevertWhen_TotalPercentageGreaterThan100() external whenMerkleProofValid {
-        uint256 fee = defaults.MINIMUM_FEE();
-
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
 
         // Crate a MerkleLL campaign with a total percentage greater than 100.
         params.schedule.startPercentage = ud2x18(0.5e18);
         params.schedule.cliffPercentage = ud2x18(0.6e18);
 
-        merkleLL = merkleFactoryLL.createMerkleLL(params, defaults.AGGREGATE_AMOUNT(), defaults.RECIPIENT_COUNT());
-
-        uint128 depositAmount = defaults.CLAIM_AMOUNT();
-        uint128 startUnlockAmount = ud60x18(depositAmount).mul(ud60x18(0.5e18)).intoUint128();
-        uint128 cliffUnlockAmount = ud60x18(depositAmount).mul(ud60x18(0.6e18)).intoUint128();
-        bytes32[] memory merkleProof = defaults.index1Proof();
+        merkleLL = merkleFactoryLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        uint128 startUnlockAmount = ud60x18(CLAIM_AMOUNT).mul(ud60x18(0.5e18)).intoUint128();
+        uint128 cliffUnlockAmount = ud60x18(CLAIM_AMOUNT).mul(ud60x18(0.6e18)).intoUint128();
 
         vm.expectRevert(
             abi.encodeWithSelector(
                 LockupErrors.SablierHelpers_UnlockAmountsSumTooHigh.selector,
-                depositAmount,
+                CLAIM_AMOUNT,
                 startUnlockAmount,
                 cliffUnlockAmount
             )
         );
 
         // Claim the airdrop.
-        merkleLL.claim{ value: fee }({
+        merkleLL.claim{ value: MINIMUM_FEE }({
             index: 1,
             recipient: users.recipient1,
-            amount: depositAmount,
-            merkleProof: merkleProof
+            amount: CLAIM_AMOUNT,
+            merkleProof: index1Proof()
         });
     }
 
@@ -60,7 +55,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         params.schedule.cliffDuration = 0;
         params.schedule.cliffPercentage = ud2x18(0);
 
-        merkleLL = merkleFactoryLL.createMerkleLL(params, defaults.AGGREGATE_AMOUNT(), defaults.RECIPIENT_COUNT());
+        merkleLL = merkleFactoryLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
         // It should create a stream with block.timestamp as start time.
         // It should create a stream with cliff as zero.
@@ -75,62 +70,56 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
     {
         // It should create a stream with block.timestamp as start time.
         // It should create a stream with cliff as start time + cliff duration.
-        _test_Claim({ startTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + defaults.CLIFF_DURATION() });
+        _test_Claim({ startTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + CLIFF_DURATION });
     }
 
     function test_WhenScheduledStartTimeNotZero() external whenMerkleProofValid whenTotalPercentageNotGreaterThan100 {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
-        params.schedule.startTime = defaults.RANGED_STREAM_START_TIME();
+        params.schedule.startTime = RANGED_STREAM_START_TIME;
 
-        merkleLL = merkleFactoryLL.createMerkleLL(params, defaults.AGGREGATE_AMOUNT(), defaults.RECIPIENT_COUNT());
+        merkleLL = merkleFactoryLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
         // It should create a stream with scheduled start time as start time.
-        _test_Claim({
-            startTime: defaults.RANGED_STREAM_START_TIME(),
-            cliffTime: defaults.RANGED_STREAM_START_TIME() + defaults.CLIFF_DURATION()
-        });
+        _test_Claim({ startTime: RANGED_STREAM_START_TIME, cliffTime: RANGED_STREAM_START_TIME + CLIFF_DURATION });
     }
 
     /// @dev Helper function to test claim.
     function _test_Claim(uint40 startTime, uint40 cliffTime) private {
-        uint256 fee = defaults.MINIMUM_FEE();
-        deal({ token: address(dai), to: address(merkleLL), give: defaults.AGGREGATE_AMOUNT() });
+        deal({ token: address(dai), to: address(merkleLL), give: AGGREGATE_AMOUNT });
 
         uint256 expectedStreamId = lockup.nextStreamId();
         uint256 previousFeeAccrued = address(merkleLL).balance;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
-        emit ISablierMerkleLockup.Claim(defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), expectedStreamId);
+        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, expectedStreamId);
 
-        expectCallToTransferFrom({ from: address(merkleLL), to: address(lockup), value: defaults.CLAIM_AMOUNT() });
-        expectCallToClaimWithMsgValue(address(merkleLL), fee);
+        expectCallToTransferFrom({ from: address(merkleLL), to: address(lockup), value: CLAIM_AMOUNT });
+        expectCallToClaimWithMsgValue(address(merkleLL), MINIMUM_FEE);
 
         // Claim the airstream.
-        merkleLL.claim{ value: fee }(
-            defaults.INDEX1(), users.recipient1, defaults.CLAIM_AMOUNT(), defaults.index1Proof()
-        );
+        merkleLL.claim{ value: MINIMUM_FEE }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
 
-        uint128 expectedCliffAmount = cliffTime > 0 ? defaults.CLIFF_AMOUNT() : 0;
+        uint128 expectedCliffAmount = cliffTime > 0 ? CLIFF_AMOUNT : 0;
 
         // Assert that the stream has been created successfully.
         assertEq(lockup.getCliffTime(expectedStreamId), cliffTime, "cliff time");
-        assertEq(lockup.getDepositedAmount(expectedStreamId), defaults.CLAIM_AMOUNT(), "depositedAmount");
-        assertEq(lockup.getEndTime(expectedStreamId), startTime + defaults.TOTAL_DURATION(), "end time");
+        assertEq(lockup.getDepositedAmount(expectedStreamId), CLAIM_AMOUNT, "depositedAmount");
+        assertEq(lockup.getEndTime(expectedStreamId), startTime + TOTAL_DURATION, "end time");
         assertEq(lockup.getRecipient(expectedStreamId), users.recipient1, "recipient");
         assertEq(lockup.getSender(expectedStreamId), users.campaignOwner, "sender");
         assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
         assertEq(lockup.getUnderlyingToken(expectedStreamId), dai, "token");
         assertEq(lockup.getUnlockAmounts(expectedStreamId).cliff, expectedCliffAmount, "unlock amount cliff");
-        assertEq(lockup.getUnlockAmounts(expectedStreamId).start, defaults.START_AMOUNT(), "unlock amount start");
-        assertEq(lockup.isCancelable(expectedStreamId), defaults.CANCELABLE(), "is cancelable");
+        assertEq(lockup.getUnlockAmounts(expectedStreamId).start, START_AMOUNT, "unlock amount start");
+        assertEq(lockup.isCancelable(expectedStreamId), CANCELABLE, "is cancelable");
         assertEq(lockup.isDepleted(expectedStreamId), false, "is depleted");
         assertEq(lockup.isStream(expectedStreamId), true, "is stream");
-        assertEq(lockup.isTransferable(expectedStreamId), defaults.TRANSFERABLE(), "is transferable");
+        assertEq(lockup.isTransferable(expectedStreamId), TRANSFERABLE, "is transferable");
         assertEq(lockup.wasCanceled(expectedStreamId), false, "was canceled");
 
-        assertTrue(merkleLL.hasClaimed(defaults.INDEX1()), "not claimed");
+        assertTrue(merkleLL.hasClaimed(INDEX1), "not claimed");
 
-        assertEq(address(merkleLL).balance, previousFeeAccrued + defaults.MINIMUM_FEE(), "fee collected");
+        assertEq(address(merkleLL).balance, previousFeeAccrued + MINIMUM_FEE, "fee collected");
     }
 }

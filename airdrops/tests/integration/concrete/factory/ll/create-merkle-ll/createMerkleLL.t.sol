@@ -12,12 +12,9 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
     function test_RevertGiven_CampaignAlreadyExists() external {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
 
-        uint256 aggregateAmount = defaults.AGGREGATE_AMOUNT();
-        uint256 recipientCount = defaults.RECIPIENT_COUNT();
-
         // Expect a revert due to CREATE2.
         vm.expectRevert();
-        merkleFactoryLL.createMerkleLL(params, aggregateAmount, recipientCount);
+        merkleFactoryLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
     }
 
     function test_GivenCustomFeeSet(
@@ -40,8 +37,8 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         emit ISablierMerkleFactoryLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
             params: merkleLLConstructorParams(campaignOwner, expiration),
-            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT(),
+            aggregateAmount: AGGREGATE_AMOUNT,
+            recipientCount: RECIPIENT_COUNT,
             fee: customFee
         });
 
@@ -64,9 +61,9 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         emit ISablierMerkleFactoryLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
             params: merkleLLConstructorParams(campaignOwner, expiration),
-            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT(),
-            fee: defaults.MINIMUM_FEE()
+            aggregateAmount: AGGREGATE_AMOUNT,
+            recipientCount: RECIPIENT_COUNT,
+            fee: MINIMUM_FEE
         });
 
         ISablierMerkleLL actualLL = createMerkleLL(campaignOwner, expiration);
@@ -74,10 +71,10 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         assertEq(address(actualLL), expectedLL, "MerkleLL contract does not match computed address");
 
         // It should set the correct shape.
-        assertEq(actualLL.shape(), defaults.SHAPE(), "shape");
+        assertEq(actualLL.shape(), SHAPE, "shape");
 
         // It should create the campaign with custom fee.
-        assertEq(actualLL.MINIMUM_FEE(), defaults.MINIMUM_FEE(), "minimum fee");
+        assertEq(actualLL.MINIMUM_FEE(), MINIMUM_FEE, "minimum fee");
 
         // It should set the current factory address.
         assertEq(actualLL.FACTORY(), address(merkleFactoryLL), "factory");

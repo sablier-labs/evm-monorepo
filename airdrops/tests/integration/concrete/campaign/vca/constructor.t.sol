@@ -13,15 +13,15 @@ contract Constructor_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_
         SablierMerkleVCA actualMerkleVCA = new SablierMerkleVCA(merkleVCAConstructorParams(), users.campaignOwner);
 
         assertEq(actualMerkleVCA.admin(), users.campaignOwner, "admin");
-        assertEq(actualMerkleVCA.campaignName(), defaults.CAMPAIGN_NAME(), "campaign name");
-        assertEq(actualMerkleVCA.EXPIRATION(), defaults.EXPIRATION(), "expiration");
+        assertEq(actualMerkleVCA.campaignName(), CAMPAIGN_NAME, "campaign name");
+        assertEq(actualMerkleVCA.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(actualMerkleVCA.FACTORY(), address(merkleFactoryVCA), "factory");
-        assertEq(actualMerkleVCA.MINIMUM_FEE(), defaults.MINIMUM_FEE(), "minimum fee");
-        assertEq(actualMerkleVCA.ipfsCID(), defaults.IPFS_CID(), "ipfsCID");
-        assertEq(actualMerkleVCA.MERKLE_ROOT(), defaults.MERKLE_ROOT(), "merkleRoot");
+        assertEq(actualMerkleVCA.MINIMUM_FEE(), MINIMUM_FEE, "minimum fee");
+        assertEq(actualMerkleVCA.ipfsCID(), IPFS_CID, "ipfsCID");
+        assertEq(actualMerkleVCA.MERKLE_ROOT(), MERKLE_ROOT, "merkleRoot");
         assertEq(actualMerkleVCA.forgoneAmount(), 0, "forgoneAmount");
-        assertEq(actualMerkleVCA.timestamps().start, defaults.RANGED_STREAM_START_TIME(), "unlock start");
-        assertEq(actualMerkleVCA.timestamps().end, defaults.RANGED_STREAM_END_TIME(), "unlock end");
+        assertEq(actualMerkleVCA.timestamps().start, RANGED_STREAM_START_TIME, "unlock start");
+        assertEq(actualMerkleVCA.timestamps().end, RANGED_STREAM_END_TIME, "unlock end");
         assertEq(address(actualMerkleVCA.TOKEN()), address(dai), "token");
     }
 }

@@ -19,7 +19,7 @@ import { Fork_Test } from "./../Fork.t.sol";
 abstract contract MerkleLL_Fork_Test is Fork_Test {
     using MerkleBuilder for uint256[];
 
-    constructor(IERC20 token_) Fork_Test(token_) { }
+    constructor(IERC20 tokenAddress) Fork_Test(tokenAddress) { }
 
     /// @dev Encapsulates the data needed to compute a Merkle tree leaf.
     struct LeafData {
@@ -117,15 +117,15 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             campaignOwner: params.campaignOwner,
             expiration: params.expiration,
             merkleRoot: vars.merkleRoot,
-            token_: FORK_TOKEN
+            tokenAddress: FORK_TOKEN
         });
 
-        vars.params = defaults.merkleLLConstructorParams({
+        vars.params = merkleLLConstructorParams({
             campaignOwner: params.campaignOwner,
             expiration: params.expiration,
-            lockup: lockup,
+            lockupAddress: lockup,
             merkleRoot: vars.merkleRoot,
-            token_: FORK_TOKEN
+            tokenAddress: FORK_TOKEN
         });
 
         vm.expectEmit({ emitter: address(merkleFactoryLL) });
@@ -134,7 +134,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             params: vars.params,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.recipientCount,
-            fee: defaults.MINIMUM_FEE()
+            fee: MINIMUM_FEE
         });
 
         vars.merkleLL = merkleFactoryLL.createMerkleLL(vars.params, vars.aggregateAmount, vars.recipientCount);
@@ -184,14 +184,14 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
 
         expectCallToClaimWithData({
             merkleLockup: address(vars.merkleLL),
-            fee: defaults.MINIMUM_FEE(),
+            fee: MINIMUM_FEE,
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
             merkleProof: vars.merkleProof
         });
 
-        vars.merkleLL.claim{ value: defaults.MINIMUM_FEE() }({
+        vars.merkleLL.claim{ value: MINIMUM_FEE }({
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
@@ -199,18 +199,16 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         });
 
         vars.expectedUnlockAmounts.start =
-            ud60x18(vars.amounts[params.posBeforeSort]).mul(defaults.START_PERCENTAGE().intoUD60x18()).intoUint128();
+            ud60x18(vars.amounts[params.posBeforeSort]).mul(START_PERCENTAGE.intoUD60x18()).intoUint128();
         vars.expectedUnlockAmounts.cliff =
-            ud60x18(vars.amounts[params.posBeforeSort]).mul(defaults.CLIFF_PERCENTAGE().intoUD60x18()).intoUint128();
+            ud60x18(vars.amounts[params.posBeforeSort]).mul(CLIFF_PERCENTAGE.intoUD60x18()).intoUint128();
 
         // Assert that the stream has been created successfully.
-        assertEq(
-            lockup.getCliffTime(vars.expectedStreamId), getBlockTimestamp() + defaults.CLIFF_DURATION(), "cliff time"
-        );
+        assertEq(lockup.getCliffTime(vars.expectedStreamId), getBlockTimestamp() + CLIFF_DURATION, "cliff time");
         assertEq(
             lockup.getDepositedAmount(vars.expectedStreamId), vars.amounts[params.posBeforeSort], "deposited amount"
         );
-        assertEq(lockup.getEndTime(vars.expectedStreamId), getBlockTimestamp() + defaults.TOTAL_DURATION(), "end time");
+        assertEq(lockup.getEndTime(vars.expectedStreamId), getBlockTimestamp() + TOTAL_DURATION, "end time");
         assertEq(lockup.getLockupModel(vars.expectedStreamId), Lockup.Model.LOCKUP_LINEAR);
         assertEq(lockup.getRecipient(vars.expectedStreamId), vars.recipients[params.posBeforeSort], "recipient");
         assertEq(lockup.getRefundedAmount(vars.expectedStreamId), 0, "refunded amount");
@@ -228,10 +226,10 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             "unlock amounts start"
         );
         assertEq(lockup.getWithdrawnAmount(vars.expectedStreamId), 0, "withdrawn amount");
-        assertEq(lockup.isCancelable(vars.expectedStreamId), defaults.CANCELABLE(), "is cancelable");
+        assertEq(lockup.isCancelable(vars.expectedStreamId), CANCELABLE, "is cancelable");
         assertEq(lockup.isDepleted(vars.expectedStreamId), false, "is depleted");
         assertEq(lockup.isStream(vars.expectedStreamId), true, "is stream");
-        assertEq(lockup.isTransferable(vars.expectedStreamId), defaults.TRANSFERABLE(), "is transferable");
+        assertEq(lockup.isTransferable(vars.expectedStreamId), TRANSFERABLE, "is transferable");
         assertEq(lockup.wasCanceled(vars.expectedStreamId), false, "was canceled");
 
         assertTrue(vars.merkleLL.hasClaimed(vars.indexes[params.posBeforeSort]));
@@ -265,11 +263,11 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         emit ISablierMerkleFactoryBase.CollectFees({
             admin: factoryAdmin,
             merkleBase: vars.merkleLL,
-            feeAmount: defaults.MINIMUM_FEE()
+            feeAmount: MINIMUM_FEE
         });
         merkleFactoryLL.collectFees({ merkleBase: vars.merkleLL });
 
         assertEq(address(vars.merkleLL).balance, 0, "merkleLL ETH balance");
-        assertEq(factoryAdmin.balance, initialAdminBalance + defaults.MINIMUM_FEE(), "admin ETH balance");
+        assertEq(factoryAdmin.balance, initialAdminBalance + MINIMUM_FEE, "admin ETH balance");
     }
 }

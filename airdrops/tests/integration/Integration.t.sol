@@ -48,10 +48,10 @@ contract Integration_Test is Base_Test {
         merkleVCA = createMerkleVCA();
 
         // Fund the contracts.
-        deal({ token: address(dai), to: address(merkleInstant), give: defaults.AGGREGATE_AMOUNT() });
-        deal({ token: address(dai), to: address(merkleLL), give: defaults.AGGREGATE_AMOUNT() });
-        deal({ token: address(dai), to: address(merkleLT), give: defaults.AGGREGATE_AMOUNT() });
-        deal({ token: address(dai), to: address(merkleVCA), give: defaults.AGGREGATE_AMOUNT() });
+        deal({ token: address(dai), to: address(merkleInstant), give: AGGREGATE_AMOUNT });
+        deal({ token: address(dai), to: address(merkleLL), give: AGGREGATE_AMOUNT });
+        deal({ token: address(dai), to: address(merkleLT), give: AGGREGATE_AMOUNT });
+        deal({ token: address(dai), to: address(merkleVCA), give: AGGREGATE_AMOUNT });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -59,11 +59,11 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function claim() internal {
-        merkleBase.claim{ value: defaults.MINIMUM_FEE() }({
-            index: defaults.INDEX1(),
+        merkleBase.claim{ value: MINIMUM_FEE }({
+            index: INDEX1,
             recipient: users.recipient1,
-            amount: defaults.CLAIM_AMOUNT(),
-            merkleProof: defaults.index1Proof()
+            amount: CLAIM_AMOUNT,
+            merkleProof: index1Proof()
         });
     }
 
@@ -71,22 +71,12 @@ contract Integration_Test is Base_Test {
                                     MERKLE-INSTANT
     //////////////////////////////////////////////////////////////////////////*/
 
-    function computeMerkleInstantAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleInstantAddress({
-            campaignCreator: users.campaignOwner,
-            campaignOwner: campaignOwner,
-            expiration: expiration,
-            merkleRoot: defaults.MERKLE_ROOT(),
-            token_: dai
-        });
-    }
-
     function createMerkleInstant() internal returns (ISablierMerkleInstant) {
-        return createMerkleInstant(users.campaignOwner, defaults.EXPIRATION());
+        return createMerkleInstant(users.campaignOwner, EXPIRATION);
     }
 
     function createMerkleInstant(address campaignOwner) internal returns (ISablierMerkleInstant) {
-        return createMerkleInstant(campaignOwner, defaults.EXPIRATION());
+        return createMerkleInstant(campaignOwner, EXPIRATION);
     }
 
     function createMerkleInstant(uint40 expiration) internal returns (ISablierMerkleInstant) {
@@ -95,57 +85,27 @@ contract Integration_Test is Base_Test {
 
     function createMerkleInstant(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleInstant) {
         return merkleFactoryInstant.createMerkleInstant(
-            defaults.merkleInstantConstructorParams({
+            merkleInstantConstructorParams({
                 campaignOwner: campaignOwner,
                 expiration: expiration,
-                merkleRoot: defaults.MERKLE_ROOT(),
-                token_: dai
+                merkleRoot: MERKLE_ROOT,
+                tokenAddress: dai
             }),
-            defaults.AGGREGATE_AMOUNT(),
-            defaults.RECIPIENT_COUNT()
+            AGGREGATE_AMOUNT,
+            RECIPIENT_COUNT
         );
-    }
-
-    function merkleInstantConstructorParams() public view returns (MerkleInstant.ConstructorParams memory) {
-        return merkleInstantConstructorParams(users.campaignOwner, defaults.EXPIRATION());
-    }
-
-    function merkleInstantConstructorParams(
-        address campaignOwner,
-        uint40 expiration
-    )
-        public
-        view
-        returns (MerkleInstant.ConstructorParams memory)
-    {
-        return defaults.merkleInstantConstructorParams({
-            campaignOwner: campaignOwner,
-            expiration: expiration,
-            merkleRoot: defaults.MERKLE_ROOT(),
-            token_: dai
-        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-LL
     //////////////////////////////////////////////////////////////////////////*/
 
-    function computeMerkleLLAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleLLAddress({
-            campaignCreator: users.campaignOwner,
-            campaignOwner: campaignOwner,
-            expiration: expiration,
-            merkleRoot: defaults.MERKLE_ROOT(),
-            token_: dai
-        });
-    }
-
     function createMerkleLL() internal returns (ISablierMerkleLL) {
-        return createMerkleLL(users.campaignOwner, defaults.EXPIRATION());
+        return createMerkleLL(users.campaignOwner, EXPIRATION);
     }
 
     function createMerkleLL(address campaignOwner) internal returns (ISablierMerkleLL) {
-        return createMerkleLL(campaignOwner, defaults.EXPIRATION());
+        return createMerkleLL(campaignOwner, EXPIRATION);
     }
 
     function createMerkleLL(uint40 expiration) internal returns (ISablierMerkleLL) {
@@ -154,59 +114,28 @@ contract Integration_Test is Base_Test {
 
     function createMerkleLL(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLL) {
         return merkleFactoryLL.createMerkleLL(
-            defaults.merkleLLConstructorParams({
+            merkleLLConstructorParams({
                 campaignOwner: campaignOwner,
                 expiration: expiration,
-                lockup: lockup,
-                merkleRoot: defaults.MERKLE_ROOT(),
-                token_: dai
+                lockupAddress: lockup,
+                merkleRoot: MERKLE_ROOT,
+                tokenAddress: dai
             }),
-            defaults.AGGREGATE_AMOUNT(),
-            defaults.RECIPIENT_COUNT()
+            AGGREGATE_AMOUNT,
+            RECIPIENT_COUNT
         );
-    }
-
-    function merkleLLConstructorParams() public view returns (MerkleLL.ConstructorParams memory) {
-        return merkleLLConstructorParams(users.campaignOwner, defaults.EXPIRATION());
-    }
-
-    function merkleLLConstructorParams(
-        address campaignOwner,
-        uint40 expiration
-    )
-        public
-        view
-        returns (MerkleLL.ConstructorParams memory)
-    {
-        return defaults.merkleLLConstructorParams({
-            campaignOwner: campaignOwner,
-            expiration: expiration,
-            lockup: lockup,
-            merkleRoot: defaults.MERKLE_ROOT(),
-            token_: dai
-        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-LT
     //////////////////////////////////////////////////////////////////////////*/
 
-    function computeMerkleLTAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleLTAddress({
-            campaignCreator: users.campaignOwner,
-            campaignOwner: campaignOwner,
-            expiration: expiration,
-            merkleRoot: defaults.MERKLE_ROOT(),
-            token_: dai
-        });
-    }
-
     function createMerkleLT() internal returns (ISablierMerkleLT) {
-        return createMerkleLT(users.campaignOwner, defaults.EXPIRATION());
+        return createMerkleLT(users.campaignOwner, EXPIRATION);
     }
 
     function createMerkleLT(address campaignOwner) internal returns (ISablierMerkleLT) {
-        return createMerkleLT(campaignOwner, defaults.EXPIRATION());
+        return createMerkleLT(campaignOwner, EXPIRATION);
     }
 
     function createMerkleLT(uint40 expiration) internal returns (ISablierMerkleLT) {
@@ -215,60 +144,28 @@ contract Integration_Test is Base_Test {
 
     function createMerkleLT(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLT) {
         return merkleFactoryLT.createMerkleLT(
-            defaults.merkleLTConstructorParams({
+            merkleLTConstructorParams({
                 campaignOwner: campaignOwner,
                 expiration: expiration,
-                lockup: lockup,
-                merkleRoot: defaults.MERKLE_ROOT(),
-                token_: dai
+                lockupAddress: lockup,
+                merkleRoot: MERKLE_ROOT,
+                tokenAddress: dai
             }),
-            defaults.AGGREGATE_AMOUNT(),
-            defaults.RECIPIENT_COUNT()
+            AGGREGATE_AMOUNT,
+            RECIPIENT_COUNT
         );
-    }
-
-    function merkleLTConstructorParams() public view returns (MerkleLT.ConstructorParams memory) {
-        return merkleLTConstructorParams(users.campaignOwner, defaults.EXPIRATION());
-    }
-
-    function merkleLTConstructorParams(
-        address campaignOwner,
-        uint40 expiration
-    )
-        public
-        view
-        returns (MerkleLT.ConstructorParams memory)
-    {
-        return defaults.merkleLTConstructorParams({
-            campaignOwner: campaignOwner,
-            expiration: expiration,
-            lockup: lockup,
-            merkleRoot: defaults.MERKLE_ROOT(),
-            token_: dai
-        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-VCA
     //////////////////////////////////////////////////////////////////////////*/
 
-    function computeMerkleVCAAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleVCAAddress({
-            campaignCreator: users.campaignOwner,
-            campaignOwner: campaignOwner,
-            expiration: expiration,
-            merkleRoot: defaults.MERKLE_ROOT(),
-            timestamps: defaults.merkleVCATimestamps(),
-            token_: dai
-        });
-    }
-
     function createMerkleVCA() internal returns (ISablierMerkleVCA) {
-        return createMerkleVCA(users.campaignOwner, defaults.EXPIRATION());
+        return createMerkleVCA(users.campaignOwner, EXPIRATION);
     }
 
     function createMerkleVCA(address campaignOwner) internal returns (ISablierMerkleVCA) {
-        return createMerkleVCA(campaignOwner, defaults.EXPIRATION());
+        return createMerkleVCA(campaignOwner, EXPIRATION);
     }
 
     function createMerkleVCA(uint40 expiration) internal returns (ISablierMerkleVCA) {
@@ -277,36 +174,15 @@ contract Integration_Test is Base_Test {
 
     function createMerkleVCA(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleVCA) {
         return merkleFactoryVCA.createMerkleVCA(
-            defaults.merkleVCAConstructorParams({
+            merkleVCAConstructorParams({
                 campaignOwner: campaignOwner,
                 expiration: expiration,
-                merkleRoot: defaults.MERKLE_ROOT(),
-                timestamps: defaults.merkleVCATimestamps(),
-                token_: dai
+                merkleRoot: MERKLE_ROOT,
+                timestamps: merkleVCATimestamps(),
+                tokenAddress: dai
             }),
-            defaults.AGGREGATE_AMOUNT(),
-            defaults.RECIPIENT_COUNT()
+            AGGREGATE_AMOUNT,
+            RECIPIENT_COUNT
         );
-    }
-
-    function merkleVCAConstructorParams() public view returns (MerkleVCA.ConstructorParams memory) {
-        return merkleVCAConstructorParams(users.campaignOwner, defaults.EXPIRATION());
-    }
-
-    function merkleVCAConstructorParams(
-        address campaignOwner,
-        uint40 expiration
-    )
-        public
-        view
-        returns (MerkleVCA.ConstructorParams memory)
-    {
-        return defaults.merkleVCAConstructorParams({
-            campaignOwner: campaignOwner,
-            expiration: expiration,
-            merkleRoot: defaults.MERKLE_ROOT(),
-            timestamps: defaults.merkleVCATimestamps(),
-            token_: dai
-        });
     }
 }

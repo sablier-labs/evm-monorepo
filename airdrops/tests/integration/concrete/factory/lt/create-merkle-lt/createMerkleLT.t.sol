@@ -11,12 +11,9 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
     /// @dev This test reverts because a default MerkleLT contract is deployed in {Integration_Test.setUp}
     function test_RevertGiven_CampaignAlreadyExists() external {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
-        uint256 aggregateAmount = defaults.AGGREGATE_AMOUNT();
-        uint256 recipientCount = defaults.RECIPIENT_COUNT();
-
         // Expect a revert due to CREATE2.
         vm.expectRevert();
-        merkleFactoryLT.createMerkleLT(params, aggregateAmount, recipientCount);
+        merkleFactoryLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
     }
 
     function test_GivenCustomFeeSet(
@@ -39,9 +36,9 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         emit ISablierMerkleFactoryLT.CreateMerkleLT({
             merkleLT: ISablierMerkleLT(expectedLT),
             params: merkleLTConstructorParams(campaignOwner, expiration),
-            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT(),
-            totalDuration: defaults.TOTAL_DURATION(),
+            aggregateAmount: AGGREGATE_AMOUNT,
+            recipientCount: RECIPIENT_COUNT,
+            totalDuration: TOTAL_DURATION,
             fee: customFee
         });
 
@@ -62,10 +59,10 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         emit ISablierMerkleFactoryLT.CreateMerkleLT({
             merkleLT: ISablierMerkleLT(expectedLT),
             params: merkleLTConstructorParams(campaignOwner, expiration),
-            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT(),
-            totalDuration: defaults.TOTAL_DURATION(),
-            fee: defaults.MINIMUM_FEE()
+            aggregateAmount: AGGREGATE_AMOUNT,
+            recipientCount: RECIPIENT_COUNT,
+            totalDuration: TOTAL_DURATION,
+            fee: MINIMUM_FEE
         });
 
         ISablierMerkleLT actualLT = createMerkleLT(campaignOwner, expiration);
@@ -73,10 +70,10 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         assertEq(address(actualLT), expectedLT, "MerkleLT contract does not match computed address");
 
         // It should set the correct shape.
-        assertEq(actualLT.shape(), defaults.SHAPE(), "shape");
+        assertEq(actualLT.shape(), SHAPE, "shape");
 
         // It should create the campaign with custom fee.
-        assertEq(actualLT.MINIMUM_FEE(), defaults.MINIMUM_FEE(), "minimum fee");
+        assertEq(actualLT.MINIMUM_FEE(), MINIMUM_FEE, "minimum fee");
         // It should set the current factory address.
         assertEq(actualLT.FACTORY(), address(merkleFactoryLT), "factory");
     }

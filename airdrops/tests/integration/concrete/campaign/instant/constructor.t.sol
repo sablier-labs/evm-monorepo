@@ -14,12 +14,12 @@ contract Constructor_MerkleInstant_Integration_Test is MerkleInstant_Integration
             new SablierMerkleInstant(merkleInstantConstructorParams(), users.campaignOwner);
 
         assertEq(constructedInstant.admin(), users.campaignOwner, "admin");
-        assertEq(constructedInstant.campaignName(), defaults.CAMPAIGN_NAME(), "campaign name");
-        assertEq(constructedInstant.EXPIRATION(), defaults.EXPIRATION(), "expiration");
+        assertEq(constructedInstant.campaignName(), CAMPAIGN_NAME, "campaign name");
+        assertEq(constructedInstant.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(constructedInstant.FACTORY(), address(merkleFactoryInstant), "factory");
-        assertEq(constructedInstant.MINIMUM_FEE(), defaults.MINIMUM_FEE(), "minimum fee");
-        assertEq(constructedInstant.ipfsCID(), defaults.IPFS_CID(), "ipfsCID");
-        assertEq(constructedInstant.MERKLE_ROOT(), defaults.MERKLE_ROOT(), "merkleRoot");
+        assertEq(constructedInstant.MINIMUM_FEE(), MINIMUM_FEE, "minimum fee");
+        assertEq(constructedInstant.ipfsCID(), IPFS_CID, "ipfsCID");
+        assertEq(constructedInstant.MERKLE_ROOT(), MERKLE_ROOT, "merkleRoot");
         assertEq(address(constructedInstant.TOKEN()), address(dai), "token");
     }
 }

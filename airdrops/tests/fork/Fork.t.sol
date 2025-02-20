@@ -2,12 +2,11 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Merkle } from "murky/src/Merkle.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
 /// @notice Common logic needed by all fork tests.
-abstract contract Fork_Test is Base_Test, Merkle {
+abstract contract Fork_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/

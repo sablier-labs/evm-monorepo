@@ -16,12 +16,12 @@ abstract contract HasExpired_Integration_Test is Integration_Test {
     }
 
     function test_WhenTheExpirationInPresent() external whenExpirationNotZero {
-        vm.warp({ newTimestamp: defaults.EXPIRATION() });
+        vm.warp({ newTimestamp: EXPIRATION });
         assertTrue(merkleBase.hasExpired(), "campaign not expired");
     }
 
     function test_WhenTheExpirationInFuture() external whenExpirationNotZero {
-        vm.warp({ newTimestamp: defaults.EXPIRATION() + 1 seconds });
+        vm.warp({ newTimestamp: EXPIRATION + 1 seconds });
         assertTrue(merkleBase.hasExpired(), "campaign not expired");
     }
 }
