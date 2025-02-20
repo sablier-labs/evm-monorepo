@@ -23,6 +23,11 @@ abstract contract Calculations {
         returns (uint128)
     {
         uint40 blockTimestamp = uint40(block.timestamp);
+
+        if (startTime >= blockTimestamp) {
+            return 0;
+        }
+
         if (blockTimestamp >= segments[segments.length - 1].timestamp) {
             return depositAmount;
         }
@@ -75,11 +80,11 @@ abstract contract Calculations {
         if (startTime >= blockTimestamp) {
             return 0;
         }
-        if (blockTimestamp >= endTime) {
-            return depositAmount;
-        }
         if (cliffTime > blockTimestamp) {
             return unlockAmounts.start;
+        }
+        if (blockTimestamp >= endTime) {
+            return depositAmount;
         }
 
         unchecked {
@@ -109,6 +114,10 @@ abstract contract Calculations {
         returns (uint128)
     {
         uint40 blockTimestamp = uint40(block.timestamp);
+
+        if (tranches[0].timestamp > blockTimestamp) {
+            return 0;
+        }
         if (blockTimestamp >= tranches[tranches.length - 1].timestamp) {
             return depositAmount;
         }

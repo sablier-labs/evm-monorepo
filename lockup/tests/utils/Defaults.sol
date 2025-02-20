@@ -115,16 +115,31 @@ contract Defaults is CommonConstants {
         view
         returns (Lockup.CreateEventCommon memory)
     {
+        Lockup.CreateWithTimestamps memory params = createWithTimestamps();
+        params.depositAmount = depositAmount;
+        params.timestamps = timestamps;
+        return lockupCreateEvent(users.sender, params, token_);
+    }
+
+    function lockupCreateEvent(
+        address funder,
+        Lockup.CreateWithTimestamps memory params,
+        IERC20 token_
+    )
+        public
+        pure
+        returns (Lockup.CreateEventCommon memory)
+    {
         return Lockup.CreateEventCommon({
-            funder: users.sender,
-            sender: users.sender,
-            recipient: users.recipient,
-            depositAmount: depositAmount,
+            funder: funder,
+            sender: params.sender,
+            recipient: params.recipient,
+            depositAmount: params.depositAmount,
             token: token_,
-            cancelable: true,
-            transferable: true,
-            timestamps: timestamps,
-            shape: SHAPE
+            cancelable: params.cancelable,
+            transferable: params.transferable,
+            timestamps: params.timestamps,
+            shape: params.shape
         });
     }
 

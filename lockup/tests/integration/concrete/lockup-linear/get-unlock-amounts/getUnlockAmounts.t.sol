@@ -26,14 +26,12 @@ contract GetUnlockAmounts_Integration_Concrete_Test is Lockup_Linear_Integration
         _defaultParams.unlockAmounts = defaults.unlockAmountsZero();
         uint256 streamId = createDefaultStream();
         LockupLinear.UnlockAmounts memory unlockAmounts = lockup.getUnlockAmounts(streamId);
-        assertEq(unlockAmounts.start, 0, "unlockAmounts.start");
-        assertEq(unlockAmounts.cliff, 0, "unlockAmounts.cliff");
+        assertEq(unlockAmounts, _defaultParams.unlockAmounts);
     }
 
     function test_GivenStartUnlockAmountZero() external view givenNotNull givenLinearModel givenOnlyOneAmountZero {
         LockupLinear.UnlockAmounts memory unlockAmounts = lockup.getUnlockAmounts(ids.defaultStream);
-        assertEq(unlockAmounts.start, 0, "unlockAmounts.start");
-        assertEq(unlockAmounts.cliff, defaults.CLIFF_AMOUNT(), "unlockAmounts.cliff");
+        assertEq(unlockAmounts, _defaultParams.unlockAmounts);
     }
 
     function test_GivenStartUnlockAmountNotZero() external givenNotNull givenLinearModel givenOnlyOneAmountZero {
@@ -41,15 +39,13 @@ contract GetUnlockAmounts_Integration_Concrete_Test is Lockup_Linear_Integration
         _defaultParams.unlockAmounts.cliff = 0;
         uint256 streamId = createDefaultStream();
         LockupLinear.UnlockAmounts memory unlockAmounts = lockup.getUnlockAmounts(streamId);
-        assertEq(unlockAmounts.start, 1, "unlockAmounts.start");
-        assertEq(unlockAmounts.cliff, 0, "unlockAmounts.cliff");
+        assertEq(unlockAmounts, _defaultParams.unlockAmounts);
     }
 
     function test_GivenBothAmountsNotZero() external givenNotNull givenLinearModel {
         _defaultParams.unlockAmounts.start = 1;
         uint256 streamId = createDefaultStream();
         LockupLinear.UnlockAmounts memory unlockAmounts = lockup.getUnlockAmounts(streamId);
-        assertEq(unlockAmounts.start, 1, "unlockAmounts.start");
-        assertEq(unlockAmounts.cliff, defaults.CLIFF_AMOUNT(), "unlockAmounts.cliff");
+        assertEq(unlockAmounts, _defaultParams.unlockAmounts);
     }
 }

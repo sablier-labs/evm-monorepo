@@ -150,14 +150,14 @@ library StreamingMath {
             return 0;
         }
 
-        // If the end time is not in the future, return the deposited amount.
-        if (timestamps.end <= blockTimestamp) {
-            return depositedAmount;
-        }
-
         // If the cliff time is in the future, return the start unlock amount.
         if (cliffTime > blockTimestamp) {
             return unlockAmounts.start;
+        }
+
+        // If the end time is not in the future, return the deposited amount.
+        if (timestamps.end <= blockTimestamp) {
+            return depositedAmount;
         }
 
         unchecked {
@@ -231,14 +231,14 @@ library StreamingMath {
             return 0;
         }
 
-        // If the end time is not in the future, return the deposited amount.
-        if (timestamps.end <= blockTimestamp) {
-            return depositedAmount;
-        }
-
         // If the first tranche's timestamp is in the future, return zero.
         if (tranches[0].timestamp > blockTimestamp) {
             return 0;
+        }
+
+        // If the end time is not in the future, return the deposited amount.
+        if (timestamps.end <= blockTimestamp) {
+            return depositedAmount;
         }
 
         // Sum the amounts in all tranches that have already been streamed.

@@ -205,17 +205,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupTranchedStream({
             streamId: expectedStreamId,
-            commonParams: Lockup.CreateEventCommon({
-                funder: funder,
-                sender: params.sender,
-                recipient: params.recipient,
-                depositAmount: params.depositAmount,
-                token: dai,
-                cancelable: params.cancelable,
-                transferable: params.transferable,
-                timestamps: params.timestamps,
-                shape: params.shape
-            }),
+            commonParams: defaults.lockupCreateEvent(funder, params, dai),
             tranches: tranches
         });
 
@@ -242,7 +232,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         assertEq(lockup.getSender(streamId), params.sender, "sender");
         assertEq(lockup.getStartTime(streamId), params.timestamps.start, "startTime");
         assertEq(lockup.getTranches(streamId), tranches);
-        assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
+        assertEq(lockup.getUnderlyingToken(streamId), dai);
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
         // Assert that the stream's status is correct.

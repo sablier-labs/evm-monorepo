@@ -169,7 +169,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
     function test_GetUnderlyingTokenGivenNotNull() external view {
         IERC20 actualUnderlyingToken = lockup.getUnderlyingToken(ids.defaultStream);
         IERC20 expectedUnderlyingToken = dai;
-        assertEq(actualUnderlyingToken, expectedUnderlyingToken, "underlyingToken");
+        assertEq(actualUnderlyingToken, expectedUnderlyingToken);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

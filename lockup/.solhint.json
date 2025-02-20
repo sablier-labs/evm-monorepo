@@ -10,7 +10,7 @@
     "func-visibility": ["error", { "ignoreConstructors": true }],
     "gas-custom-errors": "off",
     "max-states-count": ["warn", 20],
-    "max-line-length": ["error", 124],
+    "max-line-length": ["error", 130],
     "named-parameters-mapping": "warn",
     "no-empty-blocks": "off",
     "not-rely-on-time": "off",

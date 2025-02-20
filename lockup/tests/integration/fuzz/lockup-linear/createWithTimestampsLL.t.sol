@@ -150,17 +150,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupLinearStream({
             streamId: vars.expectedStreamId,
-            commonParams: Lockup.CreateEventCommon({
-                funder: funder,
-                sender: params.sender,
-                recipient: params.recipient,
-                depositAmount: params.depositAmount,
-                token: dai,
-                cancelable: params.cancelable,
-                transferable: params.transferable,
-                timestamps: Lockup.Timestamps({ start: params.timestamps.start, end: params.timestamps.end }),
-                shape: params.shape
-            }),
+            commonParams: defaults.lockupCreateEvent(funder, params, dai),
             cliffTime: cliffTime,
             unlockAmounts: unlockAmounts
         });
@@ -182,9 +172,8 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         assertEq(lockup.getRecipient(vars.actualStreamId), params.recipient, "recipient");
         assertEq(lockup.getSender(vars.actualStreamId), params.sender, "sender");
         assertEq(lockup.getStartTime(vars.actualStreamId), params.timestamps.start, "startTime");
-        assertEq(lockup.getUnderlyingToken(vars.actualStreamId), dai, "underlyingToken");
-        assertEq(lockup.getUnlockAmounts(vars.actualStreamId).start, unlockAmounts.start, "unlockAmounts.start");
-        assertEq(lockup.getUnlockAmounts(vars.actualStreamId).cliff, unlockAmounts.cliff, "unlockAmounts.cliff");
+        assertEq(lockup.getUnderlyingToken(vars.actualStreamId), dai);
+        assertEq(lockup.getUnlockAmounts(vars.actualStreamId), unlockAmounts);
         assertFalse(lockup.wasCanceled(vars.actualStreamId), "wasCanceled");
 
         // Assert that the stream's status is correct.

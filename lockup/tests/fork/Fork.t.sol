@@ -6,7 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Base_Test } from "./../Base.t.sol";
 
-/// @notice Common logic needed by all fork tests.
+/// @notice Base logic needed by the fork tests.
 abstract contract Fork_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
@@ -14,7 +14,7 @@ abstract contract Fork_Test is Base_Test {
 
     IERC20 internal immutable FORK_TOKEN;
     address internal forkTokenHolder;
-    uint256 internal initialHolderBalance;
+    uint128 internal initialHolderBalance;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -45,11 +45,14 @@ abstract contract Fork_Test is Base_Test {
         // Label the addresses.
         labelContracts();
 
-        // Deal token balance to the user.
-        initialHolderBalance = 1e7 * 10 ** IERC20Metadata(address(FORK_TOKEN)).decimals();
+        // Deal 1M tokens to the user.
+        initialHolderBalance = uint128(1e6 * (10 ** IERC20Metadata(address(FORK_TOKEN)).decimals()));
         deal({ token: address(FORK_TOKEN), to: forkTokenHolder, give: initialHolderBalance });
 
         resetPrank({ msgSender: forkTokenHolder });
+
+        // Approve {SablierLockup} to transfer the holder's tokens.
+        approveContract({ token_: address(FORK_TOKEN), from: forkTokenHolder, spender: address(lockup) });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -69,6 +72,9 @@ abstract contract Fork_Test is Base_Test {
         // Avoid users blacklisted by USDC or USDT.
         assumeNoBlacklisted(address(FORK_TOKEN), sender);
         assumeNoBlacklisted(address(FORK_TOKEN), recipient);
+
+        // Make the holder the caller.
+        resetPrank(forkTokenHolder);
     }
 
     /// @dev Labels the most relevant addresses.

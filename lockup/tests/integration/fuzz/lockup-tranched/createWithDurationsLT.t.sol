@@ -83,7 +83,7 @@ contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Tranched_Integrat
         assertEq(lockup.getSender(streamId), users.sender, "sender");
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
         assertEq(lockup.getTranches(streamId), vars.tranchesWithTimestamps);
-        assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
+        assertEq(lockup.getUnderlyingToken(streamId), dai);
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
         // Assert that the stream's status is correct.

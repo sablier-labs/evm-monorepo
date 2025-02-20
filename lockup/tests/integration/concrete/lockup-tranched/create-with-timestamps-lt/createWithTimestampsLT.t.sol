@@ -291,6 +291,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         assertEqStream(streamId);
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_TRANCHED);
         assertEq(lockup.getTranches(streamId), defaults.tranches());
-        assertEq(lockup.getUnderlyingToken(streamId), IERC20(token), "underlyingToken");
+        assertEq(lockup.getUnderlyingToken(streamId), IERC20(token));
     }
 }

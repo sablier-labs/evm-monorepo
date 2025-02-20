@@ -52,9 +52,8 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         assertEq(lockup.getSender(streamId), users.sender, "sender");
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
-        assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
-        assertEq(lockup.getUnlockAmounts(streamId).start, unlockAmounts.start, "unlockAmounts.start");
-        assertEq(lockup.getUnlockAmounts(streamId).cliff, unlockAmounts.cliff, "unlockAmounts.cliff");
+        assertEq(lockup.getUnderlyingToken(streamId), dai);
+        assertEq(lockup.getUnlockAmounts(streamId), unlockAmounts);
 
         // Assert that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);

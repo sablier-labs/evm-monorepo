@@ -6,6 +6,8 @@ import { console } from "forge-std/src/console.sol";
 import { ERC20Mock } from "@sablier/evm-utils/tests/mocks/erc20/ERC20Mock.sol";
 
 import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
+import { LockupNFTDescriptor } from "../../src/LockupNFTDescriptor.sol";
+import { SablierLockup } from "../../src/SablierLockup.sol";
 import { Lockup, LockupDynamic } from "../../src/types/DataTypes.sol";
 import { Defaults } from "./Defaults.sol";
 import { DeployOptimized } from "./DeployOptimized.t.sol";
@@ -48,8 +50,12 @@ contract EstimateMaxCount is Defaults, DeployOptimized {
         users.sender = users.recipient = payable(makeAddr("sender"));
         setUsers(users);
 
-        // Deploy the optimized Lockup contract.
-        (, lockup,) = deployOptimizedProtocol({ initialAdmin: users.sender, maxCount: MAX_COUNT });
+        // Deploy the Lockup contract.
+        if (!isTestOptimizedProfile()) {
+            lockup = new SablierLockup(users.admin, new LockupNFTDescriptor(), MAX_COUNT);
+        } else {
+            (, lockup,) = deployOptimizedProtocol({ initialAdmin: users.sender, maxCount: MAX_COUNT });
+        }
 
         // Set up the caller.
         resetPrank(users.sender);

@@ -166,7 +166,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         assertEq(lockup.getSender(streamId), users.sender, "sender");
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
         assertEq(lockup.getTranches(streamId), tranches);
-        assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
+        assertEq(lockup.getUnderlyingToken(streamId), dai);
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
         // Assert that the stream's status is "STREAMING".
