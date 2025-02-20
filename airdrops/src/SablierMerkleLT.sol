@@ -135,6 +135,9 @@ contract SablierMerkleLT is
             tranches
         );
 
+        // Effect: push the stream ID into the `_claimedStreams` array for the recipient.
+        _claimedStreams[recipient].push(streamId);
+
         // Log the claim.
         emit Claim(index, recipient, amount, streamId);
     }

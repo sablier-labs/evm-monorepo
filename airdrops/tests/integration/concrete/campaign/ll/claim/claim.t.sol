@@ -120,6 +120,10 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         assertTrue(merkleLL.hasClaimed(INDEX1), "not claimed");
 
+        uint256[] memory expectedClaimedStreamIds = new uint256[](1);
+        expectedClaimedStreamIds[0] = expectedStreamId;
+        assertEq(merkleLL.claimedStreams(users.recipient1), expectedClaimedStreamIds, "claimed streams");
+
         assertEq(address(merkleLL).balance, previousFeeAccrued + MINIMUM_FEE, "fee collected");
     }
 }

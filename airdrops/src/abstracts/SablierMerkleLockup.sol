@@ -32,6 +32,9 @@ abstract contract SablierMerkleLockup is
     /// @inheritdoc ISablierMerkleLockup
     string public override shape;
 
+    /// @dev A mapping of stream IDs associated with the airdrops claimed by the recipient.
+    mapping(address recipient => uint256[] streamIds) internal _claimedStreams;
+
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -60,5 +63,14 @@ abstract contract SablierMerkleLockup is
 
         // Max approve the Lockup contract to spend funds from the Merkle Lockup campaigns.
         TOKEN.forceApprove(address(LOCKUP), type(uint256).max);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                           USER-FACING CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierMerkleLockup
+    function claimedStreams(address recipient) external view override returns (uint256[] memory) {
+        return _claimedStreams[recipient];
     }
 }

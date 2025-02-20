@@ -220,6 +220,14 @@ abstract contract MerkleLT_Fork_Test is Fork_Test {
 
         assertTrue(vars.merkleLT.hasClaimed(vars.indexes[params.posBeforeSort]));
 
+        uint256[] memory expectedClaimedStreamIds = new uint256[](1);
+        expectedClaimedStreamIds[0] = vars.expectedStreamId;
+        assertEq(
+            vars.merkleLT.claimedStreams(vars.recipients[params.posBeforeSort]),
+            expectedClaimedStreamIds,
+            "claimed streams"
+        );
+
         /*//////////////////////////////////////////////////////////////////////////
                                         CLAWBACK
         //////////////////////////////////////////////////////////////////////////*/
