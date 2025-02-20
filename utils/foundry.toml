@@ -2,6 +2,9 @@
 
 [profile.default]
   evm_version = "shanghai"
+  fs_permissions = [
+    { access = "read", path = "package.json" }
+  ]
   fuzz = { runs = 1_000 }
   gas_reports = ["*"]
   optimizer = true

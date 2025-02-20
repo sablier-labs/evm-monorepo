@@ -4,13 +4,13 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IAdminable } from "src/interfaces/IAdminable.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { AdminableMock } from "tests/mocks/AdminableMock.sol";
+import { AdminableMock } from "src/mocks/AdminableMock.sol";
 import { Unit_Test } from "../../Unit.t.sol";
 
 contract TransferAdmin_Unit_Fuzz_Test is Unit_Test {
     AdminableMock internal adminableMock;
 
-    function setUp() public virtual override {
+    function setUp() public override {
         Unit_Test.setUp();
 
         adminableMock = new AdminableMock(admin);

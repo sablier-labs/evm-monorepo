@@ -14,7 +14,7 @@ abstract contract Batch is IBatch {
     /// @inheritdoc IBatch
     /// @dev Since `msg.value` can be reused across calls, be VERY CAREFUL when using it. Refer to
     /// https://paradigm.xyz/2021/08/two-rights-might-make-a-wrong for more information.
-    function batch(bytes[] calldata calls) external payable override returns (bytes[] memory results) {
+    function batch(bytes[] calldata calls) external payable virtual override returns (bytes[] memory results) {
         uint256 count = calls.length;
         results = new bytes[](count);
 

@@ -20,8 +20,6 @@
   },
   "files": [
     "src",
-    "script",
-    "tests",
     "CHANGELOG.md",
     "LICENSE-GPL.md"
   ],

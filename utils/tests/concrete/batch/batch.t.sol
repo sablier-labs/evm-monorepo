@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { BatchMock } from "tests/mocks/BatchMock.sol";
+import { BatchMock } from "src/mocks/BatchMock.sol";
 import { Unit_Test } from "../../Unit.t.sol";
 
 contract Batch_Unit_Concrete_Test is Unit_Test {
@@ -10,7 +10,7 @@ contract Batch_Unit_Concrete_Test is Unit_Test {
     uint256 internal newNumber = 100;
     bytes[] internal results;
 
-    function setUp() public virtual override {
+    function setUp() public override {
         Unit_Test.setUp();
 
         batchMock = new BatchMock();

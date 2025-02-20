@@ -7,16 +7,24 @@
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
-This repository contains a collection of utility smart contracts used across various Solidity projects. The motivation
-behind this repository is to reduce code duplication.
+This repository contains a collection of utility smart contracts used across various Sablier Solidity projects. The
+motivation behind this repository is to reduce code duplication.
 
-The following projects use these contracts:
+The following projects imports this repo:
 
 - [Sablier Airdrops](https://github.com/sablier-labs/airdrops/)
 - [Sablier Flow](https://github.com/sablier-labs/flow/)
 - [Sablier Lockup](https://github.com/sablier-labs/lockup/)
 
 In-depth documentation is available at [docs.sablier.com](https://docs.sablier.com).
+
+## Repository Structure
+
+This repo contains the following subdirectories:
+
+- `src/interfaces`: Interfaces for [`Adminable`](src/Adminable.sol) and [`Batch`](src/Batch.sol) contracts.
+- `src/mocks`: Mock contracts used by external projects in tests.
+- `src/tests`: Helper contracts used by external projects in tests and deployment scripts.
 
 ## Install
 
@@ -69,3 +77,7 @@ contract MyContract is Adminable, Batch, NoDelegateCall {
     function editFee(uint256 newFee) public onlyAdmin { }
 }
 ```
+
+## License
+
+This repo is licensed under the [GNU General Public License](/LICENSE-GPL.md).
