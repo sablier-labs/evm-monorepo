@@ -38,7 +38,7 @@ contract TotalDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// - Multiple points in time. It includes pre-depletion and post-depletion.
     function testFuzz_TotalDebtOf(
         uint256 streamId,
-        uint40 timeJump,
+        uint40 warpTimestamp,
         uint8 decimals
     )
         external
@@ -48,16 +48,17 @@ contract TotalDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId, decimals,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Bound the time jump to provide a realistic time frame.
-        timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
+        warpTimestamp = boundUint40(warpTimestamp, getBlockTimestamp(), getBlockTimestamp() + 100 weeks);
 
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        vm.warp({ newTimestamp: warpTimestamp });
 
         uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
 
         // Assert that total debt is the ongoing debt.
         uint256 actualTotalDebt = flow.totalDebtOf(streamId);
-        uint256 expectedTotalDebt = getDescaledAmount(ratePerSecond * timeJump, decimals);
+        uint256 expectedTotalDebt =
+            getDescaledAmount(ratePerSecond * (warpTimestamp - flow.getSnapshotTime(streamId)), decimals);
         assertEq(actualTotalDebt, expectedTotalDebt, "total debt");
     }
 }

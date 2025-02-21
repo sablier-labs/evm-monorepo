@@ -277,7 +277,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         deposit(streamId, DEPOSIT_AMOUNT_18D);
 
         // Simulate the one month of streaming.
-        vm.warp({ newTimestamp: ONE_MONTH_SINCE_START });
+        vm.warp({ newTimestamp: ONE_MONTH_SINCE_CREATE });
 
         // It should make the withdrawal.
         _test_Withdraw({

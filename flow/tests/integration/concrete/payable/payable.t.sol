@@ -10,7 +10,7 @@ contract Payable_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         Shared_Integration_Concrete_Test.setUp();
         depositToDefaultStream();
 
-        vm.warp({ newTimestamp: ONE_MONTH_SINCE_START });
+        vm.warp({ newTimestamp: ONE_MONTH_SINCE_CREATE });
 
         // Make the sender the caller.
         resetPrank({ msgSender: users.sender });
@@ -26,12 +26,12 @@ contract Payable_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function test_CreateWhenETHValueNotZero() external {
-        flow.create{ value: FEE }(users.sender, users.recipient, RATE_PER_SECOND, usdc, TRANSFERABLE);
+        flow.create{ value: FEE }(users.sender, users.recipient, RATE_PER_SECOND, ZERO, usdc, TRANSFERABLE);
     }
 
     function test_CreateAndDepositWhenETHValueNotZero() external {
         flow.createAndDeposit{ value: FEE }(
-            users.sender, users.recipient, RATE_PER_SECOND, usdc, TRANSFERABLE, DEPOSIT_AMOUNT_6D
+            users.sender, users.recipient, RATE_PER_SECOND, ZERO, usdc, TRANSFERABLE, DEPOSIT_AMOUNT_6D
         );
     }
 

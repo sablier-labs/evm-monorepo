@@ -7,23 +7,23 @@ import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 library Flow {
     /// @notice Enum representing the different statuses of a stream.
     ///
-    /// @dev Explanations for the two types of streams:
-    /// 1. Streaming: when the total debt is increasing.
-    /// 2. Paused: when the total debt is not increasing.
+    /// @dev Explanations for the three types of streams:
+    /// 1. Pending: when stream is scheduled to start in the future.
+    /// 2. Streaming: when the total debt is increasing.
+    /// 3. Paused: when the total debt is not increasing.
     ///
-    /// @custom:value0 STREAMING_SOLVENT Streaming stream when there is no uncovered debt.
-    /// @custom:value1 STREAMING_INSOLVENT Streaming stream when there is uncovered debt.
-    /// @custom:value2 PAUSED_SOLVENT Paused stream when there is no uncovered debt.
-    /// @custom:value3 PAUSED_INSOLVENT Paused stream when there is uncovered debt.
-    /// @custom:value4 VOIDED Paused stream with no uncovered debt and it cannot be restarted.
+    /// @custom:value0 PENDING A stream with snapshot time in the future.
+    /// @custom:value1 STREAMING_SOLVENT Streaming stream when there is no uncovered debt.
+    /// @custom:value2 STREAMING_INSOLVENT Streaming stream when there is uncovered debt.
+    /// @custom:value3 PAUSED_SOLVENT Paused stream when there is no uncovered debt.
+    /// @custom:value4 PAUSED_INSOLVENT Paused stream when there is uncovered debt.
+    /// @custom:value5 VOIDED Paused stream with no uncovered debt and it cannot be restarted.
     enum Status {
-        // Streaming
+        PENDING,
         STREAMING_SOLVENT,
         STREAMING_INSOLVENT,
-        // Paused
         PAUSED_SOLVENT,
         PAUSED_INSOLVENT,
-        // Voided
         VOIDED
     }
 

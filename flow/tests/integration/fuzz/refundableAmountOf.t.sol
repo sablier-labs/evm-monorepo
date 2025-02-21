@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
 contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
-    /// @dev It should return the refundable amount equal to the deposited amount, denoted in token's decimals.
+    /// @dev It should return the same refundable amount as before pause, denoted in token's decimals.
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Multiple paused streams, each with different token decimals and rps.
@@ -21,10 +21,10 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
 
         uint40 depletionPeriod = uint40(flow.depletionTimeOf(streamId));
 
+        uint128 previousRefundableAmount = flow.refundableAmountOf(streamId);
+
         // Pause the stream.
         flow.pause(streamId);
-
-        uint128 previousStreamBalance = flow.getBalance(streamId);
 
         // Bound the time jump so that it is less than the depletion timestamp.
         warpTimestamp = boundUint40(warpTimestamp, getBlockTimestamp(), depletionPeriod - 1);
@@ -32,12 +32,9 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
         // Simulate the passage of time.
         vm.warp({ newTimestamp: warpTimestamp });
 
-        // Assert that the refundable amount equals the stream balance before the time warp.
+        // Assert that the refundable amount is the same.
         uint128 actualRefundableAmount = flow.refundableAmountOf(streamId);
-        assertEq(actualRefundableAmount, previousStreamBalance);
-
-        // Assert that the refundable amount is same as the deposited amount.
-        assertEq(actualRefundableAmount, depositedAmount);
+        assertEq(actualRefundableAmount, previousRefundableAmount);
     }
 
     /// @dev It should return the refundable amount equal to the deposited amount minus streamed amount.
@@ -66,8 +63,8 @@ contract RefundableAmountOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Tes
 
         // Assert that the refundable amount same as the deposited amount minus streamed amount.
         uint256 actualRefundableAmount = flow.refundableAmountOf(streamId);
-        uint256 expectedRefundableAmount =
-            depositedAmount - getDescaledAmount(ratePerSecond * (warpTimestamp - FEB_1_2025), decimals);
+        uint256 expectedRefundableAmount = depositedAmount
+            - getDescaledAmount(ratePerSecond * (warpTimestamp - flow.getSnapshotTime(streamId)), decimals);
         assertEq(actualRefundableAmount, expectedRefundableAmount);
     }
 

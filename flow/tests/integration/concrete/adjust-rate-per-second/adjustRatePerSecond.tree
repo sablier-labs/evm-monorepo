@@ -8,20 +8,24 @@ AdjustRatePerSecond_Integration_Concrete_Test
       ├── given paused
       │  └── it should revert
       └── given not paused
-          ├── when caller not sender
-          │  ├── when caller recipient
-          │  │  └── it should revert
-          │  └── when caller malicious third party
-          │     └── it should revert
-          └── when caller sender
-             ├── when new rate per second equals current rate per second
-             │  └── it should revert
-             └── when new rate per second not equals current rate per second
-                ├── when rate per second zero
-                │  ├── it should change the status to PAUSED
-                │  └── it should set the rate per second to zero
-                └── when rate per second not zero
-                   ├── it should update snapshot debt
-                   ├── it should update snapshot time
-                   ├── it should set the new rate per second
-                   └── it should emit 1 {AdjustFlowStream}, 1 {MetadataUpdate} events
+         ├── given pending
+         │  ├── it should not update snapshot time
+         │  ├── it should not update snapshot time
+         │  └── it should adjust the rate per second
+         └── given not pending
+            ├── when caller not sender
+            │  ├── when caller recipient
+            │  │  └── it should revert
+            │  └── when caller malicious third party
+            │     └── it should revert
+            └── when caller sender
+               ├── when rate per second zero
+               │  └── it should revert
+               └── when rate per second not zero
+                  ├── when new rate per second equals current rate per second
+                  │  └── it should revert
+                  └── when new rate per second not equals current rate per second
+                     ├── it should update snapshot debt
+                     ├── it should update snapshot time
+                     ├── it should set the new rate per second
+                     └── it should emit 1 {AdjustFlowStream}, 1 {MetadataUpdate} events

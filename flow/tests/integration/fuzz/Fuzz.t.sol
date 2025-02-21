@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { UD21x18, ud21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Base_Test } from "../../Base.t.sol";
 import { Integration_Test } from "../Integration.t.sol";
@@ -48,8 +49,11 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
             // If not, create a new stream.
             decimals = boundUint8(decimals, 0, 18);
 
+            uint256 startTimeSeed = uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals)));
+            uint40 startTime = uint40(bound(startTimeSeed, getBlockTimestamp() - 10 weeks, getBlockTimestamp()));
+
             // Create stream.
-            (token, streamId) = createTokenAndStream(decimals);
+            (token, streamId) = createTokenAndStream(startTime, decimals);
 
             // Hash the next stream ID and the decimal to generate a seed.
             uint128 amountSeed = uint128(uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals))));
@@ -83,7 +87,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
     function _setupStreamsWithAllDecimals() private {
         for (uint8 decimal; decimal < 19; ++decimal) {
             // Create token, create stream and deposit.
-            (token, fixtureStreamId[decimal]) = createTokenAndStream(decimal);
+            (token, fixtureStreamId[decimal]) = createTokenAndStream(ZERO, decimal);
 
             depositDefaultAmount(fixtureStreamId[decimal]);
         }

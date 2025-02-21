@@ -69,11 +69,16 @@ contract FlowStore {
         return tokens;
     }
 
-    function initStreamId(uint256 streamId, uint128 ratePerSecond) external {
+    function initStreamId(uint256 streamId, uint128 ratePerSecond, uint40 startTime) external {
         // Store the stream id and the period during which provided ratePerSecond applies.
         streamIds.push(streamId);
         periods[streamId].push(
-            Period({ funcName: "create", ratePerSecond: ratePerSecond, start: uint40(block.timestamp), end: 0 })
+            Period({
+                funcName: "create",
+                ratePerSecond: ratePerSecond,
+                start: startTime == 0 ? uint40(block.timestamp) : startTime,
+                end: 0
+            })
         );
 
         // Update the last stream id.
@@ -81,8 +86,15 @@ contract FlowStore {
     }
 
     function pushPeriod(uint256 streamId, uint128 newRatePerSecond, string memory typeOfPeriod) external {
+        uint256 count = periods[streamId].length - 1;
+
+        // If the previous start time is in the future keep the same periods.
+        if (periods[streamId][count].start >= uint40(block.timestamp)) {
+            return;
+        }
+
         // Update the end time of the previous period.
-        periods[streamId][periods[streamId].length - 1].end = uint40(block.timestamp);
+        periods[streamId][count].end = uint40(block.timestamp);
 
         // Push the new period with the provided rate per second.
         periods[streamId].push(

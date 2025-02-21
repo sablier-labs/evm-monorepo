@@ -195,6 +195,7 @@ contract Flow_Fork_Test is Fork_Test {
                     sender: users.sender,
                     recipient: users.recipient,
                     ratePerSecond: RATE_PER_SECOND,
+                    startTime: ZERO,
                     token: token,
                     transferable: TRANSFERABLE
                 });
@@ -294,13 +295,15 @@ contract Flow_Fork_Test is Fork_Test {
             sender: sender,
             recipient: recipient,
             ratePerSecond: ratePerSecond,
-            transferable: transferable
+            transferable: transferable,
+            snapshotTime: getBlockTimestamp()
         });
 
         vars.actualStreamId = flow.create{ value: FEE }({
             recipient: recipient,
             sender: sender,
             ratePerSecond: ratePerSecond,
+            startTime: ZERO,
             token: token,
             transferable: transferable
         });

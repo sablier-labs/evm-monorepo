@@ -22,6 +22,7 @@ contract TransferFrom_Integration_Concrete_Test is Shared_Integration_Concrete_T
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
+            startTime: ZERO,
             token: dai,
             transferable: false
         });

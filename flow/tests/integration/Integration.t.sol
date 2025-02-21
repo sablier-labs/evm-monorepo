@@ -20,22 +20,31 @@ abstract contract Integration_Test is Base_Test {
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function createDefaultStream(uint40 startTime) internal returns (uint256) {
+        return createDefaultStream(RATE_PER_SECOND, startTime, usdc);
+    }
+
     function createDefaultStream(IERC20 token_) internal returns (uint256) {
         return createDefaultStream(RATE_PER_SECOND, token_);
     }
 
     function createDefaultStream(UD21x18 ratePerSecond, IERC20 token_) internal returns (uint256) {
+        return createDefaultStream(ratePerSecond, ZERO, token_);
+    }
+
+    function createDefaultStream(UD21x18 ratePerSecond, uint40 startTime, IERC20 token_) internal returns (uint256) {
         return flow.create({
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: ratePerSecond,
+            startTime: startTime,
             token: token_,
             transferable: TRANSFERABLE
         });
     }
 
     /// @dev Helper function to create an token with the `decimals` and then a stream using the newly created token.
-    function createTokenAndStream(uint8 decimals) internal returns (IERC20 token, uint256 streamId) {
+    function createTokenAndStream(uint40 startTime, uint8 decimals) internal returns (IERC20 token, uint256 streamId) {
         token = createToken(decimals);
 
         // Hash the next stream ID and the decimal to generate a seed.
@@ -43,7 +52,7 @@ abstract contract Integration_Test is Base_Test {
             boundRatePerSecond(ud21x18(uint128(uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals))))));
 
         // Create stream.
-        streamId = createDefaultStream(ratePerSecond, token);
+        streamId = createDefaultStream(ratePerSecond, startTime, token);
     }
 
     function deposit(uint256 streamId, uint128 amount) internal {

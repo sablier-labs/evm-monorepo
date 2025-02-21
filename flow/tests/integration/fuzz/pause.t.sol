@@ -9,6 +9,32 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
 contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
+    function testFuzz_RevertGiven_NotStarted(
+        uint256 streamId,
+        uint40 timeWarp,
+        uint8 decimals
+    )
+        external
+        whenNoDelegateCall
+        givenNotNull
+    {
+        (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
+
+        uint40 snapshotTime = flow.getSnapshotTime(streamId);
+
+        // Bound the time warp to make the stream PENDING.
+        timeWarp = boundUint40(timeWarp, 1, snapshotTime - 1 seconds);
+
+        // Simulate the passage of time.
+        vm.warp({ newTimestamp: timeWarp });
+
+        // Expect the relevant error.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamNotStarted.selector, streamId, snapshotTime));
+
+        // Adjust the rate per second.
+        flow.pause(streamId);
+    }
+
     /// @dev It should revert.
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:

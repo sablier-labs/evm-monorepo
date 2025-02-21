@@ -35,6 +35,7 @@ interface ISablierFlow is
     /// @param recipient The address receiving the tokens, as well as the NFT owner.
     /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
     /// where 1e18 is 1 token per second.
+    /// @param snapshotTime The timestamp when the stream begins accumulating debt.
     /// @param token The contract address of the ERC-20 token to be streamed.
     /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
     event CreateFlowStream(
@@ -42,6 +43,7 @@ interface ISablierFlow is
         address indexed sender,
         address indexed recipient,
         UD21x18 ratePerSecond,
+        uint40 snapshotTime,
         IERC20 indexed token,
         bool transferable
     );
@@ -118,7 +120,7 @@ interface ISablierFlow is
     function depletionTimeOf(uint256 streamId) external view returns (uint256 depletionTime);
 
     /// @notice Returns the amount of debt accrued since the snapshot time until now, denoted as a fixed-point number
-    /// where 1e18 is 1 token.
+    /// where 1e18 is 1 token. If the stream is pending, it returns zero.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function ongoingDebtScaledOf(uint256 streamId) external view returns (uint256 ongoingDebtScaled);
@@ -161,20 +163,20 @@ interface ISablierFlow is
     /// @dev Emits a {AdjustFlowStream} and {MetadataUpdate} event.
     ///
     /// Notes:
-    /// - It updates snapshot debt and snapshot time.
+    /// - If the snapshot time is not in the future, it updates both the snapshot time and snapshot debt.
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null or a paused stream.
+    /// - `streamId` must not reference a null, must not be paused or voided.
     /// - `msg.sender` must be the stream's sender.
-    /// - `newRatePerSecond` must not equal to the current rate per second.
+    /// - `newRatePerSecond` must be greater than zero and not equal to the current rate per second.
     ///
     /// @param streamId The ID of the stream to adjust.
     /// @param newRatePerSecond The new rate per second, denoted as a fixed-point number where 1e18 is 1 token
     /// per second.
     function adjustRatePerSecond(uint256 streamId, UD21x18 newRatePerSecond) external payable;
 
-    /// @notice Creates a new Flow stream by setting the snapshot time to `block.timestamp` and leaving the balance to
+    /// @notice Creates a new Flow stream by setting the snapshot time to `startTime` and leaving the balance to
     /// zero. The stream is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits {CreateFlowStream} event.
@@ -183,6 +185,7 @@ interface ISablierFlow is
     /// - Must not be delegate called.
     /// - `sender` must not be the zero address.
     /// - `recipient` must not be the zero address.
+    /// - If `startTime` is in the future, the `ratePerSecond` must be greater than zero.
     /// - The `token`'s decimals must be less than or equal to 18.
     ///
     /// @param sender The address streaming the tokens, which is able to adjust and pause the stream. It doesn't
@@ -190,6 +193,8 @@ interface ISablierFlow is
     /// @param recipient The address receiving the tokens.
     /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
     /// where 1e18 is 1 token per second.
+    /// @param startTime The timestamp when the stream starts. A value of zero means the stream will be created with the
+    /// snapshot time as `block.timestamp`.
     /// @param token The contract address of the ERC-20 token to be streamed.
     /// @param transferable Boolean indicating if the stream NFT is transferable.
     ///
@@ -198,6 +203,7 @@ interface ISablierFlow is
         address sender,
         address recipient,
         UD21x18 ratePerSecond,
+        uint40 startTime,
         IERC20 token,
         bool transferable
     )
@@ -205,13 +211,13 @@ interface ISablierFlow is
         payable
         returns (uint256 streamId);
 
-    /// @notice Creates a new Flow stream by setting the snapshot time to `block.timestamp` and the balance to `amount`.
+    /// @notice Creates a new Flow stream by setting the snapshot time to `startTime` and the balance to `amount`.
     /// The stream is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {Transfer}, {CreateFlowStream}, and {DepositFlowStream} event.
     ///
     /// Notes:
-    /// - Refer to the notes in {deposit}.
+    /// - Refer to the notes in {create} and {deposit}.
     ///
     /// Requirements:
     /// - Refer to the requirements in {create} and {deposit}.
@@ -220,6 +226,7 @@ interface ISablierFlow is
     /// @param recipient The address receiving the tokens.
     /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
     /// where 1e18 is 1 token per second.
+    /// @param startTime The timestamp when the stream begins accumulating debt.
     /// @param token The contract address of the ERC-20 token to be streamed.
     /// @param transferable Boolean indicating if the stream NFT is transferable.
     /// @param amount The deposit amount, denoted in token's decimals.
@@ -229,6 +236,7 @@ interface ISablierFlow is
         address sender,
         address recipient,
         UD21x18 ratePerSecond,
+        uint40 startTime,
         IERC20 token,
         bool transferable,
         uint128 amount
@@ -277,7 +285,7 @@ interface ISablierFlow is
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null or an already paused stream.
+    /// - `streamId` must not reference a null, pending or paused stream.
     /// - `msg.sender` must be the stream's sender.
     ///
     /// @param streamId The ID of the stream to pause.
@@ -330,7 +338,7 @@ interface ISablierFlow is
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null, or a voided stream.
+    /// - `streamId` must not reference a null, must not be paused or voided.
     /// - `msg.sender` must be the stream's sender.
     /// - `ratePerSecond` must be greater than zero.
     ///

@@ -17,6 +17,22 @@ contract StatusOf_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         expectRevert_Null(callData);
     }
 
+    function test_GivenNotStarted() external givenNotNull {
+        uint256 streamId = flow.create({
+            sender: users.sender,
+            recipient: users.recipient,
+            ratePerSecond: RATE_PER_SECOND,
+            startTime: getBlockTimestamp() + 1 days,
+            token: dai,
+            transferable: TRANSFERABLE
+        });
+
+        // it should return PENDING
+        uint8 actualStatus = uint8(flow.statusOf(streamId));
+        uint8 expectedStatus = uint8(Flow.Status.PENDING);
+        assertEq(actualStatus, expectedStatus);
+    }
+
     function test_GivenVoided() external givenNotNull {
         // Simulate the passage of time to accumulate uncovered debt for one month.
         vm.warp({ newTimestamp: WARP_SOLVENCY_PERIOD + ONE_MONTH });

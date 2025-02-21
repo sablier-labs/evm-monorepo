@@ -5,10 +5,12 @@
 
 ## Statuses
 
-There are two types of streams: `STREAMING`, when debt is actively accruing, and `PAUSED`, when debt is not accruing:
+There are three types of streams: `PENDING` when stream is scheduled for a future start, `STREAMING`, when debt is
+actively accruing, and `PAUSED`, when debt is not accruing:
 
 | Type        | Status                | Description                                                                             |
 | ----------- | --------------------- | --------------------------------------------------------------------------------------- |
+| `PENDING`   | `PENDING`             | A stream with snapshot time in the future.                                              |
 | `STREAMING` | `STREAMING_SOLVENT`   | Streaming stream when there is no uncovered debt.                                       |
 | `STREAMING` | `STREAMING_INSOLVENT` | Streaming stream when there is uncovered debt.                                          |
 | `PAUSED`    | `PAUSED_SOLVENT`      | Paused stream when there is no uncovered debt.                                          |
@@ -43,10 +45,14 @@ stateDiagram-v2
     Paused --> VOIDED : void
     Streaming --> VOIDED : void
 
-    NULL --> Streaming : create (rps > 0)
-    NULL --> Paused : create (rps = 0)
+    NULL --> Streaming : create (rps > 0 && st <= now)
+    NULL --> Pending : create (rps > 0 && st > now)
+    NULL --> Paused : create (rps = 0 && st <= now)
+    Pending --> Streaming : time
 
-    NULL:::grey
+
+
+    Pending:::grey
     Paused:::lightYellow
     PAUSED_INSOLVENT:::intenseYellow
     PAUSED_SOLVENT:::intenseYellow
@@ -75,7 +81,8 @@ stateDiagram-v2
 ```mermaid
 flowchart LR
     subgraph Statuses
-        NULL((NULL)):::grey
+        NULL((NULL))
+        PND((PENDING)):::grey
         STR((STREAMING)):::green
         PSED((PAUSED)):::yellow
         VOID((VOIDED)):::red
@@ -103,6 +110,7 @@ flowchart LR
 
     CR -- "update rps<br/>update st" --> NULL
 
+    ADJRPS -- "update rps" --> PND
     ADJRPS -- "update sd (+od)<br/>update rps<br/>update st" -->  STR
 
     DP -- "update bal (+)" --> BOTH
@@ -116,12 +124,13 @@ flowchart LR
 
     RST -- "update rps<br/>update st" --> PSED
 
+    VD -- "update rps (0)<br/>update st" --> PND
     VD -- "update sd (bal || +od)<br/>update rps (0)<br/>update st" --> BOTH
 
     WTD -- "update sd (-)<br/>update st<br/>update bal (-)" --> BOTH
     WTD -- "update sd (-)" --> VOID
 
-    linkStyle 2,3,4,10,11 stroke:#ff0000,stroke-width:2px
+    linkStyle 3,4,5,12,13 stroke:#ff0000,stroke-width:2px
 ```
 
 ### Internal State

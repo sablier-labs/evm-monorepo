@@ -38,6 +38,7 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
+    /// @dev No uncovered debt means that the stream is either SOLVENT or PENDING.
     function test_GivenStreamHasNoUncoveredDebt()
         external
         whenNoDelegateCall
@@ -48,6 +49,11 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         // It should void the stream.
         // It should set the rate per second to zero.
         // It should not change the total debt.
+        _test_Void(users.recipient);
+
+        // Create a new PENDING stream.
+        defaultStreamId = createDefaultStream({ startTime: getBlockTimestamp() + 100 seconds });
+
         _test_Void(users.recipient);
     }
 

@@ -14,13 +14,16 @@ Pause_Integration_Concrete_Test
           │  └── when caller malicious third party
           │     └── it should revert
           └── when caller sender
-             ├── given uncovered debt
-             │  ├── it should pause the stream
-             │  ├── it should set the rate per second to zero
-             │  ├── it should update the snapshot debt
-             │  └──it should emit 1 {PauseFlowStream}, 1 {MetadataUpdate} events
-             └── given no uncovered debt
-                ├── it should pause the stream
-                ├── it should set the rate per second to zero
-                ├── it should update the snapshot debt
-                └── it should emit 1 {PauseFlowStream}, 1 {MetadataUpdate} events
+             ├── given not started
+             │  └── it should revert
+             └── given started        
+                ├── given uncovered debt
+                │  ├── it should pause the stream
+                │  ├── it should set the rate per second to zero
+                │  ├── it should update the snapshot debt
+                │  └──it should emit 1 {PauseFlowStream}, 1 {MetadataUpdate} events
+                └── given no uncovered debt
+                   ├── it should pause the stream
+                   ├── it should set the rate per second to zero
+                   ├── it should update the snapshot debt
+                   └── it should emit 1 {PauseFlowStream}, 1 {MetadataUpdate} events

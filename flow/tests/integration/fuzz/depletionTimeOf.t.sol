@@ -27,9 +27,11 @@ contract DepletionTimeOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint256 carry =
             getScaledAmount(flow.getBalance(streamId) + 1, decimals) % flow.getRatePerSecond(streamId).unwrap();
 
+        uint40 snapshotTime = flow.getSnapshotTime(streamId);
+
         // Assert that depletion time equals expected value.
         uint256 actualDepletionTime = flow.depletionTimeOf(streamId);
-        uint256 expectedDepletionTime = carry > 0 ? FEB_1_2025 + solvencyPeriod + 1 : FEB_1_2025 + solvencyPeriod;
+        uint256 expectedDepletionTime = carry > 0 ? snapshotTime + solvencyPeriod + 1 : snapshotTime + solvencyPeriod;
         assertEq(actualDepletionTime, expectedDepletionTime, "depletion time");
 
         // Warp time to 1 second before the depletion timestamp.

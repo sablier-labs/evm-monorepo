@@ -19,6 +19,7 @@ contract FlowCreateHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 public currentToken;
+    uint256 internal streamId;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -49,6 +50,7 @@ contract FlowCreateHandler is BaseHandler {
         address sender;
         address recipient;
         uint128 ratePerSecond;
+        uint40 startTime;
         bool transferable;
     }
 
@@ -63,14 +65,22 @@ contract FlowCreateHandler is BaseHandler {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
         // Create the stream.
-        uint256 streamId = flow.create(
-            params.sender, params.recipient, ud21x18(params.ratePerSecond), currentToken, params.transferable
+        streamId = flow.create(
+            params.sender,
+            params.recipient,
+            ud21x18(params.ratePerSecond),
+            params.startTime,
+            currentToken,
+            params.transferable
         );
 
         // Store the stream id and rate per second.
-        flowStore.initStreamId(streamId, params.ratePerSecond);
+        flowStore.initStreamId(streamId, params.ratePerSecond, params.startTime);
     }
 
+    /// @dev We assume a start time earlier than the current block timestamp to avoid having too many PENDING
+    /// streams. We chose this function because the deposit allows calls to other functions as well (refund and
+    /// withdraw).
     function createAndDeposit(CreateParams memory params)
         public
         useFuzzedToken(params.tokenIndex)
@@ -80,6 +90,7 @@ contract FlowCreateHandler is BaseHandler {
         _checkParams(params);
 
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
+        vm.assume(params.startTime <= getBlockTimestamp());
 
         // Calculate the upper bound, based on the token decimals, for the deposit amount.
         uint256 upperBound = getDescaledAmount(1_000_000e18, IERC20Metadata(address(currentToken)).decimals());
@@ -99,17 +110,18 @@ contract FlowCreateHandler is BaseHandler {
         currentToken.approve({ spender: address(flow), value: params.depositAmount });
 
         // Create the stream.
-        uint256 streamId = flow.createAndDeposit(
+        streamId = flow.createAndDeposit(
             params.sender,
             params.recipient,
             ud21x18(params.ratePerSecond),
+            params.startTime,
             currentToken,
             params.transferable,
             params.depositAmount
         );
 
         // Store the stream id and rate per second.
-        flowStore.initStreamId(streamId, params.ratePerSecond);
+        flowStore.initStreamId(streamId, params.ratePerSecond, params.startTime);
 
         // Store the deposited amount.
         flowStore.updateStreamDepositedAmountsSum(streamId, currentToken, params.depositAmount);

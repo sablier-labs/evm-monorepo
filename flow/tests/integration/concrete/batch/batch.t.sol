@@ -72,8 +72,10 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         uint256 expectedNextStreamId = flow.nextStreamId();
 
         bytes[] memory calls = new bytes[](2);
-        calls[0] = abi.encodeCall(flow.create, (users.sender, users.recipient, RATE_PER_SECOND, usdc, TRANSFERABLE));
-        calls[1] = abi.encodeCall(flow.create, (users.sender, users.recipient, RATE_PER_SECOND, usdc, TRANSFERABLE));
+        calls[0] =
+            abi.encodeCall(flow.create, (users.sender, users.recipient, RATE_PER_SECOND, ZERO, usdc, TRANSFERABLE));
+        calls[1] =
+            abi.encodeCall(flow.create, (users.sender, users.recipient, RATE_PER_SECOND, ZERO, usdc, TRANSFERABLE));
 
         // Call the batch function.
         bytes[] memory results = flow.batch(calls);
