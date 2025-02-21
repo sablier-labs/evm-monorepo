@@ -73,7 +73,7 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
         assertEq(lockup.getRecipient(streamId), users.recipient, "recipient");
         assertEq(lockup.getSender(streamId), users.sender, "sender");
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
-        assertEq(lockup.getUnderlyingToken(streamId), dai);
+        assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
         assertEq(lockup.getUnlockAmounts(streamId), _defaultParams.unlockAmounts);
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 

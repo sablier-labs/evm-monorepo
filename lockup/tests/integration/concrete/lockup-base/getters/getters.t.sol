@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
@@ -167,9 +166,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GetUnderlyingTokenGivenNotNull() external view {
-        IERC20 actualUnderlyingToken = lockup.getUnderlyingToken(ids.defaultStream);
-        IERC20 expectedUnderlyingToken = dai;
-        assertEq(actualUnderlyingToken, expectedUnderlyingToken);
+        assertEq(lockup.getUnderlyingToken(ids.defaultStream), dai, "underlyingToken");
     }
 
     /*//////////////////////////////////////////////////////////////////////////

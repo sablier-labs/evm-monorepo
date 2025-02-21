@@ -291,6 +291,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
             lockup.aggregateBalance(token), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateBalance"
         );
         assertEq(lockup.getTranches(streamId), defaults.tranches());
-        assertEq(lockup.getUnderlyingToken(streamId), token);
+        assertEq(lockup.getUnderlyingToken(streamId), token, "underlyingToken");
     }
 }

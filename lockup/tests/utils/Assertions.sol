@@ -29,8 +29,8 @@ abstract contract Assertions is PRBMathAssertions {
     }
 
     /// @dev Compares two {IERC20} values.
-    function assertEq(IERC20 a, IERC20 b) internal pure {
-        assertEq(address(a), address(b));
+    function assertEq(IERC20 a, IERC20 b, string memory err) internal pure {
+        assertEq(address(a), address(b), err);
     }
 
     /// @dev Compares two {Lockup.Model} enum values.
@@ -104,7 +104,7 @@ abstract contract Assertions is PRBMathAssertions {
         assertEq(lockup.getRecipient(streamId), expectedLockup.recipient, "recipient");
         assertEq(lockup.getSender(streamId), expectedLockup.sender, "sender");
         assertEq(lockup.getStartTime(streamId), expectedLockup.timestamps.start, "startTime");
-        assertEq(lockup.getUnderlyingToken(streamId), expectedLockup.token);
+        assertEq(lockup.getUnderlyingToken(streamId), expectedLockup.token, "underlyingToken");
         assertEq(lockup.getWithdrawnAmount(streamId), 0, "withdrawnAmount");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");
         assertTrue(lockup.isStream(streamId), "isStream");

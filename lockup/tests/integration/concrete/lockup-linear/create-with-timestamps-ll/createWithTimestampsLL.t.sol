@@ -221,7 +221,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         assertEqStream(streamId);
         assertEq(lockup.getCliffTime(streamId), cliffTime, "cliffTime");
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
-        assertEq(lockup.getUnderlyingToken(streamId), token);
+        assertEq(lockup.getUnderlyingToken(streamId), token, "underlyingToken");
         assertEq(lockup.getUnlockAmounts(streamId), _defaultParams.unlockAmounts);
         assertEq(
             lockup.aggregateBalance(token), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateBalance"

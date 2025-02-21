@@ -174,7 +174,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         assertEq(lockup.getRecipient(vars.actualStreamId), params.recipient, "recipient");
         assertEq(lockup.getSender(vars.actualStreamId), params.sender, "sender");
         assertEq(lockup.getStartTime(vars.actualStreamId), params.timestamps.start, "startTime");
-        assertEq(lockup.getUnderlyingToken(vars.actualStreamId), dai);
+        assertEq(lockup.getUnderlyingToken(vars.actualStreamId), dai, "underlyingToken");
         assertEq(lockup.getUnlockAmounts(vars.actualStreamId), unlockAmounts);
         assertFalse(lockup.wasCanceled(vars.actualStreamId), "wasCanceled");
 
