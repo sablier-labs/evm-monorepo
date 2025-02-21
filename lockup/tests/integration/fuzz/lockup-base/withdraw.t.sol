@@ -113,6 +113,8 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(ids.defaultStream);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
+        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+
         // Expect the tokens to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: to, value: withdrawAmount });
 
@@ -143,6 +145,9 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         address actualNFTowner = lockup.ownerOf({ tokenId: ids.defaultStream });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
+
+        // It should update the aggrate balance.
+        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - withdrawAmount, "aggregateBalance");
     }
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
@@ -175,6 +180,8 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         // Bound the withdraw amount.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(ids.defaultStream);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
+
+        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
 
         // Expect the tokens to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: to, value: withdrawAmount });
@@ -214,5 +221,8 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         address actualNFTowner = lockup.ownerOf({ tokenId: ids.defaultStream });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
+
+        // It should update the aggrate balance.
+        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - withdrawAmount, "aggregateBalance");
     }
 }

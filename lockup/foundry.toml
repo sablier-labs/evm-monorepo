@@ -9,7 +9,7 @@
   ]
   gas_limit = 9223372036854775807
   optimizer = true
-  optimizer_runs = 570
+  optimizer_runs = 500
   out = "out"
   script = "script"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
@@ -36,7 +36,6 @@
   out = "out-optimized"
   test = "tests/mocks"
   via_ir = true
-
 
 # See "SMTChecker and Formal Verification" in the Solidity docs
 [profile.smt]

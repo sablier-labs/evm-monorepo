@@ -181,6 +181,8 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         // If shape exceeds 32 bytes, use the default value.
         if (bytes(params.shape).length > 32) params.shape = defaults.SHAPE();
 
+        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+
         // Fuzz the tranche timestamps.
         fuzzTrancheTimestamps(tranches, params.timestamps.start);
         params.timestamps.end = tranches[tranches.length - 1].timestamp;
@@ -255,5 +257,8 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         vars.actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
+
+        // Assert that the aggragate balance has been updated.
+        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount + params.depositAmount);
     }
 }

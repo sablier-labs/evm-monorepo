@@ -23,8 +23,10 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         // Warp to the past.
         vm.warp({ newTimestamp: getBlockTimestamp() - timeJump });
 
+        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+
         // Cancel the stream.
-        lockup.cancel(ids.defaultStream);
+        uint128 refundedAmount = lockup.cancel(ids.defaultStream);
 
         // Assert that the stream's status is "DEPLETED".
         Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
@@ -34,6 +36,9 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         // Assert that the stream is not cancelable anymore.
         bool isCancelable = lockup.isCancelable(ids.defaultStream);
         assertFalse(isCancelable, "isCancelable");
+
+        // It should update the aggrate balance.
+        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - refundedAmount, "aggregateBalance");
     }
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
@@ -69,6 +74,8 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         if (withdrawAmount > 0) {
             lockup.withdraw({ streamId: ids.recipientGoodStream, to: address(recipientGood), amount: withdrawAmount });
         }
+
+        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
 
         // Expect the tokens to be refunded to the Sender.
         uint128 senderAmount = lockup.refundableAmountOf(ids.recipientGoodStream);
@@ -106,6 +113,9 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         // Assert that the stream is not cancelable anymore.
         bool isCancelable = lockup.isCancelable(ids.recipientGoodStream);
         assertFalse(isCancelable, "isCancelable");
+
+        // It should update the aggrate balance.
+        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - refundedAmount, "aggregateBalance");
 
         // Assert that the not burned NFT.
         address actualNFTOwner = lockup.ownerOf({ tokenId: ids.recipientGoodStream });

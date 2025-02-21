@@ -372,6 +372,9 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         unchecked {
             // Effect: bump the next stream ID.
             nextStreamId = streamId + 1;
+
+            // Effect: update the aggregate balance.
+            aggregateBalance[params.token] += params.depositAmount;
         }
 
         // Interaction: transfer the deposit amount.

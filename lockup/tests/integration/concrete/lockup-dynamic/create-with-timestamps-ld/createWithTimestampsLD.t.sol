@@ -246,7 +246,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenTimestampsStrictlyIncreasing
         whenDepositAmountEqualsSegmentAmountsSum
     {
-        _testCreateWithTimestampsLD(address(usdt));
+        _testCreateWithTimestampsLD(IERC20(address(usdt)));
     }
 
     function test_WhenTokenNotMissERC20ReturnValue()
@@ -266,22 +266,19 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenDepositAmountNotEqualSegmentAmountsSum
         whenTokenContract
     {
-        _testCreateWithTimestampsLD(address(dai));
+        _testCreateWithTimestampsLD(dai);
     }
 
-    function _testCreateWithTimestampsLD(address token) private {
+    function _testCreateWithTimestampsLD(IERC20 token) private {
+        uint256 previousAggregateAmount = lockup.aggregateBalance(token);
+
         // Make the Sender the stream's funder.
         address funder = users.sender;
 
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // It should perform the ERC-20 transfers.
-        expectCallToTransferFrom({
-            token: IERC20(token),
-            from: funder,
-            to: address(lockup),
-            value: defaults.DEPOSIT_AMOUNT()
-        });
+        expectCallToTransferFrom({ token: token, from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
         // It should emit {CreateLockupDynamicStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
@@ -289,18 +286,21 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupDynamicStream({
             streamId: expectedStreamId,
-            commonParams: defaults.lockupCreateEvent(IERC20(token)),
+            commonParams: defaults.lockupCreateEvent(token),
             segments: defaults.segments()
         });
 
         // Create the stream.
-        _defaultParams.createWithTimestamps.token = IERC20(token);
+        _defaultParams.createWithTimestamps.token = token;
         uint256 streamId = createDefaultStream();
 
         // It should create the stream.
         assertEqStream(streamId);
-        assertEq(lockup.getUnderlyingToken(streamId), IERC20(token));
+        assertEq(lockup.getUnderlyingToken(streamId), token);
         assertEq(lockup.getSegments(streamId), defaults.segments());
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_DYNAMIC);
+        assertEq(
+            lockup.aggregateBalance(token), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateBalance"
+        );
     }
 }

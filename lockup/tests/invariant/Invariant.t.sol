@@ -4,6 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { StdInvariant } from "forge-std/src/StdInvariant.sol";
 import { Lockup, LockupDynamic, LockupTranched } from "src/types/DataTypes.sol";
 import { Base_Test } from "../Base.t.sol";
+import { LockupAdminHandler } from "./handlers/LockupAdminHandler.sol";
 import { LockupCreateHandler } from "./handlers/LockupCreateHandler.sol";
 import { LockupHandler } from "./handlers/LockupHandler.sol";
 import { LockupStore } from "./stores/LockupStore.sol";
@@ -14,9 +15,10 @@ contract Invariant_Test is Base_Test, StdInvariant {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    LockupAdminHandler internal adminHandler;
+    LockupCreateHandler internal createHandler;
     LockupHandler internal handler;
     LockupStore internal lockupStore;
-    LockupCreateHandler internal createHandler;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -30,6 +32,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         vm.label({ account: address(lockupStore), newLabel: "LockupStore" });
 
         // Deploy the Lockup handlers.
+        adminHandler = new LockupAdminHandler({ token_: dai, lockup_: lockup });
         createHandler = new LockupCreateHandler({ token_: dai, lockupStore_: lockupStore, lockup_: lockup });
         handler = new LockupHandler({ token_: dai, lockupStore_: lockupStore, lockup_: lockup });
 
@@ -38,6 +41,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         vm.label({ account: address(handler), newLabel: "LockupHandler" });
 
         // Target the LockupDynamic handlers for invariant testing.
+        targetContract(address(adminHandler));
         targetContract(address(createHandler));
         targetContract(address(handler));
 
@@ -66,6 +70,12 @@ contract Invariant_Test is Base_Test, StdInvariant {
             refundedAmountsSum += uint256(lockup.getRefundedAmount(streamId));
             withdrawnAmountsSum += uint256(lockup.getWithdrawnAmount(streamId));
         }
+
+        assertEq(
+            lockup.aggregateBalance(dai),
+            depositedAmountsSum - refundedAmountsSum - withdrawnAmountsSum,
+            unicode"Invariant violation: Σ deposited amounts - Σ refunded amounts - Σ withdrawn amounts != aggregate balance"
+        );
 
         assertGe(
             contractBalance,

@@ -60,6 +60,13 @@ interface ISablierLockupBase is
     /// @param revertData The error data returned by the reverted withdraw.
     event InvalidWithdrawalInWithdrawMultiple(uint256 streamId, bytes revertData);
 
+    /// @notice Emitted when the contract admin recovers the surplus amount of token.
+    /// @param admin The address of the contract admin.
+    /// @param token The address of the ERC-20 token the surplus amount has been recovered for.
+    /// @param to The address the surplus amount has been sent to.
+    /// @param surplus The amount of surplus tokens recovered.
+    event Recover(address indexed admin, IERC20 indexed token, address to, uint256 surplus);
+
     /// @notice Emitted when a sender gives up the right to cancel a stream.
     /// @param streamId The ID of the stream.
     event RenounceLockupStream(uint256 indexed streamId);
@@ -82,6 +89,10 @@ interface ISablierLockupBase is
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Retrieves the sum of balances of all streams.
+    /// @param token The ERC-20 token for the query.
+    function aggregateBalance(IERC20 token) external view returns (uint256);
 
     /// @notice Retrieves the amount deposited in the stream, denoted in units of the token's decimals.
     /// @dev Reverts if `streamId` references a null stream.
@@ -278,6 +289,22 @@ interface ISablierLockupBase is
     /// Notes:
     /// - If the admin is a contract, it must be able to receive native token payments, e.g., ETH for Ethereum Mainnet.
     function collectFees() external;
+
+    /// @notice Recover the surplus amount of tokens.
+    ///
+    /// @dev Emits a {Recover} event.
+    ///
+    /// Notes:
+    /// - The surplus amount is defined as the difference between the total balance of the contract for the provided
+    /// ERC-20 token and the sum of balances of all streams created using the same ERC-20 token.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the contract admin.
+    /// - The surplus amount must be greater than zero.
+    ///
+    /// @param token The contract address of the ERC-20 token to recover for.
+    /// @param to The address to send the surplus amount.
+    function recover(IERC20 token, address to) external;
 
     /// @notice Removes the right of the stream's sender to cancel the stream.
     ///

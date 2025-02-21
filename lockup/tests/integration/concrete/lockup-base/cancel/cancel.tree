@@ -47,6 +47,7 @@ Cancel_Integration_Concrete_Test
                               ├── it should mark the stream as canceled
                               ├── it should make the stream as non cancelable
                               ├── it should update the refunded amount
+                              ├── it should update the aggregate balance
                               ├── it should refund the sender
                               ├── it should make Sablier run the recipient hook
                               ├── it should not burn the NFT

@@ -227,6 +227,8 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         whenNonRevertingRecipient
         whenRecipientReturnsValidSelector
     {
+        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+
         // It should refund the sender.
         uint128 senderAmount = lockup.refundableAmountOf(ids.recipientGoodStream);
         expectCallToTransfer({ to: users.sender, value: senderAmount });
@@ -268,6 +270,11 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         uint128 actualRefundedAmount = lockup.getRefundedAmount(ids.recipientGoodStream);
         uint128 expectedRefundedAmount = senderAmount;
         assertEq(actualRefundedAmount, expectedRefundedAmount, "refundedAmount");
+
+        // It should update the aggrate balance.
+        uint256 actualAggregateBalance = lockup.aggregateBalance(dai);
+        uint256 expectedAggregateBalance = previousAggregateAmount - senderAmount;
+        assertEq(actualAggregateBalance, expectedAggregateBalance, "aggregateBalance");
 
         // It should not burn the NFT.
         address actualNFTOwner = lockup.ownerOf({ tokenId: ids.recipientGoodStream });

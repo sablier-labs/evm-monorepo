@@ -92,6 +92,8 @@ contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
         // Bound the withdraw amount.
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
+        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+
         // Make the Recipient the caller.
         resetPrank({ msgSender: users.recipient });
 
@@ -132,5 +134,8 @@ contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
         vars.actualWithdrawnAmount = lockup.getWithdrawnAmount(vars.streamId);
         vars.expectedWithdrawnAmount = vars.withdrawAmount;
         assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "withdrawnAmount");
+
+        // It should update the aggrate balance.
+        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - vars.actualWithdrawnAmount, "aggregateBalance");
     }
 }

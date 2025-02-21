@@ -75,7 +75,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenCliffTimeZero
     {
         uint40 cliffTime = 0;
-        _testCreateWithTimestampsLL(address(dai), cliffTime);
+        _testCreateWithTimestampsLL(dai, cliffTime);
     }
 
     function test_RevertWhen_StartTimeNotLessThanCliffTime()
@@ -166,7 +166,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenCliffTimeLessThanEndTime
         whenUnlockAmountsSumNotExceedDepositAmount
     {
-        _testCreateWithTimestampsLL(address(usdt), _defaultParams.cliffTime);
+        _testCreateWithTimestampsLL(IERC20(address(usdt)), _defaultParams.cliffTime);
     }
 
     function test_WhenTokenNotMissERC20ReturnValue()
@@ -183,28 +183,25 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenCliffTimeLessThanEndTime
         whenUnlockAmountsSumNotExceedDepositAmount
     {
-        _testCreateWithTimestampsLL(address(dai), _defaultParams.cliffTime);
+        _testCreateWithTimestampsLL(dai, _defaultParams.cliffTime);
     }
 
     /// @dev Shared logic between {test_WhenStartTimeLessThanEndTime}, {test_WhenTokenMissesERC20ReturnValue} and
     /// {test_WhenTokenNotMissERC20ReturnValue}.
-    function _testCreateWithTimestampsLL(address token, uint40 cliffTime) private {
+    function _testCreateWithTimestampsLL(IERC20 token, uint40 cliffTime) private {
+        uint256 previousAggregateAmount = lockup.aggregateBalance(token);
+
         // Make the Sender the stream's funder.
         address funder = users.sender;
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Set the default parameters.
-        _defaultParams.createWithTimestamps.token = IERC20(token);
+        _defaultParams.createWithTimestamps.token = token;
         _defaultParams.unlockAmounts.cliff = cliffTime == 0 ? 0 : _defaultParams.unlockAmounts.cliff;
         _defaultParams.cliffTime = cliffTime;
 
         // It should perform the ERC-20 transfers.
-        expectCallToTransferFrom({
-            token: IERC20(token),
-            from: funder,
-            to: address(lockup),
-            value: defaults.DEPOSIT_AMOUNT()
-        });
+        expectCallToTransferFrom({ token: token, from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
         // It should emit {MetadataUpdate} and {CreateLockupLinearStream} events.
         vm.expectEmit({ emitter: address(lockup) });
@@ -212,7 +209,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupLinearStream({
             streamId: expectedStreamId,
-            commonParams: defaults.lockupCreateEvent(IERC20(token)),
+            commonParams: defaults.lockupCreateEvent(token),
             cliffTime: cliffTime,
             unlockAmounts: _defaultParams.unlockAmounts
         });
@@ -224,7 +221,10 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         assertEqStream(streamId);
         assertEq(lockup.getCliffTime(streamId), cliffTime, "cliffTime");
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
-        assertEq(lockup.getUnderlyingToken(streamId), IERC20(token));
+        assertEq(lockup.getUnderlyingToken(streamId), token);
         assertEq(lockup.getUnlockAmounts(streamId), _defaultParams.unlockAmounts);
+        assertEq(
+            lockup.aggregateBalance(token), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateBalance"
+        );
     }
 }

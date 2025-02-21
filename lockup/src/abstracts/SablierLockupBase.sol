@@ -32,6 +32,9 @@ abstract contract SablierLockupBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierLockupBase
+    mapping(IERC20 token => uint256 amount) public override aggregateBalance;
+
+    /// @inheritdoc ISablierLockupBase
     uint256 public override nextStreamId;
 
     /// @inheritdoc ISablierLockupBase
@@ -360,6 +363,21 @@ abstract contract SablierLockupBase is
     }
 
     /// @inheritdoc ISablierLockupBase
+    function recover(IERC20 token, address to) external override onlyAdmin {
+        uint256 surplus = token.balanceOf(address(this)) - aggregateBalance[token];
+
+        // Check: there is a surplus to recover.
+        if (surplus == 0) {
+            revert Errors.SablierLockupBase_SurplusZero(address(token));
+        }
+
+        // Interaction: transfer the surplus to the provided address.
+        token.safeTransfer(to, surplus);
+
+        emit Recover(msg.sender, token, to, surplus);
+    }
+
+    /// @inheritdoc ISablierLockupBase
     function renounce(uint256 streamId) public payable override noDelegateCall notNull(streamId) {
         // Check: the stream is not cold.
         Lockup.Status status = _statusOf(streamId);
@@ -651,6 +669,11 @@ abstract contract SablierLockupBase is
         // Retrieve the ERC-20 token from storage.
         IERC20 token = _streams[streamId].token;
 
+        unchecked {
+            // Effect: update the aggregate balance.
+            aggregateBalance[token] -= senderAmount;
+        }
+
         // Interaction: refund the sender.
         token.safeTransfer({ to: sender, value: senderAmount });
 
@@ -730,6 +753,11 @@ abstract contract SablierLockupBase is
 
         // Retrieve the ERC-20 token from storage.
         IERC20 token = _streams[streamId].token;
+
+        unchecked {
+            // Effect: update the aggregate balance.
+            aggregateBalance[token] -= amount;
+        }
 
         // Interaction: perform the ERC-20 transfer.
         token.safeTransfer({ to: to, value: amount });

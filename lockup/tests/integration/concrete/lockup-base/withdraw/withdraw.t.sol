@@ -397,6 +397,8 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         whenNonRevertingRecipient
         whenHookReturnsValidSelector
     {
+        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+
         // Halve the withdraw amount so that the recipient can re-entry and make another withdrawal.
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT() / 2;
 
@@ -425,6 +427,11 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ids.recipientReentrantStream);
         uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // It should update the aggrate balance.
+        uint256 actualAggregateBalance = lockup.aggregateBalance(dai);
+        uint256 expectedAggregateBalance = previousAggregateAmount - defaults.WITHDRAW_AMOUNT();
+        assertEq(actualAggregateBalance, expectedAggregateBalance, "aggregateBalance");
     }
 
     function test_WhenNoReentrancy()
@@ -443,6 +450,8 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         whenNonRevertingRecipient
         whenHookReturnsValidSelector
     {
+        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+
         // Set the withdraw amount to the default amount.
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
 
@@ -481,5 +490,10 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ids.recipientGoodStream);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // It should update the aggrate balance.
+        uint256 actualAggregateBalance = lockup.aggregateBalance(dai);
+        uint256 expectedAggregateBalance = previousAggregateAmount - defaults.WITHDRAW_AMOUNT();
+        assertEq(actualAggregateBalance, expectedAggregateBalance, "aggregateBalance");
     }
 }

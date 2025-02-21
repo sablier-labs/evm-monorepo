@@ -61,5 +61,6 @@ Withdraw_Integration_Concrete_Test
                                        └── when no reentrancy
                                           ├── it should make the withdrawal
                                           ├── it should update the withdrawn amount
+                                          ├── it should update the aggregate balance
                                           ├── it should make Sablier run the recipient hook
                                           └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events

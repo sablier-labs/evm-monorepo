@@ -126,6 +126,8 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         // If shape exceeds 32 bytes, use the default value.
         if (bytes(params.shape).length > 32) params.shape = defaults.SHAPE();
 
+        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+
         // Calculate the fee amounts and the deposit amount.
         Vars memory vars;
 
@@ -186,5 +188,13 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         vars.actualNextStreamId = lockup.nextStreamId();
         vars.expectedNextStreamId = vars.actualStreamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
+
+        // Assert that the NFT has been minted.
+        vars.actualNFTOwner = lockup.ownerOf({ tokenId: vars.actualStreamId });
+        vars.expectedNFTOwner = params.recipient;
+        assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
+
+        // Assert that the aggragate balance has been updated.
+        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount + params.depositAmount);
     }
 }
