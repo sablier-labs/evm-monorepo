@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
@@ -9,7 +10,7 @@ import { Integration_Test } from "../../../../Integration.t.sol";
 abstract contract Clawback_Integration_Test is Integration_Test {
     function test_RevertWhen_CallerNotCampaignOwner() external {
         resetPrank({ msgSender: users.eve });
-        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.campaignOwner, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.CallerNotAdmin.selector, users.campaignOwner, users.eve));
         merkleBase.clawback({ to: users.eve, amount: 1 });
     }
 

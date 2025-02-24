@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { IAdminable } from "@sablier/lockup/src/interfaces/IAdminable.sol";
+import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
 
 import { ISablierMerkleBase } from "../interfaces/ISablierMerkleBase.sol";
 import { MerkleFactory } from "../types/DataTypes.sol";

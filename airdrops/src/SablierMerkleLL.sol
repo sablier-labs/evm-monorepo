@@ -3,8 +3,8 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { ud60x18, ZERO } from "@prb/math/src/UD60x18.sol";
-import { Broker, Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
+import { ud60x18 } from "@prb/math/src/UD60x18.sol";
+import { Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
@@ -111,13 +111,12 @@ contract SablierMerkleLL is
             Lockup.CreateWithTimestamps({
                 sender: admin,
                 recipient: recipient,
-                totalAmount: amount,
+                depositAmount: amount,
                 token: TOKEN,
                 cancelable: STREAM_CANCELABLE,
                 transferable: STREAM_TRANSFERABLE,
                 timestamps: timestamps,
-                shape: shape,
-                broker: Broker({ account: address(0), fee: ZERO })
+                shape: shape
             }),
             unlockAmounts,
             cliffTime

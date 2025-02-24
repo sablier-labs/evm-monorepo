@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { Adminable } from "@sablier/lockup/src/abstracts/Adminable.sol";
+import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
 
 import { ISablierMerkleBase } from "../interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleFactoryBase } from "../interfaces/ISablierMerkleFactoryBase.sol";

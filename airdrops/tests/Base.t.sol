@@ -5,6 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
+import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 import { LockupNFTDescriptor } from "@sablier/lockup/src/LockupNFTDescriptor.sol";
 import { SablierLockup } from "@sablier/lockup/src/SablierLockup.sol";
@@ -28,7 +29,6 @@ import { SablierMerkleLL } from "src/SablierMerkleLL.sol";
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
 import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
-import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Constants } from "./utils/Constants.sol";
 import { DeployOptimized } from "./utils/DeployOptimized.sol";
@@ -50,7 +50,6 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ERC20Mock internal dai;
     ISablierLockup internal lockup;
     ISablierMerkleFactoryInstant internal merkleFactoryInstant;
     ISablierMerkleFactoryLL internal merkleFactoryLL;
@@ -65,12 +64,8 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public virtual {
-        // Deploy the base test contracts.
-        dai = new ERC20Mock("Dai Stablecoin", "DAI");
-
-        // Label the base test contracts.
-        vm.label({ account: address(dai), newLabel: "DAI" });
+    function setUp() public virtual override {
+        EvmUtilsBase.setUp();
 
         // Create the protocol admin.
         users.admin = payable(makeAddr({ name: "Admin" }));
@@ -83,15 +78,21 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
         // Deploy the Merkle Factory contracts.
         deployMerkleFactoriesConditionally();
 
+        address[] memory spenders = new address[](4);
+        spenders[0] = address(merkleFactoryInstant);
+        spenders[1] = address(merkleFactoryLL);
+        spenders[2] = address(merkleFactoryLT);
+        spenders[3] = address(merkleFactoryVCA);
+
         // Create users for testing.
-        users.campaignOwner = createUser("CampaignOwner");
-        users.eve = createUser("Eve");
-        users.recipient = createUser("Recipient");
-        users.recipient1 = createUser("Recipient1");
-        users.recipient2 = createUser("Recipient2");
-        users.recipient3 = createUser("Recipient3");
-        users.recipient4 = createUser("Recipient4");
-        users.sender = createUser("Sender");
+        users.campaignOwner = createUser("CampaignOwner", spenders);
+        users.eve = createUser("Eve", spenders);
+        users.recipient = createUser("Recipient", spenders);
+        users.recipient1 = createUser("Recipient1", spenders);
+        users.recipient2 = createUser("Recipient2", spenders);
+        users.recipient3 = createUser("Recipient3", spenders);
+        users.recipient4 = createUser("Recipient4", spenders);
+        users.sender = createUser("Sender", spenders);
 
         // Initialize the Merkle tree.
         initMerkleTree();
@@ -102,31 +103,13 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
         // Set sender as the default caller for the tests.
         resetPrank({ msgSender: users.sender });
 
-        // Warp to July 1, 2024 at 00:00 UTC to provide a more realistic testing environment.
-        vm.warp({ newTimestamp: JULY_1_2024 });
+        // Warp to Feb 1, 2025 at 00:00 UTC to provide a more realistic testing environment.
+        vm.warp({ newTimestamp: FEB_1_2025 });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Approves all contracts to spend tokens from the address passed.
-    function approveFactories(address from) internal {
-        resetPrank({ msgSender: from });
-        dai.approve({ spender: address(merkleFactoryInstant), value: MAX_UINT256 });
-        dai.approve({ spender: address(merkleFactoryLL), value: MAX_UINT256 });
-        dai.approve({ spender: address(merkleFactoryLT), value: MAX_UINT256 });
-        dai.approve({ spender: address(merkleFactoryVCA), value: MAX_UINT256 });
-    }
-
-    /// @dev Generates a user, labels its address, funds it with test tokens, and approves the protocol contracts.
-    function createUser(string memory name) internal returns (address payable) {
-        address payable user = payable(makeAddr(name));
-        vm.deal({ account: user, newBalance: 100 ether });
-        deal({ token: address(dai), to: user, give: 1_000_000e18 });
-        approveFactories({ from: user });
-        return user;
-    }
 
     /// @dev Deploys the Merkle Factory contracts conditionally based on the test profile.
     function deployMerkleFactoriesConditionally() internal {
@@ -180,25 +163,6 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
         LEAVES[3] = MerkleBuilder.computeLeaf(INDEX4, users.recipient4, CLAIM_AMOUNT);
         MerkleBuilder.sortLeaves(LEAVES);
         MERKLE_ROOT = getRoot(LEAVES.toBytes32());
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                CALL EXPECTS - IERC20
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Expects a call to {IERC20.transfer}.
-    function expectCallToTransfer(address to, uint256 value) internal {
-        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transfer, (to, value)) });
-    }
-
-    /// @dev Expects a call to {IERC20.transfer}.
-    function expectCallToTransfer(IERC20 token, address to, uint256 value) internal {
-        vm.expectCall({ callee: address(token), data: abi.encodeCall(IERC20.transfer, (to, value)) });
-    }
-
-    /// @dev Expects a call to {IERC20.transferFrom}.
-    function expectCallToTransferFrom(address from, address to, uint256 value) internal {
-        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transferFrom, (from, to, value)) });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

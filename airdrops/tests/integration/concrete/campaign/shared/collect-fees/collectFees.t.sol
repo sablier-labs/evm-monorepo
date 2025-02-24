@@ -37,26 +37,26 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
     {
         // Transfer the admin to a contract that implements the receive function.
         resetPrank({ msgSender: users.admin });
-        merkleFactoryBase.transferAdmin(address(contractWithoutReceiveEth));
+        merkleFactoryBase.transferAdmin(address(contractWithoutReceive));
 
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierMerkleBase_FeeTransferFail.selector,
-                address(contractWithoutReceiveEth),
+                address(contractWithoutReceive),
                 address(merkleBase).balance
             )
         );
 
         resetPrank(address(merkleFactoryBase));
-        merkleBase.collectFees(address(contractWithoutReceiveEth));
+        merkleBase.collectFees(address(contractWithoutReceive));
     }
 
     function test_WhenFactoryAdminImplementsReceiveFunction() external whenCallerFactory whenFactoryAdminIsContract {
         // Transfer the admin to a contract that implements the receive function.
         resetPrank({ msgSender: users.admin });
-        merkleFactoryBase.transferAdmin(address(contractWithoutReceiveEth));
+        merkleFactoryBase.transferAdmin(address(contractWithoutReceive));
 
-        _test_CollectFees(address(contractWithReceiveEth));
+        _test_CollectFees(address(contractWithReceive));
     }
 
     function _test_CollectFees(address admin) private {

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
+import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
+
 import { SablierMerkleFactoryInstant } from "../src/SablierMerkleFactoryInstant.sol";
 import { SablierMerkleFactoryLL } from "../src/SablierMerkleFactoryLL.sol";
 import { SablierMerkleFactoryLT } from "../src/SablierMerkleFactoryLT.sol";
 import { SablierMerkleFactoryVCA } from "../src/SablierMerkleFactoryVCA.sol";
-
-import { BaseScript } from "./Base.s.sol";
 
 /// @notice Deploys Merkle factory contracts.
 contract DeployMerkleFactories is BaseScript {
@@ -21,10 +21,9 @@ contract DeployMerkleFactories is BaseScript {
             SablierMerkleFactoryVCA merkleFactoryVCA
         )
     {
-        address initialAdmin = adminMap[block.chainid];
-        merkleFactoryInstant = new SablierMerkleFactoryInstant(initialAdmin, initialMinimumFee);
-        merkleFactoryLL = new SablierMerkleFactoryLL(initialAdmin, initialMinimumFee);
-        merkleFactoryLT = new SablierMerkleFactoryLT(initialAdmin, initialMinimumFee);
-        merkleFactoryVCA = new SablierMerkleFactoryVCA(initialAdmin, initialMinimumFee);
+        merkleFactoryInstant = new SablierMerkleFactoryInstant(protocolAdmin(), initialMinimumFee);
+        merkleFactoryLL = new SablierMerkleFactoryLL(protocolAdmin(), initialMinimumFee);
+        merkleFactoryLT = new SablierMerkleFactoryLT(protocolAdmin(), initialMinimumFee);
+        merkleFactoryVCA = new SablierMerkleFactoryVCA(protocolAdmin(), initialMinimumFee);
     }
 }
