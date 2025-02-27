@@ -19,8 +19,8 @@ typechain-types
 *.log
 .DS_Store
 .pnp.*
+deployments.md
 lcov.info
 package-lock.json
 pnpm-lock.yaml
-script/protocol/*.md
 yarn.lock
