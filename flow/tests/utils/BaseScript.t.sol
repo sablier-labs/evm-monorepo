@@ -2,14 +2,10 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { BaseScript } from "@sablier/evm-utils/script/Base.s.sol";
+import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
 import { StdAssertions } from "forge-std/src/StdAssertions.sol";
 
-contract BaseScriptMock is BaseScript {
-    function getSalt() public view returns (bytes32) {
-        return SALT;
-    }
-}
+contract BaseScriptMock is BaseScript { }
 
 contract BaseScript_Test is StdAssertions {
     using Strings for uint256;
@@ -25,7 +21,7 @@ contract BaseScript_Test is StdAssertions {
         string memory version = "1.1.1";
         string memory salt = string.concat("ChainID ", chainId, ", Version ", version);
 
-        bytes32 actualSalt = baseScript.getSalt();
+        bytes32 actualSalt = baseScript.SALT();
         bytes32 expectedSalt = bytes32(abi.encodePacked(salt));
         assertEq(actualSalt, expectedSalt, "CREATE2 salt mismatch");
     }

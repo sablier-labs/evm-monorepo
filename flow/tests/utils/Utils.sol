@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
-import { CommonBase } from "@sablier/evm-utils/tests/Base.sol";
+import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
 import { SafeCastLib } from "solady/src/utils/SafeCastLib.sol";
 import { Constants } from "./Constants.sol";
 
-abstract contract Utils is CommonBase, Constants, PRBMathUtils {
+abstract contract Utils is Constants, EvmUtilsBase, PRBMathUtils {
     using SafeCastLib for uint256;
 
     /// @dev Bound deposit amount to avoid overflow.

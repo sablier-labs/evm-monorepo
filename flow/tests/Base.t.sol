@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { CommonBase } from "@sablier/evm-utils/tests/Base.sol";
-import { ERC20Mock } from "@sablier/evm-utils/tests/mocks/erc20/ERC20Mock.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ERC20Mock } from "@sablier/evm-utils/src/mocks/erc20/ERC20Mock.sol";
+import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { FlowNFTDescriptor } from "src/FlowNFTDescriptor.sol";
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { SablierFlow } from "src/SablierFlow.sol";
@@ -23,8 +24,6 @@ abstract contract Base_Test is Assertions, Modifiers {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ERC20Mock internal tokenWithoutDecimals;
-
     ISablierFlow internal flow;
     FlowNFTDescriptor internal nftDescriptor;
 
@@ -33,8 +32,7 @@ abstract contract Base_Test is Assertions, Modifiers {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        // Set up the common base.
-        CommonBase.setUp();
+        EvmUtilsBase.setUp();
 
         users.admin = payable(makeAddr("admin"));
 
@@ -49,7 +47,7 @@ abstract contract Base_Test is Assertions, Modifiers {
         vm.label({ account: address(flow), newLabel: "Flow" });
 
         // Deploy the token without decimals and push it to the tokens array from CommonBase.
-        tokenWithoutDecimals = new ERC20Mock("Token Without Decimals", "TWD", 0);
+        IERC20 tokenWithoutDecimals = new ERC20Mock("Token Without Decimals", "TWD", 0);
         tokens.push(tokenWithoutDecimals);
 
         address[] memory spenders = new address[](1);
