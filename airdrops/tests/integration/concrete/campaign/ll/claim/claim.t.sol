@@ -37,7 +37,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         );
 
         // Claim the airdrop.
-        merkleLL.claim{ value: MINIMUM_FEE }({
+        merkleLL.claim{ value: MINIMUM_FEE_IN_WEI }({
             index: 1,
             recipient: users.recipient1,
             amount: CLAIM_AMOUNT,
@@ -95,10 +95,10 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, expectedStreamId);
 
         expectCallToTransferFrom({ from: address(merkleLL), to: address(lockup), value: CLAIM_AMOUNT });
-        expectCallToClaimWithMsgValue(address(merkleLL), MINIMUM_FEE);
+        expectCallToClaimWithMsgValue(address(merkleLL), MINIMUM_FEE_IN_WEI);
 
         // Claim the airstream.
-        merkleLL.claim{ value: MINIMUM_FEE }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
+        merkleLL.claim{ value: MINIMUM_FEE_IN_WEI }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
 
         uint128 expectedCliffAmount = cliffTime > 0 ? CLIFF_AMOUNT : 0;
 
@@ -124,6 +124,6 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         expectedClaimedStreamIds[0] = expectedStreamId;
         assertEq(merkleLL.claimedStreams(users.recipient1), expectedClaimedStreamIds, "claimed streams");
 
-        assertEq(address(merkleLL).balance, previousFeeAccrued + MINIMUM_FEE, "fee collected");
+        assertEq(address(merkleLL).balance, previousFeeAccrued + MINIMUM_FEE_IN_WEI, "fee collected");
     }
 }

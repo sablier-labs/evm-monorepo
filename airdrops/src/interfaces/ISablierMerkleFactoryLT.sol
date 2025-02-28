@@ -19,7 +19,8 @@ interface ISablierMerkleFactoryLT is ISablierMerkleFactoryBase {
         uint256 aggregateAmount,
         uint256 recipientCount,
         uint256 totalDuration,
-        uint256 fee
+        uint256 fee,
+        address oracle
     );
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -45,7 +46,7 @@ interface ISablierMerkleFactoryLT is ISablierMerkleFactoryBase {
     ///
     /// Notes:
     /// - The MerkleLT contract is created with CREATE2.
-    /// - The immutable fee will be set to the minimum value unless a custom fee is set.
+    /// - The immutable fee will be set to the minimum fee value unless a custom fee is set.
     /// - A value of zero for `params.expiration` means the campaign does not expire.
     ///
     /// @param params Struct encapsulating the input parameters, which are documented in {DataTypes}.

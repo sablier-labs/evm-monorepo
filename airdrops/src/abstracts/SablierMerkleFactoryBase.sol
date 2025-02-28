@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
 
 import { ISablierMerkleBase } from "../interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleFactoryBase } from "../interfaces/ISablierMerkleFactoryBase.sol";
+import { Errors } from "../libraries/Errors.sol";
 import { MerkleFactory } from "../types/DataTypes.sol";
 
 /// @title SablierMerkleFactoryBase
@@ -18,6 +20,12 @@ abstract contract SablierMerkleFactoryBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleFactoryBase
+    uint256 public constant override MAX_FEE = 100e8;
+
+    /// @inheritdoc ISablierMerkleFactoryBase
+    address public override oracle;
+
+    /// @inheritdoc ISablierMerkleFactoryBase
     uint256 public override minimumFee;
 
     /// @dev A mapping of custom fees mapped by campaign creator addresses.
@@ -29,18 +37,18 @@ abstract contract SablierMerkleFactoryBase is
 
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialMinimumFee The initial minimum fee charged for claiming an airdrop.
-    constructor(address initialAdmin, uint256 initialMinimumFee) Adminable(initialAdmin) {
+    /// @param initialOracle The initial oracle contract address.
+    constructor(address initialAdmin, uint256 initialMinimumFee, address initialOracle) Adminable(initialAdmin) {
         minimumFee = initialMinimumFee;
+
+        if (initialOracle != address(0)) {
+            _setOracle(initialOracle);
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierMerkleFactoryBase
-    function getCustomFee(address campaignCreator) external view override returns (MerkleFactory.CustomFee memory) {
-        return _customFees[campaignCreator];
-    }
 
     /// @inheritdoc ISablierMerkleFactoryBase
     function getFee(address campaignCreator) external view returns (uint256) {
@@ -77,6 +85,11 @@ abstract contract SablierMerkleFactoryBase is
             customFeeByUser.enabled = true;
         }
 
+        // Check: the new fee is not greater than `MAX_FEE`.
+        if (newFee > MAX_FEE) {
+            revert Errors.SablierMerkleFactoryBase_MaximumFeeExceeded(newFee, MAX_FEE);
+        }
+
         // Effect: update the custom fee for the given campaign creator.
         customFeeByUser.fee = newFee;
 
@@ -86,10 +99,41 @@ abstract contract SablierMerkleFactoryBase is
 
     /// @inheritdoc ISablierMerkleFactoryBase
     function setMinimumFee(uint256 newFee) external override onlyAdmin {
+        // Check: the new fee is not greater than `MAX_FEE`.
+        if (newFee > MAX_FEE) {
+            revert Errors.SablierMerkleFactoryBase_MaximumFeeExceeded(newFee, MAX_FEE);
+        }
+
         // Effect: update the minimum fee.
         minimumFee = newFee;
 
+        // Log the update.
         emit SetMinimumFee({ admin: msg.sender, minimumFee: newFee });
+    }
+
+    /// @inheritdoc ISablierMerkleFactoryBase
+    function setOracle(address newOracle) external override onlyAdmin {
+        address currentOracle = oracle;
+
+        _setOracle(newOracle);
+
+        // Log the update.
+        emit SetOracle({ admin: msg.sender, newOracle: newOracle, previousOracle: currentOracle });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                          PRIVATE NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev See the documentation for the user-facing functions that call this internal function.
+    function _setOracle(address newOracle) private {
+        // Check: oracle has implemented `latestRoundData` function.
+        if (newOracle != address(0)) {
+            AggregatorV3Interface(newOracle).latestRoundData();
+        }
+
+        // Effect: update the oracle.
+        oracle = newOracle;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

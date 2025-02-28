@@ -11,6 +11,9 @@ library Errors {
     /// @notice Thrown when caller is not the factory contract.
     error SablierMerkleBase_CallerNotFactory(address factory, address caller);
 
+    /// @notice Thrown when caller is not the factory admin.
+    error SablierMerkleBase_CallerNotFactoryAdmin(address factoryAdmin, address caller);
+
     /// @notice Thrown when trying to claim after the campaign has expired.
     error SablierMerkleBase_CampaignExpired(uint256 blockTimestamp, uint40 expiration);
 
@@ -27,8 +30,18 @@ library Errors {
     /// @notice Thrown when trying to claim with an invalid Merkle proof.
     error SablierMerkleBase_InvalidProof();
 
+    /// @notice Thrown when trying to set a fee that is higher than the current fee.
+    error SablierMerkleBase_NewFeeHigher(uint256 currentFee, uint256 newFee);
+
     /// @notice Thrown when trying to claim the same stream more than once.
     error SablierMerkleBase_StreamClaimed(uint256 index);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            SABLIER-MERKLE-FACTORY-BASE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to set fee to a value that exceeds the maximum fee.
+    error SablierMerkleFactoryBase_MaximumFeeExceeded(uint256 newFee, uint256 maxFee);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-MERKLE-LT

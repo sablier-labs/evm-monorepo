@@ -10,18 +10,18 @@ contract Constructor_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_
         // Make Factory the caller for the constructor test.
         resetPrank(address(merkleFactoryVCA));
 
-        SablierMerkleVCA actualMerkleVCA = new SablierMerkleVCA(merkleVCAConstructorParams(), users.campaignOwner);
+        SablierMerkleVCA constructedVCA = new SablierMerkleVCA(merkleVCAConstructorParams(), users.campaignOwner);
 
-        assertEq(actualMerkleVCA.admin(), users.campaignOwner, "admin");
-        assertEq(actualMerkleVCA.campaignName(), CAMPAIGN_NAME, "campaign name");
-        assertEq(actualMerkleVCA.EXPIRATION(), EXPIRATION, "expiration");
-        assertEq(actualMerkleVCA.FACTORY(), address(merkleFactoryVCA), "factory");
-        assertEq(actualMerkleVCA.MINIMUM_FEE(), MINIMUM_FEE, "minimum fee");
-        assertEq(actualMerkleVCA.ipfsCID(), IPFS_CID, "ipfsCID");
-        assertEq(actualMerkleVCA.MERKLE_ROOT(), MERKLE_ROOT, "merkleRoot");
-        assertEq(actualMerkleVCA.forgoneAmount(), 0, "forgoneAmount");
-        assertEq(actualMerkleVCA.timestamps().start, RANGED_STREAM_START_TIME, "unlock start");
-        assertEq(actualMerkleVCA.timestamps().end, RANGED_STREAM_END_TIME, "unlock end");
-        assertEq(address(actualMerkleVCA.TOKEN()), address(dai), "token");
+        assertEq(constructedVCA.admin(), users.campaignOwner, "admin");
+        assertEq(constructedVCA.campaignName(), CAMPAIGN_NAME, "campaign name");
+        assertEq(constructedVCA.EXPIRATION(), EXPIRATION, "expiration");
+        assertEq(constructedVCA.FACTORY(), address(merkleFactoryVCA), "factory");
+        assertEq(constructedVCA.ipfsCID(), IPFS_CID, "ipfsCID");
+        assertEq(constructedVCA.MERKLE_ROOT(), MERKLE_ROOT, "merkleRoot");
+        assertEq(constructedVCA.minimumFee(), MINIMUM_FEE, "minimum fee");
+        assertEq(constructedVCA.forgoneAmount(), 0, "forgoneAmount");
+        assertEq(constructedVCA.timestamps().start, RANGED_STREAM_START_TIME, "unlock start");
+        assertEq(constructedVCA.timestamps().end, RANGED_STREAM_END_TIME, "unlock end");
+        assertEq(address(constructedVCA.TOKEN()), address(dai), "token");
     }
 }

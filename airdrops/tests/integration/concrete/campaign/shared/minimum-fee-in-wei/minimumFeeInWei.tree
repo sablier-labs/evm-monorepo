@@ -1,0 +1,8 @@
+MinimumFeeInWei_Integration_Test
+├── given oracle address zero
+│  └── it should return zero
+└── given oracle address not zero
+   ├── given minimum fee zero
+   │  └── it should return zero
+   └── given minimum fee not zero
+      └── it should calculate the minimum fee in wei

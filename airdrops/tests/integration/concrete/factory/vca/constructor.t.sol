@@ -7,13 +7,11 @@ import { Integration_Test } from "../../../Integration.t.sol";
 
 contract Constructor_MerkleFactoryVCA_Integration_Test is Integration_Test {
     function test_Constructor() external {
-        SablierMerkleFactoryVCA constructedFactoryVCA = new SablierMerkleFactoryVCA(users.admin, MINIMUM_FEE);
+        SablierMerkleFactoryVCA constructedFactoryVCA =
+            new SablierMerkleFactoryVCA(users.admin, MINIMUM_FEE, address(oracle));
 
-        address actualAdmin = constructedFactoryVCA.admin();
-        assertEq(actualAdmin, users.admin, "factory admin");
-
-        uint256 actualMinimumFee = constructedFactoryVCA.minimumFee();
-        uint256 expectedMinimumFee = MINIMUM_FEE;
-        assertEq(actualMinimumFee, expectedMinimumFee, "minimum fee");
+        assertEq(constructedFactoryVCA.admin(), users.admin, "factory admin");
+        assertEq(constructedFactoryVCA.oracle(), address(oracle), "oracle");
+        assertEq(constructedFactoryVCA.minimumFee(), MINIMUM_FEE, "minimum fee");
     }
 }

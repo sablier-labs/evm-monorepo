@@ -14,6 +14,9 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice Emitted when the admin claws back the unclaimed tokens.
     event Clawback(address indexed admin, address indexed to, uint128 amount);
 
+    /// @notice Emitted when the minimum fee is reduced.
+    event LowerMinimumFee(address indexed factoryAdmin, uint256 newFee, uint256 previousFee);
+
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -29,9 +32,9 @@ interface ISablierMerkleBase is IAdminable {
     /// @dev This is an immutable state variable.
     function MERKLE_ROOT() external returns (bytes32);
 
-    /// @notice Retrieves the minimum fee required to claim the airdrop, which is paid in the native token of the chain,
-    /// e.g. ETH for Ethereum Mainnet.
-    function MINIMUM_FEE() external view returns (uint256);
+    /// @notice Retrieves the oracle contract address.
+    /// @dev This is an immutable state variable.
+    function ORACLE() external view returns (address);
 
     /// @notice The ERC-20 token to distribute.
     /// @dev This is an immutable state variable.
@@ -54,6 +57,16 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice The content identifier for indexing the campaign on IPFS.
     function ipfsCID() external view returns (string memory);
 
+    /// @notice Retrieves the minimum fee, in USD (8 decimals), required to claim the airdrop, to be paid in the native
+    /// token of the chain.
+    /// @dev The fee is denominated in Chainlink's 8-decimal format for USD prices, where 1e8 is $1.
+    function minimumFee() external view returns (uint256);
+
+    /// @notice Calculates the minimum fee in wei required to claim the airdrop.
+    /// @dev It uses the `minimumFee` and the oracle price to calculate the fee in wei.
+    /// @return The minimum fee required to claim the airdrop, as an 18-decimal number, where 1e18 is 1 native token.
+    function minimumFeeInWei() external view returns (uint256);
+
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -67,7 +80,7 @@ interface ISablierMerkleBase is IAdminable {
     /// - The campaign must not have expired.
     /// - The stream must not have been claimed already.
     /// - The Merkle proof must be valid.
-    /// - The `msg.value` must not be less than `MINIMUM_FEE`.
+    /// - The `msg.value` must not be less than `minimumFee`.
     ///
     /// @param index The index of the recipient in the Merkle tree.
     /// @param recipient The address of the airdrop recipient.
@@ -97,4 +110,13 @@ interface ISablierMerkleBase is IAdminable {
     /// @param factoryAdmin The address of the `FACTORY` admin.
     /// @return feeAmount The amount of native tokens (e.g., ETH) collected as fees.
     function collectFees(address factoryAdmin) external returns (uint256 feeAmount);
+
+    /// @notice Sets the minimum fee to a new value lower than the current fee.
+    ///
+    /// @dev Emits a {LowerMinimumFee} event.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the `FACTORY` admin.
+    /// - The new fee must be less than the current `minimumFee`.
+    function lowerMinimumFee(uint256 newFee) external;
 }

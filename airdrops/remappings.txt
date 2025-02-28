@@ -1,3 +1,4 @@
+@chainlink/contracts/=node_modules/@chainlink/contracts/
 @openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
 @prb/math/=node_modules/@prb/math/
 @sablier/evm-utils/=node_modules/@sablier/evm-utils/

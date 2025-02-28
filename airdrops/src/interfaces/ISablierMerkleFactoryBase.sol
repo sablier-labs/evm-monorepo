@@ -4,7 +4,6 @@ pragma solidity >=0.8.22;
 import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
 
 import { ISablierMerkleBase } from "../interfaces/ISablierMerkleBase.sol";
-import { MerkleFactory } from "../types/DataTypes.sol";
 
 /// @title ISablierMerkleFactoryBase
 /// @dev Common interface between Merkle factories. All contracts deployed use Merkle proofs for token distribution.
@@ -30,23 +29,29 @@ interface ISablierMerkleFactoryBase is IAdminable {
     /// @notice Emitted when the minimum fee is set by the admin.
     event SetMinimumFee(address indexed admin, uint256 minimumFee);
 
+    /// @notice Emitted when the oracle contract address is set by the admin.
+    event SetOracle(address indexed admin, address newOracle, address previousOracle);
+
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the custom fee struct for the provided campaign creator.
-    /// @dev The fee is denominated in the native token of the chain, e.g., ETH for Ethereum Mainnet.
-    /// @param campaignCreator The address of the campaign creator.
-    function getCustomFee(address campaignCreator) external view returns (MerkleFactory.CustomFee memory);
+    /// @notice Retrieves the maximum value that can be set for claim fee.
+    /// @dev The returned value is 100e8, which is equivalent to $100.
+    function MAX_FEE() external view returns (uint256);
 
     /// @notice Retrieves the fee for the provided campaign creator, using the minimum fee if no custom fee is set.
-    /// @dev The fee is denominated in the native token of the chain, e.g., ETH for Ethereum Mainnet.
+    /// @dev The fee is denominated in Chainlink's 8-decimal format for USD prices, where 1e8 is $1.
     /// @param campaignCreator The address of the campaign creator.
     function getFee(address campaignCreator) external view returns (uint256);
 
-    /// @notice Retrieves the minimum fee charged for claiming an airdrop.
-    /// @dev The fee is denominated in the native token of the chain, e.g., ETH for Ethereum Mainnet.
+    /// @notice Retrieves the minimum fee required to claim the airdrop, paid in the native token of the
+    /// chain, e.g., ETH for Ethereum Mainnet.
+    /// @dev The fee is denominated in Chainlink's 8-decimal format for USD prices, where 1e8 is $1.
     function minimumFee() external view returns (uint256);
+
+    /// @notice Retrieves the oracle contract address.
+    function oracle() external view returns (address);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
@@ -96,6 +101,16 @@ interface ISablierMerkleFactoryBase is IAdminable {
     /// Requirements:
     /// - `msg.sender` must be the admin.
     ///
-    /// @param minimumFee The new minimum fee to be set.
-    function setMinimumFee(uint256 minimumFee) external;
+    /// @param newFee The new minimum fee to be set.
+    function setMinimumFee(uint256 newFee) external;
+
+    /// @notice Sets the oracle contract address.
+    /// @dev Emits a {SetOracle} event.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the admin.
+    /// - If `newOracle` is not the zero address, the call to it must not fail.
+    ///
+    /// @param newOracle The new oracle contract address.
+    function setOracle(address newOracle) external;
 }

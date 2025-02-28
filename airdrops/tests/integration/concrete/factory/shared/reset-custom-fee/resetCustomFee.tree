@@ -3,10 +3,10 @@ ResetCustomFee_Integration_Test
 │  └── it should revert
 └── when caller admin
    ├── when not enabled
-   │  ├── it should return false
-   │  ├── it should return 0 for the custom fee
+   │  ├── it should return minimum fee
    │  └── it should emit a {ResetCustomFee} event
    └── when enabled
       ├── it should disable the custom fee
       ├── it should set the custom fee to 0
+      ├── it should return minimum fee
       └── it should emit a {ResetCustomFee} event

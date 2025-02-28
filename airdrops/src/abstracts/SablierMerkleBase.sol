@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
@@ -34,7 +35,7 @@ abstract contract SablierMerkleBase is
     bytes32 public immutable override MERKLE_ROOT;
 
     /// @inheritdoc ISablierMerkleBase
-    uint256 public immutable override MINIMUM_FEE;
+    address public immutable override ORACLE;
 
     /// @inheritdoc ISablierMerkleBase
     IERC20 public immutable override TOKEN;
@@ -44,6 +45,9 @@ abstract contract SablierMerkleBase is
 
     /// @inheritdoc ISablierMerkleBase
     string public override ipfsCID;
+
+    /// @inheritdoc ISablierMerkleBase
+    uint256 public override minimumFee;
 
     /// @dev Packed booleans that record the history of claims.
     BitMaps.BitMap internal _claimedBitMap;
@@ -67,13 +71,14 @@ abstract contract SablierMerkleBase is
     )
         Adminable(initialAdmin)
     {
-        campaignName = _campaignName;
         EXPIRATION = expiration;
         FACTORY = msg.sender;
-        MINIMUM_FEE = ISablierMerkleFactoryBase(FACTORY).getFee(campaignCreator);
         MERKLE_ROOT = merkleRoot;
+        ORACLE = ISablierMerkleFactoryBase(FACTORY).oracle();
         TOKEN = token;
+        campaignName = _campaignName;
         ipfsCID = _ipfsCID;
+        minimumFee = ISablierMerkleFactoryBase(FACTORY).getFee(campaignCreator);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -93,6 +98,11 @@ abstract contract SablierMerkleBase is
     /// @inheritdoc ISablierMerkleBase
     function hasExpired() public view override returns (bool) {
         return EXPIRATION > 0 && EXPIRATION <= block.timestamp;
+    }
+
+    /// @inheritdoc ISablierMerkleBase
+    function minimumFeeInWei() external view override returns (uint256) {
+        return _minimumFeeInWei();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -115,9 +125,12 @@ abstract contract SablierMerkleBase is
             revert Errors.SablierMerkleBase_CampaignExpired({ blockTimestamp: block.timestamp, expiration: EXPIRATION });
         }
 
-        // Check: `msg.value` is not less than the minimum fee.
-        if (msg.value < MINIMUM_FEE) {
-            revert Errors.SablierMerkleBase_InsufficientFeePayment(msg.value, MINIMUM_FEE);
+        // Calculate the minimum claim fee in wei.
+        uint256 minClaimFee = _minimumFeeInWei();
+
+        // Check: `msg.value` is more than the minimum claim fee.
+        if (msg.value < minClaimFee) {
+            revert Errors.SablierMerkleBase_InsufficientFeePayment(msg.value, minClaimFee);
         }
 
         // Check: the index has not been claimed.
@@ -182,9 +195,72 @@ abstract contract SablierMerkleBase is
         }
     }
 
+    /// @inheritdoc ISablierMerkleBase
+    function lowerMinimumFee(uint256 newFee) external override {
+        // Retrieve the factory admin.
+        address factoryAdmin = ISablierMerkleFactoryBase(FACTORY).admin();
+
+        // Check: the caller is the factory admin.
+        if (msg.sender != factoryAdmin) {
+            revert Errors.SablierMerkleBase_CallerNotFactoryAdmin(factoryAdmin, msg.sender);
+        }
+
+        uint256 currentFee = minimumFee;
+
+        // Check: the new fee is less than the current fee.
+        if (newFee >= currentFee) {
+            revert Errors.SablierMerkleBase_NewFeeHigher(currentFee, newFee);
+        }
+
+        // Effect: update the minimum fee to new value.
+        minimumFee = newFee;
+
+        // Log the event.
+        emit LowerMinimumFee(factoryAdmin, newFee, currentFee);
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Calculates the minimum fee in the native token with 18 decimals.
+    function _minimumFeeInWei() internal view returns (uint256) {
+        // If the oracle is not set, return 0.
+        if (ORACLE == address(0)) {
+            return 0;
+        }
+
+        // If the minimum fee is 0, return 0.
+        if (minimumFee == 0) {
+            return 0;
+        }
+
+        // Retrieve the latest price from the oracle.
+        (, int256 price,,,) = AggregatorV3Interface(ORACLE).latestRoundData();
+
+        // If the price is not greater than 0, return 0.
+        if (price <= 0) {
+            return 0;
+        }
+
+        // Retrieve the oracle's decimals.
+        uint256 oracleDecimals = AggregatorV3Interface(ORACLE).decimals();
+
+        uint256 adjustedPrice;
+
+        if (oracleDecimals == 8) {
+            adjustedPrice = uint256(price);
+        }
+        // If the decimals is not equal to 8, adjust the price to match 8 decimals format and return.
+        else if (oracleDecimals > 8) {
+            adjustedPrice = uint256(price) / 10 ** (oracleDecimals - 8);
+        } else {
+            adjustedPrice = uint256(price) * 10 ** (oracleDecimals - 8);
+        }
+
+        // Multiply it with 1e18 before returning because the price is for 1e18 wei tokens.
+        return (minimumFee * 1e18) / adjustedPrice;
+    }
 
     /// @notice Returns a flag indicating whether the grace period has passed.
     /// @dev The grace period is 7 days after the first claim.

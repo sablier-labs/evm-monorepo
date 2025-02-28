@@ -16,11 +16,13 @@ contract SablierMerkleFactoryLL is ISablierMerkleFactoryLL, SablierMerkleFactory
 
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialMinimumFee The initial minimum fee charged for claiming an airdrop.
+    /// @param initialOracle The initial oracle contract address.
     constructor(
         address initialAdmin,
-        uint256 initialMinimumFee
+        uint256 initialMinimumFee,
+        address initialOracle
     )
-        SablierMerkleFactoryBase(initialAdmin, initialMinimumFee)
+        SablierMerkleFactoryBase(initialAdmin, initialMinimumFee, initialOracle)
     { }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -49,7 +51,8 @@ contract SablierMerkleFactoryLL is ISablierMerkleFactoryLL, SablierMerkleFactory
             params: params,
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount,
-            fee: _getFee(msg.sender)
+            fee: _getFee(msg.sender),
+            oracle: oracle
         });
     }
 }

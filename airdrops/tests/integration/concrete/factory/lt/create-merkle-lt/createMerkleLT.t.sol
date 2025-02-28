@@ -24,6 +24,8 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         external
         givenCampaignNotExists
     {
+        vm.assume(customFee < 100e8);
+
         // Set the custom fee for this test.
         resetPrank(users.admin);
         merkleFactoryLT.setCustomFee(users.campaignOwner, customFee);
@@ -39,17 +41,17 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             totalDuration: TOTAL_DURATION,
-            fee: customFee
+            fee: customFee,
+            oracle: address(oracle)
         });
 
         ISablierMerkleLT actualLT = createMerkleLT(campaignOwner, expiration);
         assertGt(address(actualLT).code.length, 0, "MerkleLT contract not created");
         assertEq(address(actualLT), expectedLT, "MerkleLT contract does not match computed address");
 
-        // It should create the campaign with custom fee.
-        assertEq(actualLT.MINIMUM_FEE(), customFee, "custom fee");
         // It should set the current factory address.
         assertEq(actualLT.FACTORY(), address(merkleFactoryLT), "factory");
+        assertEq(actualLT.minimumFee(), customFee, "minimum fee");
     }
 
     function test_GivenCustomFeeNotSet(address campaignOwner, uint40 expiration) external givenCampaignNotExists {
@@ -62,7 +64,8 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             totalDuration: TOTAL_DURATION,
-            fee: MINIMUM_FEE
+            fee: MINIMUM_FEE,
+            oracle: address(oracle)
         });
 
         ISablierMerkleLT actualLT = createMerkleLT(campaignOwner, expiration);
@@ -72,9 +75,8 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         // It should set the correct shape.
         assertEq(actualLT.shape(), SHAPE, "shape");
 
-        // It should create the campaign with custom fee.
-        assertEq(actualLT.MINIMUM_FEE(), MINIMUM_FEE, "minimum fee");
         // It should set the current factory address.
         assertEq(actualLT.FACTORY(), address(merkleFactoryLT), "factory");
+        assertEq(actualLT.minimumFee(), MINIMUM_FEE, "minimum fee");
     }
 }

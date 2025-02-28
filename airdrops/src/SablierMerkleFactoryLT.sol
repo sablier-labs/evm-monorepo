@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { uUNIT } from "@prb/math/src/UD2x18.sol";
+
 import { SablierMerkleFactoryBase } from "./abstracts/SablierMerkleFactoryBase.sol";
 import { ISablierMerkleFactoryLT } from "./interfaces/ISablierMerkleFactoryLT.sol";
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
@@ -17,11 +18,13 @@ contract SablierMerkleFactoryLT is ISablierMerkleFactoryLT, SablierMerkleFactory
 
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialMinimumFee The initial minimum fee charged for claiming an airdrop.
+    /// @param initialOracle The initial oracle contract address.
     constructor(
         address initialAdmin,
-        uint256 initialMinimumFee
+        uint256 initialMinimumFee,
+        address initialOracle
     )
-        SablierMerkleFactoryBase(initialAdmin, initialMinimumFee)
+        SablierMerkleFactoryBase(initialAdmin, initialMinimumFee, initialOracle)
     { }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -79,7 +82,8 @@ contract SablierMerkleFactoryLT is ISablierMerkleFactoryLT, SablierMerkleFactory
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount,
             totalDuration: totalDuration,
-            fee: _getFee(msg.sender)
+            fee: _getFee(msg.sender),
+            oracle: oracle
         });
     }
 }

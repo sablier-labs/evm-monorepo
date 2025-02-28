@@ -26,7 +26,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 0.25e18));
 
-        merkleLT.claim{ value: MINIMUM_FEE }({
+        merkleLT.claim{ value: MINIMUM_FEE_IN_WEI }({
             index: 1,
             recipient: users.recipient1,
             amount: 10_000e18,
@@ -45,7 +45,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 1.55e18));
 
-        merkleLT.claim{ value: MINIMUM_FEE }({
+        merkleLT.claim{ value: MINIMUM_FEE_IN_WEI }({
             index: 1,
             recipient: users.recipient1,
             amount: 10_000e18,
@@ -80,10 +80,10 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, expectedStreamId);
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: CLAIM_AMOUNT });
-        expectCallToClaimWithMsgValue(address(merkleLT), MINIMUM_FEE);
+        expectCallToClaimWithMsgValue(address(merkleLT), MINIMUM_FEE_IN_WEI);
 
         // Claim the airstream.
-        merkleLT.claim{ value: MINIMUM_FEE }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
+        merkleLT.claim{ value: MINIMUM_FEE_IN_WEI }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
 
         // Assert that the stream has been created successfully.
         assertEq(lockup.getDepositedAmount(expectedStreamId), CLAIM_AMOUNT, "depositedAmount");
@@ -109,6 +109,6 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         expectedClaimedStreamIds[0] = expectedStreamId;
         assertEq(merkleLT.claimedStreams(users.recipient1), expectedClaimedStreamIds, "claimed streams");
 
-        assertEq(address(merkleLT).balance, previousFeeAccrued + MINIMUM_FEE, "fee collected");
+        assertEq(address(merkleLT).balance, previousFeeAccrued + MINIMUM_FEE_IN_WEI, "fee collected");
     }
 }

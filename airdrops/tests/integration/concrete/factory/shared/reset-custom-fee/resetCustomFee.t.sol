@@ -3,7 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
-import { MerkleFactory } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
@@ -22,24 +21,16 @@ abstract contract ResetCustomFee_Integration_Test is Integration_Test {
         // Reset the custom fee.
         merkleFactoryBase.resetCustomFee({ campaignCreator: users.campaignOwner });
 
-        MerkleFactory.CustomFee memory customFee = merkleFactoryBase.getCustomFee(users.campaignOwner);
-
-        // It should return false.
-        assertFalse(customFee.enabled, "custom fee enabled");
-
-        // It should return 0 for the custom fee.
-        assertEq(customFee.fee, 0, "custom fee");
+        // It should return the minimum fee.
+        assertEq(merkleFactoryBase.getFee(users.campaignOwner), MINIMUM_FEE, "custom fee");
     }
 
     function test_WhenEnabled() external whenCallerAdmin {
+        uint256 customFee = 0.5e8;
         // Set the custom fee.
-        merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: 1 ether });
+        merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: customFee });
 
-        // Check that its enabled.
-        MerkleFactory.CustomFee memory customFee = merkleFactoryBase.getCustomFee(users.campaignOwner);
-
-        assertTrue(customFee.enabled, "custom fee not enabled");
-        assertEq(customFee.fee, 1 ether, "custom fee");
+        assertEq(merkleFactoryBase.getFee(users.campaignOwner), customFee, "custom fee");
 
         // It should emit a {ResetCustomFee} event.
         vm.expectEmit({ emitter: address(merkleFactoryBase) });
@@ -48,12 +39,6 @@ abstract contract ResetCustomFee_Integration_Test is Integration_Test {
         // Reset the custom fee.
         merkleFactoryBase.resetCustomFee({ campaignCreator: users.campaignOwner });
 
-        customFee = merkleFactoryBase.getCustomFee(users.campaignOwner);
-
-        // It should disable the custom fee
-        assertFalse(customFee.enabled, "custom fee enabled");
-
-        // It should set the custom fee to 0
-        assertEq(customFee.fee, 0, "custom fee");
+        assertEq(merkleFactoryBase.getFee(users.campaignOwner), MINIMUM_FEE, "fee");
     }
 }

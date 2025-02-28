@@ -19,6 +19,10 @@ abstract contract Modifiers is EvmUtilsBase {
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier whenCallerFactoryAdmin() {
+        _;
+    }
+
     modifier givenCampaignNotExists() {
         _;
     }
@@ -27,7 +31,15 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier givenCustomFeeNotSet() {
+        _;
+    }
+
     modifier givenMsgValueNotLessThanFee() {
+        _;
+    }
+
+    modifier givenPriceFeedAddressNotZero() {
         _;
     }
 
@@ -84,6 +96,18 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenMerkleProofValid() {
+        _;
+    }
+
+    modifier whenNewFeeLower() {
+        _;
+    }
+
+    modifier whenNewFeeDoesNotExceedTheMaximumFee() {
+        _;
+    }
+
+    modifier whenNewOracleNotZeroAddress() {
         _;
     }
 

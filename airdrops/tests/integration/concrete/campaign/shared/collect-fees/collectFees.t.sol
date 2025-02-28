@@ -69,6 +69,6 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
         // It should set the ETH balance to 0.
         assertEq(address(merkleBase).balance, 0, "merkle lockup ETH balance");
         // It should transfer fee collected in ETH to the factory admin.
-        assertEq(admin.balance, initialAdminBalance + MINIMUM_FEE, "admin ETH balance");
+        assertEq(admin.balance, initialAdminBalance + MINIMUM_FEE_IN_WEI, "admin ETH balance");
     }
 }

@@ -3,9 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
-import { MerkleFactory } from "src/types/DataTypes.sol";
+import { Errors } from "src/libraries/Errors.sol";
 
-import { Integration_Test } from "../../../../Integration.t.sol";
+import { Integration_Test } from "./../../../../Integration.t.sol";
 
 abstract contract SetCustomFee_Integration_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
@@ -14,52 +14,62 @@ abstract contract SetCustomFee_Integration_Test is Integration_Test {
         merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: 0 });
     }
 
+    function test_RevertWhen_NewFeeExceedsTheMaximumFee() external whenCallerAdmin {
+        resetPrank({ msgSender: users.admin });
+        uint256 newFee = MAX_FEE + 1;
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierMerkleFactoryBase_MaximumFeeExceeded.selector, newFee, MAX_FEE)
+        );
+        merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: newFee });
+    }
+
     function test_WhenNotEnabled() external whenCallerAdmin {
+        uint256 newFee = 0;
+
+        assertNotEq(merkleFactoryBase.getFee(users.campaignOwner), newFee, "custom fee");
+
         // It should emit a {SetCustomFee} event.
         vm.expectEmit({ emitter: address(merkleFactoryBase) });
         emit ISablierMerkleFactoryBase.SetCustomFee({
             admin: users.admin,
             campaignCreator: users.campaignOwner,
-            customFee: 0
+            customFee: newFee
         });
 
         // Set the custom fee.
-        merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: 0 });
-
-        MerkleFactory.CustomFee memory customFee = merkleFactoryBase.getCustomFee(users.campaignOwner);
-
-        // It should enable the custom fee.
-        assertTrue(customFee.enabled, "custom fee not enabled");
+        merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: newFee });
 
         // It should set the custom fee.
-        assertEq(customFee.fee, 0, "custom fee");
+        assertEq(merkleFactoryBase.getFee(users.campaignOwner), newFee, "custom fee");
     }
 
-    function test_WhenEnabled() external whenCallerAdmin {
+    function test_WhenEnabled() external whenCallerAdmin whenNewFeeDoesNotExceedTheMaximumFee {
+        // Set the custom fee.
+        uint256 customFee = 0.5e8;
+
+        assertNotEq(merkleFactoryBase.getFee(users.campaignOwner), customFee, "custom fee");
+
         // Enable the custom fee.
-        merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: 0.001 ether });
+        merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: customFee });
+
         // Check that its enabled.
-        MerkleFactory.CustomFee memory customFee = merkleFactoryBase.getCustomFee(users.campaignOwner);
-        assertTrue(customFee.enabled, "custom fee not enabled");
-        assertEq(customFee.fee, 0.001 ether, "custom fee");
+        assertEq(merkleFactoryBase.getFee(users.campaignOwner), customFee, "custom fee");
+
+        // Now set it to a different custom fee.
+        customFee = 0;
+
+        assertNotEq(merkleFactoryBase.getFee(users.campaignOwner), customFee, "custom fee");
 
         // It should emit a {SetCustomFee} event.
         vm.expectEmit({ emitter: address(merkleFactoryBase) });
         emit ISablierMerkleFactoryBase.SetCustomFee({
             admin: users.admin,
             campaignCreator: users.campaignOwner,
-            customFee: 1 ether
+            customFee: customFee
         });
 
-        // Now set it to a different custom fee.
-        merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: 1 ether });
+        merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: customFee });
 
-        customFee = merkleFactoryBase.getCustomFee(users.campaignOwner);
-
-        // It should enable the custom fee.
-        assertTrue(customFee.enabled, "custom fee not enabled");
-
-        // It should set the custom fee.
-        assertEq(customFee.fee, 1 ether, "custom fee");
+        assertEq(merkleFactoryBase.getFee(users.campaignOwner), customFee, "custom fee");
     }
 }
