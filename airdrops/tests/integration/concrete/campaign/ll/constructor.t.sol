@@ -31,7 +31,7 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         assertEq(address(constructedLL.TOKEN()), address(dai), "token");
 
         MerkleLL.Schedule memory actualSchedule = constructedLL.getSchedule();
-        assertEq(actualSchedule.startTime, ZERO, "schedule.startTime");
+        assertEq(actualSchedule.startTime, RANGED_STREAM_START_TIME, "schedule.startTime");
         assertEq(actualSchedule.startPercentage, START_PERCENTAGE, "schedule.startPercentage");
         assertEq(actualSchedule.cliffDuration, CLIFF_DURATION, "schedule.cliffDuration");
         assertEq(actualSchedule.cliffPercentage, CLIFF_PERCENTAGE, "schedule.cliffPercentage");

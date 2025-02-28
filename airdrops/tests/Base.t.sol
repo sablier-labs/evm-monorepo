@@ -302,6 +302,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
             campaignOwner: campaignOwner,
             expiration: expiration,
             merkleRoot: MERKLE_ROOT,
+            startTime: RANGED_STREAM_START_TIME,
             tokenAddress: dai
         });
     }
@@ -311,6 +312,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
         address campaignOwner,
         uint40 expiration,
         bytes32 merkleRoot,
+        uint40 startTime,
         IERC20 tokenAddress
     )
         internal
@@ -322,6 +324,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
             lockupAddress: lockup,
             expiration: expiration,
             merkleRoot: merkleRoot,
+            startTime: startTime,
             tokenAddress: tokenAddress
         });
         bytes32 salt = keccak256(abi.encodePacked(campaignCreator, abi.encode(params)));
@@ -362,6 +365,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
             expiration: expiration,
             lockupAddress: lockup,
             merkleRoot: MERKLE_ROOT,
+            startTime: RANGED_STREAM_START_TIME,
             tokenAddress: dai
         });
     }
@@ -371,6 +375,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
         uint40 expiration,
         ISablierLockup lockupAddress,
         bytes32 merkleRoot,
+        uint40 startTime,
         IERC20 tokenAddress
     )
         public
@@ -386,7 +391,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
             lockup: lockupAddress,
             merkleRoot: merkleRoot,
             schedule: MerkleLL.Schedule({
-                startTime: ZERO,
+                startTime: startTime,
                 startPercentage: START_PERCENTAGE,
                 cliffDuration: CLIFF_DURATION,
                 cliffPercentage: CLIFF_PERCENTAGE,
@@ -407,6 +412,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
             campaignCreator: users.campaignOwner,
             campaignOwner: campaignOwner,
             expiration: expiration,
+            startTime: RANGED_STREAM_START_TIME,
             merkleRoot: MERKLE_ROOT,
             tokenAddress: dai
         });
@@ -417,6 +423,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
         address campaignOwner,
         uint40 expiration,
         bytes32 merkleRoot,
+        uint40 startTime,
         IERC20 tokenAddress
     )
         internal
@@ -428,6 +435,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
             lockupAddress: lockup,
             expiration: expiration,
             merkleRoot: merkleRoot,
+            startTime: startTime,
             tokenAddress: tokenAddress
         });
         bytes32 salt = keccak256(abi.encodePacked(campaignCreator, abi.encode(params)));
@@ -469,6 +477,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
             expiration: expiration,
             lockupAddress: lockup,
             merkleRoot: MERKLE_ROOT,
+            startTime: RANGED_STREAM_START_TIME,
             tokenAddress: dai
         });
     }
@@ -478,6 +487,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
         uint40 expiration,
         ISablierLockup lockupAddress,
         bytes32 merkleRoot,
+        uint40 startTime,
         IERC20 tokenAddress
     )
         public
@@ -499,7 +509,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
             lockup: lockupAddress,
             merkleRoot: merkleRoot,
             shape: SHAPE,
-            streamStartTime: ZERO,
+            streamStartTime: startTime,
             token: tokenAddress,
             tranchesWithPercentages: tranchesWithPercentages_,
             transferable: TRANSFERABLE

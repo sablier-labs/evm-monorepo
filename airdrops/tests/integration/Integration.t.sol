@@ -75,14 +75,7 @@ contract Integration_Test is Base_Test {
 
     function createMerkleInstant(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleInstant) {
         return merkleFactoryInstant.createMerkleInstant(
-            merkleInstantConstructorParams({
-                campaignOwner: campaignOwner,
-                expiration: expiration,
-                merkleRoot: MERKLE_ROOT,
-                tokenAddress: dai
-            }),
-            AGGREGATE_AMOUNT,
-            RECIPIENT_COUNT
+            merkleInstantConstructorParams(campaignOwner, expiration), AGGREGATE_AMOUNT, RECIPIENT_COUNT
         );
     }
 
@@ -104,15 +97,7 @@ contract Integration_Test is Base_Test {
 
     function createMerkleLL(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLL) {
         return merkleFactoryLL.createMerkleLL(
-            merkleLLConstructorParams({
-                campaignOwner: campaignOwner,
-                expiration: expiration,
-                lockupAddress: lockup,
-                merkleRoot: MERKLE_ROOT,
-                tokenAddress: dai
-            }),
-            AGGREGATE_AMOUNT,
-            RECIPIENT_COUNT
+            merkleLLConstructorParams(campaignOwner, expiration), AGGREGATE_AMOUNT, RECIPIENT_COUNT
         );
     }
 
@@ -134,15 +119,7 @@ contract Integration_Test is Base_Test {
 
     function createMerkleLT(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLT) {
         return merkleFactoryLT.createMerkleLT(
-            merkleLTConstructorParams({
-                campaignOwner: campaignOwner,
-                expiration: expiration,
-                lockupAddress: lockup,
-                merkleRoot: MERKLE_ROOT,
-                tokenAddress: dai
-            }),
-            AGGREGATE_AMOUNT,
-            RECIPIENT_COUNT
+            merkleLTConstructorParams(campaignOwner, expiration), AGGREGATE_AMOUNT, RECIPIENT_COUNT
         );
     }
 
@@ -164,15 +141,7 @@ contract Integration_Test is Base_Test {
 
     function createMerkleVCA(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleVCA) {
         return merkleFactoryVCA.createMerkleVCA(
-            merkleVCAConstructorParams({
-                campaignOwner: campaignOwner,
-                expiration: expiration,
-                merkleRoot: MERKLE_ROOT,
-                timestamps: merkleVCATimestamps(),
-                tokenAddress: dai
-            }),
-            AGGREGATE_AMOUNT,
-            RECIPIENT_COUNT
+            merkleVCAConstructorParams(campaignOwner, expiration), AGGREGATE_AMOUNT, RECIPIENT_COUNT
         );
     }
 }

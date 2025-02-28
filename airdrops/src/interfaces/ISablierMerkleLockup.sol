@@ -11,7 +11,10 @@ interface ISablierMerkleLockup is ISablierMerkleBase {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when a recipient claims a Lockup stream.
+    /// @notice Emitted when the recipient receives the airdrop through a direct transfer.
+    event Claim(uint256 index, address indexed recipient, uint128 amount);
+
+    /// @notice Emitted when the recipient receives the airdrop through a Lockup stream.
     event Claim(uint256 index, address indexed recipient, uint128 amount, uint256 indexed streamId);
 
     /*//////////////////////////////////////////////////////////////////////////

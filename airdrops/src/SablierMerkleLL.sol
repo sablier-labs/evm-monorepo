@@ -86,46 +86,62 @@ contract SablierMerkleLL is
 
     /// @inheritdoc SablierMerkleBase
     function _claim(uint256 index, address recipient, uint128 amount) internal override {
+        // Load schedule from storage into memory.
+        MerkleLL.Schedule memory schedule = _schedule;
+
         // Calculate the timestamps for the stream.
         Lockup.Timestamps memory timestamps;
-        if (_schedule.startTime == 0) {
+        if (schedule.startTime == 0) {
             timestamps.start = uint40(block.timestamp);
         } else {
-            timestamps.start = _schedule.startTime;
+            timestamps.start = schedule.startTime;
         }
 
-        uint40 cliffTime;
+        timestamps.end = timestamps.start + schedule.totalDuration;
 
-        if (_schedule.cliffDuration > 0) {
-            cliffTime = timestamps.start + _schedule.cliffDuration;
+        // If the stream end time is not in the future, transfer the amount directly to the recipient.
+        if (timestamps.end <= block.timestamp) {
+            // Interaction: transfer the token.
+            TOKEN.safeTransfer(recipient, amount);
+
+            // Log the claim.
+            emit Claim(index, recipient, amount);
         }
-        timestamps.end = timestamps.start + _schedule.totalDuration;
+        // Otherwise, create the Lockup stream.
+        else {
+            uint40 cliffTime;
 
-        // Calculate the unlock amounts based on the percentages.
-        LockupLinear.UnlockAmounts memory unlockAmounts;
-        unlockAmounts.start = ud60x18(amount).mul(_schedule.startPercentage.intoUD60x18()).intoUint128();
-        unlockAmounts.cliff = ud60x18(amount).mul(_schedule.cliffPercentage.intoUD60x18()).intoUint128();
+            // Calculate cliff time if the cliff duration is greater than 0.
+            if (schedule.cliffDuration > 0) {
+                cliffTime = timestamps.start + schedule.cliffDuration;
+            }
 
-        // Interaction: create the stream via {SablierLockup}.
-        uint256 streamId = LOCKUP.createWithTimestampsLL(
-            Lockup.CreateWithTimestamps({
-                sender: admin,
-                recipient: recipient,
-                depositAmount: amount,
-                token: TOKEN,
-                cancelable: STREAM_CANCELABLE,
-                transferable: STREAM_TRANSFERABLE,
-                timestamps: timestamps,
-                shape: shape
-            }),
-            unlockAmounts,
-            cliffTime
-        );
+            // Calculate the unlock amounts based on the percentages.
+            LockupLinear.UnlockAmounts memory unlockAmounts;
+            unlockAmounts.start = ud60x18(amount).mul(schedule.startPercentage.intoUD60x18()).intoUint128();
+            unlockAmounts.cliff = ud60x18(amount).mul(schedule.cliffPercentage.intoUD60x18()).intoUint128();
 
-        // Effect: push the stream ID into the `_claimedStreams` array for the recipient.
-        _claimedStreams[recipient].push(streamId);
+            // Interaction: create the stream via {SablierLockup}.
+            uint256 streamId = LOCKUP.createWithTimestampsLL(
+                Lockup.CreateWithTimestamps({
+                    sender: admin,
+                    recipient: recipient,
+                    depositAmount: amount,
+                    token: TOKEN,
+                    cancelable: STREAM_CANCELABLE,
+                    transferable: STREAM_TRANSFERABLE,
+                    timestamps: timestamps,
+                    shape: shape
+                }),
+                unlockAmounts,
+                cliffTime
+            );
 
-        // Log the claim.
-        emit Claim(index, recipient, amount, streamId);
+            // Effect: push the stream ID into the `_claimedStreams` array for the recipient.
+            _claimedStreams[recipient].push(streamId);
+
+            // Log the claim.
+            emit Claim(index, recipient, amount, streamId);
+        }
     }
 }

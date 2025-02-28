@@ -41,5 +41,4 @@ abstract contract Constants {
     // Global
     uint40 internal constant FEB_1_2025 = 1_738_368_000;
     uint64 public constant TOTAL_PERCENTAGE = uUNIT;
-    uint40 internal constant ZERO = 0;
 }

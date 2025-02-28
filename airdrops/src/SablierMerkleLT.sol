@@ -119,26 +119,37 @@ contract SablierMerkleLT is
             endTime = tranches[tranches.length - 1].timestamp;
         }
 
-        // Interaction: create the stream via {SablierLockup-createWithTimestampsLT}.
-        uint256 streamId = LOCKUP.createWithTimestampsLT(
-            Lockup.CreateWithTimestamps({
-                sender: admin,
-                recipient: recipient,
-                depositAmount: amount,
-                token: TOKEN,
-                cancelable: STREAM_CANCELABLE,
-                transferable: STREAM_TRANSFERABLE,
-                timestamps: Lockup.Timestamps({ start: startTime, end: endTime }),
-                shape: shape
-            }),
-            tranches
-        );
+        // If the stream end time is not in the future, transfer the amount directly to the recipient.
+        if (endTime <= block.timestamp) {
+            // Interaction: transfer the token.
+            TOKEN.safeTransfer(recipient, amount);
 
-        // Effect: push the stream ID into the `_claimedStreams` array for the recipient.
-        _claimedStreams[recipient].push(streamId);
+            // Log the claim.
+            emit Claim(index, recipient, amount);
+        }
+        // Otherwise, create the Lockup stream.
+        else {
+            // Interaction: create the stream via {SablierLockup-createWithTimestampsLT}.
+            uint256 streamId = LOCKUP.createWithTimestampsLT(
+                Lockup.CreateWithTimestamps({
+                    sender: admin,
+                    recipient: recipient,
+                    depositAmount: amount,
+                    token: TOKEN,
+                    cancelable: STREAM_CANCELABLE,
+                    transferable: STREAM_TRANSFERABLE,
+                    timestamps: Lockup.Timestamps({ start: startTime, end: endTime }),
+                    shape: shape
+                }),
+                tranches
+            );
 
-        // Log the claim.
-        emit Claim(index, recipient, amount, streamId);
+            // Effect: push the stream ID into the `_claimedStreams` array for the recipient.
+            _claimedStreams[recipient].push(streamId);
+
+            // Log the claim.
+            emit Claim(index, recipient, amount, streamId);
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

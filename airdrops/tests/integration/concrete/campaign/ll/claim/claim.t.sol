@@ -16,7 +16,30 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         MerkleLL_Integration_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_TotalPercentageGreaterThan100() external whenMerkleProofValid {
+    function test_WhenVestingEndTimeNotExceedClaimTime() external whenMerkleProofValid {
+        // Forward in time to the end of the vesting period.
+        vm.warp({ newTimestamp: RANGED_STREAM_END_TIME });
+
+        uint256 expectedRecipientBalance = dai.balanceOf(users.recipient1) + CLAIM_AMOUNT;
+
+        // It should emit a {Claim} event.
+        vm.expectEmit({ emitter: address(merkleLL) });
+        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT);
+
+        expectCallToTransfer({ to: users.recipient1, value: CLAIM_AMOUNT });
+        expectCallToClaimWithMsgValue(address(merkleLL), MINIMUM_FEE_IN_WEI);
+
+        merkleLL.claim{ value: MINIMUM_FEE_IN_WEI }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
+
+        // It should transfer the tokens to the recipient.
+        assertEq(dai.balanceOf(users.recipient1), expectedRecipientBalance, "recipient balance");
+    }
+
+    function test_RevertWhen_TotalPercentageGreaterThan100()
+        external
+        whenMerkleProofValid
+        whenVestingEndTimeExceedsClaimTime
+    {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
 
         // Crate a MerkleLL campaign with a total percentage greater than 100.
@@ -45,11 +68,27 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         });
     }
 
+    function test_WhenScheduledStartTimeZero()
+        external
+        whenMerkleProofValid
+        whenVestingEndTimeExceedsClaimTime
+        whenTotalPercentageNotGreaterThan100
+    {
+        MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
+        params.schedule.startTime = 0;
+
+        merkleLL = merkleFactoryLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+
+        // It should create a stream with block.timestamp as start time.
+        _test_Claim({ startTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + CLIFF_DURATION });
+    }
+
     function test_WhenScheduledCliffDurationZero()
         external
         whenMerkleProofValid
+        whenVestingEndTimeExceedsClaimTime
         whenTotalPercentageNotGreaterThan100
-        whenScheduledStartTimeZero
+        whenScheduledStartTimeNotZero
     {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
         params.schedule.cliffDuration = 0;
@@ -59,27 +98,18 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         // It should create a stream with block.timestamp as start time.
         // It should create a stream with cliff as zero.
-        _test_Claim({ startTime: getBlockTimestamp(), cliffTime: 0 });
+        _test_Claim({ startTime: RANGED_STREAM_START_TIME, cliffTime: 0 });
     }
 
     function test_WhenScheduledCliffDurationNotZero()
         external
         whenMerkleProofValid
+        whenVestingEndTimeExceedsClaimTime
         whenTotalPercentageNotGreaterThan100
-        whenScheduledStartTimeZero
+        whenScheduledStartTimeNotZero
     {
         // It should create a stream with block.timestamp as start time.
         // It should create a stream with cliff as start time + cliff duration.
-        _test_Claim({ startTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + CLIFF_DURATION });
-    }
-
-    function test_WhenScheduledStartTimeNotZero() external whenMerkleProofValid whenTotalPercentageNotGreaterThan100 {
-        MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
-        params.schedule.startTime = RANGED_STREAM_START_TIME;
-
-        merkleLL = merkleFactoryLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
-
-        // It should create a stream with scheduled start time as start time.
         _test_Claim({ startTime: RANGED_STREAM_START_TIME, cliffTime: RANGED_STREAM_START_TIME + CLIFF_DURATION });
     }
 

@@ -33,30 +33,36 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         uint40 expiration;
         LeafData[] leafData;
         uint256 posBeforeSort;
+        uint40 startTime;
     }
 
     struct Vars {
         uint256 aggregateAmount;
         uint128[] amounts;
-        MerkleLL.ConstructorParams params;
         uint128 clawbackAmount;
         address expectedLL;
         uint256 expectedStreamId;
+        LockupLinear.UnlockAmounts expectedUnlockAmounts;
+        uint40 expectedStartTime;
         uint256[] indexes;
+        uint256 initialAdminBalance;
+        uint256 initialRecipientBalance;
         uint256 leafPos;
         uint256 leafToClaim;
         ISablierMerkleLL merkleLL;
         bytes32[] merkleProof;
         bytes32 merkleRoot;
+        MerkleLL.ConstructorParams params;
         uint256 recipientCount;
         address[] recipients;
-        LockupLinear.UnlockAmounts expectedUnlockAmounts;
     }
 
     // We need the leaves as a storage variable so that we can use OpenZeppelin's {Arrays.findUpperBound}.
     uint256[] public leaves;
 
     function testForkFuzz_MerkleLL(Params memory params) external {
+        Vars memory vars;
+
         vm.assume(params.campaignOwner != address(0));
         vm.assume(params.leafData.length > 0);
         assumeNoBlacklisted({ token: address(FORK_TOKEN), addr: params.campaignOwner });
@@ -67,11 +73,20 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             params.expiration = boundUint40(params.expiration, getBlockTimestamp() + 1 seconds, MAX_UNIX_TIMESTAMP);
         }
 
+        // If the start time is not zero, bound it to a reasonable range so that vesting end time can be in the past,
+        // present and future.
+        if (params.startTime != 0) {
+            params.startTime = boundUint40(
+                params.startTime, getBlockTimestamp() - TOTAL_DURATION - 10 days, getBlockTimestamp() + 2 days
+            );
+            vars.expectedStartTime = params.startTime;
+        } else {
+            vars.expectedStartTime = getBlockTimestamp();
+        }
+
         /*//////////////////////////////////////////////////////////////////////////
                                           CREATE
         //////////////////////////////////////////////////////////////////////////*/
-
-        Vars memory vars;
 
         // Load the factory admin from mainnet.
         factoryAdmin = merkleFactoryLL.admin();
@@ -117,6 +132,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             campaignOwner: params.campaignOwner,
             expiration: params.expiration,
             merkleRoot: vars.merkleRoot,
+            startTime: params.startTime,
             tokenAddress: FORK_TOKEN
         });
 
@@ -125,6 +141,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             expiration: params.expiration,
             lockupAddress: lockup,
             merkleRoot: vars.merkleRoot,
+            startTime: params.startTime,
             tokenAddress: FORK_TOKEN
         });
 
@@ -154,7 +171,8 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         resetPrank({ msgSender: vars.recipients[params.posBeforeSort] });
         vm.deal(vars.recipients[params.posBeforeSort], 1 ether);
 
-        uint256 initialAdminBalance = factoryAdmin.balance;
+        vars.initialAdminBalance = factoryAdmin.balance;
+        vars.initialRecipientBalance = FORK_TOKEN.balanceOf(vars.recipients[params.posBeforeSort]);
 
         assertFalse(vars.merkleLL.hasClaimed(vars.indexes[params.posBeforeSort]));
 
@@ -165,22 +183,37 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         );
         vars.leafPos = Arrays.findUpperBound(leaves, vars.leafToClaim);
 
-        vars.expectedStreamId = lockup.nextStreamId();
-
-        vm.expectEmit({ emitter: address(vars.merkleLL) });
-        emit ISablierMerkleLockup.Claim(
-            vars.indexes[params.posBeforeSort],
-            vars.recipients[params.posBeforeSort],
-            vars.amounts[params.posBeforeSort],
-            vars.expectedStreamId
-        );
-
         // Compute the Merkle proof.
         if (leaves.length == 1) {
             // If there is only one leaf, the Merkle proof should be an empty array as no proof is needed because the
             // leaf is the root.
         } else {
             vars.merkleProof = getProof(leaves.toBytes32(), vars.leafPos);
+        }
+
+        // It should emit {Claim} event based on the vesting end time.
+        if (vars.expectedStartTime + TOTAL_DURATION <= getBlockTimestamp()) {
+            vm.expectEmit({ emitter: address(vars.merkleLL) });
+            emit ISablierMerkleLockup.Claim(
+                vars.indexes[params.posBeforeSort],
+                vars.recipients[params.posBeforeSort],
+                vars.amounts[params.posBeforeSort]
+            );
+
+            expectCallToTransfer({
+                token: FORK_TOKEN,
+                to: vars.recipients[params.posBeforeSort],
+                value: vars.amounts[params.posBeforeSort]
+            });
+        } else {
+            vars.expectedStreamId = lockup.nextStreamId();
+            vm.expectEmit({ emitter: address(vars.merkleLL) });
+            emit ISablierMerkleLockup.Claim(
+                vars.indexes[params.posBeforeSort],
+                vars.recipients[params.posBeforeSort],
+                vars.amounts[params.posBeforeSort],
+                vars.expectedStreamId
+            );
         }
 
         expectCallToClaimWithData({
@@ -192,6 +225,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             merkleProof: vars.merkleProof
         });
 
+        // Claim the airdrop.
         vars.merkleLL.claim{ value: MINIMUM_FEE_IN_WEI }({
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
@@ -199,49 +233,49 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             merkleProof: vars.merkleProof
         });
 
-        vars.expectedUnlockAmounts.start =
-            ud60x18(vars.amounts[params.posBeforeSort]).mul(START_PERCENTAGE.intoUD60x18()).intoUint128();
-        vars.expectedUnlockAmounts.cliff =
-            ud60x18(vars.amounts[params.posBeforeSort]).mul(CLIFF_PERCENTAGE.intoUD60x18()).intoUint128();
+        // Assertions when vesting end time does not exceed the block time.
+        if (vars.expectedStartTime + TOTAL_DURATION <= getBlockTimestamp()) {
+            assertEq(
+                FORK_TOKEN.balanceOf(vars.recipients[params.posBeforeSort]),
+                vars.initialRecipientBalance + vars.amounts[params.posBeforeSort],
+                "recipient balance"
+            );
+        }
+        // Assertions when vesting end time exceeds the block time.
+        else {
+            vars.expectedUnlockAmounts.start =
+                ud60x18(vars.amounts[params.posBeforeSort]).mul(START_PERCENTAGE.intoUD60x18()).intoUint128();
+            vars.expectedUnlockAmounts.cliff =
+                ud60x18(vars.amounts[params.posBeforeSort]).mul(CLIFF_PERCENTAGE.intoUD60x18()).intoUint128();
 
-        // Assert that the stream has been created successfully.
-        assertEq(lockup.getCliffTime(vars.expectedStreamId), getBlockTimestamp() + CLIFF_DURATION, "cliff time");
-        assertEq(
-            lockup.getDepositedAmount(vars.expectedStreamId), vars.amounts[params.posBeforeSort], "deposited amount"
-        );
-        assertEq(lockup.getEndTime(vars.expectedStreamId), getBlockTimestamp() + TOTAL_DURATION, "end time");
-        assertEq(lockup.getLockupModel(vars.expectedStreamId), Lockup.Model.LOCKUP_LINEAR);
-        assertEq(lockup.getRecipient(vars.expectedStreamId), vars.recipients[params.posBeforeSort], "recipient");
-        assertEq(lockup.getRefundedAmount(vars.expectedStreamId), 0, "refunded amount");
-        assertEq(lockup.getSender(vars.expectedStreamId), params.campaignOwner, "sender");
-        assertEq(lockup.getStartTime(vars.expectedStreamId), getBlockTimestamp(), "start time");
-        assertEq(lockup.getUnderlyingToken(vars.expectedStreamId), FORK_TOKEN, "token");
-        assertEq(
-            lockup.getUnlockAmounts(vars.expectedStreamId).cliff,
-            vars.expectedUnlockAmounts.cliff,
-            "unlock amounts cliff"
-        );
-        assertEq(
-            lockup.getUnlockAmounts(vars.expectedStreamId).start,
-            vars.expectedUnlockAmounts.start,
-            "unlock amounts start"
-        );
-        assertEq(lockup.getWithdrawnAmount(vars.expectedStreamId), 0, "withdrawn amount");
-        assertEq(lockup.isCancelable(vars.expectedStreamId), CANCELABLE, "is cancelable");
-        assertEq(lockup.isDepleted(vars.expectedStreamId), false, "is depleted");
-        assertEq(lockup.isStream(vars.expectedStreamId), true, "is stream");
-        assertEq(lockup.isTransferable(vars.expectedStreamId), TRANSFERABLE, "is transferable");
-        assertEq(lockup.wasCanceled(vars.expectedStreamId), false, "was canceled");
+            Lockup.CreateWithTimestamps memory expectedLockup = Lockup.CreateWithTimestamps({
+                sender: params.campaignOwner,
+                recipient: vars.recipients[params.posBeforeSort],
+                depositAmount: vars.amounts[params.posBeforeSort],
+                token: FORK_TOKEN,
+                cancelable: CANCELABLE,
+                transferable: TRANSFERABLE,
+                timestamps: Lockup.Timestamps({ start: vars.expectedStartTime, end: vars.expectedStartTime + TOTAL_DURATION }),
+                shape: SHAPE
+            });
 
+            // Assert that the stream has been created successfully.
+            assertEq(lockup, vars.expectedStreamId, expectedLockup);
+            assertEq(lockup.getCliffTime(vars.expectedStreamId), vars.expectedStartTime + CLIFF_DURATION, "cliff time");
+            assertEq(lockup.getLockupModel(vars.expectedStreamId), Lockup.Model.LOCKUP_LINEAR);
+            assertEq(lockup.getUnlockAmounts(vars.expectedStreamId), vars.expectedUnlockAmounts);
+
+            uint256[] memory expectedClaimedStreamIds = new uint256[](1);
+            expectedClaimedStreamIds[0] = vars.expectedStreamId;
+            assertEq(
+                vars.merkleLL.claimedStreams(vars.recipients[params.posBeforeSort]),
+                expectedClaimedStreamIds,
+                "claimed streams"
+            );
+        }
+
+        // Assert that the claim has been made.
         assertTrue(vars.merkleLL.hasClaimed(vars.indexes[params.posBeforeSort]));
-
-        uint256[] memory expectedClaimedStreamIds = new uint256[](1);
-        expectedClaimedStreamIds[0] = vars.expectedStreamId;
-        assertEq(
-            vars.merkleLL.claimedStreams(vars.recipients[params.posBeforeSort]),
-            expectedClaimedStreamIds,
-            "claimed streams"
-        );
 
         /*//////////////////////////////////////////////////////////////////////////
                                         CLAWBACK
@@ -277,6 +311,6 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         merkleFactoryLL.collectFees({ merkleBase: vars.merkleLL });
 
         assertEq(address(vars.merkleLL).balance, 0, "merkleLL ETH balance");
-        assertEq(factoryAdmin.balance, initialAdminBalance + MINIMUM_FEE_IN_WEI, "admin ETH balance");
+        assertEq(factoryAdmin.balance, vars.initialAdminBalance + MINIMUM_FEE_IN_WEI, "admin ETH balance");
     }
 }

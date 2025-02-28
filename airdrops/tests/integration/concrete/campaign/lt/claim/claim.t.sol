@@ -15,7 +15,31 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         MerkleLT_Integration_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_TotalPercentageLessThan100() external whenMerkleProofValid whenTotalPercentageNot100 {
+    function test_WhenVestingEndTimeNotExceedClaimTime() external whenMerkleProofValid {
+        // Forward in time to the end of the vesting period.
+        vm.warp({ newTimestamp: RANGED_STREAM_END_TIME });
+
+        uint256 expectedRecipientBalance = dai.balanceOf(users.recipient1) + CLAIM_AMOUNT;
+
+        // It should emit a {Claim} event.
+        vm.expectEmit({ emitter: address(merkleLT) });
+        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT);
+
+        expectCallToTransfer({ to: users.recipient1, value: CLAIM_AMOUNT });
+        expectCallToClaimWithMsgValue(address(merkleLT), MINIMUM_FEE_IN_WEI);
+
+        merkleLT.claim{ value: MINIMUM_FEE_IN_WEI }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
+
+        // It should transfer the tokens to the recipient.
+        assertEq(dai.balanceOf(users.recipient1), expectedRecipientBalance, "recipient balance");
+    }
+
+    function test_RevertWhen_TotalPercentageLessThan100()
+        external
+        whenMerkleProofValid
+        whenVestingEndTimeExceedsClaimTime
+        whenTotalPercentageNot100
+    {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
 
         // Create a MerkleLT campaign with a total percentage less than 100.
@@ -34,7 +58,12 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         });
     }
 
-    function test_RevertWhen_TotalPercentageGreaterThan100() external whenMerkleProofValid whenTotalPercentageNot100 {
+    function test_RevertWhen_TotalPercentageGreaterThan100()
+        external
+        whenMerkleProofValid
+        whenVestingEndTimeExceedsClaimTime
+        whenTotalPercentageNot100
+    {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
 
         // Create a MerkleLT campaign with a total percentage less than 100.
@@ -53,18 +82,28 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         });
     }
 
-    function test_WhenStreamStartTimeZero() external whenMerkleProofValid whenTotalPercentage100 {
-        // It should create a stream with block.timestamp as start time.
-        _test_Claim({ streamStartTime: 0, startTime: getBlockTimestamp() });
-    }
-
-    function test_WhenStreamStartTimeNotZero() external whenMerkleProofValid whenTotalPercentage100 {
+    function test_WhenStreamStartTimeZero()
+        external
+        whenMerkleProofValid
+        whenVestingEndTimeExceedsClaimTime
+        whenTotalPercentage100
+    {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
-        params.streamStartTime = RANGED_STREAM_START_TIME;
+        params.streamStartTime = 0;
 
         merkleLT = merkleFactoryLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
-        // It should create a stream with `STREAM_START_TIME` as start time.
+        // It should create a stream with `block.timestamp` as start time.
+        _test_Claim({ streamStartTime: 0, startTime: getBlockTimestamp() });
+    }
+
+    function test_WhenStreamStartTimeNotZero()
+        external
+        whenMerkleProofValid
+        whenVestingEndTimeExceedsClaimTime
+        whenTotalPercentage100
+    {
+        // It should create a ranged stream with provided start time.
         _test_Claim({ streamStartTime: RANGED_STREAM_START_TIME, startTime: RANGED_STREAM_START_TIME });
     }
 
@@ -73,7 +112,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         deal({ token: address(dai), to: address(merkleLT), give: AGGREGATE_AMOUNT });
 
         uint256 expectedStreamId = lockup.nextStreamId();
-        uint256 previousFeeAccrued = address(merkleLL).balance;
+        uint256 previousFeeAccrued = address(merkleLT).balance;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
@@ -91,7 +130,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         assertEq(lockup.getRecipient(expectedStreamId), users.recipient1, "recipient");
         assertEq(lockup.getSender(expectedStreamId), users.campaignOwner, "sender");
         assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
-        // It should create a stream with `STREAM_START_TIME` as start time.
+        // It should create a stream with `RANGED_STREAM_START_TIME` as start time.
         assertEq(
             lockup.getTranches(expectedStreamId),
             tranchesMerkleLT({ streamStartTime: streamStartTime, totalAmount: CLAIM_AMOUNT })

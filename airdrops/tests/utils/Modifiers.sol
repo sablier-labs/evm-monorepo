@@ -127,7 +127,7 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenScheduledStartTimeZero() {
+    modifier whenScheduledStartTimeNotZero() {
         _;
     }
 
@@ -148,6 +148,10 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenTotalPercentageNotGreaterThan100() {
+        _;
+    }
+
+    modifier whenVestingEndTimeExceedsClaimTime() {
         _;
     }
 

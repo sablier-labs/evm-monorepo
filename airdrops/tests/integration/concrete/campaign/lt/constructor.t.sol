@@ -28,7 +28,7 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         assertEq(constructedLT.minimumFee(), MINIMUM_FEE, "minimum fee");
         assertEq(constructedLT.shape(), SHAPE, "shape");
         assertEq(constructedLT.STREAM_CANCELABLE(), CANCELABLE, "stream cancelable");
-        assertEq(constructedLT.STREAM_START_TIME(), ZERO, "stream start time");
+        assertEq(constructedLT.STREAM_START_TIME(), RANGED_STREAM_START_TIME, "stream start time");
         assertEq(constructedLT.STREAM_TRANSFERABLE(), TRANSFERABLE, "stream transferable");
         assertEq(address(constructedLT.TOKEN()), address(dai), "token");
         assertEq(constructedLT.TOTAL_PERCENTAGE(), TOTAL_PERCENTAGE, "totalPercentage");
