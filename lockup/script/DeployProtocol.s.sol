@@ -12,26 +12,9 @@ contract DeployProtocol is MaxCountScript {
     /// @dev Deploys the protocol with the admin set in `adminMap`.
     function run()
         public
-        returns (LockupNFTDescriptor nftDescriptor, SablierLockup lockup, SablierBatchLockup batchLockup)
+        returns (SablierLockup lockup, SablierBatchLockup batchLockup, LockupNFTDescriptor nftDescriptor)
     {
-        address initialAdmin = adminMap[block.chainid];
-        (nftDescriptor, lockup, batchLockup) = _run(initialAdmin);
-    }
-
-    /// @dev Deploys the protocol with the given `initialAdmin`.
-    function run(address initialAdmin)
-        public
-        returns (LockupNFTDescriptor nftDescriptor, SablierLockup lockup, SablierBatchLockup batchLockup)
-    {
-        (nftDescriptor, lockup, batchLockup) = _run(initialAdmin);
-    }
-
-    /// @dev Common logic for the run functions.
-    function _run(address initialAdmin)
-        internal
-        broadcast
-        returns (LockupNFTDescriptor nftDescriptor, SablierLockup lockup, SablierBatchLockup batchLockup)
-    {
+        address initialAdmin = protocolAdmin();
         batchLockup = new SablierBatchLockup();
         nftDescriptor = new LockupNFTDescriptor();
         lockup = new SablierLockup(initialAdmin, nftDescriptor, maxCountMap[block.chainid]);

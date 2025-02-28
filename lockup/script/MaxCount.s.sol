@@ -2,7 +2,7 @@
 // solhint-disable no-console
 pragma solidity >=0.8.22 <0.9.0;
 
-import { BaseScript } from "@sablier/evm-utils/script/Base.s.sol";
+import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
 
 abstract contract MaxCountScript is BaseScript {
     /// @dev The default value for `maxCountMap`.

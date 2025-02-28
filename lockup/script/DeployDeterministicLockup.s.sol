@@ -8,14 +8,7 @@ import { MaxCountScript } from "./MaxCount.s.sol";
 /// @notice Deploys {SablierLockup} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
 contract DeployDeterministicLockup is MaxCountScript {
-    function run(
-        address initialAdmin,
-        ILockupNFTDescriptor nftDescriptor
-    )
-        public
-        broadcast
-        returns (SablierLockup lockup)
-    {
-        lockup = new SablierLockup{ salt: SALT }(initialAdmin, nftDescriptor, maxCountMap[block.chainid]);
+    function run(ILockupNFTDescriptor nftDescriptor) public broadcast returns (SablierLockup lockup) {
+        lockup = new SablierLockup{ salt: SALT }(protocolAdmin(), nftDescriptor, maxCountMap[block.chainid]);
     }
 }

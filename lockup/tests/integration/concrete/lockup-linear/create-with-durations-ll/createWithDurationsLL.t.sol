@@ -28,8 +28,6 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
     }
 
     function _test_CreateWithDurations(LockupLinear.Durations memory durations) private {
-        // Make the Sender the stream's funder
-        address funder = users.sender;
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Declare the timestamps.
@@ -45,7 +43,7 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
         }
 
         // It should perform the ERC-20 transfers.
-        expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
+        expectCallToTransferFrom({ from: users.sender, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
         // It should emit {CreateLockupLinearStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });

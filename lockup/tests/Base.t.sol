@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { CommonBase } from "@sablier/evm-utils/tests/Base.sol";
+import { BaseTest as CommonBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
 import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
 import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { BaseTest as CommonBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
-import { CommonUtils } from "@sablier/evm-utils/tests/utils/Utils.sol";
 
 import { LockupDynamic, LockupTranched } from "../../src/types/DataTypes.sol";
 
-abstract contract Utils is CommonUtils, PRBMathUtils {
+abstract contract Utils is CommonBase, PRBMathUtils {
     /// @dev Turns the segments with durations into canonical segments, which have timestamps.
     function getSegmentsWithTimestamps(LockupDynamic.SegmentWithDuration[] memory segments)
         internal

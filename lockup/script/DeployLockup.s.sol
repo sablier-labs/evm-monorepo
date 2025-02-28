@@ -8,14 +8,7 @@ import { MaxCountScript } from "./MaxCount.s.sol";
 
 /// @notice Deploys {SablierLockup} contract.
 contract DeployLockup is MaxCountScript {
-    function run(
-        address initialAdmin,
-        ILockupNFTDescriptor nftDescriptor
-    )
-        public
-        broadcast
-        returns (SablierLockup lockup)
-    {
-        lockup = new SablierLockup(initialAdmin, nftDescriptor, maxCountMap[block.chainid]);
+    function run(ILockupNFTDescriptor nftDescriptor) public broadcast returns (SablierLockup lockup) {
+        lockup = new SablierLockup(protocolAdmin(), nftDescriptor, maxCountMap[block.chainid]);
     }
 }

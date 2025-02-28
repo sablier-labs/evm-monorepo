@@ -132,8 +132,6 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         whenSegmentCountNotExceedMaxValue
         whenFirstIndexHasNonZeroDuration
     {
-        // Make the Sender the stream's funder
-        address funder = users.sender;
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Declare the timestamps.
@@ -147,7 +145,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         segments[1].timestamp = segments[0].timestamp + _defaultParams.segmentsWithDurations[1].duration;
 
         // It should perform the ERC-20 transfers.
-        expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
+        expectCallToTransferFrom({ from: users.sender, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
         // It should emit {CreateLockupDynamicStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });

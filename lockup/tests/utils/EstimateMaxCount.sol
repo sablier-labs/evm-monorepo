@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { console } from "forge-std/src/console.sol";
-import { ERC20Mock } from "@sablier/evm-utils/tests/mocks/erc20/ERC20Mock.sol";
+import { ERC20Mock } from "@sablier/evm-utils/src/mocks/erc20/ERC20Mock.sol";
 
 import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
 import { LockupNFTDescriptor } from "../../src/LockupNFTDescriptor.sol";

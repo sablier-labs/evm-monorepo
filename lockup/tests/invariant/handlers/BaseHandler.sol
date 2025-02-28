@@ -2,13 +2,12 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 
 import { Fuzzers } from "../../utils/Fuzzers.sol";
 
 /// @notice Base contract with common logic needed by {LockupHandler} and {LockupCreateHandler} contracts.
-abstract contract BaseHandler is Fuzzers, StdCheats {
+abstract contract BaseHandler is Fuzzers {
     /*//////////////////////////////////////////////////////////////////////////
                                     STATE-VARIABLES
     //////////////////////////////////////////////////////////////////////////*/

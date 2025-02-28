@@ -33,7 +33,6 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         uint256 expectedWithdrawnAmount;
         bool isDepleted;
         bool isSettled;
-        address funder;
         uint256 streamId;
         uint128 depositAmount;
         uint40 totalDuration;
@@ -52,9 +51,7 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         vm.assume(params.segments.length != 0);
         vm.assume(params.to != address(0));
 
-        // Make the Sender the stream's funder (recall that the Sender is the default caller).
         Vars memory vars;
-        vars.funder = users.sender;
 
         // Fuzz the segment timestamps.
         fuzzSegmentTimestamps(params.segments, defaults.START_TIME());
@@ -66,8 +63,8 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         vars.totalDuration = params.segments[params.segments.length - 1].timestamp - defaults.START_TIME();
         params.timeJump = _bound(params.timeJump, 1 seconds, vars.totalDuration + 100 seconds);
 
-        // Mint enough tokens to the funder.
-        deal({ token: address(dai), to: vars.funder, give: vars.depositAmount });
+        // Mint enough tokens to the sender.
+        deal({ token: address(dai), to: users.sender, give: vars.depositAmount });
 
         // Make the Sender the caller.
         resetPrank({ msgSender: users.sender });

@@ -13,7 +13,6 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
         Lockup.Status expectedStatus;
-        address funder;
         bool isCancelable;
         bool isSettled;
         LockupDynamic.Segment[] segmentsWithTimestamps;
@@ -35,16 +34,13 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
         // Fuzz the segment amounts and calculate the deposit amount.
         vars.depositAmount = fuzzDynamicStreamAmounts(segments);
 
-        // Make the Sender the stream's funder (recall that the Sender is the default caller).
-        vars.funder = users.sender;
-
         uint256 expectedStreamId = lockup.nextStreamId();
 
-        // Mint enough tokens to the fuzzed funder.
-        deal({ token: address(dai), to: vars.funder, give: vars.depositAmount });
+        // Mint enough tokens to the sender.
+        deal({ token: address(dai), to: users.sender, give: vars.depositAmount });
 
-        // Expect the tokens to be transferred from the funder to {SablierLockup}.
-        expectCallToTransferFrom({ from: vars.funder, to: address(lockup), value: vars.depositAmount });
+        // Expect the tokens to be transferred from the sender to {SablierLockup}.
+        expectCallToTransferFrom({ from: users.sender, to: address(lockup), value: vars.depositAmount });
 
         // Create the timestamps struct.
         vars.segmentsWithTimestamps = getSegmentsWithTimestamps(segments);

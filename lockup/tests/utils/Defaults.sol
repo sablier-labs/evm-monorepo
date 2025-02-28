@@ -3,7 +3,6 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
-import { CommonConstants } from "@sablier/evm-utils/tests/utils/Constants.sol";
 
 import { BatchLockup, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
 
@@ -12,16 +11,18 @@ import { BatchLockupBuilder } from "./BatchLockupBuilder.sol";
 import { Users } from "./Types.sol";
 
 /// @notice Contract with default values used throughout the tests.
-contract Defaults is CommonConstants {
+contract Defaults {
     /*//////////////////////////////////////////////////////////////////////////
                                       GENERICS
     //////////////////////////////////////////////////////////////////////////*/
 
     uint64 public constant BATCH_SIZE = 10;
     uint128 public constant CLIFF_AMOUNT = 2500e18 + 2534;
+    uint128 public constant CLIFF_AMOUNT_6D = CLIFF_AMOUNT / 1e12;
     uint40 public immutable CLIFF_TIME;
     uint40 public constant CLIFF_DURATION = 2500 seconds;
     uint128 public constant DEPOSIT_AMOUNT = 10_000e18;
+    uint128 public constant DEPOSIT_AMOUNT_6D = 10_000e6;
     uint40 public immutable END_TIME;
     uint40 public constant FEB_1_2025 = 1_738_368_000;
     uint256 public constant MAX_COUNT = 10_000;
@@ -83,8 +84,15 @@ contract Defaults is CommonConstants {
         return Lockup.Amounts({ deposited: DEPOSIT_AMOUNT, refunded: 0, withdrawn: 0 });
     }
 
-    function lockupCreateEvent(IERC20 token_) public view returns (Lockup.CreateEventCommon memory) {
-        return lockupCreateEvent(DEPOSIT_AMOUNT, token_, lockupTimestamps());
+    function lockupCreateEvent(
+        IERC20 token_,
+        uint128 depositAmount
+    )
+        public
+        view
+        returns (Lockup.CreateEventCommon memory)
+    {
+        return lockupCreateEvent(depositAmount, token_, lockupTimestamps());
     }
 
     function lockupCreateEvent(Lockup.Timestamps memory timestamps)

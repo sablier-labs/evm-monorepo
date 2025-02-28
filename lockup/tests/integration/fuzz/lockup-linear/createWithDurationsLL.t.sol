@@ -11,12 +11,10 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         durations.total = boundUint40(durations.total, 1 seconds, MAX_UNIX_TIMESTAMP);
         vm.assume(durations.cliff < durations.total);
 
-        // Make the Sender the stream's funder (recall that the Sender is the default caller).
-        address funder = users.sender;
         uint256 expectedStreamId = lockup.nextStreamId();
 
-        // Expect the tokens to be transferred from the funder to {SablierLockup}.
-        expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
+        // Expect the tokens to be transferred from the sender to {SablierLockup}.
+        expectCallToTransferFrom({ from: users.sender, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
         // Create the timestamps struct by calculating the start time, cliff time and the end time.
         Lockup.Timestamps memory timestamps =

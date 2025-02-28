@@ -124,8 +124,6 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         whenTrancheCountNotExceedMaxValue
         whenFirstIndexHasNonZeroDuration
     {
-        // Make the Sender the stream's funder
-        address funder = users.sender;
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Declare the timestamps.
@@ -139,7 +137,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         tranches[1].timestamp = tranches[0].timestamp + tranchesWithDurations[1].duration;
 
         // It should perform the ERC-20 transfers.
-        expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
+        expectCallToTransferFrom({ from: users.sender, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
         // It should emit {MetadataUpdate} and {CreateLockupTranchedStream} events.
         vm.expectEmit({ emitter: address(lockup) });
@@ -165,9 +163,10 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         assertEq(lockup.getRecipient(streamId), users.recipient, "recipient");
         assertEq(lockup.getSender(streamId), users.sender, "sender");
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
-        assertEq(lockup.getTranches(streamId), tranches);
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
+
+        assertEq(lockup.getTranches(streamId), tranches);
 
         // Assert that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
