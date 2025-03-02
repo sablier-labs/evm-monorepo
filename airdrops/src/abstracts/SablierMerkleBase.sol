@@ -255,7 +255,7 @@ abstract contract SablierMerkleBase is
         else if (oracleDecimals > 8) {
             adjustedPrice = uint256(price) / 10 ** (oracleDecimals - 8);
         } else {
-            adjustedPrice = uint256(price) * 10 ** (oracleDecimals - 8);
+            adjustedPrice = uint256(price) * 10 ** (8 - oracleDecimals);
         }
 
         // Multiply it with 1e18 before returning because the price is for 1e18 wei tokens.
