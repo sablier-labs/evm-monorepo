@@ -32,8 +32,8 @@ abstract contract Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        // Fork Ethereum Mainnet at a specific block number.
-        vm.createSelectFork({ blockNumber: 21_719_029, urlOrAlias: "mainnet" });
+        // Fork Ethereum Mainnet at the latest block number.
+        vm.createSelectFork({ urlOrAlias: "mainnet" });
 
         // Load deployed addresses from Ethereum mainnet.
         batchLockup = ISablierBatchLockup(0x3F6E8a8Cffe377c4649aCeB01e6F20c60fAA356c);
