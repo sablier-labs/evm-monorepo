@@ -38,8 +38,8 @@ abstract contract Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        // Fork Ethereum Mainnet at a block number after the Sablier deployment.
-        vm.createSelectFork({ blockNumber: 21_718_689, urlOrAlias: "mainnet" });
+        // Fork Ethereum Mainnet at the latest block number.
+        vm.createSelectFork({ urlOrAlias: "mainnet" });
 
         // Load mainnet address.
         flow = ISablierFlow(0x3DF2AAEdE81D2F6b261F79047517713B8E844E04);
