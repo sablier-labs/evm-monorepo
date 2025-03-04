@@ -1,8 +1,16 @@
 MinimumFeeInWei_Integration_Test
-├── given oracle address zero
+├── given oracle zero
 │  └── it should return zero
-└── given oracle address not zero
+└── given oracle not zero
    ├── given minimum fee zero
    │  └── it should return zero
    └── given minimum fee not zero
-      └── it should calculate the minimum fee in wei
+      ├── when oracle returns zero price
+      │  └── it should return zero
+      └── when oracle returns non zero price
+         ├── when oracle returns eight decimals
+         │  └── it should calculate the minimum fee in wei
+         ├── when oracle returns more than eight decimals
+         │  └── it should calculate the minimum fee in wei
+         └── when oracle returns less than eight decimals
+            └── it should calculate the minimum fee in wei

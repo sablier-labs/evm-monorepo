@@ -30,7 +30,7 @@ import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
 import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 import { Assertions } from "./utils/Assertions.sol";
-import { ChainlinkPriceFeedMock } from "./utils/ChainlinkPriceFeedMock.sol";
+import { ChainlinkOracleMock } from "./utils/ChainlinkOracleMock.sol";
 import { Constants } from "./utils/Constants.sol";
 import { DeployOptimized } from "./utils/DeployOptimized.sol";
 import { MerkleBuilder } from "./utils/MerkleBuilder.sol";
@@ -60,7 +60,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
     ISablierMerkleLL internal merkleLL;
     ISablierMerkleLT internal merkleLT;
     ISablierMerkleVCA internal merkleVCA;
-    ChainlinkPriceFeedMock internal oracle;
+    ChainlinkOracleMock internal oracle;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -68,8 +68,6 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
 
     function setUp() public virtual override {
         EvmUtilsBase.setUp();
-        // Deploy the base test contracts.
-        oracle = new ChainlinkPriceFeedMock();
 
         // Create the protocol admin.
         users.admin = payable(makeAddr({ name: "Admin" }));
@@ -78,6 +76,9 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
         // Deploy the Lockup contract.
         LockupNFTDescriptor nftDescriptor = new LockupNFTDescriptor();
         lockup = new SablierLockup(users.admin, nftDescriptor, 1000);
+
+        // Deploy the mock Chainlink Oracle.
+        oracle = new ChainlinkOracleMock();
 
         // Deploy the Merkle Factory contracts.
         deployMerkleFactoriesConditionally();

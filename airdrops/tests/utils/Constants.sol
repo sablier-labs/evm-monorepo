@@ -10,9 +10,9 @@ abstract contract Constants {
     uint128 public constant CLAIM_AMOUNT = 10_000e18;
     uint128 public constant CLIFF_AMOUNT = (CLAIM_AMOUNT * CLIFF_DURATION) / TOTAL_DURATION;
     UD2x18 public immutable CLIFF_PERCENTAGE = (ud(CLIFF_AMOUNT).div(ud(CLAIM_AMOUNT)).intoUD2x18());
-    uint256 public constant MAX_FEE = 100e8; // 100$
-    uint256 public constant MINIMUM_FEE = 3e8; // 3$ fee
-    uint256 public constant MINIMUM_FEE_IN_WEI = 1e18 * MINIMUM_FEE / 3000e8; // for a $3000 ETH price
+    uint256 public constant MAX_FEE = 100e8; // $100
+    uint256 public constant MINIMUM_FEE = 3e8; // $3 fee
+    uint256 public constant MINIMUM_FEE_IN_WEI = (1e18 * MINIMUM_FEE) / 3000e8; // at $3000 per ETH price
     uint128 public constant START_AMOUNT = 100e18;
     UD2x18 public immutable START_PERCENTAGE = (ud(START_AMOUNT).div(ud(CLAIM_AMOUNT)).intoUD2x18());
 

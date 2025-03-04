@@ -19,10 +19,6 @@ abstract contract Modifiers is EvmUtilsBase {
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenCallerFactoryAdmin() {
-        _;
-    }
-
     modifier givenCampaignNotExists() {
         _;
     }
@@ -31,7 +27,7 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier givenCustomFeeNotSet() {
+    modifier givenMinimumFeeNotZero() {
         _;
     }
 
@@ -39,7 +35,7 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier givenPriceFeedAddressNotZero() {
+    modifier givenOracleNotZero() {
         _;
     }
 
@@ -68,6 +64,10 @@ abstract contract Modifiers is EvmUtilsBase {
 
     modifier whenCallerCampaignOwner() {
         resetPrank({ msgSender: users.campaignOwner });
+        _;
+    }
+
+    modifier whenCallerFactoryAdmin() {
         _;
     }
 
@@ -103,15 +103,19 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenNewFeeDoesNotExceedTheMaximumFee() {
+    modifier whenNewFeeNotExceedMaxFee() {
         _;
     }
 
-    modifier whenNewOracleNotZeroAddress() {
+    modifier whenNewOracleNotZero() {
         _;
     }
 
     modifier whenNotZeroExpiry() {
+        _;
+    }
+
+    modifier whenOracleReturnsNonZeroPrice() {
         _;
     }
 

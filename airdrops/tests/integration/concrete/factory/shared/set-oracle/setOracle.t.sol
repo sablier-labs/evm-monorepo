@@ -4,49 +4,46 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
 import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
-import { ChainlinkPriceFeedMock, ChainlinkPriceFeedMock_Empty } from "tests/utils/ChainlinkPriceFeedMock.sol";
+import { ChainlinkOracleMock, ChainlinkOracleWithoutImpl } from "tests/utils/ChainlinkOracleMock.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract SetOracle_Integration_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         resetPrank({ msgSender: users.eve });
+
+        // It should revert.
         vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.CallerNotAdmin.selector, users.admin, users.eve));
         merkleFactoryBase.setOracle(address(0));
     }
 
-    function test_WhenNewOracleZeroAddress() external whenCallerAdmin {
-        resetPrank({ msgSender: users.admin });
-
-        assertNotEq(merkleFactoryBase.oracle(), address(0), "oracle before");
-
+    function test_WhenNewOracleZero() external whenCallerAdmin {
+        // It should emit a {SetOracle} event.
         vm.expectEmit({ emitter: address(merkleFactoryBase) });
         emit ISablierMerkleFactoryBase.SetOracle(users.admin, address(0), address(oracle));
         merkleFactoryBase.setOracle(address(0));
 
+        // It should set the oracle to zero.
         assertEq(merkleFactoryBase.oracle(), address(0), "oracle after");
     }
 
-    function test_RevertWhen_NewOracleInvalid() external whenCallerAdmin whenNewOracleNotZeroAddress {
-        ChainlinkPriceFeedMock_Empty emptyOracle = new ChainlinkPriceFeedMock_Empty();
-        resetPrank({ msgSender: users.admin });
+    function test_RevertWhen_NewOracleWithoutImplementation() external whenCallerAdmin whenNewOracleNotZero {
+        ChainlinkOracleWithoutImpl oracleWithoutImpl = new ChainlinkOracleWithoutImpl();
 
+        // It should revert.
         vm.expectRevert();
-        merkleFactoryBase.setOracle(address(emptyOracle));
+        merkleFactoryBase.setOracle(address(oracleWithoutImpl));
     }
 
-    function test_WhenNewOracleValid() external whenCallerAdmin whenNewOracleNotZeroAddress {
-        // Deploy a new Chainlink price feed contract that returns a constant price of $3000 for 1 native token.
-        ChainlinkPriceFeedMock newOracle = new ChainlinkPriceFeedMock();
+    function test_WhenNewOracleWithImplementation() external whenCallerAdmin whenNewOracleNotZero {
+        ChainlinkOracleMock newOracleWithImpl = new ChainlinkOracleMock();
 
-        resetPrank({ msgSender: users.admin });
-
-        assertNotEq(merkleFactoryBase.oracle(), address(newOracle), "oracle before");
-
+        // It should emit a {SetOracle} event.
         vm.expectEmit({ emitter: address(merkleFactoryBase) });
-        emit ISablierMerkleFactoryBase.SetOracle(users.admin, address(newOracle), address(oracle));
-        merkleFactoryBase.setOracle(address(newOracle));
+        emit ISablierMerkleFactoryBase.SetOracle(users.admin, address(newOracleWithImpl), address(oracle));
+        merkleFactoryBase.setOracle(address(newOracleWithImpl));
 
-        assertEq(merkleFactoryBase.oracle(), address(newOracle), "oracle after");
+        // It should set the oracle.
+        assertEq(merkleFactoryBase.oracle(), address(newOracleWithImpl), "oracle after");
     }
 }

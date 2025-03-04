@@ -46,6 +46,9 @@ abstract contract MerkleVCA_Fork_Test is Fork_Test {
         ISablierMerkleVCA merkleVCA;
         bytes32[] merkleProof;
         bytes32 merkleRoot;
+        uint256 minimumFee;
+        uint256 minimumFeeInWei;
+        address oracle;
         address[] recipients;
         uint256 recipientCount;
     }
@@ -135,14 +138,18 @@ abstract contract MerkleVCA_Fork_Test is Fork_Test {
             tokenAddress: FORK_TOKEN
         });
 
+        // Load the mainnet values from the deployed contract.
+        vars.oracle = merkleFactoryVCA.oracle();
+        vars.minimumFee = merkleFactoryVCA.minimumFee();
+
         vm.expectEmit({ emitter: address(merkleFactoryVCA) });
         emit ISablierMerkleFactoryVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(vars.expectedMerkleVCA),
             params: vars.params,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.recipientCount,
-            fee: MINIMUM_FEE,
-            oracle: address(oracle)
+            fee: vars.minimumFee,
+            oracle: vars.oracle
         });
 
         vars.merkleVCA = merkleFactoryVCA.createMerkleVCA(vars.params, vars.aggregateAmount, vars.recipientCount);
@@ -197,9 +204,11 @@ abstract contract MerkleVCA_Fork_Test is Fork_Test {
             vars.merkleProof = getProof(leaves.toBytes32(), vars.leafPos);
         }
 
+        vars.minimumFeeInWei = vars.merkleVCA.minimumFeeInWei();
+
         expectCallToClaimWithData({
             merkleLockup: address(vars.merkleVCA),
-            feeInWei: MINIMUM_FEE_IN_WEI,
+            feeInWei: vars.minimumFeeInWei,
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
@@ -212,7 +221,7 @@ abstract contract MerkleVCA_Fork_Test is Fork_Test {
             value: vars.claimableAmount
         });
 
-        vars.merkleVCA.claim{ value: MINIMUM_FEE_IN_WEI }({
+        vars.merkleVCA.claim{ value: vars.minimumFeeInWei }({
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
@@ -251,11 +260,11 @@ abstract contract MerkleVCA_Fork_Test is Fork_Test {
         emit ISablierMerkleFactoryBase.CollectFees({
             admin: factoryAdmin,
             merkleBase: vars.merkleVCA,
-            feeAmount: MINIMUM_FEE_IN_WEI
+            feeAmount: vars.minimumFeeInWei
         });
         merkleFactoryVCA.collectFees({ merkleBase: vars.merkleVCA });
 
         assertEq(address(vars.merkleVCA).balance, 0, "merkleVCA ETH balance");
-        assertEq(factoryAdmin.balance, initialAdminBalance + MINIMUM_FEE_IN_WEI, "admin ETH balance");
+        assertEq(factoryAdmin.balance, initialAdminBalance + vars.minimumFeeInWei, "admin ETH balance");
     }
 }

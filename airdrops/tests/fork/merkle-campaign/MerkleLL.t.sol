@@ -52,6 +52,9 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         ISablierMerkleLL merkleLL;
         bytes32[] merkleProof;
         bytes32 merkleRoot;
+        uint256 minimumFee;
+        uint256 minimumFeeInWei;
+        address oracle;
         MerkleLL.ConstructorParams params;
         uint256 recipientCount;
         address[] recipients;
@@ -145,14 +148,18 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             tokenAddress: FORK_TOKEN
         });
 
+        // Load the mainnet values from the deployed contract.
+        vars.oracle = merkleFactoryLL.oracle();
+        vars.minimumFee = merkleFactoryLL.minimumFee();
+
         vm.expectEmit({ emitter: address(merkleFactoryLL) });
         emit ISablierMerkleFactoryLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(vars.expectedLL),
             params: vars.params,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.recipientCount,
-            fee: MINIMUM_FEE,
-            oracle: address(oracle)
+            fee: vars.minimumFee,
+            oracle: vars.oracle
         });
 
         vars.merkleLL = merkleFactoryLL.createMerkleLL(vars.params, vars.aggregateAmount, vars.recipientCount);
@@ -216,9 +223,11 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
             );
         }
 
+        vars.minimumFeeInWei = vars.merkleLL.minimumFeeInWei();
+
         expectCallToClaimWithData({
             merkleLockup: address(vars.merkleLL),
-            feeInWei: MINIMUM_FEE_IN_WEI,
+            feeInWei: vars.minimumFeeInWei,
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
@@ -226,7 +235,7 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         });
 
         // Claim the airdrop.
-        vars.merkleLL.claim{ value: MINIMUM_FEE_IN_WEI }({
+        vars.merkleLL.claim{ value: vars.minimumFeeInWei }({
             index: vars.indexes[params.posBeforeSort],
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
@@ -306,11 +315,11 @@ abstract contract MerkleLL_Fork_Test is Fork_Test {
         emit ISablierMerkleFactoryBase.CollectFees({
             admin: factoryAdmin,
             merkleBase: vars.merkleLL,
-            feeAmount: MINIMUM_FEE_IN_WEI
+            feeAmount: vars.minimumFeeInWei
         });
         merkleFactoryLL.collectFees({ merkleBase: vars.merkleLL });
 
         assertEq(address(vars.merkleLL).balance, 0, "merkleLL ETH balance");
-        assertEq(factoryAdmin.balance, vars.initialAdminBalance + MINIMUM_FEE_IN_WEI, "admin ETH balance");
+        assertEq(factoryAdmin.balance, vars.initialAdminBalance + vars.minimumFeeInWei, "admin ETH balance");
     }
 }

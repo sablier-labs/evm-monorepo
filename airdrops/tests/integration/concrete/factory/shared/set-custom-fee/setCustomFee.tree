@@ -2,11 +2,10 @@ SetCustomFee_Integration_Test
 ├── when caller not admin
 │  └── it should revert
 └── when caller admin
-    ├── when new fee exceeds the maximum fee
-    │   └── it should revert
-    └── when new fee does not exceed the maximum fee
+   ├── when new fee exceeds max fee
+   │  └── it should revert
+   └── when new fee not exceed max fee
       ├── when not enabled
-      │  ├── it should enable the custom fee
       │  ├── it should set the custom fee
       │  └── it should emit a {SetCustomFee} event
       └── when enabled

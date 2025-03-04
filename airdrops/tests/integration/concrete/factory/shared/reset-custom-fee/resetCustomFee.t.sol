@@ -14,6 +14,9 @@ abstract contract ResetCustomFee_Integration_Test is Integration_Test {
     }
 
     function test_WhenNotEnabled() external whenCallerAdmin {
+        // Check that custom fee is not enabled for user.
+        assertEq(merkleFactoryBase.getFee(users.campaignOwner), merkleFactoryBase.minimumFee(), "custom fee enabled");
+
         // It should emit a {ResetCustomFee} event.
         vm.expectEmit({ emitter: address(merkleFactoryBase) });
         emit ISablierMerkleFactoryBase.ResetCustomFee({ admin: users.admin, campaignCreator: users.campaignOwner });
@@ -21,16 +24,18 @@ abstract contract ResetCustomFee_Integration_Test is Integration_Test {
         // Reset the custom fee.
         merkleFactoryBase.resetCustomFee({ campaignCreator: users.campaignOwner });
 
-        // It should return the minimum fee.
-        assertEq(merkleFactoryBase.getFee(users.campaignOwner), MINIMUM_FEE, "custom fee");
+        // Check that `getFee` returns the minimum fee.
+        assertEq(merkleFactoryBase.getFee(users.campaignOwner), merkleFactoryBase.minimumFee(), "custom fee changed");
     }
 
     function test_WhenEnabled() external whenCallerAdmin {
-        uint256 customFee = 0.5e8;
-        // Set the custom fee.
-        merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: customFee });
+        // Enable the custom fee.
+        merkleFactoryBase.setCustomFee({ campaignCreator: users.campaignOwner, newFee: 0.5e8 });
 
-        assertEq(merkleFactoryBase.getFee(users.campaignOwner), customFee, "custom fee");
+        // Check that custom fee is enabled for user by checking that it is not equal to the minimum fee.
+        assertNotEq(
+            merkleFactoryBase.getFee(users.campaignOwner), merkleFactoryBase.minimumFee(), "custom fee not enabled"
+        );
 
         // It should emit a {ResetCustomFee} event.
         vm.expectEmit({ emitter: address(merkleFactoryBase) });
@@ -39,6 +44,9 @@ abstract contract ResetCustomFee_Integration_Test is Integration_Test {
         // Reset the custom fee.
         merkleFactoryBase.resetCustomFee({ campaignCreator: users.campaignOwner });
 
-        assertEq(merkleFactoryBase.getFee(users.campaignOwner), MINIMUM_FEE, "fee");
+        // Check that `getFee` returns the minimum fee.
+        assertEq(
+            merkleFactoryBase.getFee(users.campaignOwner), merkleFactoryBase.minimumFee(), "custom fee not changed"
+        );
     }
 }

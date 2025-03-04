@@ -6,8 +6,8 @@ LowerMinimumFee_Integration_Test
    │  └── it should revert
    └── when new fee lower
       ├── when new fee not zero
-      │  ├── it should set minimum fee to new fee
-      │  └── it should emit event LowerMinimumFee
+      │  ├── it should lower the minimum fee to the new value
+      │  └── it should emit a {LowerMinimumFee} event
       └── when new fee zero
-         ├── it should set minimum fee to zero   
-         └── it should emit event LowerMinimumFee
+         ├── it should set minimum fee to zero
+         └── it should emit a {LowerMinimumFee} event

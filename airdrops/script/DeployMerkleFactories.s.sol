@@ -1,20 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
-import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
-
 import { SablierMerkleFactoryInstant } from "../src/SablierMerkleFactoryInstant.sol";
 import { SablierMerkleFactoryLL } from "../src/SablierMerkleFactoryLL.sol";
 import { SablierMerkleFactoryLT } from "../src/SablierMerkleFactoryLT.sol";
 import { SablierMerkleFactoryVCA } from "../src/SablierMerkleFactoryVCA.sol";
-import { ChainlinkPriceFeedAddresses } from "./ChainlinkPriceFeedAddresses.sol";
+import { BaseScript } from "./Base.sol";
 
 /// @notice Deploys Merkle factory contracts.
-contract DeployMerkleFactories is BaseScript, ChainlinkPriceFeedAddresses {
-    /// @dev The initial minimum fee, using Chainlink's 8 decimals format, where 1e8 is $1.
-    uint256 private constant ONE_DOLLAR = 1e8;
-
-    /// @dev Deploy via Forge.
+contract DeployMerkleFactories is BaseScript {
     function run()
         public
         broadcast
@@ -26,10 +20,11 @@ contract DeployMerkleFactories is BaseScript, ChainlinkPriceFeedAddresses {
         )
     {
         address initialAdmin = protocolAdmin();
-        address initialOracle = getPriceFeedAddress();
-        merkleFactoryInstant = new SablierMerkleFactoryInstant(initialAdmin, ONE_DOLLAR, initialOracle);
-        merkleFactoryLL = new SablierMerkleFactoryLL(initialAdmin, ONE_DOLLAR, initialOracle);
-        merkleFactoryLT = new SablierMerkleFactoryLT(initialAdmin, ONE_DOLLAR, initialOracle);
-        merkleFactoryVCA = new SablierMerkleFactoryVCA(initialAdmin, ONE_DOLLAR, initialOracle);
+        uint256 initialMinimumFee = initialMinimumFee();
+        address initialOracle = chainlinkOracle();
+        merkleFactoryInstant = new SablierMerkleFactoryInstant(initialAdmin, initialMinimumFee, initialOracle);
+        merkleFactoryLL = new SablierMerkleFactoryLL(initialAdmin, initialMinimumFee, initialOracle);
+        merkleFactoryLT = new SablierMerkleFactoryLT(initialAdmin, initialMinimumFee, initialOracle);
+        merkleFactoryVCA = new SablierMerkleFactoryVCA(initialAdmin, initialMinimumFee, initialOracle);
     }
 }

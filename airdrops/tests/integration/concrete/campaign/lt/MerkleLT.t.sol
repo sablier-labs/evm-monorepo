@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
-import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
 import { Clawback_Integration_Test } from "./../shared/clawback/clawback.t.sol";
 import { CollectFees_Integration_Test } from "./../shared/collect-fees/collectFees.t.sol";
@@ -20,10 +18,10 @@ abstract contract MerkleLT_Integration_Shared_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Cast the {merkleFactoryLT} contract as {ISablierMerkleFactoryBase}
-        merkleFactoryBase = ISablierMerkleFactoryBase(merkleFactoryLT);
+        merkleFactoryBase = merkleFactoryLT;
 
         // Cast the {MerkleLT} contract as {ISablierMerkleBase}
-        merkleBase = ISablierMerkleBase(merkleLT);
+        merkleBase = merkleLT;
     }
 }
 
@@ -77,7 +75,8 @@ contract MinimumFeeInWei_MerkleLT_Integration_Test is
     MerkleLT_Integration_Shared_Test,
     MinimumFeeInWei_Integration_Test("lt")
 {
-    function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {
+    function setUp() public override(MerkleLT_Integration_Shared_Test, MinimumFeeInWei_Integration_Test) {
         MerkleLT_Integration_Shared_Test.setUp();
+        MinimumFeeInWei_Integration_Test.setUp();
     }
 }

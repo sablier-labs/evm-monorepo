@@ -13,8 +13,7 @@ abstract contract SetMinimumFee_Integration_Test is Integration_Test {
         merkleFactoryBase.setMinimumFee(0.001e18);
     }
 
-    function test_RevertWhen_NewMinimumFeeExceedsTheMaximumFee() external whenCallerAdmin {
-        resetPrank({ msgSender: users.admin });
+    function test_RevertWhen_NewFeeExceedsMaxFee() external whenCallerAdmin {
         uint256 newFee = MAX_FEE + 1;
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierMerkleFactoryBase_MaximumFeeExceeded.selector, newFee, MAX_FEE)
@@ -22,18 +21,16 @@ abstract contract SetMinimumFee_Integration_Test is Integration_Test {
         merkleFactoryBase.setMinimumFee(newFee);
     }
 
-    function test_WhenNewMinimumFeeDoesNotExceedTheMaximumFee() external whenCallerAdmin {
-        resetPrank({ msgSender: users.admin });
-
-        uint256 minimumFee = MINIMUM_FEE - 1;
+    function test_WhenNewFeeNotExceedMaxFee() external whenCallerAdmin {
+        uint256 newFee = MINIMUM_FEE - 1;
 
         // It should emit a {SetMinimumFee} event.
         vm.expectEmit({ emitter: address(merkleFactoryBase) });
-        emit ISablierMerkleFactoryBase.SetMinimumFee({ admin: users.admin, minimumFee: minimumFee });
+        emit ISablierMerkleFactoryBase.SetMinimumFee({ admin: users.admin, minimumFee: newFee });
 
-        merkleFactoryBase.setMinimumFee(minimumFee);
+        merkleFactoryBase.setMinimumFee(newFee);
 
         // It should set the minimum fee.
-        assertEq(merkleFactoryBase.minimumFee(), minimumFee, "minimum fee");
+        assertEq(merkleFactoryBase.minimumFee(), newFee, "minimum fee");
     }
 }

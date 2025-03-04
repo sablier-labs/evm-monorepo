@@ -10,8 +10,10 @@ contract Constructor_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_
         // Make Factory the caller for the constructor test.
         resetPrank(address(merkleFactoryVCA));
 
+        // Deploy the SablierMerkleVCA contract.
         SablierMerkleVCA constructedVCA = new SablierMerkleVCA(merkleVCAConstructorParams(), users.campaignOwner);
 
+        // SablierMerkleBase
         assertEq(constructedVCA.admin(), users.campaignOwner, "admin");
         assertEq(constructedVCA.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedVCA.EXPIRATION(), EXPIRATION, "expiration");
@@ -19,9 +21,12 @@ contract Constructor_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_
         assertEq(constructedVCA.ipfsCID(), IPFS_CID, "ipfsCID");
         assertEq(constructedVCA.MERKLE_ROOT(), MERKLE_ROOT, "merkleRoot");
         assertEq(constructedVCA.minimumFee(), MINIMUM_FEE, "minimum fee");
+        assertEq(constructedVCA.ORACLE(), address(oracle), "oracle");
+        assertEq(address(constructedVCA.TOKEN()), address(dai), "token");
+
+        // SablierMerkleVCA
         assertEq(constructedVCA.forgoneAmount(), 0, "forgoneAmount");
         assertEq(constructedVCA.timestamps().start, RANGED_STREAM_START_TIME, "unlock start");
         assertEq(constructedVCA.timestamps().end, RANGED_STREAM_END_TIME, "unlock end");
-        assertEq(address(constructedVCA.TOKEN()), address(dai), "token");
     }
 }

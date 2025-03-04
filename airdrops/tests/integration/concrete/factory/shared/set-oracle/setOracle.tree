@@ -1,13 +1,13 @@
 SetOracle_Integration_Test
 ├── when caller not admin
-│   └── it should revert
+│  └── it should revert
 └── when caller admin
-    ├── when new oracle zero address
-    │   ├── it should oracle
-    │   └── it should emit a {SetOracle} event
-    └── when new oracle not zero address
-        ├── when new oracle invalid
-        │   └── it should revert
-        └── when new oracle valid
-            ├── it should set the oracle
-            └── it should emit a {SetOracle} event
+   ├── when new oracle zero
+   │  ├── it should set the oracle to zero
+   │  └── it should emit a {SetOracle} event
+   └── when new oracle not zero
+      ├── when new oracle without implementation
+      │  └── it should revert
+      └── when new oracle with implementation
+         ├── it should set the oracle
+         └── it should emit a {SetOracle} event

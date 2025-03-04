@@ -11,25 +11,31 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         // Make Factory the caller for the constructor test.
         resetPrank(address(merkleFactoryLL));
 
+        // Deploy the SablierMerkleLL contract.
         SablierMerkleLL constructedLL = new SablierMerkleLL(merkleLLConstructorParams(), users.campaignOwner);
 
+        // Token allowance
         uint256 actualAllowance = dai.allowance(address(constructedLL), address(lockup));
         assertEq(actualAllowance, MAX_UINT256, "allowance");
 
+        // SablierMerkleBase
         assertEq(constructedLL.admin(), users.campaignOwner, "admin");
         assertEq(constructedLL.campaignName(), CAMPAIGN_NAME, "campaign name");
-        assertEq(constructedLL.ORACLE(), address(oracle), "oracle");
         assertEq(constructedLL.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(constructedLL.FACTORY(), address(merkleFactoryLL), "factory");
         assertEq(constructedLL.ipfsCID(), IPFS_CID, "ipfsCID");
-        assertEq(address(constructedLL.LOCKUP()), address(lockup), "lockup");
         assertEq(constructedLL.MERKLE_ROOT(), MERKLE_ROOT, "merkleRoot");
         assertEq(constructedLL.minimumFee(), MINIMUM_FEE, "minimum fee");
+        assertEq(constructedLL.ORACLE(), address(oracle), "oracle");
+        assertEq(address(constructedLL.TOKEN()), address(dai), "token");
+
+        // SablierMerkleLockup
+        assertEq(address(constructedLL.LOCKUP()), address(lockup), "lockup");
         assertEq(constructedLL.shape(), SHAPE, "shape");
         assertEq(constructedLL.STREAM_CANCELABLE(), CANCELABLE, "stream cancelable");
         assertEq(constructedLL.STREAM_TRANSFERABLE(), TRANSFERABLE, "stream transferable");
-        assertEq(address(constructedLL.TOKEN()), address(dai), "token");
 
+        // SablierMerkleLL
         MerkleLL.Schedule memory actualSchedule = constructedLL.getSchedule();
         assertEq(actualSchedule.startTime, RANGED_STREAM_START_TIME, "schedule.startTime");
         assertEq(actualSchedule.startPercentage, START_PERCENTAGE, "schedule.startPercentage");

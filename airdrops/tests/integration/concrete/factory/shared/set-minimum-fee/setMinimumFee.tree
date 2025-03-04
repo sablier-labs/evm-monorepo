@@ -1,9 +1,9 @@
 SetMinimumFee_Integration_Test
 ├── when caller not admin
-│   └── it should revert
+│  └── it should revert
 └── when caller admin
-    ├── when new minimum fee exceeds the maximum fee
-    │   └── it should revert
-    └── when new minimum fee does not exceed the maximum fee
-        ├── it should set the minimum fee
-        └── it should emit a {setMinimumFee} event
+   ├── when new fee exceeds max fee
+   │  └── it should revert
+   └── when new fee not exceed max fee
+      ├── it should set the minimum fee
+      └── it should emit a {setMinimumFee} event
