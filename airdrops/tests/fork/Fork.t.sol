@@ -27,15 +27,19 @@ abstract contract Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        // Fork Ethereum Mainnet at the latest block number.
-        vm.createSelectFork({ urlOrAlias: "ethereum" });
+        // Fork Ethereum Mainnet at a specific block number.
+        // TODO: Uncomment the following after deployment.
+        // vm.createSelectFork({ blockNumber: 21_719_244, urlOrAlias: "mainnet" });
 
-        // TODO: Load deployed addresses from Ethereum mainnet.
+        // TODO: Uncomment and load deployed addresses from Ethereum mainnet.
         // merkleFactoryInstant = ISablierMerkleFactoryInstant(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
         // merkleFactoryLL = ISablierMerkleFactoryLL(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
         // merkleFactoryLT = ISablierMerkleFactoryLT(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
         // merkleFactoryVCA = ISablierMerkleFactoryVCA(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);
         // lockup = ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056);
+
+        // TODO: Remove the following two lines after deployment.
         Base_Test.setUp();
+        vm.etch(address(FORK_TOKEN), address(usdc).code);
     }
 }
