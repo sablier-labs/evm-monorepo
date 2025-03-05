@@ -29,15 +29,19 @@ abstract contract Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        // Fork Ethereum Mainnet at the latest block number.
-        vm.createSelectFork({ urlOrAlias: "ethereum" });
+        // Fork Ethereum Mainnet at a specific block number.
+        // TODO: Uncomment the following after deployment.
+        // vm.createSelectFork({ blockNumber: 21_719_029, urlOrAlias: "mainnet" });
 
-        // TODO: update once the contracts are deployed.
-        Base_Test.setUp();
+        // TODO: Uncomment and load deployed addresses from Ethereum mainnet.
         // Load deployed addresses from Ethereum mainnet.
         // batchLockup = ISablierBatchLockup(0x3F6E8a8Cffe377c4649aCeB01e6F20c60fAA356c);
         // nftDescriptor = ILockupNFTDescriptor(0xA9dC6878C979B5cc1d98a1803F0664ad725A1f56);
         // lockup = ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056);
+
+        // TODO: Remove the following two lines after deployment.
+        Base_Test.setUp();
+        vm.etch(address(FORK_TOKEN), address(usdc).code);
 
         // Create a custom user for this test suite.
         forkTokenHolder = payable(makeAddr(string.concat(IERC20Metadata(address(FORK_TOKEN)).symbol(), "_HOLDER")));
@@ -81,5 +85,21 @@ abstract contract Fork_Test is Base_Test {
     function labelContracts() internal {
         vm.label({ account: address(FORK_TOKEN), newLabel: IERC20Metadata(address(FORK_TOKEN)).symbol() });
         vm.label({ account: forkTokenHolder, newLabel: "Fork Token Holder" });
+    }
+
+    // TODO: Remove the following function after deployment. This is to mock multicall.
+    function getTokenBalances(
+        address token,
+        address[] memory addresses
+    )
+        internal
+        view
+        override
+        returns (uint256[] memory balances)
+    {
+        balances = new uint256[](addresses.length);
+        for (uint256 i = 0; i < addresses.length; ++i) {
+            balances[i] = IERC20(token).balanceOf(addresses[i]);
+        }
     }
 }
