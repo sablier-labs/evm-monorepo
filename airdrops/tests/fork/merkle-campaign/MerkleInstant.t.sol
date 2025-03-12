@@ -2,115 +2,45 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 
-import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
 import { ISablierMerkleFactoryInstant } from "src/interfaces/ISablierMerkleFactoryInstant.sol";
-import { ISablierMerkleBase, ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
+import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 
 import { MerkleInstant } from "src/types/DataTypes.sol";
 
-import { MerkleBuilder } from "./../../utils/MerkleBuilder.sol";
 import { Fork_Test } from "./../Fork.t.sol";
+import { MerkleBase_Fork_Test } from "./MerkleBase.t.sol";
 
-abstract contract MerkleInstant_Fork_Test is Fork_Test {
-    using MerkleBuilder for uint256[];
+abstract contract MerkleInstant_Fork_Test is MerkleBase_Fork_Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 tokenAddress) Fork_Test(tokenAddress) { }
+    constructor(IERC20 tokenAddress) MerkleBase_Fork_Test(tokenAddress) { }
 
-    /// @dev Encapsulates the data needed to compute a Merkle tree leaf.
-    struct LeafData {
-        uint256 index;
-        uint256 recipientSeed;
-        uint128 amount;
+    /*//////////////////////////////////////////////////////////////////////////
+                                  SET-UP FUNCTION
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function setUp() public virtual override {
+        Fork_Test.setUp();
+
+        // Cast the {merkleFactoryInstant} contract as {ISablierMerkleFactoryBase}
+        merkleFactoryBase = merkleFactoryInstant;
     }
 
-    struct Params {
-        address campaignOwner;
-        uint40 expiration;
-        LeafData[] leafData;
-        uint256 posBeforeSort;
-    }
-
-    struct Vars {
-        uint256 aggregateAmount;
-        uint128[] amounts;
-        MerkleInstant.ConstructorParams params;
-        uint128 clawbackAmount;
-        address expectedMerkleInstant;
-        uint256[] indexes;
-        uint256 leafPos;
-        uint256 leafToClaim;
-        ISablierMerkleInstant merkleInstant;
-        bytes32[] merkleProof;
-        bytes32 merkleRoot;
-        uint256 minimumFee;
-        uint256 minimumFeeInWei;
-        address oracle;
-        uint256 recipientCount;
-        address[] recipients;
-    }
-
-    // We need the leaves as a storage variable so that we can use OpenZeppelin's {Arrays.findUpperBound}.
-    uint256[] public leaves;
+    /*//////////////////////////////////////////////////////////////////////////
+                                   TEST-FUNCTION
+    //////////////////////////////////////////////////////////////////////////*/
 
     function testForkFuzz_MerkleInstant(Params memory params) external {
-        vm.assume(params.campaignOwner != address(0));
-        vm.assume(params.leafData.length > 0);
-        assumeNoBlacklisted({ token: address(FORK_TOKEN), addr: params.campaignOwner });
-        params.posBeforeSort = _bound(params.posBeforeSort, 0, params.leafData.length - 1);
-
-        // The expiration must be either zero or greater than the block timestamp.
-        if (params.expiration != 0) {
-            params.expiration = boundUint40(params.expiration, getBlockTimestamp() + 1 seconds, MAX_UNIX_TIMESTAMP);
-        }
-
         /*//////////////////////////////////////////////////////////////////////////
                                           CREATE
         //////////////////////////////////////////////////////////////////////////*/
 
-        Vars memory vars;
+        preCreateCampaign(params);
 
-        // Load the factory admin from mainnet.
-        factoryAdmin = merkleFactoryInstant.admin();
-
-        vars.recipientCount = params.leafData.length;
-        vars.amounts = new uint128[](vars.recipientCount);
-        vars.indexes = new uint256[](vars.recipientCount);
-        vars.recipients = new address[](vars.recipientCount);
-        for (uint256 i = 0; i < vars.recipientCount; ++i) {
-            vars.indexes[i] = params.leafData[i].index;
-
-            // Bound each leaf amount so that `aggregateAmount` does not overflow.
-            vars.amounts[i] = boundUint128(params.leafData[i].amount, 1, uint128(MAX_UINT128 / vars.recipientCount - 1));
-            vars.aggregateAmount += vars.amounts[i];
-
-            // Avoid zero recipient addresses.
-            uint256 boundedRecipientSeed = _bound(params.leafData[i].recipientSeed, 1, type(uint160).max);
-            // Avoid recipient to be the protocol admin.
-            vars.recipients[i] = address(uint160(boundedRecipientSeed)) != factoryAdmin
-                ? address(uint160(boundedRecipientSeed))
-                : address(uint160(boundedRecipientSeed) + 1);
-        }
-
-        leaves = new uint256[](vars.recipientCount);
-        leaves = MerkleBuilder.computeLeaves(vars.indexes, vars.recipients, vars.amounts);
-
-        // Sort the leaves in ascending order to match the production environment.
-        MerkleBuilder.sortLeaves(leaves);
-
-        // Compute the Merkle root.
-        if (leaves.length == 1) {
-            // If there is only one leaf, the Merkle root is the hash of the leaf itself.
-            vars.merkleRoot = bytes32(leaves[0]);
-        } else {
-            vars.merkleRoot = getRoot(leaves.toBytes32());
-        }
-
-        // Make the campaign owner as the caller.
-        resetPrank({ msgSender: params.campaignOwner });
-
-        vars.expectedMerkleInstant = computeMerkleInstantAddress({
+        vars.expectedMerkleCampaign = computeMerkleInstantAddress({
             campaignCreator: params.campaignOwner,
             campaignOwner: params.campaignOwner,
             expiration: params.expiration,
@@ -118,80 +48,46 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
             tokenAddress: FORK_TOKEN
         });
 
-        vars.params = merkleInstantConstructorParams({
+        MerkleInstant.ConstructorParams memory constructorParams = merkleInstantConstructorParams({
             campaignOwner: params.campaignOwner,
             expiration: params.expiration,
             merkleRoot: vars.merkleRoot,
             tokenAddress: FORK_TOKEN
         });
 
-        // Load the mainnet values from the deployed contract.
-        vars.oracle = merkleFactoryInstant.oracle();
-        vars.minimumFee = merkleFactoryInstant.minimumFee();
-
         vm.expectEmit({ emitter: address(merkleFactoryInstant) });
         emit ISablierMerkleFactoryInstant.CreateMerkleInstant({
-            merkleInstant: ISablierMerkleInstant(vars.expectedMerkleInstant),
-            params: vars.params,
+            merkleInstant: ISablierMerkleInstant(vars.expectedMerkleCampaign),
+            params: constructorParams,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.recipientCount,
             fee: vars.minimumFee,
             oracle: vars.oracle
         });
 
-        vars.merkleInstant =
-            merkleFactoryInstant.createMerkleInstant(vars.params, vars.aggregateAmount, vars.recipientCount);
+        merkleInstant =
+            merkleFactoryInstant.createMerkleInstant(constructorParams, vars.aggregateAmount, vars.recipientCount);
 
-        // Fund the MerkleInstant contract.
-        deal({ token: address(FORK_TOKEN), to: address(vars.merkleInstant), give: vars.aggregateAmount });
-
-        assertGt(address(vars.merkleInstant).code.length, 0, "MerkleInstant contract not created");
+        assertGt(address(merkleInstant).code.length, 0, "MerkleInstant contract not created");
         assertEq(
-            address(vars.merkleInstant),
-            vars.expectedMerkleInstant,
+            address(merkleInstant),
+            vars.expectedMerkleCampaign,
             "MerkleInstant contract does not match computed address"
         );
+
+        // Cast the {MerkleInstant} contract as {ISablierMerkleBase}
+        merkleBase = merkleInstant;
 
         /*//////////////////////////////////////////////////////////////////////////
                                           CLAIM
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Make the recipient as the caller.
-        resetPrank({ msgSender: vars.recipients[params.posBeforeSort] });
-        vm.deal(vars.recipients[params.posBeforeSort], 1 ether);
-
-        uint256 initialAdminBalance = factoryAdmin.balance;
-
-        assertFalse(vars.merkleInstant.hasClaimed(vars.indexes[params.posBeforeSort]));
-
-        vars.leafToClaim = MerkleBuilder.computeLeaf(
-            vars.indexes[params.posBeforeSort],
-            vars.recipients[params.posBeforeSort],
-            vars.amounts[params.posBeforeSort]
-        );
-        vars.leafPos = Arrays.findUpperBound(leaves, vars.leafToClaim);
-
-        vm.expectEmit({ emitter: address(vars.merkleInstant) });
-        emit ISablierMerkleInstant.Claim(
-            vars.indexes[params.posBeforeSort],
-            vars.recipients[params.posBeforeSort],
-            vars.amounts[params.posBeforeSort]
-        );
-
-        // Compute the Merkle proof.
-        if (leaves.length == 1) {
-            // If there is only one leaf, the Merkle proof should be an empty array as no proof is needed because the
-            // leaf is the root.
-        } else {
-            vars.merkleProof = getProof(leaves.toBytes32(), vars.leafPos);
-        }
-
-        vars.minimumFeeInWei = vars.merkleInstant.minimumFeeInWei();
+        preClaim(params);
 
         expectCallToClaimWithData({
-            merkleLockup: address(vars.merkleInstant),
+            merkleLockup: address(merkleInstant),
             feeInWei: vars.minimumFeeInWei,
-            index: vars.indexes[params.posBeforeSort],
+            index: vars.indexToClaim,
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
             merkleProof: vars.merkleProof
@@ -203,49 +99,25 @@ abstract contract MerkleInstant_Fork_Test is Fork_Test {
             value: vars.amounts[params.posBeforeSort]
         });
 
-        vars.merkleInstant.claim{ value: vars.minimumFeeInWei }({
-            index: vars.indexes[params.posBeforeSort],
+        merkleInstant.claim{ value: vars.minimumFeeInWei }({
+            index: vars.indexToClaim,
             recipient: vars.recipients[params.posBeforeSort],
             amount: vars.amounts[params.posBeforeSort],
             merkleProof: vars.merkleProof
         });
 
-        assertTrue(vars.merkleInstant.hasClaimed(vars.indexes[params.posBeforeSort]));
+        assertTrue(merkleInstant.hasClaimed(vars.indexToClaim));
 
         /*//////////////////////////////////////////////////////////////////////////
                                         CLAWBACK
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Make the campaign owner as the caller.
-        resetPrank({ msgSender: params.campaignOwner });
-
-        if (params.expiration > 0) {
-            vars.clawbackAmount = uint128(FORK_TOKEN.balanceOf(address(vars.merkleInstant)));
-            vm.warp({ newTimestamp: params.expiration + 1 seconds });
-
-            expectCallToTransfer({ token: FORK_TOKEN, to: params.campaignOwner, value: vars.clawbackAmount });
-            vm.expectEmit({ emitter: address(vars.merkleInstant) });
-            emit ISablierMerkleBase.Clawback({
-                to: params.campaignOwner,
-                admin: params.campaignOwner,
-                amount: vars.clawbackAmount
-            });
-            vars.merkleInstant.clawback({ to: params.campaignOwner, amount: vars.clawbackAmount });
-        }
+        testClawback(params);
 
         /*//////////////////////////////////////////////////////////////////////////
                                         COLLECT-FEES
         //////////////////////////////////////////////////////////////////////////*/
 
-        vm.expectEmit({ emitter: address(merkleFactoryInstant) });
-        emit ISablierMerkleFactoryBase.CollectFees({
-            admin: factoryAdmin,
-            merkleBase: vars.merkleInstant,
-            feeAmount: vars.minimumFeeInWei
-        });
-        merkleFactoryInstant.collectFees({ merkleBase: vars.merkleInstant });
-
-        assertEq(address(vars.merkleInstant).balance, 0, "merkleInstant ETH balance");
-        assertEq(factoryAdmin.balance, initialAdminBalance + vars.minimumFeeInWei, "admin ETH balance");
+        testCollectFees();
     }
 }

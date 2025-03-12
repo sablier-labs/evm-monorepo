@@ -19,7 +19,6 @@ abstract contract MerkleVCA_Integration_Shared_Test is Integration_Test {
 
         // Cast the {MerkleFactoryVCA} contract as {ISablierMerkleFactoryBase}
         merkleFactoryBase = merkleFactoryVCA;
-
         // Cast the {MerkleVCA} contract as {ISablierMerkleBase}
         merkleBase = merkleVCA;
     }

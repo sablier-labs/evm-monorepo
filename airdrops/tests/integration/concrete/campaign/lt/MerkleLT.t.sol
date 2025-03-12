@@ -19,7 +19,6 @@ abstract contract MerkleLT_Integration_Shared_Test is Integration_Test {
 
         // Cast the {merkleFactoryLT} contract as {ISablierMerkleFactoryBase}
         merkleFactoryBase = merkleFactoryLT;
-
         // Cast the {MerkleLT} contract as {ISablierMerkleBase}
         merkleBase = merkleLT;
     }

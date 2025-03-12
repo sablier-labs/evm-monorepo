@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
-import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
@@ -11,16 +9,6 @@ import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Base_Test } from "../Base.t.sol";
 
 contract Integration_Test is Base_Test {
-    /*//////////////////////////////////////////////////////////////////////////
-                                   TEST CONTRACTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev A test contract meant to be overridden by the implementing Merkle campaign contracts.
-    ISablierMerkleBase internal merkleBase;
-
-    /// @dev A test contract meant to be overridden by the implementing Merkle factory contracts.
-    ISablierMerkleFactoryBase internal merkleFactoryBase;
-
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/

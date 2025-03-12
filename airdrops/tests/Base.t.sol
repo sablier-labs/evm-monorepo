@@ -12,6 +12,7 @@ import { SablierLockup } from "@sablier/lockup/src/SablierLockup.sol";
 import { LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol";
 import { Merkle } from "murky/src/Merkle.sol";
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
+import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
 import { ISablierMerkleFactoryInstant } from "src/interfaces/ISablierMerkleFactoryInstant.sol";
 import { ISablierMerkleFactoryLL } from "src/interfaces/ISablierMerkleFactoryLL.sol";
 import { ISablierMerkleFactoryLT } from "src/interfaces/ISablierMerkleFactoryLT.sol";
@@ -52,6 +53,10 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, M
     //////////////////////////////////////////////////////////////////////////*/
 
     ISablierLockup internal lockup;
+    /// @dev A test contract meant to be overridden by the implementing Merkle campaign contracts.
+    ISablierMerkleBase internal merkleBase;
+    /// @dev A test contract meant to be overridden by the implementing Merkle factory contracts.
+    ISablierMerkleFactoryBase internal merkleFactoryBase;
     ISablierMerkleFactoryInstant internal merkleFactoryInstant;
     ISablierMerkleFactoryLL internal merkleFactoryLL;
     ISablierMerkleFactoryLT internal merkleFactoryLT;

@@ -20,7 +20,6 @@ abstract contract MerkleLL_Integration_Shared_Test is Integration_Test {
 
         // Cast the {merkleFactoryLL} contract as {ISablierMerkleFactoryBase}
         merkleFactoryBase = merkleFactoryLL;
-
         // Cast the {MerkleLL} contract as {ISablierMerkleBase}
         merkleBase = merkleLL;
     }
