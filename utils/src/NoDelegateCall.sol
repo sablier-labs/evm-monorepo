@@ -20,6 +20,10 @@ abstract contract NoDelegateCall {
         _;
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                             PRIVATE CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @dev This function checks whether the current call is a delegate call, and reverts if it is.
     ///
     /// - A private function is used instead of inlining this logic in a modifier because Solidity copies modifiers into

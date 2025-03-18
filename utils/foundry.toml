@@ -1,5 +1,3 @@
-# Full reference https://github.com/foundry-rs/foundry/tree/master/crates/config
-
 [profile.default]
   evm_version = "shanghai"
   fs_permissions = [
@@ -11,7 +9,7 @@
   optimizer_runs = 10_000
   out = "out"
   script = "script"
-  solc = "0.8.26"
+  solc = "0.8.29"
   src = "src"
   test = "tests"
 
