@@ -5,7 +5,7 @@ import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./../types/
 import { Errors } from "./Errors.sol";
 
 /// @title Helpers
-/// @notice Library with functions needed to validate input parameters across lockup streams.
+/// @notice Library with functions needed to validate input parameters across Lockup streams.
 library Helpers {
     /*//////////////////////////////////////////////////////////////////////////
                                 CONSTANT FUNCTIONS
@@ -136,7 +136,7 @@ library Helpers {
                             PRIVATE CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks the user-provided cliff, end times and unlock amounts of a stream with LL model.
+    /// @dev Checks the user-provided cliff, end times, and unlock amounts of an LL stream.
     function _checkTimestampsAndUnlockAmounts(
         uint128 depositAmount,
         Lockup.Timestamps memory timestamps,
@@ -176,7 +176,7 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the user-provided common parameters across lockup streams.
+    /// @dev Checks the user-provided common parameters across Lockup streams.
     function _checkCreateStream(
         address sender,
         uint128 depositAmount,

@@ -90,12 +90,11 @@ library BatchLockup {
     }
 }
 
-/// @notice Namespace for the structs used in all Lockup models.
+/// @notice Namespace for the structs shared by all Lockup models.
 library Lockup {
     /// @notice Struct encapsulating the deposit, withdrawn, and refunded amounts, all denoted in units of the token's
     /// decimals.
-    /// @dev Because the deposited and the withdrawn amount are often read together, declaring them in the same slot
-    /// saves gas.
+    /// @dev The deposited and withdrawn amount are often read together, so declaring them in the same slot saves gas.
     /// @param deposited The amount deposited in the stream.
     /// @param withdrawn The cumulative amount withdrawn from the stream.
     /// @param refunded The amount refunded to the sender. Unless the stream was canceled, this is always zero.
@@ -107,7 +106,7 @@ library Lockup {
         uint128 refunded;
     }
 
-    /// @notice Struct encapsulating the common parameters emitted in the `Create` event.
+    /// @notice Struct encapsulating the common parameters emitted in the stream creation events.
     /// @param funder The address which has funded the stream.
     /// @param sender The address distributing the tokens, which is able to cancel the stream.
     /// @param recipient The address receiving the tokens, as well as the NFT owner.
@@ -172,8 +171,8 @@ library Lockup {
         string shape;
     }
 
-    /// @notice Enum representing the different distribution models used to create lockup streams.
-    /// @dev These distribution models determine the streaming function used in the calculations of the unlocked tokens.
+    /// @notice Enum representing the different distribution models used to create Lockup streams.
+    /// @dev This determines the streaming function used in the calculations of the unlocked tokens.
     enum Model {
         LOCKUP_LINEAR,
         LOCKUP_DYNAMIC,
@@ -239,9 +238,9 @@ library Lockup {
     }
 }
 
-/// @notice Namespace for the structs used only in LD model.
+/// @notice Namespace for the structs used only in LD streams.
 library LockupDynamic {
-    /// @notice Segment struct stored to represent streams with LD model.
+    /// @notice Segment struct stored to represent LD streams.
     /// @param amount The amount of tokens streamed in the segment, denoted in units of the token's decimals.
     /// @param exponent The exponent of the segment, denoted as a fixed-point number.
     /// @param timestamp The Unix timestamp indicating the segment's end.
@@ -263,7 +262,7 @@ library LockupDynamic {
     }
 }
 
-/// @notice Namespace for the structs used only in LL model.
+/// @notice Namespace for the structs used only in LL streams.
 library LockupLinear {
     /// @notice Struct encapsulating the cliff duration and the total duration used at runtime in
     /// {SablierLockup.createWithDurationsLL} function.
@@ -285,9 +284,9 @@ library LockupLinear {
     }
 }
 
-/// @notice Namespace for the structs used only in LT model.
+/// @notice Namespace for the structs used only in LT streams.
 library LockupTranched {
-    /// @notice Tranche struct stored to represent streams with LT model.
+    /// @notice Tranche struct stored to represent LT streams.
     /// @param amount The amount of tokens to be unlocked in the tranche, denoted in units of the token's decimals.
     /// @param timestamp The Unix timestamp indicating the tranche's end.
     struct Tranche {

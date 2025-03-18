@@ -146,7 +146,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
 
-        // It should update the aggrate balance.
+        // It should update the aggregate balance.
         assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - withdrawAmount, "aggregateBalance");
     }
 
@@ -222,7 +222,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
 
-        // It should update the aggrate balance.
+        // It should update the aggregate balance.
         assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - withdrawAmount, "aggregateBalance");
     }
 }

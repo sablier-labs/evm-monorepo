@@ -271,7 +271,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         uint128 expectedRefundedAmount = senderAmount;
         assertEq(actualRefundedAmount, expectedRefundedAmount, "refundedAmount");
 
-        // It should update the aggrate balance.
+        // It should update the aggregate balance.
         uint256 actualAggregateBalance = lockup.aggregateBalance(dai);
         uint256 expectedAggregateBalance = previousAggregateAmount - senderAmount;
         assertEq(actualAggregateBalance, expectedAggregateBalance, "aggregateBalance");

@@ -27,9 +27,9 @@ contract LockupAdminHandler is BaseHandler {
                                  SABLIER-LOCKUP-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Function to increase the lockup contract balance for the fuzzed token.
+    /// @dev Increase the Lockup contract's balance by directly transferring tokens to it.
     function randomTransfer(uint256 amount) external {
-        vm.assume(amount > 0 && amount < 100e18);
+        amount = _bound(amount, 1, 100e18);
 
         deal({ token: address(token), to: address(lockup), give: token.balanceOf(address(lockup)) + amount });
     }
@@ -39,6 +39,6 @@ contract LockupAdminHandler is BaseHandler {
 
         resetPrank(lockup.admin());
 
-        lockup.recover(token, lockup.admin());
+        lockup.recover({ token: token, to: lockup.admin() });
     }
 }

@@ -71,16 +71,17 @@ contract Invariant_Test is Base_Test, StdInvariant {
             withdrawnAmountsSum += uint256(lockup.getWithdrawnAmount(streamId));
         }
 
+        uint256 aggregateBalance = depositedAmountsSum - refundedAmountsSum - withdrawnAmountsSum;
         assertEq(
             lockup.aggregateBalance(dai),
-            depositedAmountsSum - refundedAmountsSum - withdrawnAmountsSum,
-            unicode"Invariant violation: Σ deposited amounts - Σ refunded amounts - Σ withdrawn amounts != aggregate balance"
+            aggregateBalance,
+            unicode"Invariant violation: aggregate balance != Σ deposits - Σ refunds - Σ withdrawals"
         );
 
         assertGe(
             contractBalance,
-            depositedAmountsSum - refundedAmountsSum - withdrawnAmountsSum,
-            unicode"Invariant violation: contract balances < Σ deposited amounts - Σ refunded amounts - Σ withdrawn amounts"
+            aggregateBalance,
+            unicode"Invariant violation: contract balances < Σ deposits - Σ refunds - Σ withdrawals"
         );
     }
 
@@ -125,7 +126,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
             uint128 depositAmount = lockup.getDepositedAmount(streamId);
-            assertNotEq(depositAmount, 0, "Invariant violated: stream non-null, deposited amount zero");
+            assertNotEq(depositAmount, 0, "Invariant violation: stream non-null, deposited amount zero");
         }
     }
 
@@ -154,7 +155,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
             uint40 startTime = lockup.getStartTime(streamId);
-            assertGt(startTime, 0, "Invariant violated: start time zero");
+            assertGt(startTime, 0, "Invariant violation: start time zero");
         }
     }
 
@@ -374,7 +375,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 uint40 previousTimestamp = segments[0].timestamp;
                 for (uint256 j = 1; j < segments.length; ++j) {
                     assertGt(
-                        segments[j].timestamp, previousTimestamp, "Invariant violated: segment timestamps not ordered"
+                        segments[j].timestamp, previousTimestamp, "Invariant violation: segment timestamps not ordered"
                     );
                     previousTimestamp = segments[j].timestamp;
                 }
@@ -396,7 +397,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                     assertGt(
                         lockup.getCliffTime(streamId),
                         lockup.getStartTime(streamId),
-                        "Invariant violated: cliff time <= start time"
+                        "Invariant violation: cliff time <= start time"
                     );
                 }
             }
@@ -412,7 +413,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 assertGt(
                     lockup.getEndTime(streamId),
                     lockup.getCliffTime(streamId),
-                    "Invariant violated: end time <= cliff time"
+                    "Invariant violation: end time <= cliff time"
                 );
             }
         }
@@ -432,7 +433,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 uint40 previousTimestamp = tranches[0].timestamp;
                 for (uint256 j = 1; j < tranches.length; ++j) {
                     assertGt(
-                        tranches[j].timestamp, previousTimestamp, "Invariant violated: tranche timestamps not ordered"
+                        tranches[j].timestamp, previousTimestamp, "Invariant violation: tranche timestamps not ordered"
                     );
                     previousTimestamp = tranches[j].timestamp;
                 }

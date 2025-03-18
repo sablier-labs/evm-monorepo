@@ -37,7 +37,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         calls[0] = abi.encodeCall(lockup.isCancelable, (ids.defaultStream));
         // It should return the withdrawn amount.
         calls[1] = abi.encodeCall(lockup.withdrawMax, (ids.notCancelableStream, users.recipient));
-        // It should return refunded amount.
+        // It should return the refunded amount.
         calls[2] = abi.encodeCall(lockup.cancel, (ids.defaultStream));
         // It should return the next stream ID.
         calls[3] = abi.encodeCall(lockup.nextStreamId, ());
@@ -51,16 +51,16 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
 
         bytes[] memory results = lockup.batch(calls);
         assertEq(results.length, 6, "batch results length");
-        assertTrue(abi.decode(results[0], (bool)), "batch results[0]");
-        assertEq(abi.decode(results[1], (uint128)), defaults.WITHDRAW_AMOUNT(), "batch results[1]");
+        assertTrue(abi.decode(results[0], (bool)), "batch results[0]: isCancelable");
+        assertEq(abi.decode(results[1], (uint128)), defaults.WITHDRAW_AMOUNT(), "batch results[1]: withdrawMax");
         assertEq(
             abi.decode(results[2], (uint128)),
             defaults.DEPOSIT_AMOUNT() - defaults.WITHDRAW_AMOUNT(),
-            "batch results[2]"
+            "batch results[2]: cancel"
         );
-        assertEq(abi.decode(results[3], (uint256)), expectedNextStreamId, "batch results[3]");
-        assertEq(abi.decode(results[4], (uint256)), expectedNextStreamId, "batch results[4]");
-        assertEq(results[5], "", "batch results[5]");
+        assertEq(abi.decode(results[3], (uint256)), expectedNextStreamId, "batch results[3]: nextStreamId");
+        assertEq(abi.decode(results[4], (uint256)), expectedNextStreamId, "batch results[4]: createWithTimestampsLL");
+        assertEq(results[5], "", "batch results[5]: renounce");
     }
 
     /// @dev The batch call includes:
@@ -91,12 +91,18 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         // It should return the stream IDs created.
         bytes[] memory results = lockup.batch{ value: 1 wei }(calls);
         assertEq(results.length, 6, "batch results length");
-        assertEq(abi.decode(results[0], (uint256)), expectedNextStreamId, "batch results[0]");
-        assertEq(abi.decode(results[1], (uint256)), expectedNextStreamId + 1, "batch results[1]");
-        assertEq(abi.decode(results[2], (uint256)), expectedNextStreamId + 2, "batch results[2]");
-        assertEq(abi.decode(results[3], (uint256)), expectedNextStreamId + 3, "batch results[3]");
-        assertEq(abi.decode(results[4], (uint256)), expectedNextStreamId + 4, "batch results[4]");
-        assertEq(abi.decode(results[5], (uint256)), expectedNextStreamId + 5, "batch results[5]");
+        assertEq(abi.decode(results[0], (uint256)), expectedNextStreamId, "batch results[0]: createWithDurationsLD");
+        assertEq(abi.decode(results[1], (uint256)), expectedNextStreamId + 1, "batch results[1]: createWithDurationsLL");
+        assertEq(abi.decode(results[2], (uint256)), expectedNextStreamId + 2, "batch results[2]: createWithDurationsLT");
+        assertEq(
+            abi.decode(results[3], (uint256)), expectedNextStreamId + 3, "batch results[3]: createWithTimestampsLD"
+        );
+        assertEq(
+            abi.decode(results[4], (uint256)), expectedNextStreamId + 4, "batch results[4]: createWithTimestampsLL"
+        );
+        assertEq(
+            abi.decode(results[5], (uint256)), expectedNextStreamId + 5, "batch results[5]: createWithTimestampsLT"
+        );
         assertEq(address(lockup).balance, initialEthBalance + 1 wei, "lockup contract balance");
     }
 
@@ -130,12 +136,12 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
 
         uint128 expectedRefundedAmount = defaults.REFUND_AMOUNT();
         assertEq(results.length, 4, "batch results length");
-        assertEq(abi.decode(results[0], (uint128)), expectedRefundedAmount, "batch results[0]");
+        assertEq(abi.decode(results[0], (uint128)), expectedRefundedAmount, "batch results[0]: cancel");
         uint128[] memory refundedAmounts = abi.decode(results[1], (uint128[]));
-        assertEq(refundedAmounts[0], expectedRefundedAmount, "batch results[1][0]");
-        assertEq(refundedAmounts[1], expectedRefundedAmount, "batch results[1][1]");
-        assertEq(results[2], "", "batch results[2]");
-        assertEq(results[3], "", "batch results[3]");
+        assertEq(refundedAmounts[0], expectedRefundedAmount, "batch results[1][0]: cancelMultiple");
+        assertEq(refundedAmounts[1], expectedRefundedAmount, "batch results[1][1]: cancelMultiple");
+        assertEq(results[2], "", "batch results[2]: renounce");
+        assertEq(results[3], "", "batch results[3]: renounceMultiple");
         assertEq(address(lockup).balance, initialEthBalance + 1 wei, "lockup contract balance");
     }
 
@@ -167,11 +173,13 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         bytes[] memory results = lockup.batch{ value: 1 wei }(calls);
 
         assertEq(results.length, 5, "batch results length");
-        assertEq(results[0], "", "batch results[0]");
-        assertEq(abi.decode(results[1], (uint128)), defaults.DEPOSIT_AMOUNT() - 1, "batch results[1]");
-        assertEq(results[2], "", "batch results[2]");
-        assertEq(abi.decode(results[3], (uint128)), defaults.DEPOSIT_AMOUNT() - 2, "batch results[3]");
-        assertEq(results[4], "", "batch results[4]");
+        assertEq(results[0], "", "batch results[0]: withdraw");
+        assertEq(abi.decode(results[1], (uint128)), defaults.DEPOSIT_AMOUNT() - 1, "batch results[1]: withdrawMax");
+        assertEq(results[2], "", "batch results[2]: withdrawMultiple");
+        assertEq(
+            abi.decode(results[3], (uint128)), defaults.DEPOSIT_AMOUNT() - 2, "batch results[3]: withdrawMaxAndTransfer"
+        );
+        assertEq(results[4], "", "batch results[4]: burn");
         assertEq(address(lockup).balance, initialEthBalance + 1 wei, "lockup contract balance");
     }
 }

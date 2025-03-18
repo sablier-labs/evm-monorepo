@@ -9,13 +9,14 @@ import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
 
 /// @title StreamingMath
-/// @notice Library with functions needed to calculate streamed amount across lockup streams.
+/// @notice Library with functions needed to calculate the streamed amounts across Lockup streams. Note that 'streamed'
+/// is synonymous with 'vested'.
 library StreamingMath {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
 
-    /// @notice Calculates the streamed amount of LD model.
-    /// @dev LD model uses the following distribution function:
+    /// @notice Calculates the streamed amount of LD streams.
+    /// @dev The LD streaming model uses the following distribution function:
     ///
     /// $$
     /// f(x) = x^{exp} * csa + \Sigma(esa)
@@ -112,8 +113,8 @@ library StreamingMath {
         }
     }
 
-    /// @notice Calculates the streamed amount of LL model.
-    /// @dev LL model uses the following distribution function:
+    /// @notice Calculates the streamed amount of LL streams.
+    /// @dev The LL streaming model uses the following distribution function:
     ///
     /// $$
     ///        ( x * sa + s, block timestamp < cliff time
@@ -200,8 +201,8 @@ library StreamingMath {
         }
     }
 
-    /// @notice Calculates the streamed amount of LT model.
-    /// @dev LT model uses the following distribution function:
+    /// @notice Calculates the streamed amount of LT streams.
+    /// @dev The LT streaming model uses the following distribution function:
     ///
     /// $$
     /// f(x) = \Sigma(eta)

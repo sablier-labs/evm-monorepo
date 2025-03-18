@@ -51,18 +51,18 @@ interface ISablierLockupBase is
     event CollectFees(address indexed admin, uint256 indexed feeAmount);
 
     /// @notice Emitted when canceling multiple streams and one particular cancellation reverts.
-    /// @param streamId The stream ID that reverted during cancel.
+    /// @param streamId The ID of the stream that reverted the cancellation.
     /// @param revertData The error data returned by the reverted cancel.
     event InvalidStreamInCancelMultiple(uint256 streamId, bytes revertData);
 
     /// @notice Emitted when withdrawing from multiple streams and one particular withdrawal reverts.
-    /// @param streamId The stream ID that reverted during withdraw.
+    /// @param streamId The ID of the stream that reverted the withdrawal.
     /// @param revertData The error data returned by the reverted withdraw.
     event InvalidWithdrawalInWithdrawMultiple(uint256 streamId, bytes revertData);
 
-    /// @notice Emitted when the contract admin recovers the surplus amount of token.
+    /// @notice Emitted when the contract admin recovers the surplus amount of tokens.
     /// @param admin The address of the contract admin.
-    /// @param token The address of the ERC-20 token the surplus amount has been recovered for.
+    /// @param token The address of the ERC-20 token that has been recovered.
     /// @param to The address the surplus amount has been sent to.
     /// @param surplus The amount of surplus tokens recovered.
     event Recover(address indexed admin, IERC20 indexed token, address to, uint256 surplus);
@@ -90,7 +90,9 @@ interface ISablierLockupBase is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the sum of balances of all streams.
+    /// @notice Retrieves the aggregate amount across all streams, denoted in units of the token's decimals.
+    /// @dev If tokens are directly transferred to the contract without using the stream creation functions, the
+    /// ERC-20 balance may be greater than the aggregate amount.
     /// @param token The ERC-20 token for the query.
     function aggregateBalance(IERC20 token) external view returns (uint256);
 
@@ -269,17 +271,16 @@ interface ISablierLockupBase is
 
     /// @notice Cancels multiple streams and refunds any remaining tokens to the sender.
     ///
-    /// @dev Emits multiple {Transfer}, {CancelLockupStream} and {MetadataUpdate} events. For each stream that
-    /// failed, it emits an {InvalidStreamInCancelMultiple} event.
+    /// @dev Emits multiple {Transfer}, {CancelLockupStream} and {MetadataUpdate} events. For each reverted
+    /// cancellation, it emits an {InvalidStreamInCancelMultiple} event.
     ///
     /// Notes:
-    /// - This function will not revert if a {cancel} call for one ID fails. A zero amount is returned
-    /// for the failed stream.
+    /// - This function as a whole will not revert if one or more cancellations revert. A zero amount is returned for
+    /// reverted streams.
     /// - Refer to the notes and requirements from {cancel}.
     ///
     /// @param streamIds The IDs of the streams to cancel.
-    /// @return refundedAmounts An array of amounts refunded to the sender for each stream ID, denoted in units of the
-    /// token's decimals.
+    /// @return refundedAmounts The amounts refunded to the sender, denoted in units of the token's decimals.
     function cancelMultiple(uint256[] calldata streamIds) external payable returns (uint128[] memory refundedAmounts);
 
     /// @notice Collects the accrued fees by transferring them to the contract admin.
@@ -410,11 +411,11 @@ interface ISablierLockupBase is
 
     /// @notice Withdraws tokens from streams to the recipient of each stream.
     ///
-    /// @dev Emits multiple {Transfer}, {WithdrawFromLockupStream} and {MetadataUpdate} events. For each stream that
-    /// failed the withdrawal, it emits an {InvalidWithdrawalInWithdrawMultiple} event.
+    /// @dev Emits multiple {Transfer}, {WithdrawFromLockupStream} and {MetadataUpdate} events. For each reverting
+    /// withdrawal, it emits an {InvalidWithdrawalInWithdrawMultiple} event.
     ///
     /// Notes:
-    /// - This function will not revert if a {withdraw} call for one ID fails.
+    /// - This function as a whole will not revert if one or more withdrawals revert.
     /// - This function attempts to call a hook on the recipient of each stream, unless `msg.sender` is the recipient.
     /// - Refer to the notes and requirements from {withdraw}.
     ///

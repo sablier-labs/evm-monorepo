@@ -36,16 +36,16 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
     /// @inheritdoc ISablierLockup
     uint256 public immutable override MAX_COUNT;
 
-    /// @dev Cliff timestamp mapped by stream IDs. This is used in LL models.
+    /// @dev Cliff timestamp mapped by stream IDs, used in LL streams.
     mapping(uint256 streamId => uint40 cliffTime) internal _cliffs;
 
-    /// @dev Stream segments mapped by stream IDs. This is used in LD models.
+    /// @dev Stream segments mapped by stream IDs, used in LD streams.
     mapping(uint256 streamId => LockupDynamic.Segment[] segments) internal _segments;
 
-    /// @dev Stream tranches mapped by stream IDs. This is used in LT models.
+    /// @dev Stream tranches mapped by stream IDs, used in LT streams.
     mapping(uint256 streamId => LockupTranched.Tranche[] tranches) internal _tranches;
 
-    /// @dev Unlock amounts mapped by stream IDs. This is used in LL models.
+    /// @dev Unlock amounts mapped by stream IDs, used in LL streams.
     mapping(uint256 streamId => LockupLinear.UnlockAmounts unlockAmounts) internal _unlockAmounts;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
 
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the NFT descriptor contract.
-    /// @param maxCount The maximum number of segments and tranched allowed in LD and LT models, respectively.
+    /// @param maxCount The maximum number of segments and tranched allowed in LD and LT streams, respectively.
     constructor(
         address initialAdmin,
         ILockupNFTDescriptor initialNFTDescriptor,
@@ -303,7 +303,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         Lockup.Timestamps memory timestamps =
             Lockup.Timestamps({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
 
-        // Calculate the streamed amount in case of LD model.
+        // Calculate the streamed amount for the LD model.
         if (lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {
             streamedAmount = StreamingMath.calculateStreamedAmountLD({
                 depositedAmount: depositedAmount,
@@ -313,7 +313,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
                 withdrawnAmount: _streams[streamId].amounts.withdrawn
             });
         }
-        // Calculate the streamed amount in case of LL model.
+        // Calculate the streamed amount for the LL model.
         else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
             streamedAmount = StreamingMath.calculateStreamedAmountLL({
                 depositedAmount: depositedAmount,
@@ -324,7 +324,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
                 withdrawnAmount: _streams[streamId].amounts.withdrawn
             });
         }
-        // Calculate the streamed amount in case of LT model.
+        // Calculate the streamed amount for the LT model.
         else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             streamedAmount = StreamingMath.calculateStreamedAmountLT({
                 depositedAmount: depositedAmount,
@@ -373,7 +373,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             // Effect: bump the next stream ID.
             nextStreamId = streamId + 1;
 
-            // Effect: update the aggregate balance.
+            // Effect: increase the aggregate amount.
             aggregateBalance[params.token] += params.depositAmount;
         }
 

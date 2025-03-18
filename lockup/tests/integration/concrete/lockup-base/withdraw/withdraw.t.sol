@@ -428,7 +428,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // It should update the aggrate balance.
+        // It should update the aggregate balance.
         uint256 actualAggregateBalance = lockup.aggregateBalance(dai);
         uint256 expectedAggregateBalance = previousAggregateAmount - defaults.WITHDRAW_AMOUNT();
         assertEq(actualAggregateBalance, expectedAggregateBalance, "aggregateBalance");
@@ -491,7 +491,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // It should update the aggrate balance.
+        // It should update the aggregate balance.
         uint256 actualAggregateBalance = lockup.aggregateBalance(dai);
         uint256 expectedAggregateBalance = previousAggregateAmount - defaults.WITHDRAW_AMOUNT();
         assertEq(actualAggregateBalance, expectedAggregateBalance, "aggregateBalance");

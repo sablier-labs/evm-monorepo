@@ -123,7 +123,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
                 boundUint40(params.timestamps.end, params.timestamps.start + 1 seconds, MAX_UNIX_TIMESTAMP);
         }
 
-        // If shape exceeds 32 bytes, use the default value.
+        // If the shape exceeds 32 bytes, use the default value.
         if (bytes(params.shape).length > 32) params.shape = defaults.SHAPE();
 
         uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
@@ -194,7 +194,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
-        // Assert that the aggragate balance has been updated.
+        // Assert that the aggregate balance has been updated.
         assertEq(lockup.aggregateBalance(dai), previousAggregateAmount + params.depositAmount);
     }
 }
