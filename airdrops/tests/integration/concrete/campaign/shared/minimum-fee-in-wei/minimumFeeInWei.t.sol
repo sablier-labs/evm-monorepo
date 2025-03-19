@@ -10,12 +10,6 @@ import {
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract MinimumFeeInWei_Integration_Test is Integration_Test {
-    string private _campaignType;
-
-    constructor(string memory campaignType) {
-        _campaignType = campaignType;
-    }
-
     function setUp() public virtual override {
         // Make admin the caller for this test suite.
         resetPrank(users.admin);
@@ -93,13 +87,13 @@ abstract contract MinimumFeeInWei_Integration_Test is Integration_Test {
 
     /// @notice A helper function to deploy campaign with given oracle address and minimum fee.
     function _deployCampaign() private {
-        if (Strings.equal(_campaignType, "instant")) {
+        if (Strings.equal(campaignType, "instant")) {
             merkleBase = createMerkleInstant();
-        } else if (Strings.equal(_campaignType, "ll")) {
+        } else if (Strings.equal(campaignType, "ll")) {
             merkleBase = createMerkleLL();
-        } else if (Strings.equal(_campaignType, "lt")) {
+        } else if (Strings.equal(campaignType, "lt")) {
             merkleBase = createMerkleLT();
-        } else if (Strings.equal(_campaignType, "vca")) {
+        } else if (Strings.equal(campaignType, "vca")) {
             merkleBase = createMerkleVCA();
         } else {
             revert("Invalid campaign type");

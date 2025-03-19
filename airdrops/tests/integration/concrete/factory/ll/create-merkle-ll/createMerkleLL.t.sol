@@ -14,38 +14,34 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
 
         // Expect a revert due to CREATE2.
         vm.expectRevert();
-        merkleFactoryLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        createMerkleLL(params);
     }
 
-    function test_GivenCustomFeeSet(
-        address campaignOwner,
-        uint40 expiration,
-        uint256 customFee
-    )
-        external
-        givenCampaignNotExists
-    {
-        vm.assume(customFee <= MAX_FEE);
+    function test_GivenCustomFeeSet() external givenCampaignNotExists {
+        uint256 customFee = 0;
 
         // Set the custom fee for this test.
         resetPrank(users.admin);
-        merkleFactoryLL.setCustomFee(users.campaignOwner, customFee);
+        merkleFactoryLL.setCustomFee(users.campaignCreator, customFee);
 
-        resetPrank(users.campaignOwner);
-        address expectedLL = computeMerkleLLAddress(campaignOwner, expiration);
+        resetPrank(users.campaignCreator);
+        MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
+        params.campaignName = "Merkle LL campaign with custom fee set";
+
+        address expectedLL = computeMerkleLLAddress(params, users.campaignCreator);
 
         // It should emit a {CreateMerkleLL} event.
         vm.expectEmit({ emitter: address(merkleFactoryLL) });
         emit ISablierMerkleFactoryLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
-            params: merkleLLConstructorParams(campaignOwner, expiration),
+            params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             fee: customFee,
             oracle: address(oracle)
         });
 
-        ISablierMerkleLL actualLL = createMerkleLL(campaignOwner, expiration);
+        ISablierMerkleLL actualLL = createMerkleLL(params);
         assertGt(address(actualLL).code.length, 0, "MerkleLL contract not created");
         assertEq(address(actualLL), expectedLL, "MerkleLL contract does not match computed address");
 
@@ -54,21 +50,24 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         assertEq(actualLL.minimumFee(), customFee, "minimum fee");
     }
 
-    function test_GivenCustomFeeNotSet(address campaignOwner, uint40 expiration) external givenCampaignNotExists {
-        address expectedLL = computeMerkleLLAddress(campaignOwner, expiration);
+    function test_GivenCustomFeeNotSet() external givenCampaignNotExists {
+        MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
+        params.campaignName = "Merkle LL campaign with default fee set";
+
+        address expectedLL = computeMerkleLLAddress(params, users.campaignCreator);
 
         // It should emit a {CreateMerkleInstant} event.
         vm.expectEmit({ emitter: address(merkleFactoryLL) });
         emit ISablierMerkleFactoryLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
-            params: merkleLLConstructorParams(campaignOwner, expiration),
+            params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             fee: MINIMUM_FEE,
             oracle: address(oracle)
         });
 
-        ISablierMerkleLL actualLL = createMerkleLL(campaignOwner, expiration);
+        ISablierMerkleLL actualLL = createMerkleLL(params);
         assertGt(address(actualLL).code.length, 0, "MerkleLL contract not created");
         assertEq(address(actualLL), expectedLL, "MerkleLL contract does not match computed address");
 

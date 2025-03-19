@@ -5,10 +5,18 @@ import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol"
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
+import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
 contract Integration_Test is Base_Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                   TEST CONTRACTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Type of the campaign, e.g., "instant", "ll", "lt", or "vca".
+    string internal campaignType;
+
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
@@ -16,8 +24,8 @@ contract Integration_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Make campaign owner the caller.
-        resetPrank(users.campaignOwner);
+        // Make campaign creator the caller.
+        resetPrank(users.campaignCreator);
 
         // Create the default Merkle contracts.
         merkleInstant = createMerkleInstant();
@@ -50,21 +58,14 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function createMerkleInstant() internal returns (ISablierMerkleInstant) {
-        return createMerkleInstant(users.campaignOwner, EXPIRATION);
+        return createMerkleInstant(merkleInstantConstructorParams());
     }
 
-    function createMerkleInstant(address campaignOwner) internal returns (ISablierMerkleInstant) {
-        return createMerkleInstant(campaignOwner, EXPIRATION);
-    }
-
-    function createMerkleInstant(uint40 expiration) internal returns (ISablierMerkleInstant) {
-        return createMerkleInstant(users.campaignOwner, expiration);
-    }
-
-    function createMerkleInstant(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleInstant) {
-        return merkleFactoryInstant.createMerkleInstant(
-            merkleInstantConstructorParams(campaignOwner, expiration), AGGREGATE_AMOUNT, RECIPIENT_COUNT
-        );
+    function createMerkleInstant(MerkleInstant.ConstructorParams memory params)
+        internal
+        returns (ISablierMerkleInstant)
+    {
+        return merkleFactoryInstant.createMerkleInstant(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -72,21 +73,11 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function createMerkleLL() internal returns (ISablierMerkleLL) {
-        return createMerkleLL(users.campaignOwner, EXPIRATION);
+        return createMerkleLL(merkleLLConstructorParams());
     }
 
-    function createMerkleLL(address campaignOwner) internal returns (ISablierMerkleLL) {
-        return createMerkleLL(campaignOwner, EXPIRATION);
-    }
-
-    function createMerkleLL(uint40 expiration) internal returns (ISablierMerkleLL) {
-        return createMerkleLL(users.campaignOwner, expiration);
-    }
-
-    function createMerkleLL(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLL) {
-        return merkleFactoryLL.createMerkleLL(
-            merkleLLConstructorParams(campaignOwner, expiration), AGGREGATE_AMOUNT, RECIPIENT_COUNT
-        );
+    function createMerkleLL(MerkleLL.ConstructorParams memory params) internal returns (ISablierMerkleLL) {
+        return merkleFactoryLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -94,21 +85,11 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function createMerkleLT() internal returns (ISablierMerkleLT) {
-        return createMerkleLT(users.campaignOwner, EXPIRATION);
+        return createMerkleLT(merkleLTConstructorParams());
     }
 
-    function createMerkleLT(address campaignOwner) internal returns (ISablierMerkleLT) {
-        return createMerkleLT(campaignOwner, EXPIRATION);
-    }
-
-    function createMerkleLT(uint40 expiration) internal returns (ISablierMerkleLT) {
-        return createMerkleLT(users.campaignOwner, expiration);
-    }
-
-    function createMerkleLT(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLT) {
-        return merkleFactoryLT.createMerkleLT(
-            merkleLTConstructorParams(campaignOwner, expiration), AGGREGATE_AMOUNT, RECIPIENT_COUNT
-        );
+    function createMerkleLT(MerkleLT.ConstructorParams memory params) internal returns (ISablierMerkleLT) {
+        return merkleFactoryLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -116,20 +97,10 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function createMerkleVCA() internal returns (ISablierMerkleVCA) {
-        return createMerkleVCA(users.campaignOwner, EXPIRATION);
+        return createMerkleVCA(merkleVCAConstructorParams());
     }
 
-    function createMerkleVCA(address campaignOwner) internal returns (ISablierMerkleVCA) {
-        return createMerkleVCA(campaignOwner, EXPIRATION);
-    }
-
-    function createMerkleVCA(uint40 expiration) internal returns (ISablierMerkleVCA) {
-        return createMerkleVCA(users.campaignOwner, expiration);
-    }
-
-    function createMerkleVCA(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleVCA) {
-        return merkleFactoryVCA.createMerkleVCA(
-            merkleVCAConstructorParams(campaignOwner, expiration), AGGREGATE_AMOUNT, RECIPIENT_COUNT
-        );
+    function createMerkleVCA(MerkleVCA.ConstructorParams memory params) internal returns (ISablierMerkleVCA) {
+        return merkleFactoryVCA.createMerkleVCA(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
     }
 }

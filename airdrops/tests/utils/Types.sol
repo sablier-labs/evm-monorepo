@@ -4,8 +4,8 @@ pragma solidity >=0.8.22;
 struct Users {
     // Default admin.
     address payable admin;
-    // Default campaign owner.
-    address payable campaignOwner;
+    // Default campaign creator.
+    address payable campaignCreator;
     // Malicious user.
     address payable eve;
     // Default stream recipient.

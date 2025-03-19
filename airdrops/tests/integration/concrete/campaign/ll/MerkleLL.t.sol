@@ -22,6 +22,9 @@ abstract contract MerkleLL_Integration_Shared_Test is Integration_Test {
         merkleFactoryBase = merkleFactoryLL;
         // Cast the {MerkleLL} contract as {ISablierMerkleBase}
         merkleBase = merkleLL;
+
+        // Set the campaign type.
+        campaignType = "ll";
     }
 }
 
@@ -59,6 +62,9 @@ contract HasClaimed_MerkleLL_Integration_Test is MerkleLL_Integration_Shared_Tes
 contract HasExpired_MerkleLL_Integration_Test is MerkleLL_Integration_Shared_Test, HasExpired_Integration_Test {
     function setUp() public override(MerkleLL_Integration_Shared_Test, Integration_Test) {
         MerkleLL_Integration_Shared_Test.setUp();
+
+        // Create a campaign with zero expiry to be used in this test.
+        campaignWithZeroExpiry = createMerkleLL(merkleLLConstructorParams({ expiration: 0 }));
     }
 }
 
@@ -73,7 +79,7 @@ contract LowerMinimumFee_MerkleLL_Integration_Test is
 
 contract MinimumFeeInWei_MerkleLL_Integration_Test is
     MerkleLL_Integration_Shared_Test,
-    MinimumFeeInWei_Integration_Test("ll")
+    MinimumFeeInWei_Integration_Test
 {
     function setUp() public override(MerkleLL_Integration_Shared_Test, MinimumFeeInWei_Integration_Test) {
         MerkleLL_Integration_Shared_Test.setUp();

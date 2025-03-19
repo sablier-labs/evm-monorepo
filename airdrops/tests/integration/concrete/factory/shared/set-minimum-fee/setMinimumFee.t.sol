@@ -22,7 +22,7 @@ abstract contract SetMinimumFee_Integration_Test is Integration_Test {
     }
 
     function test_WhenNewFeeNotExceedMaxFee() external whenCallerAdmin {
-        uint256 newFee = MINIMUM_FEE - 1;
+        uint256 newFee = MAX_FEE;
 
         // It should emit a {SetMinimumFee} event.
         vm.expectEmit({ emitter: address(merkleFactoryBase) });

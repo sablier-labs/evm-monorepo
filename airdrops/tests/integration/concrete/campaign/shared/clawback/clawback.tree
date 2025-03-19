@@ -1,7 +1,7 @@
 Clawback_Integration_Test
-├── when caller not campaign owner
+├── when caller not campaign creator
 │  └── it should revert
-└── when caller campaign owner
+└── when caller campaign creator
    ├── when first claim not made
    │  ├── it should perform the ERC-20 transfer
    │  └── it should emit a {Clawback} event

@@ -21,6 +21,9 @@ abstract contract MerkleLT_Integration_Shared_Test is Integration_Test {
         merkleFactoryBase = merkleFactoryLT;
         // Cast the {MerkleLT} contract as {ISablierMerkleBase}
         merkleBase = merkleLT;
+
+        // Set the campaign type.
+        campaignType = "lt";
     }
 }
 
@@ -58,6 +61,9 @@ contract HasClaimed_MerkleLT_Integration_Test is MerkleLT_Integration_Shared_Tes
 contract HasExpired_MerkleLT_Integration_Test is MerkleLT_Integration_Shared_Test, HasExpired_Integration_Test {
     function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {
         MerkleLT_Integration_Shared_Test.setUp();
+
+        // Create a campaign with zero expiry to be used in this test.
+        campaignWithZeroExpiry = createMerkleLT(merkleLTConstructorParams({ expiration: 0 }));
     }
 }
 
@@ -72,7 +78,7 @@ contract LowerMinimumFee_MerkleLT_Integration_Test is
 
 contract MinimumFeeInWei_MerkleLT_Integration_Test is
     MerkleLT_Integration_Shared_Test,
-    MinimumFeeInWei_Integration_Test("lt")
+    MinimumFeeInWei_Integration_Test
 {
     function setUp() public override(MerkleLT_Integration_Shared_Test, MinimumFeeInWei_Integration_Test) {
         MerkleLT_Integration_Shared_Test.setUp();

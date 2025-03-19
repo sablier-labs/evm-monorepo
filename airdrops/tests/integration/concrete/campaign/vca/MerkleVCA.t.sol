@@ -21,6 +21,9 @@ abstract contract MerkleVCA_Integration_Shared_Test is Integration_Test {
         merkleFactoryBase = merkleFactoryVCA;
         // Cast the {MerkleVCA} contract as {ISablierMerkleBase}
         merkleBase = merkleVCA;
+
+        // Set the campaign type.
+        campaignType = "vca";
     }
 }
 
@@ -72,7 +75,7 @@ contract LowerMinimumFee_MerkleVCA_Integration_Test is
 
 contract MinimumFeeInWei_MerkleVCA_Integration_Test is
     MerkleVCA_Integration_Shared_Test,
-    MinimumFeeInWei_Integration_Test("vca")
+    MinimumFeeInWei_Integration_Test
 {
     function setUp() public override(MerkleVCA_Integration_Shared_Test, MinimumFeeInWei_Integration_Test) {
         MerkleVCA_Integration_Shared_Test.setUp();

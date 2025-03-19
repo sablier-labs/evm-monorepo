@@ -12,10 +12,10 @@ contract Constructor_MerkleInstant_Integration_Test is MerkleInstant_Integration
 
         // Deploy the SablierMerkleInstant contract.
         SablierMerkleInstant constructedInstant =
-            new SablierMerkleInstant(merkleInstantConstructorParams(), users.campaignOwner);
+            new SablierMerkleInstant(merkleInstantConstructorParams(), users.campaignCreator);
 
         // SablierMerkleBase
-        assertEq(constructedInstant.admin(), users.campaignOwner, "admin");
+        assertEq(constructedInstant.admin(), users.campaignCreator, "admin");
         assertEq(constructedInstant.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedInstant.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(constructedInstant.FACTORY(), address(merkleFactoryInstant), "factory");

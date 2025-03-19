@@ -13,31 +13,27 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
         // Expect a revert due to CREATE2.
         vm.expectRevert();
-        merkleFactoryLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        createMerkleLT(params);
     }
 
-    function test_GivenCustomFeeSet(
-        address campaignOwner,
-        uint40 expiration,
-        uint256 customFee
-    )
-        external
-        givenCampaignNotExists
-    {
-        vm.assume(customFee <= MAX_FEE);
+    function test_GivenCustomFeeSet() external givenCampaignNotExists {
+        uint256 customFee = 0;
 
         // Set the custom fee for this test.
         resetPrank(users.admin);
-        merkleFactoryLT.setCustomFee(users.campaignOwner, customFee);
+        merkleFactoryLT.setCustomFee(users.campaignCreator, customFee);
 
-        resetPrank(users.campaignOwner);
-        address expectedLT = computeMerkleLTAddress(campaignOwner, expiration);
+        resetPrank(users.campaignCreator);
+        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
+        params.campaignName = "Merkle LT campaign with custom fee set";
+
+        address expectedLT = computeMerkleLTAddress(params, users.campaignCreator);
 
         // It should emit a {CreateMerkleLT} event.
         vm.expectEmit({ emitter: address(merkleFactoryLT) });
         emit ISablierMerkleFactoryLT.CreateMerkleLT({
             merkleLT: ISablierMerkleLT(expectedLT),
-            params: merkleLTConstructorParams(campaignOwner, expiration),
+            params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             totalDuration: TOTAL_DURATION,
@@ -45,7 +41,7 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
             oracle: address(oracle)
         });
 
-        ISablierMerkleLT actualLT = createMerkleLT(campaignOwner, expiration);
+        ISablierMerkleLT actualLT = createMerkleLT(params);
         assertGt(address(actualLT).code.length, 0, "MerkleLT contract not created");
         assertEq(address(actualLT), expectedLT, "MerkleLT contract does not match computed address");
 
@@ -54,13 +50,16 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         assertEq(actualLT.minimumFee(), customFee, "minimum fee");
     }
 
-    function test_GivenCustomFeeNotSet(address campaignOwner, uint40 expiration) external givenCampaignNotExists {
-        address expectedLT = computeMerkleLTAddress(campaignOwner, expiration);
+    function test_GivenCustomFeeNotSet() external givenCampaignNotExists {
+        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
+        params.campaignName = "Merkle LT campaign with default fee set";
+
+        address expectedLT = computeMerkleLTAddress(params, users.campaignCreator);
 
         vm.expectEmit({ emitter: address(merkleFactoryLT) });
         emit ISablierMerkleFactoryLT.CreateMerkleLT({
             merkleLT: ISablierMerkleLT(expectedLT),
-            params: merkleLTConstructorParams(campaignOwner, expiration),
+            params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             totalDuration: TOTAL_DURATION,
@@ -68,7 +67,7 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
             oracle: address(oracle)
         });
 
-        ISablierMerkleLT actualLT = createMerkleLT(campaignOwner, expiration);
+        ISablierMerkleLT actualLT = createMerkleLT(params);
         assertGt(address(actualLT).code.length, 0, "MerkleLT contract not created");
         assertEq(address(actualLT), expectedLT, "MerkleLT contract does not match computed address");
 

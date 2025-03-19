@@ -8,12 +8,12 @@ import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract LowerMinimumFee_Integration_Test is Integration_Test {
     function test_RevertWhen_CallerNotFactoryAdmin() external {
-        resetPrank({ msgSender: users.campaignOwner });
+        resetPrank({ msgSender: users.campaignCreator });
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleBase_CallerNotFactoryAdmin.selector, users.admin, users.campaignOwner
+                Errors.SablierMerkleBase_CallerNotFactoryAdmin.selector, users.admin, users.campaignCreator
             )
         );
         merkleBase.lowerMinimumFee(MINIMUM_FEE - 1);

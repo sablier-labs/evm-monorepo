@@ -12,14 +12,14 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         resetPrank(address(merkleFactoryLL));
 
         // Deploy the SablierMerkleLL contract.
-        SablierMerkleLL constructedLL = new SablierMerkleLL(merkleLLConstructorParams(), users.campaignOwner);
+        SablierMerkleLL constructedLL = new SablierMerkleLL(merkleLLConstructorParams(), users.campaignCreator);
 
         // Token allowance
         uint256 actualAllowance = dai.allowance(address(constructedLL), address(lockup));
         assertEq(actualAllowance, MAX_UINT256, "allowance");
 
         // SablierMerkleBase
-        assertEq(constructedLL.admin(), users.campaignOwner, "admin");
+        assertEq(constructedLL.admin(), users.campaignCreator, "admin");
         assertEq(constructedLL.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedLL.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(constructedLL.FACTORY(), address(merkleFactoryLL), "factory");

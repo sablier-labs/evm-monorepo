@@ -11,10 +11,10 @@ contract Constructor_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_
         resetPrank(address(merkleFactoryVCA));
 
         // Deploy the SablierMerkleVCA contract.
-        SablierMerkleVCA constructedVCA = new SablierMerkleVCA(merkleVCAConstructorParams(), users.campaignOwner);
+        SablierMerkleVCA constructedVCA = new SablierMerkleVCA(merkleVCAConstructorParams(), users.campaignCreator);
 
         // SablierMerkleBase
-        assertEq(constructedVCA.admin(), users.campaignOwner, "admin");
+        assertEq(constructedVCA.admin(), users.campaignCreator, "admin");
         assertEq(constructedVCA.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedVCA.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(constructedVCA.FACTORY(), address(merkleFactoryVCA), "factory");

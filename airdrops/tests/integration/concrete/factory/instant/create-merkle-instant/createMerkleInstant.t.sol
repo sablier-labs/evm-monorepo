@@ -14,38 +14,35 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
 
         // Expect a revert due to CREATE2.
         vm.expectRevert();
-        merkleFactoryInstant.createMerkleInstant(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
+        createMerkleInstant(params);
     }
 
-    function test_GivenCustomFeeSet(
-        address campaignOwner,
-        uint40 expiration,
-        uint256 customFee
-    )
-        external
-        givenCampaignNotExists
-    {
-        vm.assume(customFee <= MAX_FEE);
+    function test_GivenCustomFeeSet() external givenCampaignNotExists {
+        uint256 customFee = 0;
 
         // Set the custom fee for this test.
         resetPrank(users.admin);
-        merkleFactoryInstant.setCustomFee(users.campaignOwner, customFee);
+        merkleFactoryInstant.setCustomFee(users.campaignCreator, customFee);
 
-        resetPrank(users.campaignOwner);
-        address expectedMerkleInstant = computeMerkleInstantAddress(campaignOwner, expiration);
+        resetPrank(users.campaignCreator);
+
+        MerkleInstant.ConstructorParams memory params = merkleInstantConstructorParams();
+        params.campaignName = "Merkle Instant campaign with custom fee set";
+
+        address expectedMerkleInstant = computeMerkleInstantAddress(params, users.campaignCreator);
 
         // It should emit a {CreateMerkleInstant} event.
         vm.expectEmit({ emitter: address(merkleFactoryInstant) });
         emit ISablierMerkleFactoryInstant.CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(expectedMerkleInstant),
-            params: merkleInstantConstructorParams(campaignOwner, expiration),
+            params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             fee: customFee,
             oracle: address(oracle)
         });
 
-        ISablierMerkleInstant actualInstant = createMerkleInstant(campaignOwner, expiration);
+        ISablierMerkleInstant actualInstant = createMerkleInstant(params);
         assertGt(address(actualInstant).code.length, 0, "MerkleInstant contract not created");
         assertEq(
             address(actualInstant), expectedMerkleInstant, "MerkleInstant contract does not match computed address"
@@ -56,21 +53,24 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
         assertEq(actualInstant.minimumFee(), customFee, "minimum fee");
     }
 
-    function test_GivenCustomFeeNotSet(address campaignOwner, uint40 expiration) external givenCampaignNotExists {
-        address expectedMerkleInstant = computeMerkleInstantAddress(campaignOwner, expiration);
+    function test_GivenCustomFeeNotSet() external givenCampaignNotExists {
+        MerkleInstant.ConstructorParams memory params = merkleInstantConstructorParams();
+        params.campaignName = "Merkle Instant campaign with default fee set";
+
+        address expectedMerkleInstant = computeMerkleInstantAddress(params, users.campaignCreator);
 
         // It should emit a {CreateMerkleInstant} event.
         vm.expectEmit({ emitter: address(merkleFactoryInstant) });
         emit ISablierMerkleFactoryInstant.CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(expectedMerkleInstant),
-            params: merkleInstantConstructorParams(campaignOwner, expiration),
+            params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             fee: MINIMUM_FEE,
             oracle: address(oracle)
         });
 
-        ISablierMerkleInstant actualInstant = createMerkleInstant(campaignOwner, expiration);
+        ISablierMerkleInstant actualInstant = createMerkleInstant(params);
         assertGt(address(actualInstant).code.length, 0, "MerkleInstant contract not created");
         assertEq(
             address(actualInstant), expectedMerkleInstant, "MerkleInstant contract does not match computed address"

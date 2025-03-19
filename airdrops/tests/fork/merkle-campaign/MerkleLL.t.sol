@@ -54,17 +54,8 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
 
         preCreateCampaign(params);
 
-        vars.expectedMerkleCampaign = computeMerkleLLAddress({
-            campaignCreator: params.campaignOwner,
-            campaignOwner: params.campaignOwner,
-            expiration: params.expiration,
-            merkleRoot: vars.merkleRoot,
-            startTime: startTime,
-            tokenAddress: FORK_TOKEN
-        });
-
         MerkleLL.ConstructorParams memory constructorParams = merkleLLConstructorParams({
-            campaignOwner: params.campaignOwner,
+            campaignCreator: params.campaignCreator,
             expiration: params.expiration,
             lockupAddress: lockup,
             merkleRoot: vars.merkleRoot,
@@ -72,17 +63,20 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
             tokenAddress: FORK_TOKEN
         });
 
+        vars.expectedMerkleCampaign =
+            computeMerkleLLAddress({ params: constructorParams, campaignCreator: params.campaignCreator });
+
         vm.expectEmit({ emitter: address(merkleFactoryLL) });
         emit ISablierMerkleFactoryLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(vars.expectedMerkleCampaign),
             params: constructorParams,
             aggregateAmount: vars.aggregateAmount,
-            recipientCount: vars.recipientCount,
+            recipientCount: vars.leavesData.length,
             fee: vars.minimumFee,
             oracle: vars.oracle
         });
 
-        merkleLL = merkleFactoryLL.createMerkleLL(constructorParams, vars.aggregateAmount, vars.recipientCount);
+        merkleLL = merkleFactoryLL.createMerkleLL(constructorParams, vars.aggregateAmount, vars.leavesData.length);
 
         assertGt(address(merkleLL).code.length, 0, "MerkleLL contract not created");
         assertEq(address(merkleLL), vars.expectedMerkleCampaign, "MerkleLL contract does not match computed address");
@@ -97,63 +91,63 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
         preClaim(params);
 
         uint256 expectedStreamId;
-        uint256 initialRecipientTokenBalance = FORK_TOKEN.balanceOf(vars.recipientToClaim);
+        uint256 initialRecipientTokenBalance = FORK_TOKEN.balanceOf(vars.leafToClaim.recipient);
 
         // It should emit {Claim} event based on the vesting end time.
         if (expectedStartTime + TOTAL_DURATION <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLL) });
-            emit ISablierMerkleLockup.Claim(vars.indexToClaim, vars.recipientToClaim, vars.amountToClaim);
-            expectCallToTransfer({ token: FORK_TOKEN, to: vars.recipientToClaim, value: vars.amountToClaim });
+            emit ISablierMerkleLockup.Claim(vars.leafToClaim.index, vars.leafToClaim.recipient, vars.leafToClaim.amount);
+            expectCallToTransfer({ token: FORK_TOKEN, to: vars.leafToClaim.recipient, value: vars.leafToClaim.amount });
         } else {
             expectedStreamId = lockup.nextStreamId();
             vm.expectEmit({ emitter: address(merkleLL) });
             emit ISablierMerkleLockup.Claim(
-                vars.indexToClaim, vars.recipientToClaim, vars.amountToClaim, expectedStreamId
+                vars.leafToClaim.index, vars.leafToClaim.recipient, vars.leafToClaim.amount, expectedStreamId
             );
             expectCallToTransferFrom({
                 token: FORK_TOKEN,
                 from: address(merkleLL),
                 to: address(lockup),
-                value: vars.amountToClaim
+                value: vars.leafToClaim.amount
             });
         }
 
         expectCallToClaimWithData({
             merkleLockup: address(merkleLL),
             feeInWei: vars.minimumFeeInWei,
-            index: vars.indexToClaim,
-            recipient: vars.recipientToClaim,
-            amount: vars.amountToClaim,
+            index: vars.leafToClaim.index,
+            recipient: vars.leafToClaim.recipient,
+            amount: vars.leafToClaim.amount,
             merkleProof: vars.merkleProof
         });
 
         // Claim the airdrop.
         merkleLL.claim{ value: vars.minimumFeeInWei }({
-            index: vars.indexToClaim,
-            recipient: vars.recipientToClaim,
-            amount: vars.amountToClaim,
+            index: vars.leafToClaim.index,
+            recipient: vars.leafToClaim.recipient,
+            amount: vars.leafToClaim.amount,
             merkleProof: vars.merkleProof
         });
 
         // Assertions when vesting end time does not exceed the block time.
         if (expectedStartTime + TOTAL_DURATION <= getBlockTimestamp()) {
             assertEq(
-                FORK_TOKEN.balanceOf(vars.recipientToClaim),
-                initialRecipientTokenBalance + vars.amountToClaim,
+                FORK_TOKEN.balanceOf(vars.leafToClaim.recipient),
+                initialRecipientTokenBalance + vars.leafToClaim.amount,
                 "recipient token balance"
             );
         }
         // Assertions when vesting end time exceeds the block time.
         else {
             LockupLinear.UnlockAmounts memory expectedUnlockAmounts = LockupLinear.UnlockAmounts({
-                start: ud60x18(vars.amountToClaim).mul(START_PERCENTAGE.intoUD60x18()).intoUint128(),
-                cliff: ud60x18(vars.amountToClaim).mul(CLIFF_PERCENTAGE.intoUD60x18()).intoUint128()
+                start: ud60x18(vars.leafToClaim.amount).mul(START_PERCENTAGE.intoUD60x18()).intoUint128(),
+                cliff: ud60x18(vars.leafToClaim.amount).mul(CLIFF_PERCENTAGE.intoUD60x18()).intoUint128()
             });
 
             Lockup.CreateWithTimestamps memory expectedLockup = Lockup.CreateWithTimestamps({
-                sender: params.campaignOwner,
-                recipient: vars.recipientToClaim,
-                depositAmount: vars.amountToClaim,
+                sender: params.campaignCreator,
+                recipient: vars.leafToClaim.recipient,
+                depositAmount: vars.leafToClaim.amount,
                 token: FORK_TOKEN,
                 cancelable: CANCELABLE,
                 transferable: TRANSFERABLE,
@@ -169,11 +163,11 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
 
             uint256[] memory expectedClaimedStreamIds = new uint256[](1);
             expectedClaimedStreamIds[0] = expectedStreamId;
-            assertEq(merkleLL.claimedStreams(vars.recipientToClaim), expectedClaimedStreamIds, "claimed streams");
+            assertEq(merkleLL.claimedStreams(vars.leafToClaim.recipient), expectedClaimedStreamIds, "claimed streams");
         }
 
         // Assert that the claim has been made.
-        assertTrue(merkleLL.hasClaimed(vars.indexToClaim));
+        assertTrue(merkleLL.hasClaimed(vars.leafToClaim.index));
 
         /*//////////////////////////////////////////////////////////////////////////
                                         CLAWBACK

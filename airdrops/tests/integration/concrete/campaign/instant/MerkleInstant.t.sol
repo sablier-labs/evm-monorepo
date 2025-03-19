@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
+
 import { Integration_Test } from "./../../../Integration.t.sol";
 import { Clawback_Integration_Test } from "./../shared/clawback/clawback.t.sol";
 import { CollectFees_Integration_Test } from "./../shared/collect-fees/collectFees.t.sol";
@@ -21,6 +23,9 @@ abstract contract MerkleInstant_Integration_Shared_Test is Integration_Test {
         merkleFactoryBase = merkleFactoryInstant;
         // Cast the {merkleInstant} contract as {ISablierMerkleBase}
         merkleBase = merkleInstant;
+
+        // Set the campaign type.
+        campaignType = "instant";
     }
 }
 
@@ -67,6 +72,10 @@ contract HasExpired_MerkleInstant_Integration_Test is
 {
     function setUp() public override(MerkleInstant_Integration_Shared_Test, Integration_Test) {
         MerkleInstant_Integration_Shared_Test.setUp();
+
+        // Create a campaign with zero expiry to be used in this test.
+        campaignWithZeroExpiry =
+            ISablierMerkleBase(createMerkleInstant(merkleInstantConstructorParams({ expiration: 0 })));
     }
 }
 
@@ -81,7 +90,7 @@ contract LowerMinimumFee_MerkleInstant_Integration_Test is
 
 contract MinimumFeeInWei_MerkleInstant_Integration_Test is
     MerkleInstant_Integration_Shared_Test,
-    MinimumFeeInWei_Integration_Test("instant")
+    MinimumFeeInWei_Integration_Test
 {
     function setUp() public override(MerkleInstant_Integration_Shared_Test, MinimumFeeInWei_Integration_Test) {
         MerkleInstant_Integration_Shared_Test.setUp();
