@@ -37,17 +37,16 @@
   "keywords": [
     "airdrops",
     "airstream",
-    "instant-airdrop",
     "blockchain",
     "cryptoasset-streaming",
     "cryptoassets",
     "ethereum",
     "foundry",
+    "instant-airdrop",
     "lockup",
     "money-streaming",
     "real-time-finance",
     "sablier",
-    "sablier-v2",
     "sablier-lockup",
     "smart-contracts",
     "solidity",
@@ -79,6 +78,7 @@
     "prettier:check": "prettier --check \"**/*.{json,md,yml}\"",
     "prettier:write": "prettier --write \"**/*.{json,md,yml}\"",
     "test": "forge test --nmt testFork",
+    "test:bulloak": "bulloak check",
     "test:lite": "FOUNDRY_PROFILE=lite forge test --nmt testFork",
     "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   }
