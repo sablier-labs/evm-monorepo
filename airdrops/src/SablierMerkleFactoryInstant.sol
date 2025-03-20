@@ -39,6 +39,9 @@ contract SablierMerkleFactoryInstant is ISablierMerkleFactoryInstant, SablierMer
         override
         returns (ISablierMerkleInstant merkleInstant)
     {
+        // Check: user-provided token is not the native token.
+        _forbidNativeToken(address(params.token));
+
         // Hash the parameters to generate a salt.
         bytes32 salt = keccak256(abi.encodePacked(msg.sender, abi.encode(params)));
 

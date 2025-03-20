@@ -2,9 +2,10 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
+import { Noop } from "@sablier/evm-utils/src/mocks/Noop.sol";
 
 import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
-import { ChainlinkOracleMock, ChainlinkOracleWithoutImpl } from "tests/utils/ChainlinkOracleMock.sol";
+import { ChainlinkOracleMock } from "tests/utils/ChainlinkMocks.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
@@ -28,11 +29,11 @@ abstract contract SetOracle_Integration_Test is Integration_Test {
     }
 
     function test_RevertWhen_NewOracleWithoutImplementation() external whenCallerAdmin whenNewOracleNotZero {
-        ChainlinkOracleWithoutImpl oracleWithoutImpl = new ChainlinkOracleWithoutImpl();
+        Noop noop = new Noop();
 
         // It should revert.
         vm.expectRevert();
-        merkleFactoryBase.setOracle(address(oracleWithoutImpl));
+        merkleFactoryBase.setOracle(address(noop));
     }
 
     function test_WhenNewOracleWithImplementation() external whenCallerAdmin whenNewOracleNotZero {

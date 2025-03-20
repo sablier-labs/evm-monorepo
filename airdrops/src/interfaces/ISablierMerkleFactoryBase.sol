@@ -29,6 +29,9 @@ interface ISablierMerkleFactoryBase is IAdminable {
     /// @notice Emitted when the minimum fee is set by the admin.
     event SetMinimumFee(address indexed admin, uint256 minimumFee);
 
+    /// @notice Emitted when the native token address is set by the admin.
+    event SetNativeToken(address indexed admin, address nativeToken);
+
     /// @notice Emitted when the oracle contract address is set by the admin.
     event SetOracle(address indexed admin, address newOracle, address previousOracle);
 
@@ -50,7 +53,15 @@ interface ISablierMerkleFactoryBase is IAdminable {
     /// @dev The fee is denominated in Chainlink's 8-decimal format for USD prices, where 1e8 is $1.
     function minimumFee() external view returns (uint256);
 
-    /// @notice Retrieves the oracle contract address.
+    /// @notice Retrieves the address of the ERC-20 interface of the native token, if it exists.
+    /// @dev The native tokens on some chains have a dual interface as ERC-20. For example, on Polygon the $POL token
+    /// is the native token and has an ERC-20 version at 0x0000000000000000000000000000000000001010. This means
+    /// that `address(this).balance` returns the same value as `balanceOf(address(this))`. To avoid any unintended
+    /// behavior, these tokens cannot be used in Sablier. As an alternative, users can use the Wrapped version of the
+    /// token, i.e. WMATIC, which is a standard ERC-20 token.
+    function nativeToken() external view returns (address);
+
+    /// @notice Retrieves the oracle contract address, which provides price data for the native token.
     function oracle() external view returns (address);
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -88,7 +99,7 @@ interface ISablierMerkleFactoryBase is IAdminable {
     /// - `msg.sender` must be the admin.
     ///
     /// @param campaignCreator The user for whom the fee is set.
-    /// @param newFee The new fee to be set.
+    /// @param newFee The new fee to set.
     function setCustomFee(address campaignCreator, uint256 newFee) external;
 
     /// @notice Sets the minimum fee to be applied when claiming airdrops.
@@ -101,8 +112,20 @@ interface ISablierMerkleFactoryBase is IAdminable {
     /// Requirements:
     /// - `msg.sender` must be the admin.
     ///
-    /// @param newFee The new minimum fee to be set.
+    /// @param newFee The new minimum fee to set.
     function setMinimumFee(uint256 newFee) external;
+
+    /// @notice Sets the native token address. Once set, it cannot be changed.
+    /// @dev For more information, see the documentation for {nativeToken}.
+    ///
+    /// Emits a {SetNativeToken} event.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the admin.
+    /// - `newNativeToken` must not be zero address.
+    /// - The native token must not be already set.
+    /// @param newNativeToken The address of the native token.
+    function setNativeToken(address newNativeToken) external;
 
     /// @notice Sets the oracle contract address.
     /// @dev Emits a {SetOracle} event.

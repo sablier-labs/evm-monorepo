@@ -3,13 +3,28 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleFactoryLL } from "src/interfaces/ISablierMerkleFactoryLL.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
+import { Errors } from "src/libraries/Errors.sol";
 import { MerkleLL } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 contract CreateMerkleLL_Integration_Test is Integration_Test {
+    function test_RevertWhen_NativeTokenFound() external {
+        MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
+
+        // Set dai as the native token.
+        resetPrank(users.admin);
+        address newNativeToken = address(dai);
+        merkleFactoryLL.setNativeToken(newNativeToken);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierMerkleFactoryBase_ForbidNativeToken.selector, newNativeToken)
+        );
+        merkleFactoryLL.createMerkleLL(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
+    }
+
     /// @dev This test reverts because a default MerkleLL contract is deployed in {Integration_Test.setUp}
-    function test_RevertGiven_CampaignAlreadyExists() external {
+    function test_RevertGiven_CampaignAlreadyExists() external whenNativeTokenNotFound {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
 
         // Expect a revert due to CREATE2.
@@ -17,7 +32,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         createMerkleLL(params);
     }
 
-    function test_GivenCustomFeeSet() external givenCampaignNotExists {
+    function test_GivenCustomFeeSet() external whenNativeTokenNotFound givenCampaignNotExists {
         uint256 customFee = 0;
 
         // Set the custom fee for this test.
@@ -50,7 +65,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         assertEq(actualLL.minimumFee(), customFee, "minimum fee");
     }
 
-    function test_GivenCustomFeeNotSet() external givenCampaignNotExists {
+    function test_GivenCustomFeeNotSet() external whenNativeTokenNotFound givenCampaignNotExists {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
         params.campaignName = "Merkle LL campaign with default fee set";
 

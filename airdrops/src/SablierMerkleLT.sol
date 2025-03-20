@@ -186,26 +186,25 @@ contract SablierMerkleLT is
             // Calculate the tranche's amount by multiplying the claim amount by the unlock percentage.
             uint128 calculatedAmount = claimAmountUD.mul(percentage).intoUint128();
 
+            // Add the calculated tranche amount.
+            calculatedAmountsSum += calculatedAmount;
+
             // The first tranche is precomputed because it is needed in the for loop below.
             tranches[0] = LockupTranched.Tranche({
                 amount: calculatedAmount,
                 timestamp: startTime + tranchesWithPercentages[0].duration
             });
 
-            // Add the calculated tranche amount.
-            calculatedAmountsSum += calculatedAmount;
-
             // Iterate over each tranche to calculate its timestamp and unlock amount.
             for (uint256 i = 1; i < trancheCount; ++i) {
                 percentage = (tranchesWithPercentages[i].unlockPercentage).intoUD60x18();
                 calculatedAmount = claimAmountUD.mul(percentage).intoUint128();
+                calculatedAmountsSum += calculatedAmount;
 
                 tranches[i] = LockupTranched.Tranche({
                     amount: calculatedAmount,
                     timestamp: tranches[i - 1].timestamp + tranchesWithPercentages[i].duration
                 });
-
-                calculatedAmountsSum += calculatedAmount;
             }
         }
 

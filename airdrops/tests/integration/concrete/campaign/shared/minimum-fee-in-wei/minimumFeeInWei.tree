@@ -5,12 +5,18 @@ MinimumFeeInWei_Integration_Test
    ├── given minimum fee zero
    │  └── it should return zero
    └── given minimum fee not zero
-      ├── when oracle returns zero price
+      ├── when oracle updated time in future
       │  └── it should return zero
-      └── when oracle returns non zero price
-         ├── when oracle returns eight decimals
-         │  └── it should calculate the minimum fee in wei
-         ├── when oracle returns more than eight decimals
-         │  └── it should calculate the minimum fee in wei
-         └── when oracle returns less than eight decimals
-            └── it should calculate the minimum fee in wei
+      └── when oracle updated time not in future
+         ├── when oracle price outdated
+         │  └── it should return zero
+         └── when oracle price not outdated
+            ├── when oracle price zero
+            │  └── it should return zero
+            └── when oracle price not zero
+               ├── when oracle price has eight decimals
+               │  └── it should calculate the minimum fee in wei
+               ├── when oracle price has more than eight decimals
+               │  └── it should calculate the minimum fee in wei
+               └── when oracle price has less than eight decimals
+                  └── it should calculate the minimum fee in wei

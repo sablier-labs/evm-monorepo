@@ -1,12 +1,15 @@
 CreateMerkleLT_Integration_Test
-├── given campaign already exists
+├── when native token found
 │  └── it should revert
-└── given campaign not exists
-   ├── given custom fee set
-   │  ├── it should create the campaign with custom fee
-   │  ├── it should set the current factory address
-   │  └── it should emit a {CreateMerkleLT} event
-   └── given custom fee not set
-      ├── it should create the campaign with minimum fee
-      ├── it should set the current factory address
-      └── it should emit a {CreateMerkleLT} event
+└── when native token not found
+   ├── given campaign already exists
+   │  └── it should revert
+   └── given campaign not exists
+      ├── given custom fee set
+      │  ├── it should create the campaign with custom fee
+      │  ├── it should set the current factory address
+      │  └── it should emit a {CreateMerkleLT} event
+      └── given custom fee not set
+         ├── it should create the campaign with minimum fee
+         ├── it should set the current factory address
+         └── it should emit a {CreateMerkleLT} event

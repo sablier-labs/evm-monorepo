@@ -28,6 +28,9 @@ abstract contract SablierMerkleFactoryBase is
     /// @inheritdoc ISablierMerkleFactoryBase
     uint256 public override minimumFee;
 
+    /// @inheritdoc ISablierMerkleFactoryBase
+    address public override nativeToken;
+
     /// @dev A mapping of custom fees mapped by campaign creator addresses.
     mapping(address campaignCreator => MerkleFactory.CustomFee customFee) private _customFees;
 
@@ -80,14 +83,14 @@ abstract contract SablierMerkleFactoryBase is
     function setCustomFee(address campaignCreator, uint256 newFee) external override onlyAdmin {
         MerkleFactory.CustomFee storage customFeeByUser = _customFees[campaignCreator];
 
-        // Check: if the user is not in the custom fee list.
-        if (!customFeeByUser.enabled) {
-            customFeeByUser.enabled = true;
-        }
-
         // Check: the new fee is not greater than `MAX_FEE`.
         if (newFee > MAX_FEE) {
             revert Errors.SablierMerkleFactoryBase_MaximumFeeExceeded(newFee, MAX_FEE);
+        }
+
+        // Effect: enable the custom fee for the user if it is not already enabled.
+        if (!customFeeByUser.enabled) {
+            customFeeByUser.enabled = true;
         }
 
         // Effect: update the custom fee for the given campaign creator.
@@ -112,6 +115,25 @@ abstract contract SablierMerkleFactoryBase is
     }
 
     /// @inheritdoc ISablierMerkleFactoryBase
+    function setNativeToken(address newNativeToken) external override onlyAdmin {
+        // Check: provided token is not zero address.
+        if (newNativeToken == address(0)) {
+            revert Errors.SablierMerkleFactoryBase_NativeTokenZeroAddress();
+        }
+
+        // Check: native token is not set.
+        if (nativeToken != address(0)) {
+            revert Errors.SablierMerkleFactoryBase_NativeTokenAlreadySet(nativeToken);
+        }
+
+        // Effect: set the native token.
+        nativeToken = newNativeToken;
+
+        // Log the update.
+        emit SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
+    }
+
+    /// @inheritdoc ISablierMerkleFactoryBase
     function setOracle(address newOracle) external override onlyAdmin {
         address currentOracle = oracle;
 
@@ -122,26 +144,38 @@ abstract contract SablierMerkleFactoryBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                          PRIVATE NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _setOracle(address newOracle) private {
-        // Check: oracle has implemented `latestRoundData` function.
-        if (newOracle != address(0)) {
-            AggregatorV3Interface(newOracle).latestRoundData();
-        }
-
-        // Effect: update the oracle.
-        oracle = newOracle;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                             INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Retrieves the fee for the provided campaign creator, using the minimum fee if no custom fee is set.
     function _getFee(address campaignCreator) internal view returns (uint256) {
         return _customFees[campaignCreator].enabled ? _customFees[campaignCreator].fee : minimumFee;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                          INTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Checks that the provided token is not the native token.
+    /// @dev Reverts if the provided token is the native token.
+    function _forbidNativeToken(address token) internal view {
+        if (token == nativeToken) {
+            revert Errors.SablierMerkleFactoryBase_ForbidNativeToken(token);
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                          PRIVATE NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev See the documentation for the user-facing functions that call this internal function.
+    function _setOracle(address newOracle) private {
+        // Check: oracle implements the `latestRoundData` function.
+        if (newOracle != address(0)) {
+            AggregatorV3Interface(newOracle).latestRoundData();
+        }
+
+        // Effect: update the oracle.
+        oracle = newOracle;
     }
 }

@@ -110,7 +110,7 @@ contract SablierMerkleVCA is
     function _claim(uint256 index, address recipient, uint128 amount) internal override {
         uint40 blockTimestamp = uint40(block.timestamp);
 
-        // Check: unlock start time is not in the future.
+        // Check: unlock start time is in the past.
         if (_timestamp.start >= blockTimestamp) {
             revert Errors.SablierMerkleVCA_ClaimNotStarted(_timestamp.start);
         }

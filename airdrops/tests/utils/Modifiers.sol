@@ -103,6 +103,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenNativeTokenNotFound() {
+        _;
+    }
+
     modifier whenNewFeeLower() {
         _;
     }
@@ -119,11 +123,23 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenOracleReturnsNonZeroPrice() {
+    modifier whenOracleUpdatedTimeNotInFuture() {
+        _;
+    }
+
+    modifier whenOraclePriceNotOutdated() {
+        _;
+    }
+
+    modifier whenOraclePriceNotZero() {
         _;
     }
 
     modifier whenPercentagesSumNot100Pct() {
+        _;
+    }
+
+    modifier whenProvidedAddressNotZero() {
         _;
     }
 

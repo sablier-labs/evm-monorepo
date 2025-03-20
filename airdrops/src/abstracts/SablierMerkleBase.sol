@@ -201,8 +201,8 @@ abstract contract SablierMerkleBase is
         address factoryAdmin = ISablierMerkleFactoryBase(FACTORY).admin();
 
         // Check: the caller is the factory admin.
-        if (msg.sender != factoryAdmin) {
-            revert Errors.SablierMerkleBase_CallerNotFactoryAdmin(factoryAdmin, msg.sender);
+        if (factoryAdmin != msg.sender) {
+            revert Errors.SablierMerkleBase_CallerNotFactoryAdmin({ factoryAdmin: factoryAdmin, caller: msg.sender });
         }
 
         uint256 currentFee = minimumFee;
@@ -223,43 +223,55 @@ abstract contract SablierMerkleBase is
                             INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Calculates the minimum fee in the native token with 18 decimals.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _minimumFeeInWei() internal view returns (uint256) {
         // If the oracle is not set, return 0.
         if (ORACLE == address(0)) {
             return 0;
         }
 
-        // If the minimum fee is 0, return 0.
+        // If the minimum fee is 0, skip the calculations.
         if (minimumFee == 0) {
             return 0;
         }
 
-        // Retrieve the latest price from the oracle.
-        (, int256 price,,,) = AggregatorV3Interface(ORACLE).latestRoundData();
+        // Interactions: query the oracle price and the time at which it was updated.
+        (, int256 price,, uint256 updatedAt,) = AggregatorV3Interface(ORACLE).latestRoundData();
 
-        // If the price is not greater than 0, return 0.
+        // If the price is not greater than 0, skip the calculations.
         if (price <= 0) {
             return 0;
         }
 
-        // Retrieve the oracle's decimals.
-        uint256 oracleDecimals = AggregatorV3Interface(ORACLE).decimals();
+        // Due to reorgs and latency issues, the oracle can have an `updatedAt` timestamp that is in the future. In
+        // this case, we ignore the price and return 0.
+        if (block.timestamp < updatedAt) {
+            return 0;
+        }
 
-        uint256 adjustedPrice;
+        // If the oracle hasn't been updated in the last 24 hours, we ignore the price and return 0. This is a safety
+        // check to avoid using outdated prices.
+        unchecked {
+            if (block.timestamp - updatedAt > 24 hours) {
+                return 0;
+            }
+        }
 
+        // Interactions: query the oracle decimals.
+        uint8 oracleDecimals = AggregatorV3Interface(ORACLE).decimals();
+
+        // Adjust the price so that it has 8 decimals.
+        uint256 price8D;
         if (oracleDecimals == 8) {
-            adjustedPrice = uint256(price);
-        }
-        // If the decimals is not equal to 8, adjust the price to match 8 decimals format and return.
-        else if (oracleDecimals > 8) {
-            adjustedPrice = uint256(price) / 10 ** (oracleDecimals - 8);
+            price8D = uint256(price);
+        } else if (oracleDecimals < 8) {
+            price8D = uint256(price) * 10 ** (8 - oracleDecimals);
         } else {
-            adjustedPrice = uint256(price) * 10 ** (8 - oracleDecimals);
+            price8D = uint256(price) / 10 ** (oracleDecimals - 8);
         }
 
-        // Multiply it with 1e18 before returning because the price is for 1e18 wei tokens.
-        return (minimumFee * 1e18) / adjustedPrice;
+        // Multiply by 10^18 because the native token is assumed to have 18 decimals.
+        return minimumFee * 1e18 / price8D;
     }
 
     /// @notice Returns a flag indicating whether the grace period has passed.

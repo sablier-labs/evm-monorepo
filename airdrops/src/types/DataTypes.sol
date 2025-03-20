@@ -127,8 +127,7 @@ library MerkleLT {
 library MerkleVCA {
     /// @notice Struct encapsulating the constructor parameters of Merkle VCA campaigns.
     /// @param campaignName The name of the campaign.
-    /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
-    /// not expire.
+    /// @param expiration The expiration of the campaign, as a Unix timestamp.
     /// @param initialAdmin The initial admin of the campaign.
     /// @param ipfsCID The content identifier for indexing the contract on IPFS.
     /// @param merkleRoot The Merkle root of the claim data.

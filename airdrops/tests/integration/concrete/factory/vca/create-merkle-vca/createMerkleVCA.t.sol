@@ -11,8 +11,22 @@ import { Integration_Test } from "../../../../Integration.t.sol";
 /// @dev Some of the tests use `users.sender` as the campaign creator to avoid collision with the default MerkleVCA
 /// contract deployed in {Integration_Test.setUp}.
 contract CreateMerkleVCA_Integration_Test is Integration_Test {
+    function test_RevertWhen_NativeTokenFound() external {
+        MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
+
+        // Set dai as the native token.
+        resetPrank(users.admin);
+        address newNativeToken = address(dai);
+        merkleFactoryVCA.setNativeToken(newNativeToken);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierMerkleFactoryBase_ForbidNativeToken.selector, newNativeToken)
+        );
+        merkleFactoryVCA.createMerkleVCA(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
+    }
+
     /// @dev This test reverts because a default MerkleVCA contract is deployed in {Integration_Test.setUp}
-    function test_RevertGiven_CampaignAlreadyExists() external {
+    function test_RevertGiven_CampaignAlreadyExists() external whenNativeTokenNotFound {
         // This test fails
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
 
@@ -21,7 +35,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         createMerkleVCA(params);
     }
 
-    function test_RevertWhen_StartTimeZero() external givenCampaignNotExists {
+    function test_RevertWhen_StartTimeZero() external whenNativeTokenNotFound givenCampaignNotExists {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.timestamps.start = 0;
 
@@ -30,7 +44,12 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         createMerkleVCA(params);
     }
 
-    function test_RevertWhen_EndTimeLessThanStartTime() external givenCampaignNotExists whenStartTimeNotZero {
+    function test_RevertWhen_EndTimeLessThanStartTime()
+        external
+        whenNativeTokenNotFound
+        givenCampaignNotExists
+        whenStartTimeNotZero
+    {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         // Set the end time to be less than the start time.
         params.timestamps.end = RANGED_STREAM_START_TIME - 1;
@@ -44,7 +63,12 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         createMerkleVCA(params);
     }
 
-    function test_RevertWhen_EndTimeEqualsStartTime() external givenCampaignNotExists whenStartTimeNotZero {
+    function test_RevertWhen_EndTimeEqualsStartTime()
+        external
+        whenNativeTokenNotFound
+        givenCampaignNotExists
+        whenStartTimeNotZero
+    {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         // Set the end time equal to the start time.
         params.timestamps.end = RANGED_STREAM_START_TIME;
@@ -60,6 +84,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
 
     function test_RevertWhen_ZeroExpiry()
         external
+        whenNativeTokenNotFound
         givenCampaignNotExists
         whenStartTimeNotZero
         whenEndTimeGreaterThanStartTime
@@ -74,6 +99,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
 
     function test_RevertWhen_ExpiryNotExceedOneWeekFromEndTime()
         external
+        whenNativeTokenNotFound
         givenCampaignNotExists
         whenStartTimeNotZero
         whenEndTimeGreaterThanStartTime
@@ -95,6 +121,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
 
     function test_GivenCustomFeeSet()
         external
+        whenNativeTokenNotFound
         givenCampaignNotExists
         whenStartTimeNotZero
         whenEndTimeGreaterThanStartTime
@@ -141,6 +168,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
 
     function test_GivenCustomFeeNotSet()
         external
+        whenNativeTokenNotFound
         givenCampaignNotExists
         whenStartTimeNotZero
         whenEndTimeGreaterThanStartTime

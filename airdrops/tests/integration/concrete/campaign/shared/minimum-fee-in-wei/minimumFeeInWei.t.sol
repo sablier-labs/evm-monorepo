@@ -3,10 +3,12 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import {
-    ChainlinkOracleMockWith18Decimals,
-    ChainlinkOracleMockWith6Decimals,
-    ChainlinkOracleMockWithZeroPrice
-} from "tests/utils/ChainlinkOracleMock.sol";
+    ChainlinkOracleOutdated,
+    ChainlinkOracleFuture,
+    ChainlinkOracleWith18Decimals,
+    ChainlinkOracleWith6Decimals,
+    ChainlinkOracleZeroPrice
+} from "tests/utils/ChainlinkMocks.sol";
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract MinimumFeeInWei_Integration_Test is Integration_Test {
@@ -33,48 +35,83 @@ abstract contract MinimumFeeInWei_Integration_Test is Integration_Test {
         assertEq(merkleBase.minimumFeeInWei(), 0, "minimum fee in wei");
     }
 
-    function test_WhenOracleReturnsZeroPrice() external givenOracleNotZero givenMinimumFeeNotZero {
-        // Deploy campaign with with an oracle that returns 0 price.
-        merkleFactoryBase.setOracle(address(new ChainlinkOracleMockWithZeroPrice()));
+    function test_WhenOracleUpdatedTimeInFuture() external givenOracleNotZero givenMinimumFeeNotZero {
+        // Deploy campaign with an oracle that has `updatedAt` timestamp in the future.
+        merkleFactoryBase.setOracle(address(new ChainlinkOracleFuture()));
         _deployCampaign();
 
         // It should return zero.
         assertEq(merkleBase.minimumFeeInWei(), 0, "minimum fee in wei");
     }
 
-    function test_WhenOracleReturnsEightDecimals()
+    function test_WhenOraclePriceOutdated()
+        external
+        givenOracleNotZero
+        givenMinimumFeeNotZero
+        whenOracleUpdatedTimeNotInFuture
+    {
+        // Deploy campaign with an oracle that has `updatedAt` timestamp older than 24 hours.
+        merkleFactoryBase.setOracle(address(new ChainlinkOracleOutdated()));
+        _deployCampaign();
+
+        // It should return zero.
+        assertEq(merkleBase.minimumFeeInWei(), 0, "minimum fee in wei");
+    }
+
+    function test_WhenOraclePriceZero()
+        external
+        givenOracleNotZero
+        givenMinimumFeeNotZero
+        whenOracleUpdatedTimeNotInFuture
+        whenOraclePriceNotOutdated
+    {
+        // Deploy campaign with with an oracle that returns 0 price.
+        merkleFactoryBase.setOracle(address(new ChainlinkOracleZeroPrice()));
+        _deployCampaign();
+
+        // It should return zero.
+        assertEq(merkleBase.minimumFeeInWei(), 0, "minimum fee in wei");
+    }
+
+    function test_WhenOraclePriceHasEightDecimals()
         external
         view
         givenOracleNotZero
         givenMinimumFeeNotZero
-        whenOracleReturnsNonZeroPrice
+        whenOracleUpdatedTimeNotInFuture
+        whenOraclePriceNotOutdated
+        whenOraclePriceNotZero
     {
         // It should calculate the minimum fee in wei.
         assertEq(merkleBase.minimumFeeInWei(), MINIMUM_FEE_IN_WEI, "minimum fee in wei");
     }
 
-    function test_WhenOracleReturnsMoreThanEightDecimals()
+    function test_WhenOraclePriceHasMoreThanEightDecimals()
         external
         givenOracleNotZero
         givenMinimumFeeNotZero
-        whenOracleReturnsNonZeroPrice
+        whenOracleUpdatedTimeNotInFuture
+        whenOraclePriceNotOutdated
+        whenOraclePriceNotZero
     {
         // Deploy campaign with an oracle that returns 18 decimals.
-        merkleFactoryBase.setOracle(address(new ChainlinkOracleMockWith18Decimals()));
+        merkleFactoryBase.setOracle(address(new ChainlinkOracleWith18Decimals()));
         _deployCampaign();
 
         // It should calculate the minimum fee in wei.
         assertEq(merkleBase.minimumFeeInWei(), MINIMUM_FEE_IN_WEI, "minimum fee in wei");
     }
 
-    function test_WhenOracleReturnsLessThanEightDecimals()
+    function test_WhenOraclePriceHasLessThanEightDecimals()
         external
         givenOracleNotZero
         givenMinimumFeeNotZero
-        whenOracleReturnsNonZeroPrice
+        whenOracleUpdatedTimeNotInFuture
+        whenOraclePriceNotOutdated
+        whenOraclePriceNotZero
     {
         // Deploy campaign with an oracle that returns 6 decimals.
-        merkleFactoryBase.setOracle(address(new ChainlinkOracleMockWith6Decimals()));
+        merkleFactoryBase.setOracle(address(new ChainlinkOracleWith6Decimals()));
         _deployCampaign();
 
         // It should calculate the minimum fee in wei.

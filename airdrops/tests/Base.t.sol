@@ -31,7 +31,7 @@ import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
 import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 import { Assertions } from "./utils/Assertions.sol";
-import { ChainlinkOracleMock } from "./utils/ChainlinkOracleMock.sol";
+import { ChainlinkOracleMock } from "./utils/ChainlinkMocks.sol";
 import { Constants } from "./utils/Constants.sol";
 import { DeployOptimized } from "./utils/DeployOptimized.sol";
 import { Fuzzers } from "./utils/Fuzzers.sol";

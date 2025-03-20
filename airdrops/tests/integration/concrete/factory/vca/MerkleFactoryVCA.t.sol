@@ -9,6 +9,7 @@ import { GetFee_Integration_Test } from "./../shared/get-fee/getFee.t.sol";
 import { ResetCustomFee_Integration_Test } from "./../shared/reset-custom-fee/resetCustomFee.t.sol";
 import { SetCustomFee_Integration_Test } from "./../shared/set-custom-fee/setCustomFee.t.sol";
 import { SetMinimumFee_Integration_Test } from "./../shared/set-minimum-fee/setMinimumFee.t.sol";
+import { SetNativeToken_Integration_Test } from "./../shared/set-native-token/setNativeToken.t.sol";
 import { SetOracle_Integration_Test } from "./../shared/set-oracle/setOracle.t.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -74,6 +75,15 @@ contract SetCustomFee_MerkleFactoryVCA_Integration_Test is
 contract SetMinimumFee_MerkleFactoryVCA_Integration_Test is
     MerkleFactoryVCA_Integration_Shared_Test,
     SetMinimumFee_Integration_Test
+{
+    function setUp() public override(MerkleFactoryVCA_Integration_Shared_Test, Integration_Test) {
+        MerkleFactoryVCA_Integration_Shared_Test.setUp();
+    }
+}
+
+contract SetNativeToken_MerkleFactoryVCA_Integration_Test is
+    MerkleFactoryVCA_Integration_Shared_Test,
+    SetNativeToken_Integration_Test
 {
     function setUp() public override(MerkleFactoryVCA_Integration_Shared_Test, Integration_Test) {
         MerkleFactoryVCA_Integration_Shared_Test.setUp();

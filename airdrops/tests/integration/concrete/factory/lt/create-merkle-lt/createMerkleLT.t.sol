@@ -3,20 +3,35 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleFactoryLT } from "src/interfaces/ISablierMerkleFactoryLT.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
+import { Errors } from "src/libraries/Errors.sol";
 import { MerkleLT } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 contract CreateMerkleLT_Integration_Test is Integration_Test {
+    function test_RevertWhen_NativeTokenFound() external {
+        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
+
+        // Set dai as the native token.
+        resetPrank(users.admin);
+        address newNativeToken = address(dai);
+        merkleFactoryLT.setNativeToken(newNativeToken);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierMerkleFactoryBase_ForbidNativeToken.selector, newNativeToken)
+        );
+        merkleFactoryLT.createMerkleLT(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
+    }
+
     /// @dev This test reverts because a default MerkleLT contract is deployed in {Integration_Test.setUp}
-    function test_RevertGiven_CampaignAlreadyExists() external {
+    function test_RevertGiven_CampaignAlreadyExists() external whenNativeTokenNotFound {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
         // Expect a revert due to CREATE2.
         vm.expectRevert();
         createMerkleLT(params);
     }
 
-    function test_GivenCustomFeeSet() external givenCampaignNotExists {
+    function test_GivenCustomFeeSet() external whenNativeTokenNotFound givenCampaignNotExists {
         uint256 customFee = 0;
 
         // Set the custom fee for this test.
@@ -50,7 +65,7 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         assertEq(actualLT.minimumFee(), customFee, "minimum fee");
     }
 
-    function test_GivenCustomFeeNotSet() external givenCampaignNotExists {
+    function test_GivenCustomFeeNotSet() external whenNativeTokenNotFound givenCampaignNotExists {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
         params.campaignName = "Merkle LT campaign with default fee set";
 
