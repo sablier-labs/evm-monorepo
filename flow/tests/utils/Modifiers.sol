@@ -100,6 +100,10 @@ abstract contract Modifiers is Utils {
         _;
     }
 
+    modifier whenTokenNotNativeToken() {
+        _;
+    }
+
     modifier whenRecipientNotAddressZero() {
         _;
     }
@@ -193,6 +197,14 @@ abstract contract Modifiers is Utils {
     }
 
     modifier whenWithdrawalAddressOwner() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  SET-NATIVE-TOKEN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier whenProvidedAddressNotZero() {
         _;
     }
 }

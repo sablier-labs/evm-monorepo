@@ -417,9 +417,9 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function transferFrom(IERC20 token, address to, uint128 amount) external payable {
+    function transferTokens(IERC20 token, address to, uint128 amount) external payable {
         // Interaction: transfer the amount.
-        token.transferFrom({ from: msg.sender, to: to, value: amount });
+        token.safeTransferFrom({ from: msg.sender, to: to, value: amount });
     }
 
     /// @inheritdoc ISablierFlow
@@ -608,6 +608,11 @@ contract SablierFlow is
         // Check: the sender is not the zero address.
         if (sender == address(0)) {
             revert Errors.SablierFlow_SenderZeroAddress();
+        }
+
+        // Check: the token is not the native token.
+        if (address(token) == nativeToken) {
+            revert Errors.SablierFlow_CreateNativeToken(nativeToken);
         }
 
         uint8 tokenDecimals = IERC20Metadata(address(token)).decimals();

@@ -31,6 +31,9 @@ abstract contract SablierFlowBase is
     mapping(IERC20 token => uint256 amount) public override aggregateBalance;
 
     /// @inheritdoc ISablierFlowBase
+    address public override nativeToken;
+
+    /// @inheritdoc ISablierFlowBase
     uint256 public override nextStreamId;
 
     /// @inheritdoc ISablierFlowBase
@@ -57,9 +60,7 @@ abstract contract SablierFlowBase is
 
     /// @dev Checks that `streamId` does not reference a null stream.
     modifier notNull(uint256 streamId) {
-        if (!_streams[streamId].isStream) {
-            revert Errors.SablierFlow_Null(streamId);
-        }
+        _notNull(streamId);
         _;
     }
 
@@ -225,6 +226,25 @@ abstract contract SablierFlowBase is
     }
 
     /// @inheritdoc ISablierFlowBase
+    function setNativeToken(address newNativeToken) external override onlyAdmin {
+        // Check: provided token is not zero address.
+        if (newNativeToken == address(0)) {
+            revert Errors.SablierFlowBase_NativeTokenZeroAddress();
+        }
+
+        // Check: native token is not set.
+        if (nativeToken != address(0)) {
+            revert Errors.SablierFlowBase_NativeTokenAlreadySet(nativeToken);
+        }
+
+        // Effect: set the native token.
+        nativeToken = newNativeToken;
+
+        // Log the update.
+        emit SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
+    }
+
+    /// @inheritdoc ISablierFlowBase
     function setNFTDescriptor(IFlowNFTDescriptor newNFTDescriptor) external override onlyAdmin {
         // Effect: set the NFT descriptor.
         IFlowNFTDescriptor oldNftDescriptor = nftDescriptor;
@@ -291,5 +311,17 @@ abstract contract SablierFlowBase is
         }
 
         return super._update(to, streamId, auth);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                             PRIVATE CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev A private function is used instead of inlining this logic in a modifier because Solidity copies modifiers
+    /// into every function that uses them.
+    function _notNull(uint256 streamId) private view {
+        if (!_streams[streamId].isStream) {
+            revert Errors.SablierFlow_Null(streamId);
+        }
     }
 }

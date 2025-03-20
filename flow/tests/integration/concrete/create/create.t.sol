@@ -75,11 +75,24 @@ contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         assertEq(uint8(flow.statusOf(streamId)), uint8(Flow.Status.PAUSED_SOLVENT));
     }
 
+    function test_RevertWhen_TokenNativeToken()
+        external
+        whenNoDelegateCall
+        whenSenderNotAddressZero
+        whenRatePerSecondNotZero
+    {
+        resetPrank(users.admin);
+        flow.setNativeToken(address(usdc));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_CreateNativeToken.selector, address(usdc)));
+        createDefaultStream();
+    }
+
     function test_RevertWhen_TokenNotImplementDecimals()
         external
         whenNoDelegateCall
         whenSenderNotAddressZero
         whenRatePerSecondNotZero
+        whenTokenNotNativeToken
     {
         address invalidToken = address(8128);
         vm.expectRevert(bytes(""));
@@ -98,6 +111,7 @@ contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         whenNoDelegateCall
         whenSenderNotAddressZero
         whenRatePerSecondNotZero
+        whenTokenNotNativeToken
         whenTokenImplementsDecimals
     {
         IERC20 tokenWith24Decimals = new ERC20Mock("Token With More Decimals", "TWMD", 24);
@@ -121,6 +135,7 @@ contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         whenNoDelegateCall
         whenSenderNotAddressZero
         whenRatePerSecondNotZero
+        whenTokenNotNativeToken
         whenTokenImplementsDecimals
         whenTokenDecimalsNotExceed18
     {
@@ -140,6 +155,7 @@ contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         whenNoDelegateCall
         whenSenderNotAddressZero
         whenRatePerSecondNotZero
+        whenTokenNotNativeToken
         whenTokenImplementsDecimals
         whenTokenDecimalsNotExceed18
         whenRecipientNotAddressZero
@@ -153,6 +169,7 @@ contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         whenNoDelegateCall
         whenSenderNotAddressZero
         whenRatePerSecondNotZero
+        whenTokenNotNativeToken
         whenTokenImplementsDecimals
         whenTokenDecimalsNotExceed18
         whenRecipientNotAddressZero
@@ -167,6 +184,7 @@ contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         whenNoDelegateCall
         whenSenderNotAddressZero
         whenRatePerSecondNotZero
+        whenTokenNotNativeToken
         whenTokenImplementsDecimals
         whenTokenDecimalsNotExceed18
         whenRecipientNotAddressZero
