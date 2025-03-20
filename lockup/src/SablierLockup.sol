@@ -407,6 +407,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             timestamps: params.timestamps,
             depositAmount: params.depositAmount,
             segments: segments,
+            token: address(params.token),
+            nativeToken: nativeToken,
             maxCount: MAX_COUNT,
             shape: params.shape
         });
@@ -449,6 +451,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             cliffTime: cliffTime,
             depositAmount: params.depositAmount,
             unlockAmounts: unlockAmounts,
+            token: address(params.token),
+            nativeToken: nativeToken,
             shape: params.shape
         });
 
@@ -498,6 +502,8 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             depositAmount: params.depositAmount,
             tranches: tranches,
             maxCount: MAX_COUNT,
+            token: address(params.token),
+            nativeToken: nativeToken,
             shape: params.shape
         });
 

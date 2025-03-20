@@ -275,6 +275,10 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
+    modifier whenTokenNotNativeToken() {
+        _;
+    }
+
     modifier whenTrancheAmountsSumNotOverflow() {
         _;
     }
@@ -312,6 +316,14 @@ abstract contract Modifiers is Fuzzers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                     MAP-SYMBOL
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenKnownNFTContract() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                  SAFE-TOKEN-SYMBOL
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -332,10 +344,10 @@ abstract contract Modifiers is Fuzzers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     MAP-SYMBOL
+                                  SET-NATIVE-TOKEN
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenKnownNFTContract() {
+    modifier whenProvidedAddressNotZero() {
         _;
     }
 

@@ -35,6 +35,9 @@ abstract contract SablierLockupBase is
     mapping(IERC20 token => uint256 amount) public override aggregateBalance;
 
     /// @inheritdoc ISablierLockupBase
+    address public override nativeToken;
+
+    /// @inheritdoc ISablierLockupBase
     uint256 public override nextStreamId;
 
     /// @inheritdoc ISablierLockupBase
@@ -57,14 +60,12 @@ abstract contract SablierLockupBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      MODIFIERS
+                                     MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks that `streamId` does not reference a null stream.
     modifier notNull(uint256 streamId) {
-        if (!_streams[streamId].isStream) {
-            revert Errors.SablierLockupBase_Null(streamId);
-        }
+        _notNull(streamId);
         _;
     }
 
@@ -412,6 +413,25 @@ abstract contract SablierLockupBase is
             // Call the existing renounce function for each stream ID.
             renounce(streamIds[i]);
         }
+    }
+
+    /// @inheritdoc ISablierLockupBase
+    function setNativeToken(address newNativeToken) external override onlyAdmin {
+        // Check: provided token is not zero address.
+        if (newNativeToken == address(0)) {
+            revert Errors.SablierLockupBase_NativeTokenZeroAddress();
+        }
+
+        // Check: native token is not set.
+        if (nativeToken != address(0)) {
+            revert Errors.SablierLockupBase_NativeTokenAlreadySet(nativeToken);
+        }
+
+        // Effect: set the native token.
+        nativeToken = newNativeToken;
+
+        // Log the update.
+        emit SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -767,5 +787,17 @@ abstract contract SablierLockupBase is
 
         // Log the withdrawal.
         emit ISablierLockupBase.WithdrawFromLockupStream(streamId, to, token, amount);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                             PRIVATE CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev A private function is used instead of inlining this logic in a modifier because Solidity copies modifiers
+    /// into every function that uses them.
+    function _notNull(uint256 streamId) private view {
+        if (!_streams[streamId].isStream) {
+            revert Errors.SablierLockupBase_Null(streamId);
+        }
     }
 }

@@ -1,0 +1,12 @@
+SetNativeToken_Integration_Test
+├── when caller not admin
+│  └── it should revert
+└── when caller admin
+   ├── when provided address zero
+   │  └── it should revert
+   └── when provided address not zero
+      ├── given native token already set
+      │  └── it should revert
+      └── given native token not set
+         ├── it should set native token
+         └── it should emit a {SetNativeToken} event

@@ -17,5 +17,8 @@ CreateWithTimestamps_Integration_Concrete_Test
                ├── when start time zero
                │  └── it should revert
                └── when start time not zero
-                  └── when token not contract
-                     └── it should revert
+                  ├── when token native token
+                  │  └── it should revert
+                  └── when token not native token
+                     └── when token not contract
+                        └── it should revert

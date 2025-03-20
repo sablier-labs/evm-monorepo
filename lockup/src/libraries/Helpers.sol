@@ -81,6 +81,8 @@ library Helpers {
         Lockup.Timestamps memory timestamps,
         uint128 depositAmount,
         LockupDynamic.Segment[] memory segments,
+        address token,
+        address nativeToken,
         uint256 maxCount,
         string memory shape
     )
@@ -88,7 +90,7 @@ library Helpers {
         pure
     {
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, depositAmount, timestamps.start, shape);
+        _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
         // Check: validate the user-provided segments.
         _checkSegments(segments, depositAmount, timestamps, maxCount);
@@ -101,13 +103,15 @@ library Helpers {
         uint40 cliffTime,
         uint128 depositAmount,
         LockupLinear.UnlockAmounts memory unlockAmounts,
+        address token,
+        address nativeToken,
         string memory shape
     )
         public
         pure
     {
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, depositAmount, timestamps.start, shape);
+        _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
         // Check: validate the user-provided cliff and end times.
         _checkTimestampsAndUnlockAmounts(depositAmount, timestamps, cliffTime, unlockAmounts);
@@ -119,6 +123,8 @@ library Helpers {
         Lockup.Timestamps memory timestamps,
         uint128 depositAmount,
         LockupTranched.Tranche[] memory tranches,
+        address token,
+        address nativeToken,
         uint256 maxCount,
         string memory shape
     )
@@ -126,7 +132,7 @@ library Helpers {
         pure
     {
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, depositAmount, timestamps.start, shape);
+        _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
         // Check: validate the user-provided segments.
         _checkTranches(tranches, depositAmount, timestamps, maxCount);
@@ -181,6 +187,8 @@ library Helpers {
         address sender,
         uint128 depositAmount,
         uint40 startTime,
+        address token,
+        address nativeToken,
         string memory shape
     )
         private
@@ -199,6 +207,11 @@ library Helpers {
         // Check: the start time is not zero.
         if (startTime == 0) {
             revert Errors.SablierHelpers_StartTimeZero();
+        }
+
+        // Check: the token is not the native token.
+        if (token == nativeToken) {
+            revert Errors.SablierHelpers_CreateNativeToken(nativeToken);
         }
 
         // Check: the shape is not greater than 32 bytes.

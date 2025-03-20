@@ -163,6 +163,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// - `params.recipient` must not be the zero address.
     /// - `params.sender` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.depositAmount` tokens.
+    /// - `params.token` must not be the native token.
     /// - `params.shape.length` must not be greater than 32 characters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
@@ -197,6 +198,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// deposit amount.
     /// - If `params.timestamps.cliff` not set, the `params.unlockAmounts.cliff` must be zero.
     /// - `msg.sender` must have allowed this contract to spend at least `params.depositAmount` tokens.
+    /// - `params.token` must not be the native token.
     /// - `params.shape.length` must not be greater than 32 characters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
@@ -233,6 +235,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// - `params.recipient` must not be the zero address.
     /// - `params.sender` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.depositAmount` tokens.
+    /// - `params.token` must not be the native token.
     /// - `params.shape.length` must not be greater than 32 characters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.

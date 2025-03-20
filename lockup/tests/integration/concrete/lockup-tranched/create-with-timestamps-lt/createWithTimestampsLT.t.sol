@@ -28,6 +28,8 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
     {
         LockupTranched.Tranche[] memory tranches;
         vm.expectRevert(Errors.SablierHelpers_TrancheCountZero.selector);
@@ -42,6 +44,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
     {
@@ -59,6 +62,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
@@ -77,6 +81,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
@@ -107,6 +112,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
@@ -134,6 +140,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
@@ -159,6 +166,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
@@ -193,6 +201,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
@@ -227,6 +236,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue
@@ -285,6 +295,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
         whenTrancheCountNotExceedMaxValue

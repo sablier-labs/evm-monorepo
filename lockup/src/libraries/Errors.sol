@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-
 import { Lockup } from "../types/DataTypes.sol";
 
 /// @title Errors
@@ -15,13 +13,6 @@ library Errors {
     error SablierBatchLockup_BatchSizeZero();
 
     /*//////////////////////////////////////////////////////////////////////////
-                               LOCKUP-NFT-DESCRIPTOR
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when trying to generate the token URI for an unknown ERC-721 NFT contract.
-    error LockupNFTDescriptor_UnknownNFT(IERC721Metadata nft, string symbol);
-
-    /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -30,6 +21,9 @@ library Errors {
 
     /// @notice Thrown when trying to create a stream with a non zero cliff unlock amount when the cliff time is zero.
     error SablierHelpers_CliffTimeZeroUnlockAmountNotZero(uint128 cliffUnlockAmount);
+
+    /// @notice Thrown when trying to create a stream with the native token.
+    error SablierHelpers_CreateNativeToken(address nativeToken);
 
     /// @notice Thrown when trying to create a dynamic stream with a deposit amount not equal to the sum of the segment
     /// amounts.
@@ -111,6 +105,12 @@ library Errors {
 
     /// @notice Thrown when the hook does not return the correct selector.
     error SablierLockupBase_InvalidHookSelector(address recipient);
+
+    /// @notice Thrown when trying to set the native token address when it is already set.
+    error SablierLockupBase_NativeTokenAlreadySet(address nativeToken);
+
+    /// @notice Thrown when trying to set zero address as native token.
+    error SablierLockupBase_NativeTokenZeroAddress();
 
     /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
     error SablierLockupBase_NotTransferable(uint256 tokenId);

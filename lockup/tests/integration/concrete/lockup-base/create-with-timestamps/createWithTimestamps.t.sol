@@ -119,6 +119,21 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
         createDefaultStream();
     }
 
+    function test_RevertWhen_TokenNativeToken()
+        external
+        whenNoDelegateCall
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+    {
+        resetPrank(users.admin);
+        lockup.setNativeToken(address(dai));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_CreateNativeToken.selector, address(dai)));
+        createDefaultStream();
+    }
+
     function test_RevertWhen_TokenNotContract()
         external
         whenNoDelegateCall
@@ -127,6 +142,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
     {
         address nonContract = address(8128);
         _defaultParams.createWithTimestamps.token = IERC20(nonContract);

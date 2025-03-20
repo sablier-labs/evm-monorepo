@@ -36,6 +36,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
     {
         LockupDynamic.Segment[] memory segments;
@@ -51,6 +52,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
     {
@@ -69,6 +71,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
         whenSegmentCountNotExceedMaxValue
@@ -88,6 +91,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
         whenSegmentCountNotExceedMaxValue
@@ -116,6 +120,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
         whenSegmentCountNotExceedMaxValue
@@ -144,6 +149,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
         whenSegmentCountNotExceedMaxValue
@@ -169,6 +175,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
         whenSegmentCountNotExceedMaxValue
@@ -237,6 +244,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
         whenSegmentCountNotExceedMaxValue
@@ -305,6 +313,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
         whenDepositAmountNotEqualSegmentAmountsSum
+        whenTokenNotNativeToken
         whenTokenContract
     {
         uint256 previousAggregateAmount = lockup.aggregateBalance(dai);

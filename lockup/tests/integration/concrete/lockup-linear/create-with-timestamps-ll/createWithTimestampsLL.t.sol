@@ -27,6 +27,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeZero
     {
@@ -47,6 +48,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeZero
     {
@@ -71,6 +73,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeZero
     {
@@ -86,6 +89,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeNotZero
     {
@@ -111,6 +115,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
@@ -135,6 +140,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
@@ -160,6 +166,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
@@ -216,6 +223,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
