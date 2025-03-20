@@ -27,7 +27,7 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier givenMinimumFeeNotZero() {
+    modifier givenMinFeeUSDNotZero() {
         _;
     }
 

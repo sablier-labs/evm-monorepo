@@ -2,10 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
+import { ISablierFactoryMerkleBase } from "src/interfaces/ISablierFactoryMerkleBase.sol";
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
-import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
-
 import { LeafData, MerkleBuilder } from "./../../utils/MerkleBuilder.sol";
 import { Fork_Test } from "./../Fork.t.sol";
 
@@ -33,8 +31,8 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         address expectedMerkleCampaign;
         bytes32[] merkleProof;
         bytes32 merkleRoot;
-        uint256 minimumFee;
-        uint256 minimumFeeInWei;
+        uint256 minFeeUSD;
+        uint256 minFeeWei;
         address oracle;
     }
 
@@ -66,7 +64,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         }
 
         // Load the factory admin from mainnet.
-        factoryAdmin = merkleFactoryBase.admin();
+        factoryAdmin = factoryMerkleBase.admin();
 
         // Fuzz the leaves data.
         vars.aggregateAmount = fuzzMerkleData(params.leavesData);
@@ -85,8 +83,8 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         resetPrank({ msgSender: params.campaignCreator });
 
         // Load the mainnet values from the deployed contract.
-        vars.oracle = merkleFactoryBase.oracle();
-        vars.minimumFee = merkleFactoryBase.minimumFee();
+        vars.oracle = factoryMerkleBase.oracle();
+        vars.minFeeUSD = factoryMerkleBase.minFeeUSD();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -108,7 +106,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         vars.merkleProof = computeMerkleProof(vars.leafToClaim, vars.leaves);
 
         vars.initialAdminBalance = factoryAdmin.balance;
-        vars.minimumFeeInWei = merkleBase.minimumFeeInWei();
+        vars.minFeeWei = merkleBase.calculateMinFeeWei();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -139,15 +137,15 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function testCollectFees() internal {
-        vm.expectEmit({ emitter: address(merkleFactoryBase) });
-        emit ISablierMerkleFactoryBase.CollectFees({
+        vm.expectEmit({ emitter: address(factoryMerkleBase) });
+        emit ISablierFactoryMerkleBase.CollectFees({
             admin: factoryAdmin,
-            merkleBase: merkleBase,
-            feeAmount: vars.minimumFeeInWei
+            campaign: merkleBase,
+            feeAmount: vars.minFeeWei
         });
-        merkleFactoryBase.collectFees({ merkleBase: merkleBase });
+        factoryMerkleBase.collectFees({ campaign: merkleBase });
 
         assertEq(address(merkleBase).balance, 0, "merkle ETH balance");
-        assertEq(factoryAdmin.balance, vars.initialAdminBalance + vars.minimumFeeInWei, "admin ETH balance");
+        assertEq(factoryAdmin.balance, vars.initialAdminBalance + vars.minFeeWei, "admin ETH balance");
     }
 }

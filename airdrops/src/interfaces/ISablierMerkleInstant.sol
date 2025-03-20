@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
 
 /// @title ISablierMerkleInstant
-/// @notice MerkleInstant enables airdrop distributions where the tokens are claimed directly to the users' wallets.
+/// @notice MerkleInstant enables an airdrop model where eligible users receive the tokens as soon as they claim.
 interface ISablierMerkleInstant is ISablierMerkleBase {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS

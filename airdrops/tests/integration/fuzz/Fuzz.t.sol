@@ -57,7 +57,7 @@ contract Shared_Fuzz_Test is Integration_Test {
     {
         firstClaimTime = getBlockTimestamp();
 
-        for (uint256 i; i < indexesToClaim.length; ++i) {
+        for (uint256 i = 0; i < indexesToClaim.length; ++i) {
             // Bound lead index so its valid.
             uint256 leafIndex = bound(indexesToClaim[i], 0, leavesData.length - 1);
 
@@ -65,8 +65,8 @@ contract Shared_Fuzz_Test is Integration_Test {
 
             // Claim the airdrop if it has not been claimed.
             if (!merkleBase.hasClaimed(leavesData[leafIndex].index)) {
-                // Bound msgValue so that its greater than the minimum fee.
-                msgValue = bound(msgValue, merkleBase.minimumFeeInWei(), 100 ether);
+                // Bound `msgValue` so that it's >= min USD fee.
+                msgValue = bound(msgValue, merkleBase.calculateMinFeeWei(), 100 ether);
 
                 address caller = makeAddr("philanthropist");
                 resetPrank(caller);
@@ -140,7 +140,7 @@ contract Shared_Fuzz_Test is Integration_Test {
         uint256 initialAdminBalance = users.admin.balance;
 
         // collect the fees earned.
-        merkleFactoryBase.collectFees(merkleBase);
+        factoryMerkleBase.collectFees(merkleBase);
 
         // It should decrease merkle contract balance to zero.
         assertEq(address(merkleBase).balance, 0, "merkle base ETH balance");
@@ -153,13 +153,14 @@ contract Shared_Fuzz_Test is Integration_Test {
     function expectClaimEvent(LeafData memory leafData) internal virtual { }
 
     // Helper function to test setting custom fee.
-    function testSetCustomFee(uint256 newFee) internal returns (uint256 feeForUser) {
-        // Bound the custom fee between 0 and MAX_FEE.
-        feeForUser = bound(newFee, 0, MAX_FEE);
+    function testSetCustomFeeUSD(uint256 customFeeUSD) internal returns (uint256) {
+        customFeeUSD = bound(customFeeUSD, 0, MAX_FEE_USD);
 
         resetPrank(users.admin);
-        merkleFactoryBase.setCustomFee(users.campaignCreator, feeForUser);
-        assertEq(merkleFactoryBase.getFee(users.campaignCreator), feeForUser, "custom fee");
+        factoryMerkleBase.setCustomFeeUSD(users.campaignCreator, customFeeUSD);
+        assertEq(factoryMerkleBase.minFeeUSDFor(users.campaignCreator), customFeeUSD, "custom fee");
+
+        return customFeeUSD;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

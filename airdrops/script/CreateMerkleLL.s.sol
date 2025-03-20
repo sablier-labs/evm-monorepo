@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 import { ISablierMerkleLL } from "./../src/interfaces/ISablierMerkleLL.sol";
-import { SablierMerkleFactoryLL } from "./../src/SablierMerkleFactoryLL.sol";
+import { SablierFactoryMerkleLL } from "./../src/SablierFactoryMerkleLL.sol";
 import { MerkleLL } from "./../src/types/DataTypes.sol";
 import { BaseScript } from "./Base.sol";
 
@@ -13,10 +13,10 @@ import { BaseScript } from "./Base.sol";
 contract CreateMerkleLL is BaseScript {
     /// @dev Deploy via Forge.
     function run() public broadcast returns (ISablierMerkleLL merkleLL) {
-        // TODO: Load deployed addresses from Ethereum mainnet.
-        SablierMerkleFactoryLL merkleFactory = new SablierMerkleFactoryLL({
+        // TODO: Load deployed addresses from Ethereum Mainnet.
+        SablierFactoryMerkleLL factory = new SablierFactoryMerkleLL({
             initialAdmin: DEFAULT_SABLIER_ADMIN,
-            initialMinimumFee: 0,
+            initialMinFeeUSD: 0,
             initialOracle: address(0)
         });
 
@@ -43,6 +43,6 @@ contract CreateMerkleLL is BaseScript {
         uint256 recipientCount = 100;
 
         // Deploy the MerkleLL contract.
-        merkleLL = merkleFactory.createMerkleLL(params, aggregateAmount, recipientCount);
+        merkleLL = factory.createMerkleLL(params, aggregateAmount, recipientCount);
     }
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierMerkleFactoryVCA } from "src/interfaces/ISablierMerkleFactoryVCA.sol";
+import { ISablierFactoryMerkleVCA } from "src/interfaces/ISablierFactoryMerkleVCA.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { MerkleVCA } from "src/types/DataTypes.sol";
 
@@ -16,8 +16,8 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
     function setUp() public virtual override {
         Integration_Test.setUp();
 
-        // Cast the {merkleFactoryVCA} contract as {ISablierMerkleFactoryBase}
-        merkleFactoryBase = merkleFactoryVCA;
+        // Cast the {FactoryMerkleVCA} contract as {ISablierFactoryMerkleBase}
+        factoryMerkleBase = factoryMerkleVCA;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -27,9 +27,9 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Fuzzed custom fee.
-    /// - MerkleVCA campaign with fuzzed leaves data, expiration, and unlock timestamps.
+    /// - MerkleVCA campaign with fuzzed leaves data, expiration, and schedule.
     /// - Finite (only in future) expiration.
-    /// - Unlock start time in the past.
+    /// - Vesting start time in the past.
     /// - Claiming airdrops for multiple indexes with fuzzed claim fee.
     /// - Fuzzed clawback amount.
     /// - Collect fees earned.
@@ -41,7 +41,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         uint256[] memory indexesToClaim,
         uint256 msgValue,
         LeafData[] memory rawLeavesData,
-        MerkleVCA.Timestamps memory timestamps
+        MerkleVCA.Schedule memory schedule
     )
         external
     {
@@ -53,15 +53,15 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         expiration = boundUint40(expiration, getBlockTimestamp() + 365 days + 1 weeks, MAX_UNIX_TIMESTAMP);
 
         // Set the custom fee if enabled.
-        feeForUser = enableCustomFee ? testSetCustomFee(feeForUser) : MINIMUM_FEE;
+        feeForUser = enableCustomFee ? testSetCustomFeeUSD(feeForUser) : MIN_FEE_USD;
 
         // Test creating the MerkleVCA campaign.
-        _testCreateMerkleVCA(aggregateAmount, expiration, feeForUser, merkleRoot, timestamps);
+        _testCreateMerkleVCA(aggregateAmount, expiration, feeForUser, merkleRoot, schedule);
 
         // Test claiming the airdrop for the given indexes.
         testClaimMultipleAirdrops(indexesToClaim, msgValue);
 
-        // Test clawbacking funds.
+        // Test clawback of funds.
         testClawback(clawbackAmount);
 
         // Test collecting fees earned.
@@ -77,7 +77,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         uint40 expiration,
         uint256 feeForUser,
         bytes32 merkleRoot,
-        MerkleVCA.Timestamps memory timestamps
+        MerkleVCA.Schedule memory schedule
     )
         private
         givenCampaignNotExists
@@ -86,33 +86,33 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         whenNotZeroExpiry
         whenExpiryExceedsOneWeekFromEndTime
     {
-        // Bound timestamps so that campaign start time is in the past and end time exceed start time.
-        timestamps.start = boundUint40(timestamps.start, 1, getBlockTimestamp() - 1);
-        timestamps.end = boundUint40(timestamps.end, timestamps.start + 1, getBlockTimestamp() + 365 days);
+        // Bound schedule so that campaign start time is in the past and end time exceed start time.
+        schedule.startTime = boundUint40(schedule.startTime, 1 seconds, getBlockTimestamp() - 1 seconds);
+        schedule.endTime = boundUint40(schedule.endTime, schedule.startTime + 1 seconds, getBlockTimestamp() + 365 days);
 
         // Set campaign creator as the caller.
         resetPrank(users.campaignCreator);
 
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams(expiration);
         params.merkleRoot = merkleRoot;
-        params.timestamps = timestamps;
+        params.schedule = schedule;
 
         // Precompute the deterministic address.
         address expectedMerkleVCA = computeMerkleVCAAddress(params, users.campaignCreator);
 
         // Expect a {CreateMerkleVCA} event.
-        vm.expectEmit({ emitter: address(merkleFactoryVCA) });
-        emit ISablierMerkleFactoryVCA.CreateMerkleVCA({
+        vm.expectEmit({ emitter: address(factoryMerkleVCA) });
+        emit ISablierFactoryMerkleVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(expectedMerkleVCA),
             params: params,
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
-            fee: feeForUser,
+            minFeeUSD: feeForUser,
             oracle: address(oracle)
         });
 
         // Create the campaign.
-        merkleVCA = merkleFactoryVCA.createMerkleVCA(params, aggregateAmount, leavesData.length);
+        merkleVCA = factoryMerkleVCA.createMerkleVCA(params, aggregateAmount, leavesData.length);
 
         // Verify that the contract is deployed at the correct address.
         assertGt(address(merkleVCA).code.length, 0, "MerkleVCA contract not created");
@@ -121,9 +121,9 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         // It should return false for hasExpired.
         assertFalse(merkleVCA.hasExpired(), "isExpired");
 
-        // It should set return the correct unlock timestamps.
-        assertEq(merkleVCA.timestamps().start, timestamps.start, "unlock start");
-        assertEq(merkleVCA.timestamps().end, timestamps.end, "unlock end");
+        // It should set return the correct schedule.
+        assertEq(merkleVCA.getSchedule().startTime, schedule.startTime, "schedule start time");
+        assertEq(merkleVCA.getSchedule().endTime, schedule.endTime, "schedule end time");
 
         // Fund the MerkleVCA contract.
         deal({ token: address(dai), to: address(merkleVCA), give: aggregateAmount });
@@ -137,18 +137,25 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function expectClaimEvent(LeafData memory leafData) internal override {
-        MerkleVCA.Timestamps memory timestamps = merkleVCA.timestamps();
+        MerkleVCA.Schedule memory schedule = merkleVCA.getSchedule();
 
-        // Calculate claimable amount based on the vesting schedule.
-        uint256 claimableAmount = getBlockTimestamp() < timestamps.end
-            ? (uint256(leafData.amount) * (getBlockTimestamp() - timestamps.start)) / (timestamps.end - timestamps.start)
+        // Calculate claim amount based on the vesting schedule.
+        uint256 claimAmount = getBlockTimestamp() < schedule.endTime
+            ? (uint256(leafData.amount) * (getBlockTimestamp() - schedule.startTime))
+                / (schedule.endTime - schedule.startTime)
             : leafData.amount;
+        uint256 forgoneAmount = leafData.amount - claimAmount;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleVCA) });
-        emit ISablierMerkleVCA.Claim(leafData.index, leafData.recipient, uint128(claimableAmount), leafData.amount);
+        emit ISablierMerkleVCA.Claim({
+            index: leafData.index,
+            recipient: leafData.recipient,
+            claimAmount: uint128(claimAmount),
+            forgoneAmount: uint128(forgoneAmount)
+        });
 
         // It should transfer the claimable amount to the recipient.
-        expectCallToTransfer({ token: dai, to: leafData.recipient, value: claimableAmount });
+        expectCallToTransfer({ token: dai, to: leafData.recipient, value: claimAmount });
     }
 }

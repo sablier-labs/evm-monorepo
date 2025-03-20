@@ -40,10 +40,10 @@ contract SablierMerkleVCA is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleVCA
-    uint256 public override forgoneAmount;
+    uint256 public override totalForgoneAmount;
 
-    /// @dev The timestamps variable encapsulates the start time and end time of the airdrop unlock.
-    MerkleVCA.Timestamps private _timestamp;
+    /// @dev See the documentation in {ISablierMerkleVCA.getSchedule}.
+    MerkleVCA.Schedule private _schedule;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -64,16 +64,16 @@ contract SablierMerkleVCA is
             params.token
         )
     {
-        // Check: unlock start time is not zero.
-        if (params.timestamps.start == 0) {
-            revert Errors.SablierMerkleVCA_StartTimeZero();
+        // Check: schedule start time is not zero.
+        if (params.schedule.startTime == 0) {
+            revert Errors.SablierMerkleVCA_VestingStartTimeZero();
         }
 
-        // Check: unlock end time is greater than the start time.
-        if (params.timestamps.end <= params.timestamps.start) {
-            revert Errors.SablierMerkleVCA_StartTimeExceedsEndTime({
-                startTime: params.timestamps.start,
-                endTime: params.timestamps.end
+        // Check: vesting end time is greater than the schedule start time.
+        if (params.schedule.endTime <= params.schedule.startTime) {
+            revert Errors.SablierMerkleVCA_StartTimeGreaterThanEndTime({
+                startTime: params.schedule.startTime,
+                endTime: params.schedule.endTime
             });
         }
 
@@ -82,15 +82,15 @@ contract SablierMerkleVCA is
             revert Errors.SablierMerkleVCA_ExpiryTimeZero();
         }
 
-        // Check: campaign expiration exceeds the timestamps end time by at least 1 week.
-        if (params.expiration < params.timestamps.end + 1 weeks) {
-            revert Errors.SablierMerkleVCA_ExpiryWithinOneWeekOfUnlockEndTime({
-                endTime: params.timestamps.end,
+        // Check: campaign expiration is at least 1 week later than the vesting end time.
+        if (params.expiration < params.schedule.endTime + 1 weeks) {
+            revert Errors.SablierMerkleVCA_ExpirationTooEarly({
+                endTime: params.schedule.endTime,
                 expiration: params.expiration
             });
         }
 
-        _timestamp = params.timestamps;
+        _schedule = params.schedule;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -98,8 +98,22 @@ contract SablierMerkleVCA is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleVCA
-    function timestamps() external view override returns (MerkleVCA.Timestamps memory) {
-        return _timestamp;
+    function calculateClaimAmount(uint128 fullAmount) external pure returns (uint128) {
+        // TODO: implement
+        fullAmount;
+        return 0;
+    }
+
+    /// @inheritdoc ISablierMerkleVCA
+    function calculateForgoneAmount(uint128 fullAmount) external pure returns (uint128) {
+        // TODO: implement
+        fullAmount;
+        return 0;
+    }
+
+    /// @inheritdoc ISablierMerkleVCA
+    function getSchedule() external view override returns (MerkleVCA.Schedule memory) {
+        return _schedule;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -107,36 +121,42 @@ contract SablierMerkleVCA is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierMerkleBase
-    function _claim(uint256 index, address recipient, uint128 amount) internal override {
+    function _claim(uint256 index, address recipient, uint128 fullAmount) internal override {
         uint40 blockTimestamp = uint40(block.timestamp);
 
-        // Check: unlock start time is in the past.
-        if (_timestamp.start >= blockTimestamp) {
-            revert Errors.SablierMerkleVCA_ClaimNotStarted(_timestamp.start);
+        // Load the vesting schedule into memory to avoid multiple SLOADs.
+        MerkleVCA.Schedule memory vestingSchedule = _schedule;
+
+        // Check: schedule start time is in the past.
+        if (vestingSchedule.startTime >= blockTimestamp) {
+            revert Errors.SablierMerkleVCA_ClaimNotStarted(vestingSchedule.startTime);
         }
 
-        uint128 claimableAmount;
+        // Calculate the claim and foregone amount.
+        uint128 claimAmount;
+        uint128 forgoneAmount;
 
-        // Calculate the claimable amount.
-        if (_timestamp.end <= blockTimestamp) {
-            // If the unlock period has ended, the recipient can claim the full amount.
-            claimableAmount = amount;
+        if (vestingSchedule.endTime <= blockTimestamp) {
+            // If the vesting period has ended, the recipient can claim the full amount.
+            claimAmount = fullAmount;
         } else {
             // Otherwise, calculate the claimable amount based on the elapsed time.
-            uint40 elapsedTime = blockTimestamp - _timestamp.start;
-            uint40 totalDuration = _timestamp.end - _timestamp.start;
+            uint40 elapsedTime = blockTimestamp - vestingSchedule.startTime;
+            uint40 totalDuration = vestingSchedule.endTime - vestingSchedule.startTime;
 
-            // Safe to cast because the division results into a value less than `amount` which is already an `uint128`.
-            claimableAmount = uint128((uint256(amount) * elapsedTime) / totalDuration);
+            // Safe to cast because the division results into a value less than `fullAmount`, which is already an
+            // `uint128`.
+            claimAmount = uint128((uint256(fullAmount) * elapsedTime) / totalDuration);
 
             // Effect: update the forgone amount.
-            forgoneAmount += (amount - claimableAmount);
+            forgoneAmount = fullAmount - claimAmount;
+            totalForgoneAmount += forgoneAmount;
         }
 
         // Interaction: transfer the tokens to the recipient.
-        TOKEN.safeTransfer({ to: recipient, value: claimableAmount });
+        TOKEN.safeTransfer({ to: recipient, value: claimAmount });
 
         // Log the claim.
-        emit Claim(index, recipient, claimableAmount, amount);
+        emit Claim(index, recipient, claimAmount, forgoneAmount);
     }
 }

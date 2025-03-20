@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { BaseScript } from "script/Base.sol";
-import { SablierMerkleFactoryInstant } from "src/SablierMerkleFactoryInstant.sol";
+import { SablierFactoryMerkleInstant } from "src/SablierFactoryMerkleInstant.sol";
 
 import { Base_Test } from "./../../Base.t.sol";
 
@@ -13,13 +13,13 @@ contract ChainlinkOracle_Fork_Test is BaseScript, Base_Test {
         vm.createSelectFork({ urlOrAlias: chainName });
 
         // Deploy the Merkle Instant factory and create a new campaign.
-        merkleFactoryInstant = new SablierMerkleFactoryInstant(users.admin, initialMinimumFee(), chainlinkOracle());
-        merkleInstant = merkleFactoryInstant.createMerkleInstant(
+        factoryMerkleInstant = new SablierFactoryMerkleInstant(users.admin, initialMinFeeUSD(), chainlinkOracle());
+        merkleInstant = factoryMerkleInstant.createMerkleInstant(
             merkleInstantConstructorParams(), AGGREGATE_AMOUNT, RECIPIENT_COUNT
         );
 
-        // Assert that the Chainlink returns a non-zero price by checking the value of minimum fee in wei.
-        assertGt(merkleInstant.minimumFeeInWei(), 0, "minimum fee in wei");
+        // Assert that the Chainlink returns a non-zero price by checking the value of min fee in wei.
+        assertLt(0, merkleInstant.calculateMinFeeWei(), "min fee wei");
 
         _;
     }

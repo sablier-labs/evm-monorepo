@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierMerkleFactoryLL } from "src/interfaces/ISablierMerkleFactoryLL.sol";
+import { ISablierFactoryMerkleLL } from "src/interfaces/ISablierFactoryMerkleLL.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { MerkleLL } from "src/types/DataTypes.sol";
@@ -15,12 +15,12 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         // Set dai as the native token.
         resetPrank(users.admin);
         address newNativeToken = address(dai);
-        merkleFactoryLL.setNativeToken(newNativeToken);
+        factoryMerkleLL.setNativeToken(newNativeToken);
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleFactoryBase_ForbidNativeToken.selector, newNativeToken)
+            abi.encodeWithSelector(Errors.SablierFactoryMerkleBase_ForbidNativeToken.selector, newNativeToken)
         );
-        merkleFactoryLL.createMerkleLL(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
+        factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
     }
 
     /// @dev This test reverts because a default MerkleLL contract is deployed in {Integration_Test.setUp}
@@ -32,65 +32,64 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         createMerkleLL(params);
     }
 
-    function test_GivenCustomFeeSet() external whenNativeTokenNotFound givenCampaignNotExists {
-        uint256 customFee = 0;
-
+    function test_GivenCustomFeeUSDSet() external whenNativeTokenNotFound givenCampaignNotExists {
         // Set the custom fee for this test.
         resetPrank(users.admin);
-        merkleFactoryLL.setCustomFee(users.campaignCreator, customFee);
+        uint256 customFeeUSD = 0;
+        factoryMerkleLL.setCustomFeeUSD(users.campaignCreator, customFeeUSD);
 
         resetPrank(users.campaignCreator);
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
-        params.campaignName = "Merkle LL campaign with custom fee set";
+        params.campaignName = "Merkle LL campaign with custom fee USD";
 
         address expectedLL = computeMerkleLLAddress(params, users.campaignCreator);
 
         // It should emit a {CreateMerkleLL} event.
-        vm.expectEmit({ emitter: address(merkleFactoryLL) });
-        emit ISablierMerkleFactoryLL.CreateMerkleLL({
+        vm.expectEmit({ emitter: address(factoryMerkleLL) });
+        emit ISablierFactoryMerkleLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
             params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
-            fee: customFee,
+            minFeeUSD: customFeeUSD,
             oracle: address(oracle)
         });
 
         ISablierMerkleLL actualLL = createMerkleLL(params);
-        assertGt(address(actualLL).code.length, 0, "MerkleLL contract not created");
+        assertLt(0, address(actualLL).code.length, "MerkleLL contract not created");
         assertEq(address(actualLL), expectedLL, "MerkleLL contract does not match computed address");
 
         // It should set the current factory address.
-        assertEq(actualLL.FACTORY(), address(merkleFactoryLL), "factory");
-        assertEq(actualLL.minimumFee(), customFee, "minimum fee");
+        assertEq(actualLL.FACTORY(), address(factoryMerkleLL), "factory");
+        assertEq(actualLL.minFeeUSD(), customFeeUSD, "min fee USD");
     }
 
-    function test_GivenCustomFeeNotSet() external whenNativeTokenNotFound givenCampaignNotExists {
+    function test_GivenCustomFeeUSDNotSet() external whenNativeTokenNotFound givenCampaignNotExists {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
-        params.campaignName = "Merkle LL campaign with default fee set";
+        params.campaignName = "Merkle LL campaign with no custom fee USD";
 
         address expectedLL = computeMerkleLLAddress(params, users.campaignCreator);
 
         // It should emit a {CreateMerkleInstant} event.
-        vm.expectEmit({ emitter: address(merkleFactoryLL) });
-        emit ISablierMerkleFactoryLL.CreateMerkleLL({
+        vm.expectEmit({ emitter: address(factoryMerkleLL) });
+        emit ISablierFactoryMerkleLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
             params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
-            fee: MINIMUM_FEE,
+            minFeeUSD: MIN_FEE_USD,
             oracle: address(oracle)
         });
 
         ISablierMerkleLL actualLL = createMerkleLL(params);
-        assertGt(address(actualLL).code.length, 0, "MerkleLL contract not created");
+        assertLt(0, address(actualLL).code.length, "MerkleLL contract not created");
         assertEq(address(actualLL), expectedLL, "MerkleLL contract does not match computed address");
 
-        // It should set the correct shape.
-        assertEq(actualLL.shape(), SHAPE, "shape");
+        // It should set the correct stream shape.
+        assertEq(actualLL.streamShape(), STREAM_SHAPE, "stream shape");
 
         // It should set the current factory address.
-        assertEq(actualLL.FACTORY(), address(merkleFactoryLL), "factory");
-        assertEq(actualLL.minimumFee(), MINIMUM_FEE, "minimum fee");
+        assertEq(actualLL.FACTORY(), address(factoryMerkleLL), "factory");
+        assertEq(actualLL.minFeeUSD(), MIN_FEE_USD, "min fee USD");
     }
 }

@@ -7,9 +7,8 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import { BitMaps } from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
-
+import { ISablierFactoryMerkleBase } from "./../interfaces/ISablierFactoryMerkleBase.sol";
 import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
-import { ISablierMerkleFactoryBase } from "./../interfaces/ISablierMerkleFactoryBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
 
 /// @title SablierMerkleBase
@@ -44,16 +43,16 @@ abstract contract SablierMerkleBase is
     string public override campaignName;
 
     /// @inheritdoc ISablierMerkleBase
+    uint40 public override firstClaimTime;
+
+    /// @inheritdoc ISablierMerkleBase
     string public override ipfsCID;
 
     /// @inheritdoc ISablierMerkleBase
-    uint256 public override minimumFee;
+    uint256 public override minFeeUSD;
 
     /// @dev Packed booleans that record the history of claims.
     BitMaps.BitMap internal _claimedBitMap;
-
-    /// @dev The timestamp when the first claim is made.
-    uint40 internal _firstClaimTime;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -62,10 +61,10 @@ abstract contract SablierMerkleBase is
     /// @notice Constructs the contract by initializing the immutable state variables.
     constructor(
         address campaignCreator,
-        string memory _campaignName,
+        string memory campaignName_,
         uint40 expiration,
         address initialAdmin,
-        string memory _ipfsCID,
+        string memory ipfsCID_,
         bytes32 merkleRoot,
         IERC20 token
     )
@@ -74,11 +73,11 @@ abstract contract SablierMerkleBase is
         EXPIRATION = expiration;
         FACTORY = msg.sender;
         MERKLE_ROOT = merkleRoot;
-        ORACLE = ISablierMerkleFactoryBase(FACTORY).oracle();
+        ORACLE = ISablierFactoryMerkleBase(FACTORY).oracle();
         TOKEN = token;
-        campaignName = _campaignName;
-        ipfsCID = _ipfsCID;
-        minimumFee = ISablierMerkleFactoryBase(FACTORY).getFee(campaignCreator);
+        campaignName = campaignName_;
+        ipfsCID = ipfsCID_;
+        minFeeUSD = ISablierFactoryMerkleBase(FACTORY).minFeeUSDFor(campaignCreator);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -86,8 +85,8 @@ abstract contract SablierMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleBase
-    function getFirstClaimTime() external view override returns (uint40) {
-        return _firstClaimTime;
+    function calculateMinFeeWei() external view override returns (uint256) {
+        return _calculateMinFeeWei();
     }
 
     /// @inheritdoc ISablierMerkleBase
@@ -98,11 +97,6 @@ abstract contract SablierMerkleBase is
     /// @inheritdoc ISablierMerkleBase
     function hasExpired() public view override returns (bool) {
         return EXPIRATION > 0 && EXPIRATION <= block.timestamp;
-    }
-
-    /// @inheritdoc ISablierMerkleBase
-    function minimumFeeInWei() external view override returns (uint256) {
-        return _minimumFeeInWei();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -125,21 +119,20 @@ abstract contract SablierMerkleBase is
             revert Errors.SablierMerkleBase_CampaignExpired({ blockTimestamp: block.timestamp, expiration: EXPIRATION });
         }
 
-        // Calculate the minimum claim fee in wei.
-        uint256 minClaimFee = _minimumFeeInWei();
+        // Calculate the min fee in wei.
+        uint256 minFeeWei = _calculateMinFeeWei();
 
-        // Check: `msg.value` is more than the minimum claim fee.
-        if (msg.value < minClaimFee) {
-            revert Errors.SablierMerkleBase_InsufficientFeePayment(msg.value, minClaimFee);
+        // Check: the min fee was paid.
+        if (msg.value < minFeeWei) {
+            revert Errors.SablierMerkleBase_InsufficientFeePayment({ feePaid: msg.value, minFeeWei: minFeeWei });
         }
 
         // Check: the index has not been claimed.
         if (_claimedBitMap.get(index)) {
-            revert Errors.SablierMerkleBase_StreamClaimed(index);
+            revert Errors.SablierMerkleBase_IndexClaimed(index);
         }
 
-        // Generate the Merkle tree leaf by hashing the corresponding parameters. Hashing twice prevents second
-        // preimage attacks.
+        // Generate the Merkle tree leaf. Hashing twice prevents second preimage attacks.
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(index, recipient, amount))));
 
         // Check: the input claim is included in the Merkle tree.
@@ -147,26 +140,26 @@ abstract contract SablierMerkleBase is
             revert Errors.SablierMerkleBase_InvalidProof();
         }
 
-        // Effect: set the `_firstClaimTime` if its zero.
-        if (_firstClaimTime == 0) {
-            _firstClaimTime = uint40(block.timestamp);
+        // Effect: if this is the first time claim, take a record of the block timestamp.
+        if (firstClaimTime == 0) {
+            firstClaimTime = uint40(block.timestamp);
         }
 
         // Effect: mark the index as claimed.
         _claimedBitMap.set(index);
 
-        // Call the internal virtual function.
+        // Checks, Effects, and Interactions: run the model-specific claim logic.
         _claim(index, recipient, amount);
     }
 
     /// @inheritdoc ISablierMerkleBase
     function clawback(address to, uint128 amount) external override onlyAdmin {
-        // Check: current timestamp is over the grace period and the campaign has not expired.
+        // Check: the grace period has passed and the campaign has not expired.
         if (_hasGracePeriodPassed() && !hasExpired()) {
             revert Errors.SablierMerkleBase_ClawbackNotAllowed({
                 blockTimestamp: block.timestamp,
                 expiration: EXPIRATION,
-                firstClaimTime: _firstClaimTime
+                firstClaimTime: firstClaimTime
             });
         }
 
@@ -181,7 +174,7 @@ abstract contract SablierMerkleBase is
     function collectFees(address factoryAdmin) external override returns (uint256 feeAmount) {
         // Check: the caller is the FACTORY.
         if (msg.sender != FACTORY) {
-            revert Errors.SablierMerkleBase_CallerNotFactory(FACTORY, msg.sender);
+            revert Errors.SablierMerkleBase_CallerNotFactory({ factory: FACTORY, caller: msg.sender });
         }
 
         feeAmount = address(this).balance;
@@ -189,34 +182,38 @@ abstract contract SablierMerkleBase is
         // Effect: transfer the fees to the factory admin.
         (bool success,) = factoryAdmin.call{ value: feeAmount }("");
 
-        // Revert if the call failed.
+        // Revert if the transfer failed.
         if (!success) {
             revert Errors.SablierMerkleBase_FeeTransferFail(factoryAdmin, feeAmount);
         }
     }
 
     /// @inheritdoc ISablierMerkleBase
-    function lowerMinimumFee(uint256 newFee) external override {
-        // Retrieve the factory admin.
-        address factoryAdmin = ISablierMerkleFactoryBase(FACTORY).admin();
+    function lowerMinFeeUSD(uint256 newMinFeeUSD) external override {
+        // Safe Interaction: retrieve the factory admin.
+        address factoryAdmin = ISablierFactoryMerkleBase(FACTORY).admin();
 
         // Check: the caller is the factory admin.
         if (factoryAdmin != msg.sender) {
             revert Errors.SablierMerkleBase_CallerNotFactoryAdmin({ factoryAdmin: factoryAdmin, caller: msg.sender });
         }
 
-        uint256 currentFee = minimumFee;
+        uint256 currentMinFeeUSD = minFeeUSD;
 
-        // Check: the new fee is less than the current fee.
-        if (newFee >= currentFee) {
-            revert Errors.SablierMerkleBase_NewFeeHigher(currentFee, newFee);
+        // Check: the new min USD fee is lower than the current min fee USD.
+        if (newMinFeeUSD >= currentMinFeeUSD) {
+            revert Errors.SablierMerkleBase_NewMinFeeUSDNotLower(currentMinFeeUSD, newMinFeeUSD);
         }
 
-        // Effect: update the minimum fee to new value.
-        minimumFee = newFee;
+        // Effect: update the min USD fee.
+        minFeeUSD = newMinFeeUSD;
 
         // Log the event.
-        emit LowerMinimumFee(factoryAdmin, newFee, currentFee);
+        emit LowerMinFeeUSD({
+            factoryAdmin: factoryAdmin,
+            newMinFeeUSD: newMinFeeUSD,
+            previousMinFeeUSD: currentMinFeeUSD
+        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -224,14 +221,14 @@ abstract contract SablierMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _minimumFeeInWei() internal view returns (uint256) {
+    function _calculateMinFeeWei() internal view returns (uint256) {
         // If the oracle is not set, return 0.
         if (ORACLE == address(0)) {
             return 0;
         }
 
-        // If the minimum fee is 0, skip the calculations.
-        if (minimumFee == 0) {
+        // If the min USD fee is 0, skip the calculations.
+        if (minFeeUSD == 0) {
             return 0;
         }
 
@@ -271,19 +268,20 @@ abstract contract SablierMerkleBase is
         }
 
         // Multiply by 10^18 because the native token is assumed to have 18 decimals.
-        return minimumFee * 1e18 / price8D;
+        return minFeeUSD * 1e18 / price8D;
     }
 
     /// @notice Returns a flag indicating whether the grace period has passed.
     /// @dev The grace period is 7 days after the first claim.
     function _hasGracePeriodPassed() internal view returns (bool) {
-        return _firstClaimTime > 0 && block.timestamp > _firstClaimTime + 7 days;
+        return firstClaimTime > 0 && block.timestamp > firstClaimTime + 7 days;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev This function is implemented by child contracts, so the logic varies depending on the model.
+    /// @dev This function is implemented by child contracts, so the logic varies with the airdrop model. This is where
+    /// the tokens are transferred to the recipient, or a vesting stream is created.
     function _claim(uint256 index, address recipient, uint128 amount) internal virtual;
 }

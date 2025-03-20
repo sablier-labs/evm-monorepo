@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierMerkleFactoryLT } from "src/interfaces/ISablierMerkleFactoryLT.sol";
+import { ISablierFactoryMerkleLT } from "src/interfaces/ISablierFactoryMerkleLT.sol";
 import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 
@@ -18,8 +18,8 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
     function setUp() public virtual override {
         Integration_Test.setUp();
 
-        // Cast the {merkleFactoryLT} contract as {ISablierMerkleFactoryBase}
-        merkleFactoryBase = merkleFactoryLT;
+        // Cast the {FactoryMerkleLT} contract as {ISablierFactoryMerkleBase}
+        factoryMerkleBase = factoryMerkleLT;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
             prepareCommonCreateParams(rawLeavesData, expiration, indexesToClaim.length);
 
         // Set the custom fee if enabled.
-        feeForUser = enableCustomFee ? testSetCustomFee(feeForUser) : MINIMUM_FEE;
+        feeForUser = enableCustomFee ? testSetCustomFeeUSD(feeForUser) : MIN_FEE_USD;
 
         // Test creating the MerkleLT campaign.
         _testCreateMerkleLT(aggregateAmount, expiration_, feeForUser, merkleRoot, startTime, tranches);
@@ -103,19 +103,19 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
         address expectedMerkleLT = computeMerkleLTAddress(params, users.campaignCreator);
 
         // Expect a {CreateMerkleLT} event.
-        vm.expectEmit({ emitter: address(merkleFactoryLT) });
-        emit ISablierMerkleFactoryLT.CreateMerkleLT({
+        vm.expectEmit({ emitter: address(factoryMerkleLT) });
+        emit ISablierFactoryMerkleLT.CreateMerkleLT({
             merkleLT: ISablierMerkleLT(expectedMerkleLT),
             params: params,
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
             totalDuration: streamDuration,
-            fee: feeForUser,
+            minFeeUSD: feeForUser,
             oracle: address(oracle)
         });
 
         // Create the campaign.
-        merkleLT = merkleFactoryLT.createMerkleLT(params, aggregateAmount, leavesData.length);
+        merkleLT = factoryMerkleLT.createMerkleLT(params, aggregateAmount, leavesData.length);
 
         // It should deploy the contract at the correct address.
         assertGt(address(merkleLT).code.length, 0, "MerkleLT contract not created");

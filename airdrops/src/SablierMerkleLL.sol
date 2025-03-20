@@ -89,29 +89,28 @@ contract SablierMerkleLL is
         // Load schedule from storage into memory.
         MerkleLL.Schedule memory schedule = _schedule;
 
-        // Calculate the timestamps for the stream.
+        // Calculate the timestamps.
         Lockup.Timestamps memory timestamps;
+        // Zero is used as a sentinel value for `block.timestamp`.
         if (schedule.startTime == 0) {
             timestamps.start = uint40(block.timestamp);
         } else {
             timestamps.start = schedule.startTime;
         }
-
         timestamps.end = timestamps.start + schedule.totalDuration;
 
-        // If the stream end time is not in the future, transfer the amount directly to the recipient.
+        // If the end time is not in the future, transfer the amount directly to the recipient.
         if (timestamps.end <= block.timestamp) {
-            // Interaction: transfer the token.
+            // Interaction: transfer the tokens to the recipient.
             TOKEN.safeTransfer(recipient, amount);
 
             // Log the claim.
             emit Claim(index, recipient, amount);
         }
-        // Otherwise, create the Lockup stream.
+        // Otherwise, create the Lockup stream to start the vesting.
         else {
+            // Calculate cliff time.
             uint40 cliffTime;
-
-            // Calculate cliff time if the cliff duration is greater than 0.
             if (schedule.cliffDuration > 0) {
                 cliffTime = timestamps.start + schedule.cliffDuration;
             }
@@ -121,8 +120,8 @@ contract SablierMerkleLL is
             unlockAmounts.start = ud60x18(amount).mul(schedule.startPercentage.intoUD60x18()).intoUint128();
             unlockAmounts.cliff = ud60x18(amount).mul(schedule.cliffPercentage.intoUD60x18()).intoUint128();
 
-            // Interaction: create the stream via {SablierLockup}.
-            uint256 streamId = LOCKUP.createWithTimestampsLL(
+            // Safe Interaction: create the stream.
+            uint256 streamId = SABLIER_LOCKUP.createWithTimestampsLL(
                 Lockup.CreateWithTimestamps({
                     sender: admin,
                     recipient: recipient,
@@ -131,13 +130,13 @@ contract SablierMerkleLL is
                     cancelable: STREAM_CANCELABLE,
                     transferable: STREAM_TRANSFERABLE,
                     timestamps: timestamps,
-                    shape: shape
+                    shape: streamShape
                 }),
                 unlockAmounts,
                 cliffTime
             );
 
-            // Effect: push the stream ID into the `_claimedStreams` array for the recipient.
+            // Effect: push the stream ID into the claimed streams array.
             _claimedStreams[recipient].push(streamId);
 
             // Log the claim.

@@ -9,7 +9,7 @@ import { Integration_Test } from "./../../../Integration.t.sol";
 contract Constructor_MerkleLT_Integration_Test is Integration_Test {
     function test_Constructor() external {
         // Make Factory the caller for the constructor test.
-        resetPrank(address(merkleFactoryLT));
+        resetPrank(address(factoryMerkleLT));
 
         // Deploy the SablierMerkleLT contract.
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
@@ -24,18 +24,18 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         assertEq(constructedLT.admin(), users.campaignCreator, "admin");
         assertEq(constructedLT.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedLT.EXPIRATION(), EXPIRATION, "expiration");
-        assertEq(address(constructedLT.FACTORY()), address(merkleFactoryLT), "factory");
-        assertEq(constructedLT.ipfsCID(), IPFS_CID, "ipfsCID");
-        assertEq(constructedLT.MERKLE_ROOT(), MERKLE_ROOT, "merkleRoot");
-        assertEq(constructedLT.minimumFee(), MINIMUM_FEE, "minimum fee");
+        assertEq(address(constructedLT.FACTORY()), address(factoryMerkleLT), "factory");
+        assertEq(constructedLT.ipfsCID(), IPFS_CID, "IPFS CID");
+        assertEq(constructedLT.MERKLE_ROOT(), MERKLE_ROOT, "Merkle root");
+        assertEq(constructedLT.minFeeUSD(), MIN_FEE_USD, "min fee USD");
         assertEq(constructedLT.ORACLE(), address(oracle), "oracle");
         assertEq(address(constructedLT.TOKEN()), address(dai), "token");
 
         // SablierMerkleLockup
-        assertEq(address(constructedLT.LOCKUP()), address(lockup), "lockup");
-        assertEq(constructedLT.shape(), SHAPE, "shape");
-        assertEq(constructedLT.STREAM_CANCELABLE(), CANCELABLE, "stream cancelable");
-        assertEq(constructedLT.STREAM_TRANSFERABLE(), TRANSFERABLE, "stream transferable");
+        assertEq(address(constructedLT.SABLIER_LOCKUP()), address(lockup), "Sablier Lockup");
+        assertEq(constructedLT.streamShape(), STREAM_SHAPE, "stream shape");
+        assertEq(constructedLT.STREAM_CANCELABLE(), STREAM_CANCELABLE, "stream cancelable");
+        assertEq(constructedLT.STREAM_TRANSFERABLE(), STREAM_TRANSFERABLE, "stream transferable");
 
         // SablierMerkleLT
         assertEq(constructedLT.STREAM_START_TIME(), RANGED_STREAM_START_TIME, "stream start time");

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierMerkleFactoryVCA } from "src/interfaces/ISablierMerkleFactoryVCA.sol";
+import { ISablierFactoryMerkleVCA } from "src/interfaces/ISablierFactoryMerkleVCA.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { MerkleVCA } from "src/types/DataTypes.sol";
@@ -17,12 +17,12 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // Set dai as the native token.
         resetPrank(users.admin);
         address newNativeToken = address(dai);
-        merkleFactoryVCA.setNativeToken(newNativeToken);
+        factoryMerkleVCA.setNativeToken(newNativeToken);
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleFactoryBase_ForbidNativeToken.selector, newNativeToken)
+            abi.encodeWithSelector(Errors.SablierFactoryMerkleBase_ForbidNativeToken.selector, newNativeToken)
         );
-        merkleFactoryVCA.createMerkleVCA(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
+        factoryMerkleVCA.createMerkleVCA(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
     }
 
     /// @dev This test reverts because a default MerkleVCA contract is deployed in {Integration_Test.setUp}
@@ -37,10 +37,10 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
 
     function test_RevertWhen_StartTimeZero() external whenNativeTokenNotFound givenCampaignNotExists {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
-        params.timestamps.start = 0;
+        params.schedule.startTime = 0;
 
         // It should revert.
-        vm.expectRevert(Errors.SablierMerkleVCA_StartTimeZero.selector);
+        vm.expectRevert(Errors.SablierMerkleVCA_VestingStartTimeZero.selector);
         createMerkleVCA(params);
     }
 
@@ -52,12 +52,14 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         // Set the end time to be less than the start time.
-        params.timestamps.end = RANGED_STREAM_START_TIME - 1;
+        params.schedule.endTime = RANGED_STREAM_START_TIME - 1 seconds;
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_StartTimeExceedsEndTime.selector, params.timestamps.start, params.timestamps.end
+                Errors.SablierMerkleVCA_StartTimeGreaterThanEndTime.selector,
+                params.schedule.startTime,
+                params.schedule.endTime
             )
         );
         createMerkleVCA(params);
@@ -71,12 +73,14 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         // Set the end time equal to the start time.
-        params.timestamps.end = RANGED_STREAM_START_TIME;
+        params.schedule.endTime = RANGED_STREAM_START_TIME;
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_StartTimeExceedsEndTime.selector, params.timestamps.start, params.timestamps.end
+                Errors.SablierMerkleVCA_StartTimeGreaterThanEndTime.selector,
+                params.schedule.startTime,
+                params.schedule.endTime
             )
         );
         createMerkleVCA(params);
@@ -106,20 +110,18 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         whenNotZeroExpiry
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
-        params.expiration = RANGED_STREAM_END_TIME + 1 weeks - 1;
+        params.expiration = RANGED_STREAM_END_TIME + 1 weeks - 1 seconds;
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_ExpiryWithinOneWeekOfUnlockEndTime.selector,
-                params.timestamps.end,
-                params.expiration
+                Errors.SablierMerkleVCA_ExpirationTooEarly.selector, params.schedule.endTime, params.expiration
             )
         );
         createMerkleVCA(params);
     }
 
-    function test_GivenCustomFeeSet()
+    function test_GivenCustomFeeUSDSet()
         external
         whenNativeTokenNotFound
         givenCampaignNotExists
@@ -128,26 +130,26 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         whenNotZeroExpiry
         whenExpiryExceedsOneWeekFromEndTime
     {
-        // Set the custom fee to 0 for this test.
-        uint256 customFee = 0;
+        // Set the custom fee to 0.
+        uint256 customFeeUSD = 0;
 
         resetPrank(users.admin);
-        merkleFactoryVCA.setCustomFee(users.campaignCreator, customFee);
+        factoryMerkleVCA.setCustomFeeUSD(users.campaignCreator, customFeeUSD);
 
         resetPrank(users.campaignCreator);
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
-        params.campaignName = "Merkle VCA campaign with custom fee set";
+        params.campaignName = "Merkle VCA campaign with custom fee USD";
 
         address expectedMerkleVCA = computeMerkleVCAAddress(params, users.campaignCreator);
 
         // It should emit a {CreateMerkleVCA} event.
-        vm.expectEmit(address(merkleFactoryVCA));
-        emit ISablierMerkleFactoryVCA.CreateMerkleVCA({
+        vm.expectEmit(address(factoryMerkleVCA));
+        emit ISablierFactoryMerkleVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(address(expectedMerkleVCA)),
             params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
-            fee: customFee,
+            minFeeUSD: customFeeUSD,
             oracle: address(oracle)
         });
 
@@ -156,17 +158,17 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         assertEq(address(actualVCA), expectedMerkleVCA, "MerkleVCA contract does not match computed address");
 
         // It should create the campaign with 0 custom fee.
-        assertEq(actualVCA.minimumFee(), customFee, "custom fee");
+        assertEq(actualVCA.minFeeUSD(), customFeeUSD, "custom fee USD");
 
         // It should set the current factory address.
-        assertEq(actualVCA.FACTORY(), address(merkleFactoryVCA), "factory");
+        assertEq(actualVCA.FACTORY(), address(factoryMerkleVCA), "factory");
 
-        // It should set return the correct unlock timestamps.
-        assertEq(actualVCA.timestamps().start, RANGED_STREAM_START_TIME, "unlock start");
-        assertEq(actualVCA.timestamps().end, RANGED_STREAM_END_TIME, "unlock end");
+        // It should set return the correct schedule.
+        assertEq(actualVCA.getSchedule().startTime, RANGED_STREAM_START_TIME, "schedule start time");
+        assertEq(actualVCA.getSchedule().endTime, RANGED_STREAM_END_TIME, "schedule end time");
     }
 
-    function test_GivenCustomFeeNotSet()
+    function test_GivenCustomFeeUSDNotSet()
         external
         whenNativeTokenNotFound
         givenCampaignNotExists
@@ -176,18 +178,18 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         whenExpiryExceedsOneWeekFromEndTime
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
-        params.campaignName = "Merkle VCA campaign with default fee set";
+        params.campaignName = "Merkle VCA campaign with custom fee USD";
 
         address expectedMerkleVCA = computeMerkleVCAAddress(params, users.campaignCreator);
 
         // It should emit a {CreateMerkleVCA} event.
-        vm.expectEmit(address(merkleFactoryVCA));
-        emit ISablierMerkleFactoryVCA.CreateMerkleVCA({
+        vm.expectEmit(address(factoryMerkleVCA));
+        emit ISablierFactoryMerkleVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(address(expectedMerkleVCA)),
             params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
-            fee: MINIMUM_FEE,
+            minFeeUSD: MIN_FEE_USD,
             oracle: address(oracle)
         });
 
@@ -195,13 +197,13 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         assertGt(address(actualVCA).code.length, 0, "MerkleVCA contract not created");
         assertEq(address(actualVCA), expectedMerkleVCA, "MerkleVCA contract does not match computed address");
 
-        // It should create the campaign with custom fee.
-        assertEq(actualVCA.minimumFee(), MINIMUM_FEE, "minimum fee");
+        // It should create the campaign.
+        assertEq(actualVCA.minFeeUSD(), MIN_FEE_USD, "min fee USD");
         // It should set the current factory address.
-        assertEq(actualVCA.FACTORY(), address(merkleFactoryVCA), "factory");
+        assertEq(actualVCA.FACTORY(), address(factoryMerkleVCA), "factory");
 
         // It should set return the correct unlock timestamps.
-        assertEq(actualVCA.timestamps().start, RANGED_STREAM_START_TIME, "unlock start");
-        assertEq(actualVCA.timestamps().end, RANGED_STREAM_END_TIME, "unlock end");
+        assertEq(actualVCA.getSchedule().startTime, RANGED_STREAM_START_TIME, "schedule start time");
+        assertEq(actualVCA.getSchedule().endTime, RANGED_STREAM_END_TIME, "schedule end time");
     }
 }

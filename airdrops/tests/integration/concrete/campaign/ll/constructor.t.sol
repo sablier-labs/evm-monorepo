@@ -9,7 +9,7 @@ import { Integration_Test } from "./../../../Integration.t.sol";
 contract Constructor_MerkleLL_Integration_Test is Integration_Test {
     function test_Constructor() external {
         // Make Factory the caller for the constructor test.
-        resetPrank(address(merkleFactoryLL));
+        resetPrank(address(factoryMerkleLL));
 
         // Deploy the SablierMerkleLL contract.
         SablierMerkleLL constructedLL = new SablierMerkleLL(merkleLLConstructorParams(), users.campaignCreator);
@@ -22,18 +22,18 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         assertEq(constructedLL.admin(), users.campaignCreator, "admin");
         assertEq(constructedLL.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedLL.EXPIRATION(), EXPIRATION, "expiration");
-        assertEq(constructedLL.FACTORY(), address(merkleFactoryLL), "factory");
-        assertEq(constructedLL.ipfsCID(), IPFS_CID, "ipfsCID");
+        assertEq(constructedLL.FACTORY(), address(factoryMerkleLL), "factory");
+        assertEq(constructedLL.ipfsCID(), IPFS_CID, "IPFS CID");
         assertEq(constructedLL.MERKLE_ROOT(), MERKLE_ROOT, "merkleRoot");
-        assertEq(constructedLL.minimumFee(), MINIMUM_FEE, "minimum fee");
+        assertEq(constructedLL.minFeeUSD(), MIN_FEE_USD, "min fee USD");
         assertEq(constructedLL.ORACLE(), address(oracle), "oracle");
         assertEq(address(constructedLL.TOKEN()), address(dai), "token");
 
         // SablierMerkleLockup
-        assertEq(address(constructedLL.LOCKUP()), address(lockup), "lockup");
-        assertEq(constructedLL.shape(), SHAPE, "shape");
-        assertEq(constructedLL.STREAM_CANCELABLE(), CANCELABLE, "stream cancelable");
-        assertEq(constructedLL.STREAM_TRANSFERABLE(), TRANSFERABLE, "stream transferable");
+        assertEq(address(constructedLL.SABLIER_LOCKUP()), address(lockup), "Sablier Lockup");
+        assertEq(constructedLL.streamShape(), STREAM_SHAPE, "stream shape");
+        assertEq(constructedLL.STREAM_CANCELABLE(), STREAM_CANCELABLE, "stream cancelable");
+        assertEq(constructedLL.STREAM_TRANSFERABLE(), STREAM_TRANSFERABLE, "stream transferable");
 
         // SablierMerkleLL
         MerkleLL.Schedule memory actualSchedule = constructedLL.getSchedule();

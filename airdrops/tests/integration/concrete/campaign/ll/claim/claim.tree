@@ -1,5 +1,5 @@
 Claim_MerkleLL_Integration_Test
-└── when Merkle proof valid
+└── when valid Merkle proof
    ├── when vesting end time not exceed claim time
    │  ├── it should transfer the tokens to the recipient
    │  └── it should emit a {Claim} event

@@ -21,7 +21,7 @@ abstract contract SablierMerkleLockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLockup
-    ISablierLockup public immutable override LOCKUP;
+    ISablierLockup public immutable override SABLIER_LOCKUP;
 
     /// @inheritdoc ISablierMerkleLockup
     bool public immutable override STREAM_CANCELABLE;
@@ -30,39 +30,38 @@ abstract contract SablierMerkleLockup is
     bool public immutable override STREAM_TRANSFERABLE;
 
     /// @inheritdoc ISablierMerkleLockup
-    string public override shape;
+    string public override streamShape;
 
-    /// @dev A mapping of stream IDs associated with the airdrops claimed by the recipient.
+    /// @dev A mapping between recipient addresses and Lockup streams created through the claim function.
     mapping(address recipient => uint256[] streamIds) internal _claimedStreams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Constructs the contract by initializing the immutable state variables, and max approving the Lockup
-    /// contract.
+    /// @dev Constructs the contract by initializing the immutable state vars, and max approving the Lockup contract.
     constructor(
         address campaignCreator,
         string memory campaignName,
         bool cancelable,
-        ISablierLockup lockup,
+        ISablierLockup sablierLockup,
         uint40 expiration,
         address initialAdmin,
         string memory ipfsCID,
         bytes32 merkleRoot,
-        string memory _shape,
+        string memory shape_,
         IERC20 token,
         bool transferable
     )
         SablierMerkleBase(campaignCreator, campaignName, expiration, initialAdmin, ipfsCID, merkleRoot, token)
     {
-        LOCKUP = lockup;
-        shape = _shape;
+        SABLIER_LOCKUP = sablierLockup;
+        streamShape = shape_;
         STREAM_CANCELABLE = cancelable;
         STREAM_TRANSFERABLE = transferable;
 
         // Max approve the Lockup contract to spend funds from the Merkle Lockup campaigns.
-        TOKEN.forceApprove(address(LOCKUP), type(uint256).max);
+        TOKEN.forceApprove({ spender: address(SABLIER_LOCKUP), value: type(uint256).max });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

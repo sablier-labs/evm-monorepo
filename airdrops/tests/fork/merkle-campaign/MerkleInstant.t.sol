@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierMerkleFactoryInstant } from "src/interfaces/ISablierMerkleFactoryInstant.sol";
+import { ISablierFactoryMerkleInstant } from "src/interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 
 import { MerkleInstant } from "src/types/DataTypes.sol";
@@ -25,8 +25,8 @@ abstract contract MerkleInstant_Fork_Test is MerkleBase_Fork_Test {
     function setUp() public virtual override {
         Fork_Test.setUp();
 
-        // Cast the {merkleFactoryInstant} contract as {ISablierMerkleFactoryBase}
-        merkleFactoryBase = merkleFactoryInstant;
+        // Cast the {FactoryMerkleInstant} contract as {ISablierFactoryMerkleBase}
+        factoryMerkleBase = factoryMerkleInstant;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -50,20 +50,20 @@ abstract contract MerkleInstant_Fork_Test is MerkleBase_Fork_Test {
         vars.expectedMerkleCampaign =
             computeMerkleInstantAddress({ params: constructorParams, campaignCreator: params.campaignCreator });
 
-        vm.expectEmit({ emitter: address(merkleFactoryInstant) });
-        emit ISablierMerkleFactoryInstant.CreateMerkleInstant({
+        vm.expectEmit({ emitter: address(factoryMerkleInstant) });
+        emit ISablierFactoryMerkleInstant.CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(vars.expectedMerkleCampaign),
             params: constructorParams,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.leavesData.length,
-            fee: vars.minimumFee,
+            minFeeUSD: vars.minFeeUSD,
             oracle: vars.oracle
         });
 
         merkleInstant =
-            merkleFactoryInstant.createMerkleInstant(constructorParams, vars.aggregateAmount, vars.leavesData.length);
+            factoryMerkleInstant.createMerkleInstant(constructorParams, vars.aggregateAmount, vars.leavesData.length);
 
-        assertGt(address(merkleInstant).code.length, 0, "MerkleInstant contract not created");
+        assertLt(0, address(merkleInstant).code.length, "MerkleInstant contract not created");
         assertEq(
             address(merkleInstant),
             vars.expectedMerkleCampaign,
@@ -81,7 +81,7 @@ abstract contract MerkleInstant_Fork_Test is MerkleBase_Fork_Test {
 
         expectCallToClaimWithData({
             merkleLockup: address(merkleInstant),
-            feeInWei: vars.minimumFeeInWei,
+            feeInWei: vars.minFeeWei,
             index: vars.leafToClaim.index,
             recipient: vars.leafToClaim.recipient,
             amount: vars.leafToClaim.amount,
@@ -90,7 +90,7 @@ abstract contract MerkleInstant_Fork_Test is MerkleBase_Fork_Test {
 
         expectCallToTransfer({ token: FORK_TOKEN, to: vars.leafToClaim.recipient, value: vars.leafToClaim.amount });
 
-        merkleInstant.claim{ value: vars.minimumFeeInWei }({
+        merkleInstant.claim{ value: vars.minFeeWei }({
             index: vars.leafToClaim.index,
             recipient: vars.leafToClaim.recipient,
             amount: vars.leafToClaim.amount,

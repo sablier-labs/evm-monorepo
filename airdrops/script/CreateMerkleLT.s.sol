@@ -6,7 +6,7 @@ import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
 import { ISablierMerkleLT } from "../src/interfaces/ISablierMerkleLT.sol";
-import { SablierMerkleFactoryLT } from "../src/SablierMerkleFactoryLT.sol";
+import { SablierFactoryMerkleLT } from "../src/SablierFactoryMerkleLT.sol";
 
 import { MerkleLT } from "../src/types/DataTypes.sol";
 import { BaseScript } from "./Base.sol";
@@ -15,10 +15,10 @@ import { BaseScript } from "./Base.sol";
 contract CreateMerkleLT is BaseScript {
     /// @dev Deploy via Forge.
     function run() public broadcast returns (ISablierMerkleLT merkleLT) {
-        // TODO: Load deployed addresses from Ethereum mainnet.
-        SablierMerkleFactoryLT merkleFactory = new SablierMerkleFactoryLT({
+        // TODO: Load deployed addresses from Ethereum Mainnet.
+        SablierFactoryMerkleLT factory = new SablierFactoryMerkleLT({
             initialAdmin: DEFAULT_SABLIER_ADMIN,
-            initialMinimumFee: 0,
+            initialMinFeeUSD: 0,
             initialOracle: address(0)
         });
 
@@ -46,6 +46,6 @@ contract CreateMerkleLT is BaseScript {
         uint256 recipientCount = 100;
 
         // Deploy the MerkleLT contract.
-        merkleLT = merkleFactory.createMerkleLT(params, aggregateAmount, recipientCount);
+        merkleLT = factory.createMerkleLT(params, aggregateAmount, recipientCount);
     }
 }

@@ -15,7 +15,7 @@ abstract contract HasClaimed_Integration_Test is Integration_Test {
     }
 
     function test_GivenRecipientClaimed() external whenIndexInMerkleTree {
-        // Make the first claim to set `_firstClaimTime`.
+        // Make the first claim to set `firstClaimTime`.
         claim();
 
         // It should return true.

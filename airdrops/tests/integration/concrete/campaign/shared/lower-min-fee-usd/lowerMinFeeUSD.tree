@@ -1,0 +1,13 @@
+LowerMinFeeUSD_Integration_Test
+├── when caller not factory admin
+│  └── it should revert
+└── when caller factory admin
+   ├── when new fee not lower
+   │  └── it should revert
+   └── when new fee lower
+      ├── when new fee not zero
+      │  ├── it should lower min fee
+      │  └── it should emit a {LowerMinFeeUSD} event
+      └── when new fee zero
+         ├── it should set min fee to zero
+         └── it should emit a {LowerMinFeeUSD} event

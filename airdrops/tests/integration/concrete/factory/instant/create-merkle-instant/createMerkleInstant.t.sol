@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierMerkleFactoryInstant } from "src/interfaces/ISablierMerkleFactoryInstant.sol";
+import { ISablierFactoryMerkleInstant } from "src/interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { MerkleInstant } from "src/types/DataTypes.sol";
@@ -15,12 +15,12 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
         // Set dai as the native token.
         resetPrank(users.admin);
         address newNativeToken = address(dai);
-        merkleFactoryInstant.setNativeToken(newNativeToken);
+        factoryMerkleInstant.setNativeToken(newNativeToken);
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleFactoryBase_ForbidNativeToken.selector, newNativeToken)
+            abi.encodeWithSelector(Errors.SablierFactoryMerkleBase_ForbidNativeToken.selector, newNativeToken)
         );
-        merkleFactoryInstant.createMerkleInstant(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
+        factoryMerkleInstant.createMerkleInstant(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
     }
 
     /// @dev This test reverts because a default MerkleInstant contract is deployed in {Integration_Test.setUp}
@@ -32,56 +32,55 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
         createMerkleInstant(params);
     }
 
-    function test_GivenCustomFeeSet() external whenNativeTokenNotFound givenCampaignNotExists {
-        uint256 customFee = 0;
-
-        // Set the custom fee for this test.
+    function test_GivenCustomFeeUSDSet() external whenNativeTokenNotFound givenCampaignNotExists {
+        // Set a custom fee.
         resetPrank(users.admin);
-        merkleFactoryInstant.setCustomFee(users.campaignCreator, customFee);
+        uint256 customFeeUSD = 0;
+        factoryMerkleInstant.setCustomFeeUSD(users.campaignCreator, customFeeUSD);
 
         resetPrank(users.campaignCreator);
 
         MerkleInstant.ConstructorParams memory params = merkleInstantConstructorParams();
-        params.campaignName = "Merkle Instant campaign with custom fee set";
+        params.campaignName = "Merkle Instant campaign with custom fee USD";
 
         address expectedMerkleInstant = computeMerkleInstantAddress(params, users.campaignCreator);
 
         // It should emit a {CreateMerkleInstant} event.
-        vm.expectEmit({ emitter: address(merkleFactoryInstant) });
-        emit ISablierMerkleFactoryInstant.CreateMerkleInstant({
+        vm.expectEmit({ emitter: address(factoryMerkleInstant) });
+        emit ISablierFactoryMerkleInstant.CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(expectedMerkleInstant),
             params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
-            fee: customFee,
+            minFeeUSD: customFeeUSD,
             oracle: address(oracle)
         });
 
         ISablierMerkleInstant actualInstant = createMerkleInstant(params);
-        assertGt(address(actualInstant).code.length, 0, "MerkleInstant contract not created");
+        assertLt(0, address(actualInstant).code.length, "MerkleInstant contract not created");
         assertEq(
             address(actualInstant), expectedMerkleInstant, "MerkleInstant contract does not match computed address"
         );
 
         // It should set the current factory address.
-        assertEq(actualInstant.FACTORY(), address(merkleFactoryInstant));
-        assertEq(actualInstant.minimumFee(), customFee, "minimum fee");
+        assertEq(actualInstant.FACTORY(), address(factoryMerkleInstant));
+        assertEq(actualInstant.minFeeUSD(), customFeeUSD, "min fee USD");
     }
 
-    function test_GivenCustomFeeNotSet() external whenNativeTokenNotFound givenCampaignNotExists {
+    function test_GivenCustomFeeUSDNotSet() external whenNativeTokenNotFound givenCampaignNotExists {
         MerkleInstant.ConstructorParams memory params = merkleInstantConstructorParams();
-        params.campaignName = "Merkle Instant campaign with default fee set";
+        params.campaignName = "Merkle Instant campaign with no custom fee USD";
 
         address expectedMerkleInstant = computeMerkleInstantAddress(params, users.campaignCreator);
 
         // It should emit a {CreateMerkleInstant} event.
-        vm.expectEmit({ emitter: address(merkleFactoryInstant) });
-        emit ISablierMerkleFactoryInstant.CreateMerkleInstant({
+        vm.expectEmit({ emitter: address(factoryMerkleInstant) });
+        emit ISablierFactoryMerkleInstant.CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(expectedMerkleInstant),
             params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
-            fee: MINIMUM_FEE,
+            minFeeUSD: MIN_FEE_USD,
             oracle: address(oracle)
         });
 
@@ -92,7 +91,7 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
         );
 
         // It should set the current factory address.
-        assertEq(actualInstant.FACTORY(), address(merkleFactoryInstant));
-        assertEq(actualInstant.minimumFee(), MINIMUM_FEE, "minimum fee");
+        assertEq(actualInstant.FACTORY(), address(factoryMerkleInstant));
+        assertEq(actualInstant.minFeeUSD(), MIN_FEE_USD, "min fee USD");
     }
 }

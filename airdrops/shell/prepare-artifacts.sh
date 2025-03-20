@@ -20,20 +20,20 @@ mkdir $artifacts \
   "$artifacts/interfaces" \
   "$artifacts/libraries"
 
-cp out-optimized/SablierMerkleFactoryInstant.sol/SablierMerkleFactoryInstant.json $artifacts
-cp out-optimized/SablierMerkleFactoryLL.sol/SablierMerkleFactoryLL.json $artifacts
-cp out-optimized/SablierMerkleFactoryLT.sol/SablierMerkleFactoryLT.json $artifacts
-cp out-optimized/SablierMerkleFactoryVCA.sol/SablierMerkleFactoryVCA.json $artifacts
+cp out-optimized/SablierFactoryMerkleInstant.sol/SablierFactoryMerkleInstant.json $artifacts
+cp out-optimized/SablierFactoryMerkleLL.sol/SablierFactoryMerkleLL.json $artifacts
+cp out-optimized/SablierFactoryMerkleLT.sol/SablierFactoryMerkleLT.json $artifacts
+cp out-optimized/SablierFactoryMerkleVCA.sol/SablierFactoryMerkleVCA.json $artifacts
 cp out-optimized/SablierMerkleInstant.sol/SablierMerkleInstant.json $artifacts
 cp out-optimized/SablierMerkleLL.sol/SablierMerkleLL.json $artifacts
 cp out-optimized/SablierMerkleLT.sol/SablierMerkleLT.json $artifacts
 cp out-optimized/SablierMerkleVCA.sol/SablierMerkleVCA.json $artifacts
 
 interfaces=./artifacts/interfaces
-cp out-optimized/ISablierMerkleFactoryInstant.sol/ISablierMerkleFactoryInstant.json $artifacts
-cp out-optimized/ISablierMerkleFactoryLL.sol/ISablierMerkleFactoryLL.json $artifacts
-cp out-optimized/ISablierMerkleFactoryLT.sol/ISablierMerkleFactoryLT.json $artifacts
-cp out-optimized/ISablierMerkleFactoryVCA.sol/ISablierMerkleFactoryVCA.json $artifacts
+cp out-optimized/ISablierFactoryMerkleInstant.sol/ISablierFactoryMerkleInstant.json $artifacts
+cp out-optimized/ISablierFactoryMerkleLL.sol/ISablierFactoryMerkleLL.json $artifacts
+cp out-optimized/ISablierFactoryMerkleLT.sol/ISablierFactoryMerkleLT.json $artifacts
+cp out-optimized/ISablierFactoryMerkleVCA.sol/ISablierFactoryMerkleVCA.json $artifacts
 cp out-optimized/ISablierMerkleInstant.sol/ISablierMerkleInstant.json $interfaces
 cp out-optimized/ISablierMerkleLL.sol/ISablierMerkleLL.json $interfaces
 cp out-optimized/ISablierMerkleLT.sol/ISablierMerkleLT.json $interfaces

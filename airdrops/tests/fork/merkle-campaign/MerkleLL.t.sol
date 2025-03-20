@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud60x18 } from "@prb/math/src/UD60x18.sol";
 import { Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
 
-import { ISablierMerkleFactoryLL } from "src/interfaces/ISablierMerkleFactoryLL.sol";
+import { ISablierFactoryMerkleLL } from "src/interfaces/ISablierFactoryMerkleLL.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
 import { MerkleLL } from "src/types/DataTypes.sol";
@@ -27,8 +27,8 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
     function setUp() public virtual override {
         Fork_Test.setUp();
 
-        // Cast the {merkleFactoryLL} contract as {ISablierMerkleFactoryBase}
-        merkleFactoryBase = merkleFactoryLL;
+        // Cast the {FactoryMerkleLL} contract as {ISablierFactoryMerkleBase}
+        factoryMerkleBase = factoryMerkleLL;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
 
         uint40 expectedStartTime;
 
-        // If the start time is not zero, bound it to a reasonable range so that vesting end time can be in the past,
+        // If the start time is not zero, bound it to a reasonable range so that schedule end time can be in the past,
         // present and future.
         if (startTime != 0) {
             startTime =
@@ -66,19 +66,19 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
         vars.expectedMerkleCampaign =
             computeMerkleLLAddress({ params: constructorParams, campaignCreator: params.campaignCreator });
 
-        vm.expectEmit({ emitter: address(merkleFactoryLL) });
-        emit ISablierMerkleFactoryLL.CreateMerkleLL({
+        vm.expectEmit({ emitter: address(factoryMerkleLL) });
+        emit ISablierFactoryMerkleLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(vars.expectedMerkleCampaign),
             params: constructorParams,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.leavesData.length,
-            fee: vars.minimumFee,
+            minFeeUSD: vars.minFeeUSD,
             oracle: vars.oracle
         });
 
-        merkleLL = merkleFactoryLL.createMerkleLL(constructorParams, vars.aggregateAmount, vars.leavesData.length);
+        merkleLL = factoryMerkleLL.createMerkleLL(constructorParams, vars.aggregateAmount, vars.leavesData.length);
 
-        assertGt(address(merkleLL).code.length, 0, "MerkleLL contract not created");
+        assertLt(0, address(merkleLL).code.length, "MerkleLL contract not created");
         assertEq(address(merkleLL), vars.expectedMerkleCampaign, "MerkleLL contract does not match computed address");
 
         // Cast the {MerkleLL} contract as {ISablierMerkleBase}
@@ -93,7 +93,7 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
         uint256 expectedStreamId;
         uint256 initialRecipientTokenBalance = FORK_TOKEN.balanceOf(vars.leafToClaim.recipient);
 
-        // It should emit {Claim} event based on the vesting end time.
+        // It should emit {Claim} event based on the schedule end time.
         if (expectedStartTime + TOTAL_DURATION <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLL) });
             emit ISablierMerkleLockup.Claim(vars.leafToClaim.index, vars.leafToClaim.recipient, vars.leafToClaim.amount);
@@ -114,7 +114,7 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
 
         expectCallToClaimWithData({
             merkleLockup: address(merkleLL),
-            feeInWei: vars.minimumFeeInWei,
+            feeInWei: vars.minFeeWei,
             index: vars.leafToClaim.index,
             recipient: vars.leafToClaim.recipient,
             amount: vars.leafToClaim.amount,
@@ -122,14 +122,14 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
         });
 
         // Claim the airdrop.
-        merkleLL.claim{ value: vars.minimumFeeInWei }({
+        merkleLL.claim{ value: vars.minFeeWei }({
             index: vars.leafToClaim.index,
             recipient: vars.leafToClaim.recipient,
             amount: vars.leafToClaim.amount,
             merkleProof: vars.merkleProof
         });
 
-        // Assertions when vesting end time does not exceed the block time.
+        // Assertions when schedule end time does not exceed the block time.
         if (expectedStartTime + TOTAL_DURATION <= getBlockTimestamp()) {
             assertEq(
                 FORK_TOKEN.balanceOf(vars.leafToClaim.recipient),
@@ -137,7 +137,7 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
                 "recipient token balance"
             );
         }
-        // Assertions when vesting end time exceeds the block time.
+        // Assertions when schedule end time exceeds the block time.
         else {
             LockupLinear.UnlockAmounts memory expectedUnlockAmounts = LockupLinear.UnlockAmounts({
                 start: ud60x18(vars.leafToClaim.amount).mul(START_PERCENTAGE.intoUD60x18()).intoUint128(),
@@ -149,10 +149,10 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
                 recipient: vars.leafToClaim.recipient,
                 depositAmount: vars.leafToClaim.amount,
                 token: FORK_TOKEN,
-                cancelable: CANCELABLE,
-                transferable: TRANSFERABLE,
+                cancelable: STREAM_CANCELABLE,
+                transferable: STREAM_TRANSFERABLE,
                 timestamps: Lockup.Timestamps({ start: expectedStartTime, end: expectedStartTime + TOTAL_DURATION }),
-                shape: SHAPE
+                shape: STREAM_SHAPE
             });
 
             // Assert that the stream has been created successfully.

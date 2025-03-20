@@ -5,7 +5,7 @@ import { MerkleLT } from "./../types/DataTypes.sol";
 import { ISablierMerkleLockup } from "./ISablierMerkleLockup.sol";
 
 /// @title ISablierMerkleLT
-/// @notice MerkleLT enables airdrops with a vesting period powered by the Lockup Tranched distribution model.
+/// @notice MerkleLT enables an airdrop model with a vesting period powered by the Lockup Tranched model.
 interface ISablierMerkleLT is ISablierMerkleLockup {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS

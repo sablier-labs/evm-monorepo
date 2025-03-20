@@ -40,16 +40,16 @@ contract BaseScript_Test is StdAssertions, CommonBase {
         }
     }
 
-    function test_InitialMinimumFee() public {
-        for (uint256 i; i < supportedChainIds.length; ++i) {
+    function test_InitialMinFeeUSD() public {
+        for (uint256 i = 0; i < supportedChainIds.length; ++i) {
             vm.chainId(supportedChainIds[i]);
 
-            // Assert that the initial minimum fee is 1e8 for supported chains.
-            assertEq(baseScript.initialMinimumFee(), 1e8, "Initial minimum fee mismatch");
+            // Assert that the initial min USD fee is 1e8 for supported chains.
+            assertEq(baseScript.initialMinFeeUSD(), 1e8, "Initial min USD fee mismatch");
         }
 
-        // Assert that the initial minimum fee is 0 for unsupported chains.
+        // Assert that the initial min USD fee is 0 for unsupported chains.
         vm.chainId(999);
-        assertEq(baseScript.initialMinimumFee(), 0, "Initial minimum fee mismatch");
+        assertEq(baseScript.initialMinFeeUSD(), 0, "Initial min USD fee mismatch");
     }
 }

@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { ISablierMerkleFactoryLL } from "src/interfaces/ISablierMerkleFactoryLL.sol";
+import { ISablierFactoryMerkleLL } from "src/interfaces/ISablierFactoryMerkleLL.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
 
@@ -20,8 +20,8 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
     function setUp() public virtual override {
         Integration_Test.setUp();
 
-        // Cast the {merkleFactoryLL} contract as {ISablierMerkleFactoryBase}
-        merkleFactoryBase = merkleFactoryLL;
+        // Cast the {FactoryMerkleLL} contract as {ISablierFactoryMerkleBase}
+        factoryMerkleBase = factoryMerkleLL;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
             prepareCommonCreateParams(rawLeavesData, expiration, indexesToClaim.length);
 
         // Set the custom fee if enabled.
-        feeForUser = enableCustomFee ? testSetCustomFee(feeForUser) : MINIMUM_FEE;
+        feeForUser = enableCustomFee ? testSetCustomFeeUSD(feeForUser) : MIN_FEE_USD;
 
         // Test creating the MerkleLL campaign.
         _testCreateMerkleLL(aggregateAmount, expiration_, feeForUser, merkleRoot, schedule);
@@ -115,18 +115,18 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         address expectedMerkleLL = computeMerkleLLAddress(params, users.campaignCreator);
 
         // Expect a {CreateMerkleLL} event.
-        vm.expectEmit({ emitter: address(merkleFactoryLL) });
-        emit ISablierMerkleFactoryLL.CreateMerkleLL({
+        vm.expectEmit({ emitter: address(factoryMerkleLL) });
+        emit ISablierFactoryMerkleLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedMerkleLL),
             params: params,
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
-            fee: feeForUser,
+            minFeeUSD: feeForUser,
             oracle: address(oracle)
         });
 
         // Create the campaign.
-        merkleLL = merkleFactoryLL.createMerkleLL(params, aggregateAmount, leavesData.length);
+        merkleLL = factoryMerkleLL.createMerkleLL(params, aggregateAmount, leavesData.length);
 
         // It should deploy the contract at the correct address.
         assertGt(address(merkleLL).code.length, 0, "MerkleLL contract not created");
@@ -150,7 +150,7 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function expectClaimEvent(LeafData memory leafData) internal override {
-        // It should emit {Claim} event based on the vesting end time.
+        // It should emit {Claim} event based on the schedule end time.
         MerkleLL.Schedule memory schedule = merkleLL.getSchedule();
         uint40 expectedStartTime = schedule.startTime == 0 ? getBlockTimestamp() : schedule.startTime;
 

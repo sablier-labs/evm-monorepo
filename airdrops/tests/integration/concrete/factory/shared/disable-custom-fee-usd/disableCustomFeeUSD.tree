@@ -1,0 +1,11 @@
+DisableCustomFeeUSD_Integration_Test
+├── when caller not admin
+│  └── it should revert
+└── when caller admin
+   ├── when not enabled
+   │  ├── it should do nothing
+   │  └── it should emit a {DisableCustomFeeUSD} event
+   └── when enabled
+      ├── it should disable the custom fee
+      ├── it should set the custom fee to 0
+      └── it should emit a {DisableCustomFeeUSD} event

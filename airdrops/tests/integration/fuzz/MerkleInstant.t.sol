@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierMerkleFactoryInstant } from "src/interfaces/ISablierMerkleFactoryInstant.sol";
+import { ISablierFactoryMerkleInstant } from "src/interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 
 import { MerkleInstant } from "src/types/DataTypes.sol";
@@ -17,8 +17,8 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
     function setUp() public virtual override {
         Integration_Test.setUp();
 
-        // Cast the {merkleFactoryInstant} contract as {ISablierMerkleFactoryBase}
-        merkleFactoryBase = merkleFactoryInstant;
+        // Cast the {FactoryMerkleInstant} contract as {ISablierFactoryMerkleBase}
+        factoryMerkleBase = factoryMerkleInstant;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
             prepareCommonCreateParams(rawLeavesData, expiration, indexesToClaim.length);
 
         // Set the custom fee if enabled.
-        feeForUser = enableCustomFee ? testSetCustomFee(feeForUser) : MINIMUM_FEE;
+        feeForUser = enableCustomFee ? testSetCustomFeeUSD(feeForUser) : MIN_FEE_USD;
 
         // Test creating the MerkleInstant campaign.
         _testCreateMerkleInstant(aggregateAmount, expiration_, feeForUser, merkleRoot);
@@ -57,7 +57,7 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
         // Test claiming the airdrop for the given indexes.
         testClaimMultipleAirdrops(indexesToClaim, msgValue);
 
-        // Test clawbacking funds.
+        // Test clawback of funds.
         testClawback(clawbackAmount);
 
         // Test collecting fees earned.
@@ -87,18 +87,18 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
         address expectedMerkleInstant = computeMerkleInstantAddress(params, users.campaignCreator);
 
         // Expect a {CreateMerkleInstant} event.
-        vm.expectEmit({ emitter: address(merkleFactoryInstant) });
-        emit ISablierMerkleFactoryInstant.CreateMerkleInstant({
+        vm.expectEmit({ emitter: address(factoryMerkleInstant) });
+        emit ISablierFactoryMerkleInstant.CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(expectedMerkleInstant),
             params: params,
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
-            fee: feeForUser,
+            minFeeUSD: feeForUser,
             oracle: address(oracle)
         });
 
         // Create the campaign.
-        merkleInstant = merkleFactoryInstant.createMerkleInstant(params, aggregateAmount, leavesData.length);
+        merkleInstant = factoryMerkleInstant.createMerkleInstant(params, aggregateAmount, leavesData.length);
 
         // It should deploy the contract at the correct address.
         assertGt(address(merkleInstant).code.length, 0, "MerkleInstant contract not created");

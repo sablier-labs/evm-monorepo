@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ISablierFactoryMerkleBase } from "src/interfaces/ISablierFactoryMerkleBase.sol";
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
-import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
-
-import { Integration_Test } from "../../../../Integration.t.sol";
+import { Integration_Test } from "./../../../../Integration.t.sol";
 
 abstract contract CollectFees_Integration_Test is Integration_Test {
     function test_RevertWhen_ProvidedMerkleLockupNotValid() external {
         vm.expectRevert();
-        merkleFactoryBase.collectFees(ISablierMerkleBase(users.eve));
+        factoryMerkleBase.collectFees(ISablierMerkleBase(users.eve));
     }
 
     function test_WhenFactoryAdminIsNotContract() external whenProvidedMerkleLockupValid {
@@ -24,7 +23,7 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
     {
         // Transfer the admin to a contract that does not implement the receive function.
         resetPrank({ msgSender: users.admin });
-        merkleFactoryBase.transferAdmin(address(contractWithoutReceive));
+        factoryMerkleBase.transferAdmin(address(contractWithoutReceive));
 
         // Make the contract the caller.
         resetPrank({ msgSender: address(contractWithoutReceive) });
@@ -36,7 +35,7 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
                 address(merkleBase).balance
             )
         );
-        merkleFactoryBase.collectFees(merkleBase);
+        factoryMerkleBase.collectFees(merkleBase);
     }
 
     function test_WhenFactoryAdminImplementsReceiveFunction()
@@ -46,7 +45,7 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
     {
         // Transfer the admin to a contract that implements the receive function.
         resetPrank({ msgSender: users.admin });
-        merkleFactoryBase.transferAdmin(address(contractWithReceive));
+        factoryMerkleBase.transferAdmin(address(contractWithReceive));
 
         _test_CollectFees(address(contractWithReceive));
     }
@@ -56,22 +55,18 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
         uint256 initialAdminBalance = admin.balance;
 
         // It should emit a {CollectFees} event.
-        vm.expectEmit({ emitter: address(merkleFactoryBase) });
-        emit ISablierMerkleFactoryBase.CollectFees({
-            admin: admin,
-            merkleBase: merkleBase,
-            feeAmount: MINIMUM_FEE_IN_WEI
-        });
+        vm.expectEmit({ emitter: address(factoryMerkleBase) });
+        emit ISablierFactoryMerkleBase.CollectFees({ admin: admin, campaign: merkleBase, feeAmount: MIN_FEE_WEI });
 
         // Make Alice the caller.
         resetPrank({ msgSender: users.eve });
 
-        merkleFactoryBase.collectFees(merkleBase);
+        factoryMerkleBase.collectFees(merkleBase);
 
         // It should decrease merkle contract balance to zero.
         assertEq(address(merkleBase).balance, 0, "merkle lockup ETH balance");
 
         // It should transfer fee to the factory admin.
-        assertEq(admin.balance, initialAdminBalance + MINIMUM_FEE_IN_WEI, "admin ETH balance");
+        assertEq(admin.balance, initialAdminBalance + MIN_FEE_WEI, "admin ETH balance");
     }
 }

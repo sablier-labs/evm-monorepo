@@ -71,14 +71,14 @@
     "clean": "rm -rf artifacts broadcast cache docs out out-optimized",
     "lint": "bun run lint:sol && bun run prettier:check",
     "lint:fix": "bun run lint:sol:fix && forge fmt",
-    "lint:sol": "forge fmt --check && bun solhint \"{script,src,tests}/**/*.sol\"",
-    "lint:sol:fix": "bun solhint \"{script,src,tests}/**/*.sol\" --fix --noPrompt",
+    "lint:sol": "forge fmt --check && solhint \"{script,src,tests}/**/*.sol\"",
+    "lint:sol:fix": "solhint --fix --noPrompt \"{script,src,tests}/**/*.sol\"",
     "prepack": "bun install && bash ./shell/prepare-artifacts.sh",
     "prepare": "husky",
     "prettier:check": "prettier --check \"**/*.{json,md,yml}\"",
     "prettier:write": "prettier --write \"**/*.{json,md,yml}\"",
     "test": "forge test --nmt testFork",
-    "test:bulloak": "bulloak check",
+    "test:bulloak": "bulloak check --skip-modifiers ./tests/**/*.tree",
     "test:lite": "FOUNDRY_PROFILE=lite forge test --nmt testFork",
     "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   }

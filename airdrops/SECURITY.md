@@ -20,3 +20,4 @@ vulnerability, it must adhere to these assumptions as well:
   [$POL token](https://polygonscan.com/address/0x0000000000000000000000000000000000001010) on Polygon is not supported.
 - The token contract has only one entry point.
 - The token contract does not allow callbacks (e.g. ERC-777 is not supported).
+- The native token of the chain, i.e. the one used for `msg.value` payments, has 18 decimals.

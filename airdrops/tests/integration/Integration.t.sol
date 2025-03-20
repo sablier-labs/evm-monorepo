@@ -45,7 +45,7 @@ contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function claim() internal {
-        merkleBase.claim{ value: MINIMUM_FEE_IN_WEI }({
+        merkleBase.claim{ value: MIN_FEE_WEI }({
             index: INDEX1,
             recipient: users.recipient1,
             amount: CLAIM_AMOUNT,
@@ -65,7 +65,7 @@ contract Integration_Test is Base_Test {
         internal
         returns (ISablierMerkleInstant)
     {
-        return merkleFactoryInstant.createMerkleInstant(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        return factoryMerkleInstant.createMerkleInstant(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ contract Integration_Test is Base_Test {
     }
 
     function createMerkleLL(MerkleLL.ConstructorParams memory params) internal returns (ISablierMerkleLL) {
-        return merkleFactoryLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        return factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ contract Integration_Test is Base_Test {
     }
 
     function createMerkleLT(MerkleLT.ConstructorParams memory params) internal returns (ISablierMerkleLT) {
-        return merkleFactoryLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        return factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -101,6 +101,6 @@ contract Integration_Test is Base_Test {
     }
 
     function createMerkleVCA(MerkleVCA.ConstructorParams memory params) internal returns (ISablierMerkleVCA) {
-        return merkleFactoryVCA.createMerkleVCA(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        return factoryMerkleVCA.createMerkleVCA(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
     }
 }

@@ -24,33 +24,33 @@ library Errors {
     /// @notice Thrown if the fees withdrawal failed.
     error SablierMerkleBase_FeeTransferFail(address factoryAdmin, uint256 feeAmount);
 
-    /// @notice Thrown when trying to claim with an insufficient fee payment.
-    error SablierMerkleBase_InsufficientFeePayment(uint256 feePaid, uint256 fee);
+    /// @notice Thrown when trying to claim without paying the min fee.
+    error SablierMerkleBase_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
 
     /// @notice Thrown when trying to claim with an invalid Merkle proof.
     error SablierMerkleBase_InvalidProof();
 
-    /// @notice Thrown when trying to set a fee that is higher than the current fee.
-    error SablierMerkleBase_NewFeeHigher(uint256 currentFee, uint256 newFee);
+    /// @notice Thrown when trying to set a new min USD fee that is higher than the current fee.
+    error SablierMerkleBase_NewMinFeeUSDNotLower(uint256 currentMinFeeUSD, uint256 newMinFeeUSD);
 
-    /// @notice Thrown when trying to claim the same stream more than once.
-    error SablierMerkleBase_StreamClaimed(uint256 index);
+    /// @notice Thrown when trying to claim the same index more than once.
+    error SablierMerkleBase_IndexClaimed(uint256 index);
 
     /*//////////////////////////////////////////////////////////////////////////
                             SABLIER-MERKLE-FACTORY-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when trying to create a campaign with native token.
-    error SablierMerkleFactoryBase_ForbidNativeToken(address nativeToken);
+    error SablierFactoryMerkleBase_ForbidNativeToken(address nativeToken);
 
-    /// @notice Thrown when trying to set fee to a value that exceeds the maximum fee.
-    error SablierMerkleFactoryBase_MaximumFeeExceeded(uint256 newFee, uint256 maxFee);
+    /// @notice Thrown when trying to set fee to a value that exceeds the maximum USD fee.
+    error SablierFactoryMerkleBase_MaxFeeUSDExceeded(uint256 newFeeUSD, uint256 maxFeeUSD);
 
     /// @notice Thrown when trying to set the native token address when it is already set.
-    error SablierMerkleFactoryBase_NativeTokenAlreadySet(address nativeToken);
+    error SablierFactoryMerkleBase_NativeTokenAlreadySet(address nativeToken);
 
     /// @notice Thrown when trying to set zero address as native token.
-    error SablierMerkleFactoryBase_NativeTokenZeroAddress();
+    error SablierFactoryMerkleBase_NativeTokenZeroAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-MERKLE-LT
@@ -63,18 +63,18 @@ library Errors {
                                  SABLIER-MERKLE-VCA
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown while claiming when unlock start time is in the future.
+    /// @notice Thrown while claiming when vesting start time is in the future.
     error SablierMerkleVCA_ClaimNotStarted(uint40 startTime);
+
+    /// @notice Thrown if expiry of a VCA campaign is within 1 week from the vesting end time.
+    error SablierMerkleVCA_ExpirationTooEarly(uint40 endTime, uint40 expiration);
 
     /// @notice Thrown if expiry of a VCA campaign is zero.
     error SablierMerkleVCA_ExpiryTimeZero();
 
-    /// @notice Thrown if expiry of a VCA campaign is within 1 week from the unlock end time.
-    error SablierMerkleVCA_ExpiryWithinOneWeekOfUnlockEndTime(uint40 endTime, uint40 expiration);
+    /// @notice Thrown if vesting end time is less than the start time.
+    error SablierMerkleVCA_StartTimeGreaterThanEndTime(uint40 startTime, uint40 endTime);
 
-    /// @notice Thrown if end time of unlock is less than the start time.
-    error SablierMerkleVCA_StartTimeExceedsEndTime(uint40 startTime, uint40 endTime);
-
-    /// @notice Thrown if the unlock start time is zero.
-    error SablierMerkleVCA_StartTimeZero();
+    /// @notice Thrown if the vesting start time is zero.
+    error SablierMerkleVCA_VestingStartTimeZero();
 }

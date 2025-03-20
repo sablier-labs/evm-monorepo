@@ -21,7 +21,7 @@ abstract contract Clawback_Integration_Test is Integration_Test {
     }
 
     modifier whenFirstClaimMade() {
-        // Make the first claim to set `_firstClaimTime`.
+        // Make the first claim to set `firstClaimTime`.
         claim();
 
         // Reset the prank back to the campaign creator.

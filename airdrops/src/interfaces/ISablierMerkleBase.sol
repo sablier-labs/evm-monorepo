@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
 
 /// @title ISablierMerkleBase
-/// @dev Common interface between Merkle campaigns.
+/// @dev Common interface between campaign contracts.
 interface ISablierMerkleBase is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
@@ -14,8 +14,8 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice Emitted when the admin claws back the unclaimed tokens.
     event Clawback(address indexed admin, address indexed to, uint128 amount);
 
-    /// @notice Emitted when the minimum fee is reduced.
-    event LowerMinimumFee(address indexed factoryAdmin, uint256 newFee, uint256 previousFee);
+    /// @notice Emitted when the min USD fee is lowered by the admin.
+    event LowerMinFeeUSD(address indexed factoryAdmin, uint256 newMinFeeUSD, uint256 previousMinFeeUSD);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
@@ -40,11 +40,24 @@ interface ISablierMerkleBase is IAdminable {
     /// @dev This is an immutable state variable.
     function TOKEN() external returns (IERC20);
 
+    /// @notice Calculates the min fee in wei required to claim the airdrop.
+    /// @dev Uses {minFeeUSD} and the oracle price.
+    ///
+    /// The price is considered to be 0 if:
+    /// 1. The oracle is not set.
+    /// 2. The min USD fee is 0.
+    /// 3. The oracle price is ≤ 0.
+    /// 4. The oracle's update timestamp is in the future.
+    /// 5. The oracle price hasn't been updated in the last 24 hours.
+    ///
+    /// @return The min fee in wei, denominated in 18 decimals (1e18 = 1 native token).
+    function calculateMinFeeWei() external view returns (uint256);
+
     /// @notice Retrieves the name of the campaign.
     function campaignName() external view returns (string memory);
 
-    /// @notice Returns the timestamp when the first claim is made.
-    function getFirstClaimTime() external view returns (uint40);
+    /// @notice Retrieves the timestamp when the first claim is made, and zero if no claim was made yet.
+    function firstClaimTime() external view returns (uint40);
 
     /// @notice Returns a flag indicating whether a claim has been made for a given index.
     /// @dev Uses a bitmap to save gas.
@@ -57,23 +70,9 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice The content identifier for indexing the campaign on IPFS.
     function ipfsCID() external view returns (string memory);
 
-    /// @notice Retrieves the minimum fee, in USD (8 decimals), required to claim the airdrop, to be paid in the native
-    /// token of the chain.
-    /// @dev The fee is denominated in Chainlink's 8-decimal format for USD prices, where 1e8 is $1.
-    function minimumFee() external view returns (uint256);
-
-    /// @notice Calculates the minimum fee in wei required to claim the airdrop.
-    /// @dev Uses {minimumFee} and the oracle price to calculate the fee in wei.
-    ///
-    /// The price is considered to be 0 if:
-    /// 1. The oracle is not set.
-    /// 2. The minimum fee is 0.
-    /// 3. The oracle price is ≤ 0.
-    /// 4. The oracle's update timestamp is in the future.
-    /// 5. The oracle price hasn't been updated in the last 24 hours.
-    ///
-    /// @return The minimum fee in wei, as an 18-decimal number (1e18 = 1 native token).
-    function minimumFeeInWei() external view returns (uint256);
+    /// @notice Retrieves the min USD fee required to claim the airdrop, denominated in 8 decimals.
+    /// @dev The denomination is based on Chainlink's 8-decimal format for USD prices, where 1e8 is $1.
+    function minFeeUSD() external view returns (uint256);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
@@ -85,14 +84,14 @@ interface ISablierMerkleBase is IAdminable {
     ///
     /// Notes:
     /// - For Merkle Instant and Merkle VCA campaigns, it transfers the tokens directly to the recipient.
-    /// - For Merkle Lockup campaigns, it creates a Lockup stream only if vesting end time is in the future. Otherwise,
+    /// - For Merkle Lockup campaigns, it creates a Lockup stream only if the end time is still in the future. Otherwise,
     /// it transfers the tokens directly to the recipient.
     ///
     /// Requirements:
     /// - The campaign must not have expired.
-    /// - The airdrop must not be claimed.
+    /// - The `index` must not be claimed already.
     /// - The Merkle proof must be valid.
-    /// - The `msg.value` must not be less than `minimumFeeInWei`.
+    /// - `msg.value` must not be less than the value returned by {calculateMinFeeWei}.
     ///
     /// @param index The index of the recipient in the Merkle tree.
     /// @param recipient The address of the airdrop recipient.
@@ -114,21 +113,22 @@ interface ISablierMerkleBase is IAdminable {
     /// @param amount The amount of tokens to claw back.
     function clawback(address to, uint128 amount) external;
 
-    /// @notice Collects the accrued fees by transferring them to `FACTORY` admin.
+    /// @notice Collects the accrued fees by transferring them to {FACTORY}.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the `FACTORY` contract.
+    /// - `msg.sender` must be {FACTORY}.
     ///
-    /// @param factoryAdmin The address of the `FACTORY` admin.
+    /// @param factoryAdmin The address of the admin of {FACTORY}.
     /// @return feeAmount The amount of native tokens (e.g., ETH) collected as fees.
     function collectFees(address factoryAdmin) external returns (uint256 feeAmount);
 
-    /// @notice Sets the minimum fee to a new value lower than the current fee.
+    /// @notice Lowers the min USD fee.
     ///
-    /// @dev Emits a {LowerMinimumFee} event.
+    /// @dev Emits a {LowerMinFeeUSD} event.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the `FACTORY` admin.
-    /// - The new fee must be less than the current `minimumFee`.
-    function lowerMinimumFee(uint256 newFee) external;
+    /// - `msg.sender` must be the admin of {FACTORY}.
+    /// - The new fee must be less than the current {minFeeUSD}.
+    /// @param newMinFeeUSD The new min USD fee to set, denominated in 8 decimals.
+    function lowerMinFeeUSD(uint256 newMinFeeUSD) external;
 }

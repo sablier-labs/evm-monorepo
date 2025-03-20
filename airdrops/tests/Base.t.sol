@@ -11,20 +11,20 @@ import { LockupNFTDescriptor } from "@sablier/lockup/src/LockupNFTDescriptor.sol
 import { SablierLockup } from "@sablier/lockup/src/SablierLockup.sol";
 import { LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol";
 import { Merkle } from "murky/src/Merkle.sol";
+import { ISablierFactoryMerkleBase } from "src/interfaces/ISablierFactoryMerkleBase.sol";
+import { ISablierFactoryMerkleInstant } from "src/interfaces/ISablierFactoryMerkleInstant.sol";
+import { ISablierFactoryMerkleLL } from "src/interfaces/ISablierFactoryMerkleLL.sol";
+import { ISablierFactoryMerkleLT } from "src/interfaces/ISablierFactoryMerkleLT.sol";
+import { ISablierFactoryMerkleVCA } from "src/interfaces/ISablierFactoryMerkleVCA.sol";
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
-import { ISablierMerkleFactoryBase } from "src/interfaces/ISablierMerkleFactoryBase.sol";
-import { ISablierMerkleFactoryInstant } from "src/interfaces/ISablierMerkleFactoryInstant.sol";
-import { ISablierMerkleFactoryLL } from "src/interfaces/ISablierMerkleFactoryLL.sol";
-import { ISablierMerkleFactoryLT } from "src/interfaces/ISablierMerkleFactoryLT.sol";
-import { ISablierMerkleFactoryVCA } from "src/interfaces/ISablierMerkleFactoryVCA.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
-import { SablierMerkleFactoryInstant } from "src/SablierMerkleFactoryInstant.sol";
-import { SablierMerkleFactoryLL } from "src/SablierMerkleFactoryLL.sol";
-import { SablierMerkleFactoryLT } from "src/SablierMerkleFactoryLT.sol";
-import { SablierMerkleFactoryVCA } from "src/SablierMerkleFactoryVCA.sol";
+import { SablierFactoryMerkleInstant } from "src/SablierFactoryMerkleInstant.sol";
+import { SablierFactoryMerkleLL } from "src/SablierFactoryMerkleLL.sol";
+import { SablierFactoryMerkleLT } from "src/SablierFactoryMerkleLT.sol";
+import { SablierFactoryMerkleVCA } from "src/SablierFactoryMerkleVCA.sol";
 import { SablierMerkleInstant } from "src/SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "src/SablierMerkleLL.sol";
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
@@ -53,14 +53,14 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
     //////////////////////////////////////////////////////////////////////////*/
 
     ISablierLockup internal lockup;
-    /// @dev A test contract meant to be overridden by the implementing Merkle campaign contracts.
+    /// @dev A test contract meant to be overridden by the implementing Merkle contracts.
     ISablierMerkleBase internal merkleBase;
-    /// @dev A test contract meant to be overridden by the implementing Merkle factory contracts.
-    ISablierMerkleFactoryBase internal merkleFactoryBase;
-    ISablierMerkleFactoryInstant internal merkleFactoryInstant;
-    ISablierMerkleFactoryLL internal merkleFactoryLL;
-    ISablierMerkleFactoryLT internal merkleFactoryLT;
-    ISablierMerkleFactoryVCA internal merkleFactoryVCA;
+    /// @dev A test contract meant to be overridden by the implementing FactoryMerkle contracts.
+    ISablierFactoryMerkleBase internal factoryMerkleBase;
+    ISablierFactoryMerkleInstant internal factoryMerkleInstant;
+    ISablierFactoryMerkleLL internal factoryMerkleLL;
+    ISablierFactoryMerkleLT internal factoryMerkleLT;
+    ISablierFactoryMerkleVCA internal factoryMerkleVCA;
     ISablierMerkleInstant internal merkleInstant;
     ISablierMerkleLL internal merkleLL;
     ISablierMerkleLT internal merkleLT;
@@ -85,14 +85,14 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         // Deploy the mock Chainlink Oracle.
         oracle = new ChainlinkOracleMock();
 
-        // Deploy the Merkle Factory contracts.
-        deployMerkleFactoriesConditionally();
+        // Deploy the factories.
+        deployFactoriesConditionally();
 
         address[] memory spenders = new address[](4);
-        spenders[0] = address(merkleFactoryInstant);
-        spenders[1] = address(merkleFactoryLL);
-        spenders[2] = address(merkleFactoryLT);
-        spenders[3] = address(merkleFactoryVCA);
+        spenders[0] = address(factoryMerkleInstant);
+        spenders[1] = address(factoryMerkleLL);
+        spenders[2] = address(factoryMerkleLT);
+        spenders[3] = address(factoryMerkleVCA);
 
         // Create users for testing.
         users.campaignCreator = createUser("CampaignCreator", spenders);
@@ -121,21 +121,21 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Deploys the Merkle Factory contracts conditionally based on the test profile.
-    function deployMerkleFactoriesConditionally() internal {
+    /// @dev Deploys the factories conditionally based on the test profile.
+    function deployFactoriesConditionally() internal {
         if (!isTestOptimizedProfile()) {
-            merkleFactoryInstant = new SablierMerkleFactoryInstant(users.admin, MINIMUM_FEE, address(oracle));
-            merkleFactoryLL = new SablierMerkleFactoryLL(users.admin, MINIMUM_FEE, address(oracle));
-            merkleFactoryLT = new SablierMerkleFactoryLT(users.admin, MINIMUM_FEE, address(oracle));
-            merkleFactoryVCA = new SablierMerkleFactoryVCA(users.admin, MINIMUM_FEE, address(oracle));
+            factoryMerkleInstant = new SablierFactoryMerkleInstant(users.admin, MIN_FEE_USD, address(oracle));
+            factoryMerkleLL = new SablierFactoryMerkleLL(users.admin, MIN_FEE_USD, address(oracle));
+            factoryMerkleLT = new SablierFactoryMerkleLT(users.admin, MIN_FEE_USD, address(oracle));
+            factoryMerkleVCA = new SablierFactoryMerkleVCA(users.admin, MIN_FEE_USD, address(oracle));
         } else {
-            (merkleFactoryInstant, merkleFactoryLL, merkleFactoryLT, merkleFactoryVCA) =
-                deployOptimizedMerkleFactories(users.admin, MINIMUM_FEE, address(oracle));
+            (factoryMerkleInstant, factoryMerkleLL, factoryMerkleLT, factoryMerkleVCA) =
+                deployOptimizedFactories(users.admin, MIN_FEE_USD, address(oracle));
         }
-        vm.label({ account: address(merkleFactoryInstant), newLabel: "MerkleFactoryInstant" });
-        vm.label({ account: address(merkleFactoryLL), newLabel: "MerkleFactoryLL" });
-        vm.label({ account: address(merkleFactoryLT), newLabel: "MerkleFactoryLT" });
-        vm.label({ account: address(merkleFactoryVCA), newLabel: "MerkleFactoryVCA" });
+        vm.label({ account: address(factoryMerkleInstant), newLabel: "FactoryMerkleInstant" });
+        vm.label({ account: address(factoryMerkleLL), newLabel: "FactoryMerkleLL" });
+        vm.label({ account: address(factoryMerkleLT), newLabel: "FactoryMerkleLT" });
+        vm.label({ account: address(factoryMerkleVCA), newLabel: "FactoryMerkleVCA" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -260,7 +260,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
-            deployer: address(merkleFactoryInstant)
+            deployer: address(factoryMerkleInstant)
         });
     }
 
@@ -344,7 +344,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
-            deployer: address(merkleFactoryLL)
+            deployer: address(factoryMerkleLL)
         });
     }
 
@@ -377,7 +377,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
     {
         return MerkleLL.ConstructorParams({
             campaignName: CAMPAIGN_NAME,
-            cancelable: CANCELABLE,
+            cancelable: STREAM_CANCELABLE,
             expiration: expiration,
             initialAdmin: campaignCreator,
             ipfsCID: IPFS_CID,
@@ -390,9 +390,9 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
                 cliffPercentage: CLIFF_PERCENTAGE,
                 totalDuration: TOTAL_DURATION
             }),
-            shape: SHAPE,
+            shape: STREAM_SHAPE,
             token: tokenAddress,
-            transferable: TRANSFERABLE
+            transferable: STREAM_TRANSFERABLE
         });
     }
 
@@ -440,7 +440,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
-            deployer: address(merkleFactoryLT)
+            deployer: address(factoryMerkleLT)
         });
     }
 
@@ -489,17 +489,17 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
 
         return MerkleLT.ConstructorParams({
             campaignName: CAMPAIGN_NAME,
-            cancelable: CANCELABLE,
+            cancelable: STREAM_CANCELABLE,
             expiration: expiration,
             initialAdmin: campaignCreator,
             ipfsCID: IPFS_CID,
             lockup: lockupAddress,
             merkleRoot: merkleRoot,
-            shape: SHAPE,
+            shape: STREAM_SHAPE,
             streamStartTime: startTime,
             token: tokenAddress,
             tranchesWithPercentages: tranchesWithPercentages_,
-            transferable: TRANSFERABLE
+            transferable: STREAM_TRANSFERABLE
         });
     }
 
@@ -544,7 +544,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
                 campaignCreator: users.campaignCreator,
                 expiration: EXPIRATION,
                 merkleRoot: MERKLE_ROOT,
-                timestamps: merkleVCATimestamps(),
+                schedule: merkleVCASchedule(),
                 tokenAddress: dai
             }),
             users.campaignCreator
@@ -576,7 +576,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         return vm.computeCreate2Address({
             salt: salt,
             initCodeHash: creationBytecodeHash,
-            deployer: address(merkleFactoryVCA)
+            deployer: address(factoryMerkleVCA)
         });
     }
 
@@ -589,7 +589,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
             campaignCreator: users.campaignCreator,
             expiration: expiration,
             merkleRoot: MERKLE_ROOT,
-            timestamps: merkleVCATimestamps(),
+            schedule: merkleVCASchedule(),
             tokenAddress: dai
         });
     }
@@ -598,7 +598,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         address campaignCreator,
         uint40 expiration,
         bytes32 merkleRoot,
-        MerkleVCA.Timestamps memory timestamps,
+        MerkleVCA.Schedule memory schedule,
         IERC20 tokenAddress
     )
         public
@@ -611,12 +611,12 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
             initialAdmin: campaignCreator,
             ipfsCID: IPFS_CID,
             merkleRoot: merkleRoot,
-            timestamps: timestamps,
+            schedule: schedule,
             token: tokenAddress
         });
     }
 
-    function merkleVCATimestamps() public view returns (MerkleVCA.Timestamps memory) {
-        return MerkleVCA.Timestamps({ start: RANGED_STREAM_START_TIME, end: RANGED_STREAM_END_TIME });
+    function merkleVCASchedule() public view returns (MerkleVCA.Schedule memory) {
+        return MerkleVCA.Schedule({ startTime: RANGED_STREAM_START_TIME, endTime: RANGED_STREAM_END_TIME });
     }
 }
