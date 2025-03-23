@@ -15,15 +15,17 @@ You will need the following software on your machine:
 - [Foundry](https://github.com/foundry-rs/foundry)
 - [Node.Js](https://nodejs.org/en/download/)
 - [Bun](https://bun.sh/)
+- [Rust](https://rust-lang.org/tools/install)
+- [Bulloak](https://bulloak.dev/)
 
 In addition, familiarity with [Solidity](https://soliditylang.org/) is requisite.
 
 ## Set Up
 
-Clone this repository including submodules:
+Clone this repository;
 
 ```shell
-$ git clone --recurse-submodules -j8 git@github.com:sablier-labs/lockup.git
+$ git clone git@github.com:sablier-labs/lockup.git
 ```
 
 Then, inside the project's directory, run this to install the Node.js dependencies and build the contracts:
@@ -79,12 +81,14 @@ populate it with the appropriate environment values. You need to provide your mn
 To make CI work in your pull request, ensure that the necessary environment variables are configured in your forked
 repository's secrets. Please add the following variable in your GitHub Secrets:
 
-- ROUTEMESH_API_KEY
+- `API_KEY_INFURA`: sign up on [Infura](https://infura.io/)
+- `MAINNET_RPC_URL`: sign up on [Alchemy](https://alchemy.com/)
 
-## Integration with VSCode:
+## Integration with VSCode
 
-Install the following VSCode extensions:
+The following VSCode extensions are not required but are recommended for a better development experience:
 
-- [esbenp.prettier-vscode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [even-better-toml](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
 - [hardhat-solidity](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity)
-- [vscode-tree-language](https://marketplace.visualstudio.com/items?itemName=CTC.vscode-tree-extension)
+- [prettier-vscode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [vscode-solidity-inspector](https://marketplace.visualstudio.com/items?itemName=PraneshASP.vscode-solidity-inspector)
