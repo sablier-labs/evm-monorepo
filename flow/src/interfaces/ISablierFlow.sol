@@ -179,7 +179,7 @@ interface ISablierFlow is
     /// @notice Creates a new Flow stream by setting the snapshot time to `startTime` and leaving the balance to
     /// zero. The stream is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {CreateFlowStream} event.
+    /// @dev Emits a {CreateFlowStream} and {MetadataUpdate} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -215,7 +215,7 @@ interface ISablierFlow is
     /// @notice Creates a new Flow stream by setting the snapshot time to `startTime` and the balance to `amount`.
     /// The stream is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {Transfer}, {CreateFlowStream}, and {DepositFlowStream} event.
+    /// @dev Emits a {Transfer}, {CreateFlowStream}, {DepositFlowStream} and {MetadataUpdate} event.
     ///
     /// Notes:
     /// - Refer to the notes in {create} and {deposit}.
