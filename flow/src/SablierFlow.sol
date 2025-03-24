@@ -507,8 +507,9 @@ contract SablierFlow is
             return 0;
         }
 
-        // Check: if the rate per second is zero, skip the calculations.
         uint256 ratePerSecond = _streams[streamId].ratePerSecond.unwrap();
+
+        // Check: if the rate per second is zero, skip the calculations.
         if (ratePerSecond == 0) {
             return 0;
         }
@@ -613,8 +614,9 @@ contract SablierFlow is
             revert Errors.SablierFlow_CreateNativeToken(nativeToken);
         }
 
-        // Check: the token decimals are not greater than 18.
         uint8 tokenDecimals = IERC20Metadata(address(token)).decimals();
+
+        // Check: the token decimals are not greater than 18.
         if (tokenDecimals > 18) {
             revert Errors.SablierFlow_InvalidTokenDecimals(address(token));
         }
