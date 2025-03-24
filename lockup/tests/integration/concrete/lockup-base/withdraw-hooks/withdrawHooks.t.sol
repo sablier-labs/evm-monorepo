@@ -41,7 +41,7 @@ contract WithdrawHooks_Integration_Concrete_Test is Integration_Test {
     function test_WhenCallerUnknown() external givenRecipientNotSameAsSender {
         // Make the unknown address the caller in this test.
         address unknownCaller = address(0xCAFE);
-        setMsgSender({ msgSender: unknownCaller });
+        setMsgSender(unknownCaller);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -66,11 +66,11 @@ contract WithdrawHooks_Integration_Concrete_Test is Integration_Test {
 
     function test_WhenCallerApprovedThirdParty() external givenRecipientNotSameAsSender {
         // Approve the operator to handle the stream.
-        setMsgSender({ msgSender: address(recipientGood) });
+        setMsgSender(address(recipientGood));
         lockup.approve({ to: users.operator, tokenId: differentSenderRecipientStreamId });
 
         // Make the operator the caller in this test.
-        setMsgSender({ msgSender: users.operator });
+        setMsgSender(users.operator);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -95,7 +95,7 @@ contract WithdrawHooks_Integration_Concrete_Test is Integration_Test {
 
     function test_WhenCallerSender() external givenRecipientNotSameAsSender {
         // Make the Sender the caller in this test.
-        setMsgSender({ msgSender: users.sender });
+        setMsgSender(users.sender);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -120,7 +120,7 @@ contract WithdrawHooks_Integration_Concrete_Test is Integration_Test {
 
     function test_WhenCallerRecipient() external givenRecipientNotSameAsSender {
         // Make the recipient contract the caller in this test.
-        setMsgSender({ msgSender: address(recipientGood) });
+        setMsgSender(address(recipientGood));
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });

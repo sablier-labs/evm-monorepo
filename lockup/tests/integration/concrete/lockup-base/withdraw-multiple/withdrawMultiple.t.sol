@@ -88,7 +88,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 1 });
 
         // Run the test with the caller provided in {whenCallerAuthorizedForAllStreams}.
-        setMsgSender({ msgSender: caller });
+        setMsgSender(caller);
 
         // It should emit {WithdrawFromLockupStream} events for non-reverting streams.
         vm.expectEmit({ emitter: address(lockup) });
@@ -139,11 +139,11 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 1 });
 
         // Cancel the 3rd stream.
-        setMsgSender({ msgSender: users.sender });
+        setMsgSender(users.sender);
         lockup.cancel(withdrawMultipleIds[2]);
 
         // Run the test with the caller provided in {whenCallerAuthorizedForAllStreams}.
-        setMsgSender({ msgSender: caller });
+        setMsgSender(caller);
 
         // It should emit {WithdrawFromLockupStream} events for all streams.
         vm.expectEmit({ emitter: address(lockup) });

@@ -49,7 +49,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         whenCallerNotSender
     {
         // Make the Recipient the caller in this test.
-        setMsgSender({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
 
         // Run the test.
         vm.expectRevert(

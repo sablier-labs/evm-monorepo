@@ -116,12 +116,12 @@ abstract contract Integration_Test is Base_Test {
         vm.label({ account: address(recipientReverting), newLabel: "Recipient Reverting" });
 
         // Allow the selected recipients to hook.
-        setMsgSender({ msgSender: users.admin });
+        setMsgSender(users.admin);
         lockup.allowToHook(address(recipientGood));
         lockup.allowToHook(address(recipientInvalidSelector));
         lockup.allowToHook(address(recipientReentrant));
         lockup.allowToHook(address(recipientReverting));
-        setMsgSender({ msgSender: users.sender });
+        setMsgSender(users.sender);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -200,7 +200,7 @@ abstract contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function expectRevert_CallerMaliciousThirdParty(bytes memory callData) internal {
-        setMsgSender({ msgSender: users.eve });
+        setMsgSender(users.eve);
         (bool success, bytes memory returnData) = address(lockup).call(callData);
         assertFalse(success, "malicious call success");
         assertEq(

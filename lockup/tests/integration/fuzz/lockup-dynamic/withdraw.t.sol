@@ -67,7 +67,7 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         deal({ token: address(dai), to: users.sender, give: vars.depositAmount });
 
         // Make the Sender the caller.
-        setMsgSender({ msgSender: users.sender });
+        setMsgSender(users.sender);
 
         // Create the stream with the fuzzed segments.
         Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestamps();
@@ -107,7 +107,7 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
 
         // Make the Recipient the caller.
-        setMsgSender({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });

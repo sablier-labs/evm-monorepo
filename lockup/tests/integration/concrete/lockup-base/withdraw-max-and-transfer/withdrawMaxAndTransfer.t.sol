@@ -76,7 +76,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         givenNonZeroWithdrawableAmount
     {
         // Make Eve the caller in this test.
-        setMsgSender({ msgSender: users.eve });
+        setMsgSender(users.eve);
 
         // It should revert.
         vm.expectRevert(
@@ -94,7 +94,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         givenNonZeroWithdrawableAmount
     {
         // Make the operator the caller in this test.
-        setMsgSender({ msgSender: users.operator });
+        setMsgSender(users.operator);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });

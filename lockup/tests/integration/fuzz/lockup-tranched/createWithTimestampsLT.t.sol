@@ -107,7 +107,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
     {
         depositDiff = boundUint128(depositDiff, 100, defaults.DEPOSIT_AMOUNT());
 
-        setMsgSender({ msgSender: users.sender });
+        setMsgSender(users.sender);
 
         // Adjust the default deposit amount.
         uint128 defaultDepositAmount = defaults.DEPOSIT_AMOUNT();

@@ -169,7 +169,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         // It should return nothing.
         calls[4] = abi.encodeCall(lockup.burn, (ids.defaultStream));
 
-        setMsgSender({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
         bytes[] memory results = lockup.batch{ value: 1 wei }(calls);
 
         assertEq(results.length, 5, "batch results length");

@@ -216,7 +216,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
     {
-        setMsgSender({ msgSender: users.sender });
+        setMsgSender(users.sender);
 
         // Adjust the default deposit amount.
         uint128 defaultDepositAmount = defaults.DEPOSIT_AMOUNT();

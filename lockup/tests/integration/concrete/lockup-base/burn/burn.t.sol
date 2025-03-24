@@ -36,9 +36,9 @@ contract Burn_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertGiven_CANCELEDStatus() external whenNoDelegateCall givenNotNull givenNotDepletedStream {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
-        setMsgSender({ msgSender: users.sender });
+        setMsgSender(users.sender);
         lockup.cancel(ids.defaultStream);
-        setMsgSender({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_StreamNotDepleted.selector, ids.defaultStream));
         lockup.burn(ids.defaultStream);
     }
@@ -60,7 +60,7 @@ contract Burn_Integration_Concrete_Test is Integration_Test {
         givenDepletedStream(lockup, ids.defaultStream)
         whenCallerNotRecipient
     {
-        setMsgSender({ msgSender: users.sender });
+        setMsgSender(users.sender);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, ids.defaultStream, users.sender)
         );
@@ -75,7 +75,7 @@ contract Burn_Integration_Concrete_Test is Integration_Test {
         whenCallerNotRecipient
     {
         // Make the third party the caller in this test.
-        setMsgSender({ msgSender: users.operator });
+        setMsgSender(users.operator);
 
         // It should burn the NFT.
         _test_Burn(ids.defaultStream);

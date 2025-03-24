@@ -13,11 +13,11 @@ contract CollectFees_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertGiven_AdminDoesNotImplementReceiveFunction() external givenAdminIsContract {
         // Transfer the admin to a contract that does not implement the receive function.
-        setMsgSender({ msgSender: users.admin });
+        setMsgSender(users.admin);
         lockup.transferAdmin(address(contractWithoutReceive));
 
         // Make the contract the caller.
-        setMsgSender({ msgSender: address(contractWithoutReceive) });
+        setMsgSender(address(contractWithoutReceive));
 
         // Expect a revert.
         vm.expectRevert(
@@ -34,11 +34,11 @@ contract CollectFees_Integration_Concrete_Test is Integration_Test {
 
     function test_GivenAdminImplementsReceiveFunction() external givenAdminIsContract {
         // Transfer the admin to a contract that implements the receive function.
-        setMsgSender({ msgSender: users.admin });
+        setMsgSender(users.admin);
         lockup.transferAdmin(address(contractWithReceive));
 
         // Make the contract the caller.
-        setMsgSender({ msgSender: address(contractWithReceive) });
+        setMsgSender(address(contractWithReceive));
 
         // Run the tests.
         _test_CollectFees(address(contractWithReceive));
@@ -51,7 +51,7 @@ contract CollectFees_Integration_Concrete_Test is Integration_Test {
         uint256 initialAdminBalance = admin.balance;
 
         // Make Alice the caller.
-        setMsgSender({ msgSender: users.alice });
+        setMsgSender(users.alice);
 
         // Make a withdrawal and pay the fee.
         lockup.withdrawMax{ value: FEE }({ streamId: ids.defaultStream, to: users.recipient });

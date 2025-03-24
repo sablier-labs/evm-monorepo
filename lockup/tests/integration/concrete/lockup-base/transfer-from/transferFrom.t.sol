@@ -13,7 +13,7 @@ contract TransferFrom_Integration_Concrete_Test is Integration_Test {
         Integration_Test.setUp();
 
         // Set recipient as caller for this test.
-        setMsgSender({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
     }
 
     function test_RevertGiven_NonTransferableStream() external {
