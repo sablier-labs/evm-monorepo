@@ -226,7 +226,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
 
             // Make the withdrawal and pay a fee.
-            resetPrank({ msgSender: params.create.recipient });
+            setMsgSender({ msgSender: params.create.recipient });
             vm.deal({ account: params.create.recipient, newBalance: 100 ether });
             lockup.withdraw{ value: FEE }({
                 streamId: vars.streamId,
@@ -305,7 +305,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
 
             // Cancel the stream.
-            resetPrank({ msgSender: params.create.sender });
+            setMsgSender({ msgSender: params.create.sender });
             uint128 refundedAmount = lockup.cancel(vars.streamId);
 
             // Assert that the refunded amount is correct.

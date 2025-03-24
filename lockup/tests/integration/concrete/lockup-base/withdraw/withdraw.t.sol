@@ -73,28 +73,28 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         if (!isCallerRecipient) {
             // When caller is unknown.
             caller = users.eve;
-            resetPrank({ msgSender: caller });
+            setMsgSender({ msgSender: caller });
             _;
 
             // When caller is sender.
             caller = users.sender;
-            resetPrank({ msgSender: caller });
+            setMsgSender({ msgSender: caller });
             _;
 
             // When caller is a former recipient.
             caller = users.recipient;
-            resetPrank({ msgSender: caller });
+            setMsgSender({ msgSender: caller });
             lockup.transferFrom(caller, users.eve, ids.defaultStream);
             _;
         } else {
             // When caller is approved third party.
             caller = users.operator;
-            resetPrank({ msgSender: caller });
+            setMsgSender({ msgSender: caller });
             _;
 
             // When caller is recipient.
             caller = users.recipient;
-            resetPrank({ msgSender: caller });
+            setMsgSender({ msgSender: caller });
             _;
         }
     }
@@ -173,7 +173,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         whenWithdrawalAddressRecipient
     {
         // Make the unknown address the caller in this test.
-        resetPrank({ msgSender: address(0xCAFE) });
+        setMsgSender({ msgSender: address(0xCAFE) });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -197,7 +197,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         whenWithdrawAmountNotOverdraw
         whenWithdrawalAddressRecipient
     {
-        resetPrank({ msgSender: users.recipient });
+        setMsgSender({ msgSender: users.recipient });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });

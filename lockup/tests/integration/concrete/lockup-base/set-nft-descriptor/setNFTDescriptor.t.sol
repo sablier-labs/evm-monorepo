@@ -12,7 +12,7 @@ import { Integration_Test } from "../../../Integration.t.sol";
 contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        resetPrank({ msgSender: users.eve });
+        setMsgSender({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.CallerNotAdmin.selector, users.admin, users.eve));

@@ -70,7 +70,7 @@ abstract contract BaseHandler is Fuzzers {
 
     /// @dev Makes the provided sender the caller.
     modifier useNewSender(address sender) {
-        resetPrank(sender);
+        setMsgSender(sender);
         _;
     }
 }

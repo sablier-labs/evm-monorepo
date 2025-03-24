@@ -48,7 +48,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.END_TIME() });
 
         // Make the Recipient the caller.
-        resetPrank({ msgSender: users.recipient });
+        setMsgSender({ msgSender: users.recipient });
 
         // Deplete the stream.
         lockup.withdrawMax({ streamId: ids.defaultStream, to: users.recipient });

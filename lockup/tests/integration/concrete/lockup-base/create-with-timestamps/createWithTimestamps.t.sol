@@ -128,7 +128,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
         whenDepositAmountNotZero
         whenStartTimeNotZero
     {
-        resetPrank(users.admin);
+        setMsgSender(users.admin);
         lockup.setNativeToken(address(dai));
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_CreateNativeToken.selector, address(dai)));
         createDefaultStream();

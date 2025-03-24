@@ -9,7 +9,7 @@ import { Integration_Test } from "../../../Integration.t.sol";
 
 contract SetNativeToken_Integration_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
-        resetPrank({ msgSender: users.eve });
+        setMsgSender({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.CallerNotAdmin.selector, users.admin, users.eve));
         lockup.setNativeToken(address(dai));
     }

@@ -58,7 +58,7 @@ contract EstimateMaxCount is Defaults, DeployOptimized {
         }
 
         // Set up the caller.
-        resetPrank(users.sender);
+        setMsgSender(users.sender);
         deal({ token: address(dai), to: users.sender, give: type(uint256).max });
         dai.approve(address(lockup), type(uint256).max);
 

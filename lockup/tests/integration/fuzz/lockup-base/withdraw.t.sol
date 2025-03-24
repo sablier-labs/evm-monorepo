@@ -23,7 +23,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         vm.assume(caller != users.sender && caller != users.recipient);
 
         // Make the fuzzed address the caller in this test.
-        resetPrank({ msgSender: caller });
+        setMsgSender({ msgSender: caller });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -61,7 +61,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         vm.assume(to != address(0));
 
         // Make the operator the caller in this test.
-        resetPrank({ msgSender: users.operator });
+        setMsgSender({ msgSender: users.operator });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -105,9 +105,9 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Cancel the stream.
-        resetPrank({ msgSender: users.sender });
+        setMsgSender({ msgSender: users.sender });
         lockup.cancel({ streamId: ids.defaultStream });
-        resetPrank({ msgSender: users.recipient });
+        setMsgSender({ msgSender: users.recipient });
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(ids.defaultStream);

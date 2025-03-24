@@ -58,7 +58,7 @@ contract RenounceMultiple_Integration_Concrete_Test is Integration_Test {
         givenNoColdStreams
     {
         // Make the Recipient the caller in this test.
-        resetPrank({ msgSender: users.recipient });
+        setMsgSender({ msgSender: users.recipient });
 
         // Run the test.
         vm.expectRevert(

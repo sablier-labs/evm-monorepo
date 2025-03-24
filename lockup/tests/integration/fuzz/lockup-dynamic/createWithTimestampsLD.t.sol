@@ -103,7 +103,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
     {
         depositDiff = boundUint128(depositDiff, 100, defaults.DEPOSIT_AMOUNT());
 
-        resetPrank({ msgSender: users.sender });
+        setMsgSender({ msgSender: users.sender });
 
         // Adjust the default deposit amount.
         uint128 defaultDepositAmount = defaults.DEPOSIT_AMOUNT();
@@ -185,7 +185,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         params.depositAmount = fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments });
 
         // Make the fuzzed funder the caller in the rest of this test.
-        resetPrank(funder);
+        setMsgSender(funder);
 
         uint256 expectedStreamId = lockup.nextStreamId();
 

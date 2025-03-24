@@ -53,7 +53,7 @@ abstract contract Fork_Test is Base_Test {
         initialHolderBalance = uint128(1e6 * (10 ** IERC20Metadata(address(FORK_TOKEN)).decimals()));
         deal({ token: address(FORK_TOKEN), to: forkTokenHolder, give: initialHolderBalance });
 
-        resetPrank({ msgSender: forkTokenHolder });
+        setMsgSender({ msgSender: forkTokenHolder });
 
         // Approve {SablierLockup} to transfer the holder's tokens.
         approveContract({ token_: address(FORK_TOKEN), from: forkTokenHolder, spender: address(lockup) });
@@ -78,7 +78,7 @@ abstract contract Fork_Test is Base_Test {
         assumeNoBlacklisted(address(FORK_TOKEN), recipient);
 
         // Make the holder the caller.
-        resetPrank(forkTokenHolder);
+        setMsgSender(forkTokenHolder);
     }
 
     /// @dev Labels the most relevant addresses.

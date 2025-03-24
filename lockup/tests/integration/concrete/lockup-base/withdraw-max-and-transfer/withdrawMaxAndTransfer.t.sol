@@ -76,7 +76,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         givenNonZeroWithdrawableAmount
     {
         // Make Eve the caller in this test.
-        resetPrank({ msgSender: users.eve });
+        setMsgSender({ msgSender: users.eve });
 
         // It should revert.
         vm.expectRevert(
@@ -94,7 +94,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         givenNonZeroWithdrawableAmount
     {
         // Make the operator the caller in this test.
-        resetPrank({ msgSender: users.operator });
+        setMsgSender({ msgSender: users.operator });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -137,7 +137,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         givenNotBurnedNFT
         givenNonZeroWithdrawableAmount
     {
-        resetPrank(users.recipient);
+        setMsgSender(users.recipient);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });

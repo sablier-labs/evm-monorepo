@@ -83,7 +83,7 @@ abstract contract Modifiers is Fuzzers {
 
     modifier whenCallerAdmin() {
         // Make the Admin the caller in the rest of this test suite.
-        resetPrank({ msgSender: users.admin });
+        setMsgSender({ msgSender: users.admin });
         _;
     }
 
@@ -92,12 +92,12 @@ abstract contract Modifiers is Fuzzers {
     }
 
     modifier whenCallerRecipient() {
-        resetPrank({ msgSender: users.recipient });
+        setMsgSender({ msgSender: users.recipient });
         _;
     }
 
     modifier whenCallerSender() {
-        resetPrank({ msgSender: users.sender });
+        setMsgSender({ msgSender: users.sender });
         _;
     }
 

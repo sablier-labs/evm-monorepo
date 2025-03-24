@@ -107,7 +107,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
     {
         depositDiff = boundUint128(depositDiff, 100, defaults.DEPOSIT_AMOUNT());
 
-        resetPrank({ msgSender: users.sender });
+        setMsgSender({ msgSender: users.sender });
 
         // Adjust the default deposit amount.
         uint128 defaultDepositAmount = defaults.DEPOSIT_AMOUNT();
@@ -190,7 +190,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         params.depositAmount = fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches });
 
         // Make the fuzzed funder the caller in the rest of this test.
-        resetPrank(funder);
+        setMsgSender(funder);
 
         // Mint enough tokens to the fuzzed funder.
         deal({ token: address(dai), to: funder, give: params.depositAmount });

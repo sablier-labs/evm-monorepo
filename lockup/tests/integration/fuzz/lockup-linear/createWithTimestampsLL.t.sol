@@ -136,7 +136,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
             cliffTime > 0 ? boundUint128(unlockAmounts.cliff, 0, params.depositAmount - unlockAmounts.start) : 0;
 
         // Make the fuzzed funder the caller in this test.
-        resetPrank(funder);
+        setMsgSender(funder);
         vars.expectedStreamId = lockup.nextStreamId();
 
         // Mint enough tokens to the funder.
