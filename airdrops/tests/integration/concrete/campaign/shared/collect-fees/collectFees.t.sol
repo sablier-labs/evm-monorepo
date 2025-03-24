@@ -8,7 +8,7 @@ import { Integration_Test } from "../../../../Integration.t.sol";
 abstract contract CollectFees_Integration_Test is Integration_Test {
     function test_RevertWhen_CallerNotFactory() external {
         // Set the caller to anything other than the factory.
-        resetPrank(users.admin);
+        setMsgSender(users.admin);
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -22,7 +22,7 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
         // Claim to collect some fees.
         claim();
 
-        resetPrank(address(factoryMerkleBase));
+        setMsgSender(address(factoryMerkleBase));
         _;
     }
 
@@ -36,7 +36,7 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
         whenFactoryAdminIsContract
     {
         // Transfer the admin to a contract that implements the receive function.
-        resetPrank({ msgSender: users.admin });
+        setMsgSender(users.admin);
         factoryMerkleBase.transferAdmin(address(contractWithoutReceive));
 
         vm.expectRevert(
@@ -47,13 +47,13 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
             )
         );
 
-        resetPrank(address(factoryMerkleBase));
+        setMsgSender(address(factoryMerkleBase));
         merkleBase.collectFees(address(contractWithoutReceive));
     }
 
     function test_WhenFactoryAdminImplementsReceiveFunction() external whenCallerFactory whenFactoryAdminIsContract {
         // Transfer the admin to a contract that implements the receive function.
-        resetPrank({ msgSender: users.admin });
+        setMsgSender(users.admin);
         factoryMerkleBase.transferAdmin(address(contractWithoutReceive));
 
         _test_CollectFees(address(contractWithReceive));
@@ -63,7 +63,7 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
         // Load the initial ETH balance of the admin.
         uint256 initialAdminBalance = admin.balance;
 
-        resetPrank(address(factoryMerkleBase));
+        setMsgSender(address(factoryMerkleBase));
         merkleBase.collectFees(admin);
 
         // It should set the ETH balance to 0.

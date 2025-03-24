@@ -15,7 +15,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
 
         // Set dai as the native token.
-        resetPrank(users.admin);
+        setMsgSender(users.admin);
         address newNativeToken = address(dai);
         factoryMerkleVCA.setNativeToken(newNativeToken);
 
@@ -57,7 +57,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_StartTimeGreaterThanEndTime.selector,
+                Errors.SablierMerkleVCA_EndTimeNotGreaterThanStartTime.selector,
                 params.schedule.startTime,
                 params.schedule.endTime
             )
@@ -78,7 +78,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_StartTimeGreaterThanEndTime.selector,
+                Errors.SablierMerkleVCA_EndTimeNotGreaterThanStartTime.selector,
                 params.schedule.startTime,
                 params.schedule.endTime
             )
@@ -86,7 +86,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         createMerkleVCA(params);
     }
 
-    function test_RevertWhen_ZeroExpiry()
+    function test_RevertWhen_ZeroExpiration()
         external
         whenNativeTokenNotFound
         givenCampaignNotExists
@@ -97,17 +97,17 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         params.expiration = 0;
 
         // It should revert.
-        vm.expectRevert(Errors.SablierMerkleVCA_ExpiryTimeZero.selector);
+        vm.expectRevert(Errors.SablierMerkleVCA_ExpirationTimeZero.selector);
         createMerkleVCA(params);
     }
 
-    function test_RevertWhen_ExpiryNotExceedOneWeekFromEndTime()
+    function test_RevertWhen_ExpirationNotExceedOneWeekFromEndTime()
         external
         whenNativeTokenNotFound
         givenCampaignNotExists
         whenStartTimeNotZero
         whenEndTimeGreaterThanStartTime
-        whenNotZeroExpiry
+        whenNotZeroExpiration
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.expiration = RANGED_STREAM_END_TIME + 1 weeks - 1 seconds;
@@ -127,16 +127,16 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         givenCampaignNotExists
         whenStartTimeNotZero
         whenEndTimeGreaterThanStartTime
-        whenNotZeroExpiry
-        whenExpiryExceedsOneWeekFromEndTime
+        whenNotZeroExpiration
+        whenExpirationExceedsOneWeekFromEndTime
     {
         // Set the custom fee to 0.
         uint256 customFeeUSD = 0;
 
-        resetPrank(users.admin);
+        setMsgSender(users.admin);
         factoryMerkleVCA.setCustomFeeUSD(users.campaignCreator, customFeeUSD);
 
-        resetPrank(users.campaignCreator);
+        setMsgSender(users.campaignCreator);
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.campaignName = "Merkle VCA campaign with custom fee USD";
 
@@ -174,8 +174,8 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         givenCampaignNotExists
         whenStartTimeNotZero
         whenEndTimeGreaterThanStartTime
-        whenNotZeroExpiry
-        whenExpiryExceedsOneWeekFromEndTime
+        whenNotZeroExpiration
+        whenExpirationExceedsOneWeekFromEndTime
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.campaignName = "Merkle VCA campaign with custom fee USD";

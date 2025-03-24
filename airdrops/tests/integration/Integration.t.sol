@@ -25,7 +25,7 @@ contract Integration_Test is Base_Test {
         Base_Test.setUp();
 
         // Make campaign creator the caller.
-        resetPrank(users.campaignCreator);
+        setMsgSender(users.campaignCreator);
 
         // Create the default Merkle contracts.
         merkleInstant = createMerkleInstant();

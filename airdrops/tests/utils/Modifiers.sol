@@ -58,16 +58,24 @@ abstract contract Modifiers is EvmUtilsBase {
 
     modifier whenCallerAdmin() {
         // Make the Admin the caller in the rest of this test suite.
-        resetPrank({ msgSender: users.admin });
+        setMsgSender(users.admin);
         _;
     }
 
     modifier whenCallerCampaignCreator() {
-        resetPrank({ msgSender: users.campaignCreator });
+        setMsgSender(users.campaignCreator);
         _;
     }
 
     modifier whenCallerFactoryAdmin() {
+        _;
+    }
+
+    modifier whenClaimTimeGreaterThanStartTime() {
+        _;
+    }
+
+    modifier whenClaimTimeNotZero() {
         _;
     }
 
@@ -83,7 +91,7 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenExpiryExceedsOneWeekFromEndTime() {
+    modifier whenExpirationExceedsOneWeekFromEndTime() {
         _;
     }
 
@@ -119,7 +127,7 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenNotZeroExpiry() {
+    modifier whenNotZeroExpiration() {
         _;
     }
 

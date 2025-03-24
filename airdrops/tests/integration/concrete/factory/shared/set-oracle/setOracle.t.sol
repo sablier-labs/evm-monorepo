@@ -11,7 +11,7 @@ import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract SetOracle_Integration_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
-        resetPrank({ msgSender: users.eve });
+        setMsgSender(users.eve);
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.CallerNotAdmin.selector, users.admin, users.eve));

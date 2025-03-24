@@ -13,7 +13,7 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
 
         // Set dai as the native token.
-        resetPrank(users.admin);
+        setMsgSender(users.admin);
         address newNativeToken = address(dai);
         factoryMerkleLT.setNativeToken(newNativeToken);
 
@@ -33,11 +33,11 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
 
     function test_GivenCustomFeeUSDSet() external whenNativeTokenNotFound givenCampaignNotExists {
         // Set a custom fee.
-        resetPrank(users.admin);
+        setMsgSender(users.admin);
         uint256 customFeeUSD = 0;
         factoryMerkleLT.setCustomFeeUSD(users.campaignCreator, customFeeUSD);
 
-        resetPrank(users.campaignCreator);
+        setMsgSender(users.campaignCreator);
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
         params.campaignName = "Merkle LT campaign with custom fee USD";
 

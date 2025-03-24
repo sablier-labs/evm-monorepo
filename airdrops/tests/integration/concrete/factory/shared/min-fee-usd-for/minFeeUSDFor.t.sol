@@ -11,7 +11,7 @@ abstract contract MinFeeUSDFor_Integration_Test is Integration_Test {
 
     function test_GivenCustomFeeUSDSet() external {
         // Set a custom fee USD.
-        resetPrank({ msgSender: users.admin });
+        setMsgSender(users.admin);
         factoryMerkleBase.setCustomFeeUSD({ campaignCreator: users.campaignCreator, customFeeUSD: 0 });
 
         // It should return the custom fee USD.

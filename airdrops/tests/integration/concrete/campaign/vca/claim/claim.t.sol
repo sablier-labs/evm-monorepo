@@ -8,8 +8,6 @@ import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
 import { MerkleVCA_Integration_Shared_Test, Integration_Test } from "../MerkleVCA.t.sol";
 
 contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_Integration_Shared_Test {
-    uint128 internal constant VCA_FULL_AMOUNT = CLAIM_AMOUNT;
-
     function setUp() public virtual override(MerkleVCA_Integration_Shared_Test, Integration_Test) {
         MerkleVCA_Integration_Shared_Test.setUp();
     }

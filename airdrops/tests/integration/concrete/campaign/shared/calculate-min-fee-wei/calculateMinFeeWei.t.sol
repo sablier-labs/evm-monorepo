@@ -14,7 +14,7 @@ import { Integration_Test } from "../../../../Integration.t.sol";
 abstract contract CalculateMinFeeWei_Integration_Test is Integration_Test {
     function setUp() public virtual override {
         // Make admin the caller for this test suite.
-        resetPrank(users.admin);
+        setMsgSender(users.admin);
     }
 
     function test_GivenOracleZero() external {

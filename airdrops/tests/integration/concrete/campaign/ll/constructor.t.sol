@@ -9,7 +9,7 @@ import { Integration_Test } from "./../../../Integration.t.sol";
 contract Constructor_MerkleLL_Integration_Test is Integration_Test {
     function test_Constructor() external {
         // Make Factory the caller for the constructor test.
-        resetPrank(address(factoryMerkleLL));
+        setMsgSender(address(factoryMerkleLL));
 
         // Deploy the SablierMerkleLL contract.
         SablierMerkleLL constructedLL = new SablierMerkleLL(merkleLLConstructorParams(), users.campaignCreator);

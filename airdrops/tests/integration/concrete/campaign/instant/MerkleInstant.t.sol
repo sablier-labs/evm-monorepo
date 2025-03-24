@@ -74,8 +74,8 @@ contract HasExpired_MerkleInstant_Integration_Test is
     function setUp() public override(MerkleInstant_Integration_Shared_Test, Integration_Test) {
         MerkleInstant_Integration_Shared_Test.setUp();
 
-        // Create a campaign with zero expiry to be used in this test.
-        campaignWithZeroExpiry =
+        // Create a campaign with zero expiration to be used in this test.
+        campaignWithZeroExpiration =
             ISablierMerkleBase(createMerkleInstant(merkleInstantConstructorParams({ expiration: 0 })));
     }
 }

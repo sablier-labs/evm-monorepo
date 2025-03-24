@@ -7,14 +7,14 @@ import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract HasExpired_Integration_Test is Integration_Test {
-    /// @notice A campaign, without expiry, should be set in the child contract inheriting it.
-    /// @dev Since VCA campaign does not allow 0 expiry, this applies to non-VCA campaigns only.
-    ISablierMerkleBase internal campaignWithZeroExpiry;
+    /// @notice A campaign, without expiration, should be set in the child contract inheriting it.
+    /// @dev Since VCA campaign does not allow a zero expiration, this applies to non-VCA campaigns only.
+    ISablierMerkleBase internal campaignWithZeroExpiration;
 
     function test_GivenCampaignIsNotVca() external view whenExpirationZero {
         // Assert only for non-VCA campaigns.
         if (!Strings.equal(campaignType, "vca")) {
-            assertFalse(campaignWithZeroExpiry.hasExpired(), "campaign expired");
+            assertFalse(campaignWithZeroExpiration.hasExpired(), "campaign expired");
         }
     }
 

@@ -8,7 +8,7 @@ import { MerkleVCA_Integration_Shared_Test } from "./MerkleVCA.t.sol";
 contract Constructor_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_Test {
     function test_Constructor() external {
         // Make Factory the caller for the constructor test.
-        resetPrank(address(factoryMerkleVCA));
+        setMsgSender(address(factoryMerkleVCA));
 
         // Deploy the SablierMerkleVCA contract.
         SablierMerkleVCA constructedVCA = new SablierMerkleVCA(merkleVCAConstructorParams(), users.campaignCreator);

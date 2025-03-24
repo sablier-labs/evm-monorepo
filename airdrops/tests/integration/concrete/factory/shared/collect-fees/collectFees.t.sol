@@ -22,11 +22,11 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
         whenFactoryAdminIsContract
     {
         // Transfer the admin to a contract that does not implement the receive function.
-        resetPrank({ msgSender: users.admin });
+        setMsgSender(users.admin);
         factoryMerkleBase.transferAdmin(address(contractWithoutReceive));
 
         // Make the contract the caller.
-        resetPrank({ msgSender: address(contractWithoutReceive) });
+        setMsgSender(address(contractWithoutReceive));
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -44,7 +44,7 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
         whenFactoryAdminIsContract
     {
         // Transfer the admin to a contract that implements the receive function.
-        resetPrank({ msgSender: users.admin });
+        setMsgSender(users.admin);
         factoryMerkleBase.transferAdmin(address(contractWithReceive));
 
         _test_CollectFees(address(contractWithReceive));
@@ -59,7 +59,7 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
         emit ISablierFactoryMerkleBase.CollectFees({ admin: admin, campaign: merkleBase, feeAmount: MIN_FEE_WEI });
 
         // Make Alice the caller.
-        resetPrank({ msgSender: users.eve });
+        setMsgSender(users.eve);
 
         factoryMerkleBase.collectFees(merkleBase);
 

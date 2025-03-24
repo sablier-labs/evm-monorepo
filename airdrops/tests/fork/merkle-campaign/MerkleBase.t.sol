@@ -80,7 +80,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         vars.merkleRoot = vars.leaves.length == 1 ? bytes32(vars.leaves[0]) : getRoot(vars.leaves.toBytes32());
 
         // Make the campaign creator as the caller.
-        resetPrank({ msgSender: params.campaignCreator });
+        setMsgSender(params.campaignCreator);
 
         // Load the mainnet values from the deployed contract.
         vars.oracle = factoryMerkleBase.oracle();
@@ -98,7 +98,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         vars.leafToClaim = params.leavesData[params.leafIndex];
 
         // Make the recipient as the caller.
-        resetPrank({ msgSender: vars.leafToClaim.recipient });
+        setMsgSender(vars.leafToClaim.recipient);
         vm.deal(vars.leafToClaim.recipient, 1 ether);
 
         assertFalse(merkleBase.hasClaimed(vars.leafToClaim.index));
@@ -115,7 +115,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
 
     function testClawback(Params memory params) internal {
         // Make the campaign creator as the caller.
-        resetPrank({ msgSender: params.campaignCreator });
+        setMsgSender(params.campaignCreator);
 
         if (params.expiration > 0) {
             vars.clawbackAmount = uint128(FORK_TOKEN.balanceOf(address(merkleBase)));

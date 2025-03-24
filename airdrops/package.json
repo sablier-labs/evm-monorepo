@@ -15,7 +15,7 @@
     "@openzeppelin/contracts": "5.0.2",
     "@prb/math": "4.1.0",
     "@sablier/lockup": "github:sablier-labs/lockup#f3f61d6",
-    "@sablier/evm-utils": "github:sablier-labs/evm-utils#bfb5b58"
+    "@sablier/evm-utils": "github:sablier-labs/evm-utils#d1896e1"
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std#v1.8.2",

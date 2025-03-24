@@ -111,7 +111,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         setVariables(users);
 
         // Set sender as the default caller for the tests.
-        resetPrank({ msgSender: users.sender });
+        setMsgSender(users.sender);
 
         // Warp to Feb 1, 2025 at 00:00 UTC to provide a more realistic testing environment.
         vm.warp({ newTimestamp: FEB_1_2025 });

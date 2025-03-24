@@ -63,8 +63,8 @@ contract HasExpired_MerkleLL_Integration_Test is MerkleLL_Integration_Shared_Tes
     function setUp() public override(MerkleLL_Integration_Shared_Test, Integration_Test) {
         MerkleLL_Integration_Shared_Test.setUp();
 
-        // Create a campaign with zero expiry to be used in this test.
-        campaignWithZeroExpiry = createMerkleLL(merkleLLConstructorParams({ expiration: 0 }));
+        // Create a campaign with zero expiration.
+        campaignWithZeroExpiration = createMerkleLL(merkleLLConstructorParams({ expiration: 0 }));
     }
 }
 

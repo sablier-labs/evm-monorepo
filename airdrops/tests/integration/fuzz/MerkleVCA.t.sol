@@ -35,7 +35,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
     /// - Collect fees earned.
     function testFuzz_MerkleVCA(
         uint128 clawbackAmount,
-        bool enableCustomFee,
+        bool enableCustomFeeUSD,
         uint40 expiration,
         uint256 feeForUser,
         uint256[] memory indexesToClaim,
@@ -53,7 +53,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         expiration = boundUint40(expiration, getBlockTimestamp() + 365 days + 1 weeks, MAX_UNIX_TIMESTAMP);
 
         // Set the custom fee if enabled.
-        feeForUser = enableCustomFee ? testSetCustomFeeUSD(feeForUser) : MIN_FEE_USD;
+        feeForUser = enableCustomFeeUSD ? testSetCustomFeeUSD(feeForUser) : MIN_FEE_USD;
 
         // Test creating the MerkleVCA campaign.
         _testCreateMerkleVCA(aggregateAmount, expiration, feeForUser, merkleRoot, schedule);
@@ -83,15 +83,15 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         givenCampaignNotExists
         whenStartTimeNotZero
         whenEndTimeGreaterThanStartTime
-        whenNotZeroExpiry
-        whenExpiryExceedsOneWeekFromEndTime
+        whenNotZeroExpiration
+        whenExpirationExceedsOneWeekFromEndTime
     {
         // Bound schedule so that campaign start time is in the past and end time exceed start time.
         schedule.startTime = boundUint40(schedule.startTime, 1 seconds, getBlockTimestamp() - 1 seconds);
         schedule.endTime = boundUint40(schedule.endTime, schedule.startTime + 1 seconds, getBlockTimestamp() + 365 days);
 
         // Set campaign creator as the caller.
-        resetPrank(users.campaignCreator);
+        setMsgSender(users.campaignCreator);
 
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams(expiration);
         params.merkleRoot = merkleRoot;

@@ -26,7 +26,7 @@ abstract contract FactoryMerkleLL_Integration_Shared_Test is Integration_Test {
         merkleBase = ISablierMerkleBase(merkleLL);
 
         // Claim to collect some fees.
-        resetPrank(users.recipient);
+        setMsgSender(users.recipient);
         claim();
     }
 }

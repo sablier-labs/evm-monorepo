@@ -13,12 +13,12 @@ CreateMerkleVCA_Integration_Test
          ├── when end time equals start time
          │  └── it should revert
          └── when end time greater than start time
-            ├── when zero expiry
+            ├── when zero expiration
             │  └── it should revert
-            └── when not zero expiry
-               ├── when expiry not exceed one week from end time
+            └── when not zero expiration
+               ├── when expiration not exceed one week from end time
                │  └── it should revert
-               └── when expiry exceeds one week from end time
+               └── when expiration exceeds one week from end time
                   ├── given custom fee USD set
                   │  ├── it should create the campaign with custom fee USD
                   │  ├── it should set the current factory address

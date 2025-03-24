@@ -78,7 +78,7 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
         givenCampaignNotExists
     {
         // Set campaign creator as the caller.
-        resetPrank(users.campaignCreator);
+        setMsgSender(users.campaignCreator);
 
         MerkleInstant.ConstructorParams memory params = merkleInstantConstructorParams(expiration);
         params.merkleRoot = merkleRoot;

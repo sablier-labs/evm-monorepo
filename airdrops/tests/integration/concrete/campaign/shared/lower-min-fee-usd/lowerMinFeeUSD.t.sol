@@ -8,7 +8,7 @@ import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract LowerMinFeeUSD_Integration_Test is Integration_Test {
     function test_RevertWhen_CallerNotFactoryAdmin() external {
-        resetPrank({ msgSender: users.campaignCreator });
+        setMsgSender(users.campaignCreator);
 
         // It should revert.
         vm.expectRevert(
@@ -21,7 +21,7 @@ abstract contract LowerMinFeeUSD_Integration_Test is Integration_Test {
 
     function test_RevertWhen_NewFeeNotLower() external whenCallerFactoryAdmin {
         uint256 newMinFeeUSD = MIN_FEE_USD + 1;
-        resetPrank(users.admin);
+        setMsgSender(users.admin);
 
         // It should revert.
         vm.expectRevert(
@@ -32,7 +32,7 @@ abstract contract LowerMinFeeUSD_Integration_Test is Integration_Test {
 
     function test_WhenNewFeeNotZero() external whenCallerFactoryAdmin whenNewFeeLower {
         uint256 newMinFeeUSD = MIN_FEE_USD - 1;
-        resetPrank(users.admin);
+        setMsgSender(users.admin);
 
         // It should emit a {LowerMinFeeUSD} event.
         vm.expectEmit({ emitter: address(merkleBase) });
@@ -45,7 +45,7 @@ abstract contract LowerMinFeeUSD_Integration_Test is Integration_Test {
     }
 
     function test_WhenNewFeeZero() external whenCallerFactoryAdmin whenNewFeeLower {
-        resetPrank(users.admin);
+        setMsgSender(users.admin);
 
         // It should emit a {LowerMinFeeUSD} event.
         vm.expectEmit({ emitter: address(merkleBase) });

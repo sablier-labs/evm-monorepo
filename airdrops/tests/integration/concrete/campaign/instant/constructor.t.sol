@@ -8,7 +8,7 @@ import { MerkleInstant_Integration_Shared_Test } from "./MerkleInstant.t.sol";
 contract Constructor_MerkleInstant_Integration_Test is MerkleInstant_Integration_Shared_Test {
     function test_Constructor() external {
         // Make Factory the caller for the constructor test.
-        resetPrank(address(factoryMerkleInstant));
+        setMsgSender(address(factoryMerkleInstant));
 
         // Deploy the SablierMerkleInstant contract.
         SablierMerkleInstant constructedInstant =

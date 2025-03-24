@@ -66,14 +66,14 @@ library Errors {
     /// @notice Thrown while claiming when vesting start time is in the future.
     error SablierMerkleVCA_ClaimNotStarted(uint40 startTime);
 
-    /// @notice Thrown if expiry of a VCA campaign is within 1 week from the vesting end time.
+    /// @notice Thrown if expiration time is within 1 week from the vesting end time.
     error SablierMerkleVCA_ExpirationTooEarly(uint40 endTime, uint40 expiration);
 
-    /// @notice Thrown if expiry of a VCA campaign is zero.
-    error SablierMerkleVCA_ExpiryTimeZero();
+    /// @notice Thrown if expiration time is zero.
+    error SablierMerkleVCA_ExpirationTimeZero();
 
     /// @notice Thrown if vesting end time is less than the start time.
-    error SablierMerkleVCA_StartTimeGreaterThanEndTime(uint40 startTime, uint40 endTime);
+    error SablierMerkleVCA_EndTimeNotGreaterThanStartTime(uint40 startTime, uint40 endTime);
 
     /// @notice Thrown if the vesting start time is zero.
     error SablierMerkleVCA_VestingStartTimeZero();
