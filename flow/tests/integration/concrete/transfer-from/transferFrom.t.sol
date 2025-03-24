@@ -13,7 +13,7 @@ contract TransferFrom_Integration_Concrete_Test is Shared_Integration_Concrete_T
         Shared_Integration_Concrete_Test.setUp();
 
         // Prank the recipient for this test.
-        setMsgSender({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
     }
 
     function test_RevertGiven_StreamNotTransferable() external {

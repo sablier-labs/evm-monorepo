@@ -38,7 +38,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.warp({ newTimestamp: timeJump });
 
         // Prank to either recipient or operator.
-        setMsgSender({ msgSender: useRecipientOrOperator(streamId, timeJump) });
+        setMsgSender(useRecipientOrOperator(streamId, timeJump));
 
         // Void the stream.
         flow.void(streamId);
@@ -77,7 +77,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Prank to either recipient or operator.
         address caller = useRecipientOrOperator(streamId, timeJump);
-        setMsgSender({ msgSender: caller });
+        setMsgSender(caller);
 
         // Void the stream.
         _test_Void(caller, streamId);
@@ -114,7 +114,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Prank to either recipient or operator.
         address caller = useRecipientOrOperator(streamId, timeJump);
-        setMsgSender({ msgSender: caller });
+        setMsgSender(caller);
 
         // Void the stream.
         _test_Void(caller, streamId);

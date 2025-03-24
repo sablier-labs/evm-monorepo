@@ -41,7 +41,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Prank to either recipient or operator.
         address caller = useRecipientOrOperator(streamId, timeJump);
-        setMsgSender({ msgSender: caller });
+        setMsgSender(caller);
 
         // Withdraw the tokens.
         _test_WithdrawMax(caller, withdrawTo, streamId);

@@ -139,7 +139,7 @@ contract FlowCreateHandler is BaseHandler {
         // Prevent the contract itself from playing the role of any user.
         vm.assume(params.sender != address(this) && params.recipient != address(this));
 
-        // Reset the caller.
+        // Change the caller.
         setMsgSender(params.sender);
 
         uint8 decimals = IERC20Metadata(address(currentToken)).decimals();

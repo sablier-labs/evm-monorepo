@@ -74,7 +74,7 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function expectRevert_CallerMaliciousThirdParty(bytes memory callData) internal {
-        setMsgSender({ msgSender: users.eve });
+        setMsgSender(users.eve);
         (bool success, bytes memory returnData) = address(flow).call(callData);
         assertFalse(success, "malicious call success");
         assertEq(
@@ -85,7 +85,7 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
     }
 
     function expectRevert_CallerRecipient(bytes memory callData) internal {
-        setMsgSender({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
         (bool success, bytes memory returnData) = address(flow).call(callData);
         assertFalse(success, "recipient call success");
         assertEq(
@@ -96,7 +96,7 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
     }
 
     function expectRevert_CallerSender(bytes memory callData) internal {
-        setMsgSender({ msgSender: users.sender });
+        setMsgSender(users.sender);
         (bool success, bytes memory returnData) = address(flow).call(callData);
         assertFalse(success, "sender call success");
         assertEq(

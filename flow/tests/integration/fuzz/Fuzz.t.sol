@@ -77,7 +77,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
         if (timeJump % 2 != 0) {
             return users.recipient;
         } else {
-            setMsgSender({ msgSender: users.recipient });
+            setMsgSender(users.recipient);
             flow.approve({ to: users.operator, tokenId: streamId });
             return users.operator;
         }

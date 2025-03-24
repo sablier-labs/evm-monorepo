@@ -15,7 +15,7 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         depositToDefaultStream();
 
         // Make the recipient the caller in this tests.
-        setMsgSender({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -73,7 +73,7 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         givenStreamHasUncoveredDebt
     {
         // Make the sender the caller in this test.
-        setMsgSender({ msgSender: users.sender });
+        setMsgSender(users.sender);
 
         // It should void the stream.
         // It should set the rate per second to zero.
@@ -93,7 +93,7 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         flow.approve({ to: users.operator, tokenId: defaultStreamId });
 
         // Make the operator the caller in this test.
-        setMsgSender({ msgSender: users.operator });
+        setMsgSender(users.operator);
 
         // It should void the stream.
         // It should set the rate per second to zero.

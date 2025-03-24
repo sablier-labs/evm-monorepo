@@ -70,7 +70,7 @@ abstract contract Fork_Test is Base_Test {
     /// @dev Helper function to deposit on a stream.
     function depositOnStream(uint256 streamId, uint128 depositAmount) internal {
         address sender = flow.getSender(streamId);
-        setMsgSender({ msgSender: sender });
+        setMsgSender(sender);
         deal({ token: address(FORK_TOKEN), to: sender, give: depositAmount });
         safeApprove(depositAmount);
         flow.deposit({

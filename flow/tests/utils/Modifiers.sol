@@ -40,7 +40,7 @@ abstract contract Modifiers is Utils {
     }
 
     modifier whenCallerAdmin() {
-        setMsgSender({ msgSender: users.admin });
+        setMsgSender(users.admin);
         _;
     }
 

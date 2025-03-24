@@ -9,7 +9,7 @@ import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
 contract SetNativeToken_Integration_Test is Shared_Integration_Concrete_Test {
     function test_RevertWhen_CallerNotAdmin() external {
-        setMsgSender({ msgSender: users.eve });
+        setMsgSender(users.eve);
         vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.CallerNotAdmin.selector, users.admin, users.eve));
         flow.setNativeToken(address(dai));
     }

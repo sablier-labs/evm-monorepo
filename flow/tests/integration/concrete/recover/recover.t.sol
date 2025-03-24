@@ -19,7 +19,7 @@ contract Recover_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function test_RevertWhen_CallerNotAdmin() external {
-        setMsgSender({ msgSender: users.eve });
+        setMsgSender(users.eve);
         vm.expectRevert(abi.encodeWithSelector(EvmUtilsErorrs.CallerNotAdmin.selector, users.admin, users.eve));
         flow.recover(usdc, users.eve);
     }
