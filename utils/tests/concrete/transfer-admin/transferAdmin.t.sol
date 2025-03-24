@@ -14,12 +14,12 @@ contract TransferAdmin_Unit_Concrete_Test is Unit_Test {
         Unit_Test.setUp();
 
         adminableMock = new AdminableMock(admin);
-        resetPrank(admin);
+        setMsgSender(admin);
     }
 
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        resetPrank(eve);
+        setMsgSender(eve);
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, admin, eve));

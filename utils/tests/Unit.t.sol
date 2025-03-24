@@ -18,6 +18,6 @@ abstract contract Unit_Test is BaseTest, StdAssertions {
         alice = createUser("alice", noSpenders);
         eve = createUser("eve", noSpenders);
 
-        resetPrank(admin);
+        setMsgSender(admin);
     }
 }

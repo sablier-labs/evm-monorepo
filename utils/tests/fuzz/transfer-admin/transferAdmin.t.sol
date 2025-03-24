@@ -14,7 +14,7 @@ contract TransferAdmin_Unit_Fuzz_Test is Unit_Test {
         Unit_Test.setUp();
 
         adminableMock = new AdminableMock(admin);
-        resetPrank(admin);
+        setMsgSender(admin);
     }
 
     function testFuzz_RevertWhen_CallerNotAdmin(address eve) external {
@@ -22,7 +22,7 @@ contract TransferAdmin_Unit_Fuzz_Test is Unit_Test {
         assumeNotPrecompile(eve);
 
         // Make Eve the caller in this test.
-        resetPrank(eve);
+        setMsgSender(eve);
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, admin, eve));

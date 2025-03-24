@@ -181,7 +181,7 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
     }
 
     /// @dev Stops the active prank and sets a new one.
-    function resetPrank(address msgSender) internal {
+    function setMsgSender(address msgSender) internal {
         vm.stopPrank();
         vm.startPrank(msgSender);
     }
