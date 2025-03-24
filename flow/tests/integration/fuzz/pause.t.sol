@@ -29,7 +29,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.warp({ newTimestamp: timeWarp });
 
         // Expect the relevant error.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamNotStarted.selector, streamId, snapshotTime));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamPending.selector, streamId, snapshotTime));
 
         // Adjust the rate per second.
         flow.pause(streamId);

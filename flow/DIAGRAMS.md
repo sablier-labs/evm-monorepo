@@ -3,20 +3,6 @@
 > Below sections assume you've gone through the [abbreviations table](./TECHNICAL-DOC.md#abbreviations) and
 > [core components](./TECHNICAL-DOC.md#core-components)
 
-## Statuses
-
-There are three types of streams: `PENDING` when stream is scheduled for a future start, `STREAMING`, when debt is
-actively accruing, and `PAUSED`, when debt is not accruing:
-
-| Type        | Status                | Description                                                                             |
-| ----------- | --------------------- | --------------------------------------------------------------------------------------- |
-| `PENDING`   | `PENDING`             | A stream with snapshot time in the future.                                              |
-| `STREAMING` | `STREAMING_SOLVENT`   | Streaming stream when there is no uncovered debt.                                       |
-| `STREAMING` | `STREAMING_INSOLVENT` | Streaming stream when there is uncovered debt.                                          |
-| `PAUSED`    | `PAUSED_SOLVENT`      | Paused stream when there is no uncovered debt.                                          |
-| `PAUSED`    | `PAUSED_INSOLVENT`    | Paused stream when there is uncovered debt.                                             |
-| `PAUSED`    | `VOIDED`              | Paused stream that cannot be restarted. Sets uncovered debt to 0 for insolvent streams. |
-
 ### Statuses diagram
 
 The transition between statuses is done by specific functions, which can be seen in the text on the edges or by the

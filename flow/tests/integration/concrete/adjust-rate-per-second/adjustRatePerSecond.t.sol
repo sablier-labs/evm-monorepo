@@ -37,8 +37,8 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Shared_Integration_Con
 
         flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: ud21x18(newRatePerSecond) });
 
-        assertEq(previousSnapshotTime, flow.getSnapshotTime(defaultStreamId), "snapshot time");
         assertEq(previousSnapshotDebtScaled, flow.getSnapshotDebtScaled(defaultStreamId), "snapshot debt");
+        assertEq(previousSnapshotTime, flow.getSnapshotTime(defaultStreamId), "snapshot time");
         assertEq(newRatePerSecond, flow.getRatePerSecond(defaultStreamId).unwrap(), "rate per second");
     }
 
@@ -110,13 +110,13 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Shared_Integration_Con
         UD21x18 expectedRatePerSecond = RATE_PER_SECOND;
         assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
 
-        uint40 actualSnapshotTime = flow.getSnapshotTime(defaultStreamId);
-        uint40 expectedSnapshotTime = getBlockTimestamp() - ONE_MONTH;
-        assertEq(actualSnapshotTime, expectedSnapshotTime, "snapshot time");
-
         uint256 actualSnapshotDebtScaled = flow.getSnapshotDebtScaled(defaultStreamId);
         uint128 expectedSnapshotDebtScaled = 0;
         assertEq(actualSnapshotDebtScaled, expectedSnapshotDebtScaled, "snapshot debt");
+
+        uint40 actualSnapshotTime = flow.getSnapshotTime(defaultStreamId);
+        uint40 expectedSnapshotTime = getBlockTimestamp() - ONE_MONTH;
+        assertEq(actualSnapshotTime, expectedSnapshotTime, "snapshot time");
 
         UD21x18 newRatePerSecond = ud21x18(RATE_PER_SECOND.unwrap() / 2);
 
@@ -141,14 +141,14 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Shared_Integration_Con
         expectedSnapshotDebtScaled = ONE_MONTH_DEBT_18D;
         assertEq(actualSnapshotDebtScaled, expectedSnapshotDebtScaled, "snapshot debt");
 
-        // It should set the new rate per second
-        actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
-        expectedRatePerSecond = newRatePerSecond;
-        assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
-
-        // It should update snapshot time
+        // It should update snapshot time.
         actualSnapshotTime = flow.getSnapshotTime(defaultStreamId);
         expectedSnapshotTime = getBlockTimestamp();
         assertEq(actualSnapshotTime, expectedSnapshotTime, "snapshot time");
+
+        // It should update the rate per second.
+        actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
+        expectedRatePerSecond = newRatePerSecond;
+        assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
     }
 }

@@ -64,7 +64,8 @@ abstract contract SablierFlowBase is
         _;
     }
 
-    /// @dev Checks that `streamId` does not reference a paused stream.
+    /// @dev Checks that `streamId` does not reference a paused stream. Note that this implicitly checks
+    /// that the stream is not voided either.
     modifier notPaused(uint256 streamId) {
         if (_streams[streamId].ratePerSecond.unwrap() == 0) {
             revert Errors.SablierFlow_StreamPaused(streamId);

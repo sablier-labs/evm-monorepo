@@ -9,7 +9,7 @@ AdjustRatePerSecond_Integration_Concrete_Test
       │  └── it should revert
       └── given not paused
          ├── given pending
-         │  ├── it should not update snapshot time
+         │  ├── it should not update snapshot debt
          │  ├── it should not update snapshot time
          │  └── it should adjust the rate per second
          └── given not pending

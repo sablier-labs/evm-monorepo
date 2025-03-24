@@ -48,7 +48,7 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         token = createToken(decimals);
 
         uint256 expectedStreamId = flow.nextStreamId();
-        uint40 expectedSnapshotTime = startTime == 0 ? getBlockTimestamp() : startTime;
+        uint40 expectedStartTime = startTime == 0 ? getBlockTimestamp() : startTime;
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(flow) });
@@ -65,7 +65,7 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             ratePerSecond: ratePerSecond,
             token: token,
             transferable: transferable,
-            snapshotTime: expectedSnapshotTime
+            snapshotTime: expectedStartTime
         });
 
         // Create the stream.
@@ -80,7 +80,7 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Assert stream's initial states. This is the only place testing for state's getter functions.
         assertEq(flow.getBalance(actualStreamId), 0);
-        assertEq(flow.getSnapshotTime(actualStreamId), expectedSnapshotTime);
+        assertEq(flow.getSnapshotTime(actualStreamId), expectedStartTime);
         assertEq(flow.getRatePerSecond(actualStreamId), ratePerSecond);
         assertEq(flow.getRecipient(actualStreamId), recipient);
         assertEq(flow.getSnapshotDebtScaled(actualStreamId), 0);

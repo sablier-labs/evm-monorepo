@@ -58,7 +58,7 @@ contract Pause_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
             transferable: TRANSFERABLE
         });
 
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamNotStarted.selector, streamId, startTime));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamPending.selector, streamId, startTime));
         flow.pause(streamId);
     }
 

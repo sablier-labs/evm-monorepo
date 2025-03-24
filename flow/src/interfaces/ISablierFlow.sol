@@ -167,9 +167,9 @@ interface ISablierFlow is
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null, must not be paused or voided.
+    /// - `streamId` must not reference a null, paused, or voided stream.
     /// - `msg.sender` must be the stream's sender.
-    /// - `newRatePerSecond` must be greater than zero and not equal to the current rate per second.
+    /// - `newRatePerSecond` must be greater than zero and must be different from the current rate per second.
     ///
     /// @param streamId The ID of the stream to adjust.
     /// @param newRatePerSecond The new rate per second, denoted as a fixed-point number where 1e18 is 1 token
@@ -179,7 +179,7 @@ interface ISablierFlow is
     /// @notice Creates a new Flow stream by setting the snapshot time to `startTime` and leaving the balance to
     /// zero. The stream is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits {CreateFlowStream} event.
+    /// @dev Emits a {CreateFlowStream} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -194,8 +194,8 @@ interface ISablierFlow is
     /// @param recipient The address receiving the tokens.
     /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
     /// where 1e18 is 1 token per second.
-    /// @param startTime The timestamp when the stream starts. A value of zero means the stream will be created with the
-    /// snapshot time as `block.timestamp`.
+    /// @param startTime The timestamp when the stream starts. A sentinel value of zero means the stream will be created
+    /// with the snapshot time as `block.timestamp`.
     /// @param token The contract address of the ERC-20 token to be streamed.
     /// @param transferable Boolean indicating if the stream NFT is transferable.
     ///
@@ -227,8 +227,8 @@ interface ISablierFlow is
     /// @param recipient The address receiving the tokens.
     /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
     /// where 1e18 is 1 token per second.
-    /// @param startTime The timestamp when the stream starts. A value of zero means the stream will be created with the
-    /// snapshot time as `block.timestamp`.
+    /// @param startTime The timestamp when the stream starts. A sentinel value of zero means the stream will be created
+    /// with the snapshot time as `block.timestamp`.
     /// @param token The contract address of the ERC-20 token to be streamed.
     /// @param transferable Boolean indicating if the stream NFT is transferable.
     /// @param amount The deposit amount, denoted in token's decimals.
@@ -279,7 +279,7 @@ interface ISablierFlow is
 
     /// @notice Pauses the stream.
     ///
-    /// @dev Emits {PauseFlowStream} and {MetadataUpdate} event.
+    /// @dev Emits a {PauseFlowStream} and {MetadataUpdate} event.
     ///
     /// Notes:
     /// - It updates snapshot debt and snapshot time.
@@ -333,7 +333,7 @@ interface ISablierFlow is
 
     /// @notice Restarts the stream with the provided rate per second.
     ///
-    /// @dev Emits {RestartFlowStream} and {MetadataUpdate} event.
+    /// @dev Emits a {RestartFlowStream} and {MetadataUpdate} event.
     ///
     /// Notes:
     /// - It updates snapshot debt and snapshot time.
@@ -366,8 +366,13 @@ interface ISablierFlow is
     /// @param amount The deposit amount, denoted in token's decimals.
     function restartAndDeposit(uint256 streamId, UD21x18 ratePerSecond, uint128 amount) external payable;
 
-    /// @notice Transfers ERC-20 tokens from `msg.sender` to the `to` address.
-    /// @dev `msg.sender` must have approved this contract to spend the tokens.
+    /// @notice A helper to transfer ERC-20 tokens from the caller to the provided address. Useful for paying one-time
+    /// bonuses.
+    /// @dev Emits a {Transfer} event.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must have approved this contract to spend at least `amount` tokens.
+    ///
     /// @param token The contract address of the ERC-20 token to be transferred.
     /// @param to The address receiving the tokens.
     /// @param amount The amount of tokens to transfer, denoted in token's decimals.
@@ -375,10 +380,10 @@ interface ISablierFlow is
 
     /// @notice Voids a stream.
     ///
-    /// @dev Emits {VoidFlowStream} and {MetadataUpdate} event.
+    /// @dev Emits a {VoidFlowStream} and {MetadataUpdate} event.
     ///
     /// Notes:
-    /// - It sets snapshot time to the `block.timestamp`
+    /// - It sets snapshot time to the `block.timestamp`.
     /// - Voiding an insolvent stream sets the snapshot debt to the stream's balance making the uncovered debt to become
     /// zero.
     /// - Voiding a solvent stream updates the snapshot debt by adding up ongoing debt.

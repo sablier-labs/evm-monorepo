@@ -45,7 +45,7 @@ contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         whenSenderNotAddressZero
         whenRatePerSecondZero
     {
-        vm.expectRevert(Errors.SablierFlow_RatePerSecondZero.selector);
+        vm.expectRevert(Errors.SablierFlow_CreateRatePerSecondZero.selector);
         flow.create({
             sender: users.sender,
             recipient: users.recipient,

@@ -210,7 +210,7 @@ contract SablierFlow is
 
         UD21x18 oldRatePerSecond = _streams[streamId].ratePerSecond;
 
-        // Effects and Interactions: adjust the rate per second.
+        // Checks and Effects: adjust the rate per second.
         _adjustRatePerSecond(streamId, newRatePerSecond);
 
         // Log the adjustment.
@@ -507,22 +507,20 @@ contract SablierFlow is
             return 0;
         }
 
+        // Check: if the rate per second is zero, skip the calculations.
         uint256 ratePerSecond = _streams[streamId].ratePerSecond.unwrap();
-
-        // Check: if the rate per second is zero.
         if (ratePerSecond == 0) {
             return 0;
         }
 
+        // Safe to use unchecked because of the check above.
         uint256 elapsedTime;
-
-        // Safe to use unchecked because subtraction cannot underflow.
         unchecked {
             // Calculate time elapsed since the last snapshot.
             elapsedTime = blockTimestamp - snapshotTime;
         }
 
-        // Calculate the ongoing debt scaled accrued by multiplying the elapsed time by the rate per second.
+        // Calculate the ongoing debt scaled.
         return elapsedTime * ratePerSecond;
     }
 
@@ -615,21 +613,20 @@ contract SablierFlow is
             revert Errors.SablierFlow_CreateNativeToken(nativeToken);
         }
 
-        uint8 tokenDecimals = IERC20Metadata(address(token)).decimals();
-
         // Check: the token decimals are not greater than 18.
+        uint8 tokenDecimals = IERC20Metadata(address(token)).decimals();
         if (tokenDecimals > 18) {
             revert Errors.SablierFlow_InvalidTokenDecimals(address(token));
         }
 
         uint40 blockTimestamp = uint40(block.timestamp);
 
-        // Check: the rate per second is not zero if the start time is in the future.
+        // Check: if the start time is in the future, the rate per second is not zero.
         if (startTime > blockTimestamp && ratePerSecond.unwrap() == 0) {
-            revert Errors.SablierFlow_RatePerSecondZero();
+            revert Errors.SablierFlow_CreateRatePerSecondZero();
         }
 
-        // If the start time is zero, set the snapshot time to `block.timestamp`.
+        // Zero is used a sentinel value for `block.timestamp`.
         uint40 snapshotTime;
         if (startTime == 0) {
             snapshotTime = blockTimestamp;
@@ -656,14 +653,14 @@ contract SablierFlow is
             tokenDecimals: tokenDecimals
         });
 
-        // Using unchecked arithmetic because this calculation can never realistically overflow.
-        unchecked {
-            // Effect: bump the next stream ID.
-            nextStreamId = streamId + 1;
-        }
-
         // Effect: mint the NFT to the recipient.
         _mint({ to: recipient, tokenId: streamId });
+
+        // Effect: bump the next stream ID.
+        // Safe to use unchecked arithmetic because this calculation cannot realistically overflow.
+        unchecked {
+            nextStreamId = streamId + 1;
+        }
 
         // Log the newly created stream.
         emit ISablierFlow.CreateFlowStream({
@@ -703,9 +700,9 @@ contract SablierFlow is
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _pause(uint256 streamId) internal {
-        // Check: the stream has started.
+        // Check: the stream is not pending.
         if (_streams[streamId].snapshotTime > block.timestamp) {
-            revert Errors.SablierFlow_StreamNotStarted(streamId, _streams[streamId].snapshotTime);
+            revert Errors.SablierFlow_StreamPending(streamId, _streams[streamId].snapshotTime);
         }
 
         // Checks and Effects: pause the stream by adjusting the rate per second to zero.

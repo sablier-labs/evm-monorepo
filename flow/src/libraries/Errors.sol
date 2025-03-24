@@ -13,6 +13,9 @@ library Errors {
     /// @notice Thrown when trying to create a stream with the native token.
     error SablierFlow_CreateNativeToken(address nativeToken);
 
+    /// @notice Thrown when trying to create a pending stream with rate per second zero.
+    error SablierFlow_CreateRatePerSecondZero();
+
     /// @notice Thrown when trying to create a stream with a zero deposit amount.
     error SablierFlow_DepositAmountZero(uint256 streamId);
 
@@ -40,9 +43,6 @@ library Errors {
     /// @notice Thrown when trying to change the rate per second with the same rate per second.
     error SablierFlow_RatePerSecondNotDifferent(uint256 streamId, UD21x18 ratePerSecond);
 
-    /// @notice Thrown when trying to create a pending stream with rate per second zero.
-    error SablierFlow_RatePerSecondZero();
-
     /// @notice Thrown when trying to refund zero tokens from a stream.
     error SablierFlow_RefundAmountZero(uint256 streamId);
 
@@ -55,16 +55,16 @@ library Errors {
     /// @notice Thrown when trying to get depletion time of a stream with zero balance.
     error SablierFlow_StreamBalanceZero(uint256 streamId);
 
-    /// @notice Thrown when trying to perform an action with a paused stream.
-    error SablierFlow_StreamPaused(uint256 streamId);
-
-    /// @notice Thrown when trying to restart a stream that is not paused.
+    /// @notice Thrown when trying to perform a disallowed action on a non-paused stream.
     error SablierFlow_StreamNotPaused(uint256 streamId);
 
-    /// @notice Thrown when trying to pause a stream that has not started.
-    error SablierFlow_StreamNotStarted(uint256 streamId, uint40 snapshotTime);
+    /// @notice Thrown when trying to perform a disallowed action on a paused stream.
+    error SablierFlow_StreamPaused(uint256 streamId);
 
-    /// @notice Thrown when trying to perform an action with a voided stream.
+    /// @notice Thrown when trying to perform a disallowed action on a pending stream.
+    error SablierFlow_StreamPending(uint256 streamId, uint40 snapshotTime);
+
+    /// @notice Thrown when trying to perform a disallowed action on a voided stream.
     error SablierFlow_StreamVoided(uint256 streamId);
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
