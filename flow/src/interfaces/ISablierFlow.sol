@@ -368,6 +368,7 @@ interface ISablierFlow is
 
     /// @notice A helper to transfer ERC-20 tokens from the caller to the provided address. Useful for paying one-time
     /// bonuses.
+    ///
     /// @dev Emits a {Transfer} event.
     ///
     /// Requirements:

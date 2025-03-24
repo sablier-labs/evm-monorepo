@@ -289,12 +289,12 @@ contract Flow_Invariant_Test is Base_Test, StdInvariant {
             uint256 streamId = flowStore.streamIds(i);
             if (!flow.isVoided(streamId) && flow.getRatePerSecond(streamId).unwrap() == 0) {
                 assertTrue(
-                    flow.isPaused(streamId) == true, "Invariant violation: rate per second zero but stream not paused"
+                    flow.isPaused(streamId) == true, "Invariant violation: zero rate per second but stream not paused"
                 );
                 assertTrue(
                     flow.statusOf(streamId) == Flow.Status.PAUSED_SOLVENT
                         || flow.statusOf(streamId) == Flow.Status.PAUSED_INSOLVENT,
-                    "Invariant violation: rate per second zero but stream status not correct"
+                    "Invariant violation: zero rate per second but stream status not correct"
                 );
             }
         }
@@ -312,7 +312,7 @@ contract Flow_Invariant_Test is Base_Test, StdInvariant {
                     "Invariant violation: pending stream with snapshot time <= block timestamp"
                 );
                 assertGt(
-                    flow.getRatePerSecond(streamId).unwrap(), 0, "Invariant violation: pending stream with rps zero"
+                    flow.getRatePerSecond(streamId).unwrap(), 0, "Invariant violation: pending stream with zero rps"
                 );
                 assertEq(flow.totalDebtOf(streamId), 0, "Invariant violation: pending stream with non-zero total debt");
             }

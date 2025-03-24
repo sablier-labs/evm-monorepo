@@ -13,7 +13,7 @@ library Errors {
     /// @notice Thrown when trying to create a stream with the native token.
     error SablierFlow_CreateNativeToken(address nativeToken);
 
-    /// @notice Thrown when trying to create a pending stream with rate per second zero.
+    /// @notice Thrown when trying to create a pending stream with zero rate per second.
     error SablierFlow_CreateRatePerSecondZero();
 
     /// @notice Thrown when trying to create a stream with a zero deposit amount.
