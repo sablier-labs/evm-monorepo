@@ -37,10 +37,10 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
 
     function test_RevertWhen_StartTimeZero() external whenNativeTokenNotFound givenCampaignNotExists {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
-        params.schedule.startTime = 0;
+        params.startTime = 0;
 
         // It should revert.
-        vm.expectRevert(Errors.SablierMerkleVCA_VestingStartTimeZero.selector);
+        vm.expectRevert(Errors.SablierMerkleVCA_StartTimeZero.selector);
         createMerkleVCA(params);
     }
 
@@ -52,14 +52,12 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         // Set the end time to be less than the start time.
-        params.schedule.endTime = RANGED_STREAM_START_TIME - 1 seconds;
+        params.endTime = RANGED_STREAM_START_TIME - 1 seconds;
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_EndTimeNotGreaterThanStartTime.selector,
-                params.schedule.startTime,
-                params.schedule.endTime
+                Errors.SablierMerkleVCA_EndTimeNotGreaterThanStartTime.selector, params.startTime, params.endTime
             )
         );
         createMerkleVCA(params);
@@ -73,14 +71,12 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         // Set the end time equal to the start time.
-        params.schedule.endTime = RANGED_STREAM_START_TIME;
+        params.endTime = RANGED_STREAM_START_TIME;
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_EndTimeNotGreaterThanStartTime.selector,
-                params.schedule.startTime,
-                params.schedule.endTime
+                Errors.SablierMerkleVCA_EndTimeNotGreaterThanStartTime.selector, params.startTime, params.endTime
             )
         );
         createMerkleVCA(params);
@@ -115,7 +111,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_ExpirationTooEarly.selector, params.schedule.endTime, params.expiration
+                Errors.SablierMerkleVCA_ExpirationTooEarly.selector, params.endTime, params.expiration
             )
         );
         createMerkleVCA(params);
@@ -163,9 +159,11 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should set the current factory address.
         assertEq(actualVCA.FACTORY(), address(factoryMerkleVCA), "factory");
 
-        // It should set return the correct schedule.
-        assertEq(actualVCA.getSchedule().startTime, RANGED_STREAM_START_TIME, "schedule start time");
-        assertEq(actualVCA.getSchedule().endTime, RANGED_STREAM_END_TIME, "schedule end time");
+        // It should set return the correct start time.
+        assertEq(actualVCA.START_TIME(), RANGED_STREAM_START_TIME, "vesting start time");
+
+        // It should set return the correct end time.
+        assertEq(actualVCA.END_TIME(), RANGED_STREAM_END_TIME, "vesting end time");
     }
 
     function test_GivenCustomFeeUSDNotSet()
@@ -202,8 +200,10 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should set the current factory address.
         assertEq(actualVCA.FACTORY(), address(factoryMerkleVCA), "factory");
 
-        // It should set return the correct unlock timestamps.
-        assertEq(actualVCA.getSchedule().startTime, RANGED_STREAM_START_TIME, "schedule start time");
-        assertEq(actualVCA.getSchedule().endTime, RANGED_STREAM_END_TIME, "schedule end time");
+        // It should set return the correct start time.
+        assertEq(actualVCA.START_TIME(), RANGED_STREAM_START_TIME, "vesting start time");
+
+        // It should set return the correct end time.
+        assertEq(actualVCA.END_TIME(), RANGED_STREAM_END_TIME, "vesting end time");
     }
 }

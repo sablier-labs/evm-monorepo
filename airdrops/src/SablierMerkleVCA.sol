@@ -40,10 +40,13 @@ contract SablierMerkleVCA is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleVCA
-    uint256 public override totalForgoneAmount;
+    uint40 public immutable override END_TIME;
 
-    /// @dev See the documentation in {ISablierMerkleVCA.getSchedule}.
-    MerkleVCA.Schedule private _schedule;
+    /// @inheritdoc ISablierMerkleVCA
+    uint40 public immutable override START_TIME;
+
+    /// @inheritdoc ISablierMerkleVCA
+    uint256 public override totalForgoneAmount;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -64,16 +67,16 @@ contract SablierMerkleVCA is
             params.token
         )
     {
-        // Check: schedule start time is not zero.
-        if (params.schedule.startTime == 0) {
-            revert Errors.SablierMerkleVCA_VestingStartTimeZero();
+        // Check: start time is not zero.
+        if (params.startTime == 0) {
+            revert Errors.SablierMerkleVCA_StartTimeZero();
         }
 
         // Check: vesting end time is greater than the schedule start time.
-        if (params.schedule.endTime <= params.schedule.startTime) {
+        if (params.endTime <= params.startTime) {
             revert Errors.SablierMerkleVCA_EndTimeNotGreaterThanStartTime({
-                startTime: params.schedule.startTime,
-                endTime: params.schedule.endTime
+                startTime: params.startTime,
+                endTime: params.endTime
             });
         }
 
@@ -82,15 +85,16 @@ contract SablierMerkleVCA is
             revert Errors.SablierMerkleVCA_ExpirationTimeZero();
         }
 
-        // Check: campaign expiration is at least 1 week later than the vesting end time.
-        if (params.expiration < params.schedule.endTime + 1 weeks) {
-            revert Errors.SablierMerkleVCA_ExpirationTooEarly({
-                endTime: params.schedule.endTime,
-                expiration: params.expiration
-            });
+        // Check: campaign expiration is at least 1 week later than the end time.
+        if (params.expiration < params.endTime + 1 weeks) {
+            revert Errors.SablierMerkleVCA_ExpirationTooEarly({ endTime: params.endTime, expiration: params.expiration });
         }
 
-        _schedule = params.schedule;
+        // Effect: set the end time.
+        END_TIME = params.endTime;
+
+        // Effect: set the start time.
+        START_TIME = params.startTime;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -104,12 +108,12 @@ contract SablierMerkleVCA is
             claimTime = uint40(block.timestamp);
         }
 
-        // If claim time is not greater than schedule start time, return 0.
-        if (claimTime <= _schedule.startTime) {
+        // If claim time is not greater than start time, return 0.
+        if (claimTime <= START_TIME) {
             return 0;
         }
 
-        // Calculate and return the claimable amount.
+        // Calculate and return the claim amount.
         return _calculateClaimAmount(fullAmount, claimTime);
     }
 
@@ -120,18 +124,13 @@ contract SablierMerkleVCA is
             claimTime = uint40(block.timestamp);
         }
 
-        // If the claim time is not greater than schedule start time, no amount can be forgone since the claim
-        // cannot be made, so we return 0.
-        if (claimTime <= _schedule.startTime) {
+        // If the claim time is not greater than start time, no amount can be forgone since the claim cannot be made, so
+        // we return 0.
+        if (claimTime <= START_TIME) {
             return 0;
         }
 
         return fullAmount - _calculateClaimAmount(fullAmount, claimTime);
-    }
-
-    /// @inheritdoc ISablierMerkleVCA
-    function getSchedule() external view override returns (MerkleVCA.Schedule memory) {
-        return _schedule;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -140,24 +139,19 @@ contract SablierMerkleVCA is
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _calculateClaimAmount(uint128 fullAmount, uint40 claimTime) internal view returns (uint128) {
-        // Load the vesting schedule into memory to avoid multiple SLOADs.
-        MerkleVCA.Schedule memory vestingSchedule = _schedule;
-
+        // Calculate the claim amount.
         uint40 elapsedTime;
         uint40 totalDuration;
 
         // If the vesting period has ended, the claim amount is the full amount.
-        if (claimTime >= vestingSchedule.endTime) {
+        if (claimTime >= END_TIME) {
             return fullAmount;
         }
         // Otherwise, calculate the claim amount based on the elapsed time.
         else {
             unchecked {
-                // Safe due to the checks in the functions calling this.
-                elapsedTime = claimTime - vestingSchedule.startTime;
-
-                // Safe due to the check in the constructor.
-                totalDuration = vestingSchedule.endTime - vestingSchedule.startTime;
+                elapsedTime = claimTime - START_TIME;
+                totalDuration = END_TIME - START_TIME;
             }
 
             // Safe to cast because the result in a value less than `fullAmount`, which is already an `uint128`.
@@ -173,9 +167,9 @@ contract SablierMerkleVCA is
     function _claim(uint256 index, address recipient, uint128 fullAmount) internal override {
         uint40 blockTimestamp = uint40(block.timestamp);
 
-        // Check: schedule start time is in the past.
-        if (blockTimestamp <= _schedule.startTime) {
-            revert Errors.SablierMerkleVCA_ClaimNotStarted(_schedule.startTime);
+        // Check: start time is in the past.
+        if (blockTimestamp <= START_TIME) {
+            revert Errors.SablierMerkleVCA_CampaignNotStarted(START_TIME);
         }
 
         // Calculate the claim amount and the forgone amount.

@@ -12,7 +12,7 @@ contract CalculateForgoneAmount_MerkleVCA_Integration_Test is MerkleVCA_Integrat
     }
 
     function test_WhenClaimTimeNotGreaterThanStartTime() external view whenClaimTimeNotZero {
-        uint40 claimTime = RANGED_STREAM_START_TIME;
+        uint40 claimTime = VCA_START_TIME;
 
         // It should return the full amount.
         assertEq(merkleVCA.calculateForgoneAmount(VCA_FULL_AMOUNT, claimTime), 0, "forgone amount");
@@ -24,7 +24,7 @@ contract CalculateForgoneAmount_MerkleVCA_Integration_Test is MerkleVCA_Integrat
         whenClaimTimeNotZero
         whenClaimTimeGreaterThanStartTime
     {
-        uint40 claimTime = RANGED_STREAM_END_TIME;
+        uint40 claimTime = VCA_END_TIME;
 
         // It should return 0.
         assertEq(merkleVCA.calculateForgoneAmount(VCA_FULL_AMOUNT, claimTime), 0, "forgone amount");

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { MerkleVCA } from "../types/DataTypes.sol";
 import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
 
 /// @title ISablierMerkleVCA
@@ -20,6 +19,12 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Returns the timestamp when the airdrop token unlocks 100%.
+    function END_TIME() external view returns (uint40);
+
+    /// @notice Returns the timestamp when the airdrop token begins to unlock.
+    function START_TIME() external view returns (uint40);
+
     /// @notice Calculates the amount that would be claimed if the claim were made at `claimTime`.
     /// @dev This is for informational purposes only. To actually claim the airdrop, a Merkle proof is required.
     /// @param fullAmount The amount of tokens allocated to a user, denominated in the token's decimals.
@@ -31,9 +36,6 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @param fullAmount The amount of tokens allocated to a user, denominated in the token's decimals.
     /// @param claimTime A hypothetical time at which to make the claim. Zero is a sentinel value for `block.timestamp`.
     function calculateForgoneAmount(uint128 fullAmount, uint40 claimTime) external view returns (uint128);
-
-    /// @notice Retrieves the start time and end time of the vesting schedule.
-    function getSchedule() external view returns (MerkleVCA.Schedule memory);
 
     /// @notice Retrieves the total amount of tokens forgone by early claimers.
     function totalForgoneAmount() external view returns (uint256);

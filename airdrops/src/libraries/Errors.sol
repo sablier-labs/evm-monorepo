@@ -63,8 +63,8 @@ library Errors {
                                  SABLIER-MERKLE-VCA
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown while claiming when vesting start time is in the future.
-    error SablierMerkleVCA_ClaimNotStarted(uint40 startTime);
+    /// @notice Thrown while claiming when start time is in the future.
+    error SablierMerkleVCA_CampaignNotStarted(uint40 startTime);
 
     /// @notice Thrown if expiration time is within 1 week from the vesting end time.
     error SablierMerkleVCA_ExpirationTooEarly(uint40 endTime, uint40 expiration);
@@ -75,6 +75,6 @@ library Errors {
     /// @notice Thrown if vesting end time is less than the start time.
     error SablierMerkleVCA_EndTimeNotGreaterThanStartTime(uint40 startTime, uint40 endTime);
 
-    /// @notice Thrown if the vesting start time is zero.
-    error SablierMerkleVCA_VestingStartTimeZero();
+    /// @notice Thrown if the start time is zero.
+    error SablierMerkleVCA_StartTimeZero();
 }

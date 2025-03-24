@@ -33,32 +33,33 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
                                    TEST-FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function testForkFuzz_MerkleVCA(Params memory params, MerkleVCA.Schedule memory schedule) external {
+    function testForkFuzz_MerkleVCA(Params memory params, uint40 endTime, uint40 startTime) external {
         /*//////////////////////////////////////////////////////////////////////////
                                           CREATE
         //////////////////////////////////////////////////////////////////////////*/
 
         preCreateCampaign(params);
 
-        vm.assume(schedule.endTime > 0 && schedule.startTime > 0);
+        // Bound the start time.
+        startTime = boundUint40(startTime, 1 seconds, getBlockTimestamp() - 1 seconds);
 
-        // Bound vesting start and end times.
-        schedule.startTime = boundUint40(schedule.startTime, 1 seconds, getBlockTimestamp() - 1 seconds);
-        schedule.endTime = boundUint40(schedule.endTime, schedule.startTime + 1 seconds, MAX_UNIX_TIMESTAMP - 2 weeks);
+        // Bound the end time.
+        endTime = boundUint40(endTime, startTime + 1, MAX_UNIX_TIMESTAMP - 2 weeks);
 
-        // The expiration must exceed the vesting end time by at least 1 week.
-        if (schedule.endTime > getBlockTimestamp() - 1 weeks) {
-            params.expiration = boundUint40(params.expiration, schedule.endTime + 1 weeks, MAX_UNIX_TIMESTAMP);
+        // The expiration must exceed the end time by at least 1 week.
+        if (endTime > getBlockTimestamp() - 1 weeks) {
+            params.expiration = boundUint40(params.expiration, endTime + 1 weeks, MAX_UNIX_TIMESTAMP);
         } else {
-            // If vesting end time is in the past, set expiration into the future to allow claiming.
-            params.expiration = boundUint40(params.expiration, getBlockTimestamp() + 1, MAX_UNIX_TIMESTAMP);
+            // If end time is in the past, set expiration into the future to allow claiming.
+            params.expiration = boundUint40(params.expiration, getBlockTimestamp() + 1 seconds, MAX_UNIX_TIMESTAMP);
         }
 
         MerkleVCA.ConstructorParams memory constructorParams = merkleVCAConstructorParams({
             campaignCreator: params.campaignCreator,
+            endTime: endTime,
             expiration: params.expiration,
             merkleRoot: vars.merkleRoot,
-            schedule: schedule,
+            startTime: startTime,
             tokenAddress: FORK_TOKEN
         });
 
@@ -89,19 +90,9 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
 
         preClaim(params);
 
-        uint128 claimAmount;
-        uint128 forgoneAmount;
-
-        if (getBlockTimestamp() >= schedule.endTime) {
-            claimAmount = vars.leafToClaim.amount;
-            forgoneAmount = 0;
-        } else {
-            // Calculate the claim amount based on the elapsed time.
-            uint40 elapsedTime = getBlockTimestamp() - schedule.startTime;
-            uint40 totalDuration = schedule.endTime - schedule.startTime;
-            claimAmount = uint128((uint256(vars.leafToClaim.amount) * elapsedTime) / totalDuration);
-            forgoneAmount = vars.leafToClaim.amount - claimAmount;
-        }
+        // Calculate claim and forgone amount based on the vesting start and end time.
+        (uint128 claimAmount, uint128 forgoneAmount) =
+            calculateMerkleVCAAmounts({ fullAmount: vars.leafToClaim.amount, endTime: endTime, startTime: startTime });
 
         vm.expectEmit({ emitter: address(merkleVCA) });
         emit ISablierMerkleVCA.Claim({

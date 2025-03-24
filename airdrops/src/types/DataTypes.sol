@@ -17,6 +17,7 @@ library FactoryMerkle {
 
 library MerkleInstant {
     /// @notice Struct encapsulating the constructor parameters of Merkle Instant campaigns.
+    /// @dev The fields are arranged alphabetically.
     /// @param campaignName The name of the campaign.
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
     /// not expire.
@@ -36,6 +37,7 @@ library MerkleInstant {
 
 library MerkleLL {
     /// @notice Struct encapsulating the constructor parameters of Merkle Lockup Linear campaigns.
+    /// @dev The fields are arranged alphabetically.
     /// @param campaignName The name of the campaign.
     /// @param cancelable Indicates if the Lockup stream will be cancelable after claiming.
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
@@ -81,6 +83,7 @@ library MerkleLL {
 
 library MerkleLT {
     /// @notice Struct encapsulating the constructor parameters of Merkle Lockup Tranched campaigns.
+    /// @dev The fields are arranged alphabetically.
     /// @param campaignName The name of the campaign.
     /// @param cancelable Indicates if the Lockup stream will be cancelable after claiming.
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
@@ -125,28 +128,23 @@ library MerkleLT {
 
 library MerkleVCA {
     /// @notice Struct encapsulating the constructor parameters of Merkle VCA campaigns.
+    /// @dev The fields are arranged alphabetically.
     /// @param campaignName The name of the campaign.
+    /// @param endTime Vesting end time.
     /// @param expiration The expiration of the campaign, as a Unix timestamp.
     /// @param initialAdmin The initial admin of the campaign.
     /// @param ipfsCID The content identifier for indexing the contract on IPFS.
     /// @param merkleRoot The Merkle root of the claim data.
-    /// @param schedule Struct encapsulating the vesting start time and end time.
+    /// @param startTime Vesting start time.
     /// @param token The contract address of the ERC-20 token to be distributed.
     struct ConstructorParams {
         string campaignName;
+        uint40 endTime;
         uint40 expiration;
         address initialAdmin;
         string ipfsCID;
         bytes32 merkleRoot;
-        Schedule schedule;
-        IERC20 token;
-    }
-
-    /// @notice Struct encapsulating the vesting start time and end time.
-    /// @param startTime The timestamp when the airdrop token begins to unlock.
-    /// @param endTime The timestamp when the airdrop token unlocks 100%.
-    struct Schedule {
         uint40 startTime;
-        uint40 endTime;
+        IERC20 token;
     }
 }

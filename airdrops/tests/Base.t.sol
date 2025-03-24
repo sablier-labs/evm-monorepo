@@ -538,13 +538,35 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
                                     MERKLE-VCA
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Mirrors the logic from {SablierMerkleVCA._calculateClaimAmount}.
+    function calculateMerkleVCAAmounts(
+        uint128 fullAmount,
+        uint40 endTime,
+        uint40 startTime
+    )
+        public
+        view
+        returns (uint128 claimAmount, uint128 forgoneAmount)
+    {
+        if (getBlockTimestamp() < endTime) {
+            uint40 elapsedTime = (getBlockTimestamp() - startTime);
+            uint40 totalTime = endTime - startTime;
+
+            claimAmount = uint128((uint256(fullAmount) * elapsedTime) / totalTime);
+            forgoneAmount = fullAmount - claimAmount;
+        } else {
+            claimAmount = fullAmount;
+        }
+    }
+
     function computeMerkleVCAAddress() internal view returns (address) {
         return computeMerkleVCAAddress(
             merkleVCAConstructorParams({
                 campaignCreator: users.campaignCreator,
+                endTime: VCA_END_TIME,
                 expiration: EXPIRATION,
                 merkleRoot: MERKLE_ROOT,
-                schedule: merkleVCASchedule(),
+                startTime: VCA_START_TIME,
                 tokenAddress: dai
             }),
             users.campaignCreator
@@ -587,18 +609,20 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
     function merkleVCAConstructorParams(uint40 expiration) public view returns (MerkleVCA.ConstructorParams memory) {
         return merkleVCAConstructorParams({
             campaignCreator: users.campaignCreator,
+            endTime: VCA_END_TIME,
             expiration: expiration,
             merkleRoot: MERKLE_ROOT,
-            schedule: merkleVCASchedule(),
+            startTime: VCA_START_TIME,
             tokenAddress: dai
         });
     }
 
     function merkleVCAConstructorParams(
         address campaignCreator,
+        uint40 endTime,
         uint40 expiration,
         bytes32 merkleRoot,
-        MerkleVCA.Schedule memory schedule,
+        uint40 startTime,
         IERC20 tokenAddress
     )
         public
@@ -607,16 +631,13 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
     {
         return MerkleVCA.ConstructorParams({
             campaignName: CAMPAIGN_NAME,
+            endTime: endTime,
             expiration: expiration,
             initialAdmin: campaignCreator,
             ipfsCID: IPFS_CID,
             merkleRoot: merkleRoot,
-            schedule: schedule,
+            startTime: startTime,
             token: tokenAddress
         });
-    }
-
-    function merkleVCASchedule() public view returns (MerkleVCA.Schedule memory) {
-        return MerkleVCA.Schedule({ startTime: RANGED_STREAM_START_TIME, endTime: RANGED_STREAM_END_TIME });
     }
 }

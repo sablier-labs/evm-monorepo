@@ -13,13 +13,11 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
     }
 
     function test_RevertWhen_StartTimeInFuture() external whenMerkleProofValid {
-        // Move back in time so that the schedule start time is in the future.
-        vm.warp({ newTimestamp: RANGED_STREAM_START_TIME - 1 seconds });
+        // Move back in time so that the start time is in the future.
+        vm.warp({ newTimestamp: VCA_START_TIME - 1 seconds });
 
         // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleVCA_ClaimNotStarted.selector, RANGED_STREAM_START_TIME)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleVCA_CampaignNotStarted.selector, VCA_START_TIME));
 
         // Claim the airdrop.
         merkleVCA.claim{ value: MIN_FEE_WEI }({
@@ -31,8 +29,8 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
     }
 
     function test_WhenEndTimeInPast() external whenMerkleProofValid whenStartTimeNotInFuture {
-        // Forward in time so that the schedule end time is in the past.
-        vm.warp({ newTimestamp: RANGED_STREAM_END_TIME });
+        // Forward in time so that the end time is in the past.
+        vm.warp({ newTimestamp: VCA_END_TIME });
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleVCA) });

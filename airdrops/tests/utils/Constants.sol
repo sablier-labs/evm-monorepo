@@ -24,6 +24,8 @@ abstract contract Constants {
     uint40 public immutable RANGED_STREAM_START_TIME = FEB_1_2025 - 2 days;
     uint40 public immutable RANGED_STREAM_END_TIME = RANGED_STREAM_START_TIME + TOTAL_DURATION;
     uint40 public constant TOTAL_DURATION = 10 days;
+    uint40 internal immutable VCA_END_TIME = RANGED_STREAM_END_TIME;
+    uint40 internal immutable VCA_START_TIME = RANGED_STREAM_START_TIME;
 
     // Global
     uint40 internal constant FEB_1_2025 = 1_738_368_000;
