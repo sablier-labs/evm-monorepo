@@ -23,7 +23,7 @@ contract FlowAdminHandler is BaseHandler {
     }
 
     modifier setCallerAdmin() {
-        resetPrank(flow.admin());
+        setMsgSender(flow.admin());
         _;
     }
 

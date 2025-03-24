@@ -13,7 +13,7 @@ contract Payable_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         vm.warp({ newTimestamp: ONE_MONTH_SINCE_CREATE });
 
         // Make the sender the caller.
-        resetPrank({ msgSender: users.sender });
+        setMsgSender({ msgSender: users.sender });
     }
 
     function test_AdjustRatePerSecondWhenETHValueNotZero() external {

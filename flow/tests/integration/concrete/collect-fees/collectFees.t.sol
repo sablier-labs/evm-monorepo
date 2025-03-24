@@ -14,7 +14,7 @@ contract CollectFees_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         // Make a withdrawal and pay the fee.
         flow.withdrawMax{ value: FEE }({ streamId: defaultStreamId, to: users.recipient });
 
-        resetPrank({ msgSender: users.admin });
+        setMsgSender({ msgSender: users.admin });
     }
 
     function test_GivenAdminIsNotContract() external {
@@ -26,7 +26,7 @@ contract CollectFees_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         flow.transferAdmin(address(contractWithoutReceive));
 
         // Make the contract the caller.
-        resetPrank({ msgSender: address(contractWithoutReceive) });
+        setMsgSender({ msgSender: address(contractWithoutReceive) });
 
         // Expect a revert.
         vm.expectRevert(
@@ -44,7 +44,7 @@ contract CollectFees_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         flow.transferAdmin(address(contractWithReceive));
 
         // Make the contract the caller.
-        resetPrank({ msgSender: address(contractWithReceive) });
+        setMsgSender({ msgSender: address(contractWithReceive) });
 
         // Run the tests.
         _test_CollectFees(address(contractWithReceive));

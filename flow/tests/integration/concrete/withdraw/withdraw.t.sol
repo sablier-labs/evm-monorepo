@@ -23,7 +23,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
 
         // Set recipient as the caller for this test.
-        resetPrank({ msgSender: users.recipient });
+        setMsgSender({ msgSender: users.recipient });
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -58,7 +58,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressNotOwner
     {
-        resetPrank({ msgSender: users.sender });
+        setMsgSender({ msgSender: users.sender });
 
         // It should revert.
         vm.expectRevert(
@@ -77,7 +77,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressNotOwner
     {
-        resetPrank({ msgSender: users.eve });
+        setMsgSender({ msgSender: users.eve });
 
         // It should revert.
         vm.expectRevert(
@@ -105,7 +105,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         _;
 
         // Use sender as the caller.
-        resetPrank({ msgSender: users.sender });
+        setMsgSender({ msgSender: users.sender });
         // Forward time by 1 month, take snaphsot and then forward time by 1 more month.
         vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
         updateSnapshot(defaultStreamId);
@@ -113,7 +113,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         _;
 
         // Use operator as the caller.
-        resetPrank({ msgSender: users.operator });
+        setMsgSender({ msgSender: users.operator });
         // Forward time by 1 month, take snaphsot and then forward time by 1 more month.
         vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
         updateSnapshot(defaultStreamId);

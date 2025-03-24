@@ -54,13 +54,13 @@ contract FlowHandler is BaseHandler {
 
     modifier useStreamRecipient() {
         currentRecipient = flow.getRecipient(currentStreamId);
-        resetPrank(currentRecipient);
+        setMsgSender(currentRecipient);
         _;
     }
 
     modifier useStreamSender() {
         currentSender = flow.getSender(currentStreamId);
-        resetPrank(currentSender);
+        setMsgSender(currentSender);
         _;
     }
 

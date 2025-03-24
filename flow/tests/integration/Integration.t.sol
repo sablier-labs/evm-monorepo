@@ -77,7 +77,7 @@ abstract contract Integration_Test is Base_Test {
         (, address originalCaller,) = vm.readCallers();
 
         // Switch to the sender and adjust the rate per second.
-        resetPrank(users.sender);
+        setMsgSender(users.sender);
         UD21x18 ratePerSecond = flow.getRatePerSecond(streamId);
 
         // Take the snapshot by temporarily setting the rate per second to 1.
@@ -87,6 +87,6 @@ abstract contract Integration_Test is Base_Test {
         flow.adjustRatePerSecond(streamId, ratePerSecond);
 
         // Switch back to the original caller.
-        resetPrank(originalCaller);
+        setMsgSender(originalCaller);
     }
 }

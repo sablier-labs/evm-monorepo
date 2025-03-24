@@ -38,7 +38,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Prank to either recipient or operator.
         address caller = useRecipientOrOperator(streamId, timeJump);
-        resetPrank({ msgSender: caller });
+        setMsgSender({ msgSender: caller });
 
         // Withdraw the tokens.
         _test_Withdraw(caller, to, streamId, timeJump, withdrawAmount);
@@ -73,7 +73,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Prank the caller and withdraw the tokens.
-        resetPrank(caller);
+        setMsgSender(caller);
         _test_Withdraw(caller, users.recipient, streamId, timeJump, withdrawAmount);
     }
 

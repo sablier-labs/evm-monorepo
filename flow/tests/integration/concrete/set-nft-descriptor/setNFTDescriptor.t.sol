@@ -10,7 +10,7 @@ import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
 contract SetNFTDescriptor_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_RevertWhen_CallerNotAdmin() external {
-        resetPrank({ msgSender: users.eve });
+        setMsgSender({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(EvmUtilsErorrs.CallerNotAdmin.selector, users.admin, users.eve));
         flow.setNFTDescriptor(FlowNFTDescriptor(users.eve));
     }

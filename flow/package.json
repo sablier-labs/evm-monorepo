@@ -13,7 +13,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "5.0.2",
     "@prb/math": "4.1.0",
-    "@sablier/evm-utils": "github:sablier-labs/evm-utils#19a5175"
+    "@sablier/evm-utils": "github:sablier-labs/evm-utils#d1896e1"
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std#v1.8.2",

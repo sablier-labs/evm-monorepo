@@ -228,7 +228,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         );
 
         // Make sure the requirements are respected.
-        resetPrank({ msgSender: flow.getSender(streamId) });
+        setMsgSender({ msgSender: flow.getSender(streamId) });
         if (flow.isPaused(streamId)) {
             flow.restart(streamId, RATE_PER_SECOND);
         }
@@ -352,7 +352,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         );
 
         address sender = flow.getSender(streamId);
-        resetPrank({ msgSender: sender });
+        setMsgSender({ msgSender: sender });
         deal({ token: address(FORK_TOKEN), to: sender, give: depositAmount });
         safeApprove(depositAmount);
 
@@ -395,7 +395,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
     function _test_Pause(uint256 streamId) private {
         // Make sure the requirements are respected.
         address sender = flow.getSender(streamId);
-        resetPrank({ msgSender: sender });
+        setMsgSender({ msgSender: sender });
         if (flow.isPaused(streamId)) {
             flow.restart(streamId, RATE_PER_SECOND);
         }
@@ -429,7 +429,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
     function _test_Refund(uint256 streamId, uint128 refundAmount) private {
         // Make sure the requirements are respected.
         address sender = flow.getSender(streamId);
-        resetPrank({ msgSender: sender });
+        setMsgSender({ msgSender: sender });
 
         // If the refundable amount less than 1, deposit some funds.
         if (flow.refundableAmountOf(streamId) <= 1) {
@@ -481,7 +481,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
     function _test_Restart(uint256 streamId, UD21x18 ratePerSecond) private {
         // Make sure the requirements are respected.
         address sender = flow.getSender(streamId);
-        resetPrank({ msgSender: sender });
+        setMsgSender({ msgSender: sender });
 
         if (!flow.isPaused(streamId)) {
             flow.pause(streamId);
@@ -522,7 +522,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         uint256 uncoveredDebt = flow.uncoveredDebtOf(streamId);
         uint256 expectedTotalDebt;
 
-        resetPrank({ msgSender: sender });
+        setMsgSender({ msgSender: sender });
 
         if (uncoveredDebt > 0) {
             expectedTotalDebt = flow.getBalance(streamId);

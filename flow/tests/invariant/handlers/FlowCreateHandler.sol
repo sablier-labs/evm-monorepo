@@ -140,7 +140,7 @@ contract FlowCreateHandler is BaseHandler {
         vm.assume(params.sender != address(this) && params.recipient != address(this));
 
         // Reset the caller.
-        resetPrank(params.sender);
+        setMsgSender(params.sender);
 
         uint8 decimals = IERC20Metadata(address(currentToken)).decimals();
 

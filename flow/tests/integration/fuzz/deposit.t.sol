@@ -46,7 +46,7 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Change prank to caller and deal some tokens to him.
         deal({ token: address(token), to: caller, give: depositAmount });
-        resetPrank(caller);
+        setMsgSender(caller);
 
         // Approve the flow contract to spend the token.
         token.approve(address(flow), depositAmount);

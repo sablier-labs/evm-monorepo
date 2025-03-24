@@ -21,7 +21,7 @@ contract TransferTokens_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Change the caller and fund him with some tokens.
         deal({ token: address(_usdt), to: caller, give: amount });
-        resetPrank(caller);
+        setMsgSender(caller);
 
         // Approve the flow contract to spend usdt.
         _usdt.approve(address(flow), amount);
@@ -51,7 +51,7 @@ contract TransferTokens_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Change the caller and fund him with some tokens.
         deal({ token: address(usdc), to: caller, give: amount });
-        resetPrank(caller);
+        setMsgSender(caller);
 
         // Approve the flow contract to spend usdc.
         usdc.approve(address(flow), amount);
