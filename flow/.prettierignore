@@ -1,5 +1,5 @@
 # directories
-.github/workflows
+.husky
 broadcast
 cache
 coverage

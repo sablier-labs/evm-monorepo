@@ -9,19 +9,19 @@ on:
   workflow_dispatch:
     inputs:
       integrationFuzzRuns:
-        default: '100000'
+        default: "100000"
         description: "Integration: number of fuzz runs."
         required: false
       invariantRuns:
-        default: '50000'
+        default: "50000"
         description: "Invariant runs: number of sequences of function calls generated and run."
         required: false
       invariantDepth:
-        default: '200'
+        default: "200"
         description: "Invariant depth: number of function calls made in a given run."
         required: false
       forkFuzzRuns:
-        default: '20'
+        default: "20"
         description: "Fork: number of fuzz runs."
         required: false
 
