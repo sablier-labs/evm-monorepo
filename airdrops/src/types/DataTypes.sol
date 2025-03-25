@@ -66,8 +66,7 @@ library MerkleLL {
 
     /// @notice Struct encapsulating the start time, cliff duration and the end duration used to construct the time
     /// variables in `Lockup.CreateWithTimestampsLL`.
-    /// @dev A start time value of zero will be considered as `block.timestamp`.
-    /// @param startTime The start time of the stream.
+    /// @param startTime The start time of the stream. Zero is a sentinel value for `block.timestamp`.
     /// @param startPercentage The percentage to be unlocked at the start time.
     /// @param cliffDuration The duration of the cliff.
     /// @param cliffPercentage The percentage to be unlocked at the cliff time.

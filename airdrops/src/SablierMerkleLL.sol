@@ -91,7 +91,7 @@ contract SablierMerkleLL is
 
         // Calculate the timestamps.
         Lockup.Timestamps memory timestamps;
-        // Zero is used as a sentinel value for `block.timestamp`.
+        // Zero is a sentinel value for `block.timestamp`.
         if (schedule.startTime == 0) {
             timestamps.start = uint40(block.timestamp);
         } else {

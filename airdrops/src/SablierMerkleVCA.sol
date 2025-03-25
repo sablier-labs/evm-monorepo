@@ -103,7 +103,7 @@ contract SablierMerkleVCA is
 
     /// @inheritdoc ISablierMerkleVCA
     function calculateClaimAmount(uint128 fullAmount, uint40 claimTime) external view returns (uint128) {
-        // Zero is used a sentinel value for `block.timestamp`.
+        // Zero is a sentinel value for `block.timestamp`.
         if (claimTime == 0) {
             claimTime = uint40(block.timestamp);
         }
@@ -119,7 +119,7 @@ contract SablierMerkleVCA is
 
     /// @inheritdoc ISablierMerkleVCA
     function calculateForgoneAmount(uint128 fullAmount, uint40 claimTime) external view returns (uint128) {
-        // Zero is used a sentinel value for `block.timestamp`.
+        // Zero is a sentinel value for `block.timestamp`.
         if (claimTime == 0) {
             claimTime = uint40(block.timestamp);
         }
