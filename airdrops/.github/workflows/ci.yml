@@ -34,7 +34,6 @@ jobs:
       match-path: "tests/integration/**/*.sol"
       name: "Integration tests"
 
-
   test-fork:
     needs: ["lint", "build"]
     secrets:

@@ -9,15 +9,15 @@ on:
   workflow_dispatch:
     inputs:
       unitFuzzRuns:
-        default: '50000'
+        default: "50000"
         description: "Unit: number of fuzz runs."
         required: false
       integrationFuzzRuns:
-        default: '50000'
+        default: "50000"
         description: "Integration: number of fuzz runs."
         required: false
       forkFuzzRuns:
-        default: '1000'
+        default: "1000"
         description: "Fork: number of fuzz runs."
         required: false
 
