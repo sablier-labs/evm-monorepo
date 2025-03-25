@@ -1,7 +1,9 @@
 printWidth: 120
-proseWrap: "always"
 trailingComma: "all"
 overrides:
   - files: "*.svg"
     options:
       parser: "html"
+  - files: "*.md"
+    options:
+      proseWrap: "always"
