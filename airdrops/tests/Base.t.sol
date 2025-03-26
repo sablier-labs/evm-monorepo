@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
-import { ud } from "@prb/math/src/UD60x18.sol";
+import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 import { LockupNFTDescriptor } from "@sablier/lockup/src/LockupNFTDescriptor.sol";
@@ -539,6 +539,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
     /// @dev Mirrors the logic from {SablierMerkleVCA._calculateClaimAmount}.
     function calculateMerkleVCAAmounts(
         uint128 fullAmount,
+        UD60x18 unlockPercentage,
         uint40 endTime,
         uint40 startTime
     )
@@ -546,14 +547,27 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         view
         returns (uint128 claimAmount, uint128 forgoneAmount)
     {
-        if (getBlockTimestamp() < endTime) {
-            uint40 elapsedTime = (getBlockTimestamp() - startTime);
-            uint40 totalTime = endTime - startTime;
+        uint40 blockTime = getBlockTimestamp();
+        if (blockTime < startTime) {
+            return (0, 0);
+        }
 
-            claimAmount = uint128((uint256(fullAmount) * elapsedTime) / totalTime);
+        uint128 unlockAmount = uint128(uint256(fullAmount) * unlockPercentage.unwrap() / 1e18);
+
+        if (blockTime == startTime) {
+            return (unlockAmount, fullAmount - unlockAmount);
+        }
+
+        if (blockTime < endTime) {
+            uint40 elapsedTime = (blockTime - startTime);
+            uint40 totalDuration = endTime - startTime;
+
+            uint256 remainderAmount = uint256(fullAmount - unlockAmount);
+            claimAmount = unlockAmount + uint128((remainderAmount * elapsedTime) / totalDuration);
             forgoneAmount = fullAmount - claimAmount;
         } else {
             claimAmount = fullAmount;
+            forgoneAmount = 0;
         }
     }
 
@@ -564,8 +578,9 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
                 endTime: VESTING_END_TIME,
                 expiration: EXPIRATION,
                 merkleRoot: MERKLE_ROOT,
-                startTime: VESTING_START_TIME,
-                tokenAddress: dai
+                startTime: VCA_START_TIME,
+                tokenAddress: dai,
+                unlockPercentage: VCA_UNLOCK_PERCENTAGE
             }),
             users.campaignCreator
         );
@@ -610,8 +625,9 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
             endTime: VESTING_END_TIME,
             expiration: expiration,
             merkleRoot: MERKLE_ROOT,
-            startTime: VESTING_START_TIME,
-            tokenAddress: dai
+            startTime: VCA_START_TIME,
+            tokenAddress: dai,
+            unlockPercentage: VCA_UNLOCK_PERCENTAGE
         });
     }
 
@@ -621,7 +637,8 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         uint40 expiration,
         bytes32 merkleRoot,
         uint40 startTime,
-        IERC20 tokenAddress
+        IERC20 tokenAddress,
+        UD60x18 unlockPercentage
     )
         public
         view
@@ -635,7 +652,8 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
             ipfsCID: IPFS_CID,
             merkleRoot: merkleRoot,
             startTime: startTime,
-            token: tokenAddress
+            token: tokenAddress,
+            unlockPercentage: unlockPercentage
         });
     }
 }

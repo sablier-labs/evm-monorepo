@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { UNIT } from "@prb/math/src/UD60x18.sol";
 import { ISablierFactoryMerkleVCA } from "src/interfaces/ISablierFactoryMerkleVCA.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -117,6 +118,25 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         createMerkleVCA(params);
     }
 
+    function test_RevertWhen_UnlockPercentageGreaterThan100()
+        external
+        whenNativeTokenNotFound
+        givenCampaignNotExists
+        whenStartTimeNotZero
+        whenEndTimeGreaterThanStartTime
+        whenNotZeroExpiration
+        whenExpirationExceedsOneWeekFromEndTime
+    {
+        MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
+        params.unlockPercentage = UNIT.add(UNIT);
+
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierMerkleVCA_UnlockPercentageTooHigh.selector, params.unlockPercentage)
+        );
+        createMerkleVCA(params);
+    }
+
     function test_GivenCustomFeeUSDSet()
         external
         whenNativeTokenNotFound
@@ -125,6 +145,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         whenEndTimeGreaterThanStartTime
         whenNotZeroExpiration
         whenExpirationExceedsOneWeekFromEndTime
+        whenUnlockPercentageNotGreaterThan100
     {
         // Set the custom fee to 0.
         uint256 customFeeUSD = 0;
@@ -159,10 +180,10 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should set the current factory address.
         assertEq(actualVCA.FACTORY(), address(factoryMerkleVCA), "factory");
 
-        // It should set return the correct start time.
+        // It should set the correct start time.
         assertEq(actualVCA.START_TIME(), VESTING_START_TIME, "vesting start time");
 
-        // It should set return the correct end time.
+        // It should set the correct end time.
         assertEq(actualVCA.END_TIME(), VESTING_END_TIME, "vesting end time");
     }
 
@@ -174,6 +195,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         whenEndTimeGreaterThanStartTime
         whenNotZeroExpiration
         whenExpirationExceedsOneWeekFromEndTime
+        whenUnlockPercentageNotGreaterThan100
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.campaignName = "Merkle VCA campaign with custom fee USD";
@@ -200,10 +222,10 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should set the current factory address.
         assertEq(actualVCA.FACTORY(), address(factoryMerkleVCA), "factory");
 
-        // It should set return the correct start time.
+        // It should set the correct start time.
         assertEq(actualVCA.START_TIME(), VESTING_START_TIME, "vesting start time");
 
-        // It should set return the correct end time.
+        // It should set the correct end time.
         assertEq(actualVCA.END_TIME(), VESTING_END_TIME, "vesting end time");
     }
 }

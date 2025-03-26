@@ -75,6 +75,11 @@ contract Shared_Fuzz_Test is Integration_Test {
             msgValue = bound(msgValue, merkleBase.calculateMinFeeWei(), 100 ether);
             vm.deal(caller, msgValue);
 
+            // If the claim amount for VCA airdrops is zero, skip this claim.
+            if (merkleBase == merkleVCA && merkleVCA.calculateClaimAmount(leafData.amount, getBlockTimestamp()) == 0) {
+                continue;
+            }
+
             // Call the expect claim event function, implemented by the child contract.
             expectClaimEvent(leafData);
 

@@ -133,6 +133,8 @@ library MerkleVCA {
     /// @param merkleRoot The Merkle root of the claim data.
     /// @param startTime Vesting start time, as a Unix timestamp. Zero is a sentinel value for `block.timestamp`.
     /// @param token The contract address of the ERC-20 token to be distributed.
+    /// @param unlockPercentage The percentage of the full amount that will unlock immediately at the start time,
+    /// denominated as fixed-point number where 1e18 is 100%.
     struct ConstructorParams {
         string campaignName;
         uint40 endTime;
@@ -142,5 +144,6 @@ library MerkleVCA {
         bytes32 merkleRoot;
         uint40 startTime;
         IERC20 token;
+        UD60x18 unlockPercentage;
     }
 }

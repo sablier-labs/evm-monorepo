@@ -104,8 +104,6 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         assertFalse(merkleBase.hasClaimed(vars.leafToClaim.index));
 
         vars.merkleProof = computeMerkleProof(vars.leafToClaim, vars.leaves);
-
-        vars.initialAdminBalance = factoryAdmin.balance;
         vars.minFeeWei = merkleBase.calculateMinFeeWei();
     }
 
@@ -137,6 +135,8 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function testCollectFees() internal {
+        vars.initialAdminBalance = factoryAdmin.balance;
+
         vm.expectEmit({ emitter: address(factoryMerkleBase) });
         emit ISablierFactoryMerkleBase.CollectFees({
             admin: factoryAdmin,

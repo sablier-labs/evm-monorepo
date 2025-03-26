@@ -19,15 +19,18 @@ CreateMerkleVCA_Integration_Test
                ├── when expiration not exceed one week from end time
                │  └── it should revert
                └── when expiration exceeds one week from end time
-                  ├── given custom fee USD set
-                  │  ├── it should create the campaign with custom fee USD
-                  │  ├── it should set the current factory address
-                  │  ├── it should set return the correct start time
-                  │  ├── it should set return the correct end time
-                  │  └── it should emit a {CreateMerkleVCA} event
-                  └── given custom fee USD not set
-                     ├── it should create the campaign with min fee USD
-                     ├── it should set the current factory address
-                     ├── it should set return the correct start time
-                     ├── it should set return the correct end time
-                     └── it should emit a {CreateMerkleVCA} event
+                  ├── when unlock percentage greater than 100
+                  │  └── it should revert
+                  └── when unlock percentage not greater than 100
+                     ├── given custom fee USD set
+                     │  ├── it should create the campaign with custom fee USD
+                     │  ├── it should set the current factory address
+                     │  ├── it should set the correct start time
+                     │  ├── it should set the correct end time
+                     │  └── it should emit a {CreateMerkleVCA} event
+                     └── given custom fee USD not set
+                        ├── it should create the campaign with min fee USD
+                        ├── it should set the current factory address
+                        ├── it should set the correct start time
+                        ├── it should set the correct end time
+                        └── it should emit a {CreateMerkleVCA} event

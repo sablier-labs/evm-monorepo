@@ -43,6 +43,7 @@ interface ISablierFactoryMerkleVCA is ISablierFactoryMerkleBase {
     /// claim.
     /// - `params.endTime` must be greater than `params.startTime`.
     /// - Both `params.startTime` and `params.endTime` must be greater than 0.
+    /// - `params.unlockPercentage` must not be greater than 1e18, equivalent to 100%.
     ///
     /// @param params Struct encapsulating the {SablierMerkleVCA} parameters, which are documented in {DataTypes}.
     /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.

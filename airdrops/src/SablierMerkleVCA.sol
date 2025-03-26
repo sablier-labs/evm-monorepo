@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { ud, UD60x18, uUNIT } from "@prb/math/src/UD60x18.sol";
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleVCA } from "./interfaces/ISablierMerkleVCA.sol";
@@ -44,6 +45,9 @@ contract SablierMerkleVCA is
 
     /// @inheritdoc ISablierMerkleVCA
     uint40 public immutable override START_TIME;
+
+    /// @inheritdoc ISablierMerkleVCA
+    UD60x18 public immutable override UNLOCK_PERCENTAGE;
 
     /// @inheritdoc ISablierMerkleVCA
     uint256 public override totalForgoneAmount;
@@ -90,11 +94,19 @@ contract SablierMerkleVCA is
             revert Errors.SablierMerkleVCA_ExpirationTooEarly({ endTime: params.endTime, expiration: params.expiration });
         }
 
+        // Check: unlock percentage is not greater than 100%.
+        if (params.unlockPercentage.unwrap() > uUNIT) {
+            revert Errors.SablierMerkleVCA_UnlockPercentageTooHigh(params.unlockPercentage);
+        }
+
         // Effect: set the end time.
         END_TIME = params.endTime;
 
         // Effect: set the start time.
         START_TIME = params.startTime;
+
+        // Effect: set the unlock percentage.
+        UNLOCK_PERCENTAGE = params.unlockPercentage;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -108,11 +120,6 @@ contract SablierMerkleVCA is
             claimTime = uint40(block.timestamp);
         }
 
-        // If claim time is not greater than start time, return 0.
-        if (claimTime <= START_TIME) {
-            return 0;
-        }
-
         // Calculate and return the claim amount.
         return _calculateClaimAmount(fullAmount, claimTime);
     }
@@ -124,9 +131,9 @@ contract SablierMerkleVCA is
             claimTime = uint40(block.timestamp);
         }
 
-        // If the claim time is not greater than start time, no amount can be forgone since the claim cannot be made, so
-        // we return 0.
-        if (claimTime <= START_TIME) {
+        // If the claim time is less than start time, no amount can be forgone since the claim cannot be made,
+        // so we return zero.
+        if (claimTime < START_TIME) {
             return 0;
         }
 
@@ -139,23 +146,38 @@ contract SablierMerkleVCA is
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _calculateClaimAmount(uint128 fullAmount, uint40 claimTime) internal view returns (uint128) {
-        // Calculate the claim amount.
-        uint40 elapsedTime;
-        uint40 totalDuration;
+        // If the claim time is less than start time, there's nothing to calculate, so we return zero.
+        if (claimTime < START_TIME) {
+            return 0;
+        }
 
-        // If the vesting period has ended, the claim amount is the full amount.
+        // Calculate the initial unlock amount.
+        uint128 unlockAmount = ud(fullAmount).mul(UNLOCK_PERCENTAGE).intoUint128();
+
+        // If the claim time is equal to the start time, return the initial unlock.
+        if (claimTime == START_TIME) {
+            return unlockAmount;
+        }
+
+        // If the vesting period has ended, the full amount can be claimed.
         if (claimTime >= END_TIME) {
             return fullAmount;
         }
         // Otherwise, calculate the claim amount based on the elapsed time.
         else {
+            uint40 elapsedTime;
+            uint40 totalDuration;
+
+            // Safe because overflows are prevented by the checks above.
             unchecked {
                 elapsedTime = claimTime - START_TIME;
                 totalDuration = END_TIME - START_TIME;
             }
 
-            // Safe to cast because the result in a value less than `fullAmount`, which is already an `uint128`.
-            return uint128((uint256(fullAmount) * elapsedTime) / totalDuration);
+            // Safe to cast because the result is less than `remainderAmount`, which fits within `uint128`.
+            uint256 remainderAmount = uint256(fullAmount - unlockAmount);
+            uint128 vestedAmount = uint128((remainderAmount * elapsedTime) / totalDuration);
+            return unlockAmount + vestedAmount;
         }
     }
 
@@ -165,15 +187,14 @@ contract SablierMerkleVCA is
 
     /// @inheritdoc SablierMerkleBase
     function _claim(uint256 index, address recipient, uint128 fullAmount) internal override {
-        uint40 blockTimestamp = uint40(block.timestamp);
+        // Calculate the claim amount.
+        uint128 claimAmount = _calculateClaimAmount(fullAmount, uint40(block.timestamp));
 
-        // Check: start time is in the past.
-        if (blockTimestamp <= START_TIME) {
-            revert Errors.SablierMerkleVCA_CampaignNotStarted(START_TIME);
+        // Check: the claim amount is not zero.
+        if (claimAmount == 0) {
+            revert Errors.SablierMerkleVCA_ClaimAmountZero(recipient);
         }
 
-        // Calculate the claim amount and the forgone amount.
-        uint128 claimAmount = _calculateClaimAmount(fullAmount, blockTimestamp);
         uint128 forgoneAmount;
 
         // Effect: update the total forgone amount.
@@ -183,7 +204,7 @@ contract SablierMerkleVCA is
                 totalForgoneAmount += forgoneAmount;
             }
         } else {
-            // Although the claim amount should never exceed the full amount, this assertion avoids excessive claiming
+            // Although the claim amount should never exceed the full amount, this assertion prevents excessive claiming
             // in case of a calculation error.
             assert(claimAmount == fullAmount);
         }

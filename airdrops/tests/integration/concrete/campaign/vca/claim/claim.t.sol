@@ -17,7 +17,7 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
         vm.warp({ newTimestamp: VESTING_START_TIME - 1 seconds });
 
         // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleVCA_CampaignNotStarted.selector, VESTING_START_TIME));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleVCA_ClaimAmountZero.selector, users.recipient1));
 
         // Claim the airdrop.
         merkleVCA.claim{ value: MIN_FEE_WEI }({
@@ -28,39 +28,25 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
         });
     }
 
+    function test_WhenStartTimeInPresent() external whenMerkleProofValid whenStartTimeNotInFuture {
+        // Forward in time so that the end time is in the past.
+        vm.warp({ newTimestamp: VCA_START_TIME });
+
+        _test_Claim(VCA_UNLOCK_AMOUNT);
+    }
+
     function test_WhenEndTimeInPast() external whenMerkleProofValid whenStartTimeNotInFuture {
         // Forward in time so that the end time is in the past.
         vm.warp({ newTimestamp: VESTING_END_TIME });
 
-        // It should emit a {Claim} event.
-        vm.expectEmit({ emitter: address(merkleVCA) });
-        emit ISablierMerkleVCA.Claim({
-            index: INDEX1,
-            recipient: users.recipient1,
-            claimAmount: VCA_FULL_AMOUNT,
-            forgoneAmount: 0
-        });
-
-        // It should transfer the full amount.
-        expectCallToTransfer({ to: users.recipient1, value: VCA_FULL_AMOUNT });
-        expectCallToClaimWithMsgValue(address(merkleVCA), MIN_FEE_WEI);
-
-        merkleVCA.claim{ value: MIN_FEE_WEI }({
-            index: 1,
-            recipient: users.recipient1,
-            amount: VCA_FULL_AMOUNT,
-            merkleProof: index1Proof()
-        });
-
-        // It should update the claimed status.
-        assertTrue(merkleVCA.hasClaimed(INDEX1), "not claimed");
-
-        // It should not update the total forgone amount.
-        assertEq(merkleVCA.totalForgoneAmount(), 0, "total forgone amount");
+        _test_Claim(VCA_FULL_AMOUNT);
     }
 
     function test_WhenEndTimeNotInPast() external whenMerkleProofValid whenStartTimeNotInFuture {
-        uint128 claimAmount = (VCA_FULL_AMOUNT * 2 days) / VESTING_TOTAL_DURATION;
+        _test_Claim(VCA_CLAIM_AMOUNT);
+    }
+
+    function _test_Claim(uint128 claimAmount) private {
         uint128 forgoneAmount = VCA_FULL_AMOUNT - claimAmount;
 
         // It should emit a {Claim} event.
@@ -77,7 +63,7 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
         expectCallToClaimWithMsgValue(address(merkleVCA), MIN_FEE_WEI);
 
         merkleVCA.claim{ value: MIN_FEE_WEI }({
-            index: 1,
+            index: INDEX1,
             recipient: users.recipient1,
             amount: VCA_FULL_AMOUNT,
             merkleProof: index1Proof()

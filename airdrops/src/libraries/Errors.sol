@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
+
 /// @title Errors
 /// @notice Library containing all custom errors the protocol may revert with.
 library Errors {
@@ -63,8 +65,8 @@ library Errors {
                                  SABLIER-MERKLE-VCA
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown while claiming when start time is in the future.
-    error SablierMerkleVCA_CampaignNotStarted(uint40 startTime);
+    /// @notice Thrown when the claim amount is zero.
+    error SablierMerkleVCA_ClaimAmountZero(address recipient);
 
     /// @notice Thrown if expiration time is within 1 week from the vesting end time.
     error SablierMerkleVCA_ExpirationTooEarly(uint40 endTime, uint40 expiration);
@@ -77,4 +79,7 @@ library Errors {
 
     /// @notice Thrown if the start time is zero.
     error SablierMerkleVCA_StartTimeZero();
+
+    /// @notice Thrown if the unlock percentage is greater than 100%.
+    error SablierMerkleVCA_UnlockPercentageTooHigh(UD60x18 unlockPercentage);
 }

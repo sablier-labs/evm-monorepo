@@ -2,7 +2,12 @@ Claim_MerkleVCA_Integration_Test
 └── when valid Merkle proof
    ├── when start time in future
    │  └── it should revert
-   └── when start time not in future
+   ├── when start time in present
+   │  ├── it should transfer the unlock amount
+   │  ├── it should update the claimed status
+   │  ├── it should update total forgone amount
+   │  └── it should emit a {Claim} event
+   └── when start time in past
       ├── when end time in past
       │  ├── it should transfer the full amount
       │  ├── it should update the claimed status

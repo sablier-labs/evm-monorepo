@@ -179,6 +179,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenUnlockPercentageNotGreaterThan100() {
+        _;
+    }
+
     modifier whenVestingEndTimeExceedsClaimTime() {
         _;
     }
