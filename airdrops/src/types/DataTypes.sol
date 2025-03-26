@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD2x18 } from "@prb/math/src/UD2x18.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
 library FactoryMerkle {
@@ -40,43 +41,39 @@ library MerkleLL {
     /// @dev The fields are arranged alphabetically.
     /// @param campaignName The name of the campaign.
     /// @param cancelable Indicates if the Lockup stream will be cancelable after claiming.
+    /// @param cliffDuration The cliff duration of the vesting stream, in seconds.
+    /// @param cliffUnlockPercentage The percentage of the claim amount due to be unlocked at the vesting cliff time, as
+    /// a fixed-point number where 1e18 is 100%
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
     /// not expire.
     /// @param initialAdmin The initial admin of the campaign.
     /// @param ipfsCID The content identifier for indexing the contract on IPFS.
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param merkleRoot The Merkle root of the claim data.
-    /// @param schedule Struct encapsulating the unlocks schedule, which are documented in {MerkleLL.Schedule}.
-    /// @param shape The shape of Lockup stream, which is used for differentiating between streams in the UI.
+    /// @param shape The shape of the vesting stream, used for differentiating between streams in the UI.
+    /// @param startTime The start time of the vesting stream, as a Unix timestamp. Zero is a sentinel value for
+    /// `block.timestamp`.
+    /// @param startUnlockPercentage The percentage of the claim amount due to be unlocked at the vesting start time, as
+    /// a fixed-point number where 1e18 is 100%.
     /// @param token The contract address of the ERC-20 token to be distributed.
+    /// @param totalDuration The total duration of the vesting stream, in seconds.
     /// @param transferable Indicates if the Lockup stream will be transferable after claiming.
     struct ConstructorParams {
         string campaignName;
         bool cancelable;
+        uint40 cliffDuration;
+        UD60x18 cliffUnlockPercentage;
         uint40 expiration;
         address initialAdmin;
         string ipfsCID;
         ISablierLockup lockup;
         bytes32 merkleRoot;
-        MerkleLL.Schedule schedule;
         string shape;
-        IERC20 token;
-        bool transferable;
-    }
-
-    /// @notice Struct encapsulating the start time, cliff duration and the end duration used to construct the time
-    /// variables in `Lockup.CreateWithTimestampsLL`.
-    /// @param startTime The start time of the stream. Zero is a sentinel value for `block.timestamp`.
-    /// @param startPercentage The percentage to be unlocked at the start time.
-    /// @param cliffDuration The duration of the cliff.
-    /// @param cliffPercentage The percentage to be unlocked at the cliff time.
-    /// @param totalDuration The total duration of the stream.
-    struct Schedule {
         uint40 startTime;
-        UD2x18 startPercentage;
-        uint40 cliffDuration;
-        UD2x18 cliffPercentage;
+        UD60x18 startUnlockPercentage;
+        IERC20 token;
         uint40 totalDuration;
+        bool transferable;
     }
 }
 
@@ -92,7 +89,7 @@ library MerkleLT {
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param merkleRoot The Merkle root of the claim data.
     /// @param shape The shape of Lockup stream, used for differentiating between streams in the  UI.
-    /// @param streamStartTime The start time of the streams created through {SablierMerkleLT._claim}.
+    /// @param streamStartTime The start time of the vesting streams, as a Unix timestamp.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param tranchesWithPercentages The tranches with their respective unlock percentages, which are documented in
     /// {MerkleLT.TrancheWithPercentage}.
@@ -129,12 +126,12 @@ library MerkleVCA {
     /// @notice Struct encapsulating the constructor parameters of Merkle VCA campaigns.
     /// @dev The fields are arranged alphabetically.
     /// @param campaignName The name of the campaign.
-    /// @param endTime Vesting end time.
+    /// @param endTime Vesting end time, as a Unix timestamp.
     /// @param expiration The expiration of the campaign, as a Unix timestamp.
     /// @param initialAdmin The initial admin of the campaign.
     /// @param ipfsCID The content identifier for indexing the contract on IPFS.
     /// @param merkleRoot The Merkle root of the claim data.
-    /// @param startTime Vesting start time.
+    /// @param startTime Vesting start time, as a Unix timestamp. Zero is a sentinel value for `block.timestamp`.
     /// @param token The contract address of the ERC-20 token to be distributed.
     struct ConstructorParams {
         string campaignName;

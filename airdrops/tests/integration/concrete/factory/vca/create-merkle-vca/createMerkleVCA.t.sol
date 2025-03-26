@@ -52,7 +52,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         // Set the end time to be less than the start time.
-        params.endTime = RANGED_STREAM_START_TIME - 1 seconds;
+        params.endTime = VESTING_START_TIME - 1 seconds;
 
         // It should revert.
         vm.expectRevert(
@@ -71,7 +71,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         // Set the end time equal to the start time.
-        params.endTime = RANGED_STREAM_START_TIME;
+        params.endTime = VESTING_START_TIME;
 
         // It should revert.
         vm.expectRevert(
@@ -106,7 +106,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         whenNotZeroExpiration
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
-        params.expiration = RANGED_STREAM_END_TIME + 1 weeks - 1 seconds;
+        params.expiration = VESTING_END_TIME + 1 weeks - 1 seconds;
 
         // It should revert.
         vm.expectRevert(
@@ -160,10 +160,10 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         assertEq(actualVCA.FACTORY(), address(factoryMerkleVCA), "factory");
 
         // It should set return the correct start time.
-        assertEq(actualVCA.START_TIME(), RANGED_STREAM_START_TIME, "vesting start time");
+        assertEq(actualVCA.START_TIME(), VESTING_START_TIME, "vesting start time");
 
         // It should set return the correct end time.
-        assertEq(actualVCA.END_TIME(), RANGED_STREAM_END_TIME, "vesting end time");
+        assertEq(actualVCA.END_TIME(), VESTING_END_TIME, "vesting end time");
     }
 
     function test_GivenCustomFeeUSDNotSet()
@@ -201,9 +201,9 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         assertEq(actualVCA.FACTORY(), address(factoryMerkleVCA), "factory");
 
         // It should set return the correct start time.
-        assertEq(actualVCA.START_TIME(), RANGED_STREAM_START_TIME, "vesting start time");
+        assertEq(actualVCA.START_TIME(), VESTING_START_TIME, "vesting start time");
 
         // It should set return the correct end time.
-        assertEq(actualVCA.END_TIME(), RANGED_STREAM_END_TIME, "vesting end time");
+        assertEq(actualVCA.END_TIME(), VESTING_END_TIME, "vesting end time");
     }
 }

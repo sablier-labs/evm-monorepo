@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleLL } from "src/SablierMerkleLL.sol";
-import { MerkleLL } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 
@@ -36,11 +35,18 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         assertEq(constructedLL.STREAM_TRANSFERABLE(), STREAM_TRANSFERABLE, "stream transferable");
 
         // SablierMerkleLL
-        MerkleLL.Schedule memory actualSchedule = constructedLL.getSchedule();
-        assertEq(actualSchedule.startTime, RANGED_STREAM_START_TIME, "schedule.startTime");
-        assertEq(actualSchedule.startPercentage, START_PERCENTAGE, "schedule.startPercentage");
-        assertEq(actualSchedule.cliffDuration, CLIFF_DURATION, "schedule.cliffDuration");
-        assertEq(actualSchedule.cliffPercentage, CLIFF_PERCENTAGE, "schedule.cliffPercentage");
-        assertEq(actualSchedule.totalDuration, TOTAL_DURATION, "schedule.totalDuration");
+        assertEq(constructedLL.VESTING_CLIFF_DURATION(), VESTING_CLIFF_DURATION, "vesting cliff duration");
+        assertEq(
+            constructedLL.VESTING_CLIFF_UNLOCK_PERCENTAGE(),
+            VESTING_CLIFF_UNLOCK_PERCENTAGE,
+            "vesting cliff unlock percentage"
+        );
+        assertEq(constructedLL.VESTING_START_TIME(), VESTING_START_TIME, "vesting start time");
+        assertEq(
+            constructedLL.VESTING_START_UNLOCK_PERCENTAGE(),
+            VESTING_START_UNLOCK_PERCENTAGE,
+            "vesting start unlock percentage"
+        );
+        assertEq(constructedLL.VESTING_TOTAL_DURATION(), VESTING_TOTAL_DURATION, "vesting total duration");
     }
 }

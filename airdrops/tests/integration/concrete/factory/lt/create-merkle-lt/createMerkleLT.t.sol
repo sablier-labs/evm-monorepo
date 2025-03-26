@@ -50,7 +50,7 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
             params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
-            totalDuration: TOTAL_DURATION,
+            totalDuration: VESTING_TOTAL_DURATION,
             minFeeUSD: customFeeUSD,
             oracle: address(oracle)
         });
@@ -76,7 +76,7 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
             params: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
-            totalDuration: TOTAL_DURATION,
+            totalDuration: VESTING_TOTAL_DURATION,
             minFeeUSD: MIN_FEE_USD,
             oracle: address(oracle)
         });

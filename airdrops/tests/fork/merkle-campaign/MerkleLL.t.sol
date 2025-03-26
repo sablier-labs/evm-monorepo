@@ -42,11 +42,12 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
 
         uint40 expectedStartTime;
 
-        // If the start time is not zero, bound it to a reasonable range so that schedule end time can be in the past,
-        // present and future.
+        // If the start time is not zero, bound it to a reasonable range so that end time can be in the past, present
+        // and future.
         if (startTime != 0) {
-            startTime =
-                boundUint40(startTime, getBlockTimestamp() - TOTAL_DURATION - 10 days, getBlockTimestamp() + 2 days);
+            startTime = boundUint40(
+                startTime, getBlockTimestamp() - VESTING_TOTAL_DURATION - 10 days, getBlockTimestamp() + 2 days
+            );
             expectedStartTime = startTime;
         } else {
             expectedStartTime = getBlockTimestamp();
@@ -93,8 +94,8 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
         uint256 expectedStreamId;
         uint256 initialRecipientTokenBalance = FORK_TOKEN.balanceOf(vars.leafToClaim.recipient);
 
-        // It should emit {Claim} event based on the schedule end time.
-        if (expectedStartTime + TOTAL_DURATION <= getBlockTimestamp()) {
+        // It should emit {Claim} event based on the end time.
+        if (expectedStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLL) });
             emit ISablierMerkleLockup.Claim(vars.leafToClaim.index, vars.leafToClaim.recipient, vars.leafToClaim.amount);
             expectCallToTransfer({ token: FORK_TOKEN, to: vars.leafToClaim.recipient, value: vars.leafToClaim.amount });
@@ -129,19 +130,19 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
             merkleProof: vars.merkleProof
         });
 
-        // Assertions when schedule end time does not exceed the block time.
-        if (expectedStartTime + TOTAL_DURATION <= getBlockTimestamp()) {
+        // Assertions when end time does not exceed the block time.
+        if (expectedStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             assertEq(
                 FORK_TOKEN.balanceOf(vars.leafToClaim.recipient),
                 initialRecipientTokenBalance + vars.leafToClaim.amount,
                 "recipient token balance"
             );
         }
-        // Assertions when schedule end time exceeds the block time.
+        // Assertions when end time exceeds the block time.
         else {
             LockupLinear.UnlockAmounts memory expectedUnlockAmounts = LockupLinear.UnlockAmounts({
-                start: ud60x18(vars.leafToClaim.amount).mul(START_PERCENTAGE.intoUD60x18()).intoUint128(),
-                cliff: ud60x18(vars.leafToClaim.amount).mul(CLIFF_PERCENTAGE.intoUD60x18()).intoUint128()
+                start: ud60x18(vars.leafToClaim.amount).mul(VESTING_START_UNLOCK_PERCENTAGE).intoUint128(),
+                cliff: ud60x18(vars.leafToClaim.amount).mul(VESTING_CLIFF_UNLOCK_PERCENTAGE).intoUint128()
             });
 
             Lockup.CreateWithTimestamps memory expectedLockup = Lockup.CreateWithTimestamps({
@@ -151,13 +152,13 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
                 token: FORK_TOKEN,
                 cancelable: STREAM_CANCELABLE,
                 transferable: STREAM_TRANSFERABLE,
-                timestamps: Lockup.Timestamps({ start: expectedStartTime, end: expectedStartTime + TOTAL_DURATION }),
+                timestamps: Lockup.Timestamps({ start: expectedStartTime, end: expectedStartTime + VESTING_TOTAL_DURATION }),
                 shape: STREAM_SHAPE
             });
 
             // Assert that the stream has been created successfully.
             assertEq(lockup, expectedStreamId, expectedLockup);
-            assertEq(lockup.getCliffTime(expectedStreamId), expectedStartTime + CLIFF_DURATION, "cliff time");
+            assertEq(lockup.getCliffTime(expectedStreamId), expectedStartTime + VESTING_CLIFF_DURATION, "cliff time");
             assertEq(lockup.getLockupModel(expectedStreamId), Lockup.Model.LOCKUP_LINEAR);
             assertEq(lockup.getUnlockAmounts(expectedStreamId), expectedUnlockAmounts);
 

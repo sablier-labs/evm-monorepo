@@ -18,7 +18,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
     function test_WhenVestingEndTimeNotExceedClaimTime() external whenMerkleProofValid {
         // Forward in time to the end of the vesting period.
-        vm.warp({ newTimestamp: RANGED_STREAM_END_TIME });
+        vm.warp({ newTimestamp: VESTING_END_TIME });
 
         uint256 expectedRecipientBalance = dai.balanceOf(users.recipient1) + CLAIM_AMOUNT;
 
@@ -105,7 +105,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         whenTotalPercentage100
     {
         // It should create a ranged stream with provided start time.
-        _test_Claim({ streamStartTime: RANGED_STREAM_START_TIME, startTime: RANGED_STREAM_START_TIME });
+        _test_Claim({ streamStartTime: VESTING_START_TIME, startTime: VESTING_START_TIME });
     }
 
     /// @dev Helper function to test claim.
@@ -127,11 +127,11 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         // Assert that the stream has been created successfully.
         assertEq(lockup.getDepositedAmount(expectedStreamId), CLAIM_AMOUNT, "depositedAmount");
-        assertEq(lockup.getEndTime(expectedStreamId), startTime + TOTAL_DURATION, "end time");
+        assertEq(lockup.getEndTime(expectedStreamId), startTime + VESTING_TOTAL_DURATION, "end time");
         assertEq(lockup.getRecipient(expectedStreamId), users.recipient1, "recipient");
         assertEq(lockup.getSender(expectedStreamId), users.campaignCreator, "sender");
         assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
-        // It should create a stream with `RANGED_STREAM_START_TIME` as start time.
+        // It should create a stream with `VESTING_START_TIME` as start time.
         assertEq(
             lockup.getTranches(expectedStreamId),
             tranchesMerkleLT({ streamStartTime: streamStartTime, totalAmount: CLAIM_AMOUNT })

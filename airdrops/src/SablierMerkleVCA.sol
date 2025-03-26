@@ -72,7 +72,7 @@ contract SablierMerkleVCA is
             revert Errors.SablierMerkleVCA_StartTimeZero();
         }
 
-        // Check: vesting end time is greater than the schedule start time.
+        // Check: vesting end time is greater than the vesting start time.
         if (params.endTime <= params.startTime) {
             revert Errors.SablierMerkleVCA_EndTimeNotGreaterThanStartTime({
                 startTime: params.startTime,

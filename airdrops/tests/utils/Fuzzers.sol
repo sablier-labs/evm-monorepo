@@ -36,12 +36,11 @@ abstract contract Fuzzers is Modifiers, PRBMathUtils {
     {
         uint256 upperBoundDuration;
 
-        // Set upper bound based on the start time. A start time of 0 means block timestamp.
+        // Set upper bound based on the vesting start time. Zero is a sentinel value for `block.timestamp`.
         if (startTime == 0) {
-            upperBoundDuration = (MAX_UNIX_TIMESTAMP - getBlockTimestamp()) / tranches.length;
-        } else {
-            upperBoundDuration = (MAX_UNIX_TIMESTAMP - startTime) / tranches.length;
+            startTime = getBlockTimestamp();
         }
+        upperBoundDuration = (MAX_UNIX_TIMESTAMP - startTime) / tranches.length;
 
         uint64 upperBoundPercentage = 1e18;
 

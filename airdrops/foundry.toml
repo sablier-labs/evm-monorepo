@@ -29,9 +29,8 @@
 
 # Speed up compilation and tests during development
 [profile.lite]
-  optimizer = false
   fuzz.runs = 50
-  
+
 # Compile only the production code and the test mocks with via IR
 [profile.optimized]
   out = "out-optimized"

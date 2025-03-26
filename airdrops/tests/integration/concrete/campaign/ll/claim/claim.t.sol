@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ud2x18 } from "@prb/math/src/UD2x18.sol";
-import { ud60x18 } from "@prb/math/src/UD60x18.sol";
+import { ud, ZERO } from "@prb/math/src/UD60x18.sol";
 import { Errors as LockupErrors } from "@sablier/lockup/src/libraries/Errors.sol";
 import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
 
@@ -19,7 +18,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
     function test_WhenVestingEndTimeNotExceedClaimTime() external whenMerkleProofValid {
         // Forward in time to the end of the vesting period.
-        vm.warp({ newTimestamp: RANGED_STREAM_END_TIME });
+        vm.warp({ newTimestamp: VESTING_END_TIME });
 
         uint256 expectedRecipientBalance = dai.balanceOf(users.recipient1) + CLAIM_AMOUNT;
 
@@ -44,12 +43,12 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
 
         // Crate a MerkleLL campaign with a total percentage greater than 100.
-        params.schedule.startPercentage = ud2x18(0.5e18);
-        params.schedule.cliffPercentage = ud2x18(0.6e18);
+        params.startUnlockPercentage = ud(0.5e18);
+        params.cliffUnlockPercentage = ud(0.6e18);
 
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
-        uint128 startUnlockAmount = ud60x18(CLAIM_AMOUNT).mul(ud60x18(0.5e18)).intoUint128();
-        uint128 cliffUnlockAmount = ud60x18(CLAIM_AMOUNT).mul(ud60x18(0.6e18)).intoUint128();
+        uint128 startUnlockAmount = ud(CLAIM_AMOUNT).mul(ud(0.5e18)).intoUint128();
+        uint128 cliffUnlockAmount = ud(CLAIM_AMOUNT).mul(ud(0.6e18)).intoUint128();
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -69,49 +68,49 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         });
     }
 
-    function test_WhenScheduledStartTimeZero()
+    function test_WhenStartTimeZero()
         external
         whenMerkleProofValid
         whenVestingEndTimeExceedsClaimTime
         whenTotalPercentageNotGreaterThan100
     {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
-        params.schedule.startTime = 0;
+        params.startTime = 0;
 
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
         // It should create a stream with block.timestamp as start time.
-        _test_Claim({ startTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + CLIFF_DURATION });
+        _test_Claim({ startTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + VESTING_CLIFF_DURATION });
     }
 
-    function test_WhenScheduledCliffDurationZero()
+    function test_WhenCliffDurationZero()
         external
         whenMerkleProofValid
         whenVestingEndTimeExceedsClaimTime
         whenTotalPercentageNotGreaterThan100
-        whenScheduledStartTimeNotZero
+        whenStartTimeNotZero
     {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
-        params.schedule.cliffDuration = 0;
-        params.schedule.cliffPercentage = ud2x18(0);
+        params.cliffDuration = 0;
+        params.cliffUnlockPercentage = ZERO;
 
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
         // It should create a stream with block.timestamp as start time.
         // It should create a stream with cliff as zero.
-        _test_Claim({ startTime: RANGED_STREAM_START_TIME, cliffTime: 0 });
+        _test_Claim({ startTime: VESTING_START_TIME, cliffTime: 0 });
     }
 
-    function test_WhenScheduledCliffDurationNotZero()
+    function test_WhenCliffDurationNotZero()
         external
         whenMerkleProofValid
         whenVestingEndTimeExceedsClaimTime
         whenTotalPercentageNotGreaterThan100
-        whenScheduledStartTimeNotZero
+        whenStartTimeNotZero
     {
         // It should create a stream with block.timestamp as start time.
         // It should create a stream with cliff as start time + cliff duration.
-        _test_Claim({ startTime: RANGED_STREAM_START_TIME, cliffTime: RANGED_STREAM_START_TIME + CLIFF_DURATION });
+        _test_Claim({ startTime: VESTING_START_TIME, cliffTime: VESTING_START_TIME + VESTING_CLIFF_DURATION });
     }
 
     /// @dev Helper function to test claim.
@@ -131,18 +130,18 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         // Claim the airstream.
         merkleLL.claim{ value: MIN_FEE_WEI }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
 
-        uint128 expectedCliffAmount = cliffTime > 0 ? CLIFF_AMOUNT : 0;
+        uint128 expectedUnlockCliffAmount = cliffTime > 0 ? CLIFF_AMOUNT : 0;
 
         // Assert that the stream has been created successfully.
-        assertEq(lockup.getCliffTime(expectedStreamId), cliffTime, "cliff time");
+        assertEq(lockup.getCliffTime(expectedStreamId), cliffTime, "vesting cliff time");
         assertEq(lockup.getDepositedAmount(expectedStreamId), CLAIM_AMOUNT, "depositedAmount");
-        assertEq(lockup.getEndTime(expectedStreamId), startTime + TOTAL_DURATION, "end time");
+        assertEq(lockup.getEndTime(expectedStreamId), startTime + VESTING_TOTAL_DURATION, "end time");
         assertEq(lockup.getRecipient(expectedStreamId), users.recipient1, "recipient");
         assertEq(lockup.getSender(expectedStreamId), users.campaignCreator, "sender");
         assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
         assertEq(lockup.getUnderlyingToken(expectedStreamId), dai, "token");
-        assertEq(lockup.getUnlockAmounts(expectedStreamId).cliff, expectedCliffAmount, "unlock amount cliff");
-        assertEq(lockup.getUnlockAmounts(expectedStreamId).start, START_AMOUNT, "unlock amount start");
+        assertEq(lockup.getUnlockAmounts(expectedStreamId).cliff, expectedUnlockCliffAmount, "unlock cliff amount");
+        assertEq(lockup.getUnlockAmounts(expectedStreamId).start, UNLOCK_START_AMOUNT, "unlock start amount");
         assertEq(lockup.isCancelable(expectedStreamId), STREAM_CANCELABLE, "is cancelable");
         assertEq(lockup.isDepleted(expectedStreamId), false, "is depleted");
         assertEq(lockup.isStream(expectedStreamId), true, "is stream");

@@ -312,7 +312,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
                 expiration: EXPIRATION,
                 lockupAddress: lockup,
                 merkleRoot: MERKLE_ROOT,
-                startTime: RANGED_STREAM_START_TIME,
+                startTime: VESTING_START_TIME,
                 tokenAddress: dai
             }),
             users.campaignCreator
@@ -358,7 +358,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
             expiration: expiration,
             lockupAddress: lockup,
             merkleRoot: MERKLE_ROOT,
-            startTime: RANGED_STREAM_START_TIME,
+            startTime: VESTING_START_TIME,
             tokenAddress: dai
         });
     }
@@ -378,20 +378,18 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         return MerkleLL.ConstructorParams({
             campaignName: CAMPAIGN_NAME,
             cancelable: STREAM_CANCELABLE,
+            cliffDuration: VESTING_CLIFF_DURATION,
+            cliffUnlockPercentage: VESTING_CLIFF_UNLOCK_PERCENTAGE,
             expiration: expiration,
             initialAdmin: campaignCreator,
             ipfsCID: IPFS_CID,
             lockup: lockupAddress,
             merkleRoot: merkleRoot,
-            schedule: MerkleLL.Schedule({
-                startTime: startTime,
-                startPercentage: START_PERCENTAGE,
-                cliffDuration: CLIFF_DURATION,
-                cliffPercentage: CLIFF_PERCENTAGE,
-                totalDuration: TOTAL_DURATION
-            }),
+            startUnlockPercentage: VESTING_START_UNLOCK_PERCENTAGE,
+            startTime: startTime,
             shape: STREAM_SHAPE,
             token: tokenAddress,
+            totalDuration: VESTING_TOTAL_DURATION,
             transferable: STREAM_TRANSFERABLE
         });
     }
@@ -407,7 +405,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
                 expiration: EXPIRATION,
                 lockupAddress: lockup,
                 merkleRoot: MERKLE_ROOT,
-                startTime: RANGED_STREAM_START_TIME,
+                startTime: VESTING_START_TIME,
                 tokenAddress: dai
             }),
             users.campaignCreator
@@ -464,7 +462,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
             expiration: expiration,
             lockupAddress: lockup,
             merkleRoot: MERKLE_ROOT,
-            startTime: RANGED_STREAM_START_TIME,
+            startTime: VESTING_START_TIME,
             tokenAddress: dai
         });
     }
@@ -514,11 +512,11 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
     {
         tranches_ = new LockupTranched.Tranche[](2);
         if (streamStartTime == 0) {
-            tranches_[0].timestamp = uint40(block.timestamp) + CLIFF_DURATION;
-            tranches_[1].timestamp = uint40(block.timestamp) + TOTAL_DURATION;
+            tranches_[0].timestamp = getBlockTimestamp() + VESTING_CLIFF_DURATION;
+            tranches_[1].timestamp = getBlockTimestamp() + VESTING_TOTAL_DURATION;
         } else {
-            tranches_[0].timestamp = streamStartTime + CLIFF_DURATION;
-            tranches_[1].timestamp = streamStartTime + TOTAL_DURATION;
+            tranches_[0].timestamp = streamStartTime + VESTING_CLIFF_DURATION;
+            tranches_[1].timestamp = streamStartTime + VESTING_TOTAL_DURATION;
         }
 
         uint128 amount0 = ud(totalAmount).mul(ud(0.2e18)).intoUint128();
@@ -563,10 +561,10 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         return computeMerkleVCAAddress(
             merkleVCAConstructorParams({
                 campaignCreator: users.campaignCreator,
-                endTime: VCA_END_TIME,
+                endTime: VESTING_END_TIME,
                 expiration: EXPIRATION,
                 merkleRoot: MERKLE_ROOT,
-                startTime: VCA_START_TIME,
+                startTime: VESTING_START_TIME,
                 tokenAddress: dai
             }),
             users.campaignCreator
@@ -609,10 +607,10 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
     function merkleVCAConstructorParams(uint40 expiration) public view returns (MerkleVCA.ConstructorParams memory) {
         return merkleVCAConstructorParams({
             campaignCreator: users.campaignCreator,
-            endTime: VCA_END_TIME,
+            endTime: VESTING_END_TIME,
             expiration: expiration,
             merkleRoot: MERKLE_ROOT,
-            startTime: VCA_START_TIME,
+            startTime: VESTING_START_TIME,
             tokenAddress: dai
         });
     }

@@ -282,6 +282,6 @@ abstract contract SablierMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev This function is implemented by child contracts, so the logic varies with the airdrop model. This is where
-    /// the tokens are transferred to the recipient, or a vesting stream is created.
+    /// the tokens are either transferred to the recipient or a vesting stream is created.
     function _claim(uint256 index, address recipient, uint128 amount) internal virtual;
 }

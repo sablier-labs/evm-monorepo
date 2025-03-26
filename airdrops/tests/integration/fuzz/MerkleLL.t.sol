@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ud2x18 } from "@prb/math/src/UD2x18.sol";
+import { UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierFactoryMerkleLL } from "src/interfaces/ISablierFactoryMerkleLL.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
@@ -31,20 +31,25 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Fuzzed custom fee.
-    /// - MerkleLL campaign with fuzzed leaves data, expiration, and unlock schedule.
+    /// - MerkleLL campaign with fuzzed leaves data, expiration, start time, start unlock, cliff duration, cliff unlock
+    /// percentage,  percentage and total duration.
     /// - Both finite (only in future) and infinite expiration.
     /// - Claiming multiple airdrops with fuzzed claim fee at different point in time.
     /// - Fuzzed clawback amount.
     /// - Collect fees earned.
     function testFuzz_MerkleLL(
         uint128 clawbackAmount,
+        uint40 cliffDuration,
+        UD60x18 cliffUnlockPercentage,
         bool enableCustomFee,
         uint40 expiration,
         uint256 feeForUser,
         uint256[] memory indexesToClaim,
         uint256 msgValue,
         LeafData[] memory rawLeavesData,
-        MerkleLL.Schedule memory schedule
+        uint40 startTime,
+        UD60x18 startUnlockPercentage,
+        uint40 totalDuration
     )
         external
     {
@@ -56,7 +61,17 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         feeForUser = enableCustomFee ? testSetCustomFeeUSD(feeForUser) : MIN_FEE_USD;
 
         // Test creating the MerkleLL campaign.
-        _testCreateMerkleLL(aggregateAmount, expiration_, feeForUser, merkleRoot, schedule);
+        _testCreateMerkleLL(
+            aggregateAmount,
+            cliffDuration,
+            cliffUnlockPercentage,
+            expiration_,
+            feeForUser,
+            merkleRoot,
+            startTime,
+            startUnlockPercentage,
+            totalDuration
+        );
 
         // Test claiming the airdrop for the given indexes.
         testClaimMultipleAirdrops(indexesToClaim, msgValue);
@@ -74,42 +89,48 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
 
     function _testCreateMerkleLL(
         uint256 aggregateAmount,
+        uint40 cliffDuration,
+        UD60x18 cliffUnlockPercentage,
         uint40 expiration,
         uint256 feeForUser,
         bytes32 merkleRoot,
-        MerkleLL.Schedule memory schedule
+        uint40 startTime,
+        UD60x18 startUnlockPercentage,
+        uint40 totalDuration
     )
         private
         givenCampaignNotExists
         whenTotalPercentageNotGreaterThan100
     {
         // Bound the start time.
-        schedule.startTime = boundUint40(schedule.startTime, 0, MAX_UNIX_TIMESTAMP - 1);
+        startTime = boundUint40(startTime, 0, MAX_UNIX_TIMESTAMP - 1);
 
         // Expected start time is the start time if it is set, otherwise the current block time.
-        uint40 expectedStartTime = schedule.startTime == 0 ? getBlockTimestamp() : schedule.startTime;
+        uint40 expectedStartTime = startTime == 0 ? getBlockTimestamp() : startTime;
 
         // Bound cliff duration so that it does not overflow timestamps.
-        schedule.cliffDuration = boundUint40(schedule.cliffDuration, 0, MAX_UNIX_TIMESTAMP - expectedStartTime - 1);
+        cliffDuration = boundUint40(cliffDuration, 0, MAX_UNIX_TIMESTAMP - expectedStartTime - 1);
 
         // Bound the total duration so that the end time to be greater than the cliff time.
-        schedule.totalDuration =
-            boundUint40(schedule.totalDuration, schedule.cliffDuration + 1, MAX_UNIX_TIMESTAMP - expectedStartTime);
+        totalDuration = boundUint40(totalDuration, cliffDuration + 1, MAX_UNIX_TIMESTAMP - expectedStartTime);
 
         // Bound unlock percentages so that the sum does not exceed 100%.
-        schedule.startPercentage = _bound(schedule.startPercentage, 0, 1e18);
+        startUnlockPercentage = _bound(startUnlockPercentage, 0, 1e18);
 
         // Bound cliff percentage so that the sum does not exceed 100% and is 0 if cliff duration is 0.
-        schedule.cliffPercentage = schedule.cliffDuration > 0
-            ? _bound(schedule.cliffPercentage, 0, 1e18 - schedule.startPercentage.unwrap())
-            : ud2x18(0);
+        cliffUnlockPercentage =
+            cliffDuration > 0 ? _bound(cliffUnlockPercentage, 0, 1e18 - startUnlockPercentage.unwrap()) : ZERO;
 
         // Set campaign creator as the caller.
         setMsgSender(users.campaignCreator);
 
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams(expiration);
-        params.schedule = schedule;
+        params.cliffDuration = cliffDuration;
+        params.cliffUnlockPercentage = cliffUnlockPercentage;
+        params.startTime = startTime;
+        params.startUnlockPercentage = startUnlockPercentage;
         params.merkleRoot = merkleRoot;
+        params.totalDuration = totalDuration;
 
         // Precompute the deterministic address.
         address expectedMerkleLL = computeMerkleLLAddress(params, users.campaignCreator);
@@ -135,8 +156,12 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         // It should return false for hasExpired.
         assertFalse(merkleLL.hasExpired(), "isExpired");
 
-        // It should return the correct unlock schedule.
-        assertEq(merkleLL.getSchedule(), schedule);
+        // It should return the correct contract state.
+        assertEq(merkleLL.VESTING_CLIFF_DURATION(), cliffDuration, "vesting cliff duration");
+        assertEq(merkleLL.VESTING_CLIFF_UNLOCK_PERCENTAGE(), cliffUnlockPercentage, "vesting cliff unlock percentage");
+        assertEq(merkleLL.VESTING_START_TIME(), startTime, "vesting start time");
+        assertEq(merkleLL.VESTING_START_UNLOCK_PERCENTAGE(), startUnlockPercentage, "vesting start unlock percentage");
+        assertEq(merkleLL.VESTING_TOTAL_DURATION(), totalDuration, "vesting total duration");
 
         // Fund the MerkleLL contract.
         deal({ token: address(dai), to: address(merkleLL), give: aggregateAmount });
@@ -150,18 +175,18 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function expectClaimEvent(LeafData memory leafData) internal override {
-        // It should emit {Claim} event based on the schedule end time.
-        MerkleLL.Schedule memory schedule = merkleLL.getSchedule();
-        uint40 expectedStartTime = schedule.startTime == 0 ? getBlockTimestamp() : schedule.startTime;
+        // It should emit {Claim} event based on the end time.
+        uint40 expectedVestingStartTime =
+            merkleLL.VESTING_START_TIME() == 0 ? getBlockTimestamp() : merkleLL.VESTING_START_TIME();
 
         // If the vesting has ended, the claim should be transferred directly to the recipient.
-        if (expectedStartTime + schedule.totalDuration <= getBlockTimestamp()) {
+        if (expectedVestingStartTime + merkleLL.VESTING_TOTAL_DURATION() <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLL) });
             emit ISablierMerkleLockup.Claim(leafData.index, leafData.recipient, leafData.amount);
 
             expectCallToTransfer({ token: dai, to: leafData.recipient, value: leafData.amount });
         }
-        // Otherwise, the claim should be transferred to the lockup contract.
+        // Otherwise, the claim should be made via a Lockup stream.
         else {
             uint256 expectedStreamId = lockup.nextStreamId();
             vm.expectEmit({ emitter: address(merkleLL) });

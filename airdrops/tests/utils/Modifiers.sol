@@ -159,10 +159,6 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenScheduledStartTimeNotZero() {
-        _;
-    }
-
     modifier whenStartTimeNotInFuture() {
         _;
     }

@@ -44,8 +44,9 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
         // If the start time is not zero, bound it to a reasonable range so that schedule end time can be in the past,
         // present and future.
         if (startTime != 0) {
-            startTime =
-                boundUint40(startTime, getBlockTimestamp() - TOTAL_DURATION - 10 days, getBlockTimestamp() + 2 days);
+            startTime = boundUint40(
+                startTime, getBlockTimestamp() - VESTING_TOTAL_DURATION - 10 days, getBlockTimestamp() + 2 days
+            );
             expectedStartTime = startTime;
         } else {
             expectedStartTime = getBlockTimestamp();
@@ -71,7 +72,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
             params: constructorParams,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.leavesData.length,
-            totalDuration: TOTAL_DURATION,
+            totalDuration: VESTING_TOTAL_DURATION,
             minFeeUSD: vars.minFeeUSD,
             oracle: vars.oracle
         });
@@ -94,7 +95,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
         uint256 initialRecipientTokenBalance = FORK_TOKEN.balanceOf(vars.leafToClaim.recipient);
 
         // It should emit {Claim} event based on the schedule end time.
-        if (expectedStartTime + TOTAL_DURATION <= getBlockTimestamp()) {
+        if (expectedStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLT) });
             emit ISablierMerkleLockup.Claim(vars.leafToClaim.index, vars.leafToClaim.recipient, vars.leafToClaim.amount);
             expectCallToTransfer({ token: FORK_TOKEN, to: vars.leafToClaim.recipient, value: vars.leafToClaim.amount });
@@ -123,15 +124,15 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
             merkleProof: vars.merkleProof
         });
 
-        // Assertions when schedule end time does not exceed the block time.
-        if (expectedStartTime + TOTAL_DURATION <= getBlockTimestamp()) {
+        // Assertions when vesting end time does not exceed the block time.
+        if (expectedStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             assertEq(
                 FORK_TOKEN.balanceOf(vars.leafToClaim.recipient),
                 initialRecipientTokenBalance + vars.leafToClaim.amount,
                 "recipient balance"
             );
         }
-        // Assertions when schedule end time exceeds the block time.
+        // Assertions when vesting end time exceeds the block time.
         else {
             Lockup.CreateWithTimestamps memory expectedLockup = Lockup.CreateWithTimestamps({
                 sender: params.campaignCreator,
@@ -140,7 +141,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
                 token: FORK_TOKEN,
                 cancelable: STREAM_CANCELABLE,
                 transferable: STREAM_TRANSFERABLE,
-                timestamps: Lockup.Timestamps({ start: expectedStartTime, end: expectedStartTime + TOTAL_DURATION }),
+                timestamps: Lockup.Timestamps({ start: expectedStartTime, end: expectedStartTime + VESTING_TOTAL_DURATION }),
                 shape: STREAM_SHAPE
             });
 

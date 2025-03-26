@@ -38,7 +38,7 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         assertEq(constructedLT.STREAM_TRANSFERABLE(), STREAM_TRANSFERABLE, "stream transferable");
 
         // SablierMerkleLT
-        assertEq(constructedLT.STREAM_START_TIME(), RANGED_STREAM_START_TIME, "stream start time");
+        assertEq(constructedLT.STREAM_START_TIME(), VESTING_START_TIME, "stream start time");
         assertEq(constructedLT.TOTAL_PERCENTAGE(), TOTAL_PERCENTAGE, "totalPercentage");
         assertEq(constructedLT.getTranchesWithPercentages(), params.tranchesWithPercentages);
     }
