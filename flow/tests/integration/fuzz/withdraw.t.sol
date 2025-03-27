@@ -101,7 +101,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the withdraw amount between the allowed range.
         withdrawAmount = boundUint128(withdrawAmount, 1, flow.withdrawableAmountOf(streamId));
 
-        vars.previousAggregateAmount = flow.aggregateBalance(token);
+        vars.previousAggregateAmount = flow.aggregateAmount(token);
         vars.previousTokenBalance = token.balanceOf(address(flow));
         vars.previousOngoingDebtScaled = flow.totalDebtOf(streamId);
         vars.previousTotalDebt = getDescaledAmount(
@@ -153,7 +153,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "token balance");
 
         // Assert that aggregate amount has been updated.
-        vars.actualAggregateAmount = flow.aggregateBalance(token);
+        vars.actualAggregateAmount = flow.aggregateAmount(token);
         vars.expectedAggregateAmount = vars.previousAggregateAmount - withdrawAmount;
         assertEq(vars.actualAggregateAmount, vars.expectedAggregateAmount, "aggregate amount");
     }

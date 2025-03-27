@@ -31,7 +31,7 @@ contract Recover_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function test_WhenTokenBalanceExceedAggregateAmount() external whenCallerAdmin {
-        assertEq(usdc.balanceOf(address(flow)), surplusAmount + flow.aggregateBalance(usdc));
+        assertEq(usdc.balanceOf(address(flow)), surplusAmount + flow.aggregateAmount(usdc));
 
         // It should emit {Recover} and {Transfer} events.
         vm.expectEmit({ emitter: address(usdc) });
@@ -43,6 +43,6 @@ contract Recover_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         flow.recover(usdc, users.admin);
 
         // It should lead to token balance same as aggregate amount.
-        assertEq(usdc.balanceOf(address(flow)), flow.aggregateBalance(usdc));
+        assertEq(usdc.balanceOf(address(flow)), flow.aggregateAmount(usdc));
     }
 }

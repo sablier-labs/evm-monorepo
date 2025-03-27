@@ -123,8 +123,8 @@ contract FlowCreateHandler is BaseHandler {
         // Store the stream id and rate per second.
         flowStore.initStreamId(streamId, params.ratePerSecond, params.startTime);
 
-        // Store the deposited amount.
-        flowStore.updateStreamDepositedAmountsSum(streamId, currentToken, params.depositAmount);
+        // Store the deposit totals.
+        flowStore.updateTotalDeposits(streamId, currentToken, params.depositAmount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

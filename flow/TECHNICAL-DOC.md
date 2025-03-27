@@ -61,7 +61,7 @@ can only withdraw the available balance.
    - token.balanceOf(SablierFlow) $`\ge \sum`$ stream balances
    - $\sum$ stream balances = $\sum$ deposited amount - $\sum$ refunded amount - $\sum$ withdrawn amount
 
-2. for any token, token.balanceOf(SablierFlow) $\ge$ flow.aggregateBalance(token)
+2. for any token, token.balanceOf(SablierFlow) $\ge$ flow.aggregateAmount(token)
 
 3. for any non-voided stream the snapshot time should never decrease
 

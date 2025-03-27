@@ -59,7 +59,7 @@ contract FlowAdminHandler is BaseHandler {
         useFuzzedToken(tokenIndex)
         setCallerAdmin
     {
-        vm.assume(currentToken.balanceOf(address(flow)) > flow.aggregateBalance(currentToken));
+        vm.assume(currentToken.balanceOf(address(flow)) > flow.aggregateAmount(currentToken));
 
         flow.recover(currentToken, flow.admin());
     }

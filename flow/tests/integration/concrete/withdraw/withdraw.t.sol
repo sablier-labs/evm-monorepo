@@ -326,7 +326,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
     function _test_Withdraw(uint256 streamId, address to, uint128 withdrawAmount) private {
         vars.token = flow.getToken(streamId);
         vars.previousTokenBalance = vars.token.balanceOf(address(flow));
-        vars.previousAggregateAmount = flow.aggregateBalance(vars.token);
+        vars.previousAggregateAmount = flow.aggregateAmount(vars.token);
         vars.previousStreamBalance = flow.getBalance(streamId);
         vars.previousTotalDebt = flow.totalDebtOf(streamId);
 
@@ -363,6 +363,6 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         assertEq(vars.token.balanceOf(address(flow)), vars.expectedTokenBalance, "token balance");
 
         // It should reduce the aggregate amount by the withdrawn amount.
-        assertEq(flow.aggregateBalance(vars.token), vars.previousAggregateAmount - withdrawAmount, "aggregate amount");
+        assertEq(flow.aggregateAmount(vars.token), vars.previousAggregateAmount - withdrawAmount, "aggregate amount");
     }
 }

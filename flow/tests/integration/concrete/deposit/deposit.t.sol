@@ -103,7 +103,7 @@ contract Deposit_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function _test_Deposit(uint256 streamId, IERC20 token, uint128 depositAmount) private {
-        uint256 previousAggregateAmount = flow.aggregateBalance(token);
+        uint256 previousAggregateAmount = flow.aggregateAmount(token);
 
         // It should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(token) });
@@ -125,6 +125,6 @@ contract Deposit_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
         // It should increase the aggregate amount.
-        assertEq(flow.aggregateBalance(token), previousAggregateAmount + depositAmount, "aggregate amount");
+        assertEq(flow.aggregateAmount(token), previousAggregateAmount + depositAmount, "aggregate amount");
     }
 }

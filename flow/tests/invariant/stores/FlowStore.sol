@@ -16,12 +16,12 @@ contract FlowStore {
     uint256[] public streamIds;
 
     // Amounts
-    mapping(uint256 streamId => uint128 amount) public depositedAmounts;
-    mapping(uint256 streamId => uint128 amount) public refundedAmounts;
-    mapping(uint256 streamId => uint128 amount) public withdrawnAmounts;
-    mapping(IERC20 token => uint256 amount) public depositedAmountsSum;
-    mapping(IERC20 token => uint256 amount) public refundedAmountsSum;
-    mapping(IERC20 token => uint256 amount) public withdrawnAmountsSum;
+    mapping(uint256 streamId => uint128 amount) public totalDepositsByStream;
+    mapping(uint256 streamId => uint128 amount) public totalRefundsByStream;
+    mapping(uint256 streamId => uint128 amount) public totalWithdrawalsByStream;
+    mapping(IERC20 token => uint256 amount) public totalDepositsByToken;
+    mapping(IERC20 token => uint256 amount) public totalRefundsByToken;
+    mapping(IERC20 token => uint256 amount) public totalWithdrawalsByToken;
 
     // Previous values
     mapping(uint256 streamId => uint40 snapshotTime) public previousSnapshotTime;
@@ -115,18 +115,18 @@ contract FlowStore {
         previousUncoveredDebtOf[streamId] = uncoveredDebtOf;
     }
 
-    function updateStreamDepositedAmountsSum(uint256 streamId, IERC20 token, uint128 amount) external {
-        depositedAmounts[streamId] += amount;
-        depositedAmountsSum[token] += amount;
+    function updateTotalDeposits(uint256 streamId, IERC20 token, uint128 amount) external {
+        totalDepositsByStream[streamId] += amount;
+        totalDepositsByToken[token] += amount;
     }
 
-    function updateStreamRefundedAmountsSum(uint256 streamId, IERC20 token, uint128 amount) external {
-        refundedAmounts[streamId] += amount;
-        refundedAmountsSum[token] += amount;
+    function updateTotalRefunds(uint256 streamId, IERC20 token, uint128 amount) external {
+        totalRefundsByStream[streamId] += amount;
+        totalRefundsByToken[token] += amount;
     }
 
-    function updateStreamWithdrawnAmountsSum(uint256 streamId, IERC20 token, uint128 amount) external {
-        withdrawnAmounts[streamId] += amount;
-        withdrawnAmountsSum[token] += amount;
+    function updateTotalWithdrawals(uint256 streamId, IERC20 token, uint128 amount) external {
+        totalWithdrawalsByStream[streamId] += amount;
+        totalWithdrawalsByToken[token] += amount;
     }
 }

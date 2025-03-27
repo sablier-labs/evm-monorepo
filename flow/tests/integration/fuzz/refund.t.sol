@@ -80,7 +80,7 @@ contract Refund_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         refundAmount = boundUint128(refundAmount, 1, flow.refundableAmountOf(streamId));
 
         // Following variables are used during assertions.
-        uint256 initialAggregateAmount = flow.aggregateBalance(token);
+        uint256 initialAggregateAmount = flow.aggregateAmount(token);
         uint256 initialTokenBalance = token.balanceOf(address(flow));
         uint128 initialStreamBalance = flow.getBalance(streamId);
 
@@ -108,7 +108,7 @@ contract Refund_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
         // Assert that the aggregate amount has been updated.
-        uint256 actualAggregateAmount = flow.aggregateBalance(token);
+        uint256 actualAggregateAmount = flow.aggregateAmount(token);
         uint256 expectedAggregateAmount = initialAggregateAmount - refundAmount;
         assertEq(actualAggregateAmount, expectedAggregateAmount, "aggregate amount");
     }

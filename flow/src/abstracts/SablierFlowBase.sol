@@ -28,7 +28,7 @@ abstract contract SablierFlowBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFlowBase
-    mapping(IERC20 token => uint256 amount) public override aggregateBalance;
+    mapping(IERC20 token => uint256 amount) public override aggregateAmount;
 
     /// @inheritdoc ISablierFlowBase
     address public override nativeToken;
@@ -213,7 +213,7 @@ abstract contract SablierFlowBase is
 
     /// @inheritdoc ISablierFlowBase
     function recover(IERC20 token, address to) external override onlyAdmin {
-        uint256 surplus = token.balanceOf(address(this)) - aggregateBalance[token];
+        uint256 surplus = token.balanceOf(address(this)) - aggregateAmount[token];
 
         // Check: there is a surplus to recover.
         if (surplus == 0) {

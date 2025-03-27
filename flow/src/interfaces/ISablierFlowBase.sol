@@ -46,9 +46,11 @@ interface ISablierFlowBase is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the sum of balances of all streams.
+    /// @notice Retrieves the aggregate amount across all streams, denoted in units of the token's decimals.
+    /// @dev If tokens are directly transferred to the contract without using the stream creation functions, the
+    /// ERC-20 balance may be greater than the aggregate amount.
     /// @param token The ERC-20 token for the query.
-    function aggregateBalance(IERC20 token) external view returns (uint256);
+    function aggregateAmount(IERC20 token) external view returns (uint256);
 
     /// @notice Retrieves the balance of the stream, i.e. the total deposited amounts subtracted by the total withdrawn
     /// amounts, denoted in token's decimals.

@@ -41,7 +41,7 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
 
     function _test_WithdrawMax() private {
         vars.expectedWithdrawAmount = ONE_MONTH_DEBT_6D;
-        vars.previousAggregateAmount = flow.aggregateBalance(usdc);
+        vars.previousAggregateAmount = flow.aggregateAmount(usdc);
 
         // It should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdated} events.
         vm.expectEmit({ emitter: address(usdc) });
@@ -84,7 +84,7 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
 
         // It should decrease the aggregate amount.
         assertEq(
-            flow.aggregateBalance(usdc), vars.previousAggregateAmount - vars.expectedWithdrawAmount, "aggregate amount"
+            flow.aggregateAmount(usdc), vars.previousAggregateAmount - vars.expectedWithdrawAmount, "aggregate amount"
         );
     }
 }

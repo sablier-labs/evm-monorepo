@@ -143,8 +143,8 @@ contract FlowHandler is BaseHandler {
             recipient: flow.getRecipient(currentStreamId)
         });
 
-        // Update the deposited amount.
-        flowStore.updateStreamDepositedAmountsSum(currentStreamId, token, depositAmount);
+        // Update the deposit totals.
+        flowStore.updateTotalDeposits(currentStreamId, token, depositAmount);
     }
 
     /// @dev A function that does nothing but warp the time into the future.
@@ -196,8 +196,8 @@ contract FlowHandler is BaseHandler {
         // Refund from stream.
         flow.refund(currentStreamId, refundAmount);
 
-        // Update the refunded amount.
-        flowStore.updateStreamRefundedAmountsSum(currentStreamId, flow.getToken(currentStreamId), refundAmount);
+        // Update the refund totals.
+        flowStore.updateTotalRefunds(currentStreamId, flow.getToken(currentStreamId), refundAmount);
     }
 
     function restart(
@@ -287,7 +287,7 @@ contract FlowHandler is BaseHandler {
         // Withdraw from the stream.
         flow.withdraw({ streamId: currentStreamId, to: to, amount: amount });
 
-        // Update the withdrawn amount.
-        flowStore.updateStreamWithdrawnAmountsSum(currentStreamId, flow.getToken(currentStreamId), amount);
+        // Update the withdrawal totals.
+        flowStore.updateTotalWithdrawals(currentStreamId, flow.getToken(currentStreamId), amount);
     }
 }
