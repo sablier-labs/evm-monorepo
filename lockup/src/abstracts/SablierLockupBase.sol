@@ -32,7 +32,7 @@ abstract contract SablierLockupBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierLockupBase
-    mapping(IERC20 token => uint256 amount) public override aggregateBalance;
+    mapping(IERC20 token => uint256 amount) public override aggregateAmount;
 
     /// @inheritdoc ISablierLockupBase
     address public override nativeToken;
@@ -367,7 +367,7 @@ abstract contract SablierLockupBase is
     function recover(IERC20 token, address to) external override onlyAdmin {
         // If tokens are directly transferred to the contract without using the stream creation functions, the
         // ERC-20 balance may be greater than the aggregate amount.
-        uint256 surplus = token.balanceOf(address(this)) - aggregateBalance[token];
+        uint256 surplus = token.balanceOf(address(this)) - aggregateAmount[token];
 
         // Check: there is a surplus to recover.
         if (surplus == 0) {
@@ -694,7 +694,7 @@ abstract contract SablierLockupBase is
 
         unchecked {
             // Effect: decrease the aggregate amount.
-            aggregateBalance[token] -= senderAmount;
+            aggregateAmount[token] -= senderAmount;
         }
 
         // Interaction: refund the sender.
@@ -779,7 +779,7 @@ abstract contract SablierLockupBase is
 
         unchecked {
             // Effect: decrease the aggregate amount.
-            aggregateBalance[token] -= amount;
+            aggregateAmount[token] -= amount;
         }
 
         // Interaction: perform the ERC-20 transfer.

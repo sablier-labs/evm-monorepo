@@ -180,7 +180,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         _defaultParams.createWithTimestamps.depositAmount = defaults.DEPOSIT_AMOUNT_6D();
         _defaultParams.unlockAmounts.cliff = defaults.CLIFF_AMOUNT_6D();
 
-        uint256 previousAggregateAmount = lockup.aggregateBalance(_usdt);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(_usdt);
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // It should perform the ERC-20 transfers.
@@ -211,7 +211,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
         assertEq(lockup.getUnlockAmounts(streamId), _defaultParams.unlockAmounts);
         assertEq(
-            lockup.aggregateBalance(_usdt), previousAggregateAmount + defaults.DEPOSIT_AMOUNT_6D(), "aggregateBalance"
+            lockup.aggregateAmount(_usdt), previousAggregateAmount + defaults.DEPOSIT_AMOUNT_6D(), "aggregateAmount"
         );
     }
 
@@ -239,7 +239,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         _defaultParams.unlockAmounts.cliff = cliffTime == 0 ? 0 : _defaultParams.unlockAmounts.cliff;
         _defaultParams.cliffTime = cliffTime;
 
-        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // It should perform the ERC-20 transfers.
@@ -269,6 +269,6 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         assertEq(lockup.getCliffTime(streamId), cliffTime, "cliffTime");
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
         assertEq(lockup.getUnlockAmounts(streamId), _defaultParams.unlockAmounts);
-        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateBalance");
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateAmount");
     }
 }

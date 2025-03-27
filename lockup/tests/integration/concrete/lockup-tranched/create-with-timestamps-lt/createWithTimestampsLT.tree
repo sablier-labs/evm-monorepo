@@ -16,7 +16,7 @@ CreateWithTimestampsLT_Integration_Concrete_Test
             └── when start time less than first timestamp
                ├── when end time not equal last timestamp
                │  └── it should revert
-               └── when end time equals last timestamp            
+               └── when end time equals last timestamp
                   ├── when timestamps not strictly increasing
                   │  └── it should revert
                   └── when timestamps strictly increasing
@@ -26,14 +26,14 @@ CreateWithTimestampsLT_Integration_Concrete_Test
                         ├── when token misses ERC20 return value
                         │  ├── it should create the stream
                         │  ├── it should bump the next stream ID
-                        │  ├── it should increase the aggregate balance
+                        │  ├── it should increase the aggregate amount
                         │  ├── it should mint the NFT
                         │  ├── it should emit {CreateLockupTranchedStream} and {MetadataUpdate} events
                         │  └── it should perform the ERC-20 transfers
                         └── when token not miss ERC20 return value
                            ├── it should create the stream
                            ├── it should bump the next stream ID
-                           ├── it should increase the aggregate balance
+                           ├── it should increase the aggregate amount
                            ├── it should mint the NFT
                            ├── it should emit {CreateLockupTranchedStream} and {MetadataUpdate} events
                            └── it should perform the ERC-20 transfers

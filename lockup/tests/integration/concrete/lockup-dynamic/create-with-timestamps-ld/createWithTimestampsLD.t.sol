@@ -256,7 +256,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
     {
         IERC20 _usdt = IERC20(address(usdt));
 
-        uint256 previousAggregateAmount = lockup.aggregateBalance(_usdt);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(_usdt);
 
         // Update the default params.
         _defaultParams.createWithTimestamps.depositAmount = defaults.DEPOSIT_AMOUNT_6D();
@@ -292,9 +292,9 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         assertEq(lockup.getSegments(streamId), _defaultParams.segments);
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_DYNAMIC);
         assertEq(
-            lockup.aggregateBalance(_usdt),
+            lockup.aggregateAmount(_usdt),
             previousAggregateAmount + _defaultParams.createWithTimestamps.depositAmount,
-            "aggregateBalance"
+            "aggregateAmount"
         );
     }
 
@@ -316,7 +316,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
     {
-        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
 
         uint256 expectedStreamId = lockup.nextStreamId();
 
@@ -345,6 +345,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         assertEqStream(streamId, dai);
         assertEq(lockup.getSegments(streamId), defaults.segments());
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_DYNAMIC);
-        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateBalance");
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateAmount");
     }
 }

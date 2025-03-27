@@ -254,7 +254,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         _defaultParams.tranches[0].amount = 2600e6;
         _defaultParams.tranches[1].amount = 7400e6;
 
-        uint256 previousAggregateAmount = lockup.aggregateBalance(_usdt);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(_usdt);
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // It should perform the ERC-20 transfers.
@@ -282,7 +282,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         assertEqStream(streamId, _usdt);
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_TRANCHED);
         assertEq(
-            lockup.aggregateBalance(_usdt), previousAggregateAmount + defaults.DEPOSIT_AMOUNT_6D(), "aggregateBalance"
+            lockup.aggregateAmount(_usdt), previousAggregateAmount + defaults.DEPOSIT_AMOUNT_6D(), "aggregateAmount"
         );
         assertEq(lockup.getTranches(streamId), _defaultParams.tranches);
     }
@@ -305,7 +305,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTimestampsStrictlyIncreasing
         whenDepositAmountEqualsTrancheAmountsSum
     {
-        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // It should perform the ERC-20 transfers.
@@ -332,7 +332,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         // It should create the stream.
         assertEqStream(streamId, dai);
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_TRANCHED);
-        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateBalance");
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateAmount");
         assertEq(lockup.getTranches(streamId), defaults.tranches());
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
     }

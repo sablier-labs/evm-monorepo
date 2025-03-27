@@ -53,39 +53,36 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                       COMMON
+                                 COMMON INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    // solhint-disable max-line-length
-    function invariant_ContractTokenBalance() external view {
-        uint256 contractBalance = dai.balanceOf(address(lockup));
+    function invariant_Balances() external view {
+        uint256 erc20Balance = dai.balanceOf(address(lockup));
 
         uint256 lastStreamId = lockupStore.lastStreamId();
-        uint256 depositedAmountsSum;
-        uint256 refundedAmountsSum;
-        uint256 withdrawnAmountsSum;
+        uint256 totalDeposits;
+        uint256 totalRefunds;
+        uint256 totalWithdrawals;
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            depositedAmountsSum += uint256(lockup.getDepositedAmount(streamId));
-            refundedAmountsSum += uint256(lockup.getRefundedAmount(streamId));
-            withdrawnAmountsSum += uint256(lockup.getWithdrawnAmount(streamId));
+            totalDeposits += uint256(lockup.getDepositedAmount(streamId));
+            totalRefunds += uint256(lockup.getRefundedAmount(streamId));
+            totalWithdrawals += uint256(lockup.getWithdrawnAmount(streamId));
         }
 
-        uint256 aggregateBalance = depositedAmountsSum - refundedAmountsSum - withdrawnAmountsSum;
+        uint256 totals = totalDeposits - totalRefunds - totalWithdrawals;
         assertEq(
-            lockup.aggregateBalance(dai),
-            aggregateBalance,
-            unicode"Invariant violation: aggregate balance != Σ deposits - Σ refunds - Σ withdrawals"
+            lockup.aggregateAmount(dai),
+            totals,
+            unicode"Invariant violation: aggregate amount != Σ deposits - Σ refunds - Σ withdrawals"
         );
 
         assertGe(
-            contractBalance,
-            aggregateBalance,
-            unicode"Invariant violation: contract balances < Σ deposits - Σ refunds - Σ withdrawals"
+            erc20Balance, totals, unicode"Invariant violation: ERC-20 balance < Σ deposits - Σ refunds - Σ withdrawals"
         );
     }
 
-    function invariant_DepositedAmountGteStreamedAmount() external view {
+    function invariant_DepositedGteStreamed() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
@@ -97,7 +94,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    function invariant_DepositedAmountGteWithdrawableAmount() external view {
+    function invariant_DepositedGteWithdrawable() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
@@ -109,7 +106,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    function invariant_DepositedAmountGteWithdrawnAmount() external view {
+    function invariant_DepositedGteWithdrawn() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
@@ -121,7 +118,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    function invariant_DepositedAmountNotZero() external view {
+    function invariant_DepositedNotZero() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
@@ -287,7 +284,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    /// @dev See diagram at https://docs.sablier.com/concepts/protocol/statuses#diagram
+    /// @dev See diagram at https://docs.sablier.com/concepts/lockup/statuses#diagram
     function invariant_StatusTransitions() external {
         uint256 lastStreamId = lockupStore.lastStreamId();
         if (lastStreamId == 0) {
@@ -337,7 +334,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    function invariant_StreamedAmountGteWithdrawableAmount() external view {
+    function invariant_StreamedGteWithdrawable() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
@@ -349,7 +346,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    function invariant_StreamedAmountGteWithdrawnAmount() external view {
+    function invariant_StreamedGteWithdrawn() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
@@ -362,7 +359,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    LD MODEL
+                                LD MODEL INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Unordered segment timestamps are not allowed.
@@ -384,7 +381,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    LL MODEL
+                                LL MODEL INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev If it is not zero, the cliff time must be strictly greater than the start time.
@@ -420,7 +417,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    LT MODEL
+                                LT MODEL INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Unordered tranche timestamps are not allowed.

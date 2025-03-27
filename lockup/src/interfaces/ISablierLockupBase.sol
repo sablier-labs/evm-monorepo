@@ -97,7 +97,7 @@ interface ISablierLockupBase is
     /// @dev If tokens are directly transferred to the contract without using the stream creation functions, the
     /// ERC-20 balance may be greater than the aggregate amount.
     /// @param token The ERC-20 token for the query.
-    function aggregateBalance(IERC20 token) external view returns (uint256);
+    function aggregateAmount(IERC20 token) external view returns (uint256);
 
     /// @notice Retrieves the amount deposited in the stream, denoted in units of the token's decimals.
     /// @dev Reverts if `streamId` references a null stream.

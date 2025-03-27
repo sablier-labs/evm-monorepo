@@ -17,11 +17,11 @@ abstract contract DeployOptimized is CommonBase {
         return ISablierBatchLockup(deployCode("out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json"));
     }
 
-    /// @dev Deploys the optimized {Helpers} and {StreamingMath} libraries.
-    function deployOptimizedLibraries() internal returns (address helpers, address streamingMath) {
+    /// @dev Deploys the optimized {Helpers} and {LockupMath} libraries.
+    function deployOptimizedLibraries() internal returns (address helpers, address lockupMath) {
         // Deploy public libraries.
         helpers = deployCode("out-optimized/Helpers.sol/Helpers.json");
-        streamingMath = deployCode("out-optimized/StreamingMath.sol/StreamingMath.json");
+        lockupMath = deployCode("out-optimized/LockupMath.sol/LockupMath.json");
     }
 
     /// @dev Deploys {SablierLockup} from an optimized source compiled with `--via-ir`.
@@ -34,7 +34,7 @@ abstract contract DeployOptimized is CommonBase {
         returns (ISablierLockup lockup)
     {
         // Deploy the libraries.
-        (address helpers, address streamingMath) = deployOptimizedLibraries();
+        (address helpers, address lockupMath) = deployOptimizedLibraries();
 
         // Get the bytecode from {SablierLockup} artifact.
         string memory artifactJson = vm.readFile("out-optimized/SablierLockup.sol/SablierLockup.json");
@@ -48,8 +48,8 @@ abstract contract DeployOptimized is CommonBase {
         });
         rawBytecode = vm.replace({
             input: rawBytecode,
-            from: libraryPlaceholder("src/libraries/StreamingMath.sol:StreamingMath"),
-            to: vm.replace(vm.toString(streamingMath), "0x", "")
+            from: libraryPlaceholder("src/libraries/LockupMath.sol:LockupMath"),
+            to: vm.replace(vm.toString(lockupMath), "0x", "")
         });
 
         // Generate the creation bytecode with the constructor arguments.
@@ -60,7 +60,7 @@ abstract contract DeployOptimized is CommonBase {
             lockup := create(0, add(createBytecode, 0x20), mload(createBytecode))
         }
 
-        require(address(lockup) != address(0), "Lockup deployment failed.");
+        require(address(lockup) != address(0), "Lockup deployment failed");
 
         return ISablierLockup(lockup);
     }

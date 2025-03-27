@@ -8,10 +8,10 @@ import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
 
-/// @title StreamingMath
-/// @notice Library with functions needed to calculate the streamed amounts across Lockup streams. Note that 'streamed'
-/// is synonymous with 'vested'.
-library StreamingMath {
+/// @title LockupMath
+/// @notice Provides functions for calculating the streamed amounts in Lockup streams. Note that 'streamed' is
+/// synonymous with 'vested'.
+library LockupMath {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
 

@@ -38,6 +38,6 @@ contract Recover_Integration_Concrete_Test is Integration_Test {
         lockup.recover(dai, users.admin);
 
         // It should lead to token balance same as aggregate amount.
-        assertEq(dai.balanceOf(address(lockup)), lockup.aggregateBalance(dai));
+        assertEq(dai.balanceOf(address(lockup)), lockup.aggregateAmount(dai));
     }
 }

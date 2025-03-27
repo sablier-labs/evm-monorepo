@@ -90,7 +90,7 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         // Bound the withdraw amount.
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
-        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
 
         // Expect the tokens to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: params.to, value: vars.withdrawAmount });
@@ -133,7 +133,7 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         vars.expectedWithdrawnAmount = vars.withdrawAmount;
         assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the aggregate balance has been updated.
-        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - vars.actualWithdrawnAmount, "aggregateBalance");
+        // Assert that the aggregate amount has been updated.
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - vars.actualWithdrawnAmount, "aggregateAmount");
     }
 }

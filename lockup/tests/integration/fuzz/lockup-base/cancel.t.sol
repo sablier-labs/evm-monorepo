@@ -23,7 +23,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         // Warp to the past.
         vm.warp({ newTimestamp: getBlockTimestamp() - timeJump });
 
-        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
 
         // Cancel the stream.
         uint128 refundedAmount = lockup.cancel(ids.defaultStream);
@@ -37,8 +37,8 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         bool isCancelable = lockup.isCancelable(ids.defaultStream);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the aggregate balance has been updated.
-        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - refundedAmount, "aggregateBalance");
+        // Assert that the aggregate amount has been updated.
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - refundedAmount, "aggregateAmount");
     }
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
@@ -75,7 +75,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
             lockup.withdraw({ streamId: ids.recipientGoodStream, to: address(recipientGood), amount: withdrawAmount });
         }
 
-        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
 
         // Expect the tokens to be refunded to the Sender.
         uint128 senderAmount = lockup.refundableAmountOf(ids.recipientGoodStream);
@@ -114,8 +114,8 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         bool isCancelable = lockup.isCancelable(ids.recipientGoodStream);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the aggregate balance has been updated.
-        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - refundedAmount, "aggregateBalance");
+        // Assert that the aggregate amount has been updated.
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - refundedAmount, "aggregateAmount");
 
         // Assert that the not burned NFT.
         address actualNFTOwner = lockup.ownerOf({ tokenId: ids.recipientGoodStream });
