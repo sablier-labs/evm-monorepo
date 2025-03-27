@@ -180,11 +180,11 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should set the current factory address.
         assertEq(actualVCA.FACTORY(), address(factoryMerkleVCA), "factory");
 
-        // It should set the correct start time.
-        assertEq(actualVCA.START_TIME(), VESTING_START_TIME, "vesting start time");
+        // It should set the correct vesting end time.
+        assertEq(actualVCA.VESTING_END_TIME(), VESTING_END_TIME, "vesting end time");
 
-        // It should set the correct end time.
-        assertEq(actualVCA.END_TIME(), VESTING_END_TIME, "vesting end time");
+        // It should set the correct vesting start time.
+        assertEq(actualVCA.VESTING_START_TIME(), VESTING_START_TIME, "vesting start time");
     }
 
     function test_GivenCustomFeeUSDNotSet()
@@ -222,10 +222,10 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should set the current factory address.
         assertEq(actualVCA.FACTORY(), address(factoryMerkleVCA), "factory");
 
-        // It should set the correct start time.
-        assertEq(actualVCA.START_TIME(), VESTING_START_TIME, "vesting start time");
+        // It should set the correct vesting end time.
+        assertEq(actualVCA.VESTING_END_TIME(), VESTING_END_TIME, "vesting end time");
 
-        // It should set the correct end time.
-        assertEq(actualVCA.END_TIME(), VESTING_END_TIME, "vesting end time");
+        // It should set the correct vesting start time.
+        assertEq(actualVCA.VESTING_START_TIME(), VESTING_START_TIME, "vesting start time");
     }
 }

@@ -11,12 +11,11 @@ interface ISablierMerkleLT is ISablierMerkleLockup {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The start time of the streams created through {SablierMerkleBase.claim} function.
-    /// @dev A start time value of zero will be treated as `block.timestamp`.
-    function STREAM_START_TIME() external returns (uint40);
-
     /// @notice The total percentage of the tranches.
     function TOTAL_PERCENTAGE() external view returns (uint64);
+
+    /// @notice Retrieves the start time of the vesting stream. Zero is a sentinel value for `block.timestamp`.
+    function VESTING_START_TIME() external returns (uint40);
 
     /// @notice Retrieves the tranches with their respective unlock percentages and durations.
     function getTranchesWithPercentages() external view returns (MerkleLT.TrancheWithPercentage[] memory);

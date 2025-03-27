@@ -44,10 +44,10 @@ contract SablierMerkleLT is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLT
-    uint40 public immutable override STREAM_START_TIME;
+    uint64 public immutable override TOTAL_PERCENTAGE;
 
     /// @inheritdoc ISablierMerkleLT
-    uint64 public immutable override TOTAL_PERCENTAGE;
+    uint40 public immutable override VESTING_START_TIME;
 
     /// @dev The tranches with their respective unlock percentages and durations.
     MerkleLT.TrancheWithPercentage[] private _tranchesWithPercentages;
@@ -76,7 +76,7 @@ contract SablierMerkleLT is
             params.transferable
         )
     {
-        STREAM_START_TIME = params.streamStartTime;
+        VESTING_START_TIME = params.startTime;
 
         uint256 count = params.tranchesWithPercentages.length;
 
@@ -163,11 +163,11 @@ contract SablierMerkleLT is
         view
         returns (uint40 startTime, LockupTranched.Tranche[] memory tranches)
     {
-        // Calculate the start time.
-        if (STREAM_START_TIME == 0) {
+        // Calculate the vesting start time. Zero is a sentinel value for `block.timestamp`.
+        if (VESTING_START_TIME == 0) {
             startTime = uint40(block.timestamp);
         } else {
-            startTime = STREAM_START_TIME;
+            startTime = VESTING_START_TIME;
         }
 
         // Load the tranches in memory (to save gas).

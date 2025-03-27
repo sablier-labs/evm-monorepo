@@ -41,7 +41,7 @@ contract CreateMerkleLT is BaseScript {
         params.tranchesWithPercentages[1] =
             MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.5e18), duration: 7200 });
 
-        params.streamStartTime = 0; // i.e. block.timestamp
+        params.startTime = 0; // i.e. block.timestamp
         uint256 aggregateAmount = 10_000e18;
         uint256 recipientCount = 100;
 

@@ -41,13 +41,13 @@ contract SablierMerkleVCA is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleVCA
-    uint40 public immutable override END_TIME;
-
-    /// @inheritdoc ISablierMerkleVCA
-    uint40 public immutable override START_TIME;
-
-    /// @inheritdoc ISablierMerkleVCA
     UD60x18 public immutable override UNLOCK_PERCENTAGE;
+
+    /// @inheritdoc ISablierMerkleVCA
+    uint40 public immutable override VESTING_END_TIME;
+
+    /// @inheritdoc ISablierMerkleVCA
+    uint40 public immutable override VESTING_START_TIME;
 
     /// @inheritdoc ISablierMerkleVCA
     uint256 public override totalForgoneAmount;
@@ -99,14 +99,10 @@ contract SablierMerkleVCA is
             revert Errors.SablierMerkleVCA_UnlockPercentageTooHigh(params.unlockPercentage);
         }
 
-        // Effect: set the end time.
-        END_TIME = params.endTime;
-
-        // Effect: set the start time.
-        START_TIME = params.startTime;
-
-        // Effect: set the unlock percentage.
+        // Effect: set the immutable variables.
         UNLOCK_PERCENTAGE = params.unlockPercentage;
+        VESTING_END_TIME = params.endTime;
+        VESTING_START_TIME = params.startTime;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -131,9 +127,9 @@ contract SablierMerkleVCA is
             claimTime = uint40(block.timestamp);
         }
 
-        // If the claim time is less than start time, no amount can be forgone since the claim cannot be made,
+        // If the claim time is less than vesting start time, no amount can be forgone since the claim cannot be made,
         // so we return zero.
-        if (claimTime < START_TIME) {
+        if (claimTime < VESTING_START_TIME) {
             return 0;
         }
 
@@ -146,21 +142,21 @@ contract SablierMerkleVCA is
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _calculateClaimAmount(uint128 fullAmount, uint40 claimTime) internal view returns (uint128) {
-        // If the claim time is less than start time, there's nothing to calculate, so we return zero.
-        if (claimTime < START_TIME) {
+        // If the claim time is less than vesting start time, there's nothing to calculate, so we return zero.
+        if (claimTime < VESTING_START_TIME) {
             return 0;
         }
 
         // Calculate the initial unlock amount.
         uint128 unlockAmount = ud(fullAmount).mul(UNLOCK_PERCENTAGE).intoUint128();
 
-        // If the claim time is equal to the start time, return the initial unlock.
-        if (claimTime == START_TIME) {
+        // If the claim time is equal to vesting start time, return the initial unlock.
+        if (claimTime == VESTING_START_TIME) {
             return unlockAmount;
         }
 
         // If the vesting period has ended, the full amount can be claimed.
-        if (claimTime >= END_TIME) {
+        if (claimTime >= VESTING_END_TIME) {
             return fullAmount;
         }
         // Otherwise, calculate the claim amount based on the elapsed time.
@@ -170,8 +166,8 @@ contract SablierMerkleVCA is
 
             // Safe because overflows are prevented by the checks above.
             unchecked {
-                elapsedTime = claimTime - START_TIME;
-                totalDuration = END_TIME - START_TIME;
+                elapsedTime = claimTime - VESTING_START_TIME;
+                totalDuration = VESTING_END_TIME - VESTING_START_TIME;
             }
 
             // Safe to cast because the result is less than `remainderAmount`, which fits within `uint128`.

@@ -494,7 +494,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
             lockup: lockupAddress,
             merkleRoot: merkleRoot,
             shape: STREAM_SHAPE,
-            streamStartTime: startTime,
+            startTime: startTime,
             token: tokenAddress,
             tranchesWithPercentages: tranchesWithPercentages_,
             transferable: STREAM_TRANSFERABLE
@@ -503,7 +503,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
 
     /// @dev Mirrors the logic from {SablierMerkleLT._calculateStartTimeAndTranches}.
     function tranchesMerkleLT(
-        uint40 streamStartTime,
+        uint40 vestingStartTime,
         uint128 totalAmount
     )
         public
@@ -511,12 +511,12 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         returns (LockupTranched.Tranche[] memory tranches_)
     {
         tranches_ = new LockupTranched.Tranche[](2);
-        if (streamStartTime == 0) {
+        if (vestingStartTime == 0) {
             tranches_[0].timestamp = getBlockTimestamp() + VESTING_CLIFF_DURATION;
             tranches_[1].timestamp = getBlockTimestamp() + VESTING_TOTAL_DURATION;
         } else {
-            tranches_[0].timestamp = streamStartTime + VESTING_CLIFF_DURATION;
-            tranches_[1].timestamp = streamStartTime + VESTING_TOTAL_DURATION;
+            tranches_[0].timestamp = vestingStartTime + VESTING_CLIFF_DURATION;
+            tranches_[1].timestamp = vestingStartTime + VESTING_TOTAL_DURATION;
         }
 
         uint128 amount0 = ud(totalAmount).mul(ud(0.2e18)).intoUint128();

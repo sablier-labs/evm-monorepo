@@ -96,7 +96,7 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
 
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams(expiration);
         params.merkleRoot = merkleRoot;
-        params.streamStartTime = startTime;
+        params.startTime = startTime;
         params.tranchesWithPercentages = tranches;
 
         // Precompute the deterministic address.
@@ -126,7 +126,7 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
 
         // It should return the correct schedule tranches.
         assertEq(merkleLT.getTranchesWithPercentages(), tranches);
-        assertEq(merkleLT.STREAM_START_TIME(), startTime);
+        assertEq(merkleLT.VESTING_START_TIME(), startTime);
         assertEq(merkleLT.TOTAL_PERCENTAGE(), 1e18);
 
         // Fund the MerkleLT contract.
@@ -143,8 +143,8 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
     function expectClaimEvent(LeafData memory leafData) internal override {
         uint40 totalDuration = getTotalDuration(merkleLT.getTranchesWithPercentages());
 
-        // Calculate end time based on the start time.
-        uint40 startTime = merkleLT.STREAM_START_TIME();
+        // Calculate end time based on the vesting start time.
+        uint40 startTime = merkleLT.VESTING_START_TIME();
         uint40 endTime = startTime == 0 ? getBlockTimestamp() + totalDuration : startTime + totalDuration;
 
         // If the vesting has ended, the claim should be transferred directly to the recipient.

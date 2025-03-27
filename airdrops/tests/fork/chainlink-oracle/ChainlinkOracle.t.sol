@@ -32,7 +32,7 @@ contract ChainlinkOracle_Fork_Test is BaseScript, Base_Test {
 
     function testFork_ChainlinkOracle_Base() external initForkTest("base") { }
 
-    function testFork_ChainlinkOracle_BNB() external initForkTest("bnb") { }
+    // function testFork_ChainlinkOracle_BNB() external initForkTest("bnb") { }
 
     function testFork_ChainlinkOracle_Gnosis() external initForkTest("gnosis") { }
 

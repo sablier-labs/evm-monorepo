@@ -150,7 +150,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
             assertEq(lockup.getLockupModel(expectedStreamId), Lockup.Model.LOCKUP_TRANCHED);
             assertEq(
                 lockup.getTranches(expectedStreamId),
-                tranchesMerkleLT({ streamStartTime: expectedStartTime, totalAmount: vars.leafToClaim.amount })
+                tranchesMerkleLT({ vestingStartTime: expectedStartTime, totalAmount: vars.leafToClaim.amount })
             );
 
             uint256[] memory expectedClaimedStreamIds = new uint256[](1);

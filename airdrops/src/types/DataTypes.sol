@@ -89,7 +89,8 @@ library MerkleLT {
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param merkleRoot The Merkle root of the claim data.
     /// @param shape The shape of Lockup stream, used for differentiating between streams in the  UI.
-    /// @param streamStartTime The start time of the vesting streams, as a Unix timestamp.
+    /// @param startTime The start time of the vesting streams, as a Unix timestamp. Zero is a sentinel value for
+    /// `block.timestamp`.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param tranchesWithPercentages The tranches with their respective unlock percentages, which are documented in
     /// {MerkleLT.TrancheWithPercentage}.
@@ -103,7 +104,7 @@ library MerkleLT {
         ISablierLockup lockup;
         bytes32 merkleRoot;
         string shape;
-        uint40 streamStartTime;
+        uint40 startTime;
         IERC20 token;
         MerkleLT.TrancheWithPercentage[] tranchesWithPercentages;
         bool transferable;
@@ -131,7 +132,7 @@ library MerkleVCA {
     /// @param initialAdmin The initial admin of the campaign.
     /// @param ipfsCID The content identifier for indexing the contract on IPFS.
     /// @param merkleRoot The Merkle root of the claim data.
-    /// @param startTime Vesting start time, as a Unix timestamp. Zero is a sentinel value for `block.timestamp`.
+    /// @param startTime Vesting start time, as a Unix timestamp.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param unlockPercentage The percentage of the full amount that will unlock immediately at the start time,
     /// denominated as fixed-point number where 1e18 is 100%.

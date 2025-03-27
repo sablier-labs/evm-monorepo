@@ -10,9 +10,9 @@ Claim_MerkleLT_Integration_Test
       │  └── when total percentage greater than 100
       │     └── it should revert
       └── when total percentage 100
-         ├── when stream start time zero
+         ├── when vesting start time zero
          │  ├── it should create a stream with block.timestamp as start time
          │  └── it should emit a {Claim} event
-         └── when stream start time not zero
+         └── when vesting start time not zero
             ├── it should create a ranged stream with provided start time
             └── it should emit a {Claim} event

@@ -20,15 +20,15 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the timestamp when the airdrop token unlocks 100%.
-    function END_TIME() external view returns (uint40);
-
-    /// @notice Retrieves the timestamp when the airdrop token begins to unlock.
-    function START_TIME() external view returns (uint40);
-
     /// @notice Retrieves the percentage of the full amount that will unlock immediately at the start time. The
     /// value is denominated as a fixed-point number where 1e18 is 100%.
     function UNLOCK_PERCENTAGE() external view returns (UD60x18);
+
+    /// @notice Retrieves the timestamp when the airdrop token unlocks 100%.
+    function VESTING_END_TIME() external view returns (uint40);
+
+    /// @notice Retrieves the timestamp when the airdrop token begins to unlock.
+    function VESTING_START_TIME() external view returns (uint40);
 
     /// @notice Calculates the amount that would be claimed if the claim were made at `claimTime`.
     /// @dev This is for informational purposes only. To actually claim the airdrop, a Merkle proof is required.

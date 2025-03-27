@@ -181,14 +181,14 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         // It should return false for hasExpired.
         assertFalse(merkleVCA.hasExpired(), "isExpired");
 
-        // It should set the correct end time.
-        assertEq(merkleVCA.END_TIME(), endTime, "end time");
-
-        // It should set the correct start time.
-        assertEq(merkleVCA.START_TIME(), startTime, "start time");
-
         // It should set the correct unlock percentage.
         assertEq(merkleVCA.UNLOCK_PERCENTAGE(), unlockPercentage, "unlock percentage");
+
+        // It should set the correct vesting end time.
+        assertEq(merkleVCA.VESTING_END_TIME(), endTime, "vesting end time");
+
+        // It should set the correct vesting start time.
+        assertEq(merkleVCA.VESTING_START_TIME(), startTime, "vesting start time");
 
         // Fund the MerkleVCA contract.
         deal({ token: address(dai), to: address(merkleVCA), give: aggregateAmount });
@@ -206,8 +206,8 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         (uint256 claimAmount, uint256 forgoneAmount) = calculateMerkleVCAAmounts({
             fullAmount: leafData.amount,
             unlockPercentage: merkleVCA.UNLOCK_PERCENTAGE(),
-            endTime: merkleVCA.END_TIME(),
-            startTime: merkleVCA.START_TIME()
+            endTime: merkleVCA.VESTING_END_TIME(),
+            startTime: merkleVCA.VESTING_START_TIME()
         });
 
         // It should emit a {Claim} event.
