@@ -127,8 +127,8 @@ contract SablierMerkleVCA is
             claimTime = uint40(block.timestamp);
         }
 
-        // If the claim time is less than vesting start time, no amount can be forgone since the claim cannot be made,
-        // so we return zero.
+        // If the claim time is less than the vesting start time, no amount can be forgone since the claim cannot be
+        // made, so we return zero.
         if (claimTime < VESTING_START_TIME) {
             return 0;
         }
@@ -142,7 +142,7 @@ contract SablierMerkleVCA is
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _calculateClaimAmount(uint128 fullAmount, uint40 claimTime) internal view returns (uint128) {
-        // If the claim time is less than vesting start time, there's nothing to calculate, so we return zero.
+        // If the claim time is less than the vesting start time, there's nothing to calculate, so we return zero.
         if (claimTime < VESTING_START_TIME) {
             return 0;
         }
@@ -150,7 +150,7 @@ contract SablierMerkleVCA is
         // Calculate the initial unlock amount.
         uint128 unlockAmount = ud(fullAmount).mul(UNLOCK_PERCENTAGE).intoUint128();
 
-        // If the claim time is equal to vesting start time, return the initial unlock.
+        // If the claim time is equal to the vesting start time, return the unlock amount.
         if (claimTime == VESTING_START_TIME) {
             return unlockAmount;
         }

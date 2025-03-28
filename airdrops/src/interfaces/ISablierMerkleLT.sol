@@ -14,7 +14,8 @@ interface ISablierMerkleLT is ISablierMerkleLockup {
     /// @notice The total percentage of the tranches.
     function TOTAL_PERCENTAGE() external view returns (uint64);
 
-    /// @notice Retrieves the start time of the vesting stream. Zero is a sentinel value for `block.timestamp`.
+    /// @notice Retrieves the start time of the vesting stream, as a Unix timestamp. Zero is a sentinel value for
+    /// `block.timestamp`.
     function VESTING_START_TIME() external returns (uint40);
 
     /// @notice Retrieves the tranches with their respective unlock percentages and durations.
