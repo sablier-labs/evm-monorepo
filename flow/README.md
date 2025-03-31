@@ -135,5 +135,5 @@ However, there are exceptions:
 
 - All files in `src/` with the exception of `SablierFlow.sol` are licensed under `GPL-3.0-or-later`. Refer to
   [`LICENSE-GPL.md`](./LICENSE-GPL.md) for preamble.
-- All files in `script/` are licensed under `GPL-3.0-or-later`.
+- All files in `scripts/` are licensed under `GPL-3.0-or-later`.
 - All files in `tests/` are unlicensed (as indicated in their SPDX headers).
