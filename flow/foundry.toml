@@ -11,7 +11,7 @@
   optimizer = true
   optimizer_runs = 1000
   out = "out"
-  script = "scripts"
+  script = "scripts/solidity"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
   solc = "0.8.29"
   src = "src"
