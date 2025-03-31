@@ -5,10 +5,10 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
-import { ISablierMerkleLT } from "../src/interfaces/ISablierMerkleLT.sol";
-import { SablierFactoryMerkleLT } from "../src/SablierFactoryMerkleLT.sol";
+import { ISablierMerkleLT } from "../../src/interfaces/ISablierMerkleLT.sol";
+import { SablierFactoryMerkleLT } from "../../src/SablierFactoryMerkleLT.sol";
 
-import { MerkleLT } from "../src/types/DataTypes.sol";
+import { MerkleLT } from "../../src/types/DataTypes.sol";
 import { BaseScript } from "./Base.sol";
 
 /// @dev Creates a dummy campaign to airdrop tokens through Lockup Tranched.

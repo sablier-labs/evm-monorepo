@@ -2,9 +2,9 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ISablierMerkleInstant } from "./../src/interfaces/ISablierMerkleInstant.sol";
-import { SablierFactoryMerkleInstant } from "./../src/SablierFactoryMerkleInstant.sol";
-import { MerkleInstant } from "./../src/types/DataTypes.sol";
+import { ISablierMerkleInstant } from "../../src/interfaces/ISablierMerkleInstant.sol";
+import { SablierFactoryMerkleInstant } from "../../src/SablierFactoryMerkleInstant.sol";
+import { MerkleInstant } from "../../src/types/DataTypes.sol";
 import { BaseScript } from "./Base.sol";
 
 /// @dev Creates a dummy MerkleInstant campaign.

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { BaseScript } from "script/Base.sol";
+import { BaseScript } from "scripts/solidity/Base.sol";
 import { SablierFactoryMerkleInstant } from "src/SablierFactoryMerkleInstant.sol";
 
 import { Base_Test } from "./../../Base.t.sol";

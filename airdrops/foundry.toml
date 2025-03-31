@@ -4,14 +4,13 @@
   evm_version = "shanghai"
   fs_permissions = [
     { access = "read", path = "./out-optimized" },
-    { access = "read", path = "package.json" },
-    { access = "read-write", path = "./script" },
+    { access = "read", path = "package.json" }
   ]
   gas_limit = 9223372036854775807
   optimizer = true
   optimizer_runs = 100_000_000
   out = "out"
-  script = "script"
+  script = "scripts/solidity"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
   solc = "0.8.29"
   src = "src"

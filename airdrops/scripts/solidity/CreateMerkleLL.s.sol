@@ -4,9 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud60x18 } from "@prb/math/src/UD60x18.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
-import { ISablierMerkleLL } from "./../src/interfaces/ISablierMerkleLL.sol";
-import { SablierFactoryMerkleLL } from "./../src/SablierFactoryMerkleLL.sol";
-import { MerkleLL } from "./../src/types/DataTypes.sol";
+import { ISablierMerkleLL } from "../../src/interfaces/ISablierMerkleLL.sol";
+import { SablierFactoryMerkleLL } from "../../src/SablierFactoryMerkleLL.sol";
+import { MerkleLL } from "../../src/types/DataTypes.sol";
 import { BaseScript } from "./Base.sol";
 
 /// @dev Creates a dummy campaign to airdrop tokens through Lockup Linear.

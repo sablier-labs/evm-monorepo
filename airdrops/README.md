@@ -117,6 +117,6 @@ The primary license for Sablier Airdrops is the Business Source License 1.1 (`BU
 
 - All files in `src/interfaces/` and `src/types` are licensed under `GPL-3.0-or-later`, see
   [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Several files in `src`, `script`, and `tests` are licensed under `GPL-3.0-or-later`, see
+- Several files in `src`, `scripts/solidity`, and `tests` are licensed under `GPL-3.0-or-later`, see
   [`LICENSE-GPL.md`](./LICENSE-GPL.md).
 - Many files in `tests/` remain unlicensed (as indicated in their SPDX headers).

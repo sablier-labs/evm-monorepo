@@ -2,9 +2,9 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
-import { SablierFactoryMerkleVCA } from "src/SablierFactoryMerkleVCA.sol";
-import { MerkleVCA } from "src/types/DataTypes.sol";
+import { ISablierMerkleVCA } from "../../src/interfaces/ISablierMerkleVCA.sol";
+import { SablierFactoryMerkleVCA } from "../../src/SablierFactoryMerkleVCA.sol";
+import { MerkleVCA } from "../../src/types/DataTypes.sol";
 import { BaseScript } from "./Base.sol";
 
 /// @dev Creates a dummy MerkleVCA campaign.
