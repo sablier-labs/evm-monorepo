@@ -2,9 +2,9 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { NFTSVG } from "./../src/libraries/NFTSVG.sol";
-import { SVGElements } from "./../src/libraries/SVGElements.sol";
-import { LockupNFTDescriptor } from "./../src/LockupNFTDescriptor.sol";
+import { NFTSVG } from "./../../src/libraries/NFTSVG.sol";
+import { SVGElements } from "./../../src/libraries/SVGElements.sol";
+import { LockupNFTDescriptor } from "./../../src/LockupNFTDescriptor.sol";
 import { MaxCountScript } from "./MaxCount.s.sol";
 
 /// @notice Generates an NFT SVG using the user-provided parameters.

@@ -18,7 +18,7 @@ arg_duration=${4:-"91"}
 
 # Run the Forge script and extract the SVG from stdout
 output=$(
-  forge script scripts/GenerateSVG.s.sol \
+  forge script scripts/solidity/GenerateSVG.s.sol \
   --sig "run(uint256,string,string,uint256)" \
   "$arg_progress" \
   "$arg_status" \

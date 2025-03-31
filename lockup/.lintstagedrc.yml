@@ -1,4 +1,4 @@
 "*.{json,md,svg,yml}": "prettier --write"
 "*.sol":
-  - "bun solhint {scripts,src,tests}/**/*.sol --fix --noPrompt"
+  - "bun solhint {scripts/solidity,src,tests}/**/*.sol --fix --noPrompt"
   - "forge fmt"
