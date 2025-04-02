@@ -64,6 +64,6 @@ contract SablierMerkleInstant is
         TOKEN.safeTransfer(recipient, amount);
 
         // Log the claim.
-        emit Claim(index, recipient, amount);
+        emit Claim({ index: index, recipient: recipient, amount: amount });
     }
 }

@@ -110,7 +110,7 @@ contract SablierMerkleLL is
             TOKEN.safeTransfer(recipient, amount);
 
             // Log the claim.
-            emit Claim(index, recipient, amount);
+            emit Claim({ index: index, recipient: recipient, amount: amount });
         }
         // Otherwise, create the Lockup stream to start the vesting.
         else {
@@ -145,7 +145,7 @@ contract SablierMerkleLL is
             _claimedStreams[recipient].push(streamId);
 
             // Log the claim.
-            emit Claim(index, recipient, amount, streamId);
+            emit Claim({ index: index, recipient: recipient, amount: amount, streamId: streamId });
         }
     }
 }

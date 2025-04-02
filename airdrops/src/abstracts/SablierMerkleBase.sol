@@ -167,7 +167,7 @@ abstract contract SablierMerkleBase is
         TOKEN.safeTransfer({ to: to, value: amount });
 
         // Log the clawback.
-        emit Clawback(admin, to, amount);
+        emit Clawback({ admin: admin, to: to, amount: amount });
     }
 
     /// @inheritdoc ISablierMerkleBase

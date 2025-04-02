@@ -67,7 +67,7 @@ abstract contract SablierFactoryMerkleBase is
         uint256 feeAmount = campaign.collectFees(admin);
 
         // Log the fee withdrawal.
-        emit CollectFees(admin, campaign, feeAmount);
+        emit CollectFees({ admin: admin, campaign: campaign, feeAmount: feeAmount });
     }
 
     /// @inheritdoc ISablierFactoryMerkleBase

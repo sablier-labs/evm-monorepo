@@ -125,7 +125,7 @@ contract SablierMerkleLT is
             TOKEN.safeTransfer(recipient, amount);
 
             // Log the claim.
-            emit Claim(index, recipient, amount);
+            emit Claim({ index: index, recipient: recipient, amount: amount });
         }
         // Otherwise, create the Lockup stream.
         else {
@@ -148,7 +148,7 @@ contract SablierMerkleLT is
             _claimedStreams[recipient].push(streamId);
 
             // Log the claim.
-            emit Claim(index, recipient, amount, streamId);
+            emit Claim({ index: index, recipient: recipient, amount: amount, streamId: streamId });
         }
     }
 
