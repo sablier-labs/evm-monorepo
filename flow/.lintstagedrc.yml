@@ -1,4 +1,4 @@
-"*.{json,md,svg,yml}": "prettier --write"
+"*.{json,md,svg,yml}": "prettier --cache --cache-location ./node_modules/.cache/prettier/.prettier-cache --write"
 "*.sol":
   - "bun solhint --fix --noPrompt"
   - "forge fmt"
