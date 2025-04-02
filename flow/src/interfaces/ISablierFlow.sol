@@ -340,7 +340,7 @@ interface ISablierFlow is
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null, must not be paused or voided.
+    /// - `streamId` must not reference a null stream, must be paused, and must not be voided.
     /// - `msg.sender` must be the stream's sender.
     /// - `ratePerSecond` must be greater than zero.
     ///
