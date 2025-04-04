@@ -65,7 +65,7 @@
     "lint:sol:fix": "bun solhint \"{scripts/solidity,src,tests}/**/*.sol\" --fix --noPrompt",
     "prepack": "bun install && bash ./scripts/bash/prepare-artifacts.sh",
     "prepare": "husky",
-    "prettier:check": "prettier --check \"**/*.{json,md,svg,yml}\"",
+    "prettier:check": "prettier --cache-location ./node_modules/.cache/prettier/.prettier-cache --check \"**/*.{json,md,svg,yml}\"",
     "prettier:write": "prettier --cache --cache-location ./node_modules/.cache/prettier/.prettier-cache --write \"**/*.{json,md,svg,yml}\"",
     "test": "forge test",
     "test:bulloak": "bulloak check --skip-modifiers \"./tests/**/*.tree\"",
