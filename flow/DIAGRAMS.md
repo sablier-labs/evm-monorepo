@@ -121,9 +121,8 @@ flowchart LR
 
 ### Internal State
 
-The
-[stream struct](https://github.com/sablier-labs/flow/blob/ba1c9ba64907200c82ccfaeaa6ab91f6229c433d/src/types/DataTypes.sol#L61-L76)
-has more fields than the ones shown here, but these are the most relevant ones.
+The [stream struct](../ba1c9ba64907200c82ccfaeaa6ab91f6229c433d/src/types/DataTypes.sol#L61-L76) has more fields than
+the ones shown here, but these are the most relevant ones.
 
 ```mermaid
 flowchart LR
