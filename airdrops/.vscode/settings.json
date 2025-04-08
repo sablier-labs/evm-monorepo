@@ -9,6 +9,12 @@
     "editor.defaultFormatter": "tamasfe.even-better-toml"
   },
   "editor.formatOnSave": true,
+  "evenBetterToml.formatter.alignComments": true,
+  "evenBetterToml.formatter.arrayAutoCollapse": false,
+  "evenBetterToml.formatter.columnWidth": 120,
+  "evenBetterToml.formatter.reorderArrays": true,
+  "evenBetterToml.formatter.reorderKeys": true,
+  "evenBetterToml.formatter.reorderInlineTables": true,
   "search.exclude": {
     "**/node_modules": true
   },

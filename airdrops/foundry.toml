@@ -4,7 +4,7 @@
   evm_version = "shanghai" # needed for greater coverage of EVM chains
   fs_permissions = [
     { access = "read", path = "./out-optimized" },
-    { access = "read", path = "package.json" }
+    { access = "read", path = "package.json" },
   ]
   gas_limit = 9223372036854775807
   optimizer = true
@@ -52,7 +52,6 @@
   show_proved_safe = true
   show_unproved = true
   show_unsupported = true
-  timeout = 100_000 # in milliseconds, per solving query
   targets = [
     "assert",
     "constantCondition",
@@ -61,6 +60,7 @@
     "overflow",
     "underflow",
   ]
+  timeout = 100_000 # in milliseconds, per solving query
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
@@ -85,7 +85,7 @@
   wrap_comments = true
 
 [rpc_endpoints]
-  # mainnets
+  # Mainnets
   arbitrum = "https://arbitrum-mainnet.infura.io/v3/${API_KEY_INFURA}"
   avalanche = "https://avalanche-mainnet.infura.io/v3/${API_KEY_INFURA}"
   base = "https://mainnet.base.org"
@@ -109,7 +109,7 @@
   superseed = "https://mainnet.superseed.xyz"
   taiko_mainnet = "https://rpc.mainnet.taiko.xyz"
   xdc = "https://rpc.xdc.org"
-  # testnets
+  # Testnets
   arbitrum_sepolia = "https://arbitrum-sepolia-rpc.publicnode.com"
   base_sepolia = "https://sepolia.base.org"
   berachain_artio = "https://bartio.rpc.berachain.com/"
