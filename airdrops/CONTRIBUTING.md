@@ -1,8 +1,9 @@
+<!-- If you modify this file, remember to update it in the other EVM repos, too! -->
+
 # Contributing
 
-Feel free to dive in! [Open](https://github.com/sablier-labs/airdrops/issues/new) an issue,
-[start](https://github.com/sablier-labs/airdrops/discussions/new) a discussion or submit a PR. For any informal concerns
-or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
+Feel free to dive in! [Open](../../issues/new) an issue, [start](../../discussions/new) a discussion or submit a PR. For
+any informal concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
 Contributions to Sablier Airdrops are welcome by anyone interested in writing more tests, improving readability,
 optimizing for gas efficiency, or extending the protocol via new features.
