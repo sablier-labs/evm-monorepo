@@ -4,7 +4,7 @@
   evm_version = "shanghai" # needed for greater coverage of EVM chains
   fs_permissions = [
     { access = "read", path = "./out-optimized" },
-    { access = "read", path = "package.json" }
+    { access = "read", path = "package.json" },
   ]
   gas_limit = 9223372036854775807
   optimizer = true
@@ -52,7 +52,6 @@
   show_proved_safe = true
   show_unproved = true
   show_unsupported = true
-  timeout = 100_000 # in milliseconds, per solving query
   targets = [
     "assert",
     "constantCondition",
@@ -61,6 +60,7 @@
     "overflow",
     "underflow",
   ]
+  timeout = 100_000 # in milliseconds, per solving query
 
 [profile.smt.model_checker.contracts]
   "src/LockupNFTDescriptor.sol" = ["LockupNFTDescriptor"]
