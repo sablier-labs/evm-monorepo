@@ -2,12 +2,12 @@ CollectFees_Integration_Test
 ├── when caller not factory
 │  └── it should revert
 └── when caller factory
-   ├── when factory admin is not contract
-   │  ├── it should transfer fee collected in ETH to the factory admin
+   ├── when fee recipient not contract
+   │  ├── it should transfer fee collected in ETH to the fee recipient
    │  └── it should set the ETH balance to 0
-   └── when factory admin is contract
-      ├── when factory admin does not implement receive function
+   └── when fee recipient contract
+      ├── when fee recipient does not implement receive function
       │  └── it should revert
-      └── when factory admin implements receive function
-         ├── it should transfer fee collected in ETH to the factory admin
+      └── when fee recipient implements receive function
+         ├── it should transfer fee collected in ETH to the fee recipient
          └── it should set the ETH balance to 0

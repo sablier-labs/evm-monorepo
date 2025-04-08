@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
+import { ISablierFactoryMerkleBase } from "./ISablierFactoryMerkleBase.sol";
 
 /// @title ISablierMerkleBase
 /// @dev Common interface between campaign contracts.
@@ -26,7 +27,7 @@ interface ISablierMerkleBase is IAdminable {
     function EXPIRATION() external returns (uint40);
 
     /// @notice Retrieves the address of the factory contract.
-    function FACTORY() external view returns (address);
+    function FACTORY() external view returns (ISablierFactoryMerkleBase);
 
     /// @notice The root of the Merkle tree used to validate the proofs of inclusion.
     /// @dev This is an immutable state variable.
@@ -113,14 +114,14 @@ interface ISablierMerkleBase is IAdminable {
     /// @param amount The amount of tokens to claw back.
     function clawback(address to, uint128 amount) external;
 
-    /// @notice Collects the accrued fees by transferring them to {FACTORY}.
+    /// @notice Collects the accrued fees by transferring them to the `feeRecipient` address.
     ///
     /// Requirements:
     /// - `msg.sender` must be {FACTORY}.
     ///
-    /// @param factoryAdmin The address of the admin of {FACTORY}.
+    /// @param feeRecipient The address where the fees will be collected.
     /// @return feeAmount The amount of native tokens (e.g., ETH) collected as fees.
-    function collectFees(address factoryAdmin) external returns (uint256 feeAmount);
+    function collectFees(address feeRecipient) external returns (uint256 feeAmount);
 
     /// @notice Lowers the min USD fee.
     ///

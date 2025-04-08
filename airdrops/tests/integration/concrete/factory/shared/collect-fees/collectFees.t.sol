@@ -9,25 +9,34 @@ import { Integration_Test } from "./../../../../Integration.t.sol";
 abstract contract CollectFees_Integration_Test is Integration_Test {
     function test_RevertWhen_ProvidedMerkleLockupNotValid() external {
         vm.expectRevert();
-        factoryMerkleBase.collectFees(ISablierMerkleBase(users.eve));
+        factoryMerkleBase.collectFees({ campaign: ISablierMerkleBase(users.eve), feeRecipient: users.admin });
     }
 
-    function test_WhenFactoryAdminIsNotContract() external whenProvidedMerkleLockupValid {
-        _test_CollectFees(users.admin);
+    function test_RevertWhen_FeeRecipientNotAdmin() external whenProvidedMerkleLockupValid whenCallerNotAdmin {
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleFactoryBase_FeeRecipientNotAdmin.selector, users.eve, users.admin
+            )
+        );
+        factoryMerkleBase.collectFees({ campaign: merkleBase, feeRecipient: users.eve });
     }
 
-    function test_RevertWhen_FactoryAdminDoesNotImplementReceiveFunction()
+    function test_WhenFeeRecipientAdmin() external whenProvidedMerkleLockupValid whenCallerNotAdmin {
+        // It should transfer fee to the admin.
+        _test_CollectFees({ feeRecipient: users.admin });
+    }
+
+    function test_WhenFeeRecipientNotContract() external whenProvidedMerkleLockupValid whenCallerAdmin {
+        // It should transfer fee to the fee recipient.
+        _test_CollectFees({ feeRecipient: users.recipient });
+    }
+
+    function test_RevertWhen_FeeRecipientDoesNotImplementReceiveFunction()
         external
         whenProvidedMerkleLockupValid
-        whenFactoryAdminIsContract
+        whenCallerAdmin
+        whenFeeRecipientContract
     {
-        // Transfer the admin to a contract that does not implement the receive function.
-        setMsgSender(users.admin);
-        factoryMerkleBase.transferAdmin(address(contractWithoutReceive));
-
-        // Make the contract the caller.
-        setMsgSender(address(contractWithoutReceive));
-
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierMerkleBase_FeeTransferFail.selector,
@@ -35,38 +44,37 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
                 address(merkleBase).balance
             )
         );
-        factoryMerkleBase.collectFees(merkleBase);
+        factoryMerkleBase.collectFees({ campaign: merkleBase, feeRecipient: address(contractWithoutReceive) });
     }
 
-    function test_WhenFactoryAdminImplementsReceiveFunction()
+    function test_WhenFeeRecipientImplementsReceiveFunction()
         external
         whenProvidedMerkleLockupValid
-        whenFactoryAdminIsContract
+        whenCallerAdmin
+        whenFeeRecipientContract
     {
-        // Transfer the admin to a contract that implements the receive function.
-        setMsgSender(users.admin);
-        factoryMerkleBase.transferAdmin(address(contractWithReceive));
-
         _test_CollectFees(address(contractWithReceive));
     }
 
-    function _test_CollectFees(address admin) private {
-        // Load the initial ETH balance of the admin.
-        uint256 initialAdminBalance = admin.balance;
+    function _test_CollectFees(address feeRecipient) private {
+        // Load the initial ETH balance of the fee recipient.
+        uint256 initialFeeRecipientBalance = feeRecipient.balance;
 
         // It should emit a {CollectFees} event.
         vm.expectEmit({ emitter: address(factoryMerkleBase) });
-        emit ISablierFactoryMerkleBase.CollectFees({ admin: admin, campaign: merkleBase, feeAmount: MIN_FEE_WEI });
+        emit ISablierFactoryMerkleBase.CollectFees({
+            admin: users.admin,
+            campaign: merkleBase,
+            feeRecipient: feeRecipient,
+            feeAmount: MIN_FEE_WEI
+        });
 
-        // Make Alice the caller.
-        setMsgSender(users.eve);
-
-        factoryMerkleBase.collectFees(merkleBase);
+        factoryMerkleBase.collectFees({ campaign: merkleBase, feeRecipient: feeRecipient });
 
         // It should decrease merkle contract balance to zero.
         assertEq(address(merkleBase).balance, 0, "merkle lockup ETH balance");
 
-        // It should transfer fee to the factory admin.
-        assertEq(admin.balance, initialAdminBalance + MIN_FEE_WEI, "admin ETH balance");
+        // It should transfer fee to the fee recipient.
+        assertEq(feeRecipient.balance, initialFeeRecipientBalance + MIN_FEE_WEI, "fee recipient ETH balance");
     }
 }

@@ -18,7 +18,7 @@ contract Constructor_MerkleInstant_Integration_Test is MerkleInstant_Integration
         assertEq(constructedInstant.admin(), users.campaignCreator, "admin");
         assertEq(constructedInstant.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedInstant.EXPIRATION(), EXPIRATION, "expiration");
-        assertEq(constructedInstant.FACTORY(), address(factoryMerkleInstant), "factory");
+        assertEq(address(constructedInstant.FACTORY()), address(factoryMerkleInstant), "factory");
         assertEq(constructedInstant.ipfsCID(), IPFS_CID, "IPFS CID");
         assertEq(constructedInstant.MERKLE_ROOT(), MERKLE_ROOT, "merkleRoot");
         assertEq(constructedInstant.minFeeUSD(), MIN_FEE_USD, "min fee USD");

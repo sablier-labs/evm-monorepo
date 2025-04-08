@@ -28,7 +28,7 @@ abstract contract SablierMerkleBase is
     uint40 public immutable override EXPIRATION;
 
     /// @inheritdoc ISablierMerkleBase
-    address public immutable override FACTORY;
+    ISablierFactoryMerkleBase public immutable override FACTORY;
 
     /// @inheritdoc ISablierMerkleBase
     bytes32 public immutable override MERKLE_ROOT;
@@ -71,13 +71,13 @@ abstract contract SablierMerkleBase is
         Adminable(initialAdmin)
     {
         EXPIRATION = expiration;
-        FACTORY = msg.sender;
+        FACTORY = ISablierFactoryMerkleBase(msg.sender);
         MERKLE_ROOT = merkleRoot;
-        ORACLE = ISablierFactoryMerkleBase(FACTORY).oracle();
+        ORACLE = FACTORY.oracle();
         TOKEN = token;
         campaignName = campaignName_;
         ipfsCID = ipfsCID_;
-        minFeeUSD = ISablierFactoryMerkleBase(FACTORY).minFeeUSDFor(campaignCreator);
+        minFeeUSD = FACTORY.minFeeUSDFor(campaignCreator);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -171,20 +171,20 @@ abstract contract SablierMerkleBase is
     }
 
     /// @inheritdoc ISablierMerkleBase
-    function collectFees(address factoryAdmin) external override returns (uint256 feeAmount) {
+    function collectFees(address feeRecipient) external override returns (uint256 feeAmount) {
         // Check: the caller is the FACTORY.
-        if (msg.sender != FACTORY) {
-            revert Errors.SablierMerkleBase_CallerNotFactory({ factory: FACTORY, caller: msg.sender });
+        if (msg.sender != address(FACTORY)) {
+            revert Errors.SablierMerkleBase_CallerNotFactory({ factory: address(FACTORY), caller: msg.sender });
         }
 
         feeAmount = address(this).balance;
 
-        // Effect: transfer the fees to the factory admin.
-        (bool success,) = factoryAdmin.call{ value: feeAmount }("");
+        // Effect: transfer the fees to the `feeRecipient` address.
+        (bool success,) = feeRecipient.call{ value: feeAmount }("");
 
         // Revert if the transfer failed.
         if (!success) {
-            revert Errors.SablierMerkleBase_FeeTransferFail(factoryAdmin, feeAmount);
+            revert Errors.SablierMerkleBase_FeeTransferFail(feeRecipient, feeAmount);
         }
     }
 

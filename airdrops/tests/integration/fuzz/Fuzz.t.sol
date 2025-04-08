@@ -146,8 +146,8 @@ contract Shared_Fuzz_Test is Integration_Test {
         // Load the initial ETH balance of the admin.
         uint256 initialAdminBalance = users.admin.balance;
 
-        // collect the fees earned.
-        factoryMerkleBase.collectFees(merkleBase);
+        // Collect the fees earned.
+        factoryMerkleBase.collectFees({ campaign: merkleBase, feeRecipient: users.admin });
 
         // It should decrease merkle contract balance to zero.
         assertEq(address(merkleBase).balance, 0, "merkle base ETH balance");

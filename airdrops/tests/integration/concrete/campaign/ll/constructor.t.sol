@@ -21,7 +21,7 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         assertEq(constructedLL.admin(), users.campaignCreator, "admin");
         assertEq(constructedLL.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedLL.EXPIRATION(), EXPIRATION, "expiration");
-        assertEq(constructedLL.FACTORY(), address(factoryMerkleLL), "factory");
+        assertEq(address(constructedLL.FACTORY()), address(factoryMerkleLL), "factory");
         assertEq(constructedLL.ipfsCID(), IPFS_CID, "IPFS CID");
         assertEq(constructedLL.MERKLE_ROOT(), MERKLE_ROOT, "merkleRoot");
         assertEq(constructedLL.minFeeUSD(), MIN_FEE_USD, "min fee USD");

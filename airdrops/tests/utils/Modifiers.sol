@@ -71,6 +71,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenCallerNotAdmin() {
+        _;
+    }
+
     modifier whenClaimTimeGreaterThanStartTime() {
         _;
     }
@@ -96,6 +100,10 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenFactoryAdminIsContract() {
+        _;
+    }
+
+    modifier whenFeeRecipientContract() {
         _;
     }
 

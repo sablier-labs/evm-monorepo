@@ -2,14 +2,22 @@ CollectFees_Integration_Test
 ├── when provided merkle lockup not valid
 │  └── it should revert
 └── when provided merkle lockup valid
-   ├── when factory admin is not contract
-   │  ├── it should transfer fee to the factory admin
-   │  ├── it should decrease merkle contract balance to zero
-   │  └── it should emit a {CollectFees} event
-   └── when factory admin is contract
-      ├── when factory admin does not implement receive function
-      │  └── it should revert
-      └── when factory admin implements receive function
-         ├── it should transfer fee to the factory admin
-         ├── it should decrease merkle contract balance to zero
-         └── it should emit a {CollectFees} event
+   ├── when caller not admin
+   │  ├── when fee recipient not admin
+   │  │  └── it should revert
+   │  └── when fee recipient admin
+   │     ├── it should transfer fee to the admin
+   │     ├── it should decrease merkle contract balance to zero
+   │     └── it should emit a {CollectFees} event
+   └── when caller admin
+      ├── when fee recipient not contract
+      │  ├── it should transfer fee to the fee recipient
+      │  ├── it should decrease merkle contract balance to zero
+      │  └── it should emit a {CollectFees} event
+      └── when fee recipient contract
+         ├── when fee recipient does not implement receive function
+         │  └── it should revert
+         └── when fee recipient implements receive function
+            ├── it should transfer fee to the fee recipient
+            ├── it should decrease merkle contract balance to zero
+            └── it should emit a {CollectFees} event
