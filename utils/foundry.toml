@@ -1,7 +1,7 @@
 [profile.default]
-  evm_version = "shanghai"
+  evm_version = "shanghai" # needed for greater coverage of EVM chains
   fs_permissions = [
-    { access = "read", path = "package.json" }
+    { access = "read", path = "package.json" },
   ]
   fuzz = { runs = 1_000 }
   gas_reports = ["*"]
