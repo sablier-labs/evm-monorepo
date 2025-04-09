@@ -191,7 +191,7 @@ abstract contract SablierMerkleBase is
     /// @inheritdoc ISablierMerkleBase
     function lowerMinFeeUSD(uint256 newMinFeeUSD) external override {
         // Safe Interaction: retrieve the factory admin.
-        address factoryAdmin = ISablierFactoryMerkleBase(FACTORY).admin();
+        address factoryAdmin = FACTORY.admin();
 
         // Check: the caller is the factory admin.
         if (factoryAdmin != msg.sender) {
