@@ -52,14 +52,6 @@ Install Flow using your favorite package manager, e.g. with Bun:
 bun add @sablier/flow
 ```
 
-Then, if you are using Foundry, you need to add these to your `remappings.txt` file:
-
-```text
-@sablier/flow/=node_modules/@sablier/flow/
-@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
-@prb/math/=node_modules/@prb/math/
-```
-
 ### Git Submodules
 
 This installation method is not recommended, but it is available for those who prefer it.
@@ -74,14 +66,6 @@ Then, install the project's dependencies:
 
 ```shell
 forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math#95f00b2
-```
-
-Finally, add these to your `remappings.txt` file:
-
-```text
-@sablier/flow/=lib/flow/
-@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-@prb/math/=lib/prb-math/
 ```
 
 ### Branching Tree Technique
