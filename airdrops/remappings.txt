@@ -1,8 +1,0 @@
-@chainlink/contracts/=node_modules/@chainlink/contracts/
-@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
-@prb/math/=node_modules/@prb/math/
-@sablier/evm-utils/=node_modules/@sablier/evm-utils/
-@sablier/lockup/=node_modules/@sablier/lockup/
-forge-std/=node_modules/forge-std/
-murky/=node_modules/murky/
-solady/=node_modules/solady/

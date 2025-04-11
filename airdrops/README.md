@@ -52,14 +52,6 @@ Install this repo using your favorite package manager, e.g., with Bun:
 bun add @sablier/airdrops
 ```
 
-Then, if you are using Foundry, you need to add these to your `remappings.txt` file:
-
-```text
-@sablier/airdrops/=node_modules/@sablier/airdrops/
-@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
-@prb/math/=node_modules/@prb/math/
-```
-
 #### Git Submodules
 
 This installation method is not recommended, but it is available for those who prefer it.
@@ -74,15 +66,6 @@ Second, install the project's dependencies:
 
 ```shell
 forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.1.0 sablier-labs/lockup@v2.0.0
-```
-
-Finally, add these to your `remappings.txt` file:
-
-```text
-@sablier/airdrops/=lib/airdrops/
-@sablier/lockup/=lib/lockup/src/
-@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-@prb/math/=lib/prb-math/
 ```
 
 ### Branching Tree Technique

@@ -8,7 +8,7 @@
         "@openzeppelin/contracts": "5.0.2",
         "@prb/math": "4.1.0",
         "@sablier/evm-utils": "github:sablier-labs/evm-utils#0c10739",
-        "@sablier/lockup": "github:sablier-labs/lockup#2bae244",
+        "@sablier/lockup": "github:sablier-labs/lockup#f98c83e",
       },
       "devDependencies": {
         "forge-std": "github:foundry-rs/forge-std#v1.8.2",
@@ -177,7 +177,7 @@
 
     "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#0c10739", {}, "sablier-labs-evm-utils-0c10739"],
 
-    "@sablier/lockup": ["@sablier/lockup@github:sablier-labs/lockup#2bae244", { "dependencies": { "@openzeppelin/contracts": "5.0.2", "@prb/math": "4.1.0", "@sablier/evm-utils": "github:sablier-labs/evm-utils#d1896e1" }, "peerDependencies": { "@prb/math": "4.x.x" } }, "sablier-labs-lockup-2bae244"],
+    "@sablier/lockup": ["@sablier/lockup@github:sablier-labs/lockup#f98c83e", { "dependencies": { "@openzeppelin/contracts": "5.0.2", "@prb/math": "4.1.0", "@sablier/evm-utils": "github:sablier-labs/evm-utils#d1896e1" }, "peerDependencies": { "@prb/math": "4.x.x" } }, "sablier-labs-lockup-f98c83e"],
 
     "@scroll-tech/contracts": ["@scroll-tech/contracts@2.0.0", "", {}, "sha512-O8sVaA/bVKH/mp+bBfUjZ/vYr5mdBExCpKRLre4r9TbXTtiaY9Uo5xU8dcG3weLxyK0BZqDTP2aCNp4Q0f7SeA=="],
 

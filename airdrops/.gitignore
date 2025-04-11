@@ -19,6 +19,7 @@ typechain-types
 *.log
 .DS_Store
 .pnp.*
+bun.lockb
 deployments.md
 lcov.info
 package-lock.json
