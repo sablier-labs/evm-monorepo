@@ -7,19 +7,36 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract CollectFees_Integration_Concrete_Test is Integration_Test {
-    function test_GivenAdminIsNotContract() external {
-        _test_CollectFees(users.admin);
+    function setUp() public override {
+        Integration_Test.setUp();
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
+
+        // Make a withdrawal and pay the fee.
+        lockup.withdrawMax{ value: FEE }({ streamId: ids.defaultStream, to: users.recipient });
     }
 
-    function test_RevertGiven_AdminDoesNotImplementReceiveFunction() external givenAdminIsContract {
-        // Transfer the admin to a contract that does not implement the receive function.
-        setMsgSender(users.admin);
-        lockup.transferAdmin(address(contractWithoutReceive));
+    function test_RevertWhen_FeeRecipientNotAdmin() external whenCallerNotAdmin {
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierLockupBase_FeeRecipientNotAdmin.selector, users.eve, users.admin)
+        );
+        lockup.collectFees({ feeRecipient: users.eve });
+    }
 
-        // Make the contract the caller.
-        setMsgSender(address(contractWithoutReceive));
+    function test_WhenFeeRecipientAdmin() external whenCallerNotAdmin {
+        // It should transfer fee to the admin.
+        _test_CollectFees({ feeRecipient: users.admin });
+    }
 
-        // Expect a revert.
+    function test_WhenFeeRecipientNotContract() external whenCallerAdmin {
+        // It should transfer fee to the fee recipient.
+        _test_CollectFees({ feeRecipient: users.recipient });
+    }
+
+    function test_RevertWhen_FeeRecipientDoesNotImplementReceiveFunction()
+        external
+        whenCallerAdmin
+        whenFeeRecipientContract
+    {
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierLockupBase_FeeTransferFail.selector,
@@ -27,43 +44,25 @@ contract CollectFees_Integration_Concrete_Test is Integration_Test {
                 address(lockup).balance
             )
         );
-
-        // Collect the fees.
-        lockup.collectFees();
+        lockup.collectFees({ feeRecipient: address(contractWithoutReceive) });
     }
 
-    function test_GivenAdminImplementsReceiveFunction() external givenAdminIsContract {
-        // Transfer the admin to a contract that implements the receive function.
-        setMsgSender(users.admin);
-        lockup.transferAdmin(address(contractWithReceive));
-
-        // Make the contract the caller.
-        setMsgSender(address(contractWithReceive));
-
-        // Run the tests.
+    function test_WhenFeeRecipientImplementsReceiveFunction() external whenCallerAdmin whenFeeRecipientContract {
         _test_CollectFees(address(contractWithReceive));
     }
 
-    function _test_CollectFees(address admin) private {
-        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
-
-        // Load the initial ETH balance of the admin.
-        uint256 initialAdminBalance = admin.balance;
-
-        // Make Alice the caller.
-        setMsgSender(users.alice);
-
-        // Make a withdrawal and pay the fee.
-        lockup.withdrawMax{ value: FEE }({ streamId: ids.defaultStream, to: users.recipient });
+    function _test_CollectFees(address feeRecipient) private {
+        // Load the initial ETH balance of the fee recipient.
+        uint256 initialFeeRecipientBalance = feeRecipient.balance;
 
         // It should emit a {CollectFees} event.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.CollectFees({ admin: admin, feeAmount: FEE });
+        emit ISablierLockupBase.CollectFees({ admin: users.admin, feeRecipient: feeRecipient, feeAmount: FEE });
 
-        lockup.collectFees();
+        lockup.collectFees({ feeRecipient: feeRecipient });
 
         // It should transfer the fee.
-        assertEq(admin.balance, initialAdminBalance + FEE, "admin ETH balance");
+        assertEq(feeRecipient.balance, initialFeeRecipientBalance + FEE, "fee recipient ETH balance");
 
         // It should decrease contract balance to zero.
         assertEq(address(lockup).balance, 0, "lockup ETH balance");

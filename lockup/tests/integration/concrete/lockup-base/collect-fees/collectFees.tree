@@ -1,12 +1,20 @@
 CollectFees_Integration_Concrete_Test
-├── given admin is not contract
-│  ├── it should transfer fee
-│  ├── it should decrease contract balance to zero
-│  └── it should emit a {CollectFees} event
-└── given admin is contract
-   ├── given admin does not implement receive function
-   │  └── it should revert
-   └── given admin implements receive function
-      ├── it should transfer fee
-      ├── it should decrease contract balance to zero
-      └── it should emit a {CollectFees} event
+├── when caller not admin
+│  ├── when fee recipient not admin
+│  │  └── it should revert
+│  └── when fee recipient admin
+│     ├── it should transfer fee to the admin
+│     ├── it should decrease contract balance to zero
+│     └── it should emit a {CollectFees} event
+└── when caller admin
+   ├── when fee recipient not contract
+   │  ├── it should transfer fee to the fee recipient
+   │  ├── it should decrease contract balance to zero
+   │  └── it should emit a {CollectFees} event
+   └── when fee recipient contract
+      ├── when fee recipient does not implement receive function
+      │  └── it should revert
+      └── when fee recipient implements receive function
+         ├── it should transfer fee to the fee recipient
+         ├── it should decrease contract balance to zero
+         └── it should emit a {CollectFees} event

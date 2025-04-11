@@ -165,7 +165,7 @@ contract LockupHandler is BaseHandler {
     }
 
     function collectFees() external instrument("collectFees") {
-        lockup.collectFees();
+        lockup.collectFees(lockup.admin());
     }
 
     function withdrawMax(

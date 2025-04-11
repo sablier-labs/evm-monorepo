@@ -440,6 +440,14 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
+    modifier whenCallerNotAdmin() {
+        _;
+    }
+
+    modifier whenFeeRecipientContract() {
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                    WITHDRAW-HOOKS
     //////////////////////////////////////////////////////////////////////////*/

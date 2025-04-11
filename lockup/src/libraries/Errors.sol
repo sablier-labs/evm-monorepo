@@ -100,8 +100,11 @@ library Errors {
     /// @notice Thrown when trying to allow to hook an address with no code.
     error SablierLockupBase_AllowToHookZeroCodeSize(address recipient);
 
+    /// @notice Thrown when a non-admin tries to collect fees to a non-admin address.
+    error SablierLockupBase_FeeRecipientNotAdmin(address feeRecipient, address admin);
+
     /// @notice Thrown when the fee transfer fails.
-    error SablierLockupBase_FeeTransferFail(address admin, uint256 feeAmount);
+    error SablierLockupBase_FeeTransferFail(address feeRecipient, uint256 feeAmount);
 
     /// @notice Thrown when the hook does not return the correct selector.
     error SablierLockupBase_InvalidHookSelector(address recipient);
