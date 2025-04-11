@@ -25,6 +25,8 @@ jobs:
 
   build:
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@main"
+    with:
+      foundry-profiles: "default"
 
   test-unit:
     needs: ["lint", "build"]
@@ -32,3 +34,12 @@ jobs:
     with:
       match-path: "tests/**/*.sol"
       name: "Unit tests"
+
+  coverage:
+    needs: ["lint", "build"]
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-coverage.yml@main"
+    with:
+      match-path: "tests/**/*.sol"
+      via-ir-minimum: true

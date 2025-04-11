@@ -22,7 +22,7 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 
 This repo contains the following subdirectories:
 
-- `src/interfaces`: Interfaces for [`Adminable`](src/Adminable.sol) and [`Batch`](src/Batch.sol) contracts.
+- `src/interfaces`: Interfaces to be used by external projects.
 - `src/mocks`: Mock contracts used by external projects in tests.
 - `src/tests`: Helper contracts used by external projects in tests and deployment scripts.
 

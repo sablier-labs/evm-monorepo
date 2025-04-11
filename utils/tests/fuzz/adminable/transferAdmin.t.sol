@@ -7,7 +7,7 @@ import { Errors } from "src/libraries/Errors.sol";
 import { AdminableMock } from "src/mocks/AdminableMock.sol";
 import { Unit_Test } from "../../Unit.t.sol";
 
-contract TransferAdmin_Unit_Fuzz_Test is Unit_Test {
+contract TransferAdmin_Adminable_Unit_Fuzz_Test is Unit_Test {
     AdminableMock internal adminableMock;
 
     function setUp() public override {
