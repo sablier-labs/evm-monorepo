@@ -9,8 +9,6 @@ import { RoleAdminableMock } from "src/mocks/RoleAdminableMock.sol";
 import { Unit_Test } from "../../Unit.t.sol";
 
 contract TransferAdmin_RoleAdminable_Unit_Fuzz_Test is Unit_Test {
-    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
-
     RoleAdminableMock internal roleAdminableMock;
 
     function setUp() public override {

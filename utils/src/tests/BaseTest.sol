@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { CommonBase as StdBase } from "forge-std/src/Base.sol";
@@ -16,7 +17,10 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
                                    CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
     uint256 internal constant FEE = 0.001e18;
+    bytes32 public constant FEE_COLLECTOR_ROLE = keccak256("FEE_COLLECTOR_ROLE");
+    bytes32 public constant FEE_MANAGEMENT_ROLE = keccak256("FEE_MANAGEMENT_ROLE");
     uint128 internal constant MAX_UINT128 = type(uint128).max;
     uint256 internal constant MAX_UINT256 = type(uint256).max;
     uint40 internal constant MAX_UINT40 = type(uint40).max;
@@ -92,6 +96,12 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
         vm.startPrank(from);
         (bool success,) = token_.call(abi.encodeCall(IERC20.approve, (spender, UINT256_MAX)));
         success;
+    }
+
+    /// @dev Authorize `account` to take admin actions on `target` contract.
+    function grantAllRoles(address account, address target) internal {
+        IAccessControl(target).grantRole(FEE_COLLECTOR_ROLE, account);
+        IAccessControl(target).grantRole(FEE_MANAGEMENT_ROLE, account);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

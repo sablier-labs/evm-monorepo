@@ -5,9 +5,6 @@ import { RoleAdminableMock } from "src/mocks/RoleAdminableMock.sol";
 import { Unit_Test } from "../../Unit.t.sol";
 
 abstract contract RoleAdminable_Unit_Concrete_Test is Unit_Test {
-    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
-    bytes32 public constant FEE_COLLECTOR_ROLE = keccak256("FEE_COLLECTOR_ROLE");
-
     RoleAdminableMock internal roleAdminableMock;
 
     function setUp() public override {
