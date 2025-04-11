@@ -73,7 +73,7 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
     /// @dev Generates a user, label its address, funds it with test tokens and approve `spenders` contracts.
     function createUser(string memory name, address[] memory spenders) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
-        vm.label(user, "name");
+        vm.label(user, name);
         vm.deal({ account: user, newBalance: 100 ether });
 
         for (uint256 i = 0; i < spenders.length; ++i) {
