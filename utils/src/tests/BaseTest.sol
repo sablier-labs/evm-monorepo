@@ -50,7 +50,7 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
 
         // Label the tokens.
         vm.label(address(contractWithoutReceive), "Contract without Receive");
-        vm.label(address(contractWithoutReceive), "Contract with Receive");
+        vm.label(address(contractWithReceive), "Contract with Receive");
         vm.label(address(dai), "DAI");
         vm.label(address(usdc), "USDC");
         vm.label(address(usdt), "USDT");
