@@ -13,57 +13,54 @@ contract CollectFees_Integration_Concrete_Test is Shared_Integration_Concrete_Te
 
         // Make a withdrawal and pay the fee.
         flow.withdrawMax{ value: FEE }({ streamId: defaultStreamId, to: users.recipient });
-
-        setMsgSender(users.admin);
     }
 
-    function test_GivenAdminIsNotContract() external {
-        _test_CollectFees(users.admin);
+    function test_RevertWhen_FeeRecipientNotAdmin() external whenCallerNotAdmin {
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierFlowBase_FeeRecipientNotAdmin.selector, users.eve, users.admin)
+        );
+        flow.collectFees({ feeRecipient: users.eve });
     }
 
-    function test_RevertGiven_AdminDoesNotImplementReceiveFunction() external givenAdminIsContract {
-        // Transfer the admin to a contract that does not implement the receive function.
-        flow.transferAdmin(address(contractWithoutReceive));
+    function test_WhenFeeRecipientAdmin() external whenCallerNotAdmin {
+        // It should transfer fee to the admin.
+        _test_CollectFees({ feeRecipient: users.admin });
+    }
 
-        // Make the contract the caller.
-        setMsgSender(address(contractWithoutReceive));
+    function test_WhenFeeRecipientNotContract() external whenCallerAdmin {
+        // It should transfer fee to the fee recipient.
+        _test_CollectFees({ feeRecipient: users.recipient });
+    }
 
-        // Expect a revert.
+    function test_RevertWhen_FeeRecipientDoesNotImplementReceiveFunction()
+        external
+        whenCallerAdmin
+        whenFeeRecipientContract
+    {
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierFlowBase_FeeTransferFail.selector, address(contractWithoutReceive), address(flow).balance
             )
         );
-
-        // Collect the fees.
-        flow.collectFees();
+        flow.collectFees({ feeRecipient: address(contractWithoutReceive) });
     }
 
-    function test_GivenAdminImplementsReceiveFunction() external givenAdminIsContract {
-        // Transfer the admin to a contract that implements the receive function.
-        flow.transferAdmin(address(contractWithReceive));
-
-        // Make the contract the caller.
-        setMsgSender(address(contractWithReceive));
-
-        // Run the tests.
+    function test_WhenFeeRecipientImplementsReceiveFunction() external whenCallerAdmin whenFeeRecipientContract {
         _test_CollectFees(address(contractWithReceive));
     }
 
-    function _test_CollectFees(address admin) private {
-        vm.warp({ newTimestamp: WITHDRAW_TIME });
-
-        // Load the initial ETH balance of the admin.
-        uint256 initialAdminBalance = admin.balance;
+    function _test_CollectFees(address feeRecipient) private {
+        // Load the initial ETH balance of the fee recipient.
+        uint256 initialFeeRecipientBalance = feeRecipient.balance;
 
         // It should emit a {CollectFees} event.
         vm.expectEmit({ emitter: address(flow) });
-        emit ISablierFlowBase.CollectFees({ admin: admin, feeAmount: FEE });
+        emit ISablierFlowBase.CollectFees({ admin: users.admin, feeRecipient: feeRecipient, feeAmount: FEE });
 
-        flow.collectFees();
+        flow.collectFees({ feeRecipient: feeRecipient });
 
         // It should transfer the fee.
-        assertEq(admin.balance, initialAdminBalance + FEE, "admin ETH balance");
+        assertEq(feeRecipient.balance, initialFeeRecipientBalance + FEE, "fee recipient ETH balance");
 
         // It should decrease contract balance to zero.
         assertEq(address(flow).balance, 0, "flow ETH balance");

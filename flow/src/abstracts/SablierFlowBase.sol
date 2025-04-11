@@ -196,19 +196,24 @@ abstract contract SablierFlowBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFlowBase
-    function collectFees() external override {
+    function collectFees(address feeRecipient) external override {
+        // Check: if `msg.sender` is not the admin, `feeRecipient` must be the admin address.
+        if (msg.sender != admin && feeRecipient != admin) {
+            revert Errors.SablierFlowBase_FeeRecipientNotAdmin(feeRecipient, admin);
+        }
+
         uint256 feeAmount = address(this).balance;
 
-        // Effect: transfer the fees to the admin.
-        (bool success,) = admin.call{ value: feeAmount }("");
+        // Effect: transfer the fees to the fee recipient.
+        (bool success,) = feeRecipient.call{ value: feeAmount }("");
 
         // Revert if the call failed.
         if (!success) {
-            revert Errors.SablierFlowBase_FeeTransferFail(admin, feeAmount);
+            revert Errors.SablierFlowBase_FeeTransferFail(feeRecipient, feeAmount);
         }
 
         // Log the fee withdrawal.
-        emit ISablierFlowBase.CollectFees({ admin: admin, feeAmount: feeAmount });
+        emit ISablierFlowBase.CollectFees(admin, feeRecipient, feeAmount);
     }
 
     /// @inheritdoc ISablierFlowBase

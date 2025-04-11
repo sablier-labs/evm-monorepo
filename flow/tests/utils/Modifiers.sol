@@ -68,6 +68,14 @@ abstract contract Modifiers is Utils {
         _;
     }
 
+    modifier whenCallerNotAdmin() {
+        _;
+    }
+
+    modifier whenFeeRecipientContract() {
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                        CREATE
     //////////////////////////////////////////////////////////////////////////*/

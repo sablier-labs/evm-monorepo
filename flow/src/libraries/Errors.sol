@@ -83,8 +83,11 @@ library Errors {
                                  SABLIER-FLOW-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when a non-admin tries to collect fees to a non-admin address.
+    error SablierFlowBase_FeeRecipientNotAdmin(address feeRecipient, address admin);
+
     /// @notice Thrown when the fee transfer fails.
-    error SablierFlowBase_FeeTransferFail(address admin, uint256 feeAmount);
+    error SablierFlowBase_FeeTransferFail(address feeRecipient, uint256 feeAmount);
 
     /// @notice Thrown when trying to set the native token address when it is already set.
     error SablierFlowBase_NativeTokenAlreadySet(address nativeToken);

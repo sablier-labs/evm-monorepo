@@ -20,9 +20,10 @@ interface ISablierFlowBase is
     IAdminable // 0 inherited components
 {
     /// @notice Emitted when the accrued fees are collected.
-    /// @param admin The address of the current contract admin, which has received the fees.
+    /// @param admin The address of the current contract admin.
+    /// @param feeRecipient The address where the fees will be collected.
     /// @param feeAmount The amount of collected fees.
-    event CollectFees(address indexed admin, uint256 indexed feeAmount);
+    event CollectFees(address indexed admin, address indexed feeRecipient, uint256 feeAmount);
 
     /// @notice Emitted when the contract admin recovers the surplus amount of token.
     /// @param admin The address of the contract admin.
@@ -138,13 +139,16 @@ interface ISablierFlowBase is
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Collects the accrued fees by transferring them to the contract admin.
+    /// @notice Collects the accrued fees. If `feeRecipient` is a contract, it must be able to receive native tokens,
+    /// e.g., ETH for Ethereum Mainnet.
     ///
     /// @dev Emits a {CollectFees} event.
     ///
-    /// Notes:
-    /// - If the admin is a contract, it must be able to receive native token payments, e.g., ETH for Ethereum Mainnet.
-    function collectFees() external;
+    /// Requirements:
+    /// - If `msg.sender` is not the admin, `feeRecipient` must be the admin address.
+    ///
+    /// @param feeRecipient The address where the fees will be collected.
+    function collectFees(address feeRecipient) external;
 
     /// @notice Recover the surplus amount of tokens.
     ///
