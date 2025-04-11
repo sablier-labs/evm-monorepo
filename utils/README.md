@@ -38,12 +38,6 @@ Install using your favorite package manager, e.g., with Bun:
 bun add @sablier/evm-utils
 ```
 
-Then, if you are using Foundry, you need to add these to your `remappings.txt` file:
-
-```text
-@sablier/evm-utils/=node_modules/@sablier/evm-utils/
-```
-
 ### Git Submodules
 
 This installation method is not recommended, but it is available for those who prefer it.
@@ -52,12 +46,6 @@ First, install the submodule using Forge:
 
 ```shell
 forge install --no-commit sablier-labs/evm-utils
-```
-
-Second, if you are using Foundry, you need to add these to your `remappings.txt` file:
-
-```text
-@sablier/evm-utils/=lib/evm-utils/
 ```
 
 ## Usage
