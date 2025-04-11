@@ -24,7 +24,7 @@ library Errors {
     error SablierMerkleBase_ClawbackNotAllowed(uint256 blockTimestamp, uint40 expiration, uint40 firstClaimTime);
 
     /// @notice Thrown if the fees withdrawal failed.
-    error SablierMerkleBase_FeeTransferFail(address factoryAdmin, uint256 feeAmount);
+    error SablierMerkleBase_FeeTransferFail(address feeRecipient, uint256 feeAmount);
 
     /// @notice Thrown when trying to claim without paying the min fee.
     error SablierMerkleBase_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
