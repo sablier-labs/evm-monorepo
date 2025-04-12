@@ -75,8 +75,7 @@ Technique and [Bulloak](https://bulloak.dev/).
 
 ## Usage
 
-This is just a glimpse of Sablier Flow. For more guides and examples, see the [documentation](https://docs.sablier.com)
-and the [technical file](./TECHNICAL-DOC.md).
+This is just a glimpse of Sablier Flow. For more guides and examples, see the [documentation](https://docs.sablier.com).
 
 ```solidity
 import { ISablierFlow } from "@sablier/flow/src/interfaces/ISablierFlow.sol";

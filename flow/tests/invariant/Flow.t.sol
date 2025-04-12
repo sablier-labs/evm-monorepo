@@ -137,10 +137,8 @@ contract Flow_Invariant_Test is Base_Test, StdInvariant {
     /// @dev The next stream ID should always be incremented by 1.
     function invariant_NextStreamId() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 nextStreamId = flow.nextStreamId();
-            assertEq(nextStreamId, lastStreamId + 1, "Invariant violation: next stream ID not incremented");
-        }
+        uint256 nextStreamId = flow.nextStreamId();
+        assertEq(nextStreamId, lastStreamId + 1, "Invariant violation: next stream ID not incremented");
     }
 
     /// @dev The stream balance should always equal the sum of the covered debt and the refundable amount.
@@ -173,7 +171,7 @@ contract Flow_Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    /// @dev If RPS > 0, the status should be be pending or paused.
+    /// @dev If RPS > 0, the status should be be PENDING, STREAMING_SOLVENT or STREAMING_INSOLVENT.
     function invariant_RPSNotZero_StatusPendingOrStreaming() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
@@ -191,7 +189,7 @@ contract Flow_Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    /// @dev If RPS > 0 and no withdrawals are made, the total debt should increase.
+    /// @dev If RPS > 0 and no withdrawals are made, the total debt should never decrease.
     function invariant_RPSNotZero_TotalDebtAlwaysIncreases() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
@@ -223,7 +221,7 @@ contract Flow_Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    /// @dev If RPS > 0 and non-voided stream, `isPaused` should return true and the status should be paused, too.
+    /// @dev If RPS = 0 and non-voided stream, `isPaused` should return true and the status should be PAUSED, too.
     function invariant_RPSZero_NonVoided_IsPaused_StatusPaused() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {

@@ -25,8 +25,9 @@ it must adhere to the following assumptions:
   depends on the sender to fulfill their obligation to repay any debts incurred by the Flow stream. Likewise, depositors
   trust that the sender will not abuse the refund function to reclaim tokens.
 - The token contract must implement `decimals()` with an immutable return value.
+- The token contract's `decimals()` function must not return a value higher than 18.
 - The `depletionTimeOf` function depends on the stream's rate per second. Therefore, any change in the rate per second
   will result in a new depletion time.
-- As explained in the [Technical Documentation](./TECHNICAL-DOC.md), there could be a minor discrepancy between the
-  actual streamed amount and the expected amount. This is due to `rps` being an 18-decimal number, while users provide
-  the amount per interval in the UI. If `rps` had infinite decimals, this discrepancy would not occur.
+- There could be a minor discrepancy between the actual streamed amount and the expected amount. This is due to `rps`
+  being an 18-decimal number, while users provide the amount per interval in the UI. If `rps` had infinite decimals,
+  this discrepancy would not occur.
