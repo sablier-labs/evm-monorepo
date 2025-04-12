@@ -120,7 +120,7 @@ contract Flow_Fork_Test is Fork_Test {
             streamId = _bound(streamId, initialStreamId, finalStreamId - 1);
 
             // For certain functions, we need to find a non-voided stream ID.
-            streamId = _findNonVoidedStreamId(streamId);
+            streamId = _findNonVoidedStreamId(streamId, initialStreamId);
 
             // Execute the flow function mentioned in flowFunc[i].
             _executeFunc(
@@ -177,11 +177,11 @@ contract Flow_Fork_Test is Fork_Test {
 
     /// @notice Find the first non-voided stream ID with the same token.
     /// @dev If no non-voided stream is found, it will create a new stream.
-    function _findNonVoidedStreamId(uint256 streamId) private returns (uint256) {
+    function _findNonVoidedStreamId(uint256 streamId, uint256 initialStreamId) private returns (uint256) {
         // Check if the current stream ID is voided.
         if (flow.isVoided(streamId)) {
             bool found = false;
-            for (uint256 i = 1; i < flow.nextStreamId(); ++i) {
+            for (uint256 i = initialStreamId; i < flow.nextStreamId(); ++i) {
                 if (!flow.isVoided(i) && token == flow.getToken(i)) {
                     streamId = i;
                     found = true;
