@@ -63,7 +63,6 @@ jobs:
 
   test-fork:
     needs: ["lint", "build"]
-    if: needs.build.outputs.cache-hit != 'true'
     secrets:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
       ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
