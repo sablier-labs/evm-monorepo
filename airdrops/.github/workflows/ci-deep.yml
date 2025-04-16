@@ -23,14 +23,14 @@ on:
 
 jobs:
   lint:
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-lint.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/evm-lint.yml@main"
 
   build:
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
 
   test-integration:
     needs: ["lint", "build"]
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: ${{ fromJSON(inputs.integrationFuzzRuns || '50000') }}
       foundry-profile: "test-optimized"
@@ -41,7 +41,7 @@ jobs:
     needs: ["lint", "build"]
     secrets:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: ${{ fromJSON(inputs.forkFuzzRuns || '1000') }}
       foundry-profile: "test-optimized"

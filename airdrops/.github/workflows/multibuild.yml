@@ -1,4 +1,4 @@
-name: "Multibuild"
+name: "CI Multibuild"
 
 on:
   workflow_dispatch:
