@@ -14,32 +14,35 @@ on:
 
 jobs:
   lint:
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-lint.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/evm-lint.yml@main"
 
-  bulloak:
-    needs: ["lint"]
-    uses: "sablier-labs/reusable-workflows/.github/workflows/bulloak-check.yml@main"
+  build:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+    with:
+      foundry-profiles: "default"
+
+  test-bulloak:
+    needs: ["lint", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
     with:
       skip-modifiers: true
       tree-path: "tests"
 
-  build:
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@main"
-    with:
-      foundry-profiles: "default"
-
   test-unit:
     needs: ["lint", "build"]
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       match-path: "tests/**/*.sol"
       name: "Unit tests"
 
   coverage:
     needs: ["lint", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-coverage.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
     with:
       match-path: "tests/**/*.sol"
       via-ir-minimum: true
