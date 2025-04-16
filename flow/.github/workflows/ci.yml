@@ -14,21 +14,23 @@ on:
 
 jobs:
   lint:
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-lint.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/evm-lint.yml@main"
 
-  bulloak:
-    needs: ["lint"]
-    uses: "sablier-labs/reusable-workflows/.github/workflows/bulloak-check.yml@main"
+  build:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+
+  test-bulloak:
+    needs: ["lint", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
     with:
       skip-modifiers: true
       tree-path: "tests/integration"
 
-  build:
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@main"
-
   test-integration:
     needs: ["lint", "build"]
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: 10000
       foundry-profile: "test-optimized"
@@ -37,7 +39,8 @@ jobs:
 
   test-invariant:
     needs: ["lint", "build"]
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-invariant-depth: 100
       foundry-invariant-runs: 1000
@@ -47,9 +50,10 @@ jobs:
 
   test-fork:
     needs: ["lint", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
     secrets:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
@@ -58,8 +62,9 @@ jobs:
 
   coverage:
     needs: ["lint", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-coverage.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
     with:
       match-path: "tests/{integration}/**/*.sol"
