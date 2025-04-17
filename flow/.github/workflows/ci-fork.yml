@@ -3,6 +3,7 @@ name: "CI Fork tests"
 on:
   schedule:
     - cron: "0 3 * * 2,4" # at 3:00 AM UTC on Tuesday and Thursday
+  workflow_dispatch:
 
 jobs:
   lint:
