@@ -25,14 +25,6 @@ contract Batch_Unit_Concrete_Test is Unit_Test {
         batchMock.batch(calls);
     }
 
-    modifier whenFunctionExists() {
-        _;
-    }
-
-    modifier whenNonStateChangingFunction() {
-        _;
-    }
-
     function test_RevertWhen_FunctionReverts() external whenFunctionExists whenNonStateChangingFunction {
         calls = new bytes[](1);
         calls[0] = abi.encodeCall(batchMock.getNumberAndRevert, ());
@@ -50,14 +42,6 @@ contract Batch_Unit_Concrete_Test is Unit_Test {
         // It should return the expected value.
         assertEq(results.length, 1, "batch results length");
         assertEq(abi.decode(results[0], (uint256)), 42, "batch results[0]");
-    }
-
-    modifier whenStateChangingFunction() {
-        _;
-    }
-
-    modifier whenNotPayable() {
-        _;
     }
 
     function test_RevertWhen_BatchIncludesETHValue()
@@ -83,10 +67,6 @@ contract Batch_Unit_Concrete_Test is Unit_Test {
         // It should return the empty string.
         assertEq(results.length, 1, "batch results length");
         assertEq(results[0], "", "batch results[0]");
-    }
-
-    modifier whenPayable() {
-        _;
     }
 
     function test_RevertWhen_FunctionRevertsWithCustomError()

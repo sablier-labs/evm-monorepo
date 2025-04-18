@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { IRoleAdminable } from "./interfaces/IRoleAdminable.sol";
 import { Errors } from "./libraries/Errors.sol";
+import { Adminable } from "./Adminable.sol";
 
 /// @title RoleAdminable
 /// @notice See the documentation in {IRoleAdminable}.
-abstract contract RoleAdminable is IRoleAdminable, AccessControl {
+/// @dev This contract is a lightweight version of OpenZeppelin's AccessControl contract which can be found at
+/// https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/access/AccessControl.sol.
+abstract contract RoleAdminable is IRoleAdminable, Adminable {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -22,16 +24,17 @@ abstract contract RoleAdminable is IRoleAdminable, AccessControl {
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc IRoleAdminable
-    address public override admin;
+    /// @dev A mapping of role identifiers to the addresses that have been granted the role. Roles are referred to by
+    /// their `bytes32` identifier.
+    mapping(bytes32 role => mapping(address account => bool)) private _roles;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Reverts if called by any account other than the admin.
-    modifier onlyAdmin() {
-        _onlyAdmin();
+    /// @notice Reverts if `msg.sender` neither has the `role` nor is the admin.
+    modifier onlyRole(bytes32 role) {
+        _checkRoleOrIsAdmin(role);
         _;
     }
 
@@ -39,26 +42,16 @@ abstract contract RoleAdminable is IRoleAdminable, AccessControl {
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Emits a {TransferAdmin} event.
     /// @param initialAdmin The address of the initial admin.
-    constructor(address initialAdmin) {
-        // Effect: set the admin.
-        admin = initialAdmin;
-
-        // Effect: grant the default admin role to the initial admin.
-        _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);
-
-        // Log the transfer of the admin.
-        emit IRoleAdminable.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
-    }
+    constructor(address initialAdmin) Adminable(initialAdmin) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                             USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IRoleAdminable
-    function hasRoleOrIsAdmin(bytes32 role) public view override returns (bool) {
-        return hasRole(role, _msgSender()) || admin == _msgSender();
+    function hasRoleOrIsAdmin(bytes32 role, address account) public view override returns (bool) {
+        return _hasRoleOrIsAdmin(role, account);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -66,39 +59,53 @@ abstract contract RoleAdminable is IRoleAdminable, AccessControl {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IRoleAdminable
-    function transferAdmin(address newAdmin) public virtual override onlyAdmin {
-        // Effect: update the admin.
-        admin = newAdmin;
+    function grantRole(bytes32 role, address account) public override onlyAdmin {
+        // Check: `account` does not have the `role`.
+        if (_roles[role][account]) {
+            revert Errors.AccountAlreadyHasRole(role, account);
+        }
 
-        // Effect: revoke the default admin role from the old admin.
-        _revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        // Effect: grant the `role` to `account`.
+        _roles[role][account] = true;
 
-        // Effect: grant the default admin role to the new admin.
-        _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
+        // Emit the {RoleGranted} event.
+        emit RoleGranted({ admin: msg.sender, account: account, role: role });
+    }
 
-        // Log the transfer of the admin.
-        emit IRoleAdminable.TransferAdmin({ oldAdmin: _msgSender(), newAdmin: newAdmin });
+    /// @inheritdoc IRoleAdminable
+    function revokeRole(bytes32 role, address account) public override onlyAdmin {
+        // Check: `account` has the `role`.
+        if (!_roles[role][account]) {
+            revert Errors.AccountDoesNotHaveRole(role, account);
+        }
+
+        // Effect: revoke the `role` from `account`.
+        _roles[role][account] = false;
+
+        // Emit the {RoleRevoked} event.
+        emit RoleRevoked({ admin: msg.sender, account: account, role: role });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                              PRIVATE CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Overrides the {AccessControl-_checkRole} function to allow the admin to bypass the `role` check. This also
-    /// changes the behavior of the {onlyRole} modifier.
-    function _checkRole(bytes32 role) internal view override {
-        // Checks: if `_msgSender()` is not the admin, it has the `role`, otherwise reverts with the
-        // {AccessControlUnauthorizedAccount} error.
-        if (_msgSender() != admin) {
-            _checkRole(role, _msgSender());
+    /// @dev Checks whether `msg.sender` has the `role` or is the admin. This is used in the {onlyRole} modifier.
+    function _checkRoleOrIsAdmin(bytes32 role) private view {
+        // Check: `msg.sender` is the admin or has the `role`.
+        if (!_hasRoleOrIsAdmin(role, msg.sender)) {
+            revert Errors.UnauthorizedAccess({ caller: msg.sender, neededRole: role });
         }
     }
 
-    /// @dev A private function is used instead of inlining this logic in a modifier because Solidity copies modifiers
-    /// into every function that uses them.
-    function _onlyAdmin() private view {
-        if (admin != _msgSender()) {
-            revert Errors.CallerNotAdmin({ admin: admin, caller: _msgSender() });
+    /// @dev Returns `true` if `account` is the admin or has the `role`.
+    function _hasRoleOrIsAdmin(bytes32 role, address account) private view returns (bool) {
+        // Returns true if `account` is the admin or has the `role`.
+        if (admin == account || _roles[role][account]) {
+            return true;
         }
+
+        // Otherwise, return false.
+        return false;
     }
 }

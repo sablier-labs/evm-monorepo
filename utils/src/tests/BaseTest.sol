@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.22 <0.9.0;
+pragma solidity >=0.8.22;
 
-import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { CommonBase as StdBase } from "forge-std/src/Base.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { StdUtils } from "forge-std/src/StdUtils.sol";
+import { IRoleAdminable } from "src/interfaces/IRoleAdminable.sol";
 
 import { ERC20MissingReturn } from "../mocks/erc20/ERC20MissingReturn.sol";
 import { ERC20Mock } from "../mocks/erc20/ERC20Mock.sol";
@@ -100,8 +100,8 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
 
     /// @dev Authorize `account` to take admin actions on `target` contract.
     function grantAllRoles(address account, address target) internal {
-        IAccessControl(target).grantRole(FEE_COLLECTOR_ROLE, account);
-        IAccessControl(target).grantRole(FEE_MANAGEMENT_ROLE, account);
+        IRoleAdminable(target).grantRole(FEE_COLLECTOR_ROLE, account);
+        IRoleAdminable(target).grantRole(FEE_MANAGEMENT_ROLE, account);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
