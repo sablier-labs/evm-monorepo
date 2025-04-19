@@ -2,9 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { StdAssertions } from "forge-std/src/StdAssertions.sol";
-
 import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
+import { StdAssertions } from "forge-std/src/StdAssertions.sol";
 
 contract BaseScriptMock is BaseScript { }
 

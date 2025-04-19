@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { BaseTest as CommonBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
+import { BaseTest as CommonBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
 import { LockupDynamic, LockupTranched } from "../../src/types/DataTypes.sol";
 

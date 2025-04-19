@@ -19,7 +19,7 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
             maxCount: defaults.MAX_COUNT()
         });
 
-        // {Adminable.constructor}
+        // {RoleAdminable.constructor}
         address actualAdmin = constructedLockup.admin();
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");

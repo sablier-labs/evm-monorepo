@@ -4,8 +4,8 @@ pragma solidity >=0.8.22;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
 import { IBatch } from "@sablier/evm-utils/src/interfaces/IBatch.sol";
+import { IRoleAdminable } from "@sablier/evm-utils/src/interfaces/IRoleAdminable.sol";
 
 import { Lockup } from "../types/DataTypes.sol";
 import { ILockupNFTDescriptor } from "./ILockupNFTDescriptor.sol";
@@ -13,7 +13,7 @@ import { ILockupNFTDescriptor } from "./ILockupNFTDescriptor.sol";
 /// @title ISablierLockupBase
 /// @notice Common logic between all Sablier Lockup contracts.
 interface ISablierLockupBase is
-    IAdminable, // 0 inherited components
+    IRoleAdminable, // 1 inherited component
     IBatch, // 0 inherited components
     IERC4906, // 2 inherited components
     IERC721Metadata // 2 inherited components
@@ -301,7 +301,8 @@ interface ISablierLockupBase is
     /// @dev Emits a {CollectFees} event.
     ///
     /// Requirements:
-    /// - If `msg.sender` is not the admin, `feeRecipient` must be the admin address.
+    /// - If `msg.sender` has neither the {IRoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin, then
+    /// `feeRecipient` must be the admin address.
     ///
     /// @param feeRecipient The address where the fees will be collected.
     function collectFees(address feeRecipient) external;

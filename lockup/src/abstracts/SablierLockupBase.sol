@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
+import { RoleAdminable } from "@sablier/evm-utils/src/RoleAdminable.sol";
 
 import { ILockupNFTDescriptor } from "./../interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockupBase } from "./../interfaces/ISablierLockupBase.sol";
@@ -20,10 +21,10 @@ import { Lockup } from "./../types/DataTypes.sol";
 /// @notice See the documentation in {ISablierLockupBase}.
 abstract contract SablierLockupBase is
     Batch, // 1 inherited components
+    ERC721, // 6 inherited components
+    ISablierLockupBase, // 7 inherited components
     NoDelegateCall, // 0 inherited components
-    Adminable, // 1 inherited components
-    ISablierLockupBase, // 6 inherited components
-    ERC721 // 6 inherited components
+    RoleAdminable // 3 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -55,7 +56,7 @@ abstract contract SablierLockupBase is
 
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
-    constructor(address initialAdmin, ILockupNFTDescriptor initialNFTDescriptor) Adminable(initialAdmin) {
+    constructor(address initialAdmin, ILockupNFTDescriptor initialNFTDescriptor) RoleAdminable(initialAdmin) {
         nftDescriptor = initialNFTDescriptor;
     }
 
@@ -337,7 +338,7 @@ abstract contract SablierLockupBase is
 
             // If there is a revert, log it using an event, and continue with the next stream.
             if (!success) {
-                emit InvalidStreamInCancelMultiple(streamIds[i], result);
+                emit ISablierLockupBase.InvalidStreamInCancelMultiple(streamIds[i], result);
             }
             // Otherwise, the call is successful, so insert the refunded amount into the array.
             else {
@@ -349,9 +350,11 @@ abstract contract SablierLockupBase is
 
     /// @inheritdoc ISablierLockupBase
     function collectFees(address feeRecipient) external override {
-        // Check: if `msg.sender` is not the admin, `feeRecipient` must be the admin address.
-        if (msg.sender != admin && feeRecipient != admin) {
-            revert Errors.SablierLockupBase_FeeRecipientNotAdmin(feeRecipient, admin);
+        // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
+        // then `feeRecipient` must be the admin address.
+        bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
+        if (!hasRoleOrIsAdmin && feeRecipient != admin) {
+            revert Errors.SablierLockupBase_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
         }
 
         uint256 feeAmount = address(this).balance;
@@ -383,7 +386,7 @@ abstract contract SablierLockupBase is
         token.safeTransfer({ to: to, value: surplus });
 
         // Log the recover.
-        emit Recover({ admin: msg.sender, token: token, to: to, surplus: surplus });
+        emit ISablierLockupBase.Recover({ admin: msg.sender, token: token, to: to, surplus: surplus });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -436,7 +439,7 @@ abstract contract SablierLockupBase is
         nativeToken = newNativeToken;
 
         // Log the update.
-        emit SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
+        emit ISablierLockupBase.SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -453,7 +456,7 @@ abstract contract SablierLockupBase is
         });
 
         // Refresh the NFT metadata for all streams.
-        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
+        emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -502,7 +505,7 @@ abstract contract SablierLockupBase is
         _withdraw(streamId, to, amount);
 
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Interaction: if `msg.sender` is not the recipient and the recipient is on the allowlist, run the hook.
         if (msg.sender != recipient && _allowedToHook[recipient]) {
@@ -581,7 +584,7 @@ abstract contract SablierLockupBase is
             );
             // If there is a revert, log it using an event, and continue with the next stream.
             if (!success) {
-                emit InvalidWithdrawalInWithdrawMultiple(streamIds[i], result);
+                emit ISablierLockupBase.InvalidWithdrawalInWithdrawMultiple(streamIds[i], result);
             }
         }
     }
@@ -709,7 +712,7 @@ abstract contract SablierLockupBase is
         emit ISablierLockupBase.CancelLockupStream(streamId, sender, recipient, token, senderAmount, recipientAmount);
 
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Interaction: if the recipient is on the allowlist, run the hook.
         if (_allowedToHook[recipient]) {
@@ -756,7 +759,7 @@ abstract contract SablierLockupBase is
         }
 
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         return super._update(to, streamId, auth);
     }

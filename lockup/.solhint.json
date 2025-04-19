@@ -9,6 +9,7 @@
     "func-name-mixedcase": "off",
     "func-visibility": ["error", { "ignoreConstructors": true }],
     "gas-custom-errors": "off",
+    "imports-order": "warn",
     "max-states-count": ["warn", 20],
     "max-line-length": ["error", 130],
     "named-parameters-mapping": "warn",

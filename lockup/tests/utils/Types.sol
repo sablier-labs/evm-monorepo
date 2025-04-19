@@ -23,6 +23,8 @@ struct StreamIds {
 }
 
 struct Users {
+    // User authorized for fee related actions.
+    address payable accountant;
     // Default admin.
     address payable admin;
     // Impartial user.

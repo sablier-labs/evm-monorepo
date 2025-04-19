@@ -73,16 +73,8 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         // Deploy the NFT descriptor mock.
         nftDescriptorMock = new NFTDescriptorMock();
 
-        // Create users for testing. Note that due to ERC-20 approvals, this has to go after the protocol deployment.
-        address[] memory spenders = new address[](2);
-        spenders[0] = address(batchLockup);
-        spenders[1] = address(lockup);
-
-        users.alice = createUser("Alice", spenders);
-        users.eve = createUser("Eve", spenders);
-        users.operator = createUser("Operator", spenders);
-        users.recipient = createUser("Recipient", spenders);
-        users.sender = createUser("Sender", spenders);
+        // Create users for testing.
+        createTestUsers();
 
         defaults.setUsers(users);
 
@@ -103,6 +95,26 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Create users for testing and assign roles if applicable.
+    function createTestUsers() internal {
+        // Create users for testing. Note that due to ERC-20 approvals, this has to go after the protocol deployment.
+        address[] memory spenders = new address[](2);
+        spenders[0] = address(batchLockup);
+        spenders[1] = address(lockup);
+
+        // Create test users.
+        users.accountant = createUser("Accountant", spenders);
+        users.alice = createUser("Alice", spenders);
+        users.eve = createUser("Eve", spenders);
+        users.operator = createUser("Operator", spenders);
+        users.recipient = createUser("Recipient", spenders);
+        users.sender = createUser("Sender", spenders);
+
+        // Assign fee collector role to the accountant user.
+        setMsgSender(users.admin);
+        lockup.grantRole(FEE_COLLECTOR_ROLE, users.accountant);
+    }
 
     /// @dev Conditionally deploys the protocol normally or from an optimized source compiled with `--via-ir`.
     /// We cannot use the {DeployProtocol} script because some tests rely on hard coded addresses for the

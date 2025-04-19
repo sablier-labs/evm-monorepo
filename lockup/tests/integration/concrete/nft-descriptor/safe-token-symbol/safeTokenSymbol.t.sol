@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Base_Test } from "tests/Base.t.sol";
 import { ERC20Bytes32 } from "@sablier/evm-utils/src/mocks/erc20/ERC20Bytes32.sol";
 import { ERC20Mock } from "@sablier/evm-utils/src/mocks/erc20/ERC20Mock.sol";
+import { Base_Test } from "tests/Base.t.sol";
 
 contract SafeTokenSymbol_Integration_Concrete_Test is Base_Test {
     function test_WhenTokenNotContract() external view {
