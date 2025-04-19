@@ -87,6 +87,21 @@ abstract contract RoleAdminable is IRoleAdminable, Adminable {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                             INTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Returns `true` if `account` is the admin or has the `role`.
+    function _hasRoleOrIsAdmin(bytes32 role, address account) internal view returns (bool) {
+        // Returns true if `account` is the admin or has the `role`.
+        if (admin == account || _roles[role][account]) {
+            return true;
+        }
+
+        // Otherwise, return false.
+        return false;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                              PRIVATE CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -96,16 +111,5 @@ abstract contract RoleAdminable is IRoleAdminable, Adminable {
         if (!_hasRoleOrIsAdmin(role, msg.sender)) {
             revert Errors.UnauthorizedAccess({ caller: msg.sender, neededRole: role });
         }
-    }
-
-    /// @dev Returns `true` if `account` is the admin or has the `role`.
-    function _hasRoleOrIsAdmin(bytes32 role, address account) private view returns (bool) {
-        // Returns true if `account` is the admin or has the `role`.
-        if (admin == account || _roles[role][account]) {
-            return true;
-        }
-
-        // Otherwise, return false.
-        return false;
     }
 }
