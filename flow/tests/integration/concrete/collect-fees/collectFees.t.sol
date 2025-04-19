@@ -15,14 +15,22 @@ contract CollectFees_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         flow.withdrawMax{ value: FEE }({ streamId: defaultStreamId, to: users.recipient });
     }
 
-    function test_RevertWhen_FeeRecipientNotAdmin() external whenCallerNotAdmin {
+    function test_WhenCallerWithFeeCollectorRole() external whenCallerNotAdmin {
+        // Change the caller to the accountant which has the fee collector role.
+        setMsgSender(users.accountant);
+
+        // It should transfer fee to the fee recipient.
+        _test_CollectFees({ feeRecipient: users.recipient });
+    }
+
+    function test_RevertWhen_FeeRecipientNotAdmin() external whenCallerNotAdmin whenCallerWithoutFeeCollectorRole {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFlowBase_FeeRecipientNotAdmin.selector, users.eve, users.admin)
         );
         flow.collectFees({ feeRecipient: users.eve });
     }
 
-    function test_WhenFeeRecipientAdmin() external whenCallerNotAdmin {
+    function test_WhenFeeRecipientAdmin() external whenCallerNotAdmin whenCallerWithoutFeeCollectorRole {
         // It should transfer fee to the admin.
         _test_CollectFees({ feeRecipient: users.admin });
     }
@@ -46,6 +54,7 @@ contract CollectFees_Integration_Concrete_Test is Shared_Integration_Concrete_Te
     }
 
     function test_WhenFeeRecipientImplementsReceiveFunction() external whenCallerAdmin whenFeeRecipientContract {
+        // It should transfer fee to the fee recipient.
         _test_CollectFees(address(contractWithReceive));
     }
 

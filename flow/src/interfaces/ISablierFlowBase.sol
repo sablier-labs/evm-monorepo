@@ -5,7 +5,7 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
-import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
+import { IRoleAdminable } from "@sablier/evm-utils/src/interfaces/IRoleAdminable.sol";
 
 import { Flow } from "./../types/DataTypes.sol";
 import { IFlowNFTDescriptor } from "./IFlowNFTDescriptor.sol";
@@ -15,9 +15,9 @@ import { IFlowNFTDescriptor } from "./IFlowNFTDescriptor.sol";
 /// their respective getters, helpful modifiers, and helper functions.
 /// @dev This contract also includes admin control functions.
 interface ISablierFlowBase is
+    IRoleAdminable, // 1 inherited components
     IERC4906, // 2 inherited components
-    IERC721Metadata, // 2 inherited components
-    IAdminable // 0 inherited components
+    IERC721Metadata // 2 inherited components
 {
     /// @notice Emitted when the accrued fees are collected.
     /// @param admin The address of the current contract admin.
@@ -145,7 +145,8 @@ interface ISablierFlowBase is
     /// @dev Emits a {CollectFees} event.
     ///
     /// Requirements:
-    /// - If `msg.sender` is not the admin, `feeRecipient` must be the admin address.
+    /// - If `msg.sender` has neither the {IRoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin, then
+    /// `feeRecipient` must be the admin address.
     ///
     /// @param feeRecipient The address where the fees will be collected.
     function collectFees(address feeRecipient) external;

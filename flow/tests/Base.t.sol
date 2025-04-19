@@ -50,14 +50,8 @@ abstract contract Base_Test is Assertions, Modifiers {
         IERC20 tokenWithoutDecimals = new ERC20Mock("Token Without Decimals", "TWD", 0);
         tokens.push(tokenWithoutDecimals);
 
-        address[] memory spenders = new address[](1);
-        spenders[0] = address(flow);
-
-        // Create the users.
-        users.eve = createUser("eve", spenders);
-        users.operator = createUser("operator", spenders);
-        users.recipient = createUser("recipient", spenders);
-        users.sender = createUser("sender", spenders);
+        // Create users for testing.
+        createTestUsers();
 
         // Set the variables in Modifiers contract.
         setVariables(users);
@@ -71,6 +65,24 @@ abstract contract Base_Test is Assertions, Modifiers {
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Create users for testing and assign roles if applicable.
+    function createTestUsers() internal {
+        // Create users for testing. Note that due to ERC-20 approvals, this has to go after the protocol deployment.
+        address[] memory spenders = new address[](1);
+        spenders[0] = address(flow);
+
+        // Create test users.
+        users.accountant = createUser("Accountant", spenders);
+        users.eve = createUser("eve", spenders);
+        users.operator = createUser("operator", spenders);
+        users.recipient = createUser("recipient", spenders);
+        users.sender = createUser("sender", spenders);
+
+        // Assign fee collector role to the accountant user.
+        setMsgSender(users.admin);
+        flow.grantRole(FEE_COLLECTOR_ROLE, users.accountant);
+    }
 
     /// @dev Deploys {SablierFlow} from an optimized source compiled with `--via-ir`.
     function deployOptimizedSablierFlow() internal returns (SablierFlow) {

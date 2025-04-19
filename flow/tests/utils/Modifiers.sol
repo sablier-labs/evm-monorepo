@@ -72,6 +72,10 @@ abstract contract Modifiers is Utils {
         _;
     }
 
+    modifier whenCallerWithoutFeeCollectorRole() {
+        _;
+    }
+
     modifier whenFeeRecipientContract() {
         _;
     }

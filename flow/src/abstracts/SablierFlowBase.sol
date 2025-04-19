@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
-import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
+import { RoleAdminable } from "@sablier/evm-utils/src/RoleAdminable.sol";
 
 import { IFlowNFTDescriptor } from "./../interfaces/IFlowNFTDescriptor.sol";
 import { ISablierFlowBase } from "./../interfaces/ISablierFlowBase.sol";
@@ -17,9 +18,9 @@ import { Flow } from "./../types/DataTypes.sol";
 /// @title SablierFlowBase
 /// @notice See the documentation in {ISablierFlowBase}.
 abstract contract SablierFlowBase is
-    Adminable, // 1 inherited component
-    ISablierFlowBase, // 5 inherited component
-    ERC721 // 6 inherited components
+    ERC721, // 6 inherited components
+    ISablierFlowBase, // 6 inherited components
+    RoleAdminable // 3 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -49,7 +50,7 @@ abstract contract SablierFlowBase is
     /// @dev Emits {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
-    constructor(address initialAdmin, IFlowNFTDescriptor initialNFTDescriptor) Adminable(initialAdmin) {
+    constructor(address initialAdmin, IFlowNFTDescriptor initialNFTDescriptor) RoleAdminable(initialAdmin) {
         nextStreamId = 1;
         nftDescriptor = initialNFTDescriptor;
     }
@@ -92,7 +93,7 @@ abstract contract SablierFlowBase is
     /// @dev Emits an ERC-4906 event to trigger an update of the NFT metadata.
     modifier updateMetadata(uint256 streamId) {
         _;
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -197,9 +198,11 @@ abstract contract SablierFlowBase is
 
     /// @inheritdoc ISablierFlowBase
     function collectFees(address feeRecipient) external override {
-        // Check: if `msg.sender` is not the admin, `feeRecipient` must be the admin address.
-        if (msg.sender != admin && feeRecipient != admin) {
-            revert Errors.SablierFlowBase_FeeRecipientNotAdmin(feeRecipient, admin);
+        // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
+        // then `feeRecipient` must be the admin address.
+        bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
+        if (!hasRoleOrIsAdmin && feeRecipient != admin) {
+            revert Errors.SablierFlowBase_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
         }
 
         uint256 feeAmount = address(this).balance;
@@ -228,7 +231,7 @@ abstract contract SablierFlowBase is
         // Interaction: transfer the surplus to the provided address.
         token.safeTransfer(to, surplus);
 
-        emit Recover(msg.sender, token, to, surplus);
+        emit ISablierFlowBase.Recover(msg.sender, token, to, surplus);
     }
 
     /// @inheritdoc ISablierFlowBase
@@ -247,7 +250,7 @@ abstract contract SablierFlowBase is
         nativeToken = newNativeToken;
 
         // Log the update.
-        emit SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
+        emit ISablierFlowBase.SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
     }
 
     /// @inheritdoc ISablierFlowBase
@@ -264,7 +267,7 @@ abstract contract SablierFlowBase is
         });
 
         // Refresh the NFT metadata for all streams.
-        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
+        emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
     }
 
     /// @inheritdoc ERC721
