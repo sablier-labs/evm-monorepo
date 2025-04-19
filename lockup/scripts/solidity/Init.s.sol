@@ -3,19 +3,18 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
+import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 
 import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
 import { Lockup, LockupDynamic, LockupLinear } from "../../src/types/DataTypes.sol";
-
-import { MaxCountScript } from "./MaxCount.s.sol";
 
 interface IERC20Mint {
     function mint(address beneficiary, uint256 value) external;
 }
 
 /// @notice Initializes the protocol by creating some streams.
-contract Init is MaxCountScript {
+contract Init is BaseScript {
     function run(ISablierLockup lockup, IERC20 token) public broadcast {
         address sender = broadcaster;
         address recipient = vm.addr(vm.deriveKey({ mnemonic: mnemonic, index: 1 }));

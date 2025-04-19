@@ -27,7 +27,7 @@ contract EstimateMaxCount is Defaults, DeployOptimized {
 
     uint128 public constant AMOUNT_PER_SEGMENT = 1e18;
 
-    // Buffer gas units to be deducted from the block gas limit so that the max count never exceeds the block limit.
+    // Buffer gas units to be deducted from the block gas limit so that the segment count never exceeds the block limit.
     uint256 public constant BUFFER_GAS = 1_000_000;
 
     // Initial guess for the maximum number of segments/tranches.
@@ -52,9 +52,9 @@ contract EstimateMaxCount is Defaults, DeployOptimized {
 
         // Deploy the Lockup contract.
         if (!isTestOptimizedProfile()) {
-            lockup = new SablierLockup(users.admin, new LockupNFTDescriptor(), MAX_COUNT);
+            lockup = new SablierLockup(users.admin, new LockupNFTDescriptor());
         } else {
-            (, lockup,) = deployOptimizedProtocol({ initialAdmin: users.sender, maxCount: MAX_COUNT });
+            (, lockup,) = deployOptimizedProtocol({ initialAdmin: users.sender });
         }
 
         // Set up the caller.

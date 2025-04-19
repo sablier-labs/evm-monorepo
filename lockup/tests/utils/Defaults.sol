@@ -25,9 +25,6 @@ contract Defaults {
     uint128 public constant DEPOSIT_AMOUNT_6D = 10_000e6;
     uint40 public immutable END_TIME;
     uint40 public constant FEB_1_2025 = 1_738_368_000;
-    uint256 public constant MAX_COUNT = 10_000;
-    uint40 public immutable MAX_SEGMENT_DURATION;
-    uint256 public constant MAX_TRANCHE_COUNT = 10_000;
     uint128 public constant REFUND_AMOUNT = DEPOSIT_AMOUNT - WITHDRAW_AMOUNT;
     uint256 public constant SEGMENT_COUNT = 2;
     string public constant SHAPE = "emits in the event";
@@ -56,7 +53,6 @@ contract Defaults {
         START_TIME = FEB_1_2025 + 2 days;
         CLIFF_TIME = START_TIME + CLIFF_DURATION;
         END_TIME = START_TIME + TOTAL_DURATION;
-        MAX_SEGMENT_DURATION = TOTAL_DURATION / uint40(MAX_COUNT);
         WARP_26_PERCENT = START_TIME + WARP_26_PERCENT_DURATION;
     }
 

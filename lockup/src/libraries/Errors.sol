@@ -42,9 +42,6 @@ library Errors {
     /// @notice Thrown when trying to create a tranched stream with end time not equal to the last tranche's timestamp.
     error SablierHelpers_EndTimeNotEqualToLastTrancheTimestamp(uint40 endTime, uint40 lastTrancheTimestamp);
 
-    /// @notice Thrown when trying to create a dynamic stream with more segments than the maximum allowed.
-    error SablierHelpers_SegmentCountTooHigh(uint256 count);
-
     /// @notice Thrown when trying to create a dynamic stream with no segments.
     error SablierHelpers_SegmentCountZero();
 
@@ -74,9 +71,6 @@ library Errors {
 
     /// @notice Thrown when trying to create a stream with a zero start time.
     error SablierHelpers_StartTimeZero();
-
-    /// @notice Thrown when trying to create a tranched stream with more tranches than the maximum allowed.
-    error SablierHelpers_TrancheCountTooHigh(uint256 count);
 
     /// @notice Thrown when trying to create a tranched stream with no tranches.
     error SablierHelpers_TrancheCountZero();

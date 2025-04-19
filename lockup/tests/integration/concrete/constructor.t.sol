@@ -13,11 +13,8 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
         emit IAdminable.TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
 
         // Construct the contract.
-        SablierLockup constructedLockup = new SablierLockup({
-            initialAdmin: users.admin,
-            initialNFTDescriptor: nftDescriptor,
-            maxCount: defaults.MAX_COUNT()
-        });
+        SablierLockup constructedLockup =
+            new SablierLockup({ initialAdmin: users.admin, initialNFTDescriptor: nftDescriptor });
 
         // {RoleAdminable.constructor}
         address actualAdmin = constructedLockup.admin();
@@ -36,10 +33,5 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
 
         // {SablierLockupBase.supportsInterface}
         assertTrue(constructedLockup.supportsInterface(0x49064906), "ERC-4906 interface ID");
-
-        // {SablierLockup.constructor}
-        uint256 actualMaxCount = constructedLockup.MAX_COUNT();
-        uint256 expectedMaxCount = defaults.MAX_COUNT();
-        assertEq(actualMaxCount, expectedMaxCount, "MAX_COUNT");
     }
 }

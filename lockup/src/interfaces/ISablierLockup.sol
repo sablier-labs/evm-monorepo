@@ -44,10 +44,6 @@ interface ISablierLockup is ISablierLockupBase {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum number of segments and tranches allowed in Dynamic and Tranched streams respectively.
-    /// @dev This is initialized at construction time and cannot be changed later.
-    function MAX_COUNT() external view returns (uint256);
-
     /// @notice Retrieves the stream's cliff time, which is a Unix timestamp.  A value of zero means there is no cliff.
     /// @dev Reverts if `streamId` references either a null stream or a non-LL stream.
     /// @param streamId The stream ID for the query.
@@ -156,7 +152,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// - Must not be delegate called.
     /// - `params.depositAmount` must be greater than zero.
     /// - `params.timestamps.start` must be greater than zero and less than the first segment's timestamp.
-    /// - `segments` must have at least one segment, but not more than `MAX_COUNT`.
+    /// - `segments` must have at least one segment.
     /// - The segment timestamps must be arranged in ascending order.
     /// - `params.timestamps.end` must be equal to the last segment's timestamp.
     /// - The sum of the segment amounts must equal the deposit amount.
@@ -228,7 +224,7 @@ interface ISablierLockup is ISablierLockupBase {
     /// - Must not be delegate called.
     /// - `params.depositAmount` must be greater than zero.
     /// - `params.timestamps.start` must be greater than zero and less than the first tranche's timestamp.
-    /// - `tranches` must have at least one tranche, but not more than `MAX_COUNT`.
+    /// - `tranches` must have at least one tranche.
     /// - The tranche timestamps must be arranged in ascending order.
     /// - `params.timestamps.end` must be equal to the last tranche's timestamp.
     /// - The sum of the tranche amounts must equal the deposit amount.

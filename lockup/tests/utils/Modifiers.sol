@@ -198,14 +198,6 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
-    modifier whenSegmentCountNotExceedMaxValue() {
-        _;
-    }
-
-    modifier whenTrancheCountNotExceedMaxValue() {
-        _;
-    }
-
     modifier whenCliffTimeNotZero() {
         _;
     }

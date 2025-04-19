@@ -26,22 +26,6 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         createDefaultStream();
     }
 
-    function testFuzz_RevertWhen_TrancheCountTooHigh(uint256 trancheCount)
-        external
-        whenNoDelegateCall
-        whenShapeNotExceed32Bytes
-        whenSenderNotZeroAddress
-        whenRecipientNotZeroAddress
-        whenDepositAmountNotZero
-        whenTrancheCountNotZero
-    {
-        uint256 defaultMax = defaults.MAX_COUNT();
-        trancheCount = _bound(trancheCount, defaultMax + 1, defaultMax * 10);
-        LockupTranched.Tranche[] memory tranches = new LockupTranched.Tranche[](trancheCount);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_TrancheCountTooHigh.selector, trancheCount));
-        lockup.createWithTimestampsLT(_defaultParams.createWithTimestamps, tranches);
-    }
-
     function testFuzz_RevertWhen_TrancheAmountsSumOverflows(
         uint128 amount0,
         uint128 amount1
@@ -53,7 +37,6 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
     {
         amount0 = boundUint128(amount0, MAX_UINT128 / 2 + 1, MAX_UINT128);
         amount1 = boundUint128(amount0, MAX_UINT128 / 2 + 1, MAX_UINT128);
@@ -72,7 +55,6 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
     {
         firstTimestamp = boundUint40(firstTimestamp, 0, defaults.START_TIME());
@@ -100,7 +82,6 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenTrancheTimestampsAreOrdered
@@ -163,7 +144,6 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenTrancheTimestampsAreOrdered

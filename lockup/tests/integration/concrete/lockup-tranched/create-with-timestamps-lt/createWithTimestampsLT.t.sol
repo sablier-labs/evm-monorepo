@@ -36,24 +36,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         lockup.createWithTimestampsLT(_defaultParams.createWithTimestamps, tranches);
     }
 
-    function test_RevertWhen_TrancheCountExceedsMaxValue()
-        external
-        whenNoDelegateCall
-        whenShapeNotExceed32Bytes
-        whenSenderNotZeroAddress
-        whenRecipientNotZeroAddress
-        whenDepositAmountNotZero
-        whenStartTimeNotZero
-        whenTokenNotNativeToken
-        whenTokenContract
-        whenTrancheCountNotZero
-    {
-        uint256 trancheCount = defaults.MAX_COUNT() + 1;
-        LockupTranched.Tranche[] memory tranches = new LockupTranched.Tranche[](trancheCount);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_TrancheCountTooHigh.selector, trancheCount));
-        lockup.createWithTimestampsLT(_defaultParams.createWithTimestamps, tranches);
-    }
-
     function test_RevertWhen_TrancheAmountsSumOverflows()
         external
         whenNoDelegateCall
@@ -65,7 +47,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
     {
         _defaultParams.tranches[0].amount = MAX_UINT128;
         _defaultParams.tranches[1].amount = 1;
@@ -84,7 +65,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
     {
         // Change the timestamp of the first tranche.
@@ -115,7 +95,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
     {
         // Change the timestamp of the first tranche.
@@ -143,7 +122,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
     {
@@ -169,7 +147,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenEndTimeEqualsLastTimestamp
@@ -204,7 +181,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenEndTimeEqualsLastTimestamp
@@ -239,7 +215,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenEndTimeEqualsLastTimestamp
@@ -298,7 +273,6 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenEndTimeEqualsLastTimestamp

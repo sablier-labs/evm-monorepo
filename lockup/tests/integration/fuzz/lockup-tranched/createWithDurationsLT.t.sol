@@ -23,7 +23,6 @@ contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Tranched_Integrat
     function testFuzz_CreateWithDurationsLT(LockupTranched.TrancheWithDuration[] memory tranches)
         external
         whenNoDelegateCall
-        whenTrancheCountNotExceedMaxValue
         whenTimestampsCalculationNotOverflow
     {
         vm.assume(tranches.length != 0);

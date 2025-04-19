@@ -35,20 +35,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         });
     }
 
-    function test_RevertWhen_SegmentCountExceedsMaxValue() external whenNoDelegateCall {
-        LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations =
-            new LockupDynamic.SegmentWithDuration[](25_000);
-
-        // Set the default segments with duration.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_SegmentCountTooHigh.selector, 25_000));
-        createDefaultStreamWithDurations(segmentsWithDurations);
-    }
-
-    function test_RevertWhen_FirstIndexHasZeroDuration()
-        external
-        whenNoDelegateCall
-        whenSegmentCountNotExceedMaxValue
-    {
+    function test_RevertWhen_FirstIndexHasZeroDuration() external whenNoDelegateCall {
         uint40 startTime = getBlockTimestamp();
         LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations = _defaultParams.segmentsWithDurations;
         segmentsWithDurations[1].duration = 0;
@@ -69,7 +56,6 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
     function test_RevertWhen_StartTimeExceedsFirstTimestamp()
         external
         whenNoDelegateCall
-        whenSegmentCountNotExceedMaxValue
         whenFirstIndexHasNonZeroDuration
         whenTimestampsCalculationOverflows
     {
@@ -93,7 +79,6 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
     function test_RevertWhen_TimestampsNotStrictlyIncreasing()
         external
         whenNoDelegateCall
-        whenSegmentCountNotExceedMaxValue
         whenFirstIndexHasNonZeroDuration
         whenTimestampsCalculationOverflows
         whenStartTimeNotExceedsFirstTimestamp
@@ -126,12 +111,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         }
     }
 
-    function test_WhenTimestampsCalculationNotOverflow()
-        external
-        whenNoDelegateCall
-        whenSegmentCountNotExceedMaxValue
-        whenFirstIndexHasNonZeroDuration
-    {
+    function test_WhenTimestampsCalculationNotOverflow() external whenNoDelegateCall whenFirstIndexHasNonZeroDuration {
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Declare the timestamps.

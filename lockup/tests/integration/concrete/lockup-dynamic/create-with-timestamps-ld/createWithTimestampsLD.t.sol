@@ -44,25 +44,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_SegmentCountExceedsMaxValue()
-        external
-        whenNoDelegateCall
-        whenShapeNotExceed32Bytes
-        whenSenderNotZeroAddress
-        whenRecipientNotZeroAddress
-        whenDepositAmountNotZero
-        whenStartTimeNotZero
-        whenTokenNotNativeToken
-        whenTokenContract
-        whenSegmentCountNotZero
-    {
-        uint256 segmentCount = defaults.MAX_COUNT() + 1;
-        LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
-        segments[segmentCount - 1].timestamp = defaults.END_TIME();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_SegmentCountTooHigh.selector, segmentCount));
-        createDefaultStreamWithSegments(segments);
-    }
-
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
         whenNoDelegateCall
@@ -74,7 +55,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
     {
         LockupDynamic.Segment[] memory segments = defaults.segments();
         segments[0].amount = MAX_UINT128;
@@ -94,7 +74,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
     {
         // Change the timestamp of the first segment.
@@ -123,7 +102,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
     {
         // Change the timestamp of the first segment.
@@ -152,7 +130,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
     {
@@ -178,7 +155,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenEndTimeEqualsLastTimestamp
@@ -210,7 +186,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenEndTimeEqualsLastTimestamp
@@ -247,7 +222,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenEndTimeEqualsLastTimestamp
@@ -307,7 +281,6 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenEndTimeEqualsLastTimestamp

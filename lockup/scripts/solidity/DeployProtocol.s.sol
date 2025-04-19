@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
+import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
+
 import { LockupNFTDescriptor } from "../../src/LockupNFTDescriptor.sol";
 import { SablierBatchLockup } from "../../src/SablierBatchLockup.sol";
 import { SablierLockup } from "../../src/SablierLockup.sol";
 
-import { MaxCountScript } from "./MaxCount.s.sol";
-
 /// @notice Deploys the Lockup Protocol.
-contract DeployProtocol is MaxCountScript {
+contract DeployProtocol is BaseScript {
     /// @dev Deploys the protocol with the admin set in `adminMap`.
     function run()
         public
@@ -17,6 +17,6 @@ contract DeployProtocol is MaxCountScript {
         address initialAdmin = protocolAdmin();
         batchLockup = new SablierBatchLockup();
         nftDescriptor = new LockupNFTDescriptor();
-        lockup = new SablierLockup(initialAdmin, nftDescriptor, maxCountMap[block.chainid]);
+        lockup = new SablierLockup(initialAdmin, nftDescriptor);
     }
 }

@@ -244,7 +244,6 @@ interface ISablierLockupBase is
     ///
     /// Requirements:
     /// - `msg.sender` must be the contract admin.
-    /// - `recipient` must have a non-zero code size.
     /// - `recipient` must implement {ISablierLockupRecipient}.
     ///
     /// @param recipient The address of the contract to allow for hooks.

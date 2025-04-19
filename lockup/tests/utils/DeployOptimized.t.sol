@@ -27,8 +27,7 @@ abstract contract DeployOptimized is CommonBase {
     /// @dev Deploys {SablierLockup} from an optimized source compiled with `--via-ir`.
     function deployOptimizedLockup(
         address initialAdmin,
-        ILockupNFTDescriptor nftDescriptor_,
-        uint256 maxCount
+        ILockupNFTDescriptor nftDescriptor_
     )
         internal
         returns (ISablierLockup lockup)
@@ -53,8 +52,7 @@ abstract contract DeployOptimized is CommonBase {
         });
 
         // Generate the creation bytecode with the constructor arguments.
-        bytes memory createBytecode =
-            bytes.concat(vm.parseBytes(rawBytecode), abi.encode(initialAdmin, nftDescriptor_, maxCount));
+        bytes memory createBytecode = bytes.concat(vm.parseBytes(rawBytecode), abi.encode(initialAdmin, nftDescriptor_));
         assembly {
             // Deploy the Lockup contract.
             lockup := create(0, add(createBytecode, 0x20), mload(createBytecode))
@@ -75,15 +73,12 @@ abstract contract DeployOptimized is CommonBase {
     /// 1. {LockupNFTDescriptor}
     /// 2. {SablierLockup}
     /// 3. {SablierBatchLockup}
-    function deployOptimizedProtocol(
-        address initialAdmin,
-        uint256 maxCount
-    )
+    function deployOptimizedProtocol(address initialAdmin)
         internal
         returns (ILockupNFTDescriptor nftDescriptor_, ISablierLockup lockup_, ISablierBatchLockup batchLockup_)
     {
         nftDescriptor_ = deployOptimizedNFTDescriptor();
-        lockup_ = deployOptimizedLockup(initialAdmin, nftDescriptor_, maxCount);
+        lockup_ = deployOptimizedLockup(initialAdmin, nftDescriptor_);
         batchLockup_ = deployOptimizedBatchLockup();
     }
 

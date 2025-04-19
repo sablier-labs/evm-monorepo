@@ -33,9 +33,6 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierLockup
-    uint256 public immutable override MAX_COUNT;
-
     /// @dev Cliff timestamp mapped by stream IDs, used in LL streams.
     mapping(uint256 streamId => uint40 cliffTime) internal _cliffs;
 
@@ -54,16 +51,13 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
 
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the NFT descriptor contract.
-    /// @param maxCount The maximum number of segments and tranched allowed in LD and LT streams, respectively.
     constructor(
         address initialAdmin,
-        ILockupNFTDescriptor initialNFTDescriptor,
-        uint256 maxCount
+        ILockupNFTDescriptor initialNFTDescriptor
     )
         ERC721("Sablier Lockup NFT", "SAB-LOCKUP")
         SablierLockupBase(initialAdmin, initialNFTDescriptor)
     {
-        MAX_COUNT = maxCount;
         nextStreamId = 1;
     }
 
@@ -409,7 +403,6 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             segments: segments,
             token: address(params.token),
             nativeToken: nativeToken,
-            maxCount: MAX_COUNT,
             shape: params.shape
         });
 
@@ -501,7 +494,6 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             timestamps: params.timestamps,
             depositAmount: params.depositAmount,
             tranches: tranches,
-            maxCount: MAX_COUNT,
             token: address(params.token),
             nativeToken: nativeToken,
             shape: params.shape

@@ -38,17 +38,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         });
     }
 
-    function test_RevertWhen_TrancheCountExceedsMaxValue() external whenNoDelegateCall {
-        LockupTranched.TrancheWithDuration[] memory tranches = new LockupTranched.TrancheWithDuration[](25_000);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_TrancheCountTooHigh.selector, 25_000));
-        createDefaultStreamWithDurations(tranches);
-    }
-
-    function test_RevertWhen_FirstIndexHasZeroDuration()
-        external
-        whenNoDelegateCall
-        whenTrancheCountNotExceedMaxValue
-    {
+    function test_RevertWhen_FirstIndexHasZeroDuration() external whenNoDelegateCall {
         uint40 startTime = getBlockTimestamp();
         LockupTranched.TrancheWithDuration[] memory tranches = defaults.tranchesWithDurations();
         uint256 index = 1;
@@ -67,7 +57,6 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
     function test_RevertWhen_StartTimeExceedsFirstTimestamp()
         external
         whenNoDelegateCall
-        whenTrancheCountNotExceedMaxValue
         whenFirstIndexHasNonZeroDuration
         whenTimestampsCalculationOverflows
     {
@@ -89,7 +78,6 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
     function test_RevertWhen_TimestampsNotStrictlyIncreasing()
         external
         whenNoDelegateCall
-        whenTrancheCountNotExceedMaxValue
         whenFirstIndexHasNonZeroDuration
         whenTimestampsCalculationOverflows
         whenStartTimeNotExceedsFirstTimestamp
@@ -118,12 +106,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         }
     }
 
-    function test_WhenTimestampsCalculationNotOverflow()
-        external
-        whenNoDelegateCall
-        whenTrancheCountNotExceedMaxValue
-        whenFirstIndexHasNonZeroDuration
-    {
+    function test_WhenTimestampsCalculationNotOverflow() external whenNoDelegateCall whenFirstIndexHasNonZeroDuration {
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Declare the timestamps.

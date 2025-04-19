@@ -21,7 +21,7 @@ contract AllowToHook_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertWhen_ProvidedAddressNotContract() external whenCallerAdmin {
         address eoa = vm.addr({ privateKey: 1 });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_AllowToHookZeroCodeSize.selector, eoa));
+        vm.expectRevert();
         lockup.allowToHook(eoa);
     }
 

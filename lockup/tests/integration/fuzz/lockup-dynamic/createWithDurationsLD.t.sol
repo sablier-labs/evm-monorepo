@@ -22,7 +22,6 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
     function testFuzz_CreateWithDurationsLD(LockupDynamic.SegmentWithDuration[] memory segments)
         external
         whenNoDelegateCall
-        whenSegmentCountNotExceedMaxValue
         whenTimestampsCalculationNotOverflow
     {
         vm.assume(segments.length != 0);

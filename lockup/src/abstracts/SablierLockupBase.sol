@@ -253,11 +253,6 @@ abstract contract SablierLockupBase is
 
     /// @inheritdoc ISablierLockupBase
     function allowToHook(address recipient) external override onlyAdmin {
-        // Check: non-zero code size.
-        if (recipient.code.length == 0) {
-            revert Errors.SablierLockupBase_AllowToHookZeroCodeSize(recipient);
-        }
-
         // Check: recipients implements the ERC-165 interface ID required by {ISablierLockupRecipient}.
         bytes4 interfaceId = type(ISablierLockupRecipient).interfaceId;
         if (!ISablierLockupRecipient(recipient).supportsInterface(interfaceId)) {

@@ -24,22 +24,6 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         createDefaultStream();
     }
 
-    function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
-        external
-        whenNoDelegateCall
-        whenShapeNotExceed32Bytes
-        whenSenderNotZeroAddress
-        whenRecipientNotZeroAddress
-        whenDepositAmountNotZero
-        whenSegmentCountNotZero
-    {
-        uint256 defaultMax = defaults.MAX_COUNT();
-        segmentCount = _bound(segmentCount, defaultMax + 1, defaultMax * 2);
-        LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_SegmentCountTooHigh.selector, segmentCount));
-        lockup.createWithTimestampsLD(_defaultParams.createWithTimestamps, segments);
-    }
-
     function testFuzz_RevertWhen_SegmentAmountsSumOverflows(
         uint128 amount0,
         uint128 amount1
@@ -51,7 +35,6 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
     {
         amount0 = boundUint128(amount0, MAX_UINT128 / 2 + 1, MAX_UINT128);
         amount1 = boundUint128(amount0, MAX_UINT128 / 2 + 1, MAX_UINT128);
@@ -69,7 +52,6 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
     {
         firstTimestamp = boundUint40(firstTimestamp, 0, defaults.START_TIME());
@@ -96,7 +78,6 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenTimestampsStrictlyIncreasing
@@ -156,7 +137,6 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
         whenTimestampsStrictlyIncreasing

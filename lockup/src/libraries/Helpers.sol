@@ -83,7 +83,6 @@ library Helpers {
         LockupDynamic.Segment[] memory segments,
         address token,
         address nativeToken,
-        uint256 maxCount,
         string memory shape
     )
         public
@@ -93,7 +92,7 @@ library Helpers {
         _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
         // Check: validate the user-provided segments.
-        _checkSegments(segments, depositAmount, timestamps, maxCount);
+        _checkSegments(segments, depositAmount, timestamps);
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLL} function.
@@ -125,7 +124,6 @@ library Helpers {
         LockupTranched.Tranche[] memory tranches,
         address token,
         address nativeToken,
-        uint256 maxCount,
         string memory shape
     )
         public
@@ -135,7 +133,7 @@ library Helpers {
         _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
         // Check: validate the user-provided segments.
-        _checkTranches(tranches, depositAmount, timestamps, maxCount);
+        _checkTranches(tranches, depositAmount, timestamps);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -230,8 +228,7 @@ library Helpers {
     function _checkSegments(
         LockupDynamic.Segment[] memory segments,
         uint128 depositAmount,
-        Lockup.Timestamps memory timestamps,
-        uint256 maxSegmentCount
+        Lockup.Timestamps memory timestamps
     )
         private
         pure
@@ -240,11 +237,6 @@ library Helpers {
         uint256 segmentCount = segments.length;
         if (segmentCount == 0) {
             revert Errors.SablierHelpers_SegmentCountZero();
-        }
-
-        // Check: the segment count is not greater than the maximum allowed.
-        if (segmentCount > maxSegmentCount) {
-            revert Errors.SablierHelpers_SegmentCountTooHigh(segmentCount);
         }
 
         // Check: the start time is strictly less than the first segment timestamp.
@@ -302,8 +294,7 @@ library Helpers {
     function _checkTranches(
         LockupTranched.Tranche[] memory tranches,
         uint128 depositAmount,
-        Lockup.Timestamps memory timestamps,
-        uint256 maxTrancheCount
+        Lockup.Timestamps memory timestamps
     )
         private
         pure
@@ -312,11 +303,6 @@ library Helpers {
         uint256 trancheCount = tranches.length;
         if (trancheCount == 0) {
             revert Errors.SablierHelpers_TrancheCountZero();
-        }
-
-        // Check: the tranche count is not greater than the maximum allowed.
-        if (trancheCount > maxTrancheCount) {
-            revert Errors.SablierHelpers_TrancheCountTooHigh(trancheCount);
         }
 
         // Check: the start time is strictly less than the first tranche timestamp.

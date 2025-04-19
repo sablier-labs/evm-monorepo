@@ -125,9 +125,9 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         if (!isTestOptimizedProfile()) {
             batchLockup = new SablierBatchLockup();
             nftDescriptor = new LockupNFTDescriptor();
-            lockup = new SablierLockup(users.admin, nftDescriptor, defaults.MAX_COUNT());
+            lockup = new SablierLockup(users.admin, nftDescriptor);
         } else {
-            (nftDescriptor, lockup, batchLockup) = deployOptimizedProtocol(users.admin, defaults.MAX_COUNT());
+            (nftDescriptor, lockup, batchLockup) = deployOptimizedProtocol(users.admin);
         }
         vm.label({ account: address(batchLockup), newLabel: "BatchLockup" });
         vm.label({ account: address(lockup), newLabel: "Lockup" });

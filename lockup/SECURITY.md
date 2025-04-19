@@ -10,7 +10,8 @@ continuous process. If you believe you have found a security vulnerability, plea
 Sablier Lockup has been developed with a number of technical assumptions in mind. For a disclosure to qualify as a
 vulnerability, it must adhere to these assumptions as well:
 
-- The immutable `MAX_COUNT` has value that cannot lead to an overflow of the block gas limit.
+- The number of segments/tranches should be such that creating a stream should not lead to an overflow of the block gas
+  limit.
 - The total supply of any ERC-20 token remains below 2<sup>128</sup> - 1, i.e., `type(uint128).max`.
 - The `transfer` and `transferFrom` methods of any ERC-20 token strictly reduce the sender's balance by the transfer
   amount and increase the recipient's balance by the same amount. In other words, tokens that charge fees on transfers
