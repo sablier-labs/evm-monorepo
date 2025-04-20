@@ -19,5 +19,5 @@ interface ISablierMerkleLT is ISablierMerkleLockup {
     function VESTING_START_TIME() external returns (uint40);
 
     /// @notice Retrieves the tranches with their respective unlock percentages and durations.
-    function getTranchesWithPercentages() external view returns (MerkleLT.TrancheWithPercentage[] memory);
+    function tranchesWithPercentages() external view returns (MerkleLT.TrancheWithPercentage[] memory);
 }

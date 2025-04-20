@@ -125,7 +125,7 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
         assertFalse(merkleLT.hasExpired(), "isExpired");
 
         // It should return the correct schedule tranches.
-        assertEq(merkleLT.getTranchesWithPercentages(), tranches);
+        assertEq(merkleLT.tranchesWithPercentages(), tranches);
         assertEq(merkleLT.VESTING_START_TIME(), startTime);
         assertEq(merkleLT.TOTAL_PERCENTAGE(), 1e18);
 
@@ -141,7 +141,7 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function expectClaimEvent(LeafData memory leafData) internal override {
-        uint40 totalDuration = getTotalDuration(merkleLT.getTranchesWithPercentages());
+        uint40 totalDuration = getTotalDuration(merkleLT.tranchesWithPercentages());
 
         // Calculate end time based on the vesting start time.
         uint40 startTime = merkleLT.VESTING_START_TIME();

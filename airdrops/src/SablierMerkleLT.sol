@@ -95,7 +95,7 @@ contract SablierMerkleLT is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLT
-    function getTranchesWithPercentages() external view override returns (MerkleLT.TrancheWithPercentage[] memory) {
+    function tranchesWithPercentages() external view override returns (MerkleLT.TrancheWithPercentage[] memory) {
         return _tranchesWithPercentages;
     }
 
@@ -171,17 +171,17 @@ contract SablierMerkleLT is
         }
 
         // Load the tranches in memory (to save gas).
-        MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = _tranchesWithPercentages;
+        MerkleLT.TrancheWithPercentage[] memory tranchesWithPct = _tranchesWithPercentages;
 
         // Declare the variables needed for calculation.
         uint128 calculatedAmountsSum;
         UD60x18 claimAmountUD = ud60x18(claimAmount);
-        uint256 trancheCount = tranchesWithPercentages.length;
+        uint256 trancheCount = tranchesWithPct.length;
         tranches = new LockupTranched.Tranche[](trancheCount);
 
         unchecked {
             // Convert the tranche's percentage from the `UD2x18` to the `UD60x18` type.
-            UD60x18 percentage = (tranchesWithPercentages[0].unlockPercentage).intoUD60x18();
+            UD60x18 percentage = (tranchesWithPct[0].unlockPercentage).intoUD60x18();
 
             // Calculate the tranche's amount by multiplying the claim amount by the unlock percentage.
             uint128 calculatedAmount = claimAmountUD.mul(percentage).intoUint128();
@@ -190,20 +190,18 @@ contract SablierMerkleLT is
             calculatedAmountsSum += calculatedAmount;
 
             // The first tranche is precomputed because it is needed in the for loop below.
-            tranches[0] = LockupTranched.Tranche({
-                amount: calculatedAmount,
-                timestamp: startTime + tranchesWithPercentages[0].duration
-            });
+            tranches[0] =
+                LockupTranched.Tranche({ amount: calculatedAmount, timestamp: startTime + tranchesWithPct[0].duration });
 
             // Iterate over each tranche to calculate its timestamp and unlock amount.
             for (uint256 i = 1; i < trancheCount; ++i) {
-                percentage = (tranchesWithPercentages[i].unlockPercentage).intoUD60x18();
+                percentage = (tranchesWithPct[i].unlockPercentage).intoUD60x18();
                 calculatedAmount = claimAmountUD.mul(percentage).intoUint128();
                 calculatedAmountsSum += calculatedAmount;
 
                 tranches[i] = LockupTranched.Tranche({
                     amount: calculatedAmount,
-                    timestamp: tranches[i - 1].timestamp + tranchesWithPercentages[i].duration
+                    timestamp: tranches[i - 1].timestamp + tranchesWithPct[i].duration
                 });
             }
         }

@@ -40,6 +40,6 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         // SablierMerkleLT
         assertEq(constructedLT.TOTAL_PERCENTAGE(), TOTAL_PERCENTAGE, "totalPercentage");
         assertEq(constructedLT.VESTING_START_TIME(), VESTING_START_TIME, "vesting start time");
-        assertEq(constructedLT.getTranchesWithPercentages(), params.tranchesWithPercentages);
+        assertEq(constructedLT.tranchesWithPercentages(), params.tranchesWithPercentages);
     }
 }
