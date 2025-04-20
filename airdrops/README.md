@@ -29,8 +29,7 @@ multiple distributions options, including:
    unlock period to claim their tokens.
 
 Sablier Airdrops also offer flexibility in configuring the Airdrop campaigns. For example, you can choose between
-whether you want to have vesting to begin at the same time for all user (absolute) or at the time of each claim
-(relative).
+whether you want vesting to begin at the same time for all users (absolute) or at the time of each claim (relative).
 
 ## Documentation
 

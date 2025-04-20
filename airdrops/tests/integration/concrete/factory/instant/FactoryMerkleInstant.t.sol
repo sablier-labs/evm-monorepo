@@ -25,6 +25,9 @@ abstract contract FactoryMerkleInstant_Integration_Shared_Test is Integration_Te
         // Set the `merkleBase` to the merkleInstant contract to use it in the tests.
         merkleBase = ISablierMerkleBase(merkleInstant);
 
+        // Set the campaign type.
+        campaignType = "instant";
+
         // Claim to collect some fees.
         setMsgSender(users.recipient);
         claim();

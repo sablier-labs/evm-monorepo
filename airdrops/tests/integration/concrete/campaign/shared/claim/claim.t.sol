@@ -8,28 +8,30 @@ import { Integration_Test } from "../../../../Integration.t.sol";
 abstract contract Claim_Integration_Test is Integration_Test {
     function test_RevertGiven_CampaignExpired() external {
         uint256 warpTime = EXPIRATION + 1 seconds;
-        bytes32[] memory merkleProof;
         vm.warp({ newTimestamp: warpTime });
+
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_CampaignExpired.selector, warpTime, EXPIRATION));
-        merkleBase.claim{ value: MIN_FEE_WEI }({
-            index: 1,
-            recipient: users.recipient1,
-            amount: 1,
-            merkleProof: merkleProof
-        });
+        claim();
     }
 
     function test_RevertGiven_MsgValueLessThanFee() external givenCampaignNotExpired {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierMerkleBase_InsufficientFeePayment.selector, 0, MIN_FEE_WEI)
         );
-        merkleBase.claim{ value: 0 }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
+        claim({
+            msgValue: 0,
+            index: INDEX1,
+            recipient: users.recipient1,
+            amount: CLAIM_AMOUNT,
+            merkleProof: index1Proof()
+        });
     }
 
     function test_RevertGiven_RecipientClaimed() external givenCampaignNotExpired givenMsgValueNotLessThanFee {
         claim();
+
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_IndexClaimed.selector, INDEX1));
-        merkleBase.claim{ value: MIN_FEE_WEI }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
+        claim();
     }
 
     function test_RevertWhen_IndexNotValid()
@@ -39,8 +41,15 @@ abstract contract Claim_Integration_Test is Integration_Test {
         givenRecipientNotClaimed
     {
         uint256 invalidIndex = 1337;
+
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
-        merkleBase.claim{ value: MIN_FEE_WEI }(invalidIndex, users.recipient1, CLAIM_AMOUNT, index1Proof());
+        claim({
+            msgValue: MIN_FEE_WEI,
+            index: invalidIndex,
+            recipient: users.recipient1,
+            amount: CLAIM_AMOUNT,
+            merkleProof: index1Proof()
+        });
     }
 
     function test_RevertWhen_RecipientNotValid()
@@ -51,8 +60,15 @@ abstract contract Claim_Integration_Test is Integration_Test {
         whenIndexValid
     {
         address invalidRecipient = address(1337);
+
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
-        merkleBase.claim{ value: MIN_FEE_WEI }(INDEX1, invalidRecipient, CLAIM_AMOUNT, index1Proof());
+        claim({
+            msgValue: MIN_FEE_WEI,
+            index: INDEX1,
+            recipient: invalidRecipient,
+            amount: CLAIM_AMOUNT,
+            merkleProof: index1Proof()
+        });
     }
 
     function test_RevertWhen_AmountNotValid()
@@ -64,8 +80,15 @@ abstract contract Claim_Integration_Test is Integration_Test {
         whenRecipientValid
     {
         uint128 invalidAmount = 1337;
+
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
-        merkleBase.claim{ value: MIN_FEE_WEI }(INDEX1, users.recipient1, invalidAmount, index1Proof());
+        claim({
+            msgValue: MIN_FEE_WEI,
+            index: INDEX1,
+            recipient: users.recipient1,
+            amount: invalidAmount,
+            merkleProof: index1Proof()
+        });
     }
 
     function test_RevertWhen_MerkleProofNotValid()
@@ -78,10 +101,16 @@ abstract contract Claim_Integration_Test is Integration_Test {
         whenAmountValid
     {
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
-        merkleBase.claim{ value: MIN_FEE_WEI }(INDEX1, users.recipient1, CLAIM_AMOUNT, index2Proof());
+        claim({
+            msgValue: MIN_FEE_WEI,
+            index: INDEX1,
+            recipient: users.recipient1,
+            amount: CLAIM_AMOUNT,
+            merkleProof: index2Proof()
+        });
     }
 
-    /// @dev Since the implementation of `_claim()` differs in each Merkle campaign, we declare this dummy test. The
+    /// @dev Since the implementation of `claim()` differs in each Merkle campaign, we declare this dummy test. The
     /// child contracts implement the rest of the tests.
     function test_WhenMerkleProofValid()
         external

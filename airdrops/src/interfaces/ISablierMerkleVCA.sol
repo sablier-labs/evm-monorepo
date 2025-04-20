@@ -47,4 +47,33 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
 
     /// @notice Retrieves the total amount of tokens forgone by early claimers.
     function totalForgoneAmount() external view returns (uint256);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                               NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Makes the claim by transferring the tokens directly to the recipient. If the vesting end time is in the
+    /// future, it calculates the claim amount, otherwise it transfers the full amount.
+    ///
+    /// @dev It emits a {Claim} event.
+    ///
+    /// Requirements:
+    /// - The campaign must not have expired.
+    /// - `msg.value` must not be less than the value returned by {calculateMinFeeWei}.
+    /// - The `index` must not be claimed already.
+    /// - The Merkle proof must be valid.
+    /// - The claim amount must be greater than zero.
+    ///
+    /// @param index The index of the recipient in the Merkle tree.
+    /// @param recipient The address of the airdrop recipient.
+    /// @param fullAmount The total amount of ERC-20 tokens allocated to the recipient.
+    /// @param merkleProof The proof of inclusion in the Merkle tree.
+    function claim(
+        uint256 index,
+        address recipient,
+        uint128 fullAmount,
+        bytes32[] calldata merkleProof
+    )
+        external
+        payable;
 }

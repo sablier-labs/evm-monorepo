@@ -25,6 +25,9 @@ abstract contract FactoryMerkleLL_Integration_Shared_Test is Integration_Test {
         // Set the `merkleBase` to the merkleLL contract to use it in the tests.
         merkleBase = ISablierMerkleBase(merkleLL);
 
+        // Set the campaign type.
+        campaignType = "ll";
+
         // Claim to collect some fees.
         setMsgSender(users.recipient);
         claim();

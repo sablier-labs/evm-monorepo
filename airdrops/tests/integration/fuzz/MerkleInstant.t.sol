@@ -19,6 +19,9 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
 
         // Cast the {FactoryMerkleInstant} contract as {ISablierFactoryMerkleBase}
         factoryMerkleBase = factoryMerkleInstant;
+
+        // Set the campaign type.
+        campaignType = "instant";
     }
 
     /*//////////////////////////////////////////////////////////////////////////

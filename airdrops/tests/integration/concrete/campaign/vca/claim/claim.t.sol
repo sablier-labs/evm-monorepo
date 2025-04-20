@@ -20,12 +20,7 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleVCA_ClaimAmountZero.selector, users.recipient1));
 
         // Claim the airdrop.
-        merkleVCA.claim{ value: MIN_FEE_WEI }({
-            index: 1,
-            recipient: users.recipient1,
-            amount: VCA_FULL_AMOUNT,
-            merkleProof: index1Proof()
-        });
+        claim();
     }
 
     function test_WhenStartTimeInPresent() external whenMerkleProofValid whenStartTimeNotInFuture {
@@ -62,12 +57,7 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
         expectCallToTransfer({ to: users.recipient1, value: claimAmount });
         expectCallToClaimWithMsgValue(address(merkleVCA), MIN_FEE_WEI);
 
-        merkleVCA.claim{ value: MIN_FEE_WEI }({
-            index: INDEX1,
-            recipient: users.recipient1,
-            amount: VCA_FULL_AMOUNT,
-            merkleProof: index1Proof()
-        });
+        claim();
 
         // It should update the claimed status.
         assertTrue(merkleVCA.hasClaimed(INDEX1), "not claimed");

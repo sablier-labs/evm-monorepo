@@ -7,7 +7,6 @@ import { uUNIT } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud60x18 } from "@prb/math/src/UD60x18.sol";
 import { Lockup, LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol";
 
-import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
 import { Errors } from "./libraries/Errors.sol";
@@ -100,11 +99,23 @@ contract SablierMerkleLT is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL NON-CONSTANT FUNCTIONS
+                           USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc SablierMerkleBase
-    function _claim(uint256 index, address recipient, uint128 amount) internal override {
+    /// @inheritdoc ISablierMerkleLT
+    function claim(
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] calldata merkleProof
+    )
+        external
+        payable
+        override
+    {
+        // Check and Effect: Pre-process the claim parameters.
+        _preProcessClaim(index, recipient, amount, merkleProof);
+
         // Check: the sum of percentages equals 100%.
         if (TRANCHES_TOTAL_PERCENTAGE != uUNIT) {
             revert Errors.SablierMerkleLT_TotalPercentageNotOneHundred(TRANCHES_TOTAL_PERCENTAGE);

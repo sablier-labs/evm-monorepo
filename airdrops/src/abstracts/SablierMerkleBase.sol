@@ -104,55 +104,6 @@ abstract contract SablierMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleBase
-    function claim(
-        uint256 index,
-        address recipient,
-        uint128 amount,
-        bytes32[] calldata merkleProof
-    )
-        external
-        payable
-        override
-    {
-        // Check: the campaign has not expired.
-        if (hasExpired()) {
-            revert Errors.SablierMerkleBase_CampaignExpired({ blockTimestamp: block.timestamp, expiration: EXPIRATION });
-        }
-
-        // Calculate the min fee in wei.
-        uint256 minFeeWei = _calculateMinFeeWei();
-
-        // Check: the min fee was paid.
-        if (msg.value < minFeeWei) {
-            revert Errors.SablierMerkleBase_InsufficientFeePayment({ feePaid: msg.value, minFeeWei: minFeeWei });
-        }
-
-        // Check: the index has not been claimed.
-        if (_claimedBitMap.get(index)) {
-            revert Errors.SablierMerkleBase_IndexClaimed(index);
-        }
-
-        // Generate the Merkle tree leaf. Hashing twice prevents second preimage attacks.
-        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(index, recipient, amount))));
-
-        // Check: the input claim is included in the Merkle tree.
-        if (!MerkleProof.verify(merkleProof, MERKLE_ROOT, leaf)) {
-            revert Errors.SablierMerkleBase_InvalidProof();
-        }
-
-        // Effect: if this is the first time claim, take a record of the block timestamp.
-        if (firstClaimTime == 0) {
-            firstClaimTime = uint40(block.timestamp);
-        }
-
-        // Effect: mark the index as claimed.
-        _claimedBitMap.set(index);
-
-        // Checks, Effects, and Interactions: run the model-specific claim logic.
-        _claim(index, recipient, amount);
-    }
-
-    /// @inheritdoc ISablierMerkleBase
     function clawback(address to, uint128 amount) external override onlyAdmin {
         // Check: the grace period has passed and the campaign has not expired.
         if (_hasGracePeriodPassed() && !hasExpired()) {
@@ -281,7 +232,47 @@ abstract contract SablierMerkleBase is
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev This function is implemented by child contracts, so the logic varies with the airdrop model. This is where
-    /// the tokens are either transferred to the recipient or a vesting stream is created.
-    function _claim(uint256 index, address recipient, uint128 amount) internal virtual;
+    /// @dev See the documentation for the user-facing functions that call this internal function.
+    function _preProcessClaim(
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] calldata merkleProof
+    )
+        internal
+    {
+        // Check: the campaign has not expired.
+        if (hasExpired()) {
+            revert Errors.SablierMerkleBase_CampaignExpired({ blockTimestamp: block.timestamp, expiration: EXPIRATION });
+        }
+
+        // Calculate the min fee in wei.
+        uint256 minFeeWei = _calculateMinFeeWei();
+
+        // Check: the min fee was paid.
+        if (msg.value < minFeeWei) {
+            revert Errors.SablierMerkleBase_InsufficientFeePayment({ feePaid: msg.value, minFeeWei: minFeeWei });
+        }
+
+        // Check: the index has not been claimed.
+        if (_claimedBitMap.get(index)) {
+            revert Errors.SablierMerkleBase_IndexClaimed(index);
+        }
+
+        // Generate the Merkle tree leaf. Hashing twice prevents second preimage attacks.
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(index, recipient, amount))));
+
+        // Check: the input claim is included in the Merkle tree.
+        if (!MerkleProof.verify(merkleProof, MERKLE_ROOT, leaf)) {
+            revert Errors.SablierMerkleBase_InvalidProof();
+        }
+
+        // Effect: if this is the first time claim, take a record of the block timestamp.
+        if (firstClaimTime == 0) {
+            firstClaimTime = uint40(block.timestamp);
+        }
+
+        // Effect: mark the index as claimed.
+        _claimedBitMap.set(index);
+    }
 }

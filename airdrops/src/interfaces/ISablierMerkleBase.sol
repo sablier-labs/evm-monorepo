@@ -79,27 +79,6 @@ interface ISablierMerkleBase is IAdminable {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Makes the claim.
-    ///
-    /// @dev Emits a {Claim} event.
-    ///
-    /// Notes:
-    /// - For Merkle Instant and Merkle VCA campaigns, it transfers the tokens directly to the recipient.
-    /// - For Merkle Lockup campaigns, it creates a Lockup stream only if the end time is still in the future. Otherwise,
-    /// it transfers the tokens directly to the recipient.
-    ///
-    /// Requirements:
-    /// - The campaign must not have expired.
-    /// - The `index` must not be claimed already.
-    /// - The Merkle proof must be valid.
-    /// - `msg.value` must not be less than the value returned by {calculateMinFeeWei}.
-    ///
-    /// @param index The index of the recipient in the Merkle tree.
-    /// @param recipient The address of the airdrop recipient.
-    /// @param amount The amount of ERC-20 tokens allocated to the recipient.
-    /// @param merkleProof The proof of inclusion in the Merkle tree.
-    function claim(uint256 index, address recipient, uint128 amount, bytes32[] calldata merkleProof) external payable;
-
     /// @notice Claws back the unclaimed tokens.
     ///
     /// @dev Emits a {Clawback} event.

@@ -26,6 +26,9 @@ abstract contract FactoryMerkleLT_Integration_Shared_Test is Integration_Test {
         // Set the `merkleBase` to the merkleLT contract to use it in the tests.
         merkleBase = ISablierMerkleBase(merkleLT);
 
+        // Set the campaign type.
+        campaignType = "lt";
+
         // Claim to collect some fees.
         setMsgSender(users.recipient);
         claim();

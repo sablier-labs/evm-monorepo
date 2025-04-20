@@ -20,6 +20,9 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
 
         // Cast the {FactoryMerkleLT} contract as {ISablierFactoryMerkleBase}
         factoryMerkleBase = factoryMerkleLT;
+
+        // Set the campaign type.
+        campaignType = "lt";
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -19,6 +19,9 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
 
         // Cast the {FactoryMerkleVCA} contract as {ISablierFactoryMerkleBase}
         factoryMerkleBase = factoryMerkleVCA;
+
+        // Set the campaign type.
+        campaignType = "vca";
     }
 
     /*//////////////////////////////////////////////////////////////////////////

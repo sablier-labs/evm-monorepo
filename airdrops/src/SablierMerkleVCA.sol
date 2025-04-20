@@ -137,6 +137,53 @@ contract SablierMerkleVCA is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                           USER-FACING NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierMerkleVCA
+    function claim(
+        uint256 index,
+        address recipient,
+        uint128 fullAmount,
+        bytes32[] calldata merkleProof
+    )
+        external
+        payable
+        override
+    {
+        // Check and Effect: Pre-process the claim parameters.
+        _preProcessClaim(index, recipient, fullAmount, merkleProof);
+
+        // Calculate the claim amount.
+        uint128 claimAmount = _calculateClaimAmount(fullAmount, uint40(block.timestamp));
+
+        // Check: the claim amount is not zero.
+        if (claimAmount == 0) {
+            revert Errors.SablierMerkleVCA_ClaimAmountZero(recipient);
+        }
+
+        uint128 forgoneAmount;
+
+        // Effect: update the total forgone amount.
+        if (claimAmount < fullAmount) {
+            unchecked {
+                forgoneAmount = fullAmount - claimAmount;
+                totalForgoneAmount += forgoneAmount;
+            }
+        } else {
+            // Although the claim amount should never exceed the full amount, this assertion prevents excessive claiming
+            // in case of a calculation error.
+            assert(claimAmount == fullAmount);
+        }
+
+        // Interaction: transfer the tokens to the recipient.
+        TOKEN.safeTransfer({ to: recipient, value: claimAmount });
+
+        // Log the claim.
+        emit Claim({ index: index, recipient: recipient, claimAmount: claimAmount, forgoneAmount: forgoneAmount });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                             INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -170,40 +217,5 @@ contract SablierMerkleVCA is
             uint128 vestedAmount = uint128((remainderAmount * elapsedTime) / totalDuration);
             return unlockAmount + vestedAmount;
         }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                          INTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc SablierMerkleBase
-    function _claim(uint256 index, address recipient, uint128 fullAmount) internal override {
-        // Calculate the claim amount.
-        uint128 claimAmount = _calculateClaimAmount(fullAmount, uint40(block.timestamp));
-
-        // Check: the claim amount is not zero.
-        if (claimAmount == 0) {
-            revert Errors.SablierMerkleVCA_ClaimAmountZero(recipient);
-        }
-
-        uint128 forgoneAmount;
-
-        // Effect: update the total forgone amount.
-        if (claimAmount < fullAmount) {
-            unchecked {
-                forgoneAmount = fullAmount - claimAmount;
-                totalForgoneAmount += forgoneAmount;
-            }
-        } else {
-            // Although the claim amount should never exceed the full amount, this assertion prevents excessive claiming
-            // in case of a calculation error.
-            assert(claimAmount == fullAmount);
-        }
-
-        // Interaction: transfer the tokens to the recipient.
-        TOKEN.safeTransfer({ to: recipient, value: claimAmount });
-
-        // Log the claim.
-        emit Claim({ index: index, recipient: recipient, claimAmount: claimAmount, forgoneAmount: forgoneAmount });
     }
 }

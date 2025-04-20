@@ -124,7 +124,7 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
         merkleVCA.claim{ value: vars.minFeeWei }({
             index: vars.leafToClaim.index,
             recipient: vars.leafToClaim.recipient,
-            amount: vars.leafToClaim.amount,
+            fullAmount: vars.leafToClaim.amount,
             merkleProof: vars.merkleProof
         });
 

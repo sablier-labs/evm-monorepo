@@ -26,6 +26,9 @@ abstract contract FactoryMerkleVCA_Integration_Shared_Test is Integration_Test {
         // Set the `merkleBase` to the merkleVCA contract to use it in the tests.
         merkleBase = ISablierMerkleBase(merkleVCA);
 
+        // Set the campaign type.
+        campaignType = "vca";
+
         // Claim to collect some fees.
         setMsgSender(users.recipient);
         claim();

@@ -55,11 +55,23 @@ contract SablierMerkleInstant is
     { }
 
     /*//////////////////////////////////////////////////////////////////////////
-                          INTERNAL NON-CONSTANT FUNCTIONS
+                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc SablierMerkleBase
-    function _claim(uint256 index, address recipient, uint128 amount) internal override {
+    /// @inheritdoc ISablierMerkleInstant
+    function claim(
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] calldata merkleProof
+    )
+        external
+        payable
+        override
+    {
+        // Check and Effect: Pre-process the claim parameters.
+        _preProcessClaim(index, recipient, amount, merkleProof);
+
         // Interaction: withdraw the tokens to the recipient.
         TOKEN.safeTransfer(recipient, amount);
 

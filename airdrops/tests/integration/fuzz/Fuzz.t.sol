@@ -86,7 +86,8 @@ contract Shared_Fuzz_Test is Integration_Test {
             bytes32[] memory merkleProof = computeMerkleProof(leafData, leaves);
 
             // Claim the airdrop.
-            merkleBase.claim{ value: msgValue }({
+            claim({
+                msgValue: msgValue,
                 index: leafData.index,
                 recipient: leafData.recipient,
                 amount: leafData.amount,

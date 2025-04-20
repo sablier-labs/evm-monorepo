@@ -29,7 +29,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         expectCallToTransfer({ to: users.recipient1, value: CLAIM_AMOUNT });
         expectCallToClaimWithMsgValue(address(merkleLL), MIN_FEE_WEI);
 
-        merkleLL.claim{ value: MIN_FEE_WEI }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
+        claim();
 
         // It should transfer the tokens to the recipient.
         assertEq(dai.balanceOf(users.recipient1), expectedRecipientBalance, "recipient balance");
@@ -60,12 +60,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         );
 
         // Claim the airdrop.
-        merkleLL.claim{ value: MIN_FEE_WEI }({
-            index: 1,
-            recipient: users.recipient1,
-            amount: CLAIM_AMOUNT,
-            merkleProof: index1Proof()
-        });
+        claim();
     }
 
     function test_WhenStartTimeZero()
@@ -128,7 +123,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         expectCallToClaimWithMsgValue(address(merkleLL), MIN_FEE_WEI);
 
         // Claim the airstream.
-        merkleLL.claim{ value: MIN_FEE_WEI }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
+        claim();
 
         uint128 expectedUnlockCliffAmount = cliffTime > 0 ? CLIFF_AMOUNT : 0;
 

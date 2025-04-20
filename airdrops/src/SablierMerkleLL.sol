@@ -6,7 +6,6 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ud60x18, UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
 
-import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
 import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
 import { MerkleLL } from "./types/DataTypes.sol";
@@ -89,11 +88,23 @@ contract SablierMerkleLL is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL NON-CONSTANT FUNCTIONS
+                           USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc SablierMerkleBase
-    function _claim(uint256 index, address recipient, uint128 amount) internal override {
+    /// @inheritdoc ISablierMerkleLL
+    function claim(
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] calldata merkleProof
+    )
+        external
+        payable
+        override
+    {
+        // Check and Effect: Pre-process the claim parameters.
+        _preProcessClaim(index, recipient, amount, merkleProof);
+
         // Calculate the timestamps.
         Lockup.Timestamps memory timestamps;
         // Zero is a sentinel value for `block.timestamp`.

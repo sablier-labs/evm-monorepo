@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
@@ -41,16 +42,57 @@ contract Integration_Test is Base_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   MERKLE-BASE
+                                   MERKLE-CLAIMS
     //////////////////////////////////////////////////////////////////////////*/
 
     function claim() internal {
-        merkleBase.claim{ value: MIN_FEE_WEI }({
+        claim({
+            msgValue: MIN_FEE_WEI,
             index: INDEX1,
             recipient: users.recipient1,
             amount: CLAIM_AMOUNT,
             merkleProof: index1Proof()
         });
+    }
+
+    function claim(
+        uint256 msgValue,
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] memory merkleProof
+    )
+        internal
+    {
+        if (Strings.equal(campaignType, "instant")) {
+            merkleInstant.claim{ value: msgValue }({
+                index: index,
+                recipient: recipient,
+                amount: amount,
+                merkleProof: merkleProof
+            });
+        } else if (Strings.equal(campaignType, "ll")) {
+            merkleLL.claim{ value: msgValue }({
+                index: index,
+                recipient: recipient,
+                amount: amount,
+                merkleProof: merkleProof
+            });
+        } else if (Strings.equal(campaignType, "lt")) {
+            merkleLT.claim{ value: msgValue }({
+                index: index,
+                recipient: recipient,
+                amount: amount,
+                merkleProof: merkleProof
+            });
+        } else if (Strings.equal(campaignType, "vca")) {
+            merkleVCA.claim{ value: msgValue }({
+                index: index,
+                recipient: recipient,
+                fullAmount: amount,
+                merkleProof: merkleProof
+            });
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

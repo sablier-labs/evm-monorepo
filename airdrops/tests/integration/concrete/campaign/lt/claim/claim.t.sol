@@ -29,7 +29,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         expectCallToTransfer({ to: users.recipient1, value: CLAIM_AMOUNT });
         expectCallToClaimWithMsgValue(address(merkleLT), MIN_FEE_WEI);
 
-        merkleLT.claim{ value: MIN_FEE_WEI }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
+        claim();
 
         // It should transfer the tokens to the recipient.
         assertEq(dai.balanceOf(users.recipient1), expectedRecipientBalance, "recipient balance");
@@ -51,12 +51,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 0.25e18));
 
-        merkleLT.claim{ value: MIN_FEE_WEI }({
-            index: 1,
-            recipient: users.recipient1,
-            amount: 10_000e18,
-            merkleProof: index1Proof()
-        });
+        claim();
     }
 
     function test_RevertWhen_TotalPercentageGreaterThan100()
@@ -75,12 +70,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 1.55e18));
 
-        merkleLT.claim{ value: MIN_FEE_WEI }({
-            index: 1,
-            recipient: users.recipient1,
-            amount: 10_000e18,
-            merkleProof: index1Proof()
-        });
+        claim();
     }
 
     function test_WhenVestingStartTimeZero()
@@ -123,7 +113,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         expectCallToClaimWithMsgValue(address(merkleLT), MIN_FEE_WEI);
 
         // Claim the airstream.
-        merkleLT.claim{ value: MIN_FEE_WEI }(INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof());
+        claim();
 
         // Assert that the stream has been created successfully.
         assertEq(lockup.getDepositedAmount(expectedStreamId), CLAIM_AMOUNT, "depositedAmount");
