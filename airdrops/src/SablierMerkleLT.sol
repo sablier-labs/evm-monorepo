@@ -44,7 +44,7 @@ contract SablierMerkleLT is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLT
-    uint64 public immutable override TOTAL_PERCENTAGE;
+    uint64 public immutable override TRANCHES_TOTAL_PERCENTAGE;
 
     /// @inheritdoc ISablierMerkleLT
     uint40 public immutable override VESTING_START_TIME;
@@ -87,7 +87,7 @@ contract SablierMerkleLT is
             totalPercentage += percentage;
             _tranchesWithPercentages.push(params.tranchesWithPercentages[i]);
         }
-        TOTAL_PERCENTAGE = totalPercentage;
+        TRANCHES_TOTAL_PERCENTAGE = totalPercentage;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -106,8 +106,8 @@ contract SablierMerkleLT is
     /// @inheritdoc SablierMerkleBase
     function _claim(uint256 index, address recipient, uint128 amount) internal override {
         // Check: the sum of percentages equals 100%.
-        if (TOTAL_PERCENTAGE != uUNIT) {
-            revert Errors.SablierMerkleLT_TotalPercentageNotOneHundred(TOTAL_PERCENTAGE);
+        if (TRANCHES_TOTAL_PERCENTAGE != uUNIT) {
+            revert Errors.SablierMerkleLT_TotalPercentageNotOneHundred(TRANCHES_TOTAL_PERCENTAGE);
         }
 
         // Calculate the tranches based on the unlock percentages.

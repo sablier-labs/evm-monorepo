@@ -35,7 +35,7 @@ abstract contract Constants {
 
     // Global
     uint40 public constant FEB_1_2025 = 1_738_368_000;
-    uint64 public constant TOTAL_PERCENTAGE = uUNIT;
+    uint64 public constant TRANCHES_TOTAL_PERCENTAGE = uUNIT;
 
     // Merkle Campaigns
     string public CAMPAIGN_NAME = "Airdrop Campaign";
