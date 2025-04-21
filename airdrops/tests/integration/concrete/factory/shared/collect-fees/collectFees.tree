@@ -3,12 +3,17 @@ CollectFees_Integration_Test
 │  └── it should revert
 └── when provided merkle lockup valid
    ├── when caller not admin
-   │  ├── when fee recipient not admin
-   │  │  └── it should revert
-   │  └── when fee recipient admin
-   │     ├── it should transfer fee to the admin
-   │     ├── it should decrease merkle contract balance to zero
-   │     └── it should emit a {CollectFees} event
+   │  ├── when caller with fee collector role
+   │  │  ├── it should transfer fee to the fee recipient
+   │  │  ├── it should decrease merkle contract balance to zero
+   │  │  └── it should emit a {CollectFees} event
+   │  └── when caller without fee collector role
+   │     ├── when fee recipient not admin
+   │     │  └── it should revert
+   │     └── when fee recipient admin
+   │        ├── it should transfer fee to the admin
+   │        ├── it should decrease merkle contract balance to zero
+   │        └── it should emit a {CollectFees} event
    └── when caller admin
       ├── when fee recipient not contract
       │  ├── it should transfer fee to the fee recipient

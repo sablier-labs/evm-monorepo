@@ -15,7 +15,7 @@
     "@openzeppelin/contracts": "5.0.2",
     "@prb/math": "4.1.0",
     "@sablier/lockup": "github:sablier-labs/lockup#f98c83e",
-    "@sablier/evm-utils": "github:sablier-labs/evm-utils#0c10739"
+    "@sablier/evm-utils": "github:sablier-labs/evm-utils#a033701"
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std#v1.8.2",
@@ -77,7 +77,7 @@
     "prepare": "husky",
     "prettier:check": "prettier --cache --check \"**/*.{json,md,yml}\"",
     "prettier:write": "prettier --cache --write \"**/*.{json,md,yml}\"",
-    "test": "forge test --nmt testFork",
+    "test": "forge test",
     "test:bulloak": "bulloak check --skip-modifiers ./tests/**/*.tree",
     "test:lite": "FOUNDRY_PROFILE=lite forge test --nmt testFork",
     "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"

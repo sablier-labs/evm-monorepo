@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
-import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
+import { RoleAdminable } from "@sablier/evm-utils/src/RoleAdminable.sol";
 import { ISablierFactoryMerkleBase } from "./../interfaces/ISablierFactoryMerkleBase.sol";
 import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
@@ -11,8 +11,8 @@ import { FactoryMerkle } from "./../types/DataTypes.sol";
 /// @title SablierFactoryMerkleBase
 /// @notice See the documentation in {ISablierFactoryMerkleBase}.
 abstract contract SablierFactoryMerkleBase is
-    ISablierFactoryMerkleBase, // 1 inherited component
-    Adminable // 1 inherited component
+    ISablierFactoryMerkleBase, // 2 inherited components
+    RoleAdminable // 3 inherited components
 {
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
@@ -40,7 +40,7 @@ abstract contract SablierFactoryMerkleBase is
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialMinFeeUSD The initial min USD fee charged for claiming an airdrop.
     /// @param initialOracle The initial oracle contract address.
-    constructor(address initialAdmin, uint256 initialMinFeeUSD, address initialOracle) Adminable(initialAdmin) {
+    constructor(address initialAdmin, uint256 initialMinFeeUSD, address initialOracle) RoleAdminable(initialAdmin) {
         minFeeUSD = initialMinFeeUSD;
 
         if (initialOracle != address(0)) {
@@ -63,8 +63,10 @@ abstract contract SablierFactoryMerkleBase is
 
     /// @inheritdoc ISablierFactoryMerkleBase
     function collectFees(ISablierMerkleBase campaign, address feeRecipient) external override {
-        // Check: if `msg.sender` is not the admin, `feeRecipient` must be the admin address.
-        if (msg.sender != admin && feeRecipient != admin) {
+        // Check: if `msg.sender` has neither the {IRoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
+        // then `feeRecipient` must be the admin address.
+        bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
+        if (!hasRoleOrIsAdmin && feeRecipient != admin) {
             revert Errors.SablierMerkleFactoryBase_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
         }
 
@@ -76,15 +78,22 @@ abstract contract SablierFactoryMerkleBase is
     }
 
     /// @inheritdoc ISablierFactoryMerkleBase
-    function disableCustomFeeUSD(address campaignCreator) external override onlyAdmin {
+    function disableCustomFeeUSD(address campaignCreator) external override onlyRole(FEE_MANAGEMENT_ROLE) {
         delete _customFeesUSD[campaignCreator];
 
         // Log the reset.
-        emit DisableCustomFeeUSD({ admin: msg.sender, campaignCreator: campaignCreator });
+        emit DisableCustomFeeUSD({ admin: admin, campaignCreator: campaignCreator });
     }
 
     /// @inheritdoc ISablierFactoryMerkleBase
-    function setCustomFeeUSD(address campaignCreator, uint256 customFeeUSD) external override onlyAdmin {
+    function setCustomFeeUSD(
+        address campaignCreator,
+        uint256 customFeeUSD
+    )
+        external
+        override
+        onlyRole(FEE_MANAGEMENT_ROLE)
+    {
         FactoryMerkle.CustomFeeUSD storage customFee = _customFeesUSD[campaignCreator];
 
         // Check: the new fee is not greater than the maximum allowed.
@@ -101,11 +110,11 @@ abstract contract SablierFactoryMerkleBase is
         customFee.fee = customFeeUSD;
 
         // Log the update.
-        emit SetCustomFeeUSD({ admin: msg.sender, campaignCreator: campaignCreator, customFeeUSD: customFeeUSD });
+        emit SetCustomFeeUSD({ admin: admin, campaignCreator: campaignCreator, customFeeUSD: customFeeUSD });
     }
 
     /// @inheritdoc ISablierFactoryMerkleBase
-    function setMinFeeUSD(uint256 newMinFeeUSD) external override onlyAdmin {
+    function setMinFeeUSD(uint256 newMinFeeUSD) external override onlyRole(FEE_MANAGEMENT_ROLE) {
         // Check: the new fee is not greater than the maximum allowed.
         if (newMinFeeUSD > MAX_FEE_USD) {
             revert Errors.SablierFactoryMerkleBase_MaxFeeUSDExceeded(newMinFeeUSD, MAX_FEE_USD);
@@ -116,7 +125,7 @@ abstract contract SablierFactoryMerkleBase is
         minFeeUSD = newMinFeeUSD;
 
         // Log the update.
-        emit SetMinFeeUSD({ admin: msg.sender, newMinFeeUSD: newMinFeeUSD, previousMinFeeUSD: currentMinFeeUSD });
+        emit SetMinFeeUSD({ admin: admin, newMinFeeUSD: newMinFeeUSD, previousMinFeeUSD: currentMinFeeUSD });
     }
 
     /// @inheritdoc ISablierFactoryMerkleBase

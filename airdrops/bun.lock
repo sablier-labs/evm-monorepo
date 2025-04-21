@@ -7,7 +7,7 @@
         "@chainlink/contracts": "^1.3.0",
         "@openzeppelin/contracts": "5.0.2",
         "@prb/math": "4.1.0",
-        "@sablier/evm-utils": "github:sablier-labs/evm-utils#0c10739",
+        "@sablier/evm-utils": "github:sablier-labs/evm-utils#a033701",
         "@sablier/lockup": "github:sablier-labs/lockup#f98c83e",
       },
       "devDependencies": {
@@ -175,7 +175,7 @@
 
     "@prb/math": ["@prb/math@4.1.0", "", {}, "sha512-ef5Xrlh3BeX4xT5/Wi810dpEPq2bYPndRxgFIaKSU1F/Op/s8af03kyom+mfU7gEpvfIZ46xu8W0duiHplbBMg=="],
 
-    "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#0c10739", {}, "sablier-labs-evm-utils-0c10739"],
+    "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#a033701", {}, "sablier-labs-evm-utils-a033701"],
 
     "@sablier/lockup": ["@sablier/lockup@github:sablier-labs/lockup#f98c83e", { "dependencies": { "@openzeppelin/contracts": "5.0.2", "@prb/math": "4.1.0", "@sablier/evm-utils": "github:sablier-labs/evm-utils#d1896e1" }, "peerDependencies": { "@prb/math": "4.x.x" } }, "sablier-labs-lockup-f98c83e"],
 

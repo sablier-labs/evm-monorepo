@@ -12,7 +12,20 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
         factoryMerkleBase.collectFees({ campaign: ISablierMerkleBase(users.eve), feeRecipient: users.admin });
     }
 
-    function test_RevertWhen_FeeRecipientNotAdmin() external whenProvidedMerkleLockupValid whenCallerNotAdmin {
+    function test_WhenCallerWithFeeCollectorRole() external whenProvidedMerkleLockupValid whenCallerNotAdmin {
+        // Change the caller to the accountant which has the fee collector role.
+        setMsgSender(users.accountant);
+
+        // It should transfer fee to the fee recipient.
+        _test_CollectFees({ feeRecipient: users.recipient });
+    }
+
+    function test_RevertWhen_FeeRecipientNotAdmin()
+        external
+        whenProvidedMerkleLockupValid
+        whenCallerNotAdmin
+        whenCallerWithoutFeeCollectorRole
+    {
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierMerkleFactoryBase_FeeRecipientNotAdmin.selector, users.eve, users.admin
@@ -21,7 +34,12 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
         factoryMerkleBase.collectFees({ campaign: merkleBase, feeRecipient: users.eve });
     }
 
-    function test_WhenFeeRecipientAdmin() external whenProvidedMerkleLockupValid whenCallerNotAdmin {
+    function test_WhenFeeRecipientAdmin()
+        external
+        whenProvidedMerkleLockupValid
+        whenCallerNotAdmin
+        whenCallerWithoutFeeCollectorRole
+    {
         // It should transfer fee to the admin.
         _test_CollectFees({ feeRecipient: users.admin });
     }

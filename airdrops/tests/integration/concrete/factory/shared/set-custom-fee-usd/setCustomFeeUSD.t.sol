@@ -8,9 +8,18 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "./../../../../Integration.t.sol";
 
 abstract contract SetCustomFeeUSD_Integration_Test is Integration_Test {
-    function test_RevertWhen_CallerNotAdmin() external {
+    function test_WhenCallerWithFeeManagementRole() external whenCallerNotAdmin {
+        setMsgSender(users.accountant);
+
+        // Set the custom fee.
+        _setCustomFeeUSD();
+    }
+
+    function test_RevertWhen_CallerWithoutFeeManagementRole() external whenCallerNotAdmin {
         setMsgSender(users.eve);
-        vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.CallerNotAdmin.selector, users.admin, users.eve));
+        vm.expectRevert(
+            abi.encodeWithSelector(EvmUtilsErrors.UnauthorizedAccess.selector, users.eve, FEE_MANAGEMENT_ROLE)
+        );
         factoryMerkleBase.setCustomFeeUSD({ campaignCreator: users.campaignCreator, customFeeUSD: 0 });
     }
 
@@ -32,21 +41,8 @@ abstract contract SetCustomFeeUSD_Integration_Test is Integration_Test {
             "custom fee USD enabled"
         );
 
-        uint256 customFeeUSD = 0;
-
-        // It should emit a {SetCustomFeeUSD} event.
-        vm.expectEmit({ emitter: address(factoryMerkleBase) });
-        emit ISablierFactoryMerkleBase.SetCustomFeeUSD({
-            admin: users.admin,
-            campaignCreator: users.campaignCreator,
-            customFeeUSD: customFeeUSD
-        });
-
         // Set the custom fee.
-        factoryMerkleBase.setCustomFeeUSD({ campaignCreator: users.campaignCreator, customFeeUSD: customFeeUSD });
-
-        // It should set the custom fee.
-        assertEq(factoryMerkleBase.minFeeUSDFor(users.campaignCreator), customFeeUSD, "custom fee USD");
+        _setCustomFeeUSD();
     }
 
     function test_WhenEnabled() external whenCallerAdmin whenNewFeeNotExceedMaxFee {
@@ -60,7 +56,12 @@ abstract contract SetCustomFeeUSD_Integration_Test is Integration_Test {
             "custom fee USD not enabled"
         );
 
-        // Now set the custom fee to a different value.
+        // Set the custom fee.
+        _setCustomFeeUSD();
+    }
+
+    function _setCustomFeeUSD() private {
+        // Set the custom fee to a different value.
         uint256 customFeeUSD = 0;
 
         // It should emit a {SetCustomFeeUSD} event.

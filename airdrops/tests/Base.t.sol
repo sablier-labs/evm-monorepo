@@ -88,21 +88,8 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         // Deploy the factories.
         deployFactoriesConditionally();
 
-        address[] memory spenders = new address[](4);
-        spenders[0] = address(factoryMerkleInstant);
-        spenders[1] = address(factoryMerkleLL);
-        spenders[2] = address(factoryMerkleLT);
-        spenders[3] = address(factoryMerkleVCA);
-
         // Create users for testing.
-        users.campaignCreator = createUser("CampaignCreator", spenders);
-        users.eve = createUser("Eve", spenders);
-        users.recipient = createUser("Recipient", spenders);
-        users.recipient1 = createUser("Recipient1", spenders);
-        users.recipient2 = createUser("Recipient2", spenders);
-        users.recipient3 = createUser("Recipient3", spenders);
-        users.recipient4 = createUser("Recipient4", spenders);
-        users.sender = createUser("Sender", spenders);
+        createTestUsers();
 
         // Initialize the Merkle tree.
         initMerkleTree();
@@ -120,6 +107,32 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Create users for testing and assign roles if applicable.
+    function createTestUsers() internal {
+        address[] memory spenders = new address[](4);
+        spenders[0] = address(factoryMerkleInstant);
+        spenders[1] = address(factoryMerkleLL);
+        spenders[2] = address(factoryMerkleLT);
+        spenders[3] = address(factoryMerkleVCA);
+
+        // Create test users.
+        users.accountant = createUser("Accountant", spenders);
+        users.campaignCreator = createUser("CampaignCreator", spenders);
+        users.eve = createUser("Eve", spenders);
+        users.recipient = createUser("Recipient", spenders);
+        users.recipient1 = createUser("Recipient1", spenders);
+        users.recipient2 = createUser("Recipient2", spenders);
+        users.recipient3 = createUser("Recipient3", spenders);
+        users.recipient4 = createUser("Recipient4", spenders);
+        users.sender = createUser("Sender", spenders);
+
+        // Assign fee collector and fee management roles to the accountant user.
+        setMsgSender(users.admin);
+        for (uint256 i; i < spenders.length; ++i) {
+            grantAllRoles({ account: users.accountant, target: spenders[i] });
+        }
+    }
 
     /// @dev Deploys the factories conditionally based on the test profile.
     function deployFactoriesConditionally() internal {

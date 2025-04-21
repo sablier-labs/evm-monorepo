@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
+import { IRoleAdminable } from "@sablier/evm-utils/src/interfaces/IRoleAdminable.sol";
 
 import { ISablierMerkleBase } from "../interfaces/ISablierMerkleBase.sol";
 
 /// @title ISablierFactoryMerkleBase
 /// @dev Common interface between factories that deploy campaign contracts. The contracts are deployed using CREATE2.
-interface ISablierFactoryMerkleBase is IAdminable {
+interface ISablierFactoryMerkleBase is IRoleAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -71,7 +71,8 @@ interface ISablierFactoryMerkleBase is IAdminable {
     /// @dev Emits a {CollectFees} event.
     ///
     /// Requirements:
-    /// - If `msg.sender` is not the admin, `feeRecipient` must be the admin address.
+    /// - If `msg.sender` has neither the {IRoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin, then
+    /// `feeRecipient` must be the admin address.
     ///
     /// @param campaign The address of the Merkle contract to collect the fees from.
     /// @param feeRecipient The address where the fees will be collected.
@@ -84,7 +85,7 @@ interface ISablierFactoryMerkleBase is IAdminable {
     /// - The min fee will apply only to future campaigns. Fees for past campaigns remain unchanged.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the admin.
+    /// - `msg.sender` must be either the admin or have the {IRoleAdminable.FEE_MANAGEMENT_ROLE} role.
     ///
     /// @param campaignCreator The user to disable the custom fee for.
     function disableCustomFeeUSD(address campaignCreator) external;
@@ -96,7 +97,7 @@ interface ISablierFactoryMerkleBase is IAdminable {
     /// - The custom USD fee will apply only to future campaigns. Fees for past campaigns remain unchanged.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the admin.
+    /// - `msg.sender` must be either the admin or have the {IRoleAdminable.FEE_MANAGEMENT_ROLE} role.
     ///
     /// @param campaignCreator The user for whom the fee is set.
     /// @param customFeeUSD The custom USD fee to set, denominated in 8 decimals.
@@ -109,7 +110,7 @@ interface ISablierFactoryMerkleBase is IAdminable {
     /// - The new USD fee will apply only to future campaigns. Fees for past campaigns remain unchanged.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the admin.
+    /// - `msg.sender` must be either the admin or have the {IRoleAdminable.FEE_MANAGEMENT_ROLE} role.
     ///
     /// @param newMinFeeUSD The custom USD fee to set, denominated in 8 decimals.
     function setMinFeeUSD(uint256 newMinFeeUSD) external;
