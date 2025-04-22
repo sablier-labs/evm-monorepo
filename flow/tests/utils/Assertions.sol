@@ -21,6 +21,11 @@ abstract contract Assertions is PRBMathAssertions {
         assertEq(address(a), address(b), err);
     }
 
+    /// @dev Compares two {Flow.Status} enum values.
+    function assertEq(Flow.Status a, Flow.Status b, string memory err) internal pure {
+        assertEq(uint256(a), uint256(b), err);
+    }
+
     /// @dev Compares two {Flow.Stream} struct entities.
     function assertEq(Flow.Stream memory a, Flow.Stream memory b) internal pure {
         assertEq(a.ratePerSecond, b.ratePerSecond, "ratePerSecond");
@@ -33,5 +38,10 @@ abstract contract Assertions is PRBMathAssertions {
         assertEq(a.sender, b.sender, "sender");
         assertEq(a.token, b.token, "token");
         assertEq(a.tokenDecimals, b.tokenDecimals, "tokenDecimals");
+    }
+
+    /// @dev Compares two {Flow.Status} enum values for inequality.
+    function assertNotEq(Flow.Status a, Flow.Status b, string memory err) internal pure {
+        assertNotEq(uint256(a), uint256(b), err);
     }
 }

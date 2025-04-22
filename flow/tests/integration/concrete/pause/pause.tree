@@ -16,7 +16,7 @@ Pause_Integration_Concrete_Test
           └── when caller sender
              ├── given not started
              │  └── it should revert
-             └── given started        
+             └── given started
                 ├── given uncovered debt
                 │  ├── it should pause the stream
                 │  ├── it should set the rate per second to zero

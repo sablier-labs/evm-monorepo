@@ -55,15 +55,6 @@ Getters_Integration_Concrete_Test::getTokenDecimals
 └── given not null
    └── it should return token decimals
 
-Getters_Integration_Concrete_Test::isPaused
-├── given null
-│  └── it should revert
-└── given not null
-   ├── given true
-   │  └── it should return true
-   └── given not true
-      └── it should return false
-
 Getters_Integration_Concrete_Test::isStream
 ├── given null
 │  └── it should return false

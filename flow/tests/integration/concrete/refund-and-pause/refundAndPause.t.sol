@@ -6,6 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
+import { Flow } from "src/types/DataTypes.sol";
 
 import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
@@ -54,7 +55,7 @@ contract RefundAndPause_Integration_Concrete_Test is Shared_Integration_Concrete
     }
 
     function test_WhenCallerSender() external whenNoDelegateCall givenNotNull givenNotPaused {
-        // It should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events
+        // It should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: address(flow), to: users.sender, value: REFUND_AMOUNT_6D });
 
@@ -76,24 +77,24 @@ contract RefundAndPause_Integration_Concrete_Test is Shared_Integration_Concrete
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
-        // It should perform the ERC-20 transfer
+        // It should perform the ERC-20 transfer.
         expectCallToTransfer({ token: usdc, to: users.sender, value: REFUND_AMOUNT_6D });
 
         flow.refundAndPause(defaultStreamId, REFUND_AMOUNT_6D);
 
-        // It should update the stream balance
+        // It should update the stream balance.
         uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
         uint128 expectedStreamBalance = DEPOSIT_AMOUNT_6D - REFUND_AMOUNT_6D;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
-        // It should pause the stream
-        assertTrue(flow.isPaused(defaultStreamId), "is paused");
+        // It should pause the stream.
+        assertEq(flow.statusOf(defaultStreamId), Flow.Status.PAUSED_SOLVENT, "status");
 
-        // It should set the rate per second to 0
+        // It should set the rate per second to 0.
         UD21x18 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         assertEq(actualRatePerSecond, 0, "rate per second");
 
-        // It should update the snapshot debt
+        // It should update the snapshot debt.
         uint256 actualSnapshotDebtScaled = flow.getSnapshotDebtScaled(defaultStreamId);
         assertEq(actualSnapshotDebtScaled, ONE_MONTH_DEBT_18D, "snapshot debt");
     }

@@ -130,24 +130,6 @@ contract Getters_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     IS-PAUSED
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function test_IsPausedRevertGiven_Null() external {
-        bytes memory callData = abi.encodeCall(flow.isPaused, nullStreamId);
-        expectRevert_Null(callData);
-    }
-
-    function test_IsPausedGivenTrue() external givenNotNull {
-        flow.pause(defaultStreamId);
-        assertTrue(flow.isPaused(defaultStreamId), "paused");
-    }
-
-    function test_IsPausedGivenNotTrue() external view givenNotNull {
-        assertFalse(flow.isPaused(defaultStreamId), "paused");
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                      IS-STREAM
     //////////////////////////////////////////////////////////////////////////*/
 

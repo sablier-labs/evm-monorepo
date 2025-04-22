@@ -23,6 +23,5 @@ Void_Integration_Concrete_Test
                └── when caller recipient
                   ├── it should set the rate per second to zero
                   ├── it should void the stream
-                  ├── it should pause the stream
                   ├── it should update the total debt to stream balance
                   └── it should emit 1 {VoidFlowStream}, 1 {MetadataUpdate} events

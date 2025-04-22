@@ -90,12 +90,6 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         assertEq(flow.isStream(actualStreamId), true);
         assertEq(flow.isTransferable(actualStreamId), transferable);
 
-        if (flow.getRatePerSecond(actualStreamId).unwrap() == 0) {
-            assertEq(flow.isPaused(actualStreamId), true);
-        } else {
-            assertEq(flow.isPaused(actualStreamId), false);
-        }
-
         // Assert that the next stream ID has been bumped.
         uint256 actualNextStreamId = flow.nextStreamId();
         uint256 expectedNextStreamId = expectedStreamId + 1;

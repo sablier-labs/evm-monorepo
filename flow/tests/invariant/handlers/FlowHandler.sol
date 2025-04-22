@@ -33,6 +33,7 @@ contract FlowHandler is BaseHandler {
         flowStore.updatePreviousValues(
             currentStreamId,
             flow.getSnapshotTime(currentStreamId),
+            flow.statusOf(currentStreamId),
             flow.totalDebtOf(currentStreamId),
             flow.uncoveredDebtOf(currentStreamId)
         );
@@ -80,14 +81,15 @@ contract FlowHandler is BaseHandler {
         updateFlowHandlerStates
         instrument(currentStreamId, "adjustRatePerSecond")
     {
-        // Only non paused streams can have their rate per second adjusted.
-        vm.assume(!flow.isPaused(currentStreamId));
+        uint128 currentRatePerSecond = flow.getRatePerSecond(currentStreamId).unwrap();
+
+        // Stream must be active.
+        vm.assume(currentRatePerSecond > 0);
 
         uint8 decimals = flow.getTokenDecimals(currentStreamId);
-        uint128 previousRatePerSecond = flow.getRatePerSecond(currentStreamId).unwrap();
 
         // The rate per second must be greater than zero and different from the current rate per second.
-        vm.assume(newRatePerSecond.unwrap() > 0 && newRatePerSecond.unwrap() != previousRatePerSecond);
+        vm.assume(newRatePerSecond.unwrap() > 0 && newRatePerSecond.unwrap() != currentRatePerSecond);
 
         // Calculate the minimum value in scaled version that can be withdrawn for this token.
         uint256 mvt = getScaledAmount(1, decimals);
@@ -161,8 +163,8 @@ contract FlowHandler is BaseHandler {
         updateFlowHandlerStates
         instrument(currentStreamId, "pause")
     {
-        // Paused streams cannot be paused again.
-        vm.assume(!flow.isPaused(currentStreamId));
+        // Stream must be active.
+        vm.assume(flow.getRatePerSecond(currentStreamId).unwrap() > 0);
 
         // The stream must not be PENDING.
         vm.assume(flow.getSnapshotTime(currentStreamId) <= getBlockTimestamp());
@@ -215,8 +217,8 @@ contract FlowHandler is BaseHandler {
         // Voided streams cannot be restarted.
         vm.assume(!flow.isVoided(currentStreamId));
 
-        // Only paused streams can be restarted.
-        vm.assume(flow.isPaused(currentStreamId));
+        // Stream must be paused.
+        vm.assume(flow.getRatePerSecond(currentStreamId).unwrap() == 0);
 
         uint8 decimals = flow.getTokenDecimals(currentStreamId);
 

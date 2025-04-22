@@ -164,11 +164,6 @@ abstract contract SablierFlowBase is
     }
 
     /// @inheritdoc ISablierFlowBase
-    function isPaused(uint256 streamId) external view override notNull(streamId) returns (bool result) {
-        result = _streams[streamId].ratePerSecond.unwrap() == 0;
-    }
-
-    /// @inheritdoc ISablierFlowBase
     function isStream(uint256 streamId) external view override returns (bool result) {
         result = _streams[streamId].isStream;
     }

@@ -15,17 +15,20 @@
 
 5. For any stream, stream balance = covered debt + refundable amount
 
-6. For any stream, if isPaused = true $\implies$ rps = 0
+6. For any stream, if rps $\gt$ 0 $\implies$ Flow.Status $\in$ {PENDING, STREAMING_SOLVENT, STREAMING_INSOLVENT}.
 
-7. For any stream, if rps $\gt$ 0 $\implies$ isPaused = false and Flow.Status $\in$ {PENDING, STREAMING_SOLVENT,
-   STREAMING_INSOLVENT}.
+7. For any stream, if rps $\gt$ 0, and no withdraw is made $\implies \frac{d(td)}{dt} \ge 0$
 
-8. For any stream, if rps $\gt$ 0, and no withdraw is made $\implies \frac{d(td)}{dt} \ge 0$
+8. For any stream, if rps $\gt$ 0 and no deposits are made $\implies \frac{d(ud)}{dt} \ge 0$
 
-9. For any stream, if rps $\gt$ 0 and no deposits are made $\implies \frac{d(ud)}{dt} \ge 0$
+9. For any non-voided stream, if rps = 0 $\implies$ Flow.Status $\in$ {PAUSED_SOLVENT, PAUSED_INSOLVENT}
 
-10. For any non-voided stream, if rps = 0 $\implies$ isPaused = true and Flow.Status $\in$ {PAUSED_SOLVENT,
-    PAUSED_INSOLVENT}
+10. For any stream:
+
+    - If previous status is not pending, the current status should not be pending.
+    - If previous status is pending, the current status should neither be paused-solvent nor paused-insolvent.
+    - If previous status is paused-solvent, the current status should not be paused-insolvent.
+    - If previous status is voided, the current status should also be voided.
 
 11. For any non-pending stream, st $\le$ now.
 
@@ -37,7 +40,7 @@
 
 15. For any paused stream, rps = 0.
 
-16. For any voided stream, isPaused = true and ud = 0
+16. For any voided stream, ud = 0
 
 17. ud = 0 $\implies$ cd = td
 

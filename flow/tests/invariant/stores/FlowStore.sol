@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Flow } from "src/types/DataTypes.sol";
 
 /// @dev Storage variables needed for handlers.
 contract FlowStore {
@@ -24,6 +25,7 @@ contract FlowStore {
     mapping(IERC20 token => uint256 amount) public totalWithdrawalsByToken;
 
     // Previous values
+    mapping(uint256 streamId => Flow.Status status) public previousStatusOf;
     mapping(uint256 streamId => uint40 snapshotTime) public previousSnapshotTime;
     mapping(uint256 streamId => uint256 amount) public previousTotalDebtOf;
     mapping(uint256 streamId => uint256 amount) public previousUncoveredDebtOf;
@@ -105,12 +107,14 @@ contract FlowStore {
     function updatePreviousValues(
         uint256 streamId,
         uint40 snapshotTime,
+        Flow.Status status,
         uint256 totalDebtOf,
         uint256 uncoveredDebtOf
     )
         external
     {
         previousSnapshotTime[streamId] = snapshotTime;
+        previousStatusOf[streamId] = status;
         previousTotalDebtOf[streamId] = totalDebtOf;
         previousUncoveredDebtOf[streamId] = uncoveredDebtOf;
     }

@@ -6,6 +6,7 @@ import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
+import { Flow } from "src/types/DataTypes.sol";
 
 import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
@@ -96,10 +97,8 @@ contract Restart_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
 
         flow.restart({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND });
 
-        bool isPaused = flow.isPaused(defaultStreamId);
-
         // It should restart the stream.
-        assertFalse(isPaused);
+        assertEq(flow.statusOf(defaultStreamId), Flow.Status.STREAMING_INSOLVENT, "status");
 
         // It should update rate per second.
         UD21x18 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);

@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
+import { Flow } from "src/types/DataTypes.sol";
 
 import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
@@ -146,11 +147,11 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         // It should set the rate per second to zero.
         assertEq(flow.getRatePerSecond(defaultStreamId), 0, "rate per second");
 
-        // It should pause the stream.
-        assertTrue(flow.isPaused(defaultStreamId), "paused");
-
         // It should void the stream.
         assertTrue(flow.isVoided(defaultStreamId), "voided");
+
+        // Check the status of the stream.
+        assertEq(flow.statusOf(defaultStreamId), Flow.Status.VOIDED, "status");
 
         // Check the new total debt.
         assertEq(flow.totalDebtOf(defaultStreamId), expectedTotalDebt, "total debt");
