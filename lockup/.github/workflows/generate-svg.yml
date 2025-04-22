@@ -28,7 +28,7 @@ jobs:
 
       - name: "Generate an NFT SVG using the user-provided parameters"
         run: >-
-          forge script script/GenerateSVG.s.sol
+          forge script scripts/solidity/GenerateSVG.s.sol
           --sig "run(uint256,string,string,uint256)"
           "${{ fromJSON(inputs.progress || true) }}",
           "${{ fromJSON(inputs.status || true) }}"
