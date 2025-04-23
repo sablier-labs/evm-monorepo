@@ -24,7 +24,7 @@ interface IRoleAdminable is IAdminable {
     event RoleRevoked(address indexed admin, address indexed account, bytes32 indexed role);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice A role with the authority to collect fees from the Sablier contracts.
@@ -37,7 +37,7 @@ interface IRoleAdminable is IAdminable {
     function hasRoleOrIsAdmin(bytes32 role, address account) external view returns (bool);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Grants `role` to `account`. Reverts if `account` already has the role.

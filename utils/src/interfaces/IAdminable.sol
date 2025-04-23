@@ -16,14 +16,14 @@ interface IAdminable {
     event TransferAdmin(address indexed oldAdmin, address indexed newAdmin);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice The address of the admin account or contract.
     function admin() external view returns (address);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Transfers the contract admin to a new address.
