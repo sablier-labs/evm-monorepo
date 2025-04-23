@@ -6,13 +6,16 @@ import { Errors } from "./libraries/Errors.sol";
 /// @title NoDelegateCall
 /// @notice This contract implements logic to prevent delegate calls.
 abstract contract NoDelegateCall {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  STATE VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @dev The address of the original contract that was deployed.
     address private immutable ORIGINAL;
 
-    /// @dev Sets the original contract address.
-    constructor() {
-        ORIGINAL = address(this);
-    }
+    /*//////////////////////////////////////////////////////////////////////////
+                                      MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Prevents delegate calls.
     modifier noDelegateCall() {
@@ -21,7 +24,16 @@ abstract contract NoDelegateCall {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                             PRIVATE CONSTANT FUNCTIONS
+                                     CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Sets the original contract address.
+    constructor() {
+        ORIGINAL = address(this);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                        CONTRACT-INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev This function checks whether the current call is a delegate call, and reverts if it is.

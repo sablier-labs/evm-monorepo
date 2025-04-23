@@ -36,7 +36,7 @@ abstract contract Adminable is IAdminable {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                         USER-FACING NON-CONSTANT FUNCTIONS
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IAdminable
@@ -49,7 +49,7 @@ abstract contract Adminable is IAdminable {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                             PRIVATE CONSTANT FUNCTIONS
+                        CONTRACT-INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev A private function is used instead of inlining this logic in a modifier because Solidity copies modifiers

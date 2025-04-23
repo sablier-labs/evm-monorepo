@@ -38,6 +38,10 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
     ERC20Mock internal usdc;
     ERC20MissingReturn internal usdt;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                        SETUP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual {
         contractWithoutReceive = new ContractWithoutReceive();
         contractWithReceive = new ContractWithReceive();
@@ -58,6 +62,38 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
         vm.label(address(dai), "DAI");
         vm.label(address(usdc), "USDC");
         vm.label(address(usdt), "USDT");
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                        HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Approve `spender` to spend tokens from `from`.
+    function approveContract(address token_, address from, address spender) internal {
+        vm.stopPrank();
+        vm.startPrank(from);
+        (bool success,) = token_.call(abi.encodeCall(IERC20.approve, (spender, UINT256_MAX)));
+        success;
+    }
+
+    /// @dev Bounds a `uint128` number.
+    function boundUint128(uint128 x, uint128 min, uint128 max) internal pure returns (uint128) {
+        return uint128(_bound(x, min, max));
+    }
+
+    /// @dev Bounds a `uint40` number.
+    function boundUint40(uint40 x, uint40 min, uint40 max) internal pure returns (uint40) {
+        return uint40(_bound(x, min, max));
+    }
+
+    /// @dev Bounds a `uint64` number.
+    function boundUint64(uint64 x, uint64 min, uint64 max) internal pure returns (uint64) {
+        return uint64(_bound(x, min, max));
+    }
+
+    /// @dev Bounds a `uint8` number.
+    function boundUint8(uint8 x, uint8 min, uint8 max) internal pure returns (uint8) {
+        return uint8(_bound(x, min, max));
     }
 
     /// @dev Creates a new ERC-20 token with `decimals`.
@@ -90,18 +126,27 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
         return user;
     }
 
-    /// @dev Approve `spender` to spend tokens from `from`.
-    function approveContract(address token_, address from, address spender) internal {
-        vm.stopPrank();
-        vm.startPrank(from);
-        (bool success,) = token_.call(abi.encodeCall(IERC20.approve, (spender, UINT256_MAX)));
-        success;
+    /// @dev Retrieves the current block timestamp as an `uint40`.
+    function getBlockTimestamp() internal view returns (uint40) {
+        return uint40(block.timestamp);
     }
 
     /// @dev Authorize `account` to take admin actions on `target` contract.
     function grantAllRoles(address account, address target) internal {
         IRoleAdminable(target).grantRole(FEE_COLLECTOR_ROLE, account);
         IRoleAdminable(target).grantRole(FEE_MANAGEMENT_ROLE, account);
+    }
+
+    /// @dev Checks if the Foundry profile is "test-optimized".
+    function isTestOptimizedProfile() internal view returns (bool) {
+        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
+        return Strings.equal(profile, "test-optimized");
+    }
+
+    /// @dev Stops the active prank and sets a new one.
+    function setMsgSender(address msgSender) internal {
+        vm.stopPrank();
+        vm.startPrank(msgSender);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -153,46 +198,5 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
             count: count,
             data: abi.encodeCall(IERC20.transferFrom, (from, to, value))
         });
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                        HELPERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Bounds a `uint128` number.
-    function boundUint128(uint128 x, uint128 min, uint128 max) internal pure returns (uint128) {
-        return uint128(_bound(x, min, max));
-    }
-
-    /// @dev Bounds a `uint40` number.
-    function boundUint40(uint40 x, uint40 min, uint40 max) internal pure returns (uint40) {
-        return uint40(_bound(x, min, max));
-    }
-
-    /// @dev Bounds a `uint64` number.
-    function boundUint64(uint64 x, uint64 min, uint64 max) internal pure returns (uint64) {
-        return uint64(_bound(x, min, max));
-    }
-
-    /// @dev Bounds a `uint8` number.
-    function boundUint8(uint8 x, uint8 min, uint8 max) internal pure returns (uint8) {
-        return uint8(_bound(x, min, max));
-    }
-
-    /// @dev Retrieves the current block timestamp as an `uint40`.
-    function getBlockTimestamp() internal view returns (uint40) {
-        return uint40(block.timestamp);
-    }
-
-    /// @dev Checks if the Foundry profile is "test-optimized".
-    function isTestOptimizedProfile() internal view returns (bool) {
-        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
-        return Strings.equal(profile, "test-optimized");
-    }
-
-    /// @dev Stops the active prank and sets a new one.
-    function setMsgSender(address msgSender) internal {
-        vm.stopPrank();
-        vm.startPrank(msgSender);
     }
 }

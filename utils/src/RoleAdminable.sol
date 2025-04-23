@@ -11,7 +11,7 @@ import { Adminable } from "./Adminable.sol";
 /// https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/access/AccessControl.sol.
 abstract contract RoleAdminable is IRoleAdminable, Adminable {
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IRoleAdminable
@@ -19,10 +19,6 @@ abstract contract RoleAdminable is IRoleAdminable, Adminable {
 
     /// @inheritdoc IRoleAdminable
     bytes32 public constant override FEE_MANAGEMENT_ROLE = keccak256("FEE_MANAGEMENT_ROLE");
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  STATE VARIABLES
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev A mapping of role identifiers to the addresses that have been granted the role. Roles are referred to by
     /// their `bytes32` identifier.
@@ -46,7 +42,7 @@ abstract contract RoleAdminable is IRoleAdminable, Adminable {
     constructor(address initialAdmin) Adminable(initialAdmin) { }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            USER-FACING CONSTANT FUNCTIONS
+                            USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IRoleAdminable
@@ -55,7 +51,7 @@ abstract contract RoleAdminable is IRoleAdminable, Adminable {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                         USER-FACING NON-CONSTANT FUNCTIONS
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IRoleAdminable
@@ -87,8 +83,16 @@ abstract contract RoleAdminable is IRoleAdminable, Adminable {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                             INTERNAL CONSTANT FUNCTIONS
+                        CONTRACT-INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Checks whether `msg.sender` has the `role` or is the admin. This is used in the {onlyRole} modifier.
+    function _checkRoleOrIsAdmin(bytes32 role) private view {
+        // Check: `msg.sender` is the admin or has the `role`.
+        if (!_hasRoleOrIsAdmin(role, msg.sender)) {
+            revert Errors.UnauthorizedAccess({ caller: msg.sender, neededRole: role });
+        }
+    }
 
     /// @dev Returns `true` if `account` is the admin or has the `role`.
     function _hasRoleOrIsAdmin(bytes32 role, address account) internal view returns (bool) {
@@ -99,17 +103,5 @@ abstract contract RoleAdminable is IRoleAdminable, Adminable {
 
         // Otherwise, return false.
         return false;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                             PRIVATE CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Checks whether `msg.sender` has the `role` or is the admin. This is used in the {onlyRole} modifier.
-    function _checkRoleOrIsAdmin(bytes32 role) private view {
-        // Check: `msg.sender` is the admin or has the `role`.
-        if (!_hasRoleOrIsAdmin(role, msg.sender)) {
-            revert Errors.UnauthorizedAccess({ caller: msg.sender, neededRole: role });
-        }
     }
 }

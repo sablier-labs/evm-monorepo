@@ -5,11 +5,15 @@ pragma solidity >=0.8.22;
 /// @notice Library with custom errors used across the contracts.
 library Errors {
     /*//////////////////////////////////////////////////////////////////////////
-                                      GENERICS
+                                      ADMINABLE
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when `msg.sender` is not the admin.
     error CallerNotAdmin(address admin, address caller);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  NO-DELEGATE-CALL
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when trying to delegate call to a function that disallows delegate calls.
     error DelegateCall();

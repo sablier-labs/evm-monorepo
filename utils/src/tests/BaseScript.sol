@@ -8,6 +8,10 @@ import { stdJson } from "forge-std/src/StdJson.sol";
 abstract contract BaseScript is Script {
     using stdJson for string;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                  STATE VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @dev The address of the default Sablier admin.
     address public constant DEFAULT_SABLIER_ADMIN = 0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F;
 
@@ -25,6 +29,20 @@ abstract contract BaseScript is Script {
 
     /// @dev Used to derive the broadcaster's address if $ETH_FROM is not defined.
     string public mnemonic;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                      MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier broadcast() {
+        vm.startBroadcast(broadcaster);
+        _;
+        vm.stopBroadcast();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                   CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Initializes the transaction broadcaster like this:
     ///
@@ -49,11 +67,9 @@ abstract contract BaseScript is Script {
         populateAdminMap();
     }
 
-    modifier broadcast() {
-        vm.startBroadcast(broadcaster);
-        _;
-        vm.stopBroadcast();
-    }
+    /*//////////////////////////////////////////////////////////////////////////
+                                        HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev The presence of the salt instructs Forge to deploy contracts via this deterministic CREATE2 factory:
     /// https://github.com/Arachnid/deterministic-deployment-proxy

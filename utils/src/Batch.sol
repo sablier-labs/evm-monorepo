@@ -7,10 +7,6 @@ import { IBatch } from "./interfaces/IBatch.sol";
 /// @title Batch
 /// @notice See the documentation in {IBatch}.
 abstract contract Batch is IBatch {
-    /*//////////////////////////////////////////////////////////////////////////
-                         USER-FACING NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @inheritdoc IBatch
     /// @dev Since `msg.value` can be reused across calls, be VERY CAREFUL when using it. Refer to
     /// https://paradigm.xyz/2021/08/two-rights-might-make-a-wrong for more information.
