@@ -148,12 +148,14 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
     /// @notice Logs a message in blue color.
     /// @param message The message to log.
     function logBlue(string memory message) internal pure {
+        // solhint-disable-next-line no-console
         console2.log(StdStyle.blue(message));
     }
 
     /// @notice Logs a message in green color with a ✓ checkmark.
     /// @param message The message to log.
     function logGreen(string memory message) internal pure {
+        // solhint-disable-next-line no-console
         console2.log(StdStyle.green(string.concat(unicode"✓ ", message)));
     }
 
