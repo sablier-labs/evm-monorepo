@@ -12,6 +12,7 @@
     "max-states-count": ["warn", 20],
     "max-line-length": ["error", 124],
     "named-parameters-mapping": "warn",
+    "no-console": "off",
     "no-empty-blocks": "off",
     "not-rely-on-time": "off",
     "one-contract-per-file": "off",
