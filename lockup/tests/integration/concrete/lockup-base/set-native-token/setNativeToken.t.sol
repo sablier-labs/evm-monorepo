@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
@@ -14,14 +13,7 @@ contract SetNativeToken_Integration_Test is Integration_Test {
         lockup.setNativeToken(address(dai));
     }
 
-    function test_RevertWhen_ProvidedAddressZero() external whenCallerAdmin {
-        address newNativeToken = address(0);
-
-        vm.expectRevert(Errors.SablierLockupBase_NativeTokenZeroAddress.selector);
-        lockup.setNativeToken(newNativeToken);
-    }
-
-    function test_RevertGiven_NativeTokenAlreadySet() external whenCallerAdmin whenProvidedAddressNotZero {
+    function test_RevertGiven_NativeTokenAlreadySet() external whenCallerAdmin {
         // Already set the native token for this test.
         address nativeToken = address(dai);
         lockup.setNativeToken(nativeToken);
@@ -33,12 +25,8 @@ contract SetNativeToken_Integration_Test is Integration_Test {
         lockup.setNativeToken(address(usdc));
     }
 
-    function test_GivenNativeTokenNotSet() external whenCallerAdmin whenProvidedAddressNotZero {
+    function test_GivenNativeTokenNotSet() external whenCallerAdmin {
         address nativeToken = address(dai);
-
-        // It should emit a {SetNativeToken} event.
-        vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.SetNativeToken({ admin: users.admin, nativeToken: nativeToken });
 
         // Set native token.
         lockup.setNativeToken(nativeToken);

@@ -107,7 +107,6 @@ library Lockup {
     }
 
     /// @notice Struct encapsulating the common parameters emitted in the stream creation events.
-    /// @param funder The address which has funded the stream.
     /// @param sender The address distributing the tokens, which is able to cancel the stream.
     /// @param recipient The address receiving the tokens, as well as the NFT owner.
     /// @param depositAmount The deposit amount, denoted in units of the token's decimals.
@@ -118,7 +117,6 @@ library Lockup {
     /// @param shape An optional parameter to specify the shape of the distribution function. This helps differentiate
     /// streams in the UI.
     struct CreateEventCommon {
-        address funder;
         address sender;
         address recipient;
         uint128 depositAmount;
@@ -207,7 +205,6 @@ library Lockup {
     /// @param wasCanceled Boolean indicating if the stream was canceled.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param isDepleted Boolean indicating if the stream is depleted.
-    /// @param isStream Boolean indicating if the struct entity exists.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
     /// @param lockupModel The distribution model of the stream.
     /// @param amounts Struct encapsulating the deposit, withdrawn, and refunded amounts, both denoted in units of the
@@ -222,7 +219,6 @@ library Lockup {
         // slot 1
         IERC20 token;
         bool isDepleted;
-        bool isStream;
         bool isTransferable;
         Model lockupModel;
         // slot 2 and 3

@@ -113,7 +113,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         uint256 initialEthBalance = address(lockup).balance;
         vm.warp(defaults.WARP_26_PERCENT());
 
-        bytes[] memory calls = new bytes[](4);
+        bytes[] memory calls = new bytes[](3);
 
         // It should return the refunded amount.
         calls[0] = abi.encodeCall(lockup.cancel, (ids.defaultStream));
@@ -127,21 +127,15 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         // It should return nothing.
         calls[2] = abi.encodeCall(lockup.renounce, (ids.recipientReentrantStream));
 
-        streamIds = new uint256[](1);
-        streamIds[0] = ids.recipientRevertStream;
-        // It should return nothing.
-        calls[3] = abi.encodeCall(lockup.renounceMultiple, (streamIds));
-
         bytes[] memory results = lockup.batch{ value: 1 wei }(calls);
 
         uint128 expectedRefundedAmount = defaults.REFUND_AMOUNT();
-        assertEq(results.length, 4, "batch results length");
+        assertEq(results.length, 3, "batch results length");
         assertEq(abi.decode(results[0], (uint128)), expectedRefundedAmount, "batch results[0]: cancel");
         uint128[] memory refundedAmounts = abi.decode(results[1], (uint128[]));
         assertEq(refundedAmounts[0], expectedRefundedAmount, "batch results[1][0]: cancelMultiple");
         assertEq(refundedAmounts[1], expectedRefundedAmount, "batch results[1][1]: cancelMultiple");
         assertEq(results[2], "", "batch results[2]: renounce");
-        assertEq(results[3], "", "batch results[3]: renounceMultiple");
         assertEq(address(lockup).balance, initialEthBalance + 1 wei, "lockup contract balance");
     }
 

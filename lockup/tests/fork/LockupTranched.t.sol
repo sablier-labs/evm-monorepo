@@ -35,7 +35,7 @@ abstract contract Lockup_Tranched_Fork_Test is Lockup_Fork_Test {
     ///
     /// Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
-    /// - Multiple values for the funder, recipient, and sender
+    /// - Multiple values for the recipient, and sender
     /// - Multiple values for the total amount
     /// - Start time in the past
     /// - Start time in the present
@@ -60,7 +60,7 @@ abstract contract Lockup_Tranched_Fork_Test is Lockup_Fork_Test {
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupTranchedStream({
             streamId: vars.streamId,
-            commonParams: defaults.lockupCreateEvent({ funder: forkTokenHolder, params: params.create, token_: FORK_TOKEN }),
+            commonParams: defaults.lockupCreateEvent({ params: params.create, token_: FORK_TOKEN }),
             tranches: params.tranches
         });
 

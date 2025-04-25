@@ -92,7 +92,9 @@ contract Burn_Integration_Concrete_Test is Integration_Test {
         lockup.burn(ids.defaultStream);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, ids.defaultStream));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, ids.defaultStream, users.recipient)
+        );
         lockup.burn(ids.defaultStream);
     }
 

@@ -187,7 +187,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupTranchedStream({
             streamId: expectedStreamId,
-            commonParams: defaults.lockupCreateEvent(funder, params, dai),
+            commonParams: defaults.lockupCreateEvent(params, dai),
             tranches: tranches
         });
 

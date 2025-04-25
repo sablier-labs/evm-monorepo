@@ -106,9 +106,6 @@ library Errors {
     /// @notice Thrown when trying to set the native token address when it is already set.
     error SablierLockupBase_NativeTokenAlreadySet(address nativeToken);
 
-    /// @notice Thrown when trying to set zero address as native token.
-    error SablierLockupBase_NativeTokenZeroAddress();
-
     /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
     error SablierLockupBase_NotTransferable(uint256 tokenId);
 
@@ -132,9 +129,6 @@ library Errors {
 
     /// @notice Thrown when trying to cancel or renounce a settled stream.
     error SablierLockupBase_StreamSettled(uint256 streamId);
-
-    /// @notice Thrown when trying to recover for a token with zero surplus.
-    error SablierLockupBase_SurplusZero(address token);
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierLockupBase_Unauthorized(uint256 streamId, address caller);

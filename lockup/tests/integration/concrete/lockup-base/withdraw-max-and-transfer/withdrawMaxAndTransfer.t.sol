@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -42,7 +41,9 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
         lockup.burn({ streamId: ids.defaultStream });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, ids.defaultStream));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, ids.defaultStream, users.recipient)
+        );
         lockup.withdrawMaxAndTransfer({ streamId: ids.defaultStream, newRecipient: users.alice });
     }
 

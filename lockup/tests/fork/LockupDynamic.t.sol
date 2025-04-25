@@ -35,7 +35,7 @@ abstract contract Lockup_Dynamic_Fork_Test is Lockup_Fork_Test {
     ///
     /// Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
-    /// - Multiple values for the funder, recipient and the sender
+    /// - Multiple values for the recipient and the sender
     /// - Multiple values for the deposit amount
     /// - Start time in the past
     /// - Start time in the present
@@ -59,7 +59,7 @@ abstract contract Lockup_Dynamic_Fork_Test is Lockup_Fork_Test {
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupDynamicStream({
             streamId: vars.streamId,
-            commonParams: defaults.lockupCreateEvent({ funder: forkTokenHolder, params: params.create, token_: FORK_TOKEN }),
+            commonParams: defaults.lockupCreateEvent({ params: params.create, token_: FORK_TOKEN }),
             segments: params.segments
         });
 

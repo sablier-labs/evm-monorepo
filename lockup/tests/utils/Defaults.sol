@@ -122,11 +122,10 @@ contract Defaults {
         Lockup.CreateWithTimestamps memory params = createWithTimestamps();
         params.depositAmount = depositAmount;
         params.timestamps = timestamps;
-        return lockupCreateEvent(users.sender, params, token_);
+        return lockupCreateEvent(params, token_);
     }
 
     function lockupCreateEvent(
-        address funder,
         Lockup.CreateWithTimestamps memory params,
         IERC20 token_
     )
@@ -135,7 +134,6 @@ contract Defaults {
         returns (Lockup.CreateEventCommon memory)
     {
         return Lockup.CreateEventCommon({
-            funder: funder,
             sender: params.sender,
             recipient: params.recipient,
             depositAmount: params.depositAmount,

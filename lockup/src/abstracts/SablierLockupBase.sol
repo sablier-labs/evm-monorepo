@@ -169,7 +169,9 @@ abstract contract SablierLockupBase is
 
     /// @inheritdoc ISablierLockupBase
     function isStream(uint256 streamId) external view override returns (bool result) {
-        result = _streams[streamId].isStream;
+        // Since {Helpers._checkCreateStream} reverts if the sender address is zero, this can be used to check whether
+        // the stream exists.
+        result = _streams[streamId].sender != address(0);
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -191,11 +193,10 @@ abstract contract SablierLockupBase is
         notNull(streamId)
         returns (uint128 refundableAmount)
     {
-        // These checks are needed because {_calculateStreamedAmount} does not look up the stream's status. Note that
-        // checking for `isCancelable` also checks if the stream `wasCanceled` thanks to the protocol invariant that
-        // canceled streams are not cancelable anymore.
+        // Note that checking for `isCancelable` also checks if the stream `wasCanceled` thanks to the protocol
+        // invariant that canceled streams are not cancelable anymore.
         if (_streams[streamId].isCancelable && !_streams[streamId].isDepleted) {
-            refundableAmount = _streams[streamId].amounts.deposited - _calculateStreamedAmount(streamId);
+            refundableAmount = _streams[streamId].amounts.deposited - _streamedAmountOf(streamId);
         }
         // Otherwise, the result is implicitly zero.
     }
@@ -276,9 +277,7 @@ abstract contract SablierLockupBase is
         // Retrieve the current owner.
         address currentRecipient = _ownerOf(streamId);
 
-        // Check:
-        // 1. NFT exists (see {IERC721.getApproved}).
-        // 2. `msg.sender` is either the owner of the NFT or an approved third party.
+        // Check: `msg.sender` is either the owner of the NFT or an approved third party.
         if (!_isCallerStreamRecipientOrApproved(streamId, currentRecipient)) {
             revert Errors.SablierLockupBase_Unauthorized(streamId, msg.sender);
         }
@@ -304,7 +303,7 @@ abstract contract SablierLockupBase is
         }
 
         // Check: `msg.sender` is the stream's sender.
-        if (!_isCallerStreamSender(streamId)) {
+        if (msg.sender != _streams[streamId].sender) {
             revert Errors.SablierLockupBase_Unauthorized(streamId, msg.sender);
         }
 
@@ -372,16 +371,8 @@ abstract contract SablierLockupBase is
         // ERC-20 balance may be greater than the aggregate amount.
         uint256 surplus = token.balanceOf(address(this)) - aggregateAmount[token];
 
-        // Check: there is a surplus to recover.
-        if (surplus == 0) {
-            revert Errors.SablierLockupBase_SurplusZero(address(token));
-        }
-
         // Interaction: transfer the surplus to the provided address.
         token.safeTransfer({ to: to, value: surplus });
-
-        // Log the recover.
-        emit ISablierLockupBase.Recover({ admin: msg.sender, token: token, to: to, surplus: surplus });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -397,34 +388,24 @@ abstract contract SablierLockupBase is
         }
 
         // Check: `msg.sender` is the stream's sender.
-        if (!_isCallerStreamSender(streamId)) {
+        if (msg.sender != _streams[streamId].sender) {
             revert Errors.SablierLockupBase_Unauthorized(streamId, msg.sender);
         }
 
-        // Checks and Effects: renounce the stream.
-        _renounce(streamId);
+        // Check: the stream is cancelable.
+        if (!_streams[streamId].isCancelable) {
+            revert Errors.SablierLockupBase_StreamNotCancelable(streamId);
+        }
+
+        // Effect: renounce the stream by making it not cancelable.
+        _streams[streamId].isCancelable = false;
 
         // Log the renouncement.
         emit ISablierLockupBase.RenounceLockupStream(streamId);
     }
 
     /// @inheritdoc ISablierLockupBase
-    function renounceMultiple(uint256[] calldata streamIds) external payable override noDelegateCall {
-        // Iterate over the provided array of stream IDs and renounce each stream.
-        uint256 count = streamIds.length;
-        for (uint256 i = 0; i < count; ++i) {
-            // Call the existing renounce function for each stream ID.
-            renounce(streamIds[i]);
-        }
-    }
-
-    /// @inheritdoc ISablierLockupBase
     function setNativeToken(address newNativeToken) external override onlyAdmin {
-        // Check: provided token is not zero address.
-        if (newNativeToken == address(0)) {
-            revert Errors.SablierLockupBase_NativeTokenZeroAddress();
-        }
-
         // Check: native token is not set.
         if (nativeToken != address(0)) {
             revert Errors.SablierLockupBase_NativeTokenAlreadySet(nativeToken);
@@ -432,9 +413,6 @@ abstract contract SablierLockupBase is
 
         // Effect: set the native token.
         nativeToken = newNativeToken;
-
-        // Log the update.
-        emit ISablierLockupBase.SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -479,7 +457,7 @@ abstract contract SablierLockupBase is
         // Retrieve the recipient from storage.
         address recipient = _ownerOf(streamId);
 
-        // Check: `msg.sender` is neither the stream's recipient nor an approved third party, the withdrawal address
+        // Check: if `msg.sender` is neither the stream's recipient nor an approved third party, the withdrawal address
         // must be the recipient.
         if (to != recipient && !_isCallerStreamRecipientOrApproved(streamId, recipient)) {
             revert Errors.SablierLockupBase_WithdrawalAddressNotRecipient(streamId, msg.sender, to);
@@ -539,7 +517,7 @@ abstract contract SablierLockupBase is
         // Retrieve the current owner. This also checks that the NFT was not burned.
         address currentRecipient = _ownerOf(streamId);
 
-        // Check: `msg.sender` is neither the stream's recipient nor an approved third party.
+        // Check: `msg.sender` is either the stream's recipient or an approved third party.
         if (!_isCallerStreamRecipientOrApproved(streamId, currentRecipient)) {
             revert Errors.SablierLockupBase_Unauthorized(streamId, msg.sender);
         }
@@ -588,23 +566,12 @@ abstract contract SablierLockupBase is
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Calculates the streamed amount of the stream without looking up the stream's status.
-    /// @dev This function is implemented by child contracts. The logic varies according to the distribution model.
-    function _calculateStreamedAmount(uint256 streamId) internal view virtual returns (uint128);
-
-    /// @notice Checks whether `msg.sender` is the stream's recipient or an approved third party, when the
-    /// `recipient` is known in advance.
+    /// @notice Checks whether `msg.sender` is the stream's recipient or an approved third party, when the `recipient`
+    /// is known in advance.
     /// @param streamId The stream ID for the query.
     /// @param recipient The address of the stream's recipient.
     function _isCallerStreamRecipientOrApproved(uint256 streamId, address recipient) internal view returns (bool) {
-        return msg.sender == recipient || isApprovedForAll({ owner: recipient, operator: msg.sender })
-            || getApproved(streamId) == msg.sender;
-    }
-
-    /// @notice Checks whether `msg.sender` is the stream's sender.
-    /// @param streamId The stream ID for the query.
-    function _isCallerStreamSender(uint256 streamId) internal view returns (bool) {
-        return msg.sender == _streams[streamId].sender;
+        return _isAuthorized({ owner: recipient, spender: msg.sender, tokenId: streamId });
     }
 
     /// @dev Retrieves the stream's status without performing a null check.
@@ -619,25 +586,16 @@ abstract contract SablierLockupBase is
             return Lockup.Status.PENDING;
         }
 
-        if (_calculateStreamedAmount(streamId) < _streams[streamId].amounts.deposited) {
+        if (_streamedAmountOf(streamId) < _streams[streamId].amounts.deposited) {
             return Lockup.Status.STREAMING;
         } else {
             return Lockup.Status.SETTLED;
         }
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _streamedAmountOf(uint256 streamId) internal view returns (uint128) {
-        Lockup.Amounts memory amounts = _streams[streamId].amounts;
-
-        if (_streams[streamId].isDepleted) {
-            return amounts.withdrawn;
-        } else if (_streams[streamId].wasCanceled) {
-            return amounts.deposited - amounts.refunded;
-        }
-
-        return _calculateStreamedAmount(streamId);
-    }
+    /// @notice Calculates the streamed amount of the stream.
+    /// @dev This function is implemented by child contracts. The logic varies according to the distribution model.
+    function _streamedAmountOf(uint256 streamId) internal view virtual returns (uint128);
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdrawableAmountOf(uint256 streamId) internal view returns (uint128) {
@@ -651,7 +609,7 @@ abstract contract SablierLockupBase is
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _cancel(uint256 streamId) internal returns (uint128 senderAmount) {
         // Calculate the streamed amount.
-        uint128 streamedAmount = _calculateStreamedAmount(streamId);
+        uint128 streamedAmount = _streamedAmountOf(streamId);
 
         // Retrieve the amounts from storage.
         Lockup.Amounts memory amounts = _streams[streamId].amounts;
@@ -725,17 +683,6 @@ abstract contract SablierLockupBase is
         }
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _renounce(uint256 streamId) internal {
-        // Check: the stream is cancelable.
-        if (!_streams[streamId].isCancelable) {
-            revert Errors.SablierLockupBase_StreamNotCancelable(streamId);
-        }
-
-        // Effect: renounce the stream by making it not cancelable.
-        _streams[streamId].isCancelable = false;
-    }
-
     /// @notice Overrides the {ERC-721._update} function to check that the stream is transferable, and emits an
     /// ERC-4906 event.
     /// @dev There are two cases when the transferable flag is ignored:
@@ -799,7 +746,9 @@ abstract contract SablierLockupBase is
     /// @dev A private function is used instead of inlining this logic in a modifier because Solidity copies modifiers
     /// into every function that uses them.
     function _notNull(uint256 streamId) private view {
-        if (!_streams[streamId].isStream) {
+        // Since {Helpers._checkCreateStream} reverts if the sender address is zero, this can be used to check whether
+        // the stream exists.
+        if (_streams[streamId].sender == address(0)) {
             revert Errors.SablierLockupBase_Null(streamId);
         }
     }

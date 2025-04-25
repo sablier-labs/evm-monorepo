@@ -25,7 +25,7 @@ interface ISablierLockupBase is
     /// @notice Emitted when the admin allows a new recipient contract to hook to Sablier.
     /// @param admin The address of the current contract admin.
     /// @param recipient The address of the recipient contract put on the allowlist.
-    event AllowToHook(address indexed admin, address recipient);
+    event AllowToHook(address indexed admin, address indexed recipient);
 
     /// @notice Emitted when a stream is canceled.
     /// @param streamId The ID of the stream.
@@ -54,33 +54,25 @@ interface ISablierLockupBase is
     /// @notice Emitted when canceling multiple streams and one particular cancellation reverts.
     /// @param streamId The ID of the stream that reverted the cancellation.
     /// @param revertData The error data returned by the reverted cancel.
-    event InvalidStreamInCancelMultiple(uint256 streamId, bytes revertData);
+    event InvalidStreamInCancelMultiple(uint256 indexed streamId, bytes revertData);
 
     /// @notice Emitted when withdrawing from multiple streams and one particular withdrawal reverts.
     /// @param streamId The ID of the stream that reverted the withdrawal.
     /// @param revertData The error data returned by the reverted withdraw.
-    event InvalidWithdrawalInWithdrawMultiple(uint256 streamId, bytes revertData);
-
-    /// @notice Emitted when the contract admin recovers the surplus amount of tokens.
-    /// @param admin The address of the contract admin.
-    /// @param token The address of the ERC-20 token that has been recovered.
-    /// @param to The address the surplus amount has been sent to.
-    /// @param surplus The amount of surplus tokens recovered.
-    event Recover(address indexed admin, IERC20 indexed token, address to, uint256 surplus);
+    event InvalidWithdrawalInWithdrawMultiple(uint256 indexed streamId, bytes revertData);
 
     /// @notice Emitted when a sender gives up the right to cancel a stream.
     /// @param streamId The ID of the stream.
     event RenounceLockupStream(uint256 indexed streamId);
-
-    /// @notice Emitted when the native token address is set by the admin.
-    event SetNativeToken(address indexed admin, address nativeToken);
 
     /// @notice Emitted when the admin sets a new NFT descriptor contract.
     /// @param admin The address of the current contract admin.
     /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     event SetNFTDescriptor(
-        address indexed admin, ILockupNFTDescriptor oldNFTDescriptor, ILockupNFTDescriptor newNFTDescriptor
+        address indexed admin,
+        ILockupNFTDescriptor indexed oldNFTDescriptor,
+        ILockupNFTDescriptor indexed newNFTDescriptor
     );
 
     /// @notice Emitted when tokens are withdrawn from a stream.
@@ -308,9 +300,7 @@ interface ISablierLockupBase is
 
     /// @notice Recover the surplus amount of tokens.
     ///
-    /// @dev Emits a {Recover} event.
-    ///
-    /// Notes:
+    /// @dev Notes:
     /// - The surplus amount is defined as the difference between the total balance of the contract for the provided
     /// ERC-20 token and the sum of balances of all streams created using the same ERC-20 token.
     ///
@@ -338,28 +328,15 @@ interface ISablierLockupBase is
     /// @param streamId The ID of the stream to renounce.
     function renounce(uint256 streamId) external payable;
 
-    /// @notice Renounces multiple streams.
-    ///
-    /// @dev Emits multiple {RenounceLockupStream} events.
-    ///
-    /// Notes:
-    /// - Refer to the notes in {renounce}.
-    ///
-    /// Requirements:
-    /// - All requirements from {renounce} must be met for each stream.
-    ///
-    /// @param streamIds An array of stream IDs to renounce.
-    function renounceMultiple(uint256[] calldata streamIds) external payable;
-
     /// @notice Sets the native token address. Once set, it cannot be changed.
     /// @dev For more information, see the documentation for {nativeToken}.
     ///
-    /// Emits a {SetNativeToken} event.
+    /// Notes:
+    /// - If `newNativeToken` is zero address, the function does not revert.
     ///
     /// Requirements:
     /// - `msg.sender` must be the admin.
-    /// - `newNativeToken` must not be zero address.
-    /// - The native token must not be already set.
+    /// - The current native token must be zero address.
     /// @param newNativeToken The address of the native token.
     function setNativeToken(address newNativeToken) external;
 

@@ -152,7 +152,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CreateLockupLinearStream({
             streamId: vars.expectedStreamId,
-            commonParams: defaults.lockupCreateEvent(funder, params, dai),
+            commonParams: defaults.lockupCreateEvent(params, dai),
             cliffTime: cliffTime,
             unlockAmounts: unlockAmounts
         });

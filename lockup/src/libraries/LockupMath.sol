@@ -6,7 +6,7 @@ import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uin
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
+import { LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
 
 /// @title LockupMath
 /// @notice Provides functions for calculating the streamed amounts in Lockup streams. Note that 'streamed' is
@@ -14,6 +14,10 @@ import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./../types/
 library LockupMath {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                           USER-FACING CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Calculates the streamed amount of LD streams.
     /// @dev The LD streaming model uses the following distribution function:
@@ -42,22 +46,24 @@ library LockupMath {
     /// 4. The segment timestamps are arranged in ascending order.
     function calculateStreamedAmountLD(
         uint128 depositedAmount,
+        uint40 endTime,
         LockupDynamic.Segment[] memory segments,
-        uint40 blockTimestamp,
-        Lockup.Timestamps memory timestamps,
+        uint40 startTime,
         uint128 withdrawnAmount
     )
-        public
-        pure
+        external
+        view
         returns (uint128)
     {
+        uint40 blockTimestamp = uint40(block.timestamp);
+
         // If the start time is in the future, return zero.
-        if (timestamps.start > blockTimestamp) {
+        if (startTime > blockTimestamp) {
             return 0;
         }
 
         // If the end time is not in the future, return the deposited amount.
-        if (timestamps.end <= blockTimestamp) {
+        if (endTime <= blockTimestamp) {
             return depositedAmount;
         }
 
@@ -81,7 +87,7 @@ library LockupMath {
             if (index == 0) {
                 // When the current segment's index is equal to 0, the current segment is the first, so use the start
                 // time as the previous timestamp.
-                previousTimestamp = timestamps.start;
+                previousTimestamp = startTime;
             } else {
                 // Otherwise, when the current segment's index is greater than zero, it means that the segment is not
                 // the first. In this case, use the previous segment's timestamp.
@@ -135,19 +141,21 @@ library LockupMath {
     /// 2. The start time is before the end time.
     /// 3. If the cliff time is not zero, it is after the start time and before the end time.
     function calculateStreamedAmountLL(
-        uint128 depositedAmount,
-        uint40 blockTimestamp,
-        Lockup.Timestamps memory timestamps,
         uint40 cliffTime,
+        uint128 depositedAmount,
+        uint40 endTime,
+        uint40 startTime,
         LockupLinear.UnlockAmounts memory unlockAmounts,
         uint128 withdrawnAmount
     )
-        public
-        pure
+        external
+        view
         returns (uint128)
     {
+        uint40 blockTimestamp = uint40(block.timestamp);
+
         // If the start time is in the future, return zero.
-        if (timestamps.start > blockTimestamp) {
+        if (startTime > blockTimestamp) {
             return 0;
         }
 
@@ -157,7 +165,7 @@ library LockupMath {
         }
 
         // If the end time is not in the future, return the deposited amount.
-        if (timestamps.end <= blockTimestamp) {
+        if (endTime <= blockTimestamp) {
             return depositedAmount;
         }
 
@@ -176,11 +184,11 @@ library LockupMath {
 
             // Calculate the streamable range.
             if (cliffTime == 0) {
-                elapsedTime = ud(blockTimestamp - timestamps.start);
-                streamableRange = ud(timestamps.end - timestamps.start);
+                elapsedTime = ud(blockTimestamp - startTime);
+                streamableRange = ud(endTime - startTime);
             } else {
                 elapsedTime = ud(blockTimestamp - cliffTime);
-                streamableRange = ud(timestamps.end - cliffTime);
+                streamableRange = ud(endTime - cliffTime);
             }
 
             UD60x18 elapsedTimePercentage = elapsedTime.div(streamableRange);
@@ -219,16 +227,18 @@ library LockupMath {
     /// 4. The tranche timestamps are arranged in ascending order.
     function calculateStreamedAmountLT(
         uint128 depositedAmount,
-        uint40 blockTimestamp,
-        Lockup.Timestamps memory timestamps,
+        uint40 endTime,
+        uint40 startTime,
         LockupTranched.Tranche[] memory tranches
     )
-        public
-        pure
+        external
+        view
         returns (uint128)
     {
+        uint40 blockTimestamp = uint40(block.timestamp);
+
         // If the start time is in the future, return zero.
-        if (timestamps.start > blockTimestamp) {
+        if (startTime > blockTimestamp) {
             return 0;
         }
 
@@ -238,7 +248,7 @@ library LockupMath {
         }
 
         // If the end time is not in the future, return the deposited amount.
-        if (timestamps.end <= blockTimestamp) {
+        if (endTime <= blockTimestamp) {
             return depositedAmount;
         }
 
