@@ -44,7 +44,7 @@ interface ISablierLockup is ISablierLockupBase {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the stream's cliff time, which is a Unix timestamp.  A value of zero means there is no cliff.
+    /// @notice Retrieves the stream's cliff time, which is a Unix timestamp. A value of zero means there is no cliff.
     /// @dev Reverts if `streamId` references either a null stream or a non-LL stream.
     /// @param streamId The stream ID for the query.
     function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
