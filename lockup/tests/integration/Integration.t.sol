@@ -205,7 +205,7 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "malicious call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, ids.defaultStream, users.eve),
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, ids.defaultStream, users.eve),
             "malicious call return data"
         );
     }
@@ -218,7 +218,7 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "canceled status call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierLockupBase_StreamCanceled.selector, ids.defaultStream),
+            abi.encodeWithSelector(Errors.SablierLockup_StreamCanceled.selector, ids.defaultStream),
             "canceled status call return data"
         );
     }
@@ -237,7 +237,7 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "depleted status call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierLockupBase_StreamDepleted.selector, ids.defaultStream),
+            abi.encodeWithSelector(Errors.SablierLockup_StreamDepleted.selector, ids.defaultStream),
             "depleted status call return data"
         );
     }
@@ -247,7 +247,7 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "null call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, ids.nullStream),
+            abi.encodeWithSelector(Errors.SablierLockupState_Null.selector, ids.nullStream),
             "null call return data"
         );
     }
@@ -259,7 +259,7 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "settled status call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierLockupBase_StreamSettled.selector, ids.defaultStream),
+            abi.encodeWithSelector(Errors.SablierLockup_StreamSettled.selector, ids.defaultStream),
             "settled status call return data"
         );
     }

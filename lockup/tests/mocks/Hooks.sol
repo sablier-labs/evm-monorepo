@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC165, ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { ISablierLockupRecipient } from "src/interfaces/ISablierLockupRecipient.sol";
 
 contract RecipientGood is ISablierLockupRecipient, ERC165 {
@@ -138,7 +138,7 @@ contract RecipientReentrant is ISablierLockupRecipient, ERC165 {
         senderAmount;
         recipientAmount;
 
-        ISablierLockupBase(msg.sender).withdraw(streamId, address(this), recipientAmount);
+        ISablierLockup(msg.sender).withdraw(streamId, address(this), recipientAmount);
 
         return ISablierLockupRecipient.onSablierLockupCancel.selector;
     }
@@ -158,7 +158,7 @@ contract RecipientReentrant is ISablierLockupRecipient, ERC165 {
         to;
         amount;
 
-        ISablierLockupBase(msg.sender).withdraw(streamId, address(this), amount);
+        ISablierLockup(msg.sender).withdraw(streamId, address(this), amount);
 
         return ISablierLockupRecipient.onSablierLockupWithdraw.selector;
     }

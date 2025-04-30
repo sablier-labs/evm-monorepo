@@ -16,7 +16,7 @@ library LockupMath {
     using CastingUint40 for uint40;
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING CONSTANT FUNCTIONS
+                          USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Calculates the streamed amount of LD streams.

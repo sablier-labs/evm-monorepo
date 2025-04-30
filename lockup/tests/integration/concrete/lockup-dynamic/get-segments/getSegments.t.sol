@@ -16,7 +16,9 @@ contract GetSegments_Integration_Concrete_Test is Lockup_Dynamic_Integration_Con
         uint256 streamId = createDefaultStream();
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockup_NotExpectedModel.selector, Lockup.Model.LOCKUP_LINEAR, Lockup.Model.LOCKUP_DYNAMIC
+                Errors.SablierLockupState_NotExpectedModel.selector,
+                Lockup.Model.LOCKUP_LINEAR,
+                Lockup.Model.LOCKUP_DYNAMIC
             )
         );
         lockup.getSegments(streamId);

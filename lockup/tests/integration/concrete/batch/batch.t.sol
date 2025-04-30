@@ -19,7 +19,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
 
         // Expect revert on ids.notCancelableStream.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_StreamNotCancelable.selector, ids.notCancelableStream)
+            abi.encodeWithSelector(Errors.SablierLockup_StreamNotCancelable.selector, ids.notCancelableStream)
         );
         lockup.batch(calls);
     }

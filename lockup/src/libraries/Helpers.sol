@@ -8,7 +8,7 @@ import { Errors } from "./Errors.sol";
 /// @notice Library with functions needed to validate input parameters across Lockup streams.
 library Helpers {
     /*//////////////////////////////////////////////////////////////////////////
-                                CONSTANT FUNCTIONS
+                          USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Calculate the timestamps and return the segments.
@@ -137,7 +137,7 @@ library Helpers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            PRIVATE CONSTANT FUNCTIONS
+                            PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks the user-provided cliff, end times, and unlock amounts of an LL stream.

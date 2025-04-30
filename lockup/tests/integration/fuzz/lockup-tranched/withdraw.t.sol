@@ -2,11 +2,11 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Lockup, LockupTranched } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
-import { Withdraw_Integration_Fuzz_Test } from "./../lockup-base/withdraw.t.sol";
+import { Withdraw_Integration_Fuzz_Test } from "./../lockup-state/withdraw.t.sol";
 import { Lockup_Tranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
 /// @dev This contract complements the tests in {Withdraw_Integration_Fuzz_Test} by testing the withdraw function
 /// against streams created with fuzzed tranches.
@@ -99,7 +99,7 @@ contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: vars.streamId,
             to: params.to,
             token: dai,

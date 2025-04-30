@@ -125,7 +125,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         if (!isTestOptimizedProfile()) {
             batchLockup = new SablierBatchLockup();
             nftDescriptor = new LockupNFTDescriptor();
-            lockup = new SablierLockup(users.admin, nftDescriptor);
+            lockup = new SablierLockup(users.admin, address(nftDescriptor));
         } else {
             (nftDescriptor, lockup, batchLockup) = deployOptimizedProtocol(users.admin);
         }

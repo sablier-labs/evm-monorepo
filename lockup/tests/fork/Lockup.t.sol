@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Lockup, LockupLinear, LockupDynamic, LockupTranched } from "src/types/DataTypes.sol";
 
 import { Fork_Test } from "./Fork.t.sol";
@@ -216,7 +216,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
 
             // Expect the relevant events to be emitted.
             vm.expectEmit({ emitter: address(lockup) });
-            emit ISablierLockupBase.WithdrawFromLockupStream({
+            emit ISablierLockup.WithdrawFromLockupStream({
                 streamId: vars.streamId,
                 to: params.create.recipient,
                 token: FORK_TOKEN,
@@ -291,7 +291,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             vm.expectEmit({ emitter: address(lockup) });
             vars.senderAmount = lockup.refundableAmountOf(vars.streamId);
             vars.recipientAmount = lockup.withdrawableAmountOf(vars.streamId);
-            emit ISablierLockupBase.CancelLockupStream(
+            emit ISablierLockup.CancelLockupStream(
                 vars.streamId,
                 params.create.sender,
                 params.create.recipient,

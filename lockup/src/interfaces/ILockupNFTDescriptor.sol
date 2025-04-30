@@ -7,6 +7,10 @@ import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions
 /// @notice This contract generates the URI describing the Sablier stream NFTs.
 /// @dev Inspired by Uniswap V3 Positions NFTs.
 interface ILockupNFTDescriptor {
+    /*//////////////////////////////////////////////////////////////////////////
+                          USER-FACING READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @notice Produces the URI describing a particular stream NFT.
     /// @dev This is a data URI with the JSON contents directly inlined.
     /// @param sablier The address of the Sablier contract the stream was created in.

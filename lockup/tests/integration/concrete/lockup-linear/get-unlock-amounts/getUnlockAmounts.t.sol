@@ -16,7 +16,9 @@ contract GetUnlockAmounts_Integration_Concrete_Test is Lockup_Linear_Integration
         uint256 streamId = createDefaultStream();
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockup_NotExpectedModel.selector, Lockup.Model.LOCKUP_TRANCHED, Lockup.Model.LOCKUP_LINEAR
+                Errors.SablierLockupState_NotExpectedModel.selector,
+                Lockup.Model.LOCKUP_TRANCHED,
+                Lockup.Model.LOCKUP_LINEAR
             )
         );
         lockup.getUnlockAmounts(streamId);

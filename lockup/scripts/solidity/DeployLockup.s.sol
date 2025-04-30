@@ -9,6 +9,6 @@ import { SablierLockup } from "../../src/SablierLockup.sol";
 /// @notice Deploys {SablierLockup} contract.
 contract DeployLockup is BaseScript {
     function run(ILockupNFTDescriptor nftDescriptor) public broadcast returns (SablierLockup lockup) {
-        lockup = new SablierLockup(protocolAdmin(), nftDescriptor);
+        lockup = new SablierLockup(protocolAdmin(), address(nftDescriptor));
     }
 }

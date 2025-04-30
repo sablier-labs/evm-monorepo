@@ -34,7 +34,7 @@ lockup_interfaces=./artifacts/interfaces
 cp out-optimized/ISablierBatchLockup.sol/ISablierBatchLockup.json $lockup_interfaces
 cp out-optimized/ILockupNFTDescriptor.sol/ILockupNFTDescriptor.json $lockup_interfaces
 cp out-optimized/ISablierLockupRecipient.sol/ISablierLockupRecipient.json $lockup_interfaces
-cp out-optimized/ISablierLockupBase.sol/ISablierLockupBase.json $lockup_interfaces
+cp out-optimized/ISablierLockupState.sol/ISablierLockupState.json $lockup_interfaces
 cp out-optimized/ISablierLockup.sol/ISablierLockup.json $lockup_interfaces
 
 lockup_libraries=./artifacts/libraries

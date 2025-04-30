@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { WithdrawableAmountOf_Integration_Concrete_Test } from
-    "../../lockup-base/withdrawable-amount-of/withdrawableAmountOf.t.sol";
+    "../../lockup-state/withdrawable-amount-of/withdrawableAmountOf.t.sol";
 import { Lockup_Dynamic_Integration_Concrete_Test, Integration_Test } from "../LockupDynamic.t.sol";
 
 contract WithdrawableAmountOf_Lockup_Dynamic_Integration_Concrete_Test is

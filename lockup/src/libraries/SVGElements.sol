@@ -10,7 +10,7 @@ library SVGElements {
     using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     string internal constant BACKGROUND =

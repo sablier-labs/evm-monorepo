@@ -52,7 +52,7 @@ contract EstimateMaxCount is Defaults, DeployOptimized {
 
         // Deploy the Lockup contract.
         if (!isTestOptimizedProfile()) {
-            lockup = new SablierLockup(users.admin, new LockupNFTDescriptor());
+            lockup = new SablierLockup(users.admin, address(new LockupNFTDescriptor()));
         } else {
             (, lockup,) = deployOptimizedProtocol({ initialAdmin: users.sender });
         }

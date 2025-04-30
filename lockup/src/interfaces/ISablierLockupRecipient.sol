@@ -11,6 +11,10 @@ import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol
 /// The implementation MUST implement the {IERC165-supportsInterface} method, which MUST return `true` when called with
 /// `0xf8ee98d3`, i.e. `type(ISablierLockupRecipient).interfaceId`.
 interface ISablierLockupRecipient is IERC165 {
+    /*//////////////////////////////////////////////////////////////////////////
+                        USER-FACING STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @notice Responds to cancellations.
     ///
     /// @dev Notes:

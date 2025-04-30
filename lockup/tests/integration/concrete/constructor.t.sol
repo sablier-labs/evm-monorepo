@@ -14,24 +14,24 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
 
         // Construct the contract.
         SablierLockup constructedLockup =
-            new SablierLockup({ initialAdmin: users.admin, initialNFTDescriptor: nftDescriptor });
+            new SablierLockup({ initialAdmin: users.admin, initialNFTDescriptor: address(nftDescriptor) });
 
         // {RoleAdminable.constructor}
         address actualAdmin = constructedLockup.admin();
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");
 
-        // {SablierLockupBase.constructor}
+        // {SablierLockupState.constructor}
         uint256 actualStreamId = constructedLockup.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");
 
-        // {SablierLockupBase.constructor}
+        // {SablierLockupState.constructor}
         address actualNFTDescriptor = address(constructedLockup.nftDescriptor());
         address expectedNFTDescriptor = address(nftDescriptor);
         assertEq(actualNFTDescriptor, expectedNFTDescriptor, "nftDescriptor");
 
-        // {SablierLockupBase.supportsInterface}
+        // {SablierLockup.supportsInterface}
         assertTrue(constructedLockup.supportsInterface(0x49064906), "ERC-4906 interface ID");
     }
 }

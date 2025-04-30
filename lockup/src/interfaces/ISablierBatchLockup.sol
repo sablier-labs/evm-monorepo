@@ -11,7 +11,7 @@ import { BatchLockup } from "../types/DataTypes.sol";
 /// @notice Helper to batch create Lockup streams.
 interface ISablierBatchLockup {
     /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-LOCKUP-DYNAMIC
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Creates a batch of LD streams using `createWithDurationsLD`.
@@ -52,10 +52,6 @@ interface ISablierBatchLockup {
         external
         returns (uint256[] memory streamIds);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-LOCKUP-LINEAR
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @notice Creates a batch of LL streams using `createWithDurationsLL`.
     ///
     /// @dev Requirements:
@@ -93,10 +89,6 @@ interface ISablierBatchLockup {
     )
         external
         returns (uint256[] memory streamIds);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                              SABLIER-LOCKUP-TRANCHED
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Creates a batch of LT streams using `createWithDurationsLT`.
     ///

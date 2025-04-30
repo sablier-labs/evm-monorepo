@@ -85,71 +85,71 @@ library Errors {
     );
 
     /*//////////////////////////////////////////////////////////////////////////
-                                SABLIER-LOCKUP-BASE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when trying to allow to hook a contract that doesn't implement the interface correctly.
-    error SablierLockupBase_AllowToHookUnsupportedInterface(address recipient);
-
-    /// @notice Thrown when trying to allow to hook an address with no code.
-    error SablierLockupBase_AllowToHookZeroCodeSize(address recipient);
-
-    /// @notice Thrown when an unauthorized address collects fee without setting the fee recipient to admin address.
-    error SablierLockupBase_FeeRecipientNotAdmin(address feeRecipient, address admin);
-
-    /// @notice Thrown when the fee transfer fails.
-    error SablierLockupBase_FeeTransferFail(address feeRecipient, uint256 feeAmount);
-
-    /// @notice Thrown when the hook does not return the correct selector.
-    error SablierLockupBase_InvalidHookSelector(address recipient);
-
-    /// @notice Thrown when trying to set the native token address when it is already set.
-    error SablierLockupBase_NativeTokenAlreadySet(address nativeToken);
-
-    /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
-    error SablierLockupBase_NotTransferable(uint256 tokenId);
-
-    /// @notice Thrown when the ID references a null stream.
-    error SablierLockupBase_Null(uint256 streamId);
-
-    /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
-    error SablierLockupBase_Overdraw(uint256 streamId, uint128 amount, uint128 withdrawableAmount);
-
-    /// @notice Thrown when trying to cancel or renounce a canceled stream.
-    error SablierLockupBase_StreamCanceled(uint256 streamId);
-
-    /// @notice Thrown when trying to cancel, renounce, or withdraw from a depleted stream.
-    error SablierLockupBase_StreamDepleted(uint256 streamId);
-
-    /// @notice Thrown when trying to cancel or renounce a stream that is not cancelable.
-    error SablierLockupBase_StreamNotCancelable(uint256 streamId);
-
-    /// @notice Thrown when trying to burn a stream that is not depleted.
-    error SablierLockupBase_StreamNotDepleted(uint256 streamId);
-
-    /// @notice Thrown when trying to cancel or renounce a settled stream.
-    error SablierLockupBase_StreamSettled(uint256 streamId);
-
-    /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
-    error SablierLockupBase_Unauthorized(uint256 streamId, address caller);
-
-    /// @notice Thrown when trying to withdraw to an address other than the recipient's.
-    error SablierLockupBase_WithdrawalAddressNotRecipient(uint256 streamId, address caller, address to);
-
-    /// @notice Thrown when trying to withdraw zero tokens from a stream.
-    error SablierLockupBase_WithdrawAmountZero(uint256 streamId);
-
-    /// @notice Thrown when trying to withdraw from multiple streams and the number of stream IDs does
-    /// not match the number of withdraw amounts.
-    error SablierLockupBase_WithdrawArrayCountsNotEqual(uint256 streamIdsCount, uint256 amountsCount);
-
-    /// @notice Thrown when trying to withdraw to the zero address.
-    error SablierLockupBase_WithdrawToZeroAddress(uint256 streamId);
-
-    /*//////////////////////////////////////////////////////////////////////////
                                     SABLIER-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when trying to allow to hook a contract that doesn't implement the interface correctly.
+    error SablierLockup_AllowToHookUnsupportedInterface(address recipient);
+
+    /// @notice Thrown when trying to allow to hook an address with no code.
+    error SablierLockup_AllowToHookZeroCodeSize(address recipient);
+
+    /// @notice Thrown when an unauthorized address collects fee without setting the fee recipient to admin address.
+    error SablierLockup_FeeRecipientNotAdmin(address feeRecipient, address admin);
+
+    /// @notice Thrown when the fee transfer fails.
+    error SablierLockup_FeeTransferFail(address feeRecipient, uint256 feeAmount);
+
+    /// @notice Thrown when the hook does not return the correct selector.
+    error SablierLockup_InvalidHookSelector(address recipient);
+
+    /// @notice Thrown when trying to set the native token address when it is already set.
+    error SablierLockup_NativeTokenAlreadySet(address nativeToken);
+
+    /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
+    error SablierLockup_NotTransferable(uint256 tokenId);
+
+    /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
+    error SablierLockup_Overdraw(uint256 streamId, uint128 amount, uint128 withdrawableAmount);
+
+    /// @notice Thrown when trying to cancel or renounce a canceled stream.
+    error SablierLockup_StreamCanceled(uint256 streamId);
+
+    /// @notice Thrown when trying to cancel, renounce, or withdraw from a depleted stream.
+    error SablierLockup_StreamDepleted(uint256 streamId);
+
+    /// @notice Thrown when trying to cancel or renounce a stream that is not cancelable.
+    error SablierLockup_StreamNotCancelable(uint256 streamId);
+
+    /// @notice Thrown when trying to burn a stream that is not depleted.
+    error SablierLockup_StreamNotDepleted(uint256 streamId);
+
+    /// @notice Thrown when trying to cancel or renounce a settled stream.
+    error SablierLockup_StreamSettled(uint256 streamId);
+
+    /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
+    error SablierLockup_Unauthorized(uint256 streamId, address caller);
+
+    /// @notice Thrown when trying to withdraw to an address other than the recipient's.
+    error SablierLockup_WithdrawalAddressNotRecipient(uint256 streamId, address caller, address to);
+
+    /// @notice Thrown when trying to withdraw zero tokens from a stream.
+    error SablierLockup_WithdrawAmountZero(uint256 streamId);
+
+    /// @notice Thrown when trying to withdraw from multiple streams and the number of stream IDs does
+    /// not match the number of withdraw amounts.
+    error SablierLockup_WithdrawArrayCountsNotEqual(uint256 streamIdsCount, uint256 amountsCount);
+
+    /// @notice Thrown when trying to withdraw to the zero address.
+    error SablierLockup_WithdrawToZeroAddress(uint256 streamId);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                SABLIER-LOCKUP-STATE
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @notice Thrown when a function is called on a stream that does not use the expected Lockup model.
-    error SablierLockup_NotExpectedModel(Lockup.Model actualLockupModel, Lockup.Model expectedLockupModel);
+    error SablierLockupState_NotExpectedModel(Lockup.Model actualLockupModel, Lockup.Model expectedLockupModel);
+
+    /// @notice Thrown when the ID references a null stream.
+    error SablierLockupState_Null(uint256 streamId);
 }

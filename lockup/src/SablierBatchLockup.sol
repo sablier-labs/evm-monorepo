@@ -33,7 +33,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-LOCKUP-DYNAMIC
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierBatchLockup
@@ -140,10 +140,6 @@ contract SablierBatchLockup is ISablierBatchLockup {
         }
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-LOCKUP-LINEAR
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @inheritdoc ISablierBatchLockup
     function createWithDurationsLL(
         ISablierLockup lockup,
@@ -242,10 +238,6 @@ contract SablierBatchLockup is ISablierBatchLockup {
             );
         }
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                              SABLIER-LOCKUP-TRANCHED
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierBatchLockup
     function createWithDurationsLT(
@@ -352,7 +344,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                           INTERNAL STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Helper function to approve a Lockup contract to spend funds from the batchLockup. If the current allowance

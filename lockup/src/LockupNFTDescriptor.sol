@@ -38,7 +38,7 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
     using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING CONSTANT FUNCTIONS
+                          USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Needed to avoid Stack Too Deep.
@@ -120,7 +120,7 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
+                            INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Creates an abbreviated representation of the provided amount, rounded down and prefixed with ">= ".

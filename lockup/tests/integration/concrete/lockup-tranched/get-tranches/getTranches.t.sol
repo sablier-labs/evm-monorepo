@@ -16,7 +16,9 @@ contract GetTranches_Integration_Concrete_Test is Lockup_Tranched_Integration_Co
         uint256 streamId = createDefaultStream();
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockup_NotExpectedModel.selector, Lockup.Model.LOCKUP_LINEAR, Lockup.Model.LOCKUP_TRANCHED
+                Errors.SablierLockupState_NotExpectedModel.selector,
+                Lockup.Model.LOCKUP_LINEAR,
+                Lockup.Model.LOCKUP_TRANCHED
             )
         );
         lockup.getTranches(streamId);

@@ -17,6 +17,6 @@ contract DeployDeterministicProtocol is BaseScript {
         address initialAdmin = protocolAdmin();
         batchLockup = new SablierBatchLockup{ salt: SALT }();
         nftDescriptor = new LockupNFTDescriptor{ salt: SALT }();
-        lockup = new SablierLockup{ salt: SALT }(initialAdmin, nftDescriptor);
+        lockup = new SablierLockup{ salt: SALT }(initialAdmin, address(nftDescriptor));
     }
 }

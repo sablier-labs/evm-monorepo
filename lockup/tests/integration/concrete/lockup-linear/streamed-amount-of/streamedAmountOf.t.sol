@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { StreamedAmountOf_Integration_Concrete_Test } from "../../lockup-base/streamed-amount-of/streamedAmountOf.t.sol";
+import { StreamedAmountOf_Integration_Concrete_Test } from
+    "../../lockup-state/streamed-amount-of/streamedAmountOf.t.sol";
 import { Lockup_Linear_Integration_Concrete_Test, Integration_Test } from "./../LockupLinear.t.sol";
 
 contract StreamedAmountOf_Lockup_Linear_Integration_Concrete_Test is

@@ -90,7 +90,7 @@ abstract contract Assertions is PRBMathAssertions {
         assertNotEq(uint256(a), uint256(b), err);
     }
 
-    /// @dev Compares {SablierLockupBase} states with {Lockup.CreateWithTimestamps} parameters for a given stream ID.
+    /// @dev Compares common states between models with {Lockup.CreateWithTimestamps} parameters for a given stream ID.
     function assertEq(
         ISablierLockup lockup,
         uint256 streamId,
