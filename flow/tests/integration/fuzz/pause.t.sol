@@ -58,8 +58,8 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Expect the relevant error.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamPaused.selector, streamId));
@@ -91,8 +91,8 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(flow) });

@@ -36,8 +36,8 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Prank to either recipient or operator.
         address caller = useRecipientOrOperator(streamId, timeJump);
@@ -74,8 +74,8 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Prank the caller and withdraw the tokens.
         setMsgSender(caller);

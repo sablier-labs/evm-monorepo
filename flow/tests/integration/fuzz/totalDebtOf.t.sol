@@ -15,16 +15,16 @@ contract TotalDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Pause the stream.
         flow.pause(streamId);
 
         uint256 expectedTotalDebt = flow.totalDebtOf(streamId);
 
-        // Simulate the passage of time after pause.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Assert that total debt is zero.
         uint256 actualTotalDebt = flow.totalDebtOf(streamId);

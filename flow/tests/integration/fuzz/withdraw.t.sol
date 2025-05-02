@@ -17,7 +17,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// - Only two values for caller (stream owner and approved operator).
     /// - Multiple non-zero values for to address.
     /// - Multiple streams to withdraw from, each with different token decimals and rps.
-    /// - Multiple values for withdraw amount, in the range (1, withdrawablemAmount). It could also be before or after
+    /// - Multiple values for withdraw amount, in the range (1, withdrawableAmount). It could also be before or after
     /// depletion time.
     /// - Multiple points in time.
     function testFuzz_WithdrawalAddressNotOwner(
@@ -51,7 +51,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// Given enough runs, all of the following scenarios should be fuzzed:
     /// - Multiple non-zero values for callers.
     /// - Multiple streams to withdraw from, each with different token decimals and rps.
-    /// - Multiple values for withdraw amount, in the range (1, withdrawablemAmount). It could also be before or after
+    /// - Multiple values for withdraw amount, in the range (1, withdrawableAmount). It could also be before or after
     /// depletion time.
     /// depletion time.
     /// - Multiple points in time.
@@ -90,8 +90,8 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // If the withdrawable amount is still zero, warp closely to depletion time.
         if (flow.withdrawableAmountOf(streamId) == 0) {

@@ -48,7 +48,7 @@ abstract contract BaseHandler is StdCheats, Utils {
     /// @param timeJump A fuzzed value for time warps.
     modifier adjustTimestamp(uint256 timeJump) {
         vm.assume(timeJump < 40 days);
-        vm.warp(getBlockTimestamp() + timeJump);
+        skip(timeJump);
         _;
     }
 

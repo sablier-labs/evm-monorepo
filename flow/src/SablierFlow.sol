@@ -44,7 +44,7 @@ contract SablierFlow is
     { }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                          USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFlow
@@ -186,7 +186,7 @@ contract SablierFlow is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                         USER-FACING NON-CONSTANT FUNCTIONS
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFlow
@@ -473,11 +473,11 @@ contract SablierFlow is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
+                            PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Calculates the amount of covered debt by the stream balance.
-    function _coveredDebtOf(uint256 streamId) internal view returns (uint128) {
+    function _coveredDebtOf(uint256 streamId) private view returns (uint128) {
         uint128 balance = _streams[streamId].balance;
 
         // If the balance is zero, return zero.
@@ -498,7 +498,7 @@ contract SablierFlow is
 
     /// @dev Calculates the ongoing debt, as a 18-decimals fixed point number, accrued since last snapshot. Return 0 if
     /// the stream is paused or `block.timestamp` is less than or equal to snapshot time.
-    function _ongoingDebtScaledOf(uint256 streamId) internal view returns (uint256) {
+    function _ongoingDebtScaledOf(uint256 streamId) private view returns (uint256) {
         uint256 blockTimestamp = block.timestamp;
         uint256 snapshotTime = _streams[streamId].snapshotTime;
 
@@ -526,19 +526,19 @@ contract SablierFlow is
     }
 
     /// @dev Calculates the refundable amount.
-    function _refundableAmountOf(uint256 streamId) internal view returns (uint128) {
+    function _refundableAmountOf(uint256 streamId) private view returns (uint128) {
         return _streams[streamId].balance - _coveredDebtOf(streamId);
     }
 
     /// @dev The total debt is the sum of the snapshot debt and the ongoing debt descaled to token's decimal. This
     /// value is independent of the stream's balance.
-    function _totalDebtOf(uint256 streamId) internal view returns (uint256) {
+    function _totalDebtOf(uint256 streamId) private view returns (uint256) {
         uint256 totalDebtScaled = _ongoingDebtScaledOf(streamId) + _streams[streamId].snapshotDebtScaled;
         return Helpers.descaleAmount({ amount: totalDebtScaled, decimals: _streams[streamId].tokenDecimals });
     }
 
     /// @dev Calculates the uncovered debt.
-    function _uncoveredDebtOf(uint256 streamId) internal view returns (uint256) {
+    function _uncoveredDebtOf(uint256 streamId) private view returns (uint256) {
         uint128 balance = _streams[streamId].balance;
 
         uint256 totalDebt = _totalDebtOf(streamId);
@@ -551,7 +551,7 @@ contract SablierFlow is
     }
 
     /// @dev Checks whether the provided addresses matches stream's sender and recipient.
-    function _verifyStreamSenderRecipient(uint256 streamId, address sender, address recipient) internal view {
+    function _verifyStreamSenderRecipient(uint256 streamId, address sender, address recipient) private view {
         if (sender != _streams[streamId].sender) {
             revert Errors.SablierFlow_NotStreamSender(sender, _streams[streamId].sender);
         }
@@ -562,11 +562,11 @@ contract SablierFlow is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL NON-CONSTANT FUNCTIONS
+                          PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _adjustRatePerSecond(uint256 streamId, UD21x18 newRatePerSecond) internal {
+    /// @dev See the documentation for the user-facing functions that call this private function.
+    function _adjustRatePerSecond(uint256 streamId, UD21x18 newRatePerSecond) private {
         // Check: the new rate per second is different from the current rate per second.
         if (newRatePerSecond.unwrap() == _streams[streamId].ratePerSecond.unwrap()) {
             revert Errors.SablierFlow_RatePerSecondNotDifferent(streamId, newRatePerSecond);
@@ -592,7 +592,7 @@ contract SablierFlow is
         _streams[streamId].ratePerSecond = newRatePerSecond;
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this private function.
     function _create(
         address sender,
         address recipient,
@@ -601,7 +601,7 @@ contract SablierFlow is
         IERC20 token,
         bool transferable
     )
-        internal
+        private
         returns (uint256 streamId)
     {
         // Check: the sender is not the zero address.
@@ -676,8 +676,8 @@ contract SablierFlow is
         });
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _deposit(uint256 streamId, uint128 amount) internal {
+    /// @dev See the documentation for the user-facing functions that call this private function.
+    function _deposit(uint256 streamId, uint128 amount) private {
         // Check: the deposit amount is not zero.
         if (amount == 0) {
             revert Errors.SablierFlow_DepositAmountZero(streamId);
@@ -700,8 +700,8 @@ contract SablierFlow is
         emit ISablierFlow.DepositFlowStream({ streamId: streamId, funder: msg.sender, amount: amount });
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _pause(uint256 streamId) internal {
+    /// @dev See the documentation for the user-facing functions that call this private function.
+    function _pause(uint256 streamId) private {
         // Check: the stream is not pending.
         if (_streams[streamId].snapshotTime > block.timestamp) {
             revert Errors.SablierFlow_StreamPending(streamId, _streams[streamId].snapshotTime);
@@ -719,8 +719,8 @@ contract SablierFlow is
         });
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _refund(uint256 streamId, uint128 amount) internal {
+    /// @dev See the documentation for the user-facing functions that call this private function.
+    function _refund(uint256 streamId, uint128 amount) private {
         // Check: the refund amount is not zero.
         if (amount == 0) {
             revert Errors.SablierFlow_RefundAmountZero(streamId);
@@ -759,8 +759,8 @@ contract SablierFlow is
         emit ISablierFlow.RefundFromFlowStream(streamId, sender, amount);
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _restart(uint256 streamId, UD21x18 ratePerSecond) internal {
+    /// @dev See the documentation for the user-facing functions that call this private function.
+    function _restart(uint256 streamId, UD21x18 ratePerSecond) private {
         // Check: the stream is paused.
         if (_streams[streamId].ratePerSecond.unwrap() != 0) {
             revert Errors.SablierFlow_StreamNotPaused(streamId);
@@ -773,10 +773,13 @@ contract SablierFlow is
         emit ISablierFlow.RestartFlowStream(streamId, msg.sender, ratePerSecond);
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _void(uint256 streamId) internal {
+    /// @dev See the documentation for the user-facing functions that call this private function.
+    function _void(uint256 streamId) private {
         // Check: `msg.sender` is either the stream's sender, recipient or an approved third party.
-        if (msg.sender != _streams[streamId].sender && !_isCallerStreamRecipientOrApproved(streamId)) {
+        if (
+            msg.sender != _streams[streamId].sender
+                && !_isCallerStreamRecipientOrApproved({ streamId: streamId, recipient: _ownerOf(streamId) })
+        ) {
             revert Errors.SablierFlow_Unauthorized({ streamId: streamId, caller: msg.sender });
         }
 
@@ -817,8 +820,8 @@ contract SablierFlow is
         });
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdraw(uint256 streamId, address to, uint128 amount) internal {
+    /// @dev See the documentation for the user-facing functions that call this private function.
+    function _withdraw(uint256 streamId, address to, uint128 amount) private {
         // Check: the withdraw amount is not zero.
         if (amount == 0) {
             revert Errors.SablierFlow_WithdrawAmountZero(streamId);
@@ -829,9 +832,11 @@ contract SablierFlow is
             revert Errors.SablierFlow_WithdrawToZeroAddress(streamId);
         }
 
+        address recipient = _ownerOf(streamId);
+
         // Check: `msg.sender` is neither the stream's recipient nor an approved third party, the withdrawal address
         // must be the recipient.
-        if (to != _ownerOf(streamId) && !_isCallerStreamRecipientOrApproved(streamId)) {
+        if (to != recipient && !_isCallerStreamRecipientOrApproved(streamId, recipient)) {
             revert Errors.SablierFlow_WithdrawalAddressNotRecipient({ streamId: streamId, caller: msg.sender, to: to });
         }
 

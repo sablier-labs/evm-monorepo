@@ -44,7 +44,7 @@ interface ISablierFlowBase is
     );
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                                READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Retrieves the aggregate amount across all streams, denoted in units of the token's decimals.
@@ -131,7 +131,7 @@ interface ISablierFlowBase is
     function nftDescriptor() external view returns (IFlowNFTDescriptor);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Collects the accrued fees. If `feeRecipient` is a contract, it must be able to receive native tokens,

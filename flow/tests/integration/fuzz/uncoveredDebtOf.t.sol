@@ -15,16 +15,16 @@ contract UncoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Pause the stream.
         flow.pause(streamId);
 
         uint256 expectedUncoveredDebt = flow.uncoveredDebtOf(streamId);
 
-        // Simulate the passage of time after pause.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Assert that uncovered debt equals expected value.
         uint256 actualUncoveredDebt = flow.uncoveredDebtOf(streamId);

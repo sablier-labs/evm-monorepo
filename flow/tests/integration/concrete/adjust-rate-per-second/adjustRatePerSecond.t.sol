@@ -27,7 +27,7 @@ contract AdjustRatePerSecond_Integration_Concrete_Test is Shared_Integration_Con
     }
 
     function test_GivenPending() external whenNoDelegateCall givenNotNull givenNotPaused {
-        vm.warp(flow.getSnapshotTime(defaultStreamId) - 1);
+        vm.warp({ newTimestamp: flow.getSnapshotTime(defaultStreamId) - 1 });
         assertEq(uint256(flow.statusOf(defaultStreamId)), uint256(Flow.Status.PENDING), "status not pending");
 
         uint128 newRatePerSecond = RATE_PER_SECOND_U128 + 1;

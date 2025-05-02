@@ -12,7 +12,7 @@ contract OngoingDebtScaledOf_Integration_Concrete_Test is Shared_Integration_Con
     }
 
     function test_GivenPending() external givenNotNull {
-        vm.warp(flow.getSnapshotTime(defaultStreamId) - 1 seconds);
+        vm.warp({ newTimestamp: flow.getSnapshotTime(defaultStreamId) - 1 seconds });
 
         assertEq(uint256(flow.statusOf(defaultStreamId)), uint256(Flow.Status.PENDING), "status not pending");
     }

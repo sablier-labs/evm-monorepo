@@ -51,8 +51,8 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Approve the flow contract to spend the token.
         token.approve(address(flow), depositAmount);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(token) });

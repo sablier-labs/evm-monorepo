@@ -103,7 +103,7 @@ interface ISablierFlow is
     );
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                                READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Returns the amount of debt covered by the stream balance, denoted in token's decimals.
@@ -155,7 +155,7 @@ interface ISablierFlow is
     function withdrawableAmountOf(uint256 streamId) external view returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Changes the stream's rate per second.

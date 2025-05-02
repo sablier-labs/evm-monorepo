@@ -5,7 +5,7 @@
     "code-complexity": ["error", 9],
     "compiler-version": ["error", ">=0.8.22"],
     "const-name-snakecase": "off",
-    "contract-name-camelcase": "off",
+    "contract-name-capwords": "off",
     "func-name-mixedcase": "off",
     "func-visibility": ["error", { "ignoreConstructors": true }],
     "gas-custom-errors": "off",

@@ -85,9 +85,9 @@ abstract contract Flow_Fork_Test is Fork_Test {
 
         // Create a series of streams at a different period of time.
         for (uint256 i = 0; i < TOTAL_STREAMS; ++i) {
-            // Create unique values by hashing the fuzzed params with index.
-            params.recipient = makeAddr(vm.toString(abi.encodePacked(params.recipient, i)));
-            params.sender = makeAddr(vm.toString(abi.encodePacked(params.sender, i)));
+            // Create random addresses for sender and recipient.
+            params.recipient = vm.randomAddress();
+            params.sender = vm.randomAddress();
             params.ratePerSecond = boundRatePerSecond(
                 ud21x18(uint128(uint256(keccak256(abi.encodePacked(params.ratePerSecond.unwrap(), i)))))
             );
@@ -213,7 +213,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         // Bound the time jump.
         timeJump = _bound(timeJump, 0, 10 days);
 
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        skip(timeJump);
         return timeJump;
     }
 

@@ -217,8 +217,8 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_BatchPaybale_Withdraw() external {
         uint256 initialEthBalance = address(flow).balance;
 
-        // Warp to one more month so that the second stream has also accrued some debt.
-        vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
+        // Skip forward by one month so that the second stream has also accrued some debt.
+        skip(ONE_MONTH);
 
         depositDefaultAmount(defaultStreamIds[0]);
         depositDefaultAmount(defaultStreamIds[1]);

@@ -19,8 +19,8 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         // Take a snapshot after one month of streaming.
         updateSnapshot(defaultStreamId);
 
-        // Forward time by one more month, so that total debt becomes (2 * ONE_MONTH_DEBT_6D).
-        vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
+        // Skip forward by one month, so that total debt becomes (2 * ONE_MONTH_DEBT_6D).
+        skip(ONE_MONTH);
 
         // Set recipient as the caller for this test.
         setMsgSender(users.recipient);
@@ -106,18 +106,18 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
 
         // Use sender as the caller.
         setMsgSender(users.sender);
-        // Forward time by 1 month, take snaphsot and then forward time by 1 more month.
-        vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
+        // Skip forward by 1 month, take snapshot and then forward time by 1 more month.
+        skip(ONE_MONTH);
         updateSnapshot(defaultStreamId);
-        vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
+        skip(ONE_MONTH);
         _;
 
         // Use operator as the caller.
         setMsgSender(users.operator);
-        // Forward time by 1 month, take snaphsot and then forward time by 1 more month.
-        vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
+        // Skip forward by 1 month, take snapshot and then forward time by 1 more month.
+        skip(ONE_MONTH);
         updateSnapshot(defaultStreamId);
-        vm.warp({ newTimestamp: getBlockTimestamp() + ONE_MONTH });
+        skip(ONE_MONTH);
         _;
     }
 
@@ -305,10 +305,10 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         whenAmountGreaterThanSnapshotDebt
     {
         uint256 initialSnapshotDebt = getDescaledAmount(flow.getSnapshotDebtScaled(defaultStreamId), 6);
-        uint256 initalTotalDebt = flow.totalDebtOf(defaultStreamId);
+        uint256 initialTotalDebt = flow.totalDebtOf(defaultStreamId);
         uint128 withdrawAmount = uint128(initialSnapshotDebt) + WITHDRAW_AMOUNT_6D; // amount > snapshot debt
 
-        assertTrue(withdrawAmount < initalTotalDebt, "amount < total debt");
+        assertTrue(withdrawAmount < initialTotalDebt, "amount < total debt");
 
         // It should make the withdrawal.
         _test_Withdraw({ streamId: defaultStreamId, to: users.recipient, withdrawAmount: withdrawAmount });
@@ -316,7 +316,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         // It should set snapshot debt to difference between total debt and amount withdrawn.
         assertEq(
             flow.getSnapshotDebtScaled(defaultStreamId),
-            getScaledAmount(initalTotalDebt - withdrawAmount, 6),
+            getScaledAmount(initialTotalDebt - withdrawAmount, 6),
             "snapshot debt"
         );
         // It should update snapshot time to current time
