@@ -101,7 +101,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GetRefundedAmountGivenPENDINGStatus() external givenNotNull givenNotCanceledStream {
-        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
+        rewind(1 seconds);
         uint128 actualRefundedAmount = lockup.getRefundedAmount(ids.defaultStream);
         uint128 expectedRefundedAmount = 0;
         assertEq(actualRefundedAmount, expectedRefundedAmount, "refundedAmount");
@@ -247,7 +247,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_IsColdGivenPENDINGStatus() external givenNotNull {
-        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
+        rewind(1 seconds);
         assertFalse(lockup.isCold(ids.defaultStream), "isCold");
     }
 
@@ -328,7 +328,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_IsWarmGivenPENDINGStatus() external givenNotNull {
-        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
+        rewind(1 seconds);
         assertTrue(lockup.isWarm(ids.defaultStream), "isWarm");
     }
 

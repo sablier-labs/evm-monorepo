@@ -17,7 +17,7 @@ contract Burn_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertGiven_PENDINGStatus() external whenNoDelegateCall givenNotNull givenNotDepletedStream {
-        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
+        rewind(1 seconds);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, ids.defaultStream));
         lockup.burn(ids.defaultStream);
     }

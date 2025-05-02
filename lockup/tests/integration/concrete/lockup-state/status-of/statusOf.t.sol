@@ -31,7 +31,7 @@ contract StatusOf_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GivenStartTimeInFuture() external givenNotNull givenTokensNotFullyWithdrawn givenNotCanceledStream {
-        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
+        rewind(1 seconds);
 
         // It should return PENDING.
         Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);

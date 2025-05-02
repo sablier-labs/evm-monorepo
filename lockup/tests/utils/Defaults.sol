@@ -8,53 +8,17 @@ import { BatchLockup, Lockup, LockupDynamic, LockupLinear, LockupTranched } from
 
 import { ArrayBuilder } from "./ArrayBuilder.sol";
 import { BatchLockupBuilder } from "./BatchLockupBuilder.sol";
+import { Constants } from "./Constants.sol";
 import { Users } from "./Types.sol";
 
 /// @notice Contract with default values used throughout the tests.
-contract Defaults {
-    /*//////////////////////////////////////////////////////////////////////////
-                                      GENERICS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    uint64 public constant BATCH_SIZE = 10;
-    uint128 public constant CLIFF_AMOUNT = 2500e18 + 2534;
-    uint128 public constant CLIFF_AMOUNT_6D = CLIFF_AMOUNT / 1e12;
-    uint40 public immutable CLIFF_TIME;
-    uint40 public constant CLIFF_DURATION = 2500 seconds;
-    uint128 public constant DEPOSIT_AMOUNT = 10_000e18;
-    uint128 public constant DEPOSIT_AMOUNT_6D = 10_000e6;
-    uint40 public immutable END_TIME;
-    uint40 public constant FEB_1_2025 = 1_738_368_000;
-    uint128 public constant REFUND_AMOUNT = DEPOSIT_AMOUNT - WITHDRAW_AMOUNT;
-    uint256 public constant SEGMENT_COUNT = 2;
-    string public constant SHAPE = "emits in the event";
-    uint40 public immutable START_TIME;
-    uint128 public constant START_AMOUNT = 0;
-    uint128 public constant STREAMED_AMOUNT_26_PERCENT = 2600e18;
-    uint40 public constant TOTAL_DURATION = 10_000 seconds;
-    uint256 public constant TRANCHE_COUNT = 2;
-    uint128 public constant TOTAL_TRANSFER_AMOUNT = DEPOSIT_AMOUNT * uint128(BATCH_SIZE);
-    uint128 public constant WITHDRAW_AMOUNT = STREAMED_AMOUNT_26_PERCENT;
-    uint40 public immutable WARP_26_PERCENT;
-    uint40 public immutable WARP_26_PERCENT_DURATION = 2600 seconds; // 26% of the way through the stream
-
+contract Defaults is Constants {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 private token;
     Users private users;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CONSTRUCTOR
-    //////////////////////////////////////////////////////////////////////////*/
-
-    constructor() {
-        START_TIME = FEB_1_2025 + 2 days;
-        CLIFF_TIME = START_TIME + CLIFF_DURATION;
-        END_TIME = START_TIME + TOTAL_DURATION;
-        WARP_26_PERCENT = START_TIME + WARP_26_PERCENT_DURATION;
-    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
@@ -145,11 +109,11 @@ contract Defaults {
         });
     }
 
-    function lockupTimestamps() public view returns (Lockup.Timestamps memory) {
+    function lockupTimestamps() public pure returns (Lockup.Timestamps memory) {
         return Lockup.Timestamps({ start: START_TIME, end: END_TIME });
     }
 
-    function segments() public view returns (LockupDynamic.Segment[] memory segments_) {
+    function segments() public pure returns (LockupDynamic.Segment[] memory segments_) {
         segments_ = new LockupDynamic.Segment[](2);
         segments_[0] = (
             LockupDynamic.Segment({
@@ -165,7 +129,7 @@ contract Defaults {
 
     function segmentsWithDurations()
         public
-        view
+        pure
         returns (LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations_)
     {
         LockupDynamic.Segment[] memory segments_ = segments();
@@ -186,7 +150,7 @@ contract Defaults {
         );
     }
 
-    function tranches() public view returns (LockupTranched.Tranche[] memory tranches_) {
+    function tranches() public pure returns (LockupTranched.Tranche[] memory tranches_) {
         tranches_ = new LockupTranched.Tranche[](2);
         tranches_[0] = LockupTranched.Tranche({ amount: 2600e18, timestamp: WARP_26_PERCENT });
         tranches_[1] = LockupTranched.Tranche({ amount: 7400e18, timestamp: START_TIME + TOTAL_DURATION });

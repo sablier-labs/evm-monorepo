@@ -47,7 +47,7 @@ abstract contract BaseHandler is Fuzzers {
     /// @param timeJumpSeed A fuzzed value needed for generating random time warps.
     modifier adjustTimestamp(uint256 timeJumpSeed) {
         uint256 timeJump = _bound(timeJumpSeed, 2 minutes, 40 days);
-        vm.warp(getBlockTimestamp() + timeJump);
+        skip(timeJump);
         _;
     }
 

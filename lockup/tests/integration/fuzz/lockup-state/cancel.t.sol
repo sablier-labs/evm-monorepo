@@ -20,8 +20,8 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
     {
         timeJump = _bound(timeJump, 1 seconds, 100 weeks);
 
-        // Warp to the past.
-        vm.warp({ newTimestamp: getBlockTimestamp() - timeJump });
+        // Rewind time to the past.
+        rewind(timeJump);
 
         uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
 

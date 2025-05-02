@@ -43,8 +43,8 @@ abstract contract Fork_Test is Base_Test {
         Base_Test.setUp();
         vm.etch(address(FORK_TOKEN), address(usdc).code);
 
-        // Create a custom user for this test suite.
-        forkTokenHolder = payable(makeAddr(string.concat(IERC20Metadata(address(FORK_TOKEN)).symbol(), "_HOLDER")));
+        // Create a random user for this test suite.
+        forkTokenHolder = vm.randomAddress();
 
         // Label the addresses.
         labelContracts();

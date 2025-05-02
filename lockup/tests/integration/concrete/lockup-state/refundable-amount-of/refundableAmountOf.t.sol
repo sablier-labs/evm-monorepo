@@ -34,7 +34,7 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
     }
 
     function test_GivenPENDINGStatus() external givenNotNull givenCancelableStream givenNotCanceledStream {
-        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
+        rewind(1 seconds);
         uint128 actualRefundableAmount = lockup.refundableAmountOf(ids.defaultStream);
         uint128 expectedReturnableAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualRefundableAmount, expectedReturnableAmount, "refundableAmount");

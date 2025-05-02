@@ -31,7 +31,7 @@ abstract contract WithdrawableAmountOf_Integration_Concrete_Test is Integration_
     }
 
     function test_GivenPENDINGStatus() external givenNotNull givenNotCanceledStream {
-        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
+        rewind(1 seconds);
 
         // It should return zero.
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(ids.defaultStream);

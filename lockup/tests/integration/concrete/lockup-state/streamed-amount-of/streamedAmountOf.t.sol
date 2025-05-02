@@ -34,7 +34,7 @@ abstract contract StreamedAmountOf_Integration_Concrete_Test is Integration_Test
     }
 
     function test_GivenPENDINGStatus() external givenNotNull givenNotCanceledStream {
-        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
+        rewind(1 seconds);
 
         // It should return zero.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);

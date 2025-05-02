@@ -79,8 +79,8 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         whenCallerSender
         givenCancelableStream
     {
-        // Warp to the past.
-        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
+        // Rewind time by 1 second.
+        rewind(1 seconds);
 
         // Cancel the stream.
         lockup.cancel(ids.defaultStream);
