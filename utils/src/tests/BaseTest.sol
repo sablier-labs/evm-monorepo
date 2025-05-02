@@ -163,6 +163,9 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
     function setMsgSender(address msgSender) internal {
         vm.stopPrank();
         vm.startPrank(msgSender);
+
+        // Deal some ETH to the new caller.
+        vm.deal(msgSender, 1 ether);
     }
 
     /// @dev Forks the Ethereum Mainnet at the latest block and reverts if the environment variable is not set or the
