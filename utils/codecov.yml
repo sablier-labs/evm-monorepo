@@ -5,6 +5,7 @@ coverage:
   status:
     patch: off
 ignore:
+  - "scripts"
   - "src/mocks"
   - "src/tests"
   - "tests"
