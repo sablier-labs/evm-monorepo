@@ -99,7 +99,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
 
         // Make the recipient as the caller.
         setMsgSender(vars.leafToClaim.recipient);
-        vm.deal(vars.leafToClaim.recipient, 1 ether);
+        deal(vars.leafToClaim.recipient, 1 ether);
 
         assertFalse(merkleBase.hasClaimed(vars.leafToClaim.index));
 

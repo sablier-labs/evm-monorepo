@@ -11,14 +11,14 @@
     "url": "https://github.com/sablier-labs/airdrops/issues"
   },
   "dependencies": {
-    "@chainlink/contracts": "^1.3.0",
-    "@openzeppelin/contracts": "5.0.2",
+    "@chainlink/contracts": "1.3.0",
+    "@openzeppelin/contracts": "5.3.0",
     "@prb/math": "4.1.0",
-    "@sablier/lockup": "github:sablier-labs/lockup#f98c83e",
-    "@sablier/evm-utils": "github:sablier-labs/evm-utils#a033701"
+    "@sablier/lockup": "github:sablier-labs/lockup#9554634",
+    "@sablier/evm-utils": "github:sablier-labs/evm-utils#0c414ce"
   },
   "devDependencies": {
-    "forge-std": "github:foundry-rs/forge-std#v1.8.2",
+    "forge-std": "github:foundry-rs/forge-std#v1.9.7",
     "husky": "^9.1.4",
     "lint-staged": "^15.2.8",
     "murky": "github:dmfxyz/murky#6f67641",

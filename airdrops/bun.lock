@@ -4,14 +4,14 @@
     "": {
       "name": "@sablier/airdrops",
       "dependencies": {
-        "@chainlink/contracts": "^1.3.0",
-        "@openzeppelin/contracts": "5.0.2",
+        "@chainlink/contracts": "1.3.0",
+        "@openzeppelin/contracts": "5.3.0",
         "@prb/math": "4.1.0",
-        "@sablier/evm-utils": "github:sablier-labs/evm-utils#a033701",
-        "@sablier/lockup": "github:sablier-labs/lockup#f98c83e",
+        "@sablier/evm-utils": "github:sablier-labs/evm-utils#0c414ce",
+        "@sablier/lockup": "github:sablier-labs/lockup#9554634",
       },
       "devDependencies": {
-        "forge-std": "github:foundry-rs/forge-std#v1.8.2",
+        "forge-std": "github:foundry-rs/forge-std#v1.9.7",
         "husky": "^9.1.4",
         "lint-staged": "^15.2.8",
         "murky": "github:dmfxyz/murky#6f67641",
@@ -153,7 +153,7 @@
 
     "@offchainlabs/upgrade-executor": ["@offchainlabs/upgrade-executor@1.1.0-beta.0", "", { "dependencies": { "@openzeppelin/contracts": "4.7.3", "@openzeppelin/contracts-upgradeable": "4.7.3" } }, "sha512-mpn6PHjH/KDDjNX0pXHEKdyv8m6DVGQiI2nGzQn0JbM1nOSHJpWx6fvfjtH7YxHJ6zBZTcsKkqGkFKDtCfoSLw=="],
 
-    "@openzeppelin/contracts": ["@openzeppelin/contracts@5.0.2", "", {}, "sha512-ytPc6eLGcHHnapAZ9S+5qsdomhjo6QBHTDRRBFfTxXIpsicMhVPouPgmUPebZZZGX7vt9USA+Z+0M0dSVtSUEA=="],
+    "@openzeppelin/contracts": ["@openzeppelin/contracts@5.3.0", "", {}, "sha512-zj/KGoW7zxWUE8qOI++rUM18v+VeLTTzKs/DJFkSzHpQFPD/jKKF0TrMxBfGLl3kpdELCNccvB3zmofSzm4nlA=="],
 
     "@openzeppelin/contracts-4.7.3": ["@openzeppelin/contracts@4.7.3", "", {}, "sha512-dGRS0agJzu8ybo44pCIf3xBaPQN/65AIXNgK8+4gzKd5kbvlqyxryUYVLJv7fK98Seyd2hDZzVEHSWAh0Bt1Yw=="],
 
@@ -175,9 +175,9 @@
 
     "@prb/math": ["@prb/math@4.1.0", "", {}, "sha512-ef5Xrlh3BeX4xT5/Wi810dpEPq2bYPndRxgFIaKSU1F/Op/s8af03kyom+mfU7gEpvfIZ46xu8W0duiHplbBMg=="],
 
-    "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#a033701", {}, "sablier-labs-evm-utils-a033701"],
+    "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#0c414ce", {}, "sablier-labs-evm-utils-0c414ce"],
 
-    "@sablier/lockup": ["@sablier/lockup@github:sablier-labs/lockup#f98c83e", { "dependencies": { "@openzeppelin/contracts": "5.0.2", "@prb/math": "4.1.0", "@sablier/evm-utils": "github:sablier-labs/evm-utils#d1896e1" }, "peerDependencies": { "@prb/math": "4.x.x" } }, "sablier-labs-lockup-f98c83e"],
+    "@sablier/lockup": ["@sablier/lockup@github:sablier-labs/lockup#9554634", { "dependencies": { "@openzeppelin/contracts": "5.0.2", "@prb/math": "4.1.0", "@sablier/evm-utils": "github:sablier-labs/evm-utils#a033701" }, "peerDependencies": { "@prb/math": "4.x.x" } }, "sablier-labs-lockup-9554634"],
 
     "@scroll-tech/contracts": ["@scroll-tech/contracts@2.0.0", "", {}, "sha512-O8sVaA/bVKH/mp+bBfUjZ/vYr5mdBExCpKRLre4r9TbXTtiaY9Uo5xU8dcG3weLxyK0BZqDTP2aCNp4Q0f7SeA=="],
 
@@ -339,7 +339,7 @@
 
     "find-yarn-workspace-root": ["find-yarn-workspace-root@2.0.0", "", { "dependencies": { "micromatch": "^4.0.2" } }, "sha512-1IMnbjt4KzsQfnhnzNd8wUEgXZ44IzZaZmnLYx7D5FZlaHt2gW20Cri8Q+E/t5tIj4+epTBub+2Zxu/vNILzqQ=="],
 
-    "forge-std": ["forge-std@github:foundry-rs/forge-std#978ac6f", {}, "foundry-rs-forge-std-978ac6f"],
+    "forge-std": ["forge-std@github:foundry-rs/forge-std#77041d2", {}, "foundry-rs-forge-std-77041d2"],
 
     "form-data-encoder": ["form-data-encoder@2.1.4", "", {}, "sha512-yDYSgNMraqvnxiEXO4hi88+YZxaHC6QKzb5N84iRCTDeRO7ZALpir/lVmf/uXUhnwUr2O4HU8s/n6x+yNjQkHw=="],
 
@@ -695,7 +695,9 @@
 
     "@pnpm/network.ca-file/graceful-fs": ["graceful-fs@4.2.10", "", {}, "sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA=="],
 
-    "@sablier/lockup/@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#d1896e1", {}, "sablier-labs-evm-utils-d1896e1"],
+    "@sablier/lockup/@openzeppelin/contracts": ["@openzeppelin/contracts@5.0.2", "", {}, "sha512-ytPc6eLGcHHnapAZ9S+5qsdomhjo6QBHTDRRBFfTxXIpsicMhVPouPgmUPebZZZGX7vt9USA+Z+0M0dSVtSUEA=="],
+
+    "@sablier/lockup/@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#a033701", {}, "sablier-labs-evm-utils-a033701"],
 
     "better-ajv-errors/chalk": ["chalk@4.1.2", "", { "dependencies": { "ansi-styles": "^4.1.0", "supports-color": "^7.1.0" } }, "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA=="],
 

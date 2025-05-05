@@ -30,7 +30,8 @@ abstract contract Clawback_Integration_Test is Integration_Test {
     }
 
     function test_GivenSevenDaysNotPassed() external whenCallerCampaignCreator whenFirstClaimMade {
-        vm.warp({ newTimestamp: getBlockTimestamp() + 6 days });
+        // Skip forward by 6 days.
+        skip(6 days);
         test_Clawback(users.campaignCreator);
     }
 

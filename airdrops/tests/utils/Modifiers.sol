@@ -44,7 +44,8 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier givenSevenDaysPassed() {
-        vm.warp({ newTimestamp: getBlockTimestamp() + 8 days });
+        // Skip forward by 8 days.
+        skip(8 days);
         _;
     }
 

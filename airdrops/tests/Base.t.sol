@@ -79,8 +79,8 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         vm.startPrank({ msgSender: users.admin });
 
         // Deploy the Lockup contract.
-        LockupNFTDescriptor nftDescriptor = new LockupNFTDescriptor();
-        lockup = new SablierLockup(users.admin, nftDescriptor, 1000);
+        address nftDescriptor = address(new LockupNFTDescriptor());
+        lockup = new SablierLockup(users.admin, nftDescriptor);
 
         // Deploy the mock Chainlink Oracle.
         oracle = new ChainlinkOracleMock();
