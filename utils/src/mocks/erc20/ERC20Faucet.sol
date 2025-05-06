@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @notice Allows anyone to mint or burn any amount of tokens to any account.
-contract SablierERC20Faucet is ERC20("SablierERC20Faucet", "SAB-ERC20") {
+contract ERC20Faucet is ERC20("ERC20Faucet", "FAU-ERC20") {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
