@@ -50,28 +50,35 @@ contract RefundMax_Integration_Concrete_Test is Shared_Integration_Concrete_Test
 
     function _test_RefundMax(uint256 streamId, IERC20 token, uint128 depositedAmount) private {
         uint256 previousAggregateAmount = flow.aggregateAmount(token);
-        uint128 refundableAmount = flow.refundableAmountOf(streamId);
+        uint128 expectedRefundableAmount = flow.refundableAmountOf(streamId);
 
         // It should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(token) });
-        emit IERC20.Transfer({ from: address(flow), to: users.sender, value: refundableAmount });
+        emit IERC20.Transfer({ from: address(flow), to: users.sender, value: expectedRefundableAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit ISablierFlow.RefundFromFlowStream({ streamId: streamId, sender: users.sender, amount: refundableAmount });
+        emit ISablierFlow.RefundFromFlowStream({
+            streamId: streamId,
+            sender: users.sender,
+            amount: expectedRefundableAmount
+        });
 
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransfer({ token: token, to: users.sender, value: refundableAmount });
-        flow.refundMax(streamId);
+        expectCallToTransfer({ token: token, to: users.sender, value: expectedRefundableAmount });
+        uint128 actualRefundedAmount = flow.refundMax(streamId);
 
         // It should update the stream balance.
         uint128 actualStreamBalance = flow.getBalance(streamId);
-        uint128 expectedStreamBalance = depositedAmount - refundableAmount;
+        uint128 expectedStreamBalance = depositedAmount - expectedRefundableAmount;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
+        // It should return the expected refunded amount.
+        assertEq(actualRefundedAmount, expectedRefundableAmount, "refunded amount");
+
         // It should decrease the aggregate amount.
-        assertEq(flow.aggregateAmount(token), previousAggregateAmount - refundableAmount, "aggregate amount");
+        assertEq(flow.aggregateAmount(token), previousAggregateAmount - expectedRefundableAmount, "aggregate amount");
     }
 }

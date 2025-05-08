@@ -194,7 +194,7 @@ abstract contract SablierFlowBase is
     /// @inheritdoc ISablierFlowBase
     function collectFees(address feeRecipient) external override {
         // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
-        // then `feeRecipient` must be the admin address.
+        // `feeRecipient` must be the admin address.
         bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
         if (!hasRoleOrIsAdmin && feeRecipient != admin) {
             revert Errors.SablierFlowBase_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });

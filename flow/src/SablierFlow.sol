@@ -369,11 +369,12 @@ contract SablierFlow is
         notNull(streamId)
         onlySender(streamId)
         updateMetadata(streamId)
+        returns (uint128 refundedAmount)
     {
-        uint128 refundableAmount = _refundableAmountOf(streamId);
+        refundedAmount = _refundableAmountOf(streamId);
 
         // Checks, Effects, and Interactions: make the refund.
-        _refund(streamId, refundableAmount);
+        _refund(streamId, refundedAmount);
     }
 
     /// @inheritdoc ISablierFlow

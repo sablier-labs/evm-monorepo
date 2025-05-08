@@ -329,7 +329,9 @@ interface ISablierFlow is
     /// - Refer to the requirements in {refund}.
     ///
     /// @param streamId The ID of the stream to refund from.
-    function refundMax(uint256 streamId) external payable;
+    ///
+    /// @return refundedAmount The amount refunded to the stream sender, denoted in token's decimals.
+    function refundMax(uint256 streamId) external payable returns (uint128 refundedAmount);
 
     /// @notice Restarts the stream with the provided rate per second.
     ///

@@ -34,11 +34,11 @@ contract RefundMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: timeJump });
 
-        uint128 refundableAmount = flow.refundableAmountOf(streamId);
+        uint128 expectedRefundableAmount = flow.refundableAmountOf(streamId);
 
         // Ensure refundable amount is not zero. It could be zero for a small time range upto the depletion time due to
         // precision error.
-        vm.assume(refundableAmount != 0);
+        vm.assume(expectedRefundableAmount != 0);
 
         // Following variables are used during assertions.
         uint256 initialAggregateAmount = flow.aggregateAmount(token);
@@ -47,30 +47,37 @@ contract RefundMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(token) });
-        emit IERC20.Transfer({ from: address(flow), to: users.sender, value: refundableAmount });
+        emit IERC20.Transfer({ from: address(flow), to: users.sender, value: expectedRefundableAmount });
 
         vm.expectEmit({ emitter: address(flow) });
-        emit ISablierFlow.RefundFromFlowStream({ streamId: streamId, sender: users.sender, amount: refundableAmount });
+        emit ISablierFlow.RefundFromFlowStream({
+            streamId: streamId,
+            sender: users.sender,
+            amount: expectedRefundableAmount
+        });
 
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Request the maximum refund.
-        flow.refundMax(streamId);
+        uint128 actualRefundedAmount = flow.refundMax(streamId);
 
         // Assert that the token balance of stream has been updated.
         uint256 actualTokenBalance = token.balanceOf(address(flow));
-        uint256 expectedTokenBalance = initialTokenBalance - refundableAmount;
+        uint256 expectedTokenBalance = initialTokenBalance - expectedRefundableAmount;
         assertEq(actualTokenBalance, expectedTokenBalance, "token balanceOf");
 
         // Assert that stored balance in stream has been updated.
         uint256 actualStreamBalance = flow.getBalance(streamId);
-        uint256 expectedStreamBalance = initialStreamBalance - refundableAmount;
+        uint256 expectedStreamBalance = initialStreamBalance - expectedRefundableAmount;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
         // Assert that the aggregate amount has been updated.
         uint256 actualAggregateAmount = flow.aggregateAmount(token);
-        uint256 expectedAggregateAmount = initialAggregateAmount - refundableAmount;
+        uint256 expectedAggregateAmount = initialAggregateAmount - expectedRefundableAmount;
         assertEq(actualAggregateAmount, expectedAggregateAmount, "aggregate amount");
+
+        // Assert that the maximum refundable amount has been refunded.
+        assertEq(actualRefundedAmount, expectedRefundableAmount, "refunded amount");
     }
 }
