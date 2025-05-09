@@ -86,6 +86,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
   [#852](https://github.com/sablier-labs/lockup/pull/852))
 - Rename create functions `createWithTimestamps` and `createWithDurations` across all lockup contracts
   ([#798](https://github.com/sablier-labs/lockup/pull/798))
+- Rename `milestone` to `timestamp` in the `LockupDynamic.Segment` data type
 - Switch to Bun ([#775](https://github.com/sablier-labs/lockup/pull/775))
 - Use Solidity v0.8.26 ([#944](https://github.com/sablier-labs/lockup/pull/944))
 
