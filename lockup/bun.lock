@@ -6,7 +6,7 @@
       "dependencies": {
         "@openzeppelin/contracts": "5.3.0",
         "@prb/math": "4.1.0",
-        "@sablier/evm-utils": "github:sablier-labs/evm-utils#df51bcc",
+        "@sablier/evm-utils": "github:sablier-labs/evm-utils#64835cd",
       },
       "devDependencies": {
         "forge-std": "github:foundry-rs/forge-std#v1.9.7",
@@ -15,7 +15,7 @@
         "prettier": "^3.3.2",
         "solady": "0.0.208",
         "solarray": "github:evmcheb/solarray#a547630",
-        "solhint": "^5.0.3",
+        "solhint": "^5.1.0",
       },
       "peerDependencies": {
         "@prb/math": "4.x.x",
@@ -39,7 +39,7 @@
 
     "@prb/math": ["@prb/math@4.1.0", "", {}, "sha512-ef5Xrlh3BeX4xT5/Wi810dpEPq2bYPndRxgFIaKSU1F/Op/s8af03kyom+mfU7gEpvfIZ46xu8W0duiHplbBMg=="],
 
-    "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#df51bcc", {}, "sablier-labs-evm-utils-df51bcc"],
+    "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#64835cd", {}, "sablier-labs-evm-utils-64835cd"],
 
     "@sindresorhus/is": ["@sindresorhus/is@5.6.0", "", {}, "sha512-TV7t8GKYaJWsn00tFDqBw8+Uqmr8A0fRU1tvTQhyZzGv0sJCGRQL3JGMI3ucuKo3XIZdUP+Lx7/gh2t3lewy7g=="],
 
