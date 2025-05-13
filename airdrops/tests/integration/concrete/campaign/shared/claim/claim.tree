@@ -11,9 +11,9 @@ Claim_Integration_Test
          ├── when index not valid
          │  └── it should revert
          └── when index valid
-            ├── when recipient not valid
+            ├── when recipient not eligible
             │  └── it should revert
-            └── when recipient valid
+            └── when recipient eligible
                ├── when amount not valid
                │  └── it should revert
                └── when amount valid

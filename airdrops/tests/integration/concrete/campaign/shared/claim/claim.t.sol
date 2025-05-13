@@ -52,7 +52,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_RecipientNotValid()
+    function test_RevertWhen_RecipientNotEligible()
         external
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee
@@ -77,7 +77,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
         givenMsgValueNotLessThanFee
         givenRecipientNotClaimed
         whenIndexValid
-        whenRecipientValid
+        whenRecipientEligible
     {
         uint128 invalidAmount = 1337;
 
@@ -97,7 +97,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
         givenMsgValueNotLessThanFee
         givenRecipientNotClaimed
         whenIndexValid
-        whenRecipientValid
+        whenRecipientEligible
         whenAmountValid
     {
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
@@ -118,7 +118,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
         givenMsgValueNotLessThanFee
         givenRecipientNotClaimed
         whenIndexValid
-        whenRecipientValid
+        whenRecipientEligible
         whenAmountValid
     {
         // The child contract must check that the claim event is emitted.

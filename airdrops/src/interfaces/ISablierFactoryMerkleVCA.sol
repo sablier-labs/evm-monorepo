@@ -24,7 +24,7 @@ interface ISablierFactoryMerkleVCA is ISablierFactoryMerkleBase {
     );
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Creates a new MerkleVCA campaign for variable distribution of tokens.

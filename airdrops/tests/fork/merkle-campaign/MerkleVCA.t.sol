@@ -107,7 +107,8 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
             index: vars.leafToClaim.index,
             recipient: vars.leafToClaim.recipient,
             claimAmount: claimAmount,
-            forgoneAmount: forgoneAmount
+            forgoneAmount: forgoneAmount,
+            to: vars.leafToClaim.recipient
         });
 
         expectCallToClaimWithData({

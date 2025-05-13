@@ -10,6 +10,7 @@ import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
 import { MerkleLL } from "src/types/DataTypes.sol";
 
 import { LeafData } from "../../utils/MerkleBuilder.sol";
+import { Params } from "../../utils/Types.sol";
 import { Shared_Fuzz_Test, Integration_Test } from "./Fuzz.t.sol";
 
 contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
@@ -38,18 +39,13 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
     /// percentage,  percentage and total duration.
     /// - Both finite (only in future) and infinite expiration.
     /// - Claiming multiple airdrops with fuzzed claim fee at different point in time.
+    /// - Claiming airdrops using both {claim} and {claimTo} functions with fuzzed `to` address.
     /// - Fuzzed clawback amount.
     /// - Collect fees earned.
     function testFuzz_MerkleLL(
-        uint128 clawbackAmount,
+        Params memory params,
         uint40 cliffDuration,
         UD60x18 cliffUnlockPercentage,
-        bool enableCustomFee,
-        uint40 expiration,
-        uint256 feeForUser,
-        uint256[] memory indexesToClaim,
-        uint256 msgValue,
-        LeafData[] memory rawLeavesData,
         uint40 startTime,
         UD60x18 startUnlockPercentage,
         uint40 totalDuration
@@ -58,10 +54,10 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
     {
         // Bound the fuzzed params and construct the Merkle tree.
         (uint256 aggregateAmount, uint40 expiration_, bytes32 merkleRoot) =
-            prepareCommonCreateParams(rawLeavesData, expiration, indexesToClaim.length);
+            prepareCommonCreateParams(params.rawLeavesData, params.expiration, params.indexesToClaim.length);
 
         // Set the custom fee if enabled.
-        feeForUser = enableCustomFee ? testSetCustomFeeUSD(feeForUser) : MIN_FEE_USD;
+        params.feeForUser = params.enableCustomFeeUSD ? testSetCustomFeeUSD(params.feeForUser) : MIN_FEE_USD;
 
         // Test creating the MerkleLL campaign.
         _testCreateMerkleLL(
@@ -69,7 +65,7 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
             cliffDuration,
             cliffUnlockPercentage,
             expiration_,
-            feeForUser,
+            params.feeForUser,
             merkleRoot,
             startTime,
             startUnlockPercentage,
@@ -77,10 +73,10 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         );
 
         // Test claiming the airdrop for the given indexes.
-        testClaimMultipleAirdrops(indexesToClaim, msgValue);
+        testClaimMultipleAirdrops(params.indexesToClaim, params.msgValue, params.to);
 
         // Test clawbacking funds.
-        testClawback(clawbackAmount);
+        testClawback(params.clawbackAmount);
 
         // Test collecting fees earned.
         testCollectFees();
@@ -177,23 +173,34 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
                                 CLAIM-EVENT-HELPER
     //////////////////////////////////////////////////////////////////////////*/
 
-    function expectClaimEvent(LeafData memory leafData) internal override {
+    function expectClaimEvent(LeafData memory leafData, address to) internal override {
         // It should emit {Claim} event based on the end time.
         uint40 expectedVestingStartTime =
             merkleLL.VESTING_START_TIME() == 0 ? getBlockTimestamp() : merkleLL.VESTING_START_TIME();
 
-        // If the vesting has ended, the claim should be transferred directly to the recipient.
+        // If the vesting has ended, the claim should be transferred directly to the `to` address.
         if (expectedVestingStartTime + merkleLL.VESTING_TOTAL_DURATION() <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLL) });
-            emit ISablierMerkleLockup.Claim(leafData.index, leafData.recipient, leafData.amount);
+            emit ISablierMerkleLockup.Claim({
+                index: leafData.index,
+                recipient: leafData.recipient,
+                amount: leafData.amount,
+                to: to
+            });
 
-            expectCallToTransfer({ token: dai, to: leafData.recipient, value: leafData.amount });
+            expectCallToTransfer({ token: dai, to: to, value: leafData.amount });
         }
         // Otherwise, the claim should be made via a Lockup stream.
         else {
             uint256 expectedStreamId = lockup.nextStreamId();
             vm.expectEmit({ emitter: address(merkleLL) });
-            emit ISablierMerkleLockup.Claim(leafData.index, leafData.recipient, leafData.amount, expectedStreamId);
+            emit ISablierMerkleLockup.Claim({
+                index: leafData.index,
+                recipient: leafData.recipient,
+                amount: leafData.amount,
+                streamId: expectedStreamId,
+                to: to
+            });
 
             expectCallToTransferFrom({ token: dai, from: address(merkleLL), to: address(lockup), value: leafData.amount });
         }

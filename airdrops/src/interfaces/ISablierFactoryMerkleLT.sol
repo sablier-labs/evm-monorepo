@@ -25,7 +25,7 @@ interface ISablierFactoryMerkleLT is ISablierFactoryMerkleBase {
     );
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                                READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Verifies if the sum of percentages in `tranches` equals 100%, i.e., 1e18.
@@ -38,7 +38,7 @@ interface ISablierFactoryMerkleLT is ISablierFactoryMerkleBase {
         returns (bool result);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Creates a new Merkle Lockup campaign with a Lockup Tranched distribution.

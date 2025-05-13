@@ -13,11 +13,11 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when a recipient claims the airdrop.
-    event Claim(uint256 index, address indexed recipient, uint128 claimAmount, uint128 forgoneAmount);
+    /// @notice Emitted when `to` receives the airdrop through a direct transfer on behalf of `recipient`.
+    event Claim(uint256 index, address indexed recipient, uint128 claimAmount, uint128 forgoneAmount, address to);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                                READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Retrieves the percentage of the full amount that will unlock immediately at the start time. The
@@ -49,7 +49,7 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     function totalForgoneAmount() external view returns (uint256);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Makes the claim by transferring the tokens directly to the recipient. If the vesting end time is in the
@@ -76,4 +76,19 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     )
         external
         payable;
+
+    /// @notice Makes the claim by transferring the tokens directly to the `to` address.
+    ///
+    /// @dev It emits a {Claim} event.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the airdrop recipient.
+    /// - The `to` must not be the zero address.
+    /// - Refer to the requirements in {claim}.
+    ///
+    /// @param index The index of the `msg.sender` in the Merkle tree.
+    /// @param to The address receiving the ERC-20 tokens on behalf of `msg.sender`.
+    /// @param fullAmount The total amount of ERC-20 tokens allocated to the recipient.
+    /// @param merkleProof The proof of inclusion in the Merkle tree.
+    function claimTo(uint256 index, address to, uint128 fullAmount, bytes32[] calldata merkleProof) external payable;
 }

@@ -7,6 +7,7 @@ import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol"
 import { MerkleInstant } from "src/types/DataTypes.sol";
 
 import { LeafData } from "../../utils/MerkleBuilder.sol";
+import { Params } from "../../utils/Types.sol";
 import { Shared_Fuzz_Test, Integration_Test } from "./Fuzz.t.sol";
 
 contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
@@ -34,34 +35,25 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
     /// - MerkleInstant campaign with fuzzed leaves data, and expiration.
     /// - Both finite (only in future) and infinite expiration.
     /// - Claiming multiple airdrops with fuzzed claim fee at different point in time.
+    /// - Claiming airdrops using both {claim} and {claimTo} functions with fuzzed `to` address.
     /// - Fuzzed clawback amount.
     /// - Collect fees earned.
-    function testFuzz_MerkleInstant(
-        uint128 clawbackAmount,
-        bool enableCustomFee,
-        uint40 expiration,
-        uint256 feeForUser,
-        uint256[] memory indexesToClaim,
-        uint256 msgValue,
-        LeafData[] memory rawLeavesData
-    )
-        external
-    {
+    function testFuzz_MerkleInstant(Params memory params) external {
         // Bound the fuzzed params and construct the Merkle tree.
         (uint256 aggregateAmount, uint40 expiration_, bytes32 merkleRoot) =
-            prepareCommonCreateParams(rawLeavesData, expiration, indexesToClaim.length);
+            prepareCommonCreateParams(params.rawLeavesData, params.expiration, params.indexesToClaim.length);
 
         // Set the custom fee if enabled.
-        feeForUser = enableCustomFee ? testSetCustomFeeUSD(feeForUser) : MIN_FEE_USD;
+        params.feeForUser = params.enableCustomFeeUSD ? testSetCustomFeeUSD(params.feeForUser) : MIN_FEE_USD;
 
         // Test creating the MerkleInstant campaign.
-        _testCreateMerkleInstant(aggregateAmount, expiration_, feeForUser, merkleRoot);
+        _testCreateMerkleInstant(aggregateAmount, expiration_, params.feeForUser, merkleRoot);
 
         // Test claiming the airdrop for the given indexes.
-        testClaimMultipleAirdrops(indexesToClaim, msgValue);
+        testClaimMultipleAirdrops(params.indexesToClaim, params.msgValue, params.to);
 
         // Test clawback of funds.
-        testClawback(clawbackAmount);
+        testClawback(params.clawbackAmount);
 
         // Test collecting fees earned.
         testCollectFees();
@@ -123,12 +115,17 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
                                 CLAIM-EVENT-HELPER
     //////////////////////////////////////////////////////////////////////////*/
 
-    function expectClaimEvent(LeafData memory leafData) internal override {
+    function expectClaimEvent(LeafData memory leafData, address to) internal override {
         // it should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleInstant) });
-        emit ISablierMerkleInstant.Claim(leafData.index, leafData.recipient, leafData.amount);
+        emit ISablierMerkleInstant.Claim({
+            index: leafData.index,
+            recipient: leafData.recipient,
+            amount: leafData.amount,
+            to: to
+        });
 
-        // It should transfer the claim amount to the recipient.
-        expectCallToTransfer({ token: dai, to: leafData.recipient, value: leafData.amount });
+        // It should transfer the claim amount to the `to` address.
+        expectCallToTransfer({ token: dai, to: to, value: leafData.amount });
     }
 }

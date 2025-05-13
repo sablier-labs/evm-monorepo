@@ -26,7 +26,7 @@ jobs:
       retry-attempts: 2
 
   test-utils:
-    needs: ["lint", "build"]
+    needs: ["build"]
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-profile: "test-optimized"

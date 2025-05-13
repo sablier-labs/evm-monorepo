@@ -45,6 +45,7 @@ contract Integration_Test is Base_Test {
                                    MERKLE-CLAIMS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Claim to `users.recipient1` address using {claim} function.
     function claim() internal {
         claim({
             msgValue: MIN_FEE_WEI,
@@ -92,6 +93,31 @@ contract Integration_Test is Base_Test {
                 fullAmount: amount,
                 merkleProof: merkleProof
             });
+        }
+    }
+
+    /// @dev Claim to Eve address on behalf of `users.recipient1` using {claimTo} function.
+    function claimTo() internal {
+        claimTo({ msgValue: MIN_FEE_WEI, index: INDEX1, to: users.eve, amount: CLAIM_AMOUNT, merkleProof: index1Proof() });
+    }
+
+    function claimTo(
+        uint256 msgValue,
+        uint256 index,
+        address to,
+        uint128 amount,
+        bytes32[] memory merkleProof
+    )
+        internal
+    {
+        if (Strings.equal(campaignType, "instant")) {
+            merkleInstant.claimTo{ value: msgValue }({ index: index, to: to, amount: amount, merkleProof: merkleProof });
+        } else if (Strings.equal(campaignType, "ll")) {
+            merkleLL.claimTo{ value: msgValue }({ index: index, to: to, amount: amount, merkleProof: merkleProof });
+        } else if (Strings.equal(campaignType, "lt")) {
+            merkleLT.claimTo{ value: msgValue }({ index: index, to: to, amount: amount, merkleProof: merkleProof });
+        } else if (Strings.equal(campaignType, "vca")) {
+            merkleVCA.claimTo{ value: msgValue }({ index: index, to: to, fullAmount: amount, merkleProof: merkleProof });
         }
     }
 

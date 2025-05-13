@@ -19,6 +19,10 @@ abstract contract Modifiers is EvmUtilsBase {
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier givenCallerNotClaimed() {
+        _;
+    }
+
     modifier givenCampaignNotExists() {
         _;
     }
@@ -64,6 +68,11 @@ abstract contract Modifiers is EvmUtilsBase {
 
     modifier whenCallerCampaignCreator() {
         setMsgSender(users.campaignCreator);
+        _;
+    }
+
+    modifier whenCallerEligible() {
+        setMsgSender(users.recipient1);
         _;
     }
 
@@ -167,7 +176,7 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenRecipientValid() {
+    modifier whenRecipientEligible() {
         _;
     }
 
@@ -176,6 +185,10 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenStartTimeNotZero() {
+        _;
+    }
+
+    modifier whenToAddressNotZero() {
         _;
     }
 

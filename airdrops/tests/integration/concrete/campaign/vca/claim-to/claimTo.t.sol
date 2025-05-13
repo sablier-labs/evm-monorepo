@@ -4,12 +4,13 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
-import { MerkleVCA_Integration_Shared_Test, Integration_Test } from "../MerkleVCA.t.sol";
+import { ClaimTo_Integration_Test } from "../../shared/claim-to/claimTo.t.sol";
+import { MerkleVCA_Integration_Shared_Test } from "../MerkleVCA.t.sol";
 
-contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_Integration_Shared_Test {
-    function setUp() public virtual override(MerkleVCA_Integration_Shared_Test, Integration_Test) {
+contract ClaimTo_MerkleVCA_Integration_Test is ClaimTo_Integration_Test, MerkleVCA_Integration_Shared_Test {
+    function setUp() public virtual override(MerkleVCA_Integration_Shared_Test, ClaimTo_Integration_Test) {
         MerkleVCA_Integration_Shared_Test.setUp();
+        ClaimTo_Integration_Test.setUp();
     }
 
     function test_RevertWhen_StartTimeInFuture() external whenMerkleProofValid {
@@ -20,28 +21,28 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleVCA_ClaimAmountZero.selector, users.recipient1));
 
         // Claim the airdrop.
-        claim();
+        claimTo();
     }
 
     function test_WhenStartTimeInPresent() external whenMerkleProofValid whenStartTimeNotInFuture {
         // Forward in time so that the end time is in the past.
         vm.warp({ newTimestamp: VCA_START_TIME });
 
-        _test_Claim(VCA_UNLOCK_AMOUNT);
+        _test_ClaimTo(VCA_UNLOCK_AMOUNT);
     }
 
     function test_WhenEndTimeInPast() external whenMerkleProofValid whenStartTimeNotInFuture {
         // Forward in time so that the end time is in the past.
         vm.warp({ newTimestamp: VESTING_END_TIME });
 
-        _test_Claim(VCA_FULL_AMOUNT);
+        _test_ClaimTo(VCA_FULL_AMOUNT);
     }
 
     function test_WhenEndTimeNotInPast() external whenMerkleProofValid whenStartTimeNotInFuture {
-        _test_Claim(VCA_CLAIM_AMOUNT);
+        _test_ClaimTo(VCA_CLAIM_AMOUNT);
     }
 
-    function _test_Claim(uint128 claimAmount) private {
+    function _test_ClaimTo(uint128 claimAmount) private {
         uint128 forgoneAmount = VCA_FULL_AMOUNT - claimAmount;
 
         // It should emit a {Claim} event.
@@ -51,14 +52,14 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
             recipient: users.recipient1,
             claimAmount: claimAmount,
             forgoneAmount: forgoneAmount,
-            to: users.recipient1
+            to: users.eve
         });
 
-        // It should transfer a portion of the amount.
-        expectCallToTransfer({ to: users.recipient1, value: claimAmount });
-        expectCallToClaimWithMsgValue(address(merkleVCA), MIN_FEE_WEI);
+        // It should transfer a portion of the amount to Eve.
+        expectCallToTransfer({ to: users.eve, value: claimAmount });
+        expectCallToClaimToWithMsgValue(address(merkleVCA), MIN_FEE_WEI);
 
-        claim();
+        claimTo();
 
         // It should update the claimed status.
         assertTrue(merkleVCA.hasClaimed(INDEX1), "not claimed");

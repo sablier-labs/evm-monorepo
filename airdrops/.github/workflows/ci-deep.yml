@@ -26,7 +26,7 @@ jobs:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
 
   test-integration:
-    needs: ["lint", "build"]
+    needs: ["build"]
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: ${{ fromJSON(inputs.integrationFuzzRuns || '50000') }}
@@ -35,7 +35,7 @@ jobs:
       name: "Integration tests"
 
   test-fork:
-    needs: ["lint", "build"]
+    needs: ["build"]
     secrets:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
       ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}

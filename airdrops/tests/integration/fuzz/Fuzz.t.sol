@@ -20,46 +20,30 @@ contract Shared_Fuzz_Test is Integration_Test {
     // Store the first claim time to be used in clawback.
     uint40 internal firstClaimTime;
 
-    // Storing leaves as `uint256`in storage so that we can use OpenZeppelin's {Arrays.findUpperBound}.
+    // Store leaves as `uint256` in storage so that we can use OpenZeppelin's {Arrays.findUpperBound}.
     uint256[] internal leaves;
 
-    // Storing leaves data in storage so that we can use it across functions.
+    // Store leaves data in storage so that we can use it across functions.
     LeafData[] internal leavesData;
 
     /*//////////////////////////////////////////////////////////////////////////
-                             COMMON-CAMPAIGN-FUNCTIONS
+                               COMMON-TEST-FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function prepareCommonCreateParams(
-        LeafData[] memory rawLeavesData,
-        uint40 expiration,
-        uint256 indexesCount
-    )
-        internal
-        returns (uint256 aggregateAmount, uint40 expiration_, bytes32 merkleRoot)
-    {
-        vm.assume(rawLeavesData.length > 0 && indexesCount < rawLeavesData.length);
-
-        // Bound expiration so that the campaign is still active at the creation.
-        if (expiration > 0) expiration_ = boundUint40(expiration, getBlockTimestamp() + 365 days, MAX_UNIX_TIMESTAMP);
-
-        // Construct merkle root for the given tree leaves.
-        (aggregateAmount, merkleRoot) = constructMerkleTree(rawLeavesData);
-    }
-
-    // Helper function to test claiming multiple airdrops.
+    /// @dev Test claiming multiple airdrops. For even values of `leafIndex`, it uses {claim} function, and for odd
+    /// values, it uses {claimTo} function.
     function testClaimMultipleAirdrops(
         uint256[] memory indexesToClaim,
-        uint256 msgValue
+        uint256 msgValue,
+        address to
     )
         internal
         givenMsgValueNotLessThanFee
     {
         firstClaimTime = getBlockTimestamp();
 
-        // Use a random address as the caller.
-        address caller = vm.randomAddress();
-        setMsgSender(caller);
+        // Change `to` if it's zero.
+        if (to == address(0)) to = vm.randomAddress();
 
         for (uint256 i = 0; i < indexesToClaim.length; ++i) {
             // Bound lead index so its valid.
@@ -73,27 +57,48 @@ contract Shared_Fuzz_Test is Integration_Test {
             }
 
             // Bound `msgValue` so that it's >= min USD fee.
-            msgValue = bound(msgValue, merkleBase.calculateMinFeeWei(), 100 ether);
-            deal(caller, msgValue);
+            msgValue = bound(msgValue, merkleBase.calculateMinFeeWei(), 1 ether);
 
             // If the claim amount for VCA airdrops is zero, skip this claim.
             if (merkleBase == merkleVCA && merkleVCA.calculateClaimAmount(leafData.amount, getBlockTimestamp()) == 0) {
                 continue;
             }
 
-            // Call the expect claim event function, implemented by the child contract.
-            expectClaimEvent(leafData);
-
             bytes32[] memory merkleProof = computeMerkleProof(leafData, leaves);
 
-            // Claim the airdrop.
-            claim({
-                msgValue: msgValue,
-                index: leafData.index,
-                recipient: leafData.recipient,
-                amount: leafData.amount,
-                merkleProof: merkleProof
-            });
+            // If `leafIndex` is even, use {claim} function, otherwise use {claimTo} to claim the airdrop.
+            if (leafIndex % 2 == 0) {
+                // Use a random address as the caller.
+                address caller = vm.randomAddress();
+                setMsgSender(caller);
+
+                // Call the expect claim event function, implemented by the child contract.
+                expectClaimEvent({ leafData: leafData, to: leafData.recipient });
+
+                // Call the {claim} function.
+                claim({
+                    msgValue: msgValue,
+                    index: leafData.index,
+                    recipient: leafData.recipient,
+                    amount: leafData.amount,
+                    merkleProof: merkleProof
+                });
+            } else {
+                // Change the caller to the eligible recipient.
+                setMsgSender(leafData.recipient);
+
+                // Call the expect claim event function, implemented by the child contract.
+                expectClaimEvent(leafData, to);
+
+                // Call the {claimTo} function.
+                claimTo({
+                    msgValue: msgValue,
+                    index: leafData.index,
+                    to: to,
+                    amount: leafData.amount,
+                    merkleProof: merkleProof
+                });
+            }
 
             // It should mark the leaf index as claimed.
             assertTrue(merkleBase.hasClaimed(leafData.index));
@@ -113,7 +118,7 @@ contract Shared_Fuzz_Test is Integration_Test {
         }
     }
 
-    // Helper function to test clawbacking funds.
+    /// @dev Test clawbacking funds.
     function testClawback(uint128 amount) internal {
         amount = boundUint128(amount, 0, uint128(dai.balanceOf(address(merkleBase))));
 
@@ -143,7 +148,7 @@ contract Shared_Fuzz_Test is Integration_Test {
         merkleBase.clawback({ to: users.campaignCreator, amount: amount });
     }
 
-    // Helper function to test collecting fees earned.
+    /// @dev Test collecting fees earned.
     function testCollectFees() internal {
         // Load the initial ETH balance of the admin.
         uint256 initialAdminBalance = users.admin.balance;
@@ -158,10 +163,7 @@ contract Shared_Fuzz_Test is Integration_Test {
         assertEq(users.admin.balance, initialAdminBalance + feeEarned, "admin ETH balance");
     }
 
-    // Helper function to expect claim event. This function should be overridden in the child contract.
-    function expectClaimEvent(LeafData memory leafData) internal virtual { }
-
-    // Helper function to test setting custom fee.
+    /// @dev Test setting custom fee.
     function testSetCustomFeeUSD(uint256 customFeeUSD) internal returns (uint256) {
         customFeeUSD = bound(customFeeUSD, 0, MAX_FEE_USD);
 
@@ -193,5 +195,25 @@ contract Shared_Fuzz_Test is Integration_Test {
 
         // If there is only one leaf, the Merkle root is the hash of the leaf itself.
         merkleRoot = leaves.length == 1 ? bytes32(leaves[0]) : getRoot(leaves.toBytes32());
+    }
+
+    /// @dev Expect claim event. This function should be overridden in the child contract.
+    function expectClaimEvent(LeafData memory leafData, address to) internal virtual { }
+
+    function prepareCommonCreateParams(
+        LeafData[] memory rawLeavesData,
+        uint40 expiration,
+        uint256 indexesCount
+    )
+        internal
+        returns (uint256 aggregateAmount, uint40 expiration_, bytes32 merkleRoot)
+    {
+        vm.assume(rawLeavesData.length > 0 && indexesCount < rawLeavesData.length);
+
+        // Bound expiration so that the campaign is still active at the creation.
+        if (expiration > 0) expiration_ = boundUint40(expiration, getBlockTimestamp() + 365 days, MAX_UNIX_TIMESTAMP);
+
+        // Construct merkle root for the given tree leaves.
+        (aggregateAmount, merkleRoot) = constructMerkleTree(rawLeavesData);
     }
 }

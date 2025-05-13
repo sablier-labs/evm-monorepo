@@ -97,14 +97,23 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
         // It should emit {Claim} event based on the schedule end time.
         if (expectedStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLT) });
-            emit ISablierMerkleLockup.Claim(vars.leafToClaim.index, vars.leafToClaim.recipient, vars.leafToClaim.amount);
+            emit ISablierMerkleLockup.Claim({
+                index: vars.leafToClaim.index,
+                recipient: vars.leafToClaim.recipient,
+                amount: vars.leafToClaim.amount,
+                to: vars.leafToClaim.recipient
+            });
             expectCallToTransfer({ token: FORK_TOKEN, to: vars.leafToClaim.recipient, value: vars.leafToClaim.amount });
         } else {
             expectedStreamId = lockup.nextStreamId();
             vm.expectEmit({ emitter: address(merkleLT) });
-            emit ISablierMerkleLockup.Claim(
-                vars.leafToClaim.index, vars.leafToClaim.recipient, vars.leafToClaim.amount, expectedStreamId
-            );
+            emit ISablierMerkleLockup.Claim({
+                index: vars.leafToClaim.index,
+                recipient: vars.leafToClaim.recipient,
+                amount: vars.leafToClaim.amount,
+                streamId: expectedStreamId,
+                to: vars.leafToClaim.recipient
+            });
         }
 
         expectCallToClaimWithData({

@@ -26,6 +26,9 @@ library Errors {
     /// @notice Thrown if the fees withdrawal failed.
     error SablierMerkleBase_FeeTransferFail(address feeRecipient, uint256 feeAmount);
 
+    /// @notice Thrown when trying to claim the same index more than once.
+    error SablierMerkleBase_IndexClaimed(uint256 index);
+
     /// @notice Thrown when trying to claim without paying the min fee.
     error SablierMerkleBase_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
 
@@ -34,9 +37,6 @@ library Errors {
 
     /// @notice Thrown when trying to set a new min USD fee that is higher than the current fee.
     error SablierMerkleBase_NewMinFeeUSDNotLower(uint256 currentMinFeeUSD, uint256 newMinFeeUSD);
-
-    /// @notice Thrown when trying to claim the same index more than once.
-    error SablierMerkleBase_IndexClaimed(uint256 index);
 
     /*//////////////////////////////////////////////////////////////////////////
                             SABLIER-MERKLE-FACTORY-BASE
@@ -58,11 +58,28 @@ library Errors {
     error SablierFactoryMerkleBase_NativeTokenZeroAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
+                               SABLIER-MERKLE-INSTANT
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to claim to the zero address.
+    error SablierMerkleInstant_ToZeroAddress();
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                 SABLIER-MERKLE-LL
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to claim to the zero address.
+    error SablierMerkleLL_ToZeroAddress();
+
+    /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-MERKLE-LT
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when trying to claim from an LT campaign with tranches' unlock percentages not adding up to 100%.
     error SablierMerkleLT_TotalPercentageNotOneHundred(uint64 totalPercentage);
+
+    /// @notice Thrown when trying to claim to the zero address.
+    error SablierMerkleLT_ToZeroAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-MERKLE-VCA
@@ -82,6 +99,9 @@ library Errors {
 
     /// @notice Thrown if the start time is zero.
     error SablierMerkleVCA_StartTimeZero();
+
+    /// @notice Thrown when trying to claim to the zero address.
+    error SablierMerkleVCA_ToZeroAddress();
 
     /// @notice Thrown if the unlock percentage is greater than 100%.
     error SablierMerkleVCA_UnlockPercentageTooHigh(UD60x18 unlockPercentage);

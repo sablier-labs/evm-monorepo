@@ -44,7 +44,7 @@ contract SablierFactoryMerkleLL is ISablierFactoryMerkleLL, SablierFactoryMerkle
     { }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                NON-CONSTANT FUNCTIONS
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFactoryMerkleLL

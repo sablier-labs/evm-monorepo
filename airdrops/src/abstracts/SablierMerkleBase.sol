@@ -81,7 +81,7 @@ abstract contract SablierMerkleBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING CONSTANT FUNCTIONS
+                          USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleBase
@@ -100,7 +100,7 @@ abstract contract SablierMerkleBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                         USER-FACING NON-CONSTANT FUNCTIONS
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleBase
@@ -168,11 +168,11 @@ abstract contract SablierMerkleBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
+                            PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _calculateMinFeeWei() internal view returns (uint256) {
+    function _calculateMinFeeWei() private view returns (uint256) {
         // If the oracle is not set, return 0.
         if (ORACLE == address(0)) {
             return 0;
@@ -224,12 +224,12 @@ abstract contract SablierMerkleBase is
 
     /// @notice Returns a flag indicating whether the grace period has passed.
     /// @dev The grace period is 7 days after the first claim.
-    function _hasGracePeriodPassed() internal view returns (bool) {
+    function _hasGracePeriodPassed() private view returns (bool) {
         return firstClaimTime > 0 && block.timestamp > firstClaimTime + 7 days;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL NON-CONSTANT FUNCTIONS
+                         INTERNAL STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this internal function.

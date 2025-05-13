@@ -10,11 +10,11 @@ interface ISablierMerkleInstant is ISablierMerkleBase {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when a recipient claims an instant airdrop.
-    event Claim(uint256 index, address indexed recipient, uint128 amount);
+    /// @notice Emitted when `to` receives the airdrop through a direct transfer on behalf of `recipient`.
+    event Claim(uint256 index, address indexed recipient, uint128 amount, address to);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Makes the claim by transferring the tokens directly to the recipient.
@@ -32,4 +32,19 @@ interface ISablierMerkleInstant is ISablierMerkleBase {
     /// @param amount The amount of ERC-20 tokens allocated to the recipient.
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     function claim(uint256 index, address recipient, uint128 amount, bytes32[] calldata merkleProof) external payable;
+
+    /// @notice Makes the claim by transferring the tokens directly to the `to` address.
+    ///
+    /// @dev It emits a {Claim} event.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the airdrop recipient.
+    /// - The `to` must not be the zero address.
+    /// - Refer to the requirements in {claim}.
+    ///
+    /// @param index The index of the `msg.sender` in the Merkle tree.
+    /// @param to The address receiving the ERC-20 tokens on behalf of `msg.sender`.
+    /// @param amount The amount of ERC-20 tokens allocated to the `msg.sender`.
+    /// @param merkleProof The proof of inclusion in the Merkle tree.
+    function claimTo(uint256 index, address to, uint128 amount, bytes32[] calldata merkleProof) external payable;
 }

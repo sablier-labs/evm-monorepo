@@ -20,7 +20,7 @@ jobs:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
 
   test-bulloak:
-    needs: ["lint", "build"]
+    needs: ["build"]
     if: needs.build.outputs.cache-status != 'primary'
     uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
     with:
@@ -28,7 +28,7 @@ jobs:
       test-dir: "tests"
 
   test-integration:
-    needs: ["lint", "build"]
+    needs: ["build"]
     if: needs.build.outputs.cache-status != 'primary'
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
@@ -38,7 +38,7 @@ jobs:
       name: "Integration tests"
 
   test-fork:
-    needs: ["lint", "build"]
+    needs: ["build"]
     if: needs.build.outputs.cache-status != 'primary'
     secrets:
       API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
@@ -52,7 +52,7 @@ jobs:
       name: "Fork tests"
 
   coverage:
-    needs: ["lint", "build"]
+    needs: ["build"]
     if: needs.build.outputs.cache-status != 'primary'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

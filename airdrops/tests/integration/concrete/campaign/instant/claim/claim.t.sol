@@ -17,14 +17,14 @@ contract Claim_MerkleInstant_Integration_Test is Claim_Integration_Test, MerkleI
         givenMsgValueNotLessThanFee
         givenRecipientNotClaimed
         whenIndexValid
-        whenRecipientValid
+        whenRecipientEligible
         whenAmountValid
         whenMerkleProofValid
     {
         uint256 previousFeeAccrued = address(merkleInstant).balance;
 
         vm.expectEmit({ emitter: address(merkleInstant) });
-        emit ISablierMerkleInstant.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT);
+        emit ISablierMerkleInstant.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, users.recipient1);
 
         expectCallToTransfer({ to: users.recipient1, value: CLAIM_AMOUNT });
         expectCallToClaimWithMsgValue(address(merkleInstant), MIN_FEE_WEI);

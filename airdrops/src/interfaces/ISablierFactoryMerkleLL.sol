@@ -24,7 +24,7 @@ interface ISablierFactoryMerkleLL is ISablierFactoryMerkleBase {
     );
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Creates a new Merkle Lockup campaign with a Lockup Linear distribution.

@@ -44,7 +44,7 @@ contract SablierFactoryMerkleInstant is ISablierFactoryMerkleInstant, SablierFac
     { }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                NON-CONSTANT FUNCTIONS
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFactoryMerkleInstant

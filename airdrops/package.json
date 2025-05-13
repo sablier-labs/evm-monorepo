@@ -14,8 +14,8 @@
     "@chainlink/contracts": "1.3.0",
     "@openzeppelin/contracts": "5.3.0",
     "@prb/math": "4.1.0",
-    "@sablier/lockup": "github:sablier-labs/lockup#9554634",
-    "@sablier/evm-utils": "github:sablier-labs/evm-utils#0c414ce"
+    "@sablier/lockup": "github:sablier-labs/lockup#85968fe",
+    "@sablier/evm-utils": "github:sablier-labs/evm-utils#64835cd"
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std#v1.9.7",
@@ -24,7 +24,7 @@
     "murky": "github:dmfxyz/murky#6f67641",
     "prettier": "^3.3.2",
     "solady": "0.0.208",
-    "solhint": "^5.0.3"
+    "solhint": "^5.1.0"
   },
   "files": [
     "artifacts",
@@ -69,14 +69,14 @@
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
     "build:smt": "FOUNDRY_PROFILE=smt forge build",
     "clean": "rm -rf artifacts broadcast cache docs out out-optimized",
-    "lint": "bun run lint:sol && bun run prettier:check",
-    "lint:fix": "bun run lint:sol:fix && forge fmt",
-    "lint:sol": "forge fmt --check && solhint \"{scripts/solidity,src,tests}/**/*.sol\"",
-    "lint:sol:fix": "solhint --fix --noPrompt \"{scripts/solidity,src,tests}/**/*.sol\"",
+    "format": "bun run solhint:fix && forge fmt",
+    "lint": "forge fmt --check && bun run solhint:check && bun run prettier:check",
     "prepack": "bun install && bash ./scripts/bash/prepare-artifacts.sh",
     "prepare": "husky",
     "prettier:check": "prettier --cache --check \"**/*.{json,md,yml}\"",
     "prettier:write": "prettier --cache --write \"**/*.{json,md,yml}\"",
+    "solhint:check": "solhint \"{scripts/solidity,src,tests}/**/*.sol\"",
+    "solhint:fix": "solhint --fix --noPrompt \"{scripts/solidity,src,tests}/**/*.sol\"",
     "test": "forge test",
     "test:bulloak": "bulloak check --skip-modifiers ./tests/**/*.tree",
     "test:lite": "FOUNDRY_PROFILE=lite forge test --nmt testFork",

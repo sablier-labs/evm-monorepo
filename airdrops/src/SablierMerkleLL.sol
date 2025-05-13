@@ -8,6 +8,7 @@ import { Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
 
 import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
 import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
+import { Errors } from "./libraries/Errors.sol";
 import { MerkleLL } from "./types/DataTypes.sol";
 
 /*
@@ -88,7 +89,7 @@ contract SablierMerkleLL is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING NON-CONSTANT FUNCTIONS
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLL
@@ -105,6 +106,40 @@ contract SablierMerkleLL is
         // Check and Effect: Pre-process the claim parameters.
         _preProcessClaim(index, recipient, amount, merkleProof);
 
+        // Effect and Interaction: Post-process the claim parameters.
+        _postProcessClaim({ index: index, recipient: recipient, to: recipient, amount: amount });
+    }
+
+    /// @inheritdoc ISablierMerkleLL
+    function claimTo(
+        uint256 index,
+        address to,
+        uint128 amount,
+        bytes32[] calldata merkleProof
+    )
+        external
+        payable
+        override
+    {
+        // Check: `to` must not be the zero address.
+        if (to == address(0)) {
+            revert Errors.SablierMerkleLL_ToZeroAddress();
+        }
+
+        // Check and Effect: Pre-process the claim parameters.
+        _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
+
+        // Effect and Interaction: Post-process the claim parameters.
+        _postProcessClaim({ index: index, recipient: msg.sender, to: to, amount: amount });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                          PRIVATE STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Post-processes the claim execution by creating the stream or transferring the tokens directly and emitting
+    /// an event.
+    function _postProcessClaim(uint256 index, address recipient, address to, uint128 amount) private {
         // Calculate the timestamps.
         Lockup.Timestamps memory timestamps;
         // Zero is a sentinel value for `block.timestamp`.
@@ -115,13 +150,13 @@ contract SablierMerkleLL is
         }
         timestamps.end = timestamps.start + VESTING_TOTAL_DURATION;
 
-        // If the end time is not in the future, transfer the amount directly to the recipient.
+        // If the end time is not in the future, transfer the amount directly to the `to` address..
         if (timestamps.end <= block.timestamp) {
-            // Interaction: transfer the tokens to the recipient.
-            TOKEN.safeTransfer(recipient, amount);
+            // Interaction: transfer the tokens to the `to` address.
+            TOKEN.safeTransfer(to, amount);
 
             // Log the claim.
-            emit Claim({ index: index, recipient: recipient, amount: amount });
+            emit Claim(index, recipient, amount, to);
         }
         // Otherwise, create the Lockup stream to start the vesting.
         else {
@@ -136,11 +171,11 @@ contract SablierMerkleLL is
             unlockAmounts.start = ud60x18(amount).mul(VESTING_START_UNLOCK_PERCENTAGE).intoUint128();
             unlockAmounts.cliff = ud60x18(amount).mul(VESTING_CLIFF_UNLOCK_PERCENTAGE).intoUint128();
 
-            // Safe Interaction: create the stream.
+            // Safe Interaction: create the stream with `to` as the stream recipient.
             uint256 streamId = SABLIER_LOCKUP.createWithTimestampsLL(
                 Lockup.CreateWithTimestamps({
                     sender: admin,
-                    recipient: recipient,
+                    recipient: to,
                     depositAmount: amount,
                     token: TOKEN,
                     cancelable: STREAM_CANCELABLE,
@@ -156,7 +191,7 @@ contract SablierMerkleLL is
             _claimedStreams[recipient].push(streamId);
 
             // Log the claim.
-            emit Claim({ index: index, recipient: recipient, amount: amount, streamId: streamId });
+            emit Claim(index, recipient, amount, streamId, to);
         }
     }
 }

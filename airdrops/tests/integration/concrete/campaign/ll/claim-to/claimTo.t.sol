@@ -8,31 +8,32 @@ import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
 import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
 import { MerkleLL } from "src/types/DataTypes.sol";
 
-import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
-import { MerkleLL_Integration_Shared_Test, Integration_Test } from "../MerkleLL.t.sol";
+import { ClaimTo_Integration_Test } from "../../shared/claim-to/claimTo.t.sol";
+import { MerkleLL_Integration_Shared_Test } from "../MerkleLL.t.sol";
 
-contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Integration_Shared_Test {
-    function setUp() public virtual override(MerkleLL_Integration_Shared_Test, Integration_Test) {
+contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL_Integration_Shared_Test {
+    function setUp() public virtual override(MerkleLL_Integration_Shared_Test, ClaimTo_Integration_Test) {
         MerkleLL_Integration_Shared_Test.setUp();
+        ClaimTo_Integration_Test.setUp();
     }
 
     function test_WhenVestingEndTimeNotExceedClaimTime() external whenMerkleProofValid {
         // Forward in time to the end of the vesting period.
         vm.warp({ newTimestamp: VESTING_END_TIME });
 
-        uint256 expectedRecipientBalance = dai.balanceOf(users.recipient1) + CLAIM_AMOUNT;
+        uint256 expectedEveBalance = dai.balanceOf(users.eve) + CLAIM_AMOUNT;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
-        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, users.recipient1);
+        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, users.eve);
 
-        expectCallToTransfer({ to: users.recipient1, value: CLAIM_AMOUNT });
-        expectCallToClaimWithMsgValue(address(merkleLL), MIN_FEE_WEI);
+        expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
+        expectCallToClaimToWithMsgValue(address(merkleLL), MIN_FEE_WEI);
 
-        claim();
+        claimTo();
 
-        // It should transfer the tokens to the recipient.
-        assertEq(dai.balanceOf(users.recipient1), expectedRecipientBalance, "recipient balance");
+        // It should transfer the tokens to Eve.
+        assertEq(dai.balanceOf(users.eve), expectedEveBalance, "eve balance");
     }
 
     function test_RevertWhen_TotalPercentageGreaterThan100()
@@ -60,7 +61,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         );
 
         // Claim the airdrop.
-        claim();
+        claimTo();
     }
 
     function test_WhenStartTimeZero()
@@ -75,7 +76,8 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
         // It should create a stream with block.timestamp as start time.
-        _test_Claim({ startTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + VESTING_CLIFF_DURATION });
+        // It should create a stream with Eve as recipient.
+        _test_ClaimTo({ startTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + VESTING_CLIFF_DURATION });
     }
 
     function test_WhenCliffDurationZero()
@@ -93,7 +95,8 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         // It should create a stream with block.timestamp as start time.
         // It should create a stream with cliff as zero.
-        _test_Claim({ startTime: VESTING_START_TIME, cliffTime: 0 });
+        // It should create a stream with Eve as recipient.
+        _test_ClaimTo({ startTime: VESTING_START_TIME, cliffTime: 0 });
     }
 
     function test_WhenCliffDurationNotZero()
@@ -105,11 +108,12 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
     {
         // It should create a stream with block.timestamp as start time.
         // It should create a stream with cliff as start time + cliff duration.
-        _test_Claim({ startTime: VESTING_START_TIME, cliffTime: VESTING_START_TIME + VESTING_CLIFF_DURATION });
+        // It should create a stream with Eve as recipient.
+        _test_ClaimTo({ startTime: VESTING_START_TIME, cliffTime: VESTING_START_TIME + VESTING_CLIFF_DURATION });
     }
 
     /// @dev Helper function to test claim.
-    function _test_Claim(uint40 startTime, uint40 cliffTime) private {
+    function _test_ClaimTo(uint40 startTime, uint40 cliffTime) private {
         deal({ token: address(dai), to: address(merkleLL), give: AGGREGATE_AMOUNT });
 
         uint256 expectedStreamId = lockup.nextStreamId();
@@ -117,13 +121,13 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
-        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, expectedStreamId, users.recipient1);
+        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, expectedStreamId, users.eve);
 
         expectCallToTransferFrom({ from: address(merkleLL), to: address(lockup), value: CLAIM_AMOUNT });
-        expectCallToClaimWithMsgValue(address(merkleLL), MIN_FEE_WEI);
+        expectCallToClaimToWithMsgValue(address(merkleLL), MIN_FEE_WEI);
 
         // Claim the airstream.
-        claim();
+        claimTo();
 
         uint128 expectedUnlockCliffAmount = cliffTime > 0 ? CLIFF_AMOUNT : 0;
 
@@ -131,7 +135,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         assertEq(lockup.getCliffTime(expectedStreamId), cliffTime, "vesting cliff time");
         assertEq(lockup.getDepositedAmount(expectedStreamId), CLAIM_AMOUNT, "depositedAmount");
         assertEq(lockup.getEndTime(expectedStreamId), startTime + VESTING_TOTAL_DURATION, "end time");
-        assertEq(lockup.getRecipient(expectedStreamId), users.recipient1, "recipient");
+        assertEq(lockup.getRecipient(expectedStreamId), users.eve, "eve");
         assertEq(lockup.getSender(expectedStreamId), users.campaignCreator, "sender");
         assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
         assertEq(lockup.getUnderlyingToken(expectedStreamId), dai, "token");

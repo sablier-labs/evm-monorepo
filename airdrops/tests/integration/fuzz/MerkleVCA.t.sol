@@ -7,6 +7,7 @@ import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { MerkleVCA } from "src/types/DataTypes.sol";
 
 import { LeafData } from "../../utils/MerkleBuilder.sol";
+import { Params } from "../../utils/Types.sol";
 import { Shared_Fuzz_Test, Integration_Test } from "./Fuzz.t.sol";
 
 contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
@@ -82,17 +83,12 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
     /// - Finite (only in future) expiration.
     /// - Start time in the past.
     /// - Claiming airdrops for multiple indexes with fuzzed claim fee.
+    /// - Claiming airdrops using both {claim} and {claimTo} functions with fuzzed `to` address.
     /// - Fuzzed clawback amount.
     /// - Collect fees earned.
     function testFuzz_MerkleVCA(
-        uint128 clawbackAmount,
-        bool enableCustomFeeUSD,
+        Params memory params,
         uint40 endTime,
-        uint40 expiration,
-        uint256 feeForUser,
-        uint256[] memory indexesToClaim,
-        uint256 msgValue,
-        LeafData[] memory rawLeavesData,
         uint40 startTime,
         UD60x18 unlockPercentage
     )
@@ -100,22 +96,24 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
     {
         // Bound the fuzzed params and construct the Merkle tree.
         (uint256 aggregateAmount,, bytes32 merkleRoot) =
-            prepareCommonCreateParams(rawLeavesData, expiration, indexesToClaim.length);
+            prepareCommonCreateParams(params.rawLeavesData, params.expiration, params.indexesToClaim.length);
 
         // Bound expiration so that its not zero. Unlike other campaigns, MerkleVCA requires a non-zero expiration.
-        expiration = boundUint40(expiration, getBlockTimestamp() + 365 days + 1 weeks, MAX_UNIX_TIMESTAMP);
+        params.expiration = boundUint40(params.expiration, getBlockTimestamp() + 365 days + 1 weeks, MAX_UNIX_TIMESTAMP);
 
         // Set the custom fee if enabled.
-        feeForUser = enableCustomFeeUSD ? testSetCustomFeeUSD(feeForUser) : MIN_FEE_USD;
+        params.feeForUser = params.enableCustomFeeUSD ? testSetCustomFeeUSD(params.feeForUser) : MIN_FEE_USD;
 
         // Test creating the MerkleVCA campaign.
-        _testCreateMerkleVCA(aggregateAmount, endTime, expiration, feeForUser, merkleRoot, startTime, unlockPercentage);
+        _testCreateMerkleVCA(
+            aggregateAmount, endTime, params.expiration, params.feeForUser, merkleRoot, startTime, unlockPercentage
+        );
 
         // Test claiming the airdrop for the given indexes.
-        testClaimMultipleAirdrops(indexesToClaim, msgValue);
+        testClaimMultipleAirdrops(params.indexesToClaim, params.msgValue, params.to);
 
         // Test clawback of funds.
-        testClawback(clawbackAmount);
+        testClawback(params.clawbackAmount);
 
         // Test collecting fees earned.
         testCollectFees();
@@ -204,7 +202,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
                                 CLAIM-EVENT-HELPER
     //////////////////////////////////////////////////////////////////////////*/
 
-    function expectClaimEvent(LeafData memory leafData) internal override {
+    function expectClaimEvent(LeafData memory leafData, address to) internal override {
         // Calculate claim and forgone amount based on the vesting start and end time.
         (uint256 claimAmount, uint256 forgoneAmount) = calculateMerkleVCAAmounts({
             fullAmount: leafData.amount,
@@ -219,10 +217,11 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
             index: leafData.index,
             recipient: leafData.recipient,
             claimAmount: uint128(claimAmount),
-            forgoneAmount: uint128(forgoneAmount)
+            forgoneAmount: uint128(forgoneAmount),
+            to: to
         });
 
-        // It should transfer the claim amount to the recipient.
-        expectCallToTransfer({ token: dai, to: leafData.recipient, value: claimAmount });
+        // It should transfer the claim amount to the `to` address.
+        expectCallToTransfer({ token: dai, to: to, value: claimAmount });
     }
 }

@@ -49,7 +49,7 @@ abstract contract SablierFactoryMerkleBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING CONSTANT FUNCTIONS
+                          USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFactoryMerkleBase
@@ -58,7 +58,7 @@ abstract contract SablierFactoryMerkleBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                         USER-FACING NON-CONSTANT FUNCTIONS
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFactoryMerkleBase
@@ -159,7 +159,7 @@ abstract contract SablierFactoryMerkleBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
+                            INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Checks that the provided token is not the native token.
@@ -177,7 +177,7 @@ abstract contract SablierFactoryMerkleBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                          PRIVATE NON-CONSTANT FUNCTIONS
+                          PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this internal function.

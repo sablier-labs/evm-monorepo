@@ -33,7 +33,7 @@ interface ISablierFactoryMerkleBase is IRoleAdminable {
     event SetOracle(address indexed admin, address newOracle, address previousOracle);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                                READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Retrieves the maximum USD fee that can be set for claim fee.
@@ -63,7 +63,7 @@ interface ISablierFactoryMerkleBase is IRoleAdminable {
     function oracle() external view returns (address);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Collects the fees accrued in the given campaign contract. If `feeRecipient` is a contract, it must be

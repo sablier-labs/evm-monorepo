@@ -23,7 +23,8 @@ library MerkleInstant {
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
     /// not expire.
     /// @param initialAdmin The initial admin of the campaign.
-    /// @param ipfsCID The content identifier for indexing the contract on IPFS.
+    /// @param ipfsCID The content identifier for indexing the contract on IPFS. An empty value may break certain UI
+    /// features that depend upon the IPFS CID.
     /// @param merkleRoot The Merkle root of the claim data.
     /// @param token The contract address of the ERC-20 token to be distributed.
     struct ConstructorParams {
@@ -47,7 +48,8 @@ library MerkleLL {
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
     /// not expire.
     /// @param initialAdmin The initial admin of the campaign.
-    /// @param ipfsCID The content identifier for indexing the contract on IPFS.
+    /// @param ipfsCID The content identifier for indexing the contract on IPFS. An empty value may break certain UI
+    /// features that depend upon the IPFS CID.
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param merkleRoot The Merkle root of the claim data.
     /// @param shape The shape of the vesting stream, used for differentiating between streams in the UI.
@@ -85,7 +87,8 @@ library MerkleLT {
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
     /// not expire.
     /// @param initialAdmin The initial admin of the campaign.
-    /// @param ipfsCID The content identifier for indexing the contract on IPFS.
+    /// @param ipfsCID The content identifier for indexing the contract on IPFS. An empty value may break certain UI
+    /// features that depend upon the IPFS CID.
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param merkleRoot The Merkle root of the claim data.
     /// @param shape The shape of Lockup stream, used for differentiating between streams in the  UI.
@@ -130,7 +133,8 @@ library MerkleVCA {
     /// @param endTime Vesting end time, as a Unix timestamp.
     /// @param expiration The expiration of the campaign, as a Unix timestamp.
     /// @param initialAdmin The initial admin of the campaign.
-    /// @param ipfsCID The content identifier for indexing the contract on IPFS.
+    /// @param ipfsCID The content identifier for indexing the contract on IPFS. An empty value may break certain UI
+    /// features that depend upon the IPFS CID.
     /// @param merkleRoot The Merkle root of the claim data.
     /// @param startTime Vesting start time, as a Unix timestamp.
     /// @param token The contract address of the ERC-20 token to be distributed.

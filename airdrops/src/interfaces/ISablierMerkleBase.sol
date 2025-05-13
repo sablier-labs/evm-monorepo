@@ -19,7 +19,7 @@ interface ISablierMerkleBase is IAdminable {
     event LowerMinFeeUSD(address indexed factoryAdmin, uint256 newMinFeeUSD, uint256 previousMinFeeUSD);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                                READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice The cut-off point for the campaign, as a Unix timestamp. A value of zero means there is no expiration.
@@ -69,6 +69,7 @@ interface ISablierMerkleBase is IAdminable {
     function hasExpired() external view returns (bool);
 
     /// @notice The content identifier for indexing the campaign on IPFS.
+    /// @dev An empty value may break certain UI features that depend upon the IPFS CID.
     function ipfsCID() external view returns (string memory);
 
     /// @notice Retrieves the min USD fee required to claim the airdrop, denominated in 8 decimals.
@@ -76,7 +77,7 @@ interface ISablierMerkleBase is IAdminable {
     function minFeeUSD() external view returns (uint256);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Claws back the unclaimed tokens.

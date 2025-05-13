@@ -24,7 +24,7 @@ interface ISablierFactoryMerkleInstant is ISablierFactoryMerkleBase {
     );
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Creates a new MerkleInstant campaign for instant distribution of tokens.

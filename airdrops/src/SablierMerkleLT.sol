@@ -90,7 +90,7 @@ contract SablierMerkleLT is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING CONSTANT FUNCTIONS
+                          USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLT
@@ -99,7 +99,7 @@ contract SablierMerkleLT is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING NON-CONSTANT FUNCTIONS
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLT
@@ -116,61 +116,41 @@ contract SablierMerkleLT is
         // Check and Effect: Pre-process the claim parameters.
         _preProcessClaim(index, recipient, amount, merkleProof);
 
-        // Check: the sum of percentages equals 100%.
-        if (TRANCHES_TOTAL_PERCENTAGE != uUNIT) {
-            revert Errors.SablierMerkleLT_TotalPercentageNotOneHundred(TRANCHES_TOTAL_PERCENTAGE);
+        // Check, Effect and Interaction: Post-process the claim parameters.
+        _postProcessClaim({ index: index, recipient: recipient, to: recipient, amount: amount });
+    }
+
+    /// @inheritdoc ISablierMerkleLT
+    function claimTo(
+        uint256 index,
+        address to,
+        uint128 amount,
+        bytes32[] calldata merkleProof
+    )
+        external
+        payable
+        override
+    {
+        // Check: `to` must not be the zero address.
+        if (to == address(0)) {
+            revert Errors.SablierMerkleLT_ToZeroAddress();
         }
 
-        // Calculate the tranches based on the unlock percentages.
-        (uint40 startTime, LockupTranched.Tranche[] memory tranches) = _calculateStartTimeAndTranches(amount);
+        // Check and Effect: Pre-process the claim parameters.
+        _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
 
-        // Calculate the stream's end time.
-        uint40 endTime;
-        unchecked {
-            endTime = tranches[tranches.length - 1].timestamp;
-        }
-
-        // If the stream end time is not in the future, transfer the amount directly to the recipient.
-        if (endTime <= block.timestamp) {
-            // Interaction: transfer the tokens to the recipient.
-            TOKEN.safeTransfer(recipient, amount);
-
-            // Log the claim.
-            emit Claim({ index: index, recipient: recipient, amount: amount });
-        }
-        // Otherwise, create the Lockup stream.
-        else {
-            // Safe Interaction: create the stream.
-            uint256 streamId = SABLIER_LOCKUP.createWithTimestampsLT(
-                Lockup.CreateWithTimestamps({
-                    sender: admin,
-                    recipient: recipient,
-                    depositAmount: amount,
-                    token: TOKEN,
-                    cancelable: STREAM_CANCELABLE,
-                    transferable: STREAM_TRANSFERABLE,
-                    timestamps: Lockup.Timestamps({ start: startTime, end: endTime }),
-                    shape: streamShape
-                }),
-                tranches
-            );
-
-            // Effect: push the stream ID into the claimed streams array.
-            _claimedStreams[recipient].push(streamId);
-
-            // Log the claim.
-            emit Claim({ index: index, recipient: recipient, amount: amount, streamId: streamId });
-        }
+        // Effect and Interaction: Post-process the claim parameters.
+        _postProcessClaim({ index: index, recipient: msg.sender, to: to, amount: amount });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
+                            PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Calculates the start time, and the tranches based on the claim amount and the unlock percentages for each
     /// tranche.
     function _calculateStartTimeAndTranches(uint128 claimAmount)
-        internal
+        private
         view
         returns (uint40 startTime, LockupTranched.Tranche[] memory tranches)
     {
@@ -223,6 +203,60 @@ contract SablierMerkleLT is
             unchecked {
                 tranches[trancheCount - 1].amount += claimAmount - calculatedAmountsSum;
             }
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                          PRIVATE STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Post-processes the claim execution by creating the stream or transferring the tokens directly and emitting
+    /// an event.
+    function _postProcessClaim(uint256 index, address recipient, address to, uint128 amount) private {
+        // Check: the sum of percentages equals 100%.
+        if (TRANCHES_TOTAL_PERCENTAGE != uUNIT) {
+            revert Errors.SablierMerkleLT_TotalPercentageNotOneHundred(TRANCHES_TOTAL_PERCENTAGE);
+        }
+
+        // Calculate the tranches based on the unlock percentages.
+        (uint40 startTime, LockupTranched.Tranche[] memory tranches) = _calculateStartTimeAndTranches(amount);
+
+        // Calculate the stream's end time.
+        uint40 endTime;
+        unchecked {
+            endTime = tranches[tranches.length - 1].timestamp;
+        }
+
+        // If the stream end time is not in the future, transfer the amount directly to the `to` address.
+        if (endTime <= block.timestamp) {
+            // Interaction: transfer the tokens to the `to` address.
+            TOKEN.safeTransfer(to, amount);
+
+            // Log the claim.
+            emit Claim(index, recipient, amount, to);
+        }
+        // Otherwise, create the Lockup stream.
+        else {
+            // Safe Interaction: create the stream with `to` as the stream recipient.
+            uint256 streamId = SABLIER_LOCKUP.createWithTimestampsLT(
+                Lockup.CreateWithTimestamps({
+                    sender: admin,
+                    recipient: to,
+                    depositAmount: amount,
+                    token: TOKEN,
+                    cancelable: STREAM_CANCELABLE,
+                    transferable: STREAM_TRANSFERABLE,
+                    timestamps: Lockup.Timestamps({ start: startTime, end: endTime }),
+                    shape: streamShape
+                }),
+                tranches
+            );
+
+            // Effect: push the stream ID into the claimed streams array.
+            _claimedStreams[recipient].push(streamId);
+
+            // Log the claim.
+            emit Claim(index, recipient, amount, streamId, to);
         }
     }
 }

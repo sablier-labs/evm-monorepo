@@ -106,7 +106,7 @@ contract SablierMerkleVCA is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING CONSTANT FUNCTIONS
+                          USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleVCA
@@ -137,7 +137,7 @@ contract SablierMerkleVCA is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING NON-CONSTANT FUNCTIONS
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleVCA
@@ -152,43 +152,41 @@ contract SablierMerkleVCA is
         override
     {
         // Check and Effect: Pre-process the claim parameters.
-        _preProcessClaim(index, recipient, fullAmount, merkleProof);
+        _preProcessClaim({ index: index, recipient: recipient, amount: fullAmount, merkleProof: merkleProof });
 
-        // Calculate the claim amount.
-        uint128 claimAmount = _calculateClaimAmount(fullAmount, uint40(block.timestamp));
+        // Check, Effect and Interaction: Post-process the claim parameters.
+        _postProcessClaim({ index: index, recipient: recipient, to: recipient, fullAmount: fullAmount });
+    }
 
-        // Check: the claim amount is not zero.
-        if (claimAmount == 0) {
-            revert Errors.SablierMerkleVCA_ClaimAmountZero(recipient);
+    /// @inheritdoc ISablierMerkleVCA
+    function claimTo(
+        uint256 index,
+        address to,
+        uint128 fullAmount,
+        bytes32[] calldata merkleProof
+    )
+        external
+        payable
+        override
+    {
+        // Check: `to` must not be the zero address.
+        if (to == address(0)) {
+            revert Errors.SablierMerkleVCA_ToZeroAddress();
         }
+        // Check and Effect: Pre-process the claim parameters.
 
-        uint128 forgoneAmount;
+        _preProcessClaim({ index: index, recipient: msg.sender, amount: fullAmount, merkleProof: merkleProof });
 
-        // Effect: update the total forgone amount.
-        if (claimAmount < fullAmount) {
-            unchecked {
-                forgoneAmount = fullAmount - claimAmount;
-                totalForgoneAmount += forgoneAmount;
-            }
-        } else {
-            // Although the claim amount should never exceed the full amount, this assertion prevents excessive claiming
-            // in case of a calculation error.
-            assert(claimAmount == fullAmount);
-        }
-
-        // Interaction: transfer the tokens to the recipient.
-        TOKEN.safeTransfer({ to: recipient, value: claimAmount });
-
-        // Log the claim.
-        emit Claim({ index: index, recipient: recipient, claimAmount: claimAmount, forgoneAmount: forgoneAmount });
+        // Interaction: Post-process the claim parameters.
+        _postProcessClaim({ index: index, recipient: msg.sender, to: to, fullAmount: fullAmount });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
+                            PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _calculateClaimAmount(uint128 fullAmount, uint40 claimTime) internal view returns (uint128) {
+    function _calculateClaimAmount(uint128 fullAmount, uint40 claimTime) private view returns (uint128) {
         // If the claim time is less than the vesting start time, there's nothing to calculate, so we return zero.
         if (claimTime < VESTING_START_TIME) {
             return 0;
@@ -217,5 +215,40 @@ contract SablierMerkleVCA is
             uint128 vestedAmount = uint128((remainderAmount * elapsedTime) / totalDuration);
             return unlockAmount + vestedAmount;
         }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                          PRIVATE STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Post-processes the claim execution by handling the tokens transfer and emitting an event.
+    function _postProcessClaim(uint256 index, address recipient, address to, uint128 fullAmount) private {
+        // Calculate the claim amount.
+        uint128 claimAmount = _calculateClaimAmount(fullAmount, uint40(block.timestamp));
+
+        // Check: the claim amount is not zero.
+        if (claimAmount == 0) {
+            revert Errors.SablierMerkleVCA_ClaimAmountZero(recipient);
+        }
+
+        uint128 forgoneAmount;
+
+        // Effect: update the total forgone amount.
+        if (claimAmount < fullAmount) {
+            unchecked {
+                forgoneAmount = fullAmount - claimAmount;
+                totalForgoneAmount += forgoneAmount;
+            }
+        } else {
+            // Although the claim amount should never exceed the full amount, this assertion prevents excessive claiming
+            // in case of a calculation error.
+            assert(claimAmount == fullAmount);
+        }
+
+        // Interaction: transfer the tokens to the recipient.
+        TOKEN.safeTransfer({ to: to, value: claimAmount });
+
+        // Log the claim.
+        emit Claim(index, recipient, claimAmount, forgoneAmount, to);
     }
 }
