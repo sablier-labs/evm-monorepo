@@ -107,7 +107,6 @@
   scroll = "https://rpc.scroll.io/"
   sei = "https://evm-rpc.sei-apis.com"
   superseed = "https://mainnet.superseed.xyz"
-  taiko_mainnet = "https://rpc.mainnet.taiko.xyz"
   xdc = "https://rpc.xdc.org"
   # Testnets
   arbitrum_sepolia = "https://arbitrum-sepolia-rpc.publicnode.com"
@@ -123,4 +122,3 @@
   sei_testnet = "https://evm-rpc.arctic-1.seinetwork.io"
   sepolia = "https://sepolia.infura.io/v3/${API_KEY_INFURA}"
   superseed_sepolia = "https://sepolia.superseed.xyz"
-  taiko_hekla = "https://rpc.hekla.taiko.xyz"
