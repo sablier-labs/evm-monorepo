@@ -303,25 +303,25 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         givenNotCanceledStream
     {
         // It should not make Sablier run the recipient hook.
-        uint128 withdrawAmount = lockup.withdrawableAmountOf(ids.notAllowedtoHookStream);
+        uint128 withdrawAmount = lockup.withdrawableAmountOf(ids.notAllowedToHookStream);
         vm.expectCall({
             callee: address(recipientGood),
             data: abi.encodeCall(
                 ISablierLockupRecipient.onSablierLockupWithdraw,
-                (ids.notAllowedtoHookStream, users.sender, address(recipientInterfaceIDIncorrect), withdrawAmount)
+                (ids.notAllowedToHookStream, users.sender, address(recipientInterfaceIDIncorrect), withdrawAmount)
             ),
             count: 0
         });
 
         // Make the withdrawal.
         lockup.withdraw({
-            streamId: ids.notAllowedtoHookStream,
+            streamId: ids.notAllowedToHookStream,
             to: address(recipientInterfaceIDIncorrect),
             amount: withdrawAmount
         });
 
         // It should update the withdrawn amount.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ids.notAllowedtoHookStream);
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ids.notAllowedToHookStream);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }

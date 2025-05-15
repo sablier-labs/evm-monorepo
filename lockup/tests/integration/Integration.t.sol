@@ -93,7 +93,7 @@ abstract contract Integration_Test is Base_Test {
 
     function initializeDefaultStreams() internal {
         ids.defaultStream = createDefaultStream();
-        ids.notAllowedtoHookStream = createDefaultStreamWithRecipient(address(recipientInterfaceIDIncorrect));
+        ids.notAllowedToHookStream = createDefaultStreamWithRecipient(address(recipientInterfaceIDIncorrect));
         ids.notCancelableStream = createDefaultStreamNonCancelable();
         ids.notTransferableStream = createDefaultStreamNonTransferable();
         ids.nullStream = 1729;

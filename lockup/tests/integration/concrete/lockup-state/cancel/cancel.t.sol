@@ -105,25 +105,25 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         givenSTREAMINGStatus
     {
         // It should not make Sablier run the recipient hook.
-        uint128 senderAmount = lockup.refundableAmountOf(ids.notAllowedtoHookStream);
-        uint128 recipientAmount = lockup.withdrawableAmountOf(ids.notAllowedtoHookStream);
+        uint128 senderAmount = lockup.refundableAmountOf(ids.notAllowedToHookStream);
+        uint128 recipientAmount = lockup.withdrawableAmountOf(ids.notAllowedToHookStream);
         vm.expectCall({
             callee: address(recipientGood),
             data: abi.encodeCall(
                 ISablierLockupRecipient.onSablierLockupCancel,
-                (ids.notAllowedtoHookStream, users.sender, senderAmount, recipientAmount)
+                (ids.notAllowedToHookStream, users.sender, senderAmount, recipientAmount)
             ),
             count: 0
         });
 
         // Cancel the stream.
-        uint128 refundedAmount = lockup.cancel(ids.notAllowedtoHookStream);
+        uint128 refundedAmount = lockup.cancel(ids.notAllowedToHookStream);
 
         // It should return the correct refunded amount.
         assertEq(refundedAmount, senderAmount, "refundedAmount");
 
         // It should mark the stream as canceled.
-        Lockup.Status actualStatus = lockup.statusOf(ids.notAllowedtoHookStream);
+        Lockup.Status actualStatus = lockup.statusOf(ids.notAllowedToHookStream);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }

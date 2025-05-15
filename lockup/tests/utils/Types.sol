@@ -5,7 +5,7 @@ struct StreamIds {
     // Default stream ID.
     uint256 defaultStream;
     // A stream with a recipient contract that is not allowed to hook.
-    uint256 notAllowedtoHookStream;
+    uint256 notAllowedToHookStream;
     // A non-cancelable stream ID.
     uint256 notCancelableStream;
     // A non-transferable stream ID.
