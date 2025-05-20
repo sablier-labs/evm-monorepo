@@ -14,9 +14,9 @@ contract Constructor_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         emit IAdminable.TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
 
         // Construct the contract.
-        SablierFlow constructedFlow = new SablierFlow(users.admin, nftDescriptor);
+        SablierFlow constructedFlow = new SablierFlow(users.admin, address(nftDescriptor));
 
-        // {SablierFlowBase.nextStreamId}
+        // {SablierFlowState.nextStreamId}
         uint256 actualStreamId = constructedFlow.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");
@@ -26,7 +26,7 @@ contract Constructor_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");
 
-        // {SablierFlowBase.supportsInterface}
+        // {SablierFlowState.supportsInterface}
         assertTrue(constructedFlow.supportsInterface(0x49064906), "ERC-4906 interface ID");
 
         address actualNFTDescriptor = address(constructedFlow.nftDescriptor());

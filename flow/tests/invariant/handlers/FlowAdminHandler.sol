@@ -41,7 +41,7 @@ contract FlowAdminHandler is BaseHandler {
     constructor(FlowStore flowStore_, ISablierFlow flow_) BaseHandler(flowStore_, flow_) { }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-FLOW-BASE
+                                 SABLIER-FLOW-STATE
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Function to increase the flow contract balance for the fuzzed token.

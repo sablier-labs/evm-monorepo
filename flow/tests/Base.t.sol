@@ -38,7 +38,7 @@ abstract contract Base_Test is Assertions, Modifiers {
 
         if (!isTestOptimizedProfile()) {
             nftDescriptor = new FlowNFTDescriptor();
-            flow = new SablierFlow(users.admin, nftDescriptor);
+            flow = new SablierFlow(users.admin, address(nftDescriptor));
         } else {
             flow = deployOptimizedSablierFlow();
         }

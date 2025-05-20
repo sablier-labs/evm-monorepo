@@ -30,7 +30,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         calls[1] = abi.encodeCall(flow.pause, (nullStreamId));
 
         // It should revert on nullStreamId.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Null.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlowState_Null.selector, nullStreamId));
         flow.batch(calls);
     }
 

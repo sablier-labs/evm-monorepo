@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
+import { Errors } from "src/libraries/Errors.sol";
 import { Flow } from "src/types/DataTypes.sol";
 
 import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
@@ -35,8 +36,9 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function test_RevertWhen_CallerNotAuthorized() external whenNoDelegateCall givenNotNull givenNotVoided {
-        bytes memory callData = abi.encodeCall(flow.void, (defaultStreamId));
-        expectRevert_CallerMaliciousThirdParty(callData);
+        setMsgSender(users.eve);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
+        flow.void(defaultStreamId);
     }
 
     /// @dev No uncovered debt means that the stream is either SOLVENT or PENDING.

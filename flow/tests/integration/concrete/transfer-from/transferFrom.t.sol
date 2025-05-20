@@ -27,9 +27,7 @@ contract TransferFrom_Integration_Concrete_Test is Shared_Integration_Concrete_T
             transferable: false
         });
 
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierFlowBase_NotTransferable.selector, notTransferableStreamId)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_NotTransferable.selector, notTransferableStreamId));
         flow.transferFrom({ from: users.recipient, to: users.eve, tokenId: notTransferableStreamId });
     }
 

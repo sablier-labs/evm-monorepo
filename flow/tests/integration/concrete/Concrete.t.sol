@@ -79,7 +79,7 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
         assertFalse(success, "malicious call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve),
+            abi.encodeWithSelector(Errors.SablierFlowState_Unauthorized.selector, defaultStreamId, users.eve),
             "malicious call return data"
         );
     }
@@ -90,7 +90,7 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
         assertFalse(success, "recipient call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient),
+            abi.encodeWithSelector(Errors.SablierFlowState_Unauthorized.selector, defaultStreamId, users.recipient),
             "recipient call return data"
         );
     }
@@ -101,7 +101,7 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
         assertFalse(success, "sender call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.sender),
+            abi.encodeWithSelector(Errors.SablierFlowState_Unauthorized.selector, defaultStreamId, users.sender),
             "sender call return data"
         );
     }
@@ -116,7 +116,9 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
         (bool success, bytes memory returnData) = address(flow).call(callData);
         assertFalse(success, "null call success");
         assertEq(
-            returnData, abi.encodeWithSelector(Errors.SablierFlow_Null.selector, nullStreamId), "null call return data"
+            returnData,
+            abi.encodeWithSelector(Errors.SablierFlowState_Null.selector, nullStreamId),
+            "null call return data"
         );
     }
 
@@ -129,7 +131,7 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
         assertFalse(success, "voided call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierFlow_StreamVoided.selector, defaultStreamId),
+            abi.encodeWithSelector(Errors.SablierFlowState_StreamVoided.selector, defaultStreamId),
             "voided call return data"
         );
     }
@@ -140,7 +142,7 @@ abstract contract Shared_Integration_Concrete_Test is Integration_Test {
         assertFalse(success, "paused call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierFlow_StreamPaused.selector, defaultStreamId),
+            abi.encodeWithSelector(Errors.SablierFlowState_StreamPaused.selector, defaultStreamId),
             "paused call return data"
         );
     }

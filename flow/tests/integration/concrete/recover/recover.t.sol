@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Errors as EvmUtilsErorrs } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
-import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
@@ -26,7 +26,7 @@ contract Recover_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
 
     function test_RevertWhen_TokenBalanceNotExceedAggregateAmount() external whenCallerAdmin {
         // Using dai token for this test because it has zero surplus.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlowBase_SurplusZero.selector, dai));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_SurplusZero.selector, dai));
         flow.recover(dai, users.admin);
     }
 
@@ -37,7 +37,7 @@ contract Recover_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: address(flow), to: users.admin, value: surplusAmount });
         vm.expectEmit({ emitter: address(flow) });
-        emit ISablierFlowBase.Recover(users.admin, usdc, users.admin, surplusAmount);
+        emit ISablierFlow.Recover(users.admin, usdc, users.admin, surplusAmount);
 
         // Recover the surplus.
         flow.recover(usdc, users.admin);

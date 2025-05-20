@@ -19,11 +19,23 @@ library Errors {
     /// @notice Thrown when trying to create a stream with a zero deposit amount.
     error SablierFlow_DepositAmountZero(uint256 streamId);
 
+    /// @notice Thrown when an unauthorized address collects fee without setting the fee recipient to admin address.
+    error SablierFlow_FeeRecipientNotAdmin(address feeRecipient, address admin);
+
+    /// @notice Thrown when the fee transfer fails.
+    error SablierFlow_FeeTransferFail(address feeRecipient, uint256 feeAmount);
+
     /// @notice Thrown when an unexpected error occurs during the calculation of an amount.
     error SablierFlow_InvalidCalculation(uint256 streamId, uint128 availableAmount, uint128 amount);
 
     /// @notice Thrown when trying to create a stream with a token with decimals greater than 18.
     error SablierFlow_InvalidTokenDecimals(address token);
+
+    /// @notice Thrown when trying to set the native token address when it is already set.
+    error SablierFlow_NativeTokenAlreadySet(address nativeToken);
+
+    /// @notice Thrown when trying to set zero address as native token.
+    error SablierFlow_NativeTokenZeroAddress();
 
     /// @notice Thrown when trying to adjust the rate per second to zero.
     error SablierFlow_NewRatePerSecondZero(uint256 streamId);
@@ -34,8 +46,8 @@ library Errors {
     /// @notice Thrown when the sender address does not match the stream's sender.
     error SablierFlow_NotStreamSender(address sender, address streamSender);
 
-    /// @notice Thrown when the ID references a null stream.
-    error SablierFlow_Null(uint256 streamId);
+    /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
+    error SablierFlow_NotTransferable(uint256 streamId);
 
     /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
     error SablierFlow_Overdraw(uint256 streamId, uint128 amount, uint128 withdrawableAmount);
@@ -58,14 +70,11 @@ library Errors {
     /// @notice Thrown when trying to perform a disallowed action on a non-paused stream.
     error SablierFlow_StreamNotPaused(uint256 streamId);
 
-    /// @notice Thrown when trying to perform a disallowed action on a paused stream.
-    error SablierFlow_StreamPaused(uint256 streamId);
-
     /// @notice Thrown when trying to perform a disallowed action on a pending stream.
     error SablierFlow_StreamPending(uint256 streamId, uint40 snapshotTime);
 
-    /// @notice Thrown when trying to perform a disallowed action on a voided stream.
-    error SablierFlow_StreamVoided(uint256 streamId);
+    /// @notice Thrown when trying to recover for a token with zero surplus.
+    error SablierFlow_SurplusZero(address token);
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierFlow_Unauthorized(uint256 streamId, address caller);
@@ -80,24 +89,18 @@ library Errors {
     error SablierFlow_WithdrawToZeroAddress(uint256 streamId);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-FLOW-BASE
+                                 SABLIER-FLOW-STATE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when an unauthorized address collects fee without setting the fee recipient to admin address.
-    error SablierFlowBase_FeeRecipientNotAdmin(address feeRecipient, address admin);
+    /// @notice Thrown when the ID references a null stream.
+    error SablierFlowState_Null(uint256 streamId);
 
-    /// @notice Thrown when the fee transfer fails.
-    error SablierFlowBase_FeeTransferFail(address feeRecipient, uint256 feeAmount);
+    /// @notice Thrown when trying to perform a disallowed action on a paused stream.
+    error SablierFlowState_StreamPaused(uint256 streamId);
 
-    /// @notice Thrown when trying to set the native token address when it is already set.
-    error SablierFlowBase_NativeTokenAlreadySet(address nativeToken);
+    /// @notice Thrown when trying to perform a disallowed action on a voided stream.
+    error SablierFlowState_StreamVoided(uint256 streamId);
 
-    /// @notice Thrown when trying to set zero address as native token.
-    error SablierFlowBase_NativeTokenZeroAddress();
-
-    /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
-    error SablierFlowBase_NotTransferable(uint256 streamId);
-
-    /// @notice Thrown when trying to recover for a token with zero surplus.
-    error SablierFlowBase_SurplusZero(address token);
+    /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
+    error SablierFlowState_Unauthorized(uint256 streamId, address caller);
 }

@@ -5,7 +5,7 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { Errors as EvmUtilsErorrs } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
 import { FlowNFTDescriptor } from "src/FlowNFTDescriptor.sol";
-import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
 contract SetNFTDescriptor_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
@@ -18,7 +18,7 @@ contract SetNFTDescriptor_Integration_Concrete_Test is Shared_Integration_Concre
     function test_WhenNewAndOldNFTDescriptorsAreSame() external whenCallerAdmin {
         // It should emit 1 {SetNFTDescriptor} and 1 {BatchMetadataUpdate} events
         vm.expectEmit({ emitter: address(flow) });
-        emit ISablierFlowBase.SetNFTDescriptor(users.admin, nftDescriptor, nftDescriptor);
+        emit ISablierFlow.SetNFTDescriptor(users.admin, nftDescriptor, nftDescriptor);
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: flow.nextStreamId() - 1 });
 
@@ -34,7 +34,7 @@ contract SetNFTDescriptor_Integration_Concrete_Test is Shared_Integration_Concre
 
         // It should emit 1 {SetNFTDescriptor} and 1 {BatchMetadataUpdate} events
         vm.expectEmit({ emitter: address(flow) });
-        emit ISablierFlowBase.SetNFTDescriptor(users.admin, nftDescriptor, newNFTDescriptor);
+        emit ISablierFlow.SetNFTDescriptor(users.admin, nftDescriptor, newNFTDescriptor);
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: flow.nextStreamId() - 1 });
 

@@ -1,16 +1,20 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
+import { RoleAdminable } from "@sablier/evm-utils/src/RoleAdminable.sol";
 
-import { SablierFlowBase } from "./abstracts/SablierFlowBase.sol";
+import { SablierFlowState } from "./abstracts/SablierFlowState.sol";
 import { IFlowNFTDescriptor } from "./interfaces/IFlowNFTDescriptor.sol";
 import { ISablierFlow } from "./interfaces/ISablierFlow.sol";
 import { Errors } from "./libraries/Errors.sol";
@@ -21,9 +25,11 @@ import { Flow } from "./types/DataTypes.sol";
 /// @notice See the documentation in {ISablierFlow}.
 contract SablierFlow is
     Batch, // 1 inherited component
-    NoDelegateCall, // 0 inherited components
+    ERC721, // 6 inherited components
     ISablierFlow, // 8 inherited components
-    SablierFlowBase // 13 inherited components
+    NoDelegateCall, // 0 inherited components
+    RoleAdminable, // 3 inherited components
+    SablierFlowState // 1 inherited component
 {
     using SafeCast for uint256;
     using SafeERC20 for IERC20;
@@ -32,16 +38,26 @@ contract SablierFlow is
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Emits {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
     constructor(
         address initialAdmin,
-        IFlowNFTDescriptor initialNFTDescriptor
+        address initialNFTDescriptor
     )
         ERC721("Sablier Flow NFT", "SAB-FLOW")
-        SablierFlowBase(initialAdmin, initialNFTDescriptor)
+        RoleAdminable(initialAdmin)
+        SablierFlowState(initialNFTDescriptor)
     { }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Emits an ERC-4906 event to trigger an update of the NFT metadata.
+    modifier updateMetadata(uint256 streamId) {
+        _;
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
@@ -100,6 +116,12 @@ contract SablierFlow is
                 depletionTime = _streams[streamId].snapshotTime + solvencyPeriod + 1;
             }
         }
+    }
+
+    /// @inheritdoc ISablierFlow
+    function getRecipient(uint256 streamId) external view override notNull(streamId) returns (address recipient) {
+        // Check the stream NFT exists and return the owner, which is the stream's recipient.
+        recipient = _requireOwned(streamId);
     }
 
     /// @inheritdoc ISablierFlow
@@ -223,6 +245,29 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
+    function collectFees(address feeRecipient) external override {
+        // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
+        // `feeRecipient` must be the admin address.
+        bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
+        if (!hasRoleOrIsAdmin && feeRecipient != admin) {
+            revert Errors.SablierFlow_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
+        }
+
+        uint256 feeAmount = address(this).balance;
+
+        // Effect: transfer the fees to the fee recipient.
+        (bool success,) = feeRecipient.call{ value: feeAmount }("");
+
+        // Revert if the call failed.
+        if (!success) {
+            revert Errors.SablierFlow_FeeTransferFail(feeRecipient, feeAmount);
+        }
+
+        // Log the fee withdrawal.
+        emit ISablierFlow.CollectFees(admin, feeRecipient, feeAmount);
+    }
+
+    /// @inheritdoc ISablierFlow
     function create(
         address sender,
         address recipient,
@@ -323,6 +368,21 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
+    function recover(IERC20 token, address to) external override onlyAdmin {
+        uint256 surplus = token.balanceOf(address(this)) - aggregateAmount[token];
+
+        // Check: there is a surplus to recover.
+        if (surplus == 0) {
+            revert Errors.SablierFlow_SurplusZero(address(token));
+        }
+
+        // Interaction: transfer the surplus to the provided address.
+        token.safeTransfer(to, surplus);
+
+        emit ISablierFlow.Recover(msg.sender, token, to, surplus);
+    }
+
+    /// @inheritdoc ISablierFlow
     function refund(
         uint256 streamId,
         uint128 amount
@@ -418,6 +478,57 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
+    function setNativeToken(address newNativeToken) external override onlyAdmin {
+        // Check: provided token is not zero address.
+        if (newNativeToken == address(0)) {
+            revert Errors.SablierFlow_NativeTokenZeroAddress();
+        }
+
+        // Check: native token is not set.
+        if (nativeToken != address(0)) {
+            revert Errors.SablierFlow_NativeTokenAlreadySet(nativeToken);
+        }
+
+        // Effect: set the native token.
+        nativeToken = newNativeToken;
+
+        // Log the update.
+        emit ISablierFlow.SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
+    }
+
+    /// @inheritdoc ISablierFlow
+    function setNFTDescriptor(IFlowNFTDescriptor newNFTDescriptor) external override onlyAdmin {
+        // Effect: set the NFT descriptor.
+        IFlowNFTDescriptor oldNftDescriptor = nftDescriptor;
+        nftDescriptor = newNFTDescriptor;
+
+        // Log the change of the NFT descriptor.
+        emit ISablierFlow.SetNFTDescriptor({
+            admin: msg.sender,
+            oldNFTDescriptor: oldNftDescriptor,
+            newNFTDescriptor: newNFTDescriptor
+        });
+
+        // Refresh the NFT metadata for all streams.
+        emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
+    }
+
+    /// @inheritdoc ERC721
+    function supportsInterface(bytes4 interfaceId) public view override(IERC165, ERC721) returns (bool) {
+        // 0x49064906 is the ERC-165 interface ID required by ERC-4906
+        return interfaceId == 0x49064906 || super.supportsInterface(interfaceId);
+    }
+
+    /// @inheritdoc ERC721
+    function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
+        // Check: the stream NFT exists.
+        _requireOwned({ tokenId: streamId });
+
+        // Generate the URI describing the stream NFT.
+        uri = nftDescriptor.tokenURI({ sablierFlow: this, streamId: streamId });
+    }
+
+    /// @inheritdoc ISablierFlow
     function transferTokens(IERC20 token, address to, uint128 amount) external payable {
         // Interaction: transfer the amount.
         token.safeTransferFrom({ from: msg.sender, to: to, value: amount });
@@ -474,6 +585,40 @@ contract SablierFlow is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                         INTERNAL STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Overrides the {ERC-721._update} function to check that the stream is transferable.
+    ///
+    /// @dev The transferable flag is ignored if the current owner is 0, as the update in this case is a mint and
+    /// is allowed. Transfers to the zero address are not allowed, preventing accidental burns.
+    ///
+    /// @param to The address of the new recipient of the stream.
+    /// @param streamId ID of the stream to update.
+    /// @param auth Optional parameter. If the value is not zero, the overridden implementation will check that
+    /// `auth` is either the recipient of the stream, or an approved third party.
+    ///
+    /// @return The original recipient of the `streamId` before the update.
+    function _update(
+        address to,
+        uint256 streamId,
+        address auth
+    )
+        internal
+        override
+        updateMetadata(streamId)
+        returns (address)
+    {
+        address from = _ownerOf(streamId);
+
+        if (from != address(0) && !_streams[streamId].isTransferable) {
+            revert Errors.SablierFlow_NotTransferable(streamId);
+        }
+
+        return super._update(to, streamId, auth);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -495,6 +640,12 @@ contract SablierFlow is
 
         // At this point, the total debt fits within `uint128`, as it is less than or equal to the balance.
         return totalDebt.toUint128();
+    }
+
+    /// @notice Checks whether `msg.sender` is the stream's recipient or an approved third party.
+    /// @param streamId The stream ID for the query.
+    function _isCallerStreamRecipientOrApproved(uint256 streamId, address recipient) private view returns (bool) {
+        return _isAuthorized({ owner: recipient, spender: msg.sender, tokenId: streamId });
     }
 
     /// @dev Calculates the ongoing debt, as a 18-decimals fixed point number, accrued since last snapshot. Return 0 if

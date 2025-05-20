@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
@@ -25,7 +25,7 @@ contract CollectFees_Integration_Concrete_Test is Shared_Integration_Concrete_Te
 
     function test_RevertWhen_FeeRecipientNotAdmin() external whenCallerNotAdmin whenCallerWithoutFeeCollectorRole {
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierFlowBase_FeeRecipientNotAdmin.selector, users.eve, users.admin)
+            abi.encodeWithSelector(Errors.SablierFlow_FeeRecipientNotAdmin.selector, users.eve, users.admin)
         );
         flow.collectFees({ feeRecipient: users.eve });
     }
@@ -47,7 +47,7 @@ contract CollectFees_Integration_Concrete_Test is Shared_Integration_Concrete_Te
     {
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierFlowBase_FeeTransferFail.selector, address(contractWithoutReceive), address(flow).balance
+                Errors.SablierFlow_FeeTransferFail.selector, address(contractWithoutReceive), address(flow).balance
             )
         );
         flow.collectFees({ feeRecipient: address(contractWithoutReceive) });
@@ -64,7 +64,7 @@ contract CollectFees_Integration_Concrete_Test is Shared_Integration_Concrete_Te
 
         // It should emit a {CollectFees} event.
         vm.expectEmit({ emitter: address(flow) });
-        emit ISablierFlowBase.CollectFees({ admin: users.admin, feeRecipient: feeRecipient, feeAmount: FEE });
+        emit ISablierFlow.CollectFees({ admin: users.admin, feeRecipient: feeRecipient, feeAmount: FEE });
 
         flow.collectFees({ feeRecipient: feeRecipient });
 

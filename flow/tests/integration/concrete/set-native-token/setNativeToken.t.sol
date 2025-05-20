@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
-import { ISablierFlowBase } from "src/interfaces/ISablierFlowBase.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
@@ -17,7 +17,7 @@ contract SetNativeToken_Integration_Test is Shared_Integration_Concrete_Test {
     function test_RevertWhen_ProvidedAddressZero() external whenCallerAdmin {
         address newNativeToken = address(0);
 
-        vm.expectRevert(Errors.SablierFlowBase_NativeTokenZeroAddress.selector);
+        vm.expectRevert(Errors.SablierFlow_NativeTokenZeroAddress.selector);
         flow.setNativeToken(newNativeToken);
     }
 
@@ -27,7 +27,7 @@ contract SetNativeToken_Integration_Test is Shared_Integration_Concrete_Test {
         flow.setNativeToken(nativeToken);
 
         // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlowBase_NativeTokenAlreadySet.selector, nativeToken));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_NativeTokenAlreadySet.selector, nativeToken));
 
         // Set native token again with a different address.
         flow.setNativeToken(address(usdc));
@@ -38,7 +38,7 @@ contract SetNativeToken_Integration_Test is Shared_Integration_Concrete_Test {
 
         // It should emit a {SetNativeToken} event.
         vm.expectEmit({ emitter: address(flow) });
-        emit ISablierFlowBase.SetNativeToken({ admin: users.admin, nativeToken: nativeToken });
+        emit ISablierFlow.SetNativeToken({ admin: users.admin, nativeToken: nativeToken });
 
         // Set native token.
         flow.setNativeToken(nativeToken);

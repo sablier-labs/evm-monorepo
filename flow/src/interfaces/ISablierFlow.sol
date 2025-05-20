@@ -1,18 +1,25 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { IBatch } from "@sablier/evm-utils/src/interfaces/IBatch.sol";
+import { IRoleAdminable } from "@sablier/evm-utils/src/interfaces/IRoleAdminable.sol";
 
-import { Flow } from "./../types/DataTypes.sol";
-import { ISablierFlowBase } from "./ISablierFlowBase.sol";
+import { Flow } from "../types/DataTypes.sol";
+import { IFlowNFTDescriptor } from "./IFlowNFTDescriptor.sol";
+import { ISablierFlowState } from "./ISablierFlowState.sol";
 
 /// @title ISablierFlow
 /// @notice Creates and manages Flow streams with linear streaming functions.
 interface ISablierFlow is
     IBatch, // 0 inherited components
-    ISablierFlowBase // 6 inherited components
+    IERC4906, // 2 inherited components
+    IERC721Metadata, // 2 inherited components
+    IRoleAdminable, // 1 inherited component
+    ISablierFlowState // 0 inherited components
 {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
@@ -28,6 +35,12 @@ interface ISablierFlow is
     event AdjustFlowStream(
         uint256 indexed streamId, uint256 totalDebt, UD21x18 oldRatePerSecond, UD21x18 newRatePerSecond
     );
+
+    /// @notice Emitted when the accrued fees are collected.
+    /// @param admin The address of the current contract admin.
+    /// @param feeRecipient The address where the fees will be collected.
+    /// @param feeAmount The amount of collected fees.
+    event CollectFees(address indexed admin, address indexed feeRecipient, uint256 feeAmount);
 
     /// @notice Emitted when a Flow stream is created.
     /// @param streamId The ID of the newly created stream.
@@ -63,6 +76,13 @@ interface ISablierFlow is
         uint256 indexed streamId, address indexed sender, address indexed recipient, uint256 totalDebt
     );
 
+    /// @notice Emitted when the contract admin recovers the surplus amount of token.
+    /// @param admin The address of the contract admin.
+    /// @param token The address of the ERC-20 token the surplus amount has been recovered for.
+    /// @param to The address the surplus amount has been sent to.
+    /// @param surplus The amount of surplus tokens recovered.
+    event Recover(address indexed admin, IERC20 indexed token, address to, uint256 surplus);
+
     /// @notice Emitted when a sender is refunded from a stream.
     /// @param streamId The ID of the stream.
     /// @param sender The stream's sender address.
@@ -75,6 +95,17 @@ interface ISablierFlow is
     /// @param ratePerSecond The amount by which the debt is increasing every second, denoted as a fixed-point number
     /// where 1e18 is 1 token per second.
     event RestartFlowStream(uint256 indexed streamId, address indexed sender, UD21x18 ratePerSecond);
+
+    /// @notice Emitted when the native token address is set by the admin.
+    event SetNativeToken(address indexed admin, address nativeToken);
+
+    /// @notice Emitted when the contract admin sets a new NFT descriptor contract.
+    /// @param admin The address of the contract admin.
+    /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
+    /// @param newNFTDescriptor The address of the new NFT descriptor contract.
+    event SetNFTDescriptor(
+        address indexed admin, IFlowNFTDescriptor oldNFTDescriptor, IFlowNFTDescriptor newNFTDescriptor
+    );
 
     /// @notice Emitted when a stream is voided by the sender, recipient or an approved operator.
     /// @param streamId The ID of the stream.
@@ -118,6 +149,11 @@ interface ISablierFlow is
     /// - If stream balance is zero.
     /// @param streamId The stream ID for the query.
     function depletionTimeOf(uint256 streamId) external view returns (uint256 depletionTime);
+
+    /// @notice Retrieves the stream's recipient.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    function getRecipient(uint256 streamId) external view returns (address recipient);
 
     /// @notice Returns the amount of debt accrued since the snapshot time until now, denoted as a fixed-point number
     /// where 1e18 is 1 token. If the stream is pending, it returns zero.
@@ -175,6 +211,18 @@ interface ISablierFlow is
     /// @param newRatePerSecond The new rate per second, denoted as a fixed-point number where 1e18 is 1 token
     /// per second.
     function adjustRatePerSecond(uint256 streamId, UD21x18 newRatePerSecond) external payable;
+
+    /// @notice Collects the accrued fees. If `feeRecipient` is a contract, it must be able to receive native tokens,
+    /// e.g., ETH for Ethereum Mainnet.
+    ///
+    /// @dev Emits a {CollectFees} event.
+    ///
+    /// Requirements:
+    /// - If `msg.sender` has neither the {IRoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin, then
+    /// `feeRecipient` must be the admin address.
+    ///
+    /// @param feeRecipient The address where the fees will be collected.
+    function collectFees(address feeRecipient) external;
 
     /// @notice Creates a new Flow stream by setting the snapshot time to `startTime` and leaving the balance to
     /// zero. The stream is wrapped in an ERC-721 NFT.
@@ -293,6 +341,22 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to pause.
     function pause(uint256 streamId) external payable;
 
+    /// @notice Recover the surplus amount of tokens.
+    ///
+    /// @dev Emits a {Recover} event.
+    ///
+    /// Notes:
+    /// - The surplus amount is defined as the difference between the total balance of the contract for the provided
+    /// ERC-20 token and the sum of balances of all streams created using the same ERC-20 token.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the contract admin.
+    /// - The surplus amount must be greater than zero.
+    ///
+    /// @param token The contract address of the ERC-20 token to recover for.
+    /// @param to The address to send the surplus amount.
+    function recover(IERC20 token, address to) external;
+
     /// @notice Refunds the provided amount of tokens from the stream to the sender's address.
     ///
     /// @dev Emits a {Transfer}, {RefundFromFlowStream} and {MetadataUpdate} event.
@@ -367,6 +431,31 @@ interface ISablierFlow is
     /// where 1e18 is 1 token per second.
     /// @param amount The deposit amount, denoted in token's decimals.
     function restartAndDeposit(uint256 streamId, UD21x18 ratePerSecond, uint128 amount) external payable;
+
+    /// @notice Sets the native token address. Once set, it cannot be changed.
+    /// @dev For more information, see the documentation for {nativeToken}.
+    ///
+    /// Emits a {SetNativeToken} event.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the admin.
+    /// - `newNativeToken` must not be zero address.
+    /// - The native token must not be already set.
+    /// @param newNativeToken The address of the native token.
+    function setNativeToken(address newNativeToken) external;
+
+    /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
+    ///
+    /// @dev Emits a {SetNFTDescriptor} and {BatchMetadataUpdate} event.
+    ///
+    /// Notes:
+    /// - Does not revert if the NFT descriptor is the same.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the contract admin.
+    ///
+    /// @param newNFTDescriptor The address of the new NFT descriptor contract.
+    function setNFTDescriptor(IFlowNFTDescriptor newNFTDescriptor) external;
 
     /// @notice A helper to transfer ERC-20 tokens from the caller to the provided address. Useful for paying one-time
     /// bonuses.

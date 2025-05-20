@@ -62,7 +62,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         skip(timeJump);
 
         // Expect the relevant error.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamPaused.selector, streamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlowState_StreamPaused.selector, streamId));
 
         // Pause the stream.
         flow.pause(streamId);
