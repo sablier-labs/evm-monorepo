@@ -10,17 +10,17 @@ import { NFTDescriptorAddresses } from "./NFTDescriptorAddresses.sol";
 
 /// @notice Deploys the protocol.
 contract DeployProtocol is BaseScript, NFTDescriptorAddresses {
-    function run() public broadcast returns (SablierFlow flow, address nftDescriptor) {
+    function run() public broadcast returns (SablierFlow flow, FlowNFTDescriptor nftDescriptor) {
         address initialAdmin = protocolAdmin();
         // If the contract is not deployed, deploy it.
         if (nftDescriptorAddress() == address(0)) {
-            nftDescriptor = address(new FlowNFTDescriptor());
+            nftDescriptor = new FlowNFTDescriptor();
         }
         // Otherwise, use the address of the existing contract.
         else {
-            nftDescriptor = nftDescriptorAddress();
+            nftDescriptor = FlowNFTDescriptor(nftDescriptorAddress());
         }
 
-        flow = new SablierFlow(initialAdmin, nftDescriptor);
+        flow = new SablierFlow(initialAdmin, address(nftDescriptor));
     }
 }
