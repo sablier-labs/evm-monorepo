@@ -9,7 +9,7 @@ import { SablierFlow } from "../../src/SablierFlow.sol";
 import { NFTDescriptorAddresses } from "./NFTDescriptorAddresses.sol";
 
 /// @notice Deploys the protocol.
-contract DeployFlow is BaseScript, NFTDescriptorAddresses {
+contract DeployProtocol is BaseScript, NFTDescriptorAddresses {
     function run() public broadcast returns (SablierFlow flow, address nftDescriptor) {
         address initialAdmin = protocolAdmin();
         // If the contract is not deployed, deploy it.
