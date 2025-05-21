@@ -637,16 +637,8 @@ contract SablierLockup is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL READ-ONLY FUNCTIONS
+                            INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Checks whether `msg.sender` is the stream's recipient or an approved third party, when the `recipient`
-    /// is known in advance.
-    /// @param streamId The stream ID for the query.
-    /// @param recipient The address of the stream's recipient.
-    function _isCallerStreamRecipientOrApproved(uint256 streamId, address recipient) internal view returns (bool) {
-        return _isAuthorized({ owner: recipient, spender: msg.sender, tokenId: streamId });
-    }
 
     /// @inheritdoc SablierLockupState
     function _streamedAmountOf(uint256 streamId) internal view override returns (uint128 streamedAmount) {
@@ -691,17 +683,56 @@ contract SablierLockup is
         }
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdrawableAmountOf(uint256 streamId) internal view returns (uint128) {
+    /*//////////////////////////////////////////////////////////////////////////
+                         INTERNAL STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Overrides the {ERC-721._update} function to check that the stream is transferable, and emits an
+    /// ERC-4906 event.
+    /// @dev There are two cases when the transferable flag is ignored:
+    /// - If the current owner is 0, then the update is a mint and is allowed.
+    /// - If `to` is 0, then the update is a burn and is also allowed.
+    /// @param to The address of the new recipient of the stream.
+    /// @param streamId ID of the stream to update.
+    /// @param auth Optional parameter. If the value is not zero, the overridden implementation will check that
+    /// `auth` is either the recipient of the stream, or an approved third party.
+    /// @return The original recipient of the `streamId` before the update.
+    function _update(address to, uint256 streamId, address auth) internal override returns (address) {
+        address from = _ownerOf(streamId);
+
+        if (from != address(0) && to != address(0) && !_streams[streamId].isTransferable) {
+            revert Errors.SablierLockup_NotTransferable(streamId);
+        }
+
+        // Emit an ERC-4906 event to trigger an update of the NFT metadata.
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
+
+        return super._update(to, streamId, auth);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            PRIVATE READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Checks whether `msg.sender` is the stream's recipient or an approved third party, when the `recipient`
+    /// is known in advance.
+    /// @param streamId The stream ID for the query.
+    /// @param recipient The address of the stream's recipient.
+    function _isCallerStreamRecipientOrApproved(uint256 streamId, address recipient) private view returns (bool) {
+        return _isAuthorized({ owner: recipient, spender: msg.sender, tokenId: streamId });
+    }
+
+    /// @dev See the documentation for the user-facing functions that call this private function.
+    function _withdrawableAmountOf(uint256 streamId) private view returns (uint128) {
         return _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL STATE-CHANGING FUNCTIONS
+                          PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _cancel(uint256 streamId) internal returns (uint128 senderAmount) {
+    /// @dev See the documentation for the user-facing functions that call this private function.
+    function _cancel(uint256 streamId) private returns (uint128 senderAmount) {
         // Calculate the streamed amount.
         uint128 streamedAmount = _streamedAmountOf(streamId);
 
@@ -783,13 +814,13 @@ contract SablierLockup is
         uint128 depositAmount,
         Lockup.Model lockupModel,
         address recipient,
+        address sender,
+        uint256 streamId,
         Lockup.Timestamps memory timestamps,
         IERC20 token,
-        bool transferable,
-        address sender,
-        uint256 streamId
+        bool transferable
     )
-        internal
+        private
     {
         // Effect: create the stream.
         _streams[streamId] = Lockup.Stream({
@@ -820,7 +851,7 @@ contract SablierLockup is
         token.safeTransferFrom({ from: msg.sender, to: address(this), value: depositAmount });
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this private function.
     function _createLD(
         bool cancelable,
         uint128 depositAmount,
@@ -832,7 +863,7 @@ contract SablierLockup is
         IERC20 token,
         bool transferable
     )
-        internal
+        private
         returns (uint256 streamId)
     {
         // Check: validate the user-provided parameters and segments.
@@ -886,7 +917,7 @@ contract SablierLockup is
         });
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this private function.
     function _createLL(
         bool cancelable,
         uint40 cliffTime,
@@ -899,7 +930,7 @@ contract SablierLockup is
         bool transferable,
         LockupLinear.UnlockAmounts memory unlockAmounts
     )
-        internal
+        private
         returns (uint256 streamId)
     {
         // Check: validate the user-provided parameters and cliff time.
@@ -954,7 +985,7 @@ contract SablierLockup is
         });
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this private function.
     function _createLT(
         bool cancelable,
         uint128 depositAmount,
@@ -966,7 +997,7 @@ contract SablierLockup is
         bool transferable,
         LockupTranched.Tranche[] memory tranches
     )
-        internal
+        private
         returns (uint256 streamId)
     {
         // Check: validate the user-provided parameters and tranches.
@@ -1020,31 +1051,8 @@ contract SablierLockup is
         });
     }
 
-    /// @notice Overrides the {ERC-721._update} function to check that the stream is transferable, and emits an
-    /// ERC-4906 event.
-    /// @dev There are two cases when the transferable flag is ignored:
-    /// - If the current owner is 0, then the update is a mint and is allowed.
-    /// - If `to` is 0, then the update is a burn and is also allowed.
-    /// @param to The address of the new recipient of the stream.
-    /// @param streamId ID of the stream to update.
-    /// @param auth Optional parameter. If the value is not zero, the overridden implementation will check that
-    /// `auth` is either the recipient of the stream, or an approved third party.
-    /// @return The original recipient of the `streamId` before the update.
-    function _update(address to, uint256 streamId, address auth) internal override returns (address) {
-        address from = _ownerOf(streamId);
-
-        if (from != address(0) && to != address(0) && !_streams[streamId].isTransferable) {
-            revert Errors.SablierLockup_NotTransferable(streamId);
-        }
-
-        // Emit an ERC-4906 event to trigger an update of the NFT metadata.
-        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
-
-        return super._update(to, streamId, auth);
-    }
-
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdraw(uint256 streamId, address to, uint128 amount) internal {
+    /// @dev See the documentation for the user-facing functions that call this private function.
+    function _withdraw(uint256 streamId, address to, uint128 amount) private {
         // Effect: update the withdrawn amount.
         _streams[streamId].amounts.withdrawn = _streams[streamId].amounts.withdrawn + amount;
 
