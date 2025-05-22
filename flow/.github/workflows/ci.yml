@@ -14,7 +14,7 @@ on:
 
 jobs:
   check:
-    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/evm-lint.yml@main"
 
   build:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
