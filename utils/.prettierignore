@@ -1,11 +1,10 @@
 # directories
-.husky
 broadcast
 cache
 coverage
 node_modules
 out
-out-optimized
+out-*
 
 # files
 *.sol

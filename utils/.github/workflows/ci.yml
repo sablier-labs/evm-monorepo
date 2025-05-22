@@ -13,8 +13,8 @@ on:
       - "staging"
 
 jobs:
-  lint:
-    uses: "sablier-labs/gha-utils/.github/workflows/evm-lint.yml@main"
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
 
   build:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
@@ -22,7 +22,7 @@ jobs:
       foundry-profiles: "default"
 
   test-bulloak:
-    needs: ["lint", "build"]
+    needs: ["check", "build"]
     if: needs.build.outputs.cache-status != 'primary'
     uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
     with:
@@ -30,7 +30,7 @@ jobs:
       tree-path: "tests"
 
   test-unit:
-    needs: ["lint", "build"]
+    needs: ["check", "build"]
     if: needs.build.outputs.cache-status != 'primary'
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
@@ -38,7 +38,7 @@ jobs:
       name: "Unit tests"
 
   coverage:
-    needs: ["lint", "build"]
+    needs: ["check", "build"]
     if: needs.build.outputs.cache-status != 'primary'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
