@@ -5,8 +5,8 @@ on:
     - cron: "0 3 * * 1,3,5" # at 3:00 AM UTC on Monday, Wednesday and Friday
 
 jobs:
-  lint:
-    uses: "sablier-labs/gha-utils/.github/workflows/evm-lint.yml@main"
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
 
   build:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
@@ -35,7 +35,7 @@ jobs:
 
   notify-on-failure:
     if: failure()
-    needs: ["lint", "build", "test-fork", "test-utils"]
+    needs: ["check", "build", "test-fork", "test-utils"]
     runs-on: "ubuntu-latest"
     steps:
       - name: "Send Slack notification"
