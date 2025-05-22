@@ -1,13 +1,12 @@
 # directories
-.husky
 broadcast
 cache
+cache_hardhat-zk
 coverage
 docs
 node_modules
 out
-out-optimized
-out-svg
+out-*
 
 # files
 *.sol
