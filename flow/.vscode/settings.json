@@ -1,5 +1,5 @@
 {
-  "[json][markdown][svg][yaml]": {
+  "[json][markdown][yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[solidity]": {
@@ -9,7 +9,6 @@
     "editor.defaultFormatter": "tamasfe.even-better-toml"
   },
   "editor.formatOnSave": true,
-  "prettier.documentSelectors": ["**/*.svg"],
   "search.exclude": {
     "**/node_modules": true
   },
