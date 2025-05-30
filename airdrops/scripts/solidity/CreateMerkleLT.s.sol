@@ -25,6 +25,7 @@ contract CreateMerkleLT is BaseScript {
         // Prepare the constructor parameters.
         MerkleLT.ConstructorParams memory params;
         params.campaignName = "The Boys LT";
+        params.campaignStartTime = uint40(block.timestamp);
         params.cancelable = true;
         params.expiration = uint40(block.timestamp + 30 days);
         params.lockup = ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056);
@@ -41,7 +42,7 @@ contract CreateMerkleLT is BaseScript {
         params.tranchesWithPercentages[1] =
             MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.5e18), duration: 7200 });
 
-        params.startTime = 0; // i.e. block.timestamp
+        params.vestingStartTime = 0; // i.e. block.timestamp
         uint256 aggregateAmount = 10_000e18;
         uint256 recipientCount = 100;
 

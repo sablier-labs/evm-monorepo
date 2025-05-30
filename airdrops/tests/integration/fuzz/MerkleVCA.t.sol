@@ -40,37 +40,37 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
             vm.warp({ newTimestamp: claimTime });
         }
 
-        // Assert the claim and forgone amounts if start time is in the future.
+        // Assert the claim and forgone amounts if vesting start time is in the future.
         if (getBlockTimestamp() < VCA_START_TIME) {
-            assertEq(actualClaimAmount, 0, "claim amount before start time");
-            assertEq(actualForgoneAmount, 0, "forgone amount before start time");
+            assertEq(actualClaimAmount, 0, "claim amount before vesting start time");
+            assertEq(actualForgoneAmount, 0, "forgone amount before vesting start time");
         }
 
-        // Assert the claim and forgone amounts if start time is in the present.
+        // Assert the claim and forgone amounts if vesting start time is in the present.
         if (getBlockTimestamp() == VCA_START_TIME) {
             uint128 unlockAmount = VCA_UNLOCK_PERCENTAGE.mul(ud(fullAmount)).intoUint128();
 
-            assertEq(actualClaimAmount, unlockAmount, "claim amount at start time");
-            assertEq(actualForgoneAmount, fullAmount - unlockAmount, "forgone amount at start time");
+            assertEq(actualClaimAmount, unlockAmount, "claim amount at vesting start time");
+            assertEq(actualForgoneAmount, fullAmount - unlockAmount, "forgone amount at vesting start time");
         }
-        // Assert the claim and forgone amounts if start time is in the past.
+        // Assert the claim and forgone amounts if vesting start time is in the past.
         else {
-            // Assert the claim and forgone amounts if end time is in the future.
+            // Assert the claim and forgone amounts if vesting end time is in the future.
             if (getBlockTimestamp() < VCA_END_TIME) {
                 (uint128 expectedClaimAmount, uint128 expectedForgoneAmount) = calculateMerkleVCAAmounts({
                     fullAmount: fullAmount,
                     unlockPercentage: VCA_UNLOCK_PERCENTAGE,
-                    endTime: VCA_END_TIME,
-                    startTime: VCA_START_TIME
+                    vestingEndTime: VCA_END_TIME,
+                    vestingStartTime: VCA_START_TIME
                 });
 
-                assertEq(actualClaimAmount, expectedClaimAmount, "claim amount before end time");
+                assertEq(actualClaimAmount, expectedClaimAmount, "claim amount before vesting end time");
                 assertEq(actualForgoneAmount, expectedForgoneAmount, "forgone amount before end time");
             }
-            // Assert the claim and forgone amounts if end time is not in the future.
+            // Assert the claim and forgone amounts if vesting end time is not in the future.
             else {
-                assertEq(actualClaimAmount, fullAmount, "claim amount after end time");
-                assertEq(actualForgoneAmount, 0, "forgone amount after end time");
+                assertEq(actualClaimAmount, fullAmount, "claim amount after vesting end time");
+                assertEq(actualForgoneAmount, 0, "forgone amount after vesting end time");
             }
         }
     }
@@ -78,19 +78,19 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Fuzzed custom fee.
-    /// - MerkleVCA campaign with fuzzed leaves data, expiration, end time and start time.
+    /// - MerkleVCA campaign with fuzzed leaves data, expiration, vesting end and start times.
     /// - Unlock percentage does not exceed 1e18.
     /// - Finite (only in future) expiration.
-    /// - Start time in the past.
+    /// - Vesting start time in the past.
     /// - Claiming airdrops for multiple indexes with fuzzed claim fee.
     /// - Claiming airdrops using both {claim} and {claimTo} functions with fuzzed `to` address.
     /// - Fuzzed clawback amount.
     /// - Collect fees earned.
     function testFuzz_MerkleVCA(
         Params memory params,
-        uint40 endTime,
-        uint40 startTime,
-        UD60x18 unlockPercentage
+        UD60x18 unlockPercentage,
+        uint40 vestingEndTime,
+        uint40 vestingStartTime
     )
         external
     {
@@ -106,7 +106,13 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
 
         // Test creating the MerkleVCA campaign.
         _testCreateMerkleVCA(
-            aggregateAmount, endTime, params.expiration, params.feeForUser, merkleRoot, startTime, unlockPercentage
+            aggregateAmount,
+            params.expiration,
+            params.feeForUser,
+            merkleRoot,
+            unlockPercentage,
+            vestingStartTime,
+            vestingEndTime
         );
 
         // Test claiming the airdrop for the given indexes.
@@ -125,26 +131,27 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
 
     function _testCreateMerkleVCA(
         uint256 aggregateAmount,
-        uint40 endTime,
         uint40 expiration,
         uint256 feeForUser,
         bytes32 merkleRoot,
-        uint40 startTime,
-        UD60x18 unlockPercentage
+        UD60x18 unlockPercentage,
+        uint40 vestingEndTime,
+        uint40 vestingStartTime
     )
         private
         givenCampaignNotExists
+        givenCampaignStartTimeNotInFuture
         whenUnlockPercentageNotGreaterThan100
-        whenStartTimeNotZero
-        whenEndTimeGreaterThanStartTime
+        whenVestingStartTimeNotZero
+        whenVestingEndTimeGreaterThanVestingStartTime
         whenNotZeroExpiration
-        whenExpirationExceedsOneWeekFromEndTime
+        whenExpirationExceedsOneWeekFromVestingEndTime
     {
-        // Bound start time to be in the past.
-        startTime = boundUint40(startTime, 1 seconds, getBlockTimestamp() - 1 seconds);
+        // Bound vesting start time to be in the past.
+        vestingStartTime = boundUint40(vestingStartTime, 1 seconds, getBlockTimestamp() - 1 seconds);
 
-        // Bound end time to be greater than the start time but within than a year from now.
-        endTime = boundUint40(endTime, startTime + 1, getBlockTimestamp() + 365 days);
+        // Bound vesting end time to be greater than the vesting start time but within than a year from now.
+        vestingEndTime = boundUint40(vestingEndTime, vestingStartTime + 1, getBlockTimestamp() + 365 days);
 
         // Bound unlock percentage to be less than or equal to 1e18.
         unlockPercentage = bound(unlockPercentage, 0, UNIT);
@@ -154,9 +161,9 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
 
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams(expiration);
         params.merkleRoot = merkleRoot;
-        params.endTime = endTime;
-        params.startTime = startTime;
         params.unlockPercentage = unlockPercentage;
+        params.vestingEndTime = vestingEndTime;
+        params.vestingStartTime = vestingStartTime;
 
         // Precompute the deterministic address.
         address expectedMerkleVCA = computeMerkleVCAAddress(params, users.campaignCreator);
@@ -186,10 +193,10 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         assertEq(merkleVCA.UNLOCK_PERCENTAGE(), unlockPercentage, "unlock percentage");
 
         // It should set the correct vesting end time.
-        assertEq(merkleVCA.VESTING_END_TIME(), endTime, "vesting end time");
+        assertEq(merkleVCA.VESTING_END_TIME(), vestingEndTime, "vesting end time");
 
         // It should set the correct vesting start time.
-        assertEq(merkleVCA.VESTING_START_TIME(), startTime, "vesting start time");
+        assertEq(merkleVCA.VESTING_START_TIME(), vestingStartTime, "vesting start time");
 
         // Fund the MerkleVCA contract.
         deal({ token: address(dai), to: address(merkleVCA), give: aggregateAmount });
@@ -207,8 +214,8 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         (uint256 claimAmount, uint256 forgoneAmount) = calculateMerkleVCAAmounts({
             fullAmount: leafData.amount,
             unlockPercentage: merkleVCA.UNLOCK_PERCENTAGE(),
-            endTime: merkleVCA.VESTING_END_TIME(),
-            startTime: merkleVCA.VESTING_START_TIME()
+            vestingEndTime: merkleVCA.VESTING_END_TIME(),
+            vestingStartTime: merkleVCA.VESTING_START_TIME()
         });
 
         // It should emit a {Claim} event.

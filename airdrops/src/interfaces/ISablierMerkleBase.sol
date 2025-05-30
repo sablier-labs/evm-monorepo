@@ -22,6 +22,10 @@ interface ISablierMerkleBase is IAdminable {
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice The timestamp at which campaign starts and claim begins.
+    /// @dev This is an immutable state variable.
+    function CAMPAIGN_START_TIME() external returns (uint40);
+
     /// @notice The cut-off point for the campaign, as a Unix timestamp. A value of zero means there is no expiration.
     /// @dev This is an immutable state variable.
     function EXPIRATION() external returns (uint40);

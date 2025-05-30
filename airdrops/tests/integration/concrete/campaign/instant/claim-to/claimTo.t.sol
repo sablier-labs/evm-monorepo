@@ -15,6 +15,7 @@ contract ClaimTo_MerkleInstant_Integration_Test is ClaimTo_Integration_Test, Mer
     function test_ClaimTo()
         external
         whenToAddressNotZero
+        givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee
         givenCallerNotClaimed

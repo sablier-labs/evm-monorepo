@@ -43,6 +43,7 @@ abstract contract SablierMerkleLockup is
     constructor(
         address campaignCreator,
         string memory campaignName,
+        uint40 campaignStartTime,
         bool cancelable,
         ISablierLockup sablierLockup,
         uint40 expiration,
@@ -53,7 +54,16 @@ abstract contract SablierMerkleLockup is
         IERC20 token,
         bool transferable
     )
-        SablierMerkleBase(campaignCreator, campaignName, expiration, initialAdmin, ipfsCID, merkleRoot, token)
+        SablierMerkleBase(
+            campaignCreator,
+            campaignName,
+            campaignStartTime,
+            expiration,
+            initialAdmin,
+            ipfsCID,
+            merkleRoot,
+            token
+        )
     {
         SABLIER_LOCKUP = sablierLockup;
         streamShape = shape_;

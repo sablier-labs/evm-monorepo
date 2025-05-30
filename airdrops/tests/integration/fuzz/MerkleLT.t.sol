@@ -41,8 +41,8 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
     /// - Collect fees earned.
     function testFuzz_MerkleLT(
         Params memory params,
-        uint40 startTime,
-        MerkleLT.TrancheWithPercentage[] memory tranches
+        MerkleLT.TrancheWithPercentage[] memory tranches,
+        uint40 vestingStartTime
     )
         external
     {
@@ -54,7 +54,7 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
         params.feeForUser = params.enableCustomFeeUSD ? testSetCustomFeeUSD(params.feeForUser) : MIN_FEE_USD;
 
         // Test creating the MerkleLT campaign.
-        _testCreateMerkleLT(aggregateAmount, expiration_, params.feeForUser, merkleRoot, startTime, tranches);
+        _testCreateMerkleLT(aggregateAmount, expiration_, params.feeForUser, merkleRoot, tranches, vestingStartTime);
 
         // Test claiming the airdrop for the given indexes.
         testClaimMultipleAirdrops(params.indexesToClaim, params.msgValue, params.to);
@@ -75,28 +75,29 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
         uint40 expiration,
         uint256 feeForUser,
         bytes32 merkleRoot,
-        uint40 startTime,
-        MerkleLT.TrancheWithPercentage[] memory tranches
+        MerkleLT.TrancheWithPercentage[] memory tranches,
+        uint40 vestingStartTime
     )
         private
         givenCampaignNotExists
+        givenCampaignStartTimeNotInFuture
         whenTotalPercentage100
     {
         // Ensure that tranches are not empty and not too large.
         vm.assume(tranches.length <= 1000 && tranches.length > 0);
 
-        // Bound the start time.
-        startTime = boundUint40(startTime, 0, getBlockTimestamp() + 1000);
+        // Bound the vesting start time.
+        vestingStartTime = boundUint40(vestingStartTime, 0, getBlockTimestamp() + 1000);
 
-        uint40 streamDuration = fuzzTranchesMerkleLT(startTime, tranches);
+        uint40 streamDuration = fuzzTranchesMerkleLT(vestingStartTime, tranches);
 
         // Set campaign creator as the caller.
         setMsgSender(users.campaignCreator);
 
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams(expiration);
         params.merkleRoot = merkleRoot;
-        params.startTime = startTime;
         params.tranchesWithPercentages = tranches;
+        params.vestingStartTime = vestingStartTime;
 
         // Precompute the deterministic address.
         address expectedMerkleLT = computeMerkleLTAddress(params, users.campaignCreator);
@@ -126,7 +127,7 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
         // It should return the correct schedule tranches.
         assertEq(merkleLT.tranchesWithPercentages(), tranches);
         assertEq(merkleLT.TRANCHES_TOTAL_PERCENTAGE(), 1e18);
-        assertEq(merkleLT.VESTING_START_TIME(), startTime);
+        assertEq(merkleLT.VESTING_START_TIME(), vestingStartTime);
 
         // Fund the MerkleLT contract.
         deal({ token: address(dai), to: address(merkleLT), give: aggregateAmount });
@@ -142,12 +143,13 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
     function expectClaimEvent(LeafData memory leafData, address to) internal override {
         uint40 totalDuration = getTotalDuration(merkleLT.tranchesWithPercentages());
 
-        // Calculate end time based on the vesting start time.
-        uint40 startTime = merkleLT.VESTING_START_TIME();
-        uint40 endTime = startTime == 0 ? getBlockTimestamp() + totalDuration : startTime + totalDuration;
+        // Calculate vesting end time based on the vesting start time.
+        uint40 vestingStartTime = merkleLT.VESTING_START_TIME();
+        uint40 vestingEndTime =
+            vestingStartTime == 0 ? getBlockTimestamp() + totalDuration : vestingStartTime + totalDuration;
 
         // If the vesting has ended, the claim should be transferred directly to the `to` address.
-        if (endTime <= getBlockTimestamp()) {
+        if (vestingEndTime <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLT) });
             emit ISablierMerkleLockup.Claim({
                 index: leafData.index,

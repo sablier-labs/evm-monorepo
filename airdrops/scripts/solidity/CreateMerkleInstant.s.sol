@@ -21,6 +21,7 @@ contract CreateMerkleInstant is BaseScript {
         // Prepare the constructor parameters.
         MerkleInstant.ConstructorParams memory params;
         params.campaignName = "The Boys Instant";
+        params.campaignStartTime = uint40(block.timestamp);
         params.expiration = uint40(block.timestamp + 30 days);
         params.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
         params.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";

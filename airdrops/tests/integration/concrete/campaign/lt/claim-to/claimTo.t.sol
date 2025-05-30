@@ -81,13 +81,13 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
         whenTotalPercentage100
     {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
-        params.startTime = 0;
+        params.vestingStartTime = 0;
 
         merkleLT = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
-        // It should create a stream with `block.timestamp` as vesting start time.
+        // It should create a stream with `block.timestamp` as stream start time.
         // It should create a stream with Eve as recipient.
-        _test_ClaimTo({ vestingStartTime: 0, startTime: getBlockTimestamp() });
+        _test_ClaimTo({ streamStartTime: getBlockTimestamp() });
     }
 
     function test_WhenVestingStartTimeNotZero()
@@ -98,11 +98,11 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
     {
         // It should create a ranged stream with provided start time.
         // It should create a stream with Eve as recipient.
-        _test_ClaimTo({ vestingStartTime: VESTING_START_TIME, startTime: VESTING_START_TIME });
+        _test_ClaimTo({ streamStartTime: VESTING_START_TIME });
     }
 
     /// @dev Helper function to test claim.
-    function _test_ClaimTo(uint40 vestingStartTime, uint40 startTime) private {
+    function _test_ClaimTo(uint40 streamStartTime) private {
         deal({ token: address(dai), to: address(merkleLT), give: AGGREGATE_AMOUNT });
 
         uint256 expectedStreamId = lockup.nextStreamId();
@@ -120,14 +120,14 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
 
         // Assert that the stream has been created successfully.
         assertEq(lockup.getDepositedAmount(expectedStreamId), CLAIM_AMOUNT, "depositedAmount");
-        assertEq(lockup.getEndTime(expectedStreamId), startTime + VESTING_TOTAL_DURATION, "end time");
+        assertEq(lockup.getEndTime(expectedStreamId), streamStartTime + VESTING_TOTAL_DURATION, "stream end time");
         assertEq(lockup.getRecipient(expectedStreamId), users.eve, "eve");
         assertEq(lockup.getSender(expectedStreamId), users.campaignCreator, "sender");
-        assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
+        assertEq(lockup.getStartTime(expectedStreamId), streamStartTime, "stream start time");
         // It should create a stream with `VESTING_START_TIME` as start time.
         assertEq(
             lockup.getTranches(expectedStreamId),
-            tranchesMerkleLT({ vestingStartTime: vestingStartTime, totalAmount: CLAIM_AMOUNT })
+            tranchesMerkleLT({ streamStartTime: streamStartTime, totalAmount: CLAIM_AMOUNT })
         );
         assertEq(lockup.getUnderlyingToken(expectedStreamId), dai, "token");
         assertEq(lockup.isCancelable(expectedStreamId), STREAM_CANCELABLE, "is cancelable");

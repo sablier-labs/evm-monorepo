@@ -36,48 +36,52 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         createMerkleVCA(params);
     }
 
-    function test_RevertWhen_StartTimeZero() external whenNativeTokenNotFound givenCampaignNotExists {
+    function test_RevertWhen_VestingStartTimeZero() external whenNativeTokenNotFound givenCampaignNotExists {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
-        params.startTime = 0;
+        params.vestingStartTime = 0;
 
         // It should revert.
         vm.expectRevert(Errors.SablierMerkleVCA_StartTimeZero.selector);
         createMerkleVCA(params);
     }
 
-    function test_RevertWhen_EndTimeLessThanStartTime()
+    function test_RevertWhen_VestingEndTimeLessThanVestingStartTime()
         external
         whenNativeTokenNotFound
         givenCampaignNotExists
-        whenStartTimeNotZero
+        whenVestingStartTimeNotZero
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
-        // Set the end time to be less than the start time.
-        params.endTime = VESTING_START_TIME - 1 seconds;
+        // Set the vesting end time to be less than the vesting start time.
+        params.vestingEndTime = VESTING_START_TIME - 1 seconds;
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_EndTimeNotGreaterThanStartTime.selector, params.startTime, params.endTime
+                Errors.SablierMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime.selector,
+                params.vestingStartTime,
+                params.vestingEndTime
             )
         );
         createMerkleVCA(params);
     }
 
-    function test_RevertWhen_EndTimeEqualsStartTime()
+    function test_RevertWhen_VestingEndTimeEqualsVestingStartTime()
         external
         whenNativeTokenNotFound
         givenCampaignNotExists
-        whenStartTimeNotZero
+        whenVestingStartTimeNotZero
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
-        // Set the end time equal to the start time.
-        params.endTime = VESTING_START_TIME;
+        // Set the vesting end time equal to the start time.
+        params.vestingEndTime = VESTING_START_TIME;
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_EndTimeNotGreaterThanStartTime.selector, params.startTime, params.endTime
+                Errors.SablierMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime.selector,
+                params.vestingStartTime,
+                params.vestingEndTime
             )
         );
         createMerkleVCA(params);
@@ -87,8 +91,8 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         external
         whenNativeTokenNotFound
         givenCampaignNotExists
-        whenStartTimeNotZero
-        whenEndTimeGreaterThanStartTime
+        whenVestingStartTimeNotZero
+        whenVestingEndTimeGreaterThanVestingStartTime
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.expiration = 0;
@@ -98,12 +102,12 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         createMerkleVCA(params);
     }
 
-    function test_RevertWhen_ExpirationNotExceedOneWeekFromEndTime()
+    function test_RevertWhen_ExpirationNotExceedOneWeekFromVestingEndTime()
         external
         whenNativeTokenNotFound
         givenCampaignNotExists
-        whenStartTimeNotZero
-        whenEndTimeGreaterThanStartTime
+        whenVestingStartTimeNotZero
+        whenVestingEndTimeGreaterThanVestingStartTime
         whenNotZeroExpiration
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
@@ -112,7 +116,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_ExpirationTooEarly.selector, params.endTime, params.expiration
+                Errors.SablierMerkleVCA_ExpirationTooEarly.selector, params.vestingEndTime, params.expiration
             )
         );
         createMerkleVCA(params);
@@ -122,10 +126,10 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         external
         whenNativeTokenNotFound
         givenCampaignNotExists
-        whenStartTimeNotZero
-        whenEndTimeGreaterThanStartTime
+        whenVestingStartTimeNotZero
+        whenVestingEndTimeGreaterThanVestingStartTime
         whenNotZeroExpiration
-        whenExpirationExceedsOneWeekFromEndTime
+        whenExpirationExceedsOneWeekFromVestingEndTime
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.unlockPercentage = UNIT.add(UNIT);
@@ -141,10 +145,10 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         external
         whenNativeTokenNotFound
         givenCampaignNotExists
-        whenStartTimeNotZero
-        whenEndTimeGreaterThanStartTime
+        whenVestingStartTimeNotZero
+        whenVestingEndTimeGreaterThanVestingStartTime
         whenNotZeroExpiration
-        whenExpirationExceedsOneWeekFromEndTime
+        whenExpirationExceedsOneWeekFromVestingEndTime
         whenUnlockPercentageNotGreaterThan100
     {
         // Set the custom fee to 0.
@@ -191,10 +195,10 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         external
         whenNativeTokenNotFound
         givenCampaignNotExists
-        whenStartTimeNotZero
-        whenEndTimeGreaterThanStartTime
+        whenVestingStartTimeNotZero
+        whenVestingEndTimeGreaterThanVestingStartTime
         whenNotZeroExpiration
-        whenExpirationExceedsOneWeekFromEndTime
+        whenExpirationExceedsOneWeekFromVestingEndTime
         whenUnlockPercentageNotGreaterThan100
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();

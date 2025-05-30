@@ -5,32 +5,32 @@ CreateMerkleVCA_Integration_Test
    ├── given campaign already exists
    │  └── it should revert
    └── given campaign not exists
-      ├── when start time zero
+      ├── when vesting start time zero
       │  └── it should revert
-      └── when start time not zero
-         ├── when end time less than start time
+      └── when vesting start time not zero
+         ├── when vesting end time less than vesting start time
          │  └── it should revert
-         ├── when end time equals start time
+         ├── when vesting end time equals vesting start time
          │  └── it should revert
-         └── when end time greater than start time
+         └── when vesting end time greater than vesting start time
             ├── when zero expiration
             │  └── it should revert
             └── when not zero expiration
-               ├── when expiration not exceed one week from end time
+               ├── when expiration not exceed one week from vesting end time
                │  └── it should revert
-               └── when expiration exceeds one week from end time
+               └── when expiration exceeds one week from vesting end time
                   ├── when unlock percentage greater than 100
                   │  └── it should revert
                   └── when unlock percentage not greater than 100
                      ├── given custom fee USD set
                      │  ├── it should create the campaign with custom fee USD
                      │  ├── it should set the current factory address
-                     │  ├── it should set the correct start time
-                     │  ├── it should set the correct end time
+                     │  ├── it should set the correct vesting start time
+                     │  ├── it should set the correct vesting end time
                      │  └── it should emit a {CreateMerkleVCA} event
                      └── given custom fee USD not set
                         ├── it should create the campaign with min fee USD
                         ├── it should set the current factory address
-                        ├── it should set the correct start time
-                        ├── it should set the correct end time
+                        ├── it should set the correct vesting start time
+                        ├── it should set the correct vesting end time
                         └── it should emit a {CreateMerkleVCA} event

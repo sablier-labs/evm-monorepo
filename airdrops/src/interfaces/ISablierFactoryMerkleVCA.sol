@@ -41,8 +41,8 @@ interface ISablierFactoryMerkleVCA is ISablierFactoryMerkleBase {
     /// - `params.expiration` must be greater than 0.
     /// - `params.expiration` must be at least 1 week beyond the end time to ensure loyal recipients have enough time to
     /// claim.
-    /// - `params.endTime` must be greater than `params.startTime`.
-    /// - Both `params.startTime` and `params.endTime` must be greater than 0.
+    /// - `params.vestingEndTime` must be greater than `params.vestingStartTime`.
+    /// - Both `params.vestingStartTime` and `params.vestingEndTime` must be greater than 0.
     /// - `params.unlockPercentage` must not be greater than 1e18, equivalent to 100%.
     ///
     /// @param params Struct encapsulating the {SablierMerkleVCA} parameters, which are documented in {DataTypes}.

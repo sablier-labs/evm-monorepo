@@ -34,33 +34,34 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
                                    TEST-FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function testForkFuzz_MerkleLT(Params memory params, uint40 startTime) external {
+    function testForkFuzz_MerkleLT(Params memory params, uint40 vestingStartTime) external {
         /*//////////////////////////////////////////////////////////////////////////
                                           CREATE
         //////////////////////////////////////////////////////////////////////////*/
 
-        uint40 expectedStartTime;
+        uint40 expectedVestingStartTime;
 
-        // If the start time is not zero, bound it to a reasonable range so that schedule end time can be in the past,
-        // present and future.
-        if (startTime != 0) {
-            startTime = boundUint40(
-                startTime, getBlockTimestamp() - VESTING_TOTAL_DURATION - 10 days, getBlockTimestamp() + 2 days
+        // If the vesting start time is not zero, bound it to a reasonable range so that schedule end time can be in the
+        // past, present and future.
+        if (vestingStartTime != 0) {
+            vestingStartTime = boundUint40(
+                vestingStartTime, getBlockTimestamp() - VESTING_TOTAL_DURATION - 10 days, getBlockTimestamp() + 2 days
             );
-            expectedStartTime = startTime;
+            expectedVestingStartTime = vestingStartTime;
         } else {
-            expectedStartTime = getBlockTimestamp();
+            expectedVestingStartTime = getBlockTimestamp();
         }
 
         preCreateCampaign(params);
 
         MerkleLT.ConstructorParams memory constructorParams = merkleLTConstructorParams({
             campaignCreator: params.campaignCreator,
+            campaignStartTime: CAMPAIGN_START_TIME,
             expiration: params.expiration,
             lockupAddress: lockup,
             merkleRoot: vars.merkleRoot,
-            startTime: startTime,
-            tokenAddress: FORK_TOKEN
+            tokenAddress: FORK_TOKEN,
+            vestingStartTime: vestingStartTime
         });
 
         vars.expectedMerkleCampaign =
@@ -95,7 +96,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
         uint256 initialRecipientTokenBalance = FORK_TOKEN.balanceOf(vars.leafToClaim.recipient);
 
         // It should emit {Claim} event based on the schedule end time.
-        if (expectedStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
+        if (expectedVestingStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLT) });
             emit ISablierMerkleLockup.Claim({
                 index: vars.leafToClaim.index,
@@ -134,7 +135,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
         });
 
         // Assertions when vesting end time does not exceed the block time.
-        if (expectedStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
+        if (expectedVestingStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             assertEq(
                 FORK_TOKEN.balanceOf(vars.leafToClaim.recipient),
                 initialRecipientTokenBalance + vars.leafToClaim.amount,
@@ -150,7 +151,10 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
                 token: FORK_TOKEN,
                 cancelable: STREAM_CANCELABLE,
                 transferable: STREAM_TRANSFERABLE,
-                timestamps: Lockup.Timestamps({ start: expectedStartTime, end: expectedStartTime + VESTING_TOTAL_DURATION }),
+                timestamps: Lockup.Timestamps({
+                    start: expectedVestingStartTime,
+                    end: expectedVestingStartTime + VESTING_TOTAL_DURATION
+                }),
                 shape: STREAM_SHAPE
             });
 
@@ -159,7 +163,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
             assertEq(lockup.getLockupModel(expectedStreamId), Lockup.Model.LOCKUP_TRANCHED);
             assertEq(
                 lockup.getTranches(expectedStreamId),
-                tranchesMerkleLT({ vestingStartTime: expectedStartTime, totalAmount: vars.leafToClaim.amount })
+                tranchesMerkleLT({ streamStartTime: expectedVestingStartTime, totalAmount: vars.leafToClaim.amount })
             );
 
             uint256[] memory expectedClaimedStreamIds = new uint256[](1);

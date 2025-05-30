@@ -27,7 +27,7 @@ abstract contract Fuzzers is Modifiers, PRBMathUtils {
     /// @dev Fuzz tranches by making sure that total unlock percentage is 1e18 and total duration does not overflow the
     /// maximum timestamp.
     function fuzzTranchesMerkleLT(
-        uint40 startTime,
+        uint40 vestingStartTime,
         MerkleLT.TrancheWithPercentage[] memory tranches
     )
         internal
@@ -37,10 +37,10 @@ abstract contract Fuzzers is Modifiers, PRBMathUtils {
         uint256 upperBoundDuration;
 
         // Set upper bound based on the vesting start time. Zero is a sentinel value for `block.timestamp`.
-        if (startTime == 0) {
-            startTime = getBlockTimestamp();
+        if (vestingStartTime == 0) {
+            vestingStartTime = getBlockTimestamp();
         }
-        upperBoundDuration = (MAX_UNIX_TIMESTAMP - startTime) / tranches.length;
+        upperBoundDuration = (MAX_UNIX_TIMESTAMP - vestingStartTime) / tranches.length;
 
         uint64 upperBoundPercentage = 1e18;
 

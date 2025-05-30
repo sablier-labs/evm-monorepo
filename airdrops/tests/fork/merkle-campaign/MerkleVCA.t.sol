@@ -33,35 +33,36 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
                                    TEST-FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function testForkFuzz_MerkleVCA(Params memory params, uint40 endTime, uint40 startTime) external {
+    function testForkFuzz_MerkleVCA(Params memory params, uint40 vestingEndTime, uint40 vestingStartTime) external {
         /*//////////////////////////////////////////////////////////////////////////
                                           CREATE
         //////////////////////////////////////////////////////////////////////////*/
 
         preCreateCampaign(params);
 
-        // Bound the start time.
-        startTime = boundUint40(startTime, 1 seconds, getBlockTimestamp() - 1 seconds);
+        // Bound the vesting start time.
+        vestingStartTime = boundUint40(vestingStartTime, 1 seconds, getBlockTimestamp() - 1 seconds);
 
-        // Bound the end time.
-        endTime = boundUint40(endTime, startTime + 1 days, MAX_UNIX_TIMESTAMP - 2 weeks);
+        // Bound the vesting end time.
+        vestingEndTime = boundUint40(vestingEndTime, vestingStartTime + 1 days, MAX_UNIX_TIMESTAMP - 2 weeks);
 
-        // The expiration must exceed the end time by at least 1 week.
-        if (endTime > getBlockTimestamp() - 1 weeks) {
-            params.expiration = boundUint40(params.expiration, endTime + 1 weeks, MAX_UNIX_TIMESTAMP);
+        // The expiration must exceed the vesting end time by at least 1 week.
+        if (vestingEndTime > getBlockTimestamp() - 1 weeks) {
+            params.expiration = boundUint40(params.expiration, vestingEndTime + 1 weeks, MAX_UNIX_TIMESTAMP);
         } else {
-            // If end time is in the past, set expiration into the future to allow claiming.
+            // If vesting end time is in the past, set expiration into the future to allow claiming.
             params.expiration = boundUint40(params.expiration, getBlockTimestamp() + 1 seconds, MAX_UNIX_TIMESTAMP);
         }
 
         MerkleVCA.ConstructorParams memory constructorParams = merkleVCAConstructorParams({
             campaignCreator: params.campaignCreator,
-            endTime: endTime,
+            campaignStartTime: CAMPAIGN_START_TIME,
             expiration: params.expiration,
             merkleRoot: vars.merkleRoot,
-            startTime: startTime,
             tokenAddress: FORK_TOKEN,
-            unlockPercentage: VCA_UNLOCK_PERCENTAGE
+            unlockPercentage: VCA_UNLOCK_PERCENTAGE,
+            vestingEndTime: vestingEndTime,
+            vestingStartTime: vestingStartTime
         });
 
         vars.expectedMerkleCampaign =
@@ -92,14 +93,14 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
         preClaim(params);
 
         // Its not allowed to claim with a zero amount.
-        _findAndWarpToClaimAmountGt0(vars.leafToClaim.amount, endTime);
+        _findAndWarpToClaimAmountGt0(vars.leafToClaim.amount, vestingEndTime);
 
         // Calculate claim and forgone amount based on the vesting start and end time.
         (uint128 claimAmount, uint128 forgoneAmount) = calculateMerkleVCAAmounts({
             fullAmount: vars.leafToClaim.amount,
             unlockPercentage: VCA_UNLOCK_PERCENTAGE,
-            endTime: endTime,
-            startTime: startTime
+            vestingEndTime: vestingEndTime,
+            vestingStartTime: vestingStartTime
         });
 
         vm.expectEmit({ emitter: address(merkleVCA) });
@@ -151,18 +152,18 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Binary searches for earliest timestamp when claim amount > 0, then warps to that time.
-    function _findAndWarpToClaimAmountGt0(uint128 amount, uint40 endTime) private {
+    function _findAndWarpToClaimAmountGt0(uint128 amount, uint40 vestingEndTime) private {
         uint40 currentTime = getBlockTimestamp();
 
         if (merkleVCA.calculateClaimAmount(amount, currentTime) > 0) {
             return;
         }
 
-        while (currentTime < endTime) {
-            uint40 mid = currentTime + (endTime - currentTime) / 2;
+        while (currentTime < vestingEndTime) {
+            uint40 mid = currentTime + (vestingEndTime - currentTime) / 2;
 
             if (merkleVCA.calculateClaimAmount(amount, mid) > 0) {
-                endTime = mid;
+                vestingEndTime = mid;
             } else {
                 currentTime = mid + 1;
             }

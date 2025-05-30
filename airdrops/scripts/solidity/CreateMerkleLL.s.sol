@@ -23,6 +23,7 @@ contract CreateMerkleLL is BaseScript {
         // Prepare the constructor parameters.
         MerkleLL.ConstructorParams memory params;
         params.campaignName = "The Boys LL";
+        params.campaignStartTime = uint40(block.timestamp);
         params.cancelable = true;
         params.cliffDuration = 30 days;
         params.cliffUnlockPercentage = ud60x18(0.01e18);
@@ -33,7 +34,7 @@ contract CreateMerkleLL is BaseScript {
         params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
         params.shape = "LL";
         params.startUnlockPercentage = ud60x18(0.01e18);
-        params.startTime = 0; // i.e. block.timestamp
+        params.vestingStartTime = 0; // i.e. block.timestamp
         params.token = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
         params.totalDuration = 90 days;
         params.transferable = true;

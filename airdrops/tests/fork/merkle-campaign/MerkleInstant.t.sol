@@ -42,6 +42,7 @@ abstract contract MerkleInstant_Fork_Test is MerkleBase_Fork_Test {
 
         MerkleInstant.ConstructorParams memory constructorParams = merkleInstantConstructorParams({
             campaignCreator: params.campaignCreator,
+            campaignStartTime: CAMPAIGN_START_TIME,
             expiration: params.expiration,
             merkleRoot: vars.merkleRoot,
             tokenAddress: FORK_TOKEN

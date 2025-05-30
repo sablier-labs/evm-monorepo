@@ -64,6 +64,7 @@ contract SablierMerkleVCA is
         SablierMerkleBase(
             campaignCreator,
             params.campaignName,
+            params.campaignStartTime,
             params.expiration,
             params.initialAdmin,
             params.ipfsCID,
@@ -71,16 +72,16 @@ contract SablierMerkleVCA is
             params.token
         )
     {
-        // Check: start time is not zero.
-        if (params.startTime == 0) {
+        // Check: vesting start time is not zero.
+        if (params.vestingStartTime == 0) {
             revert Errors.SablierMerkleVCA_StartTimeZero();
         }
 
         // Check: vesting end time is greater than the vesting start time.
-        if (params.endTime <= params.startTime) {
-            revert Errors.SablierMerkleVCA_EndTimeNotGreaterThanStartTime({
-                startTime: params.startTime,
-                endTime: params.endTime
+        if (params.vestingEndTime <= params.vestingStartTime) {
+            revert Errors.SablierMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime({
+                vestingStartTime: params.vestingStartTime,
+                vestingEndTime: params.vestingEndTime
             });
         }
 
@@ -89,9 +90,12 @@ contract SablierMerkleVCA is
             revert Errors.SablierMerkleVCA_ExpirationTimeZero();
         }
 
-        // Check: campaign expiration is at least 1 week later than the end time.
-        if (params.expiration < params.endTime + 1 weeks) {
-            revert Errors.SablierMerkleVCA_ExpirationTooEarly({ endTime: params.endTime, expiration: params.expiration });
+        // Check: campaign expiration is at least 1 week later than the vesting end time.
+        if (params.expiration < params.vestingEndTime + 1 weeks) {
+            revert Errors.SablierMerkleVCA_ExpirationTooEarly({
+                vestingEndTime: params.vestingEndTime,
+                expiration: params.expiration
+            });
         }
 
         // Check: unlock percentage is not greater than 100%.
@@ -101,8 +105,8 @@ contract SablierMerkleVCA is
 
         // Effect: set the immutable variables.
         UNLOCK_PERCENTAGE = params.unlockPercentage;
-        VESTING_END_TIME = params.endTime;
-        VESTING_START_TIME = params.startTime;
+        VESTING_END_TIME = params.vestingEndTime;
+        VESTING_START_TIME = params.vestingStartTime;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -47,6 +47,7 @@ contract SablierMerkleInstant is
         SablierMerkleBase(
             campaignCreator,
             params.campaignName,
+            params.campaignStartTime,
             params.expiration,
             params.initialAdmin,
             params.ipfsCID,

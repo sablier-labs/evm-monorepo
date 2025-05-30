@@ -7,18 +7,18 @@ ClaimTo_MerkleLL_Integration_Test
       ├── when total percentage greater than 100
       │  └── it should revert
       └── when total percentage not greater than 100
-         ├── when start time zero
-         │  ├── it should create a stream with block.timestamp as start time
+         ├── when vesting start time zero
+         │  ├── it should create a stream with block.timestamp as vesting start time
          │  ├── it should create a stream with Eve as recipient
          │  └── it should emit a {Claim} event
-         └── when start time not zero
+         └── when vesting start time not zero
             ├── when cliff duration zero
-            │  ├── it should create a stream with start time as start time
+            │  ├── it should create a stream with start time as vesting start time
             │  ├── it should create a stream with cliff as zero
             │  ├── it should create a stream with Eve as recipient
             │  └── it should emit a {Claim} event
             └── when cliff duration not zero
-               ├── it should create a stream with start time as start time
-               ├── it should create a stream with cliff as start time + cliff duration
+               ├── it should create a stream with start time as vesting start time
+               ├── it should create a stream with cliff as vesting start time + cliff duration
                ├── it should create a stream with Eve as recipient
                └── it should emit a {Claim} event

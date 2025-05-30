@@ -2,12 +2,12 @@ CalculateClaimAmount_MerkleVCA_Integration_Test
 ├── when claim time zero
 │  └── it should use block time and return zero
 └── when claim time not zero
-   ├── when claim time less than start time
+   ├── when claim time less than vesting start time
    │  └── it should return zero
-   ├── when claim time equal start time
+   ├── when claim time equal vesting start time
    │  └── it should return unlock amount
-   └── when claim time greater than start time
-      ├── when claim time not less than end time
+   └── when claim time greater than vesting start time
+      ├── when claim time not less than vesting end time
       │  └── it should return the full amount
-      └── when claim time less than end time
+      └── when claim time less than vesting end time
          └── it should return the vested amount

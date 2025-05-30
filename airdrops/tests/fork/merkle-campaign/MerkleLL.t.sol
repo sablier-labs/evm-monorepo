@@ -35,33 +35,34 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
                                    TEST-FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function testForkFuzz_MerkleLL(Params memory params, uint40 startTime) external {
+    function testForkFuzz_MerkleLL(Params memory params, uint40 vestingStartTime) external {
         /*//////////////////////////////////////////////////////////////////////////
                                           CREATE
         //////////////////////////////////////////////////////////////////////////*/
 
-        uint40 expectedStartTime;
+        uint40 expectedVestingStartTime;
 
-        // If the start time is not zero, bound it to a reasonable range so that end time can be in the past, present
-        // and future.
-        if (startTime != 0) {
-            startTime = boundUint40(
-                startTime, getBlockTimestamp() - VESTING_TOTAL_DURATION - 10 days, getBlockTimestamp() + 2 days
+        // If the vesting start time is not zero, bound it to a reasonable range so that vesting end time can be in the
+        // past, present and future.
+        if (vestingStartTime != 0) {
+            vestingStartTime = boundUint40(
+                vestingStartTime, getBlockTimestamp() - VESTING_TOTAL_DURATION - 10 days, getBlockTimestamp() + 2 days
             );
-            expectedStartTime = startTime;
+            expectedVestingStartTime = vestingStartTime;
         } else {
-            expectedStartTime = getBlockTimestamp();
+            expectedVestingStartTime = getBlockTimestamp();
         }
 
         preCreateCampaign(params);
 
         MerkleLL.ConstructorParams memory constructorParams = merkleLLConstructorParams({
             campaignCreator: params.campaignCreator,
+            campaignStartTime: CAMPAIGN_START_TIME,
             expiration: params.expiration,
             lockupAddress: lockup,
             merkleRoot: vars.merkleRoot,
-            startTime: startTime,
-            tokenAddress: FORK_TOKEN
+            tokenAddress: FORK_TOKEN,
+            vestingStartTime: vestingStartTime
         });
 
         vars.expectedMerkleCampaign =
@@ -94,8 +95,8 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
         uint256 expectedStreamId;
         uint256 initialRecipientTokenBalance = FORK_TOKEN.balanceOf(vars.leafToClaim.recipient);
 
-        // It should emit {Claim} event based on the end time.
-        if (expectedStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
+        // It should emit {Claim} event based on the vesting end time.
+        if (expectedVestingStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLL) });
             emit ISablierMerkleLockup.Claim({
                 index: vars.leafToClaim.index,
@@ -139,15 +140,15 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
             merkleProof: vars.merkleProof
         });
 
-        // Assertions when end time does not exceed the block time.
-        if (expectedStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
+        // Assertions when vesting end time does not exceed the block time.
+        if (expectedVestingStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             assertEq(
                 FORK_TOKEN.balanceOf(vars.leafToClaim.recipient),
                 initialRecipientTokenBalance + vars.leafToClaim.amount,
                 "recipient token balance"
             );
         }
-        // Assertions when end time exceeds the block time.
+        // Assertions when vesting end time exceeds the block time.
         else {
             LockupLinear.UnlockAmounts memory expectedUnlockAmounts = LockupLinear.UnlockAmounts({
                 start: ud60x18(vars.leafToClaim.amount).mul(VESTING_START_UNLOCK_PERCENTAGE).intoUint128(),
@@ -161,13 +162,18 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
                 token: FORK_TOKEN,
                 cancelable: STREAM_CANCELABLE,
                 transferable: STREAM_TRANSFERABLE,
-                timestamps: Lockup.Timestamps({ start: expectedStartTime, end: expectedStartTime + VESTING_TOTAL_DURATION }),
+                timestamps: Lockup.Timestamps({
+                    start: expectedVestingStartTime,
+                    end: expectedVestingStartTime + VESTING_TOTAL_DURATION
+                }),
                 shape: STREAM_SHAPE
             });
 
             // Assert that the stream has been created successfully.
             assertEq(lockup, expectedStreamId, expectedLockup);
-            assertEq(lockup.getCliffTime(expectedStreamId), expectedStartTime + VESTING_CLIFF_DURATION, "cliff time");
+            assertEq(
+                lockup.getCliffTime(expectedStreamId), expectedVestingStartTime + VESTING_CLIFF_DURATION, "cliff time"
+            );
             assertEq(lockup.getLockupModel(expectedStreamId), Lockup.Model.LOCKUP_LINEAR);
             assertEq(lockup.getUnlockAmounts(expectedStreamId), expectedUnlockAmounts);
 

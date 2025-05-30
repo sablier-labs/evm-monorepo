@@ -3,6 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "src/libraries/Errors.sol";
+import { MerkleVCA } from "src/types/DataTypes.sol";
 
 import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
 import { MerkleVCA_Integration_Shared_Test, Integration_Test } from "../MerkleVCA.t.sol";
@@ -12,32 +13,41 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
         MerkleVCA_Integration_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_StartTimeInFuture() external whenMerkleProofValid {
-        // Move back in time so that the start time is in the future.
-        vm.warp({ newTimestamp: VESTING_START_TIME - 1 seconds });
+    function test_RevertWhen_VestingStartTimeInFuture() external whenMerkleProofValid {
+        // Create a new campaign with vesting start time in the future.
+        MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
+        params.vestingStartTime = getBlockTimestamp() + 1 seconds;
+        merkleVCA = createMerkleVCA(params);
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleVCA_ClaimAmountZero.selector, users.recipient1));
 
         // Claim the airdrop.
-        claim();
+        merkleVCA.claim{ value: MIN_FEE_WEI }({
+            index: INDEX1,
+            recipient: users.recipient1,
+            fullAmount: CLAIM_AMOUNT,
+            merkleProof: index1Proof()
+        });
     }
 
-    function test_WhenStartTimeInPresent() external whenMerkleProofValid whenStartTimeNotInFuture {
-        // Forward in time so that the end time is in the past.
-        vm.warp({ newTimestamp: VCA_START_TIME });
+    function test_WhenVestingStartTimeInPresent() external whenMerkleProofValid whenVestingStartTimeNotInFuture {
+        // Create a new campaign with vesting start time in the present.
+        MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
+        params.vestingStartTime = getBlockTimestamp();
+        merkleVCA = createMerkleVCA(params);
 
         _test_Claim(VCA_UNLOCK_AMOUNT);
     }
 
-    function test_WhenEndTimeInPast() external whenMerkleProofValid whenStartTimeNotInFuture {
-        // Forward in time so that the end time is in the past.
+    function test_WhenVestingEndTimeInPast() external whenMerkleProofValid whenVestingStartTimeNotInFuture {
+        // Forward in time so that the vesting end time is in the past.
         vm.warp({ newTimestamp: VESTING_END_TIME });
 
         _test_Claim(VCA_FULL_AMOUNT);
     }
 
-    function test_WhenEndTimeNotInPast() external whenMerkleProofValid whenStartTimeNotInFuture {
+    function test_WhenVestingEndTimeNotInPast() external whenMerkleProofValid whenVestingStartTimeNotInFuture {
         _test_Claim(VCA_CLAIM_AMOUNT);
     }
 

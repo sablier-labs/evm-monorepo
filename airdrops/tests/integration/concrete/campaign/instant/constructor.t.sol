@@ -17,6 +17,7 @@ contract Constructor_MerkleInstant_Integration_Test is MerkleInstant_Integration
         // SablierMerkleBase
         assertEq(constructedInstant.admin(), users.campaignCreator, "admin");
         assertEq(constructedInstant.campaignName(), CAMPAIGN_NAME, "campaign name");
+        assertEq(constructedInstant.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
         assertEq(constructedInstant.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(address(constructedInstant.FACTORY()), address(factoryMerkleInstant), "factory");
         assertEq(constructedInstant.ipfsCID(), IPFS_CID, "IPFS CID");

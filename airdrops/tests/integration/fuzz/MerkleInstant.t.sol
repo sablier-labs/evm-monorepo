@@ -71,6 +71,7 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
     )
         private
         givenCampaignNotExists
+        givenCampaignStartTimeNotInFuture
     {
         // Set campaign creator as the caller.
         setMsgSender(users.campaignCreator);

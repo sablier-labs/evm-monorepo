@@ -25,6 +25,9 @@ abstract contract SablierMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleBase
+    uint40 public immutable override CAMPAIGN_START_TIME;
+
+    /// @inheritdoc ISablierMerkleBase
     uint40 public immutable override EXPIRATION;
 
     /// @inheritdoc ISablierMerkleBase
@@ -62,6 +65,7 @@ abstract contract SablierMerkleBase is
     constructor(
         address campaignCreator,
         string memory campaignName_,
+        uint40 campaignStartTime,
         uint40 expiration,
         address initialAdmin,
         string memory ipfsCID_,
@@ -70,6 +74,7 @@ abstract contract SablierMerkleBase is
     )
         Adminable(initialAdmin)
     {
+        CAMPAIGN_START_TIME = campaignStartTime;
         EXPIRATION = expiration;
         FACTORY = ISablierFactoryMerkleBase(msg.sender);
         MERKLE_ROOT = merkleRoot;
@@ -241,6 +246,14 @@ abstract contract SablierMerkleBase is
     )
         internal
     {
+        // Check: the campaign start time is not in the future.
+        if (CAMPAIGN_START_TIME > block.timestamp) {
+            revert Errors.SablierMerkleBase_CampaignNotStarted({
+                blockTimestamp: block.timestamp,
+                campaignStartTime: CAMPAIGN_START_TIME
+            });
+        }
+
         // Check: the campaign has not expired.
         if (hasExpired()) {
             revert Errors.SablierMerkleBase_CampaignExpired({ blockTimestamp: block.timestamp, expiration: EXPIRATION });

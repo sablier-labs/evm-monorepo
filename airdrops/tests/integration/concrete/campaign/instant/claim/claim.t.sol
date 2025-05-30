@@ -13,6 +13,7 @@ contract Claim_MerkleInstant_Integration_Test is Claim_Integration_Test, MerkleI
 
     function test_Claim()
         external
+        givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee
         givenRecipientNotClaimed

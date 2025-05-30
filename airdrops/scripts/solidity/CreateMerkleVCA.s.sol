@@ -21,12 +21,13 @@ contract CreateMerkleVCA is BaseScript {
         // Prepare the constructor parameters.
         MerkleVCA.ConstructorParams memory params;
         params.campaignName = "The Boys VCA";
-        params.endTime = uint40(block.timestamp + 365 days);
+        params.campaignStartTime = uint40(block.timestamp);
         params.expiration = uint40(block.timestamp + 400 days);
         params.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
         params.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
         params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        params.startTime = uint40(block.timestamp);
+        params.vestingStartTime = uint40(block.timestamp);
+        params.vestingEndTime = uint40(block.timestamp + 365 days);
         params.token = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
         // The total amount to airdrop through the campaign.

@@ -22,6 +22,7 @@ interface ISablierMerkleInstant is ISablierMerkleBase {
     /// @dev It emits a {Claim} event.
     ///
     /// Requirements:
+    /// - The current time must be greater than or equal to the campaign start time.
     /// - The campaign must not have expired.
     /// - `msg.value` must not be less than the value returned by {calculateMinFeeWei}.
     /// - The `index` must not be claimed already.

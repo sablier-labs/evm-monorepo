@@ -64,20 +64,20 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         claimTo();
     }
 
-    function test_WhenStartTimeZero()
+    function test_WhenVestingStartTimeZero()
         external
         whenMerkleProofValid
         whenVestingEndTimeExceedsClaimTime
         whenTotalPercentageNotGreaterThan100
     {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
-        params.startTime = 0;
+        params.vestingStartTime = 0;
 
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
-        // It should create a stream with block.timestamp as start time.
+        // It should create a stream with block.timestamp as vesting start time.
         // It should create a stream with Eve as recipient.
-        _test_ClaimTo({ startTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + VESTING_CLIFF_DURATION });
+        _test_ClaimTo({ streamStartTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + VESTING_CLIFF_DURATION });
     }
 
     function test_WhenCliffDurationZero()
@@ -85,7 +85,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         whenMerkleProofValid
         whenVestingEndTimeExceedsClaimTime
         whenTotalPercentageNotGreaterThan100
-        whenStartTimeNotZero
+        whenVestingStartTimeNotZero
     {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
         params.cliffDuration = 0;
@@ -93,10 +93,10 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
 
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
-        // It should create a stream with block.timestamp as start time.
+        // It should create a stream with block.timestamp as vesting start time.
         // It should create a stream with cliff as zero.
         // It should create a stream with Eve as recipient.
-        _test_ClaimTo({ startTime: VESTING_START_TIME, cliffTime: 0 });
+        _test_ClaimTo({ streamStartTime: VESTING_START_TIME, cliffTime: 0 });
     }
 
     function test_WhenCliffDurationNotZero()
@@ -104,16 +104,16 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         whenMerkleProofValid
         whenVestingEndTimeExceedsClaimTime
         whenTotalPercentageNotGreaterThan100
-        whenStartTimeNotZero
+        whenVestingStartTimeNotZero
     {
-        // It should create a stream with block.timestamp as start time.
-        // It should create a stream with cliff as start time + cliff duration.
+        // It should create a stream with block.timestamp as vesting start time.
+        // It should create a stream with cliff as vesting start time + cliff duration.
         // It should create a stream with Eve as recipient.
-        _test_ClaimTo({ startTime: VESTING_START_TIME, cliffTime: VESTING_START_TIME + VESTING_CLIFF_DURATION });
+        _test_ClaimTo({ streamStartTime: VESTING_START_TIME, cliffTime: VESTING_START_TIME + VESTING_CLIFF_DURATION });
     }
 
     /// @dev Helper function to test claim.
-    function _test_ClaimTo(uint40 startTime, uint40 cliffTime) private {
+    function _test_ClaimTo(uint40 streamStartTime, uint40 cliffTime) private {
         deal({ token: address(dai), to: address(merkleLL), give: AGGREGATE_AMOUNT });
 
         uint256 expectedStreamId = lockup.nextStreamId();
@@ -134,10 +134,10 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         // Assert that the stream has been created successfully.
         assertEq(lockup.getCliffTime(expectedStreamId), cliffTime, "vesting cliff time");
         assertEq(lockup.getDepositedAmount(expectedStreamId), CLAIM_AMOUNT, "depositedAmount");
-        assertEq(lockup.getEndTime(expectedStreamId), startTime + VESTING_TOTAL_DURATION, "end time");
+        assertEq(lockup.getEndTime(expectedStreamId), streamStartTime + VESTING_TOTAL_DURATION, "stream end time");
         assertEq(lockup.getRecipient(expectedStreamId), users.eve, "eve");
         assertEq(lockup.getSender(expectedStreamId), users.campaignCreator, "sender");
-        assertEq(lockup.getStartTime(expectedStreamId), startTime, "start time");
+        assertEq(lockup.getStartTime(expectedStreamId), streamStartTime, "stream start time");
         assertEq(lockup.getUnderlyingToken(expectedStreamId), dai, "token");
         assertEq(lockup.getUnlockAmounts(expectedStreamId).cliff, expectedUnlockCliffAmount, "unlock cliff amount");
         assertEq(lockup.getUnlockAmounts(expectedStreamId).start, UNLOCK_START_AMOUNT, "unlock start amount");

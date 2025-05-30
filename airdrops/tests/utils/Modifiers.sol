@@ -31,6 +31,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier givenCampaignStartTimeNotInFuture() {
+        _;
+    }
+
     modifier givenMinFeeUSDNotZero() {
         _;
     }
@@ -88,15 +92,11 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenClaimTimeGreaterThanStartTime() {
+    modifier whenClaimTimeGreaterThanVestingStartTime() {
         _;
     }
 
     modifier whenClaimTimeNotZero() {
-        _;
-    }
-
-    modifier whenEndTimeGreaterThanStartTime() {
         _;
     }
 
@@ -108,7 +108,7 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenExpirationExceedsOneWeekFromEndTime() {
+    modifier whenExpirationExceedsOneWeekFromVestingEndTime() {
         _;
     }
 
@@ -180,14 +180,6 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenStartTimeNotInFuture() {
-        _;
-    }
-
-    modifier whenStartTimeNotZero() {
-        _;
-    }
-
     modifier whenToAddressNotZero() {
         _;
     }
@@ -209,6 +201,18 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenVestingEndTimeExceedsClaimTime() {
+        _;
+    }
+
+    modifier whenVestingEndTimeGreaterThanVestingStartTime() {
+        _;
+    }
+
+    modifier whenVestingStartTimeNotInFuture() {
+        _;
+    }
+
+    modifier whenVestingStartTimeNotZero() {
         _;
     }
 

@@ -16,6 +16,7 @@ contract Constructor_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_
         // SablierMerkleBase
         assertEq(constructedVCA.admin(), users.campaignCreator, "admin");
         assertEq(constructedVCA.campaignName(), CAMPAIGN_NAME, "campaign name");
+        assertEq(constructedVCA.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
         assertEq(constructedVCA.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(address(constructedVCA.FACTORY()), address(factoryMerkleVCA), "factory");
         assertEq(constructedVCA.ipfsCID(), IPFS_CID, "IPFS CID");

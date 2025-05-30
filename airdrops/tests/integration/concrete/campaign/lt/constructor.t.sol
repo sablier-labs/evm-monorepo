@@ -23,6 +23,7 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         // SablierMerkleBase
         assertEq(constructedLT.admin(), users.campaignCreator, "admin");
         assertEq(constructedLT.campaignName(), CAMPAIGN_NAME, "campaign name");
+        assertEq(constructedLT.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
         assertEq(constructedLT.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(address(constructedLT.FACTORY()), address(factoryMerkleLT), "factory");
         assertEq(constructedLT.ipfsCID(), IPFS_CID, "IPFS CID");

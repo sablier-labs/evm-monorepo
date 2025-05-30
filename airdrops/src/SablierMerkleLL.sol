@@ -69,6 +69,7 @@ contract SablierMerkleLL is
         SablierMerkleLockup(
             campaignCreator,
             params.campaignName,
+            params.campaignStartTime,
             params.cancelable,
             params.lockup,
             params.expiration,
@@ -83,7 +84,7 @@ contract SablierMerkleLL is
         // Effect: set the immutable variables.
         VESTING_CLIFF_DURATION = params.cliffDuration;
         VESTING_CLIFF_UNLOCK_PERCENTAGE = params.cliffUnlockPercentage;
-        VESTING_START_TIME = params.startTime;
+        VESTING_START_TIME = params.vestingStartTime;
         VESTING_START_UNLOCK_PERCENTAGE = params.startUnlockPercentage;
         VESTING_TOTAL_DURATION = params.totalDuration;
     }

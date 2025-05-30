@@ -28,17 +28,11 @@ contract Integration_Test is Base_Test {
         // Make campaign creator the caller.
         setMsgSender(users.campaignCreator);
 
-        // Create the default Merkle contracts.
+        // Create the default Merkle contracts and fund them.
         merkleInstant = createMerkleInstant();
         merkleLL = createMerkleLL();
         merkleLT = createMerkleLT();
         merkleVCA = createMerkleVCA();
-
-        // Fund the contracts.
-        deal({ token: address(dai), to: address(merkleInstant), give: AGGREGATE_AMOUNT });
-        deal({ token: address(dai), to: address(merkleLL), give: AGGREGATE_AMOUNT });
-        deal({ token: address(dai), to: address(merkleLT), give: AGGREGATE_AMOUNT });
-        deal({ token: address(dai), to: address(merkleVCA), give: AGGREGATE_AMOUNT });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -131,9 +125,12 @@ contract Integration_Test is Base_Test {
 
     function createMerkleInstant(MerkleInstant.ConstructorParams memory params)
         internal
-        returns (ISablierMerkleInstant)
+        returns (ISablierMerkleInstant campaignAddress)
     {
-        return factoryMerkleInstant.createMerkleInstant(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        campaignAddress = factoryMerkleInstant.createMerkleInstant(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+
+        // Fund the campaign.
+        fundCampaignWithDai(address(campaignAddress));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -144,8 +141,14 @@ contract Integration_Test is Base_Test {
         return createMerkleLL(merkleLLConstructorParams());
     }
 
-    function createMerkleLL(MerkleLL.ConstructorParams memory params) internal returns (ISablierMerkleLL) {
-        return factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+    function createMerkleLL(MerkleLL.ConstructorParams memory params)
+        internal
+        returns (ISablierMerkleLL campaignAddress)
+    {
+        campaignAddress = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+
+        // Fund the campaign.
+        fundCampaignWithDai(address(campaignAddress));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -156,8 +159,14 @@ contract Integration_Test is Base_Test {
         return createMerkleLT(merkleLTConstructorParams());
     }
 
-    function createMerkleLT(MerkleLT.ConstructorParams memory params) internal returns (ISablierMerkleLT) {
-        return factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+    function createMerkleLT(MerkleLT.ConstructorParams memory params)
+        internal
+        returns (ISablierMerkleLT campaignAddress)
+    {
+        campaignAddress = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+
+        // Fund the campaign.
+        fundCampaignWithDai(address(campaignAddress));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -168,7 +177,13 @@ contract Integration_Test is Base_Test {
         return createMerkleVCA(merkleVCAConstructorParams());
     }
 
-    function createMerkleVCA(MerkleVCA.ConstructorParams memory params) internal returns (ISablierMerkleVCA) {
-        return factoryMerkleVCA.createMerkleVCA(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+    function createMerkleVCA(MerkleVCA.ConstructorParams memory params)
+        internal
+        returns (ISablierMerkleVCA campaignAddress)
+    {
+        campaignAddress = factoryMerkleVCA.createMerkleVCA(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+
+        // Fund the campaign.
+        fundCampaignWithDai(address(campaignAddress));
     }
 }

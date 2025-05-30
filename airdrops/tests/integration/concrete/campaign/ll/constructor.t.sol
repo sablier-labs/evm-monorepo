@@ -19,6 +19,7 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
 
         // SablierMerkleBase
         assertEq(constructedLL.admin(), users.campaignCreator, "admin");
+        assertEq(constructedLL.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
         assertEq(constructedLL.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedLL.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(address(constructedLL.FACTORY()), address(factoryMerkleLL), "factory");

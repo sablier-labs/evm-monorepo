@@ -1,25 +1,28 @@
 Claim_Integration_Test
-├── given campaign expired
+├── given campaign start time in future
 │  └── it should revert
-└── given campaign not expired
-   ├── given msg value less than fee
+└── given campaign start time not in future
+   ├── given campaign expired
    │  └── it should revert
-   └── given msg value not less than fee
-      ├── given recipient claimed
+   └── given campaign not expired
+      ├── given msg value less than fee
       │  └── it should revert
-      └── given recipient not claimed
-         ├── when index not valid
+      └── given msg value not less than fee
+         ├── given recipient claimed
          │  └── it should revert
-         └── when index valid
-            ├── when recipient not eligible
+         └── given recipient not claimed
+            ├── when index not valid
             │  └── it should revert
-            └── when recipient eligible
-               ├── when amount not valid
+            └── when index valid
+               ├── when recipient not eligible
                │  └── it should revert
-               └── when amount valid
-                  ├── when Merkle proof not valid
+               └── when recipient eligible
+                  ├── when amount not valid
                   │  └── it should revert
-                  └── when Merkle proof valid
-                     ├── it should mark the index as Claimed
-                     ├── it should transfer the ETH to the merkle lockup
-                     └── it should emit {Claim} event
+                  └── when amount valid
+                     ├── when Merkle proof not valid
+                     │  └── it should revert
+                     └── when Merkle proof valid
+                        ├── it should mark the index as Claimed
+                        ├── it should transfer the ETH to the merkle lockup
+                        └── it should emit {Claim} event
