@@ -98,15 +98,6 @@ interface ISablierMerkleBase is IAdminable {
     /// @param amount The amount of tokens to claw back.
     function clawback(address to, uint128 amount) external;
 
-    /// @notice Collects the accrued fees by transferring them to the `feeRecipient` address.
-    ///
-    /// Requirements:
-    /// - `msg.sender` must be {FACTORY}.
-    ///
-    /// @param feeRecipient The address where the fees will be collected.
-    /// @return feeAmount The amount of native tokens (e.g., ETH) collected as fees.
-    function collectFees(address feeRecipient) external returns (uint256 feeAmount);
-
     /// @notice Lowers the min USD fee.
     ///
     /// @dev Emits a {LowerMinFeeUSD} event.

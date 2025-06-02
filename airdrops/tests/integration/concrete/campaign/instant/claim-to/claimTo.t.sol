@@ -24,7 +24,7 @@ contract ClaimTo_MerkleInstant_Integration_Test is ClaimTo_Integration_Test, Mer
         whenAmountValid
         whenMerkleProofValid
     {
-        uint256 previousFeeAccrued = address(merkleInstant).balance;
+        uint256 previousFeeAccrued = address(factoryMerkleInstant).balance;
 
         vm.expectEmit({ emitter: address(merkleInstant) });
         emit ISablierMerkleInstant.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, users.eve);
@@ -35,6 +35,6 @@ contract ClaimTo_MerkleInstant_Integration_Test is ClaimTo_Integration_Test, Mer
 
         assertTrue(merkleInstant.hasClaimed(INDEX1), "not claimed");
 
-        assertEq(address(merkleInstant).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
+        assertEq(address(factoryMerkleInstant).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
     }
 }

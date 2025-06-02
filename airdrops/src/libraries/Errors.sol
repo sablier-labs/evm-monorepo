@@ -10,9 +10,6 @@ library Errors {
                                 SABLIER-MERKLE-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when caller is not the factory contract.
-    error SablierMerkleBase_CallerNotFactory(address factory, address caller);
-
     /// @notice Thrown when caller is not the factory admin.
     error SablierMerkleBase_CallerNotFactoryAdmin(address factoryAdmin, address caller);
 
@@ -26,8 +23,8 @@ library Errors {
     /// not expired.
     error SablierMerkleBase_ClawbackNotAllowed(uint256 blockTimestamp, uint40 expiration, uint40 firstClaimTime);
 
-    /// @notice Thrown if the fees withdrawal failed.
-    error SablierMerkleBase_FeeTransferFail(address feeRecipient, uint256 feeAmount);
+    /// @notice Thrown if fee transfer fails.
+    error SablierMerkleBase_FeeTransferFailed(address feeRecipient, uint256 feeAmount);
 
     /// @notice Thrown when trying to claim the same index more than once.
     error SablierMerkleBase_IndexClaimed(uint256 index);
@@ -42,11 +39,14 @@ library Errors {
     error SablierMerkleBase_NewMinFeeUSDNotLower(uint256 currentMinFeeUSD, uint256 newMinFeeUSD);
 
     /*//////////////////////////////////////////////////////////////////////////
-                            SABLIER-MERKLE-FACTORY-BASE
+                            SABLIER-FACTORY-MERKLE-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when an unauthorized address collects fee without setting the fee recipient to admin address.
-    error SablierMerkleFactoryBase_FeeRecipientNotAdmin(address feeRecipient, address admin);
+    error SablierFactoryMerkleBase_FeeRecipientNotAdmin(address feeRecipient, address admin);
+
+    /// @notice Thrown if fee transfer fails.
+    error SablierFactoryMerkleBase_FeeTransferFailed(address feeRecipient, uint256 feeAmount);
 
     /// @notice Thrown when trying to create a campaign with native token.
     error SablierFactoryMerkleBase_ForbidNativeToken(address nativeToken);

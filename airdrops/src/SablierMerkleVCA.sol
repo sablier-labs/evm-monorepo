@@ -155,7 +155,7 @@ contract SablierMerkleVCA is
         payable
         override
     {
-        // Check and Effect: Pre-process the claim parameters.
+        // Check, Effect and Interaction: Pre-process the claim parameters.
         _preProcessClaim({ index: index, recipient: recipient, amount: fullAmount, merkleProof: merkleProof });
 
         // Check, Effect and Interaction: Post-process the claim parameters.
@@ -177,11 +177,11 @@ contract SablierMerkleVCA is
         if (to == address(0)) {
             revert Errors.SablierMerkleVCA_ToZeroAddress();
         }
-        // Check and Effect: Pre-process the claim parameters.
 
+        // Check, Effect and Interaction: Pre-process the claim parameters.
         _preProcessClaim({ index: index, recipient: msg.sender, amount: fullAmount, merkleProof: merkleProof });
 
-        // Interaction: Post-process the claim parameters.
+        // Check, Effect and Interaction: Post-process the claim parameters.
         _postProcessClaim({ index: index, recipient: msg.sender, to: to, fullAmount: fullAmount });
     }
 

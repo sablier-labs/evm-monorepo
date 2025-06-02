@@ -7,7 +7,7 @@ import { LeafData, MerkleBuilder } from "../../utils/MerkleBuilder.sol";
 import { Integration_Test } from "../Integration.t.sol";
 
 /// @notice Common logic needed by all fuzz tests.
-contract Shared_Fuzz_Test is Integration_Test {
+abstract contract Shared_Fuzz_Test is Integration_Test {
     using MerkleBuilder for uint256[];
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -70,6 +70,12 @@ contract Shared_Fuzz_Test is Integration_Test {
             if (leafIndex % 2 == 0) {
                 // Use a random address as the caller.
                 address caller = vm.randomAddress();
+
+                // If random address matches the factory address, change it.
+                if (caller == address(factoryMerkleBase)) {
+                    caller = users.recipient;
+                }
+
                 setMsgSender(caller);
 
                 // Call the expect claim event function, implemented by the child contract.
@@ -154,10 +160,10 @@ contract Shared_Fuzz_Test is Integration_Test {
         uint256 initialAdminBalance = users.admin.balance;
 
         // Collect the fees earned.
-        factoryMerkleBase.collectFees({ campaign: merkleBase, feeRecipient: users.admin });
+        factoryMerkleBase.collectFees({ feeRecipient: users.admin });
 
-        // It should decrease merkle contract balance to zero.
-        assertEq(address(merkleBase).balance, 0, "merkle base ETH balance");
+        // It should decrease factory contract balance to zero.
+        assertEq(address(factoryMerkleBase).balance, 0, "final ETH balance");
 
         // It should transfer fee to the factory admin.
         assertEq(users.admin.balance, initialAdminBalance + feeEarned, "admin ETH balance");
@@ -182,8 +188,13 @@ contract Shared_Fuzz_Test is Integration_Test {
         internal
         returns (uint256 aggregateAmount, bytes32 merkleRoot)
     {
+        // Exclude the factory contract from being the recipient. Otherwise, the fee accrued may not be equal to the sum
+        // of all `msg.value`.
+        address[] memory excludedAddresses = new address[](1);
+        excludedAddresses[0] = address(factoryMerkleBase);
+
         // Fuzz the leaves data.
-        aggregateAmount = fuzzMerkleData(rawLeavesData);
+        aggregateAmount = fuzzMerkleData({ leavesData: rawLeavesData, excludedAddresses: excludedAddresses });
 
         // Store the merkle tree leaves in storage.
         for (uint256 i = 0; i < rawLeavesData.length; ++i) {

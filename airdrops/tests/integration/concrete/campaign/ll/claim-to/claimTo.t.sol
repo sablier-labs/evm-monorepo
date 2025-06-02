@@ -117,7 +117,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         deal({ token: address(dai), to: address(merkleLL), give: AGGREGATE_AMOUNT });
 
         uint256 expectedStreamId = lockup.nextStreamId();
-        uint256 previousFeeAccrued = address(merkleLL).balance;
+        uint256 previousFeeAccrued = address(factoryMerkleLL).balance;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
@@ -156,6 +156,6 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         expectedClaimedStreamIds[0] = expectedStreamId;
         assertEq(merkleLL.claimedStreams(users.recipient1), expectedClaimedStreamIds, "claimed streams");
 
-        assertEq(address(merkleLL).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
+        assertEq(address(factoryMerkleLL).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
     }
 }

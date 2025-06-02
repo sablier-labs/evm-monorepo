@@ -71,7 +71,7 @@ contract SablierMerkleInstant is
         payable
         override
     {
-        // Check and Effect: Pre-process the claim parameters.
+        // Check, Effect and Interaction: Pre-process the claim parameters.
         _preProcessClaim(index, recipient, amount, merkleProof);
 
         // Interaction: Post-process the claim parameters.
@@ -94,7 +94,7 @@ contract SablierMerkleInstant is
             revert Errors.SablierMerkleInstant_ToZeroAddress();
         }
 
-        // Check and Effect: Pre-process the claim parameters.
+        // Check, Effect and Interaction: Pre-process the claim parameters.
         _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
 
         // Interaction: Post-process the claim parameters.

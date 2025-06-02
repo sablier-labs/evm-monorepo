@@ -112,10 +112,6 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenFactoryAdminIsContract() {
-        _;
-    }
-
     modifier whenFeeRecipientContract() {
         _;
     }
@@ -172,10 +168,6 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenProvidedMerkleLockupValid() {
-        _;
-    }
-
     modifier whenRecipientEligible() {
         _;
     }
@@ -213,10 +205,6 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenVestingStartTimeNotZero() {
-        _;
-    }
-
-    modifier whenWithdrawalAddressNotZero() {
         _;
     }
 }

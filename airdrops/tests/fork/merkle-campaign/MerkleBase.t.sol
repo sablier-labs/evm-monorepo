@@ -53,7 +53,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function preCreateCampaign(Params memory params) internal {
-        vm.assume(params.campaignCreator != address(0));
+        vm.assume(params.campaignCreator != address(0) && params.campaignCreator != address(factoryMerkleBase));
         vm.assume(params.leavesData.length > 0);
         assumeNoBlacklisted({ token: address(FORK_TOKEN), addr: params.campaignCreator });
         params.leafIndex = _bound(params.leafIndex, 0, params.leavesData.length - 1);
@@ -66,8 +66,13 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         // Load the factory admin from mainnet.
         factoryAdmin = factoryMerkleBase.admin();
 
+        // Exclude the factory contract from being the recipient. Otherwise, the fee accrued may not be equal to the sum
+        // of all `msg.value`.
+        address[] memory excludedAddresses = new address[](1);
+        excludedAddresses[0] = address(factoryMerkleBase);
+
         // Fuzz the leaves data.
-        vars.aggregateAmount = fuzzMerkleData(params.leavesData);
+        vars.aggregateAmount = fuzzMerkleData({ leavesData: params.leavesData, excludedAddresses: excludedAddresses });
 
         // Store the merkle tree leaves in storage.
         for (uint256 i = 0; i < params.leavesData.length; ++i) {
@@ -139,13 +144,12 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(factoryMerkleBase) });
         emit ISablierFactoryMerkleBase.CollectFees({
             admin: factoryAdmin,
-            campaign: merkleBase,
             feeRecipient: factoryAdmin,
             feeAmount: vars.minFeeWei
         });
-        factoryMerkleBase.collectFees({ campaign: merkleBase, feeRecipient: factoryAdmin });
+        factoryMerkleBase.collectFees({ feeRecipient: factoryAdmin });
 
-        assertEq(address(merkleBase).balance, 0, "merkle ETH balance");
+        assertEq(address(factoryMerkleBase).balance, 0, "final ETH balance");
         assertEq(factoryAdmin.balance, vars.initialAdminBalance + vars.minFeeWei, "admin ETH balance");
     }
 }

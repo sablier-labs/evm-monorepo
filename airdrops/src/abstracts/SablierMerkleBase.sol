@@ -127,24 +127,6 @@ abstract contract SablierMerkleBase is
     }
 
     /// @inheritdoc ISablierMerkleBase
-    function collectFees(address feeRecipient) external override returns (uint256 feeAmount) {
-        // Check: the caller is the FACTORY.
-        if (msg.sender != address(FACTORY)) {
-            revert Errors.SablierMerkleBase_CallerNotFactory({ factory: address(FACTORY), caller: msg.sender });
-        }
-
-        feeAmount = address(this).balance;
-
-        // Effect: transfer the fees to the `feeRecipient` address.
-        (bool success,) = feeRecipient.call{ value: feeAmount }("");
-
-        // Revert if the transfer failed.
-        if (!success) {
-            revert Errors.SablierMerkleBase_FeeTransferFail(feeRecipient, feeAmount);
-        }
-    }
-
-    /// @inheritdoc ISablierMerkleBase
     function lowerMinFeeUSD(uint256 newMinFeeUSD) external override {
         // Safe Interaction: retrieve the factory admin.
         address factoryAdmin = FACTORY.admin();
@@ -262,9 +244,11 @@ abstract contract SablierMerkleBase is
         // Calculate the min fee in wei.
         uint256 minFeeWei = _calculateMinFeeWei();
 
+        uint256 feePaid = msg.value;
+
         // Check: the min fee was paid.
-        if (msg.value < minFeeWei) {
-            revert Errors.SablierMerkleBase_InsufficientFeePayment({ feePaid: msg.value, minFeeWei: minFeeWei });
+        if (feePaid < minFeeWei) {
+            revert Errors.SablierMerkleBase_InsufficientFeePayment(feePaid, minFeeWei);
         }
 
         // Check: the index has not been claimed.
@@ -287,5 +271,15 @@ abstract contract SablierMerkleBase is
 
         // Effect: mark the index as claimed.
         _claimedBitMap.set(index);
+
+        // Interaction: transfer the fee to factory if it's greater than 0.
+        if (feePaid > 0) {
+            (bool success,) = address(FACTORY).call{ value: feePaid }("");
+
+            // Revert if the transfer failed.
+            if (!success) {
+                revert Errors.SablierMerkleBase_FeeTransferFailed(address(FACTORY), feePaid);
+            }
+        }
     }
 }

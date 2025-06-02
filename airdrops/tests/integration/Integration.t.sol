@@ -10,7 +10,7 @@ import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataType
 
 import { Base_Test } from "../Base.t.sol";
 
-contract Integration_Test is Base_Test {
+abstract contract Integration_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/

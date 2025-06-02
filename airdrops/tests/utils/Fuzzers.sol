@@ -11,11 +11,24 @@ import { Modifiers } from "./Modifiers.sol";
 
 abstract contract Fuzzers is Modifiers, PRBMathUtils {
     /// @dev Fuzz merkle data and return the aggregate amount.
-    function fuzzMerkleData(LeafData[] memory leavesData) internal pure returns (uint256 aggregateAmount) {
+    function fuzzMerkleData(
+        LeafData[] memory leavesData,
+        address[] memory excludedAddresses
+    )
+        internal
+        returns (uint256 aggregateAmount)
+    {
         for (uint256 i = 0; i < leavesData.length; ++i) {
             // Avoid zero recipient addresses.
             leavesData[i].recipient =
                 address(uint160(bound(uint256(uint160(leavesData[i].recipient)), 1, type(uint160).max)));
+
+            // Check that excluded addresses are not one of the recipients.
+            for (uint256 j = 0; j < excludedAddresses.length; ++j) {
+                if (leavesData[i].recipient == excludedAddresses[j]) {
+                    leavesData[i].recipient = vm.randomAddress();
+                }
+            }
 
             // Bound each leaf amount so that `aggregateAmount` does not overflow.
             leavesData[i].amount = boundUint128(leavesData[i].amount, 1, uint128(MAX_UINT128 / leavesData.length - 1));

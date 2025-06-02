@@ -53,6 +53,7 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
 
     function _test_Claim(uint128 claimAmount) private {
         uint128 forgoneAmount = VCA_FULL_AMOUNT - claimAmount;
+        uint256 previousFeeAccrued = address(factoryMerkleVCA).balance;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleVCA) });
@@ -75,5 +76,7 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
 
         // It should update the total forgone amount.
         assertEq(merkleVCA.totalForgoneAmount(), forgoneAmount, "total forgone amount");
+
+        assertEq(address(factoryMerkleVCA).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
     }
 }

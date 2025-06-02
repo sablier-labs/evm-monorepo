@@ -4,7 +4,6 @@ pragma solidity >=0.8.22;
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { RoleAdminable } from "@sablier/evm-utils/src/RoleAdminable.sol";
 import { ISablierFactoryMerkleBase } from "./../interfaces/ISablierFactoryMerkleBase.sol";
-import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
 import { FactoryMerkle } from "./../types/DataTypes.sol";
 
@@ -49,6 +48,12 @@ abstract contract SablierFactoryMerkleBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                  RECEIVE FUNCTION
+    //////////////////////////////////////////////////////////////////////////*/
+
+    receive() external payable { }
+
+    /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -62,19 +67,26 @@ abstract contract SablierFactoryMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFactoryMerkleBase
-    function collectFees(ISablierMerkleBase campaign, address feeRecipient) external override {
-        // Check: if `msg.sender` has neither the {IRoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
-        // then `feeRecipient` must be the admin address.
+    function collectFees(address feeRecipient) external override {
+        // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
+        // `feeRecipient` must be the admin address.
         bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
         if (!hasRoleOrIsAdmin && feeRecipient != admin) {
-            revert Errors.SablierMerkleFactoryBase_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
+            revert Errors.SablierFactoryMerkleBase_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
         }
 
-        // Effect: collect the fees from the campaign contract.
-        uint256 feeAmount = campaign.collectFees(feeRecipient);
+        uint256 feeAmount = address(this).balance;
+
+        // Effect: transfer the fees to the fee recipient.
+        (bool success,) = feeRecipient.call{ value: feeAmount }("");
+
+        // Revert if the call failed.
+        if (!success) {
+            revert Errors.SablierFactoryMerkleBase_FeeTransferFailed(feeRecipient, feeAmount);
+        }
 
         // Log the fee withdrawal.
-        emit CollectFees({ admin: admin, campaign: campaign, feeRecipient: feeRecipient, feeAmount: feeAmount });
+        emit CollectFees(admin, feeRecipient, feeAmount);
     }
 
     /// @inheritdoc ISablierFactoryMerkleBase
