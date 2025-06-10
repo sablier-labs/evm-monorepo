@@ -63,7 +63,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": "github.com/sablier-labs/airdrops",
+  "repository": "sablier-labs/airdrops",
   "scripts": {
     "build": "forge build",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
