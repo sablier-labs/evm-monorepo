@@ -6,7 +6,7 @@ on:
 
 jobs:
   check:
-    uses: "sablier-labs/gha-utils/.github/workflows/evm-lint.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
 
   slither-analyze:
     needs: "check"
