@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
+import { IComptrollerManager } from "./interfaces/IComptrollerManager.sol";
 import { ISablierComptroller } from "./interfaces/ISablierComptroller.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { RoleAdminable } from "./RoleAdminable.sol";
@@ -354,24 +355,11 @@ contract SablierComptroller is ISablierComptroller, RoleAdminable {
         override
         onlyRole(FEE_COLLECTOR_ROLE)
     {
-        // Declare the calldata of the function.
-        bytes memory callData = abi.encodeWithSignature("transferFeesToComptroller()");
+        // Interactions: transfer fees from Flow to this contract.
+        IComptrollerManager(flow).transferFeesToComptroller();
 
-        // Interactions: call the transfer function on the flow contract.
-        (bool success,) = flow.call(callData);
-
-        // Check: the call was successful.
-        if (!success) {
-            revert Errors.SablierComptroller_FeeTransferFailed(address(this), flow.balance);
-        }
-
-        // Interactions: call the transfer function on the lockup contract.
-        (success,) = lockup.call(callData);
-
-        // Check: the call was successful.
-        if (!success) {
-            revert Errors.SablierComptroller_FeeTransferFailed(address(this), lockup.balance);
-        }
+        // Interactions: transfer fees from Lockup to this contract.
+        IComptrollerManager(lockup).transferFeesToComptroller();
 
         // Effect: collect the fees.
         _collectFees(feeRecipient);

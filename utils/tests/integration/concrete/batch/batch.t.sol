@@ -15,22 +15,22 @@ contract Batch_Concrete_Test is Base_Test {
 
         // It should revert.
         vm.expectRevert(bytes(""));
-        batchMock.batch(calls);
+        batch.batch(calls);
     }
 
     function test_RevertWhen_FunctionReverts() external whenFunctionExists whenNonStateChangingFunction {
         calls = new bytes[](1);
-        calls[0] = abi.encodeCall(batchMock.getNumberAndRevert, ());
+        calls[0] = abi.encodeCall(batch.getNumberAndRevert, ());
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(BatchMock.InvalidNumber.selector, 1));
-        batchMock.batch(calls);
+        batch.batch(calls);
     }
 
     function test_WhenFunctionNotRevert() external whenFunctionExists whenNonStateChangingFunction {
         calls = new bytes[](1);
-        calls[0] = abi.encodeCall(batchMock.getNumber, ());
-        results = batchMock.batch(calls);
+        calls[0] = abi.encodeCall(batch.getNumber, ());
+        results = batch.batch(calls);
 
         // It should return the expected value.
         assertEq(results.length, 1, "batch results length");
@@ -44,18 +44,18 @@ contract Batch_Concrete_Test is Base_Test {
         whenNotPayable
     {
         calls = new bytes[](1);
-        calls[0] = abi.encodeCall(batchMock.setNumber, (newNumber));
+        calls[0] = abi.encodeCall(batch.setNumber, (newNumber));
 
         // It should revert.
         vm.expectRevert(bytes(""));
-        batchMock.batch{ value: 1 wei }(calls);
+        batch.batch{ value: 1 wei }(calls);
     }
 
     function test_WhenBatchNotIncludeETHValue() external whenFunctionExists whenStateChangingFunction whenNotPayable {
         calls = new bytes[](1);
-        calls[0] = abi.encodeCall(batchMock.setNumber, (newNumber));
+        calls[0] = abi.encodeCall(batch.setNumber, (newNumber));
 
-        results = batchMock.batch(calls);
+        results = batch.batch(calls);
 
         // It should return the empty string.
         assertEq(results.length, 1, "batch results length");
@@ -69,11 +69,11 @@ contract Batch_Concrete_Test is Base_Test {
         whenPayable
     {
         calls = new bytes[](1);
-        calls[0] = abi.encodeCall(batchMock.setNumberWithPayableAndRevertError, (newNumber));
+        calls[0] = abi.encodeCall(batch.setNumberWithPayableAndRevertError, (newNumber));
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(BatchMock.InvalidNumber.selector, newNumber));
-        batchMock.batch{ value: 1 wei }(calls);
+        batch.batch{ value: 1 wei }(calls);
     }
 
     function test_RevertWhen_FunctionRevertsWithStringError()
@@ -83,17 +83,17 @@ contract Batch_Concrete_Test is Base_Test {
         whenPayable
     {
         calls = new bytes[](1);
-        calls[0] = abi.encodeCall(batchMock.setNumberWithPayableAndRevertString, (newNumber));
+        calls[0] = abi.encodeCall(batch.setNumberWithPayableAndRevertString, (newNumber));
 
         // It should revert.
         vm.expectRevert("You cannot pass");
-        batchMock.batch{ value: 1 wei }(calls);
+        batch.batch{ value: 1 wei }(calls);
     }
 
     function test_WhenFunctionReturnsAValue() external whenFunctionExists whenStateChangingFunction whenPayable {
         calls = new bytes[](1);
-        calls[0] = abi.encodeCall(batchMock.setNumberWithPayableAndReturn, (newNumber));
-        results = batchMock.batch{ value: 1 wei }(calls);
+        calls[0] = abi.encodeCall(batch.setNumberWithPayableAndReturn, (newNumber));
+        results = batch.batch{ value: 1 wei }(calls);
 
         // It should return expected value.
         assertEq(results.length, 1, "batch results length");
@@ -102,8 +102,8 @@ contract Batch_Concrete_Test is Base_Test {
 
     function test_WhenFunctionDoesNotReturnAValue() external whenFunctionExists whenStateChangingFunction whenPayable {
         calls = new bytes[](1);
-        calls[0] = abi.encodeCall(batchMock.setNumberWithPayable, (newNumber));
-        results = batchMock.batch{ value: 1 wei }(calls);
+        calls[0] = abi.encodeCall(batch.setNumberWithPayable, (newNumber));
+        results = batch.batch{ value: 1 wei }(calls);
 
         // It should return an empty value.
         assertEq(results.length, 1, "batch results length");

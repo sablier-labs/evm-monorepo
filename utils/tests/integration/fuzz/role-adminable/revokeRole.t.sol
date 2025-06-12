@@ -15,7 +15,7 @@ contract RevokeRole_RoleAdminable_Fuzz_Test is Base_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, admin, eve));
-        roleAdminableMock.revokeRole(FEE_COLLECTOR_ROLE, users.accountant);
+        roleAdminable.revokeRole(FEE_COLLECTOR_ROLE, users.accountant);
     }
 
     function testFuzz_RevertWhen_AccountNotHaveRole(address account, bytes32 role) external whenCallerAdmin {
@@ -23,23 +23,23 @@ contract RevokeRole_RoleAdminable_Fuzz_Test is Base_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.AccountDoesNotHaveRole.selector, role, account));
-        roleAdminableMock.revokeRole(role, account);
+        roleAdminable.revokeRole(role, account);
     }
 
     function testFuzz_RevokeRole(address account, bytes32 role) external whenCallerAdmin whenAccountHasRole {
         vm.assume(account != address(0) && account != admin);
 
         // Grant the role to the account as a precondition.
-        roleAdminableMock.grantRole(role, account);
+        roleAdminable.grantRole(role, account);
 
         // Expect the relevant event to be emitted.
-        vm.expectEmit({ emitter: address(roleAdminableMock) });
+        vm.expectEmit({ emitter: address(roleAdminable) });
         emit IRoleAdminable.RoleRevoked({ admin: admin, account: account, role: role });
 
         // Revoke the role from account.
-        roleAdminableMock.revokeRole(role, account);
+        roleAdminable.revokeRole(role, account);
 
         // Assert that the role has been revoked from the account.
-        assertFalse(roleAdminableMock.hasRoleOrIsAdmin(role, account), "hasRole");
+        assertFalse(roleAdminable.hasRoleOrIsAdmin(role, account), "hasRole");
     }
 }

@@ -13,6 +13,9 @@ interface IComptrollerManager {
     /// @notice Emitted when the comptroller address is set by the admin.
     event SetComptroller(ISablierComptroller newComptroller, ISablierComptroller oldComptroller);
 
+    /// @notice Emitted when the fees are transferred to the comptroller contract.
+    event TransferFeesToComptroller(ISablierComptroller indexed comptroller, uint256 feeAmount);
+
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -32,4 +35,8 @@ interface IComptrollerManager {
     ///
     /// @param newComptroller The address of the new comptroller contract.
     function setComptroller(ISablierComptroller newComptroller) external;
+
+    /// @notice Transfers the fees to the comptroller contract.
+    /// @dev Emits a {TransferFeesToComptroller} event.
+    function transferFeesToComptroller() external;
 }

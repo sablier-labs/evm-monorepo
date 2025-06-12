@@ -7,14 +7,14 @@ import { Base_Test } from "../../../Base.t.sol";
 
 contract NoDelegateCall_Concrete_Test is Base_Test {
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(noDelegateCallMock.foo, ());
-        (bool success, bytes memory returnData) = address(noDelegateCallMock).delegatecall(callData);
+        bytes memory callData = abi.encodeCall(noDelegateCall.foo, ());
+        (bool success, bytes memory returnData) = address(noDelegateCall).delegatecall(callData);
         assertFalse(success, "delegatecall success");
         assertEq(returnData, abi.encodeWithSelector(Errors.DelegateCall.selector), "delegatecall return data");
     }
 
     function test_WhenNoDelegateCall() external view {
-        uint256 actual = noDelegateCallMock.foo();
+        uint256 actual = noDelegateCall.foo();
         uint256 expected = 420;
         assertEq(actual, expected, "foo");
     }

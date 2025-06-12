@@ -46,7 +46,15 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenCallReverts() {
+        _;
+    }
+
     modifier whenFeeRecipientContract() {
+        _;
+    }
+
+    modifier whenFlowCallNotRevert() {
         _;
     }
 
@@ -99,14 +107,6 @@ abstract contract Modifiers is BaseTest {
     }
 
     modifier whenTargetContract() {
-        _;
-    }
-
-    modifier whenTheCallCallReverts() {
-        _;
-    }
-
-    modifier whenTheFlowCallNotRevert() {
         _;
     }
 }

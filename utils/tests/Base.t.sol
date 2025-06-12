@@ -30,11 +30,11 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions {
                                    MOCK-CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    AdminableMock internal adminableMock;
-    BatchMock internal batchMock;
-    ComptrollerManagerMock internal comptrollerManagerMock;
-    NoDelegateCallMock internal noDelegateCallMock;
-    RoleAdminableMock internal roleAdminableMock;
+    AdminableMock internal adminable;
+    BatchMock internal batch;
+    ComptrollerManagerMock internal comptrollerManager;
+    NoDelegateCallMock internal noDelegateCall;
+    RoleAdminableMock internal roleAdminable;
 
     /*//////////////////////////////////////////////////////////////////////////
                                        SET-UP
@@ -52,18 +52,18 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions {
         users.sender = createUser("sender", noSpenders);
 
         // Deploy mock contracts.
-        adminableMock = new AdminableMock(admin);
-        batchMock = new BatchMock();
-        comptrollerManagerMock = new ComptrollerManagerMock(address(comptroller));
-        noDelegateCallMock = new NoDelegateCallMock();
-        roleAdminableMock = new RoleAdminableMock(admin);
+        adminable = new AdminableMock(admin);
+        batch = new BatchMock();
+        comptrollerManager = new ComptrollerManagerMock(address(comptroller));
+        noDelegateCall = new NoDelegateCallMock();
+        roleAdminable = new RoleAdminableMock(admin);
 
         // Set the admin as the msg.sender.
         setMsgSender(admin);
 
         // Grant all the roles to the accountant.
         grantAllRoles({ account: users.accountant, target: address(comptroller) });
-        grantAllRoles({ account: users.accountant, target: address(roleAdminableMock) });
+        grantAllRoles({ account: users.accountant, target: address(roleAdminable) });
 
         // Warp to Feb 1, 2025 at 00:00 UTC to provide a more realistic testing environment.
         vm.warp({ newTimestamp: FEB_1_2025 });

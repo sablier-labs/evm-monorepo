@@ -26,26 +26,26 @@ contract Execute_Concrete_Test is SablierComptroller_Concrete_Test {
 
         // Create the targets.
         targets = Targets({
-            comptrollerManager: comptrollerManagerMock,
+            comptrollerManager: comptrollerManager,
             panic: new TargetPanic(),
             reverter: new TargetReverter()
         });
 
         // Declare the data to change the admin.
-        data = abi.encodeCall(comptrollerManagerMock.setComptroller, (comptrollerZero));
+        data = abi.encodeCall(comptrollerManager.setComptroller, (comptrollerZero));
     }
 
     function test_RevertWhen_CallerNotAdmin() external {
         setMsgSender(users.eve);
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, admin, users.eve));
-        comptroller.execute({ target: address(comptrollerManagerMock), data: data });
+        comptroller.execute({ target: address(comptrollerManager), data: data });
     }
 
     function test_RevertWhen_TargetNotContract() external whenCallerAdmin {
         comptroller.execute({ target: address(0), data: data });
     }
 
-    function test_WhenTheExceptionIsAPanic() external whenCallerAdmin whenTargetContract whenTheCallCallReverts {
+    function test_WhenCallPanics() external whenCallerAdmin whenTargetContract whenCallReverts {
         // It should panic due to a failed assertion.
         data = bytes.concat(targets.panic.failedAssertion.selector);
         vm.expectRevert(stdError.assertionError);
@@ -67,7 +67,7 @@ contract Execute_Concrete_Test is SablierComptroller_Concrete_Test {
         comptroller.execute(address(targets.panic), data);
     }
 
-    function test_WhenTheExceptionIsAnError() external whenCallerAdmin whenTargetContract whenTheCallCallReverts {
+    function test_WhenCallRevertsSilently() external whenCallerAdmin whenTargetContract whenCallReverts {
         // It should revert with an empty revert statement.
         data = bytes.concat(targets.reverter.withNothing.selector);
         vm.expectRevert(Errors.SablierComptroller_ExecutionFailedSilently.selector);
@@ -89,16 +89,16 @@ contract Execute_Concrete_Test is SablierComptroller_Concrete_Test {
         comptroller.execute(address(targets.reverter), data);
     }
 
-    function test_WhenTheCallDoesNotRevert() external whenCallerAdmin whenTargetContract {
+    function test_WhenCallDoesNotRevert() external whenCallerAdmin whenTargetContract {
         // It should emit an {Execute} event.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ISablierComptroller.Execute({ target: address(comptrollerManagerMock), data: data, result: "" });
+        emit ISablierComptroller.Execute({ target: address(comptrollerManager), data: data, result: "" });
 
         comptroller.execute({ target: address(targets.comptrollerManager), data: data });
 
         // It should execute the call.
         assertEq(
-            address(comptrollerManagerMock.comptroller()),
+            address(comptrollerManager.comptroller()),
             address(comptrollerZero),
             "The new comptroller should be set to the comptroller zero"
         );

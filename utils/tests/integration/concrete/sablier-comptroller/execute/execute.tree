@@ -5,17 +5,17 @@ Execute_Concrete_Test
    ├── when target not contract
    │  └── it should revert
    └── when target contract
-      ├── when the call call reverts
-      │  ├── when the exception is a panic
+      ├── when call reverts
+      │  ├── when call panics
       │  │  ├── it should panic due to a failed assertion
       │  │  ├── it should panic due to an arithmetic overflow
       │  │  ├── it should panic due to a division by zero
       │  │  └── it should panic due to an index out of bounds
-      │  └── when the exception is an error
+      │  └── when call reverts silently
       │     ├── it should revert with an empty revert statement
       │     ├── it should revert with a custom error
       │     ├── it should revert with a require
       │     └── it should revert with a reason string
-      └── when the call does not revert
+      └── when call does not revert
          ├── it should emit an {Execute} event
          └── it should execute the call
