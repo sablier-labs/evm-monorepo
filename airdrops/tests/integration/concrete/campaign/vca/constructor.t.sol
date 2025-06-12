@@ -20,6 +20,7 @@ contract Constructor_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_
         assertEq(constructedVCA.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(address(constructedVCA.FACTORY()), address(factoryMerkleVCA), "factory");
         assertEq(constructedVCA.ipfsCID(), IPFS_CID, "IPFS CID");
+        assertEq(constructedVCA.IS_SABLIER_MERKLE(), true, "is sablier merkle");
         assertEq(constructedVCA.MERKLE_ROOT(), MERKLE_ROOT, "Merkle root");
         assertEq(constructedVCA.minFeeUSD(), MIN_FEE_USD, "min fee USD");
         assertEq(constructedVCA.ORACLE(), address(oracle), "oracle");

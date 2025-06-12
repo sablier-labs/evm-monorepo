@@ -27,6 +27,7 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         assertEq(constructedLT.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(address(constructedLT.FACTORY()), address(factoryMerkleLT), "factory");
         assertEq(constructedLT.ipfsCID(), IPFS_CID, "IPFS CID");
+        assertEq(constructedLT.IS_SABLIER_MERKLE(), true, "is sablier merkle");
         assertEq(constructedLT.MERKLE_ROOT(), MERKLE_ROOT, "Merkle root");
         assertEq(constructedLT.minFeeUSD(), MIN_FEE_USD, "min fee USD");
         assertEq(constructedLT.ORACLE(), address(oracle), "oracle");

@@ -34,6 +34,9 @@ abstract contract SablierMerkleBase is
     ISablierFactoryMerkleBase public immutable override FACTORY;
 
     /// @inheritdoc ISablierMerkleBase
+    bool public constant override IS_SABLIER_MERKLE = true;
+
+    /// @inheritdoc ISablierMerkleBase
     bytes32 public immutable override MERKLE_ROOT;
 
     /// @inheritdoc ISablierMerkleBase

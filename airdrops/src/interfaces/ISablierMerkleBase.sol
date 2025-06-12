@@ -33,6 +33,10 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice Retrieves the address of the factory contract.
     function FACTORY() external view returns (ISablierFactoryMerkleBase);
 
+    /// @notice Returns `true` indicating that this campaign contract is deployed using the Sablier Factory.
+    /// @dev This is a constant state variable.
+    function IS_SABLIER_MERKLE() external view returns (bool);
+
     /// @notice The root of the Merkle tree used to validate the proofs of inclusion.
     /// @dev This is an immutable state variable.
     function MERKLE_ROOT() external returns (bytes32);
