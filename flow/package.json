@@ -16,12 +16,13 @@
     "@sablier/evm-utils": "github:sablier-labs/evm-utils#e81a04b"
   },
   "devDependencies": {
+    "@sablier/devkit": "github:sablier-labs/devkit",
     "forge-std": "github:foundry-rs/forge-std#v1.9.7",
-    "husky": "^9.1.4",
-    "lint-staged": "^15.2.8",
-    "prettier": "^3.3.2",
+    "husky": "^9.1",
+    "lint-staged": "^16.1",
+    "prettier": "^3.5",
     "solady": "0.0.208",
-    "solhint": "^5.1.0"
+    "solhint": "^5.1"
   },
   "files": [
     "artifacts",
@@ -35,7 +36,6 @@
     "blockchain",
     "crypto",
     "cryptoasset-streaming",
-    "cryptotoken-streaming",
     "ethereum",
     "forge",
     "foundry",
@@ -55,23 +55,12 @@
   "publishConfig": {
     "access": "public"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sablier-labs/flow.git"
+  },
   "scripts": {
-    "build": "forge build",
-    "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
-    "clean": "rm -rf artifacts artifacts-* cache cache_hardhat-zk coverage docs out out-* typechain-types lcov.info",
-    "forge:check": "forge fmt --check",
-    "forge:write": "forge fmt",
-    "full:check": "bun run solhint:check && bun run forge:check && bun run prettier:check",
-    "full:write": " bun run solhint:write && bun run forge:write && bun run prettier:write",
-    "prepack": "bun install && bash ./scripts/bash/prepare-artifacts.sh",
-    "prepare": "husky",
-    "prettier:check": "prettier --cache --check \"**/*.{json,md,yml}\"",
-    "prettier:write": "prettier --cache --write \"**/*.{json,md,yml}\"",
-    "solhint:check": "solhint \"{scripts/solidity,src,tests}/**/*.sol\"",
-    "solhint:write": "solhint --fix --noPrompt \"{scripts/solidity,src,tests}/**/*.sol\"",
-    "test": "forge test",
-    "test:bulloak": "bulloak check --skip-modifiers \"./tests/**/*.tree\"",
-    "test:lite": "FOUNDRY_PROFILE=lite forge test --nmt \"testFork\"",
-    "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
+    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh",
+    "prepare": "husky"
   }
 }
