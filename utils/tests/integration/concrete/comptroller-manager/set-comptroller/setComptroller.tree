@@ -1,0 +1,9 @@
+SetComptroller_ComptrollerManager_Concrete_Test
+├── when caller not current comptroller
+│  └── it should revert
+└── when caller current comptroller
+   ├── when new comptroller zero address
+   │  └── it should revert
+   └── when new comptroller not zero address
+      ├── it should set the new comptroller
+      └── it should emit a {SetComptroller} event

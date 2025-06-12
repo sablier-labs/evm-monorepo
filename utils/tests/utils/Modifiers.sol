@@ -1,7 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-abstract contract Modifiers {
+import { BaseTest } from "src/tests/BaseTest.sol";
+
+abstract contract Modifiers is BaseTest {
+    /*//////////////////////////////////////////////////////////////////////////
+                                       GIVEN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenOracleNotZero() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                        WHEN
+    //////////////////////////////////////////////////////////////////////////*/
+
     modifier whenAccountHasRole() {
         _;
     }
@@ -15,6 +29,7 @@ abstract contract Modifiers {
     }
 
     modifier whenCallerAdmin() {
+        setMsgSender(admin);
         _;
     }
 
@@ -22,11 +37,36 @@ abstract contract Modifiers {
         _;
     }
 
+    modifier whenCallerCurrentComptroller() {
+        setMsgSender(address(comptroller));
+        _;
+    }
+
+    modifier whenCallerWithoutFeeCollectorRole() {
+        _;
+    }
+
+    modifier whenFeeRecipientContract() {
+        _;
+    }
+
     modifier whenFunctionExists() {
         _;
     }
 
+    modifier whenMinFeeUSDNotZero() {
+        _;
+    }
+
     modifier whenNewAdminNotSameAsCurrentAdmin() {
+        _;
+    }
+
+    modifier whenNewFeeNotExceedMaxFee() {
+        _;
+    }
+
+    modifier whenNewOracleNotZero() {
         _;
     }
 
@@ -38,11 +78,35 @@ abstract contract Modifiers {
         _;
     }
 
+    modifier whenOraclePriceNotOutdated() {
+        _;
+    }
+
+    modifier whenOraclePriceNotZero() {
+        _;
+    }
+
+    modifier whenOracleUpdatedTimeNotInFuture() {
+        _;
+    }
+
     modifier whenPayable() {
         _;
     }
 
     modifier whenStateChangingFunction() {
+        _;
+    }
+
+    modifier whenTargetContract() {
+        _;
+    }
+
+    modifier whenTheCallCallReverts() {
+        _;
+    }
+
+    modifier whenTheFlowCallNotRevert() {
         _;
     }
 }

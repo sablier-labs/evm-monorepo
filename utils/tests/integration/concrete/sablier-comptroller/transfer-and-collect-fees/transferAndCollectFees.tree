@@ -1,0 +1,20 @@
+TransferAndCollectFees_Concrete_Test
+├── when caller not admin
+│  ├── when caller with fee collector role
+│  │  ├── it should transfer fees to the comptroller
+│  │  ├── it should transfer fee to the fee recipient
+│  │  ├── it should decrease contract balance to zero
+│  │  └── it should emit a {CollectFees} event
+│  └── when caller without fee collector role
+│     └── it should revert
+└── when caller admin
+   ├── when the flow call reverts
+   │  └── it should revert
+   └── when the flow call not revert
+      ├── when the lockup call reverts
+      │  └── it should revert
+      └── when the lockup call not revert
+         ├── it should transfer fees to the comptroller
+         ├── it should transfer fee to the fee recipient
+         ├── it should decrease contract balance to zero
+         └── it should emit a {CollectFees} event

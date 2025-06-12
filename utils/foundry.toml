@@ -3,7 +3,7 @@
   fs_permissions = [
     { access = "read", path = "package.json" },
   ]
-  fuzz = { runs = 1_000 }
+  fuzz = { runs = 1000 }
   gas_reports = ["*"]
   optimizer = true
   optimizer_runs = 10_000
@@ -12,6 +12,14 @@
   script = "scripts"
   src = "src"
   test = "tests"
+
+# Compile only the production code and the test mocks with via IR
+[profile.optimized]
+  optimizer = true
+  optimizer_runs = 100_000_000
+  out = "out-optimized"
+  test = "src"
+  via_ir = true
 
 [fmt]
   bracket_spacing = true
@@ -24,6 +32,13 @@
   wrap_comments = true
 
 [rpc_endpoints]
-  localhost = "http://localhost:8545"
-  mainnet = "${MAINNET_RPC_URL}"
+  arbitrum = "https://arbitrum-mainnet.infura.io/v3/${API_KEY_INFURA}"
+  avalanche = "https://avalanche-mainnet.infura.io/v3/${API_KEY_INFURA}"
+  base = "https://mainnet.base.org"
+  gnosis = "https://rpc.gnosischain.com"
+  linea = "https://rpc.linea.build"
+  mainnet = "https://mainnet.infura.io/v3/${API_KEY_INFURA}"
+  optimism = "https://optimism-mainnet.infura.io/v3/${API_KEY_INFURA}"
+  polygon = "https://polygon-mainnet.infura.io/v3/${API_KEY_INFURA}"
+  scroll = "https://rpc.scroll.io/"
   sepolia = "${SEPOLIA_RPC_URL}"

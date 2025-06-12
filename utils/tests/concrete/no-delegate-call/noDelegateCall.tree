@@ -1,5 +1,0 @@
-NoDelegateCall_Unit_Concrete_Test
-├── when delegate call
-│  └── it should revert
-└── when no delegate call
-   └── it should execute the function

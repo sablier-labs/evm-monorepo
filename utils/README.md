@@ -1,4 +1,4 @@
-# Sablier Solidity Utils [![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
+# Sablier EVM Utils [![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
 
 [gha]: https://github.com/sablier-labs/v2-core/actions
 [gha-badge]: https://github.com/sablier-labs/v2-core/actions/workflows/ci.yml/badge.svg
@@ -7,10 +7,20 @@
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
-This repository contains a collection of utility smart contracts used across various Sablier Solidity projects. The
-motivation behind this repository is to reduce code duplication.
+This repository contains the following two sets of contracts:
 
-The following projects imports this repo:
+### Sablier comptroller
+
+Its a standalone contract with the following responsibilities:
+
+- Handles state variables, setters and getters, and calculations using external oracles to manage fees across all the
+  Sablier protocols.
+- Authority over admin functions across Sablier protocols.
+
+### Utility contracts
+
+Its a collection of smart contracts used across various Sablier Solidity projects. The motivation behind this is to
+reduce code duplication. The following projects imports these contracts:
 
 - [Sablier Airdrops](https://github.com/sablier-labs/airdrops/)
 - [Sablier Flow](https://github.com/sablier-labs/flow/)
@@ -22,9 +32,9 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 
 This repo contains the following subdirectories:
 
-- `src/interfaces`: Interfaces to be used by external projects.
-- `src/mocks`: Mock contracts used by external projects in tests.
-- `src/tests`: Helper contracts used by external projects in tests and deployment scripts.
+- [`src/interfaces`](./src/interfaces/): Interfaces to be used by external projects.
+- [`src/mocks`](./src/mocks/): Mock contracts used by external projects in tests.
+- [`src/tests`](./src/tests/): Helper contracts used by external projects in tests and deployment scripts.
 
 ## Install
 
@@ -68,4 +78,7 @@ contract MyContract is Adminable, Batch, NoDelegateCall {
 
 ## License
 
-This repo is licensed under the [GNU General Public License](/LICENSE-GPL.md).
+This repo is licensed under the [GNU General Public License](/LICENSE-GPL.md) with the below exceptions:
+
+- [`ComptrollerManager.sol`](./src/ComptrollerManager.sol) and [`SablierComptroller.sol`](./src/SablierComptroller.sol)
+  are licensed under the Business Source License 1.1 (`BUSL-1.1`), see [`LICENSE.md`](./LICENSE.md).

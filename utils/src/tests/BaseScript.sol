@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// solhint-disable code-complexity
 // solhint-disable no-console
 pragma solidity >=0.8.22;
 
@@ -71,6 +72,109 @@ abstract contract BaseScript is Script {
                                         HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Returns the Chainlink oracle for the supported chains. These addresses can be verified on
+    /// https://docs.chain.link/data-feeds/price-feeds/addresses.
+    /// @dev If the chain does not have a Chainlink oracle, return 0.
+    function chainlinkOracle() public view returns (address addr) {
+        uint256 chainId = block.chainid;
+
+        // Ethereum Mainnet
+        if (chainId == 1) return 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419;
+        // Arbitrum One
+        if (chainId == 42_161) return 0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612;
+        // Avalanche
+        if (chainId == 43_114) return 0x0A77230d17318075983913bC2145DB16C7366156;
+        // Base
+        if (chainId == 8453) return 0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70;
+        // BNB Smart Chain
+        if (chainId == 56) return 0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE;
+        // Gnosis Chain
+        if (chainId == 100) return 0x678df3415fc31947dA4324eC63212874be5a82f8;
+        // Linea
+        if (chainId == 59_144) return 0x3c6Cd9Cc7c7a4c2Cf5a82734CD249D7D593354dA;
+        // Optimism
+        if (chainId == 10) return 0x13e3Ee699D1909E989722E753853AE30b17e08c5;
+        // Polygon
+        if (chainId == 137) return 0xAB594600376Ec9fD91F8e885dADF0CE036862dE0;
+        // Scroll
+        if (chainId == 534_352) return 0x6bF14CB0A831078629D993FDeBcB182b21A8774C;
+
+        // Return address zero for unsupported chain.
+        return address(0);
+    }
+
+    function comptrollerAddress() public view returns (address) {
+        /// Mainnets
+        // Ethereum Mainnet
+        /// TODO: Update the addresses to the actual Sablier Comptroller addresses for each chain.
+        if (block.chainid == 1) return address(0xCAFE);
+        // Arbitrum One
+        if (block.chainid == 42_161) return address(0xCAFE);
+        // Avalanche
+        if (block.chainid == 43_114) return address(0xCAFE);
+        // Base
+        if (block.chainid == 8453) return address(0xCAFE);
+        // Berachain
+        if (block.chainid == 80_094) return address(0xCAFE);
+        // Blast
+        if (block.chainid == 81_457) return address(0xCAFE);
+        // BNB Smart Chain
+        if (block.chainid == 56) return address(0xCAFE);
+        // Chiliz
+        if (block.chainid == 88_888) return address(0xCAFE);
+        // Core Dao
+        if (block.chainid == 1116) return address(0xCAFE);
+        // Form
+        if (block.chainid == 478) return address(0xCAFE);
+        // Gnosis
+        if (block.chainid == 100) return address(0xCAFE);
+        // Lightlink
+        if (block.chainid == 1890) return address(0xCAFE);
+        // Linea
+        if (block.chainid == 59_144) return address(0xCAFE);
+        // Mode
+        if (block.chainid == 34_443) return address(0xCAFE);
+        // Morph
+        if (block.chainid == 2818) return address(0xCAFE);
+        // Optimism
+        if (block.chainid == 10) return address(0xCAFE);
+        // Polygon
+        if (block.chainid == 137) return address(0xCAFE);
+        // Scroll
+        if (block.chainid == 534_352) return address(0xCAFE);
+        // Superseed
+        if (block.chainid == 5330) return address(0xCAFE);
+        // Taiko Mainnet
+        if (block.chainid == 167_000) return address(0xCAFE);
+        // XDC
+        if (block.chainid == 50) return address(0xCAFE);
+
+        /// Testnets
+        // Sepolia
+        if (block.chainid == 11_155_111) return address(0xCAFE);
+        // Arbitrum Sepolia
+        if (block.chainid == 421_614) return address(0xCAFE);
+        // Base Sepolia
+        if (block.chainid == 84_532) return address(0xCAFE);
+        // Blast Sepolia
+        if (block.chainid == 168_587_773) return address(0xCAFE);
+        // Linea Sepolia
+        if (block.chainid == 59_141) return address(0xCAFE);
+        // Mode Sepolia
+        if (block.chainid == 919) return address(0xCAFE);
+        // Monad Testnet
+        if (block.chainid == 10_143) return address(0xCAFE);
+        // Optimism Sepolia
+        if (block.chainid == 11_155_420) return address(0xCAFE);
+        // Superseed Sepolia
+        if (block.chainid == 53_302) return address(0xCAFE);
+        // Taiko Hekla
+        if (block.chainid == 167_009) return address(0xCAFE);
+
+        // Return address zero for unsupported chain.
+        return address(0);
+    }
+
     /// @dev The presence of the salt instructs Forge to deploy contracts via this deterministic CREATE2 factory:
     /// https://github.com/Arachnid/deterministic-deployment-proxy
     ///
@@ -87,6 +191,14 @@ abstract contract BaseScript is Script {
     function getVersion() public view virtual returns (string memory) {
         string memory json = vm.readFile("package.json");
         return json.readString(".version");
+    }
+
+    /// @notice Returns the initial min USD fee as $1. If the chain does not have Chainlink, return 0.
+    function initialMinFeeUSD() public view returns (uint256) {
+        if (chainlinkOracle() != address(0)) {
+            return 1e8;
+        }
+        return 0;
     }
 
     /// @dev Populates the admin map. The reason the chain IDs configured for the admin map do not match the other

@@ -14,7 +14,7 @@ on:
 
 jobs:
   check:
-    uses: "sablier-labs/gha-utils/.github/workflows/evm-lint.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
 
   build:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
@@ -29,13 +29,14 @@ jobs:
       skip-modifiers: true
       tree-path: "tests"
 
-  test-unit:
+  test-integration:
     needs: ["check", "build"]
     if: needs.build.outputs.cache-status != 'primary'
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
-      match-path: "tests/**/*.sol"
-      name: "Unit tests"
+      foundry-fuzz-runs: 2000
+      match-path: "tests/integration/**/*.sol"
+      name: "Integration tests"
 
   coverage:
     needs: ["check", "build"]
@@ -44,5 +45,4 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
     with:
-      match-path: "tests/**/*.sol"
-      via-ir-minimum: true
+      match-path: "tests/integration/**/*.sol"

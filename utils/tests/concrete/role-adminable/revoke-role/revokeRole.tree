@@ -1,9 +1,0 @@
-RevokeRole_RoleAdminable_Unit_Concrete_Test
-├── when caller not admin
-│  └── it should revert
-└── when caller admin
-   ├── given account not have role
-   │  └── it should revert
-   └── given account has role
-      ├── it should revoke role from the account
-      └── it should emit {RoleRevoked} event

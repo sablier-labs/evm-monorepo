@@ -1,0 +1,58 @@
+Calculations_Concrete_Test::calculateAirdropsMinFeeWei
+├── given min fee not set
+│  └── it should return zero
+└── given min fee set
+   └── it should calculate the min fee in wei
+
+Calculations_Concrete_Test::calculateAirdropsMinFeeWeiFor
+├── given custom fee not set
+│  └── it should return zero
+└── given custom fee set
+   └── it should calculate the min fee in wei
+
+Calculations_Concrete_Test::calculateFlowMinFeeWei
+├── given min fee not set
+│  └── it should return zero
+└── given min fee set
+   └── it should calculate the min fee in wei
+
+Calculations_Concrete_Test::calculateFlowMinFeeWeiFor
+├── given custom fee not set
+│  └── it should return zero
+└── given custom fee set
+   └── it should calculate the min fee in wei
+
+Calculations_Concrete_Test::calculateLockupMinFeeWei
+├── given min fee not set
+│  └── it should return zero
+└── given min fee set
+   └── it should calculate the min fee in wei
+
+Calculations_Concrete_Test::calculateLockupMinFeeWeiFor
+├── given custom fee not set
+│  └── it should return zero
+└── given custom fee set
+   └── it should calculate the min fee in wei
+
+Calculations_Concrete_Test::calculateMinFeeWei
+├── given oracle zero
+│  └── it should return zero
+└── given oracle not zero
+   ├── when min fee USD zero
+   │  └── it should return zero
+   └── when min fee USD not zero
+      ├── when oracle updated time in future
+      │  └── it should return zero
+      └── when oracle updated time not in future
+         ├── when oracle price outdated
+         │  └── it should return zero
+         └── when oracle price not outdated
+            ├── when oracle price zero
+            │  └── it should return zero
+            └── when oracle price not zero
+               ├── when oracle price has eight decimals
+               │  └── it should calculate the min fee in wei
+               ├── when oracle price has more than eight decimals
+               │  └── it should calculate the min fee in wei
+               └── when oracle price has less than eight decimals
+                  └── it should calculate the min fee in wei

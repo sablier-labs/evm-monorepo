@@ -1,8 +1,0 @@
-HasRoleOrIsAdmin_RoleAdminable_Unit_Concrete_Test
-├── when account admin
-│  └── it should return true
-└── when account not admin
-   ├── when account has role
-   │  └── it should return true
-   └── when account not have role
-      └── it should return false

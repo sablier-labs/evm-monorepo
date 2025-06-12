@@ -1,5 +1,0 @@
-OnlyAdmin_Adminable_Unit_Concrete_Test
-├── when caller admin
-│  └── it should execute the function
-└── when caller not admin
-   └── it should revert

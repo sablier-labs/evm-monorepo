@@ -10,19 +10,34 @@ import { StdStyle } from "forge-std/src/StdStyle.sol";
 import { StdUtils } from "forge-std/src/StdUtils.sol";
 
 import { IRoleAdminable } from "../interfaces/IRoleAdminable.sol";
+import { ISablierComptroller } from "../interfaces/ISablierComptroller.sol";
+import { ChainlinkOracleMock } from "../mocks/ChainlinkMocks.sol";
 import { ERC20MissingReturn } from "../mocks/erc20/ERC20MissingReturn.sol";
 import { ERC20Mock } from "../mocks/erc20/ERC20Mock.sol";
 import { ContractWithoutReceive, ContractWithReceive } from "../mocks/Receive.sol";
+import { SablierComptroller } from "../SablierComptroller.sol";
 
-contract BaseTest is StdBase, StdCheats, StdUtils {
+abstract contract BaseTest is StdBase, StdCheats, StdUtils {
     /*//////////////////////////////////////////////////////////////////////////
                                    CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
-    uint256 internal constant FEE = 0.001e18;
+    uint256 internal constant AIRDROP_MIN_FEE_USD = 3e8; // equivalent to $3
+    uint256 public constant AIRDROP_MIN_FEE_WEI = (1e18 * AIRDROP_MIN_FEE_USD) / 3000e8; // at $3000 per ETH
+    uint256 internal constant AIRDROPS_CUSTOM_FEE_USD = 0.5e8; // equivalent to $0.5
+    uint256 internal constant AIRDROPS_CUSTOM_FEE_WEI = (1e18 * AIRDROPS_CUSTOM_FEE_USD) / 3000e8; // at $3000 per ETH
     bytes32 public constant FEE_COLLECTOR_ROLE = keccak256("FEE_COLLECTOR_ROLE");
     bytes32 public constant FEE_MANAGEMENT_ROLE = keccak256("FEE_MANAGEMENT_ROLE");
+    uint256 internal constant FLOW_MIN_FEE_USD = 1e8; // equivalent to $1
+    uint256 internal constant FLOW_MIN_FEE_WEI = (1e18 * FLOW_MIN_FEE_USD) / 3000e8; // at $3000 per ETH
+    uint256 internal constant FLOW_CUSTOM_FEE_USD = 0.1e8; // equivalent to $0.1
+    uint256 internal constant FLOW_CUSTOM_FEE_WEI = (1e18 * FLOW_CUSTOM_FEE_USD) / 3000e8; // at $3000 per ETH
+    uint256 internal constant LOCKUP_MIN_FEE_USD = 1e8; // equivalent to $1
+    uint256 internal constant LOCKUP_MIN_FEE_WEI = (1e18 * LOCKUP_MIN_FEE_USD) / 3000e8; // at $3000 per ETH
+    uint256 internal constant LOCKUP_CUSTOM_FEE_USD = 0.1e8; // equivalent to $0.1
+    uint256 internal constant LOCKUP_CUSTOM_FEE_WEI = (1e18 * LOCKUP_CUSTOM_FEE_USD) / 3000e8; // at $3000 per ETH
+    uint256 internal constant MAX_FEE_USD = 100e8; // equivalent to $100
     uint128 internal constant MAX_UINT128 = type(uint128).max;
     uint256 internal constant MAX_UINT256 = type(uint256).max;
     uint40 internal constant MAX_UINT40 = type(uint40).max;
@@ -33,9 +48,12 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    address internal admin;
+    ISablierComptroller internal comptroller;
     ContractWithoutReceive internal contractWithoutReceive;
     ContractWithReceive internal contractWithReceive;
     ERC20Mock internal dai;
+    ChainlinkOracleMock internal oracle;
     IERC20[] internal tokens;
     ERC20Mock internal usdc;
     ERC20MissingReturn internal usdt;
@@ -47,6 +65,15 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
     function setUp() public virtual {
         contractWithoutReceive = new ContractWithoutReceive();
         contractWithReceive = new ContractWithReceive();
+
+        // Create the admin user.
+        admin = payable(makeAddr({ name: "Admin" }));
+        vm.label(admin, "Admin");
+
+        // Deploy the Sablier Comptroller.
+        oracle = new ChainlinkOracleMock();
+        comptroller =
+            new SablierComptroller(admin, AIRDROP_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle));
 
         // Deploy the tokens.
         dai = new ERC20Mock("Dai stablecoin", "DAI", 18);
@@ -149,6 +176,20 @@ contract BaseTest is StdBase, StdCheats, StdUtils {
                 approveContract(address(tokens[j]), user, spenders[i]);
             }
         }
+    }
+
+    /// @dev Function to deploy the Sablier Comptroller with the given parameters.
+    function deployComptroller(
+        address admin_,
+        uint256 airdropMinFeeUSD,
+        uint256 flowMinFeeUSD,
+        uint256 lockupMinFeeUSD,
+        address oracle_
+    )
+        internal
+        returns (address)
+    {
+        return address(new SablierComptroller(admin_, airdropMinFeeUSD, flowMinFeeUSD, lockupMinFeeUSD, oracle_));
     }
 
     /// @dev Retrieves the current block timestamp as an `uint40`.
