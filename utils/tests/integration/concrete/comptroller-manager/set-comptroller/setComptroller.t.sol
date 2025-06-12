@@ -22,18 +22,20 @@ contract SetComptroller_ComptrollerManager_Concrete_Test is Base_Test {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.ComptrollerManager_CallerNotComptroller.selector, comptroller, admin)
         );
-        comptrollerManager.setComptroller(newComptroller);
+        comptrollerManagerMock.setComptroller(newComptroller);
     }
 
     function test_RevertWhen_NewComptrollerZeroAddress() external whenCallerCurrentComptroller {
         vm.expectRevert(Errors.ComptrollerManager_ZeroAddress.selector);
-        comptrollerManager.setComptroller(ISablierComptroller(address(0)));
+        comptrollerManagerMock.setComptroller(ISablierComptroller(address(0)));
     }
 
     function test_WhenNewComptrollerNotZeroAddress() external whenCallerCurrentComptroller {
-        vm.expectEmit({ emitter: address(comptrollerManager) });
+        vm.expectEmit({ emitter: address(comptrollerManagerMock) });
         emit IComptrollerManager.SetComptroller(newComptroller, comptroller);
-        comptrollerManager.setComptroller(newComptroller);
-        assertEq(address(comptrollerManager.comptroller()), address(newComptroller), "Comptroller not set correctly");
+        comptrollerManagerMock.setComptroller(newComptroller);
+        assertEq(
+            address(comptrollerManagerMock.comptroller()), address(newComptroller), "Comptroller not set correctly"
+        );
     }
 }

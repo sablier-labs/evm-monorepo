@@ -14,7 +14,7 @@ contract TransferAndCollectFees_Concrete_Test is SablierComptroller_Concrete_Tes
         deal(address(comptroller), AIRDROP_MIN_FEE_WEI);
 
         // Fund the ComptrollerManager with some ETH to transfer fees.
-        deal(address(comptrollerManager), LOCKUP_MIN_FEE_WEI + FLOW_MIN_FEE_WEI);
+        deal(address(comptrollerManagerMock), LOCKUP_MIN_FEE_WEI + FLOW_MIN_FEE_WEI);
     }
 
     function test_WhenCallerWithFeeCollectorRole() external whenCallerNotAdmin {
@@ -24,7 +24,7 @@ contract TransferAndCollectFees_Concrete_Test is SablierComptroller_Concrete_Tes
     function test_RevertWhen_CallerWithoutFeeCollectorRole() external whenCallerNotAdmin {
         setMsgSender(users.eve);
         vm.expectRevert(abi.encodeWithSelector(Errors.UnauthorizedAccess.selector, users.eve, FEE_COLLECTOR_ROLE));
-        comptroller.transferAndCollectFees(address(comptrollerManager), address(comptrollerManager), admin);
+        comptroller.transferAndCollectFees(address(comptrollerManagerMock), address(comptrollerManagerMock), admin);
     }
 
     function test_WhenCallerAdmin() external whenCallerAdmin whenFlowCallNotRevert {
@@ -41,9 +41,11 @@ contract TransferAndCollectFees_Concrete_Test is SablierComptroller_Concrete_Tes
         vm.expectEmit({ emitter: address(comptroller) });
         emit ISablierComptroller.CollectFees({ feeRecipient: users.accountant, feeAmount: totalFeeAmount });
 
-        comptroller.transferAndCollectFees(address(comptrollerManager), address(comptrollerManager), users.accountant);
+        comptroller.transferAndCollectFees(
+            address(comptrollerManagerMock), address(comptrollerManagerMock), users.accountant
+        );
 
-        assertEq(address(comptrollerManager).balance, 0, "ComptrollerManager contract balance should be zero");
+        assertEq(address(comptrollerManagerMock).balance, 0, "ComptrollerManager contract balance should be zero");
         assertEq(address(comptroller).balance, 0, "Comptroller balance should be zero");
         assertEq(
             users.accountant.balance, previousAdminBalance + totalFeeAmount, "Accountant balance should be increased"

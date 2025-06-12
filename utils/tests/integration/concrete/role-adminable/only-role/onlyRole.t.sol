@@ -7,20 +7,20 @@ import { Base_Test } from "../../../../Base.t.sol";
 contract OnlyRole_RoleAdminable_Concrete_Test is Base_Test {
     function test_WhenCallerAdmin() external {
         // It should execute the function.
-        roleAdminable.restrictedToRole();
+        roleAdminableMock.restrictedToRole();
     }
 
     function test_RevertWhen_CallerNotHaveRole() external whenCallerNotAdmin {
         setMsgSender(users.eve);
 
         vm.expectRevert(abi.encodeWithSelector(Errors.UnauthorizedAccess.selector, users.eve, FEE_COLLECTOR_ROLE));
-        roleAdminable.restrictedToRole();
+        roleAdminableMock.restrictedToRole();
     }
 
     function test_WhenCallerHasRole() external whenCallerNotAdmin {
         setMsgSender(users.accountant);
 
         // It should execute the function.
-        roleAdminable.restrictedToRole();
+        roleAdminableMock.restrictedToRole();
     }
 }

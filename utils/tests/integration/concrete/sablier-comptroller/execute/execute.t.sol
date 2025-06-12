@@ -13,7 +13,7 @@ import { SablierComptroller_Concrete_Test } from "../SablierComptroller.t.sol";
 
 contract Execute_Concrete_Test is SablierComptroller_Concrete_Test {
     struct Targets {
-        ComptrollerManagerMock comptrollerManager;
+        ComptrollerManagerMock comptrollerManagerMock;
         TargetPanic panic;
         TargetReverter reverter;
     }
@@ -26,19 +26,19 @@ contract Execute_Concrete_Test is SablierComptroller_Concrete_Test {
 
         // Create the targets.
         targets = Targets({
-            comptrollerManager: comptrollerManager,
+            comptrollerManagerMock: comptrollerManagerMock,
             panic: new TargetPanic(),
             reverter: new TargetReverter()
         });
 
         // Declare the data to change the admin.
-        data = abi.encodeCall(comptrollerManager.setComptroller, (comptrollerZero));
+        data = abi.encodeCall(comptrollerManagerMock.setComptroller, (comptrollerZero));
     }
 
     function test_RevertWhen_CallerNotAdmin() external {
         setMsgSender(users.eve);
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, admin, users.eve));
-        comptroller.execute({ target: address(comptrollerManager), data: data });
+        comptroller.execute({ target: address(comptrollerManagerMock), data: data });
     }
 
     function test_RevertWhen_TargetNotContract() external whenCallerAdmin {
@@ -92,13 +92,13 @@ contract Execute_Concrete_Test is SablierComptroller_Concrete_Test {
     function test_WhenCallDoesNotRevert() external whenCallerAdmin whenTargetContract {
         // It should emit an {Execute} event.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ISablierComptroller.Execute({ target: address(comptrollerManager), data: data, result: "" });
+        emit ISablierComptroller.Execute({ target: address(comptrollerManagerMock), data: data, result: "" });
 
-        comptroller.execute({ target: address(targets.comptrollerManager), data: data });
+        comptroller.execute({ target: address(targets.comptrollerManagerMock), data: data });
 
         // It should execute the call.
         assertEq(
-            address(comptrollerManager.comptroller()),
+            address(comptrollerManagerMock.comptroller()),
             address(comptrollerZero),
             "The new comptroller should be set to the comptroller zero"
         );

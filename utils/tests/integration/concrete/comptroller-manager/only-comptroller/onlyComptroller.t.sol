@@ -10,13 +10,13 @@ contract OnlyComptroller_ComptrollerManager_Concrete_Test is Base_Test {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.ComptrollerManager_CallerNotComptroller.selector, comptroller, admin)
         );
-        comptrollerManager.restrictedToComptroller();
+        comptrollerManagerMock.restrictedToComptroller();
     }
 
     function test_WhenCallerComptroller() external {
         setMsgSender(address(comptroller));
 
         // It should execute the function.
-        comptrollerManager.restrictedToComptroller();
+        comptrollerManagerMock.restrictedToComptroller();
     }
 }

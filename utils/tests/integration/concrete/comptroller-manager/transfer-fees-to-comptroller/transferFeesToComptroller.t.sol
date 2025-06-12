@@ -16,17 +16,17 @@ contract TransferFeesToComptroller_Lockup_Integration_Concrete_Test is Base_Test
 
     function _test_TransferFeesToComptroller(uint256 fee) private {
         // Deal some ETH to the comptroller manager.
-        vm.deal(address(comptrollerManager), fee);
+        vm.deal(address(comptrollerManagerMock), fee);
 
         // Get the initial balance.
         uint256 initialEthBalance = address(comptroller).balance;
 
         // It should emit {TransferFeesToComptroller} event.
-        vm.expectEmit({ emitter: address(comptrollerManager) });
+        vm.expectEmit({ emitter: address(comptrollerManagerMock) });
         emit IComptrollerManager.TransferFeesToComptroller(comptroller, fee);
 
         // Call the function.
-        comptrollerManager.transferFeesToComptroller();
+        comptrollerManagerMock.transferFeesToComptroller();
 
         assertEq(address(comptroller).balance, initialEthBalance + fee, "eth balance");
     }

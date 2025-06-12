@@ -11,25 +11,25 @@ contract GrantRole_RoleAdminable_Concrete_Test is Base_Test {
         setMsgSender(users.accountant);
 
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, admin, users.accountant));
-        roleAdminable.grantRole(FEE_COLLECTOR_ROLE, users.accountant);
+        roleAdminableMock.grantRole(FEE_COLLECTOR_ROLE, users.accountant);
     }
 
     function test_RevertGiven_AccountHasRole() external whenCallerAdmin {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.AccountAlreadyHasRole.selector, FEE_COLLECTOR_ROLE, users.accountant)
         );
-        roleAdminable.grantRole(FEE_COLLECTOR_ROLE, users.accountant);
+        roleAdminableMock.grantRole(FEE_COLLECTOR_ROLE, users.accountant);
     }
 
     function test_GivenAccountNotHaveRole() external whenCallerAdmin {
         // It should emit {RoleGranted} event.
-        vm.expectEmit({ emitter: address(roleAdminable) });
+        vm.expectEmit({ emitter: address(roleAdminableMock) });
         emit IRoleAdminable.RoleGranted({ admin: admin, account: users.eve, role: FEE_COLLECTOR_ROLE });
 
         // Grant the role to Eve.
-        roleAdminable.grantRole(FEE_COLLECTOR_ROLE, users.eve);
+        roleAdminableMock.grantRole(FEE_COLLECTOR_ROLE, users.eve);
 
         // It should grant role to the account.
-        assertTrue(roleAdminable.hasRoleOrIsAdmin(FEE_COLLECTOR_ROLE, users.eve), "hasRole");
+        assertTrue(roleAdminableMock.hasRoleOrIsAdmin(FEE_COLLECTOR_ROLE, users.eve), "hasRole");
     }
 }

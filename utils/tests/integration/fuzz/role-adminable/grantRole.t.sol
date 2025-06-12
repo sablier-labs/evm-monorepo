@@ -15,31 +15,31 @@ contract GrantRole_RoleAdminable_Fuzz_Test is Base_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, admin, eve));
-        roleAdminable.grantRole(FEE_COLLECTOR_ROLE, users.accountant);
+        roleAdminableMock.grantRole(FEE_COLLECTOR_ROLE, users.accountant);
     }
 
     function testFuzz_RevertWhen_AccountHasRole(address account, bytes32 role) external whenCallerAdmin {
         vm.assume(account != address(0));
 
         // Grant the role to the account as a precondition.
-        roleAdminable.grantRole(role, account);
+        roleAdminableMock.grantRole(role, account);
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.AccountAlreadyHasRole.selector, role, account));
-        roleAdminable.grantRole(role, account);
+        roleAdminableMock.grantRole(role, account);
     }
 
     function testFuzz_GrantRole(address account, bytes32 role) external whenCallerAdmin whenAccountNotHaveRole {
         vm.assume(account != address(0) && account != users.accountant && account != admin);
 
         // Expect the relevant event to be emitted.
-        vm.expectEmit({ emitter: address(roleAdminable) });
+        vm.expectEmit({ emitter: address(roleAdminableMock) });
         emit IRoleAdminable.RoleGranted({ admin: admin, account: account, role: role });
 
         // Grant the role to account.
-        roleAdminable.grantRole(role, account);
+        roleAdminableMock.grantRole(role, account);
 
         // Assert that the role has been granted to the account.
-        assertTrue(roleAdminable.hasRoleOrIsAdmin(role, account), "hasRole");
+        assertTrue(roleAdminableMock.hasRoleOrIsAdmin(role, account), "hasRole");
     }
 }
