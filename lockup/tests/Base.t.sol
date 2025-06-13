@@ -58,11 +58,6 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.label({ account: address(recipientGood), newLabel: "Good Recipient" });
         vm.label({ account: address(noop), newLabel: "Noop" });
 
-        // Create the protocol admin.
-        users.admin = payable(makeAddr({ name: "Admin" }));
-        vm.deal({ account: users.admin, newBalance: 100 ether });
-        vm.startPrank({ msgSender: users.admin });
-
         // Deploy the defaults contract.
         defaults = new Defaults();
         defaults.setToken(dai);
@@ -104,16 +99,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         spenders[1] = address(lockup);
 
         // Create test users.
-        users.accountant = createUser("Accountant", spenders);
         users.alice = createUser("Alice", spenders);
         users.eve = createUser("Eve", spenders);
         users.operator = createUser("Operator", spenders);
         users.recipient = createUser("Recipient", spenders);
         users.sender = createUser("Sender", spenders);
-
-        // Assign fee collector role to the accountant user.
-        setMsgSender(users.admin);
-        lockup.grantRole(FEE_COLLECTOR_ROLE, users.accountant);
     }
 
     /// @dev Conditionally deploys the protocol normally or from an optimized source compiled with `--via-ir`.
@@ -125,9 +115,9 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         if (!isTestOptimizedProfile()) {
             batchLockup = new SablierBatchLockup();
             nftDescriptor = new LockupNFTDescriptor();
-            lockup = new SablierLockup(users.admin, address(nftDescriptor));
+            lockup = new SablierLockup(address(comptroller), address(nftDescriptor));
         } else {
-            (nftDescriptor, lockup, batchLockup) = deployOptimizedProtocol(users.admin);
+            (nftDescriptor, lockup, batchLockup) = deployOptimizedProtocol(address(comptroller));
         }
         vm.label({ account: address(batchLockup), newLabel: "BatchLockup" });
         vm.label({ account: address(lockup), newLabel: "Lockup" });

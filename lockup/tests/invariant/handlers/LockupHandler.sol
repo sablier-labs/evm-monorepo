@@ -130,8 +130,7 @@ contract LockupHandler is BaseHandler {
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         address to,
-        uint128 withdrawAmount,
-        bool payFee
+        uint128 withdrawAmount
     )
         external
         instrument("withdraw")
@@ -161,18 +160,13 @@ contract LockupHandler is BaseHandler {
         }
 
         // Withdraw from the stream.
-        lockup.withdraw{ value: payFee ? FEE : 0 }({ streamId: currentStreamId, to: to, amount: withdrawAmount });
-    }
-
-    function collectFees() external instrument("collectFees") {
-        lockup.collectFees(lockup.admin());
+        lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to, amount: withdrawAmount });
     }
 
     function withdrawMax(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        address to,
-        bool payFee
+        address to
     )
         external
         instrument("withdrawMax")
@@ -198,14 +192,13 @@ contract LockupHandler is BaseHandler {
         }
 
         // Make the max withdrawal.
-        lockup.withdrawMax{ value: payFee ? FEE : 0 }({ streamId: currentStreamId, to: to });
+        lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to });
     }
 
     function withdrawMaxAndTransfer(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        address newRecipient,
-        bool payFee
+        address newRecipient
     )
         external
         instrument("withdrawMaxAndTransfer")
@@ -230,7 +223,7 @@ contract LockupHandler is BaseHandler {
         vm.assume(lockup.withdrawableAmountOf(currentStreamId) != 0);
 
         // Make the max withdrawal and transfer the NFT.
-        lockup.withdrawMaxAndTransfer{ value: payFee ? FEE : 0 }({
+        lockup.withdrawMaxAndTransfer{ value: LOCKUP_MIN_FEE_WEI }({
             streamId: currentStreamId,
             newRecipient: newRecipient
         });

@@ -94,11 +94,11 @@ library Errors {
     /// @notice Thrown when trying to allow to hook an address with no code.
     error SablierLockup_AllowToHookZeroCodeSize(address recipient);
 
-    /// @notice Thrown when an unauthorized address collects fee without setting the fee recipient to admin address.
-    error SablierLockup_FeeRecipientNotAdmin(address feeRecipient, address admin);
+    /// @notice Thrown when trying to withdraw with a fee amount less than the minimum fee.
+    error SablierLockup_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
 
     /// @notice Thrown when the fee transfer fails.
-    error SablierLockup_FeeTransferFail(address feeRecipient, uint256 feeAmount);
+    error SablierLockup_FeeTransferFailed(address comptroller, uint256 feeAmount);
 
     /// @notice Thrown when the hook does not return the correct selector.
     error SablierLockup_InvalidHookSelector(address recipient);

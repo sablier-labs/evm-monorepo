@@ -1,8 +1,0 @@
-SetNativeToken_Integration_Test
-├── when caller not admin
-│  └── it should revert
-└── when caller admin
-   ├── given native token already set
-   │  └── it should revert
-   └── given native token not set
-      └── it should set native token

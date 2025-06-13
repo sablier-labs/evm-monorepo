@@ -4,11 +4,10 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
-import { Cancel_Integration_Concrete_Test } from "../lockup-state/cancel/cancel.t.sol";
-import { RefundableAmountOf_Integration_Concrete_Test } from
-    "../lockup-state/refundable-amount-of/refundableAmountOf.t.sol";
-import { Renounce_Integration_Concrete_Test } from "../lockup-state/renounce/renounce.t.sol";
-import { Withdraw_Integration_Concrete_Test } from "../lockup-state/withdraw/withdraw.t.sol";
+import { Cancel_Integration_Concrete_Test } from "../lockup/cancel/cancel.t.sol";
+import { RefundableAmountOf_Integration_Concrete_Test } from "../lockup/refundable-amount-of/refundableAmountOf.t.sol";
+import { Renounce_Integration_Concrete_Test } from "../lockup/renounce/renounce.t.sol";
+import { Withdraw_Integration_Concrete_Test } from "../lockup/withdraw/withdraw.t.sol";
 
 abstract contract Lockup_Tranched_Integration_Concrete_Test is Integration_Test {
     function setUp() public virtual override {

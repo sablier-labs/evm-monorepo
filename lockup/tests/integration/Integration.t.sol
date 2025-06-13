@@ -115,8 +115,11 @@ abstract contract Integration_Test is Base_Test {
         vm.label({ account: address(recipientReentrant), newLabel: "Recipient Reentrant" });
         vm.label({ account: address(recipientReverting), newLabel: "Recipient Reverting" });
 
+        // Deal some ETH to the `recipientReentrant` because its used in reentrant tests.
+        vm.deal({ account: address(recipientReentrant), newBalance: 100 ether });
+
         // Allow the selected recipients to hook.
-        setMsgSender(users.admin);
+        setMsgSender(address(comptroller));
         lockup.allowToHook(address(recipientGood));
         lockup.allowToHook(address(recipientInvalidSelector));
         lockup.allowToHook(address(recipientReentrant));
@@ -231,7 +234,7 @@ abstract contract Integration_Test is Base_Test {
 
     function expectRevert_DEPLETEDStatus(bytes memory callData) internal {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: ids.defaultStream, to: users.recipient });
+        lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: ids.defaultStream, to: users.recipient });
 
         (bool success, bytes memory returnData) = address(lockup).call(callData);
         assertFalse(success, "depleted status call success");

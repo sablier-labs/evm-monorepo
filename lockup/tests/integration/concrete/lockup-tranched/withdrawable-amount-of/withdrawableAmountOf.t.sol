@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { WithdrawableAmountOf_Integration_Concrete_Test } from
-    "../../lockup-state/withdrawable-amount-of/withdrawableAmountOf.t.sol";
+    "../../lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";
 import { Lockup_Tranched_Integration_Concrete_Test, Integration_Test } from "./../LockupTranched.t.sol";
 
 contract WithdrawableAmountOf_Lockup_Tranched_Integration_Concrete_Test is
@@ -35,7 +35,7 @@ contract WithdrawableAmountOf_Lockup_Tranched_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Make the withdrawal.
-        lockup.withdraw({
+        lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({
             streamId: ids.defaultStream,
             to: users.recipient,
             amount: defaults.STREAMED_AMOUNT_26_PERCENT()

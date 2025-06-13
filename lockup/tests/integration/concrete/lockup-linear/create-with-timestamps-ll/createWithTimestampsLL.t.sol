@@ -11,7 +11,7 @@ import { Lockup } from "src/types/DataTypes.sol";
 import {
     CreateWithTimestamps_Integration_Concrete_Test,
     Integration_Test
-} from "../../lockup-state/create-with-timestamps/createWithTimestamps.t.sol";
+} from "../../lockup/create-with-timestamps/createWithTimestamps.t.sol";
 
 contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamps_Integration_Concrete_Test {
     function setUp() public override {

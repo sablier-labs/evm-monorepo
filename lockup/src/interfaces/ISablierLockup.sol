@@ -5,7 +5,8 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IBatch } from "@sablier/evm-utils/src/interfaces/IBatch.sol";
-import { IRoleAdminable } from "@sablier/evm-utils/src/interfaces/IRoleAdminable.sol";
+import { IComptrollerManager } from "@sablier/evm-utils/src/interfaces/IComptrollerManager.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../types/DataTypes.sol";
 import { ILockupNFTDescriptor } from "./ILockupNFTDescriptor.sol";
@@ -15,19 +16,19 @@ import { ISablierLockupState } from "./ISablierLockupState.sol";
 /// @notice Creates and manages Lockup streams with various distribution models.
 interface ISablierLockup is
     IBatch, // 0 inherited components
+    IComptrollerManager, // 0 inherited components
     IERC4906, // 2 inherited components
     IERC721Metadata, // 1 inherited component
-    IRoleAdminable, // 1 inherited component
     ISablierLockupState // 0 inherited components
 {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the admin allows a new recipient contract to hook to Sablier.
-    /// @param admin The address of the current contract admin.
+    /// @notice Emitted when the comptroller allows a new recipient contract to hook to Sablier.
+    /// @param comptroller The address of the current comptroller.
     /// @param recipient The address of the recipient contract put on the allowlist.
-    event AllowToHook(address indexed admin, address indexed recipient);
+    event AllowToHook(ISablierComptroller indexed comptroller, address indexed recipient);
 
     /// @notice Emitted when a stream is canceled.
     /// @param streamId The ID of the stream.
@@ -46,12 +47,6 @@ interface ISablierLockup is
         uint128 senderAmount,
         uint128 recipientAmount
     );
-
-    /// @notice Emitted when the accrued fees are collected.
-    /// @param admin The address of the current contract admin.
-    /// @param feeRecipient The address where the fees will be collected.
-    /// @param feeAmount The amount of collected fees.
-    event CollectFees(address indexed admin, address indexed feeRecipient, uint256 feeAmount);
 
     /// @notice Emitted when an LD stream is created.
     /// @param streamId The ID of the newly created stream.
@@ -96,12 +91,12 @@ interface ISablierLockup is
     /// @param streamId The ID of the stream.
     event RenounceLockupStream(uint256 indexed streamId);
 
-    /// @notice Emitted when the admin sets a new NFT descriptor contract.
-    /// @param admin The address of the current contract admin.
+    /// @notice Emitted when the comptroller sets a new NFT descriptor contract.
+    /// @param comptroller The address of the current comptroller.
     /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     event SetNFTDescriptor(
-        address indexed admin,
+        ISablierComptroller indexed comptroller,
         ILockupNFTDescriptor indexed oldNFTDescriptor,
         ILockupNFTDescriptor indexed newNFTDescriptor
     );
@@ -174,7 +169,7 @@ interface ISablierLockup is
     /// - This is an irreversible operation. The contract cannot be removed from the allowlist.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the contract admin.
+    /// - `msg.sender` must be the comptroller contract.
     /// - `recipient` must implement {ISablierLockupRecipient}.
     ///
     /// @param recipient The address of the contract to allow for hooks.
@@ -224,18 +219,6 @@ interface ISablierLockup is
     /// @param streamIds The IDs of the streams to cancel.
     /// @return refundedAmounts The amounts refunded to the sender, denoted in units of the token's decimals.
     function cancelMultiple(uint256[] calldata streamIds) external payable returns (uint128[] memory refundedAmounts);
-
-    /// @notice Collects the accrued fees. If `feeRecipient` is a contract, it must be able to receive native tokens,
-    /// e.g., ETH for Ethereum Mainnet.
-    ///
-    /// @dev Emits a {CollectFees} event.
-    ///
-    /// Requirements:
-    /// - If `msg.sender` has neither the {IRoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin, then
-    /// `feeRecipient` must be the admin address.
-    ///
-    /// @param feeRecipient The address where the fees will be collected.
-    function collectFees(address feeRecipient) external;
 
     /// @notice Creates a stream by setting the start time to `block.timestamp`, and the end time to the sum of
     /// `block.timestamp` and all specified time durations. The segment timestamps are derived from these
@@ -415,7 +398,7 @@ interface ISablierLockup is
     /// ERC-20 token and the sum of balances of all streams created using the same ERC-20 token.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the contract admin.
+    /// - `msg.sender` must be the comptroller contract.
     /// - The surplus amount must be greater than zero.
     ///
     /// @param token The contract address of the ERC-20 token to recover for.
@@ -445,7 +428,7 @@ interface ISablierLockup is
     /// - If `newNativeToken` is zero address, the function does not revert.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the admin.
+    /// - `msg.sender` must be the comptroller contract.
     /// - The current native token must be zero address.
     /// @param newNativeToken The address of the native token.
     function setNativeToken(address newNativeToken) external;
@@ -458,7 +441,7 @@ interface ISablierLockup is
     /// - Does not revert if the NFT descriptor is the same.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the contract admin.
+    /// - `msg.sender` must be the comptroller contract.
     ///
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external;
@@ -470,6 +453,7 @@ interface ISablierLockup is
     /// Notes:
     /// - If `msg.sender` is not the recipient and the address is on the allowlist, this function will invoke a hook on
     /// the recipient.
+    /// - The minimum fee in wei is calculated for the stream's sender using the {SablierComptroller} contract.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -477,6 +461,7 @@ interface ISablierLockup is
     /// - `to` must not be the zero address.
     /// - `amount` must be greater than zero and must not exceed the withdrawable amount.
     /// - `to` must be the recipient if `msg.sender` is not the stream's recipient or an approved third party.
+    /// - `msg.value` must be greater than or equal to the minimum fee in wei for the stream's sender.
     ///
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn tokens.

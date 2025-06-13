@@ -6,7 +6,7 @@ import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Lockup, LockupTranched } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
-import { Withdraw_Integration_Fuzz_Test } from "./../lockup-state/withdraw.t.sol";
+import { Withdraw_Integration_Fuzz_Test } from "./../lockup/withdraw.t.sol";
 import { Lockup_Tranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
 /// @dev This contract complements the tests in {Withdraw_Integration_Fuzz_Test} by testing the withdraw function
 /// against streams created with fuzzed tranches.
@@ -109,7 +109,11 @@ contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
         emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
+        lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({
+            streamId: vars.streamId,
+            to: params.to,
+            amount: vars.withdrawAmount
+        });
 
         // Check if the stream is depleted or settled. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.

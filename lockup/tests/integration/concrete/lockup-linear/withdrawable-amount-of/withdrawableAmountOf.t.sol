@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { WithdrawableAmountOf_Integration_Concrete_Test } from
-    "../../lockup-state/withdrawable-amount-of/withdrawableAmountOf.t.sol";
+    "../../lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";
 import { Lockup_Linear_Integration_Concrete_Test, Integration_Test } from "./../LockupLinear.t.sol";
 
 contract WithdrawableAmountOf_Lockup_Linear_Integration_Concrete_Test is
@@ -27,7 +27,7 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Concrete_Test is
     }
 
     function test_GivenPreviousWithdrawal() external givenSTREAMINGStatus givenCliffTimeNotInFuture {
-        lockup.withdraw({
+        lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({
             streamId: ids.defaultStream,
             to: users.recipient,
             amount: defaults.STREAMED_AMOUNT_26_PERCENT()

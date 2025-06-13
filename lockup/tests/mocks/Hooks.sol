@@ -138,7 +138,10 @@ contract RecipientReentrant is ISablierLockupRecipient, ERC165 {
         senderAmount;
         recipientAmount;
 
-        ISablierLockup(msg.sender).withdraw(streamId, address(this), recipientAmount);
+        uint256 feeUSD = 1e8;
+        uint256 feeWei = (1e18 * feeUSD) / 3000e8;
+
+        ISablierLockup(msg.sender).withdraw{ value: feeWei }(streamId, address(this), recipientAmount);
 
         return ISablierLockupRecipient.onSablierLockupCancel.selector;
     }
@@ -158,7 +161,10 @@ contract RecipientReentrant is ISablierLockupRecipient, ERC165 {
         to;
         amount;
 
-        ISablierLockup(msg.sender).withdraw(streamId, address(this), amount);
+        uint256 feeUSD = 1e8;
+        uint256 feeWei = (1e18 * feeUSD) / 3000e8;
+
+        ISablierLockup(msg.sender).withdraw{ value: feeWei }(streamId, address(this), amount);
 
         return ISablierLockupRecipient.onSablierLockupWithdraw.selector;
     }

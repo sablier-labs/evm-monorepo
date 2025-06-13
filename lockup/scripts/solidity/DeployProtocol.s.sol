@@ -9,14 +9,13 @@ import { SablierLockup } from "../../src/SablierLockup.sol";
 
 /// @notice Deploys the Lockup Protocol.
 contract DeployProtocol is BaseScript {
-    /// @dev Deploys the protocol with the admin set in `adminMap`.
+    /// @dev Deploys the protocol.
     function run()
         public
         returns (SablierLockup lockup, SablierBatchLockup batchLockup, LockupNFTDescriptor nftDescriptor)
     {
-        address initialAdmin = protocolAdmin();
         batchLockup = new SablierBatchLockup();
         nftDescriptor = new LockupNFTDescriptor();
-        lockup = new SablierLockup(initialAdmin, address(nftDescriptor));
+        lockup = new SablierLockup(comptrollerAddress(), address(nftDescriptor));
     }
 }

@@ -29,8 +29,8 @@ abstract contract Lockup_Fork_Test is Fork_Test {
     // Struct to manage storage variables to be used across contracts.
     struct Vars {
         // Initial values
+        uint256 initialComptrollerBalanceETH;
         uint256 initialLockupBalance;
-        uint256 initialLockupBalanceETH;
         uint256 initialRecipientBalance;
         uint256 initialSenderBalance;
         // Final values
@@ -210,8 +210,8 @@ abstract contract Lockup_Fork_Test is Fork_Test {
         // Run the withdraw tests only if the withdraw amount is not zero.
         if (params.withdrawAmount > 0) {
             // Load the pre-withdraw token balances.
+            vars.initialComptrollerBalanceETH = address(lockup).balance;
             vars.initialLockupBalance = vars.actualLockupBalance;
-            vars.initialLockupBalanceETH = address(lockup).balance;
             vars.initialRecipientBalance = FORK_TOKEN.balanceOf(params.create.recipient);
 
             // Expect the relevant events to be emitted.
@@ -228,7 +228,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             // Make the withdrawal and pay a fee.
             setMsgSender(params.create.recipient);
             vm.deal({ account: params.create.recipient, newBalance: 100 ether });
-            lockup.withdraw{ value: FEE }({
+            lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({
                 streamId: vars.streamId,
                 to: params.create.recipient,
                 amount: params.withdrawAmount
@@ -263,7 +263,11 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             assertEq(vars.actualLockupBalance, expectedLockupBalance, "post-withdraw Lockup balance");
 
             // Assert that the contract's ETH balance has been updated.
-            assertEq(address(lockup).balance, vars.initialLockupBalanceETH + FEE, "post-withdraw Lockup balance ETH");
+            assertEq(
+                address(lockup).balance,
+                vars.initialComptrollerBalanceETH + LOCKUP_MIN_FEE_WEI,
+                "post-withdraw Lockup balance ETH"
+            );
 
             // Assert that the Recipient's balance has been updated.
             uint256 expectedRecipientBalance = vars.initialRecipientBalance + params.withdrawAmount;

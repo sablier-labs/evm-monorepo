@@ -8,8 +8,8 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
+import { ComptrollerManager } from "@sablier/evm-utils/src/ComptrollerManager.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
-import { RoleAdminable } from "@sablier/evm-utils/src/RoleAdminable.sol";
 
 import { SablierLockupState } from "./abstracts/SablierLockupState.sol";
 import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
@@ -34,10 +34,10 @@ import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./types/Dat
 /// @notice See the documentation in {ISablierLockup}.
 contract SablierLockup is
     Batch, // 1 inherited component
+    ComptrollerManager, // 1 inherited component
     ERC721, // 6 inherited components
     ISablierLockup, // 8 inherited components
     NoDelegateCall, // 0 inherited components
-    RoleAdminable, // 3 inherited components
     SablierLockupState // 1 inherited component
 {
     using SafeERC20 for IERC20;
@@ -46,14 +46,14 @@ contract SablierLockup is
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @param initialAdmin The address of the initial contract admin.
+    /// @param initialComptroller The address of the initial comptroller contract.
     /// @param initialNFTDescriptor The address of the NFT descriptor contract.
     constructor(
-        address initialAdmin,
+        address initialComptroller,
         address initialNFTDescriptor
     )
+        ComptrollerManager(initialComptroller)
         ERC721("Sablier Lockup NFT", "SAB-LOCKUP")
-        RoleAdminable(initialAdmin)
         SablierLockupState(initialNFTDescriptor)
     { }
 
@@ -142,7 +142,7 @@ contract SablierLockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierLockup
-    function allowToHook(address recipient) external override onlyAdmin {
+    function allowToHook(address recipient) external override onlyComptroller {
         // Check: recipients implements the ERC-165 interface ID required by {ISablierLockupRecipient}.
         bytes4 interfaceId = type(ISablierLockupRecipient).interfaceId;
         if (!ISablierLockupRecipient(recipient).supportsInterface(interfaceId)) {
@@ -153,7 +153,7 @@ contract SablierLockup is
         _allowedToHook[recipient] = true;
 
         // Log the allowlist addition.
-        emit ISablierLockup.AllowToHook({ admin: msg.sender, recipient: recipient });
+        emit ISablierLockup.AllowToHook(comptroller, recipient);
     }
 
     /// @inheritdoc ISablierLockup
@@ -229,29 +229,6 @@ contract SablierLockup is
                 refundedAmounts[i] = abi.decode(result, (uint128));
             }
         }
-    }
-
-    /// @inheritdoc ISablierLockup
-    function collectFees(address feeRecipient) external override {
-        // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
-        // then `feeRecipient` must be the admin address.
-        bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
-        if (!hasRoleOrIsAdmin && feeRecipient != admin) {
-            revert Errors.SablierLockup_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
-        }
-
-        uint256 feeAmount = address(this).balance;
-
-        // Effect: transfer the fees to the fee recipient.
-        (bool success,) = feeRecipient.call{ value: feeAmount }("");
-
-        // Check: the transfer was successful.
-        if (!success) {
-            revert Errors.SablierLockup_FeeTransferFail(feeRecipient, feeAmount);
-        }
-
-        // Log the fee withdrawal.
-        emit ISablierLockup.CollectFees(admin, feeRecipient, feeAmount);
     }
 
     /// @inheritdoc ISablierLockup
@@ -440,7 +417,7 @@ contract SablierLockup is
     }
 
     /// @inheritdoc ISablierLockup
-    function recover(IERC20 token, address to) external override onlyAdmin {
+    function recover(IERC20 token, address to) external override onlyComptroller {
         // If tokens are directly transferred to the contract without using the stream creation functions, the
         // ERC-20 balance may be greater than the aggregate amount.
         uint256 surplus = token.balanceOf(address(this)) - aggregateAmount[token];
@@ -479,7 +456,7 @@ contract SablierLockup is
     }
 
     /// @inheritdoc ISablierLockup
-    function setNativeToken(address newNativeToken) external override onlyAdmin {
+    function setNativeToken(address newNativeToken) external override onlyComptroller {
         // Check: native token is not set.
         if (nativeToken != address(0)) {
             revert Errors.SablierLockup_NativeTokenAlreadySet(nativeToken);
@@ -490,17 +467,13 @@ contract SablierLockup is
     }
 
     /// @inheritdoc ISablierLockup
-    function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external override onlyAdmin {
+    function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external override onlyComptroller {
         // Effect: set the NFT descriptor.
         ILockupNFTDescriptor oldNftDescriptor = nftDescriptor;
         nftDescriptor = newNFTDescriptor;
 
         // Log the change of the NFT descriptor.
-        emit ISablierLockup.SetNFTDescriptor({
-            admin: msg.sender,
-            oldNFTDescriptor: oldNftDescriptor,
-            newNFTDescriptor: newNFTDescriptor
-        });
+        emit ISablierLockup.SetNFTDescriptor(comptroller, oldNftDescriptor, newNFTDescriptor);
 
         // Refresh the NFT metadata for all streams.
         emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
@@ -1053,6 +1026,14 @@ contract SablierLockup is
 
     /// @dev See the documentation for the user-facing functions that call this private function.
     function _withdraw(uint256 streamId, address to, uint128 amount) private {
+        uint256 minFeeWei = comptroller.calculateLockupMinFeeWeiFor(_streams[streamId].sender);
+        uint256 feePaid = msg.value;
+
+        // Check: fee paid is at least the minimum fee.
+        if (feePaid < minFeeWei) {
+            revert Errors.SablierLockup_InsufficientFeePayment(feePaid, minFeeWei);
+        }
+
         // Effect: update the withdrawn amount.
         _streams[streamId].amounts.withdrawn = _streams[streamId].amounts.withdrawn + amount;
 

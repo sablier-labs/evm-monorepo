@@ -2,8 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupDynamic } from "src/types/DataTypes.sol";
-import { StreamedAmountOf_Integration_Concrete_Test } from
-    "../../lockup-state/streamed-amount-of/streamedAmountOf.t.sol";
+import { StreamedAmountOf_Integration_Concrete_Test } from "../../lockup/streamed-amount-of/streamedAmountOf.t.sol";
 import { Lockup_Dynamic_Integration_Concrete_Test, Integration_Test } from "../LockupDynamic.t.sol";
 
 contract StreamedAmountOf_Lockup_Dynamic_Integration_Concrete_Test is

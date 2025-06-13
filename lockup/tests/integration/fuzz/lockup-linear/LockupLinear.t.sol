@@ -4,9 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
-import { Cancel_Integration_Fuzz_Test } from "./../lockup-state/cancel.t.sol";
-import { RefundableAmountOf_Integration_Fuzz_Test } from "./../lockup-state/refundableAmountOf.t.sol";
-import { Withdraw_Integration_Fuzz_Test } from "./../lockup-state/withdraw.t.sol";
+import { Cancel_Integration_Fuzz_Test } from "./../lockup/cancel.t.sol";
+import { RefundableAmountOf_Integration_Fuzz_Test } from "./../lockup/refundableAmountOf.t.sol";
+import { Withdraw_Integration_Fuzz_Test } from "./../lockup/withdraw.t.sol";
 
 abstract contract Lockup_Linear_Integration_Fuzz_Test is Integration_Test {
     function setUp() public virtual override {

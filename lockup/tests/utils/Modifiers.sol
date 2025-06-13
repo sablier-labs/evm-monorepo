@@ -81,12 +81,12 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
-    modifier whenCallerAdmin() {
-        setMsgSender(users.admin);
+    modifier whenCallerAuthorizedForAllStreams() virtual {
         _;
     }
 
-    modifier whenCallerAuthorizedForAllStreams() virtual {
+    modifier whenCallerComptroller() {
+        setMsgSender(address(comptroller));
         _;
     }
 
@@ -146,7 +146,7 @@ abstract contract Modifiers is Fuzzers {
 
     modifier givenDepletedStream(ISablierLockup lockup, uint256 streamId) {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: streamId, to: users.recipient });
+        lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: streamId, to: users.recipient });
         _;
     }
 
@@ -379,19 +379,15 @@ abstract contract Modifiers is Fuzzers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   TRANSFER-ADMIN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenNewAdminNotSameAsCurrentAdmin() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                       WITHDRAW
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier givenNotDEPLETEDStatus() {
         vm.warp({ newTimestamp: defaults.START_TIME() });
+        _;
+    }
+
+    modifier whenFeeNotLessThanMinFee() {
         _;
     }
 
@@ -412,26 +408,6 @@ abstract contract Modifiers is Fuzzers {
     }
 
     modifier whenWithdrawAmountNotOverdraw() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   COLLECT-FEES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenAdminIsContract() {
-        _;
-    }
-
-    modifier whenCallerNotAdmin() {
-        _;
-    }
-
-    modifier whenCallerWithoutFeeCollectorRole() {
-        _;
-    }
-
-    modifier whenFeeRecipientContract() {
         _;
     }
 

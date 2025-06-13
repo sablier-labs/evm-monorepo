@@ -3,6 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { ERC20Mock } from "@sablier/evm-utils/src/mocks/erc20/ERC20Mock.sol";
+import { BaseTest as CommonBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { console } from "forge-std/src/console.sol";
 
 import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
@@ -44,29 +45,6 @@ contract EstimateMaxCount is Defaults, DeployOptimized {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
-        // Initialize the variables.
-        dai = new ERC20Mock("Dai stablecoin", "DAI", 18);
-        setToken(dai);
-        users.sender = users.recipient = payable(makeAddr("sender"));
-        setUsers(users);
-
-        // Deploy the Lockup contract.
-        if (!isTestOptimizedProfile()) {
-            lockup = new SablierLockup(users.admin, address(new LockupNFTDescriptor()));
-        } else {
-            (, lockup,) = deployOptimizedProtocol({ initialAdmin: users.sender });
-        }
-
-        // Set up the caller.
-        setMsgSender(users.sender);
-        deal({ token: address(dai), to: users.sender, give: type(uint256).max });
-        dai.approve(address(lockup), type(uint256).max);
-
-        // Create dummy streams to initialize contract storage.
-        for (uint128 i = 0; i < 100; ++i) {
-            lockup.createWithTimestampsLD(createWithTimestamps(), segments());
-        }
-
         // Populate the chains array with respective block gas limit for each chain ID.
         chains.push(ChainInfo({ blockGasLimit: 32_000_000, chainId: 42_161 })); // Arbitrum
         chains.push(ChainInfo({ blockGasLimit: 15_000_000, chainId: 43_114 })); // Avalanche
@@ -79,6 +57,38 @@ contract EstimateMaxCount is Defaults, DeployOptimized {
         chains.push(ChainInfo({ blockGasLimit: 30_000_000, chainId: 137 })); // Polygon
         chains.push(ChainInfo({ blockGasLimit: 10_000_000, chainId: 534_352 })); // Scroll
         chains.push(ChainInfo({ blockGasLimit: 30_000_000, chainId: 11_155_111 })); // Sepolia
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                       SET-UP
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function setUp() public virtual override {
+        CommonBase.setUp();
+
+        // Initialize the variables.
+        dai = new ERC20Mock("Dai stablecoin", "DAI", 18);
+        setToken(dai);
+        users.sender = payable(makeAddr("sender"));
+        users.recipient = payable(makeAddr("recipient"));
+        setUsers(users);
+
+        // Deploy the Lockup contract.
+        if (!isTestOptimizedProfile()) {
+            lockup = new SablierLockup(address(comptroller), address(new LockupNFTDescriptor()));
+        } else {
+            (, lockup,) = deployOptimizedProtocol({ initialComptroller: address(comptroller) });
+        }
+
+        // Set up the caller.
+        setMsgSender(users.sender);
+        deal({ token: address(dai), to: users.sender, give: type(uint256).max });
+        dai.approve(address(lockup), type(uint256).max);
+
+        // Create dummy streams to initialize contract storage.
+        for (uint128 i = 0; i < 100; ++i) {
+            lockup.createWithTimestampsLD(createWithTimestamps(), segments());
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
