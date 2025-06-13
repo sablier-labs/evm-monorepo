@@ -25,7 +25,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
-        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, users.eve);
+        emit ISablierMerkleLockup.Claim(getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.eve);
 
         expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
         expectCallToClaimToWithMsgValue(address(merkleLL), MIN_FEE_WEI);
@@ -47,7 +47,10 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         params.startUnlockPercentage = ud(0.5e18);
         params.cliffUnlockPercentage = ud(0.6e18);
 
+        // Create the MerkleLL campaign and cast it as {ISablierMerkleBase}.
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        merkleBase = merkleLL;
+
         uint128 startUnlockAmount = ud(CLAIM_AMOUNT).mul(ud(0.5e18)).intoUint128();
         uint128 cliffUnlockAmount = ud(CLAIM_AMOUNT).mul(ud(0.6e18)).intoUint128();
 
@@ -73,7 +76,9 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
         params.vestingStartTime = 0;
 
+        // Create the MerkleLL campaign and cast it as {ISablierMerkleBase}.
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        merkleBase = merkleLL;
 
         // It should create a stream with block.timestamp as vesting start time.
         // It should create a stream with Eve as recipient.
@@ -91,7 +96,9 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         params.cliffDuration = 0;
         params.cliffUnlockPercentage = ZERO;
 
+        // Create the MerkleLL campaign and cast it as {ISablierMerkleBase}.
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        merkleBase = merkleLL;
 
         // It should create a stream with block.timestamp as vesting start time.
         // It should create a stream with cliff as zero.
@@ -119,9 +126,11 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         uint256 expectedStreamId = lockup.nextStreamId();
         uint256 previousFeeAccrued = address(factoryMerkleLL).balance;
 
+        uint256 index = getIndexInMerkleTree();
+
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
-        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, expectedStreamId, users.eve);
+        emit ISablierMerkleLockup.Claim(index, users.recipient, CLAIM_AMOUNT, expectedStreamId, users.eve);
 
         expectCallToTransferFrom({ from: address(merkleLL), to: address(lockup), value: CLAIM_AMOUNT });
         expectCallToClaimToWithMsgValue(address(merkleLL), MIN_FEE_WEI);
@@ -147,14 +156,14 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         assertEq(lockup.isTransferable(expectedStreamId), STREAM_TRANSFERABLE, "is transferable");
         assertEq(lockup.wasCanceled(expectedStreamId), false, "was canceled");
 
-        assertTrue(merkleLL.hasClaimed(INDEX1), "not claimed");
+        assertTrue(merkleLL.hasClaimed(index), "not claimed");
 
         // It should create the stream with the correct Lockup model.
         assertEq(lockup.getLockupModel(expectedStreamId), Lockup.Model.LOCKUP_LINEAR);
 
         uint256[] memory expectedClaimedStreamIds = new uint256[](1);
         expectedClaimedStreamIds[0] = expectedStreamId;
-        assertEq(merkleLL.claimedStreams(users.recipient1), expectedClaimedStreamIds, "claimed streams");
+        assertEq(merkleLL.claimedStreams(users.recipient), expectedClaimedStreamIds, "claimed streams");
 
         assertEq(address(factoryMerkleLL).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
     }

@@ -5,6 +5,8 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { ERC1271WalletMock } from "@sablier/evm-utils/src/mocks/ERC1271WalletMock.sol";
+import { Noop } from "@sablier/evm-utils/src/mocks/Noop.sol";
 import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 import { LockupNFTDescriptor } from "@sablier/lockup/src/LockupNFTDescriptor.sol";
@@ -31,7 +33,6 @@ import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
 import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 import { Assertions } from "./utils/Assertions.sol";
-import { ChainlinkOracleMock } from "./utils/ChainlinkMocks.sol";
 import { Constants } from "./utils/Constants.sol";
 import { DeployOptimized } from "./utils/DeployOptimized.sol";
 import { Fuzzers } from "./utils/Fuzzers.sol";
@@ -46,6 +47,8 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
+    bytes internal eip712Signature;
+    uint256 internal recipientPrivateKey;
     Users internal users;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -65,7 +68,6 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
     ISablierMerkleLL internal merkleLL;
     ISablierMerkleLT internal merkleLT;
     ISablierMerkleVCA internal merkleVCA;
-    ChainlinkOracleMock internal oracle;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -76,14 +78,11 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
 
         // Create the protocol admin.
         users.admin = payable(makeAddr({ name: "Admin" }));
-        vm.startPrank({ msgSender: users.admin });
+        vm.startPrank(users.admin);
 
         // Deploy the Lockup contract.
         address nftDescriptor = address(new LockupNFTDescriptor());
         lockup = new SablierLockup(users.admin, nftDescriptor);
-
-        // Deploy the mock Chainlink Oracle.
-        oracle = new ChainlinkOracleMock();
 
         // Deploy the factories.
         deployFactoriesConditionally();
@@ -116,15 +115,24 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         spenders[2] = address(factoryMerkleLT);
         spenders[3] = address(factoryMerkleVCA);
 
-        // Create test users.
+        // Create recipient and store private key since it is used to claim using signature.
+        (users.recipient, recipientPrivateKey) = createUserAndKey("Recipient", spenders);
+
+        // Create a new recipient as an ERC-1271 smart contract with recipient as the admin.
+        users.smartWalletWithIERC1271 = payable(address(new ERC1271WalletMock(users.recipient)));
+        vm.label(users.smartWalletWithIERC1271, "SmartWalletWithIERC1271");
+        dealAndApproveSpenders(users.smartWalletWithIERC1271, spenders);
+
+        // Create a new recipient as a dummy smart contract.
+        users.smartWalletWithoutIERC1271 = payable(address(new Noop()));
+        vm.label(users.smartWalletWithoutIERC1271, "SmartWalletWithoutIERC1271");
+        dealAndApproveSpenders(users.smartWalletWithoutIERC1271, spenders);
+
+        // Create rest of the users.
         users.accountant = createUser("Accountant", spenders);
         users.campaignCreator = createUser("CampaignCreator", spenders);
         users.eve = createUser("Eve", spenders);
-        users.recipient = createUser("Recipient", spenders);
-        users.recipient1 = createUser("Recipient1", spenders);
-        users.recipient2 = createUser("Recipient2", spenders);
-        users.recipient3 = createUser("Recipient3", spenders);
-        users.recipient4 = createUser("Recipient4", spenders);
+        users.unknownRecipient = createUser("UnknownRecipient", spenders);
         users.sender = createUser("Sender", spenders);
 
         // Assign fee collector and fee management roles to the accountant user.
@@ -175,34 +183,52 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         merkleProof = leaves.length == 1 ? new bytes32[](0) : getProof(leaves.toBytes32(), pos);
     }
 
-    function index1Proof() public view returns (bytes32[] memory) {
-        return indexProof(INDEX1, users.recipient1);
+    /// @dev Returns the index of the default recipient in the Merkle tree.
+    function getIndexInMerkleTree() internal view returns (uint256 index) {
+        index = getIndexInMerkleTree(users.recipient);
     }
 
-    function index2Proof() public view returns (bytes32[] memory) {
-        return indexProof(INDEX2, users.recipient2);
+    /// @dev Returns the index of the recipient in the Merkle tree.
+    function getIndexInMerkleTree(address recipient) internal view returns (uint256 index) {
+        if (recipient == users.recipient) {
+            index = INDEX1;
+        } else if (recipient == users.smartWalletWithIERC1271) {
+            index = INDEX2;
+        } else if (recipient == users.smartWalletWithoutIERC1271) {
+            index = INDEX3;
+        } else if (recipient == users.unknownRecipient) {
+            index = INDEX4;
+        } else {
+            revert("Invalid recipient");
+        }
     }
 
-    function index3Proof() public view returns (bytes32[] memory) {
-        return indexProof(INDEX3, users.recipient3);
+    /// @dev Returns the Merkle proof for the default recipient.
+    function getMerkleProof() internal view returns (bytes32[] memory merkleProof) {
+        merkleProof = getMerkleProof(users.recipient);
     }
 
-    function index4Proof() public view returns (bytes32[] memory) {
-        return indexProof(INDEX4, users.recipient4);
-    }
-
-    function indexProof(uint256 index, address recipient) public view returns (bytes32[] memory) {
-        return computeMerkleProof(LeafData({ index: index, recipient: recipient, amount: CLAIM_AMOUNT }), LEAVES);
+    /// @dev Returns the Merkle proof for the given recipient.
+    function getMerkleProof(address recipient) internal view returns (bytes32[] memory merkleProof) {
+        uint256 index = getIndexInMerkleTree(recipient);
+        merkleProof = computeMerkleProof(LeafData({ index: index, recipient: recipient, amount: CLAIM_AMOUNT }), LEAVES);
     }
 
     /// @dev We need a separate function to initialize the Merkle tree because, at the construction time, the users are
     /// not yet set.
     function initMerkleTree() public {
         LeafData[] memory leafData = new LeafData[](RECIPIENT_COUNT);
-        leafData[0] = LeafData({ index: INDEX1, recipient: users.recipient1, amount: CLAIM_AMOUNT });
-        leafData[1] = LeafData({ index: INDEX2, recipient: users.recipient2, amount: CLAIM_AMOUNT });
-        leafData[2] = LeafData({ index: INDEX3, recipient: users.recipient3, amount: CLAIM_AMOUNT });
-        leafData[3] = LeafData({ index: INDEX4, recipient: users.recipient4, amount: CLAIM_AMOUNT });
+        address[] memory recipients = new address[](RECIPIENT_COUNT);
+        recipients[0] = users.recipient;
+        recipients[1] = users.smartWalletWithIERC1271;
+        recipients[2] = users.smartWalletWithoutIERC1271;
+        recipients[3] = users.unknownRecipient;
+
+        for (uint256 i = 0; i < RECIPIENT_COUNT; ++i) {
+            leafData[i] =
+                LeafData({ index: getIndexInMerkleTree(recipients[i]), recipient: recipients[i], amount: CLAIM_AMOUNT });
+        }
+
         MerkleBuilder.computeLeaves(LEAVES, leafData);
         MERKLE_ROOT = getRoot(LEAVES.toBytes32());
     }
@@ -232,7 +258,21 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         vm.expectCall(
             merkleLockup,
             msgValue,
-            abi.encodeCall(ISablierMerkleInstant.claimTo, (INDEX1, users.eve, CLAIM_AMOUNT, index1Proof()))
+            abi.encodeCall(
+                ISablierMerkleInstant.claimTo, (getIndexInMerkleTree(), users.eve, CLAIM_AMOUNT, getMerkleProof())
+            )
+        );
+    }
+
+    /// @dev Expects a call to {claimViaSig} with msgValue as `msg.value`.
+    function expectCallToClaimViaSigWithMsgValue(address merkleLockup, uint256 msgValue) internal {
+        vm.expectCall(
+            merkleLockup,
+            msgValue,
+            abi.encodeCall(
+                ISablierMerkleInstant.claimViaSig,
+                (getIndexInMerkleTree(), users.recipient, users.eve, CLAIM_AMOUNT, getMerkleProof(), eip712Signature)
+            )
         );
     }
 
@@ -257,7 +297,9 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         vm.expectCall(
             merkleLockup,
             msgValue,
-            abi.encodeCall(ISablierMerkleInstant.claim, (INDEX1, users.recipient1, CLAIM_AMOUNT, index1Proof()))
+            abi.encodeCall(
+                ISablierMerkleInstant.claim, (getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, getMerkleProof())
+            )
         );
     }
 

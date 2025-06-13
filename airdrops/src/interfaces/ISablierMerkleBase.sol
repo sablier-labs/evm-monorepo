@@ -24,11 +24,15 @@ interface ISablierMerkleBase is IAdminable {
 
     /// @notice The timestamp at which campaign starts and claim begins.
     /// @dev This is an immutable state variable.
-    function CAMPAIGN_START_TIME() external returns (uint40);
+    function CAMPAIGN_START_TIME() external view returns (uint40);
+
+    /// @notice The domain separator, as required by EIP-712 and EIP-1271, used for signing claim to prevent replay
+    /// attacks across different campaigns.
+    function DOMAIN_SEPARATOR() external view returns (bytes32);
 
     /// @notice The cut-off point for the campaign, as a Unix timestamp. A value of zero means there is no expiration.
     /// @dev This is an immutable state variable.
-    function EXPIRATION() external returns (uint40);
+    function EXPIRATION() external view returns (uint40);
 
     /// @notice Retrieves the address of the factory contract.
     function FACTORY() external view returns (ISablierFactoryMerkleBase);
@@ -39,7 +43,7 @@ interface ISablierMerkleBase is IAdminable {
 
     /// @notice The root of the Merkle tree used to validate the proofs of inclusion.
     /// @dev This is an immutable state variable.
-    function MERKLE_ROOT() external returns (bytes32);
+    function MERKLE_ROOT() external view returns (bytes32);
 
     /// @notice Retrieves the oracle contract address.
     /// @dev This is an immutable state variable.
@@ -47,7 +51,7 @@ interface ISablierMerkleBase is IAdminable {
 
     /// @notice The ERC-20 token to distribute.
     /// @dev This is an immutable state variable.
-    function TOKEN() external returns (IERC20);
+    function TOKEN() external view returns (IERC20);
 
     /// @notice Calculates the min fee in wei required to claim the airdrop.
     /// @dev Uses {minFeeUSD} and the oracle price.
@@ -71,7 +75,7 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice Returns a flag indicating whether a claim has been made for a given index.
     /// @dev Uses a bitmap to save gas.
     /// @param index The index of the recipient to check.
-    function hasClaimed(uint256 index) external returns (bool);
+    function hasClaimed(uint256 index) external view returns (bool);
 
     /// @notice Returns a flag indicating whether the campaign has expired.
     function hasExpired() external view returns (bool);

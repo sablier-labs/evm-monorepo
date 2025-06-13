@@ -28,11 +28,11 @@ interface ISablierMerkleLockup is ISablierMerkleBase {
 
     /// @notice A flag indicating whether the streams can be canceled.
     /// @dev This is an immutable state variable.
-    function STREAM_CANCELABLE() external returns (bool);
+    function STREAM_CANCELABLE() external view returns (bool);
 
     /// @notice A flag indicating whether the stream NFTs are transferable.
     /// @dev This is an immutable state variable.
-    function STREAM_TRANSFERABLE() external returns (bool);
+    function STREAM_TRANSFERABLE() external view returns (bool);
 
     /// @notice Retrieves the stream IDs associated with the airdrops claimed by the provided recipient.
     /// In practice, most campaigns will only have one stream per recipient.

@@ -1,5 +1,5 @@
 ClaimTo_MerkleVCA_Integration_Test
-└── when valid Merkle proof
+└── when merkle proof valid
    ├── when vesting start time in future
    │  └── it should revert
    ├── when vesting start time in present

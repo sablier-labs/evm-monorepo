@@ -11,8 +11,9 @@ contract Claim_MerkleInstant_Integration_Test is Claim_Integration_Test, MerkleI
         MerkleInstant_Integration_Shared_Test.setUp();
     }
 
-    function test_Claim()
+    function test_WhenMerkleProofValid()
         external
+        override
         givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee
@@ -20,18 +21,18 @@ contract Claim_MerkleInstant_Integration_Test is Claim_Integration_Test, MerkleI
         whenIndexValid
         whenRecipientEligible
         whenAmountValid
-        whenMerkleProofValid
     {
         uint256 previousFeeAccrued = address(factoryMerkleInstant).balance;
+        uint256 index = getIndexInMerkleTree();
 
         vm.expectEmit({ emitter: address(merkleInstant) });
-        emit ISablierMerkleInstant.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, users.recipient1);
+        emit ISablierMerkleInstant.Claim(index, users.recipient, CLAIM_AMOUNT, users.recipient);
 
-        expectCallToTransfer({ to: users.recipient1, value: CLAIM_AMOUNT });
+        expectCallToTransfer({ to: users.recipient, value: CLAIM_AMOUNT });
         expectCallToClaimWithMsgValue(address(merkleInstant), MIN_FEE_WEI);
         claim();
 
-        assertTrue(merkleInstant.hasClaimed(INDEX1), "not claimed");
+        assertTrue(merkleInstant.hasClaimed(index), "not claimed");
 
         assertEq(address(factoryMerkleInstant).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
     }

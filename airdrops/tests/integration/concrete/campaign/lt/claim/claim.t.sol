@@ -20,19 +20,19 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         // Forward in time to the end of the vesting period.
         vm.warp({ newTimestamp: VESTING_END_TIME });
 
-        uint256 expectedRecipientBalance = dai.balanceOf(users.recipient1) + CLAIM_AMOUNT;
+        uint256 expectedRecipientBalance = dai.balanceOf(users.recipient) + CLAIM_AMOUNT;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
-        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, users.recipient1);
+        emit ISablierMerkleLockup.Claim(getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.recipient);
 
-        expectCallToTransfer({ to: users.recipient1, value: CLAIM_AMOUNT });
+        expectCallToTransfer({ to: users.recipient, value: CLAIM_AMOUNT });
         expectCallToClaimWithMsgValue(address(merkleLT), MIN_FEE_WEI);
 
         claim();
 
         // It should transfer the tokens to the recipient.
-        assertEq(dai.balanceOf(users.recipient1), expectedRecipientBalance, "recipient balance");
+        assertEq(dai.balanceOf(users.recipient), expectedRecipientBalance, "recipient balance");
     }
 
     function test_RevertWhen_TotalPercentageLessThan100()
@@ -47,7 +47,9 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         params.tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);
         params.tranchesWithPercentages[1].unlockPercentage = ud2x18(0.2e18);
 
+        // Create the MerkleLT campaign and cast it as {ISablierMerkleBase}.
         merkleLT = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        merkleBase = merkleLT;
 
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 0.25e18));
 
@@ -66,7 +68,9 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         params.tranchesWithPercentages[0].unlockPercentage = ud2x18(0.75e18);
         params.tranchesWithPercentages[1].unlockPercentage = ud2x18(0.8e18);
 
+        // Create the MerkleLT campaign and cast it as {ISablierMerkleBase}.
         merkleLT = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        merkleBase = merkleLT;
 
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 1.55e18));
 
@@ -82,7 +86,9 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
         params.vestingStartTime = 0;
 
+        // Create the MerkleLT campaign and cast it as {ISablierMerkleBase}.
         merkleLT = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        merkleBase = merkleLT;
 
         // It should create a stream with `block.timestamp` as vesting start time.
         _test_Claim({ streamStartTime: getBlockTimestamp() });
@@ -107,7 +113,9 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
-        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, expectedStreamId, users.recipient1);
+        emit ISablierMerkleLockup.Claim(
+            getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, expectedStreamId, users.recipient
+        );
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: CLAIM_AMOUNT });
         expectCallToClaimWithMsgValue(address(merkleLT), MIN_FEE_WEI);
@@ -118,7 +126,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         // Assert that the stream has been created successfully.
         assertEq(lockup.getDepositedAmount(expectedStreamId), CLAIM_AMOUNT, "depositedAmount");
         assertEq(lockup.getEndTime(expectedStreamId), streamStartTime + VESTING_TOTAL_DURATION, "stream end time");
-        assertEq(lockup.getRecipient(expectedStreamId), users.recipient1, "recipient");
+        assertEq(lockup.getRecipient(expectedStreamId), users.recipient, "recipient");
         assertEq(lockup.getSender(expectedStreamId), users.campaignCreator, "sender");
         assertEq(lockup.getStartTime(expectedStreamId), streamStartTime, "stream start time");
         // It should create a stream with `VESTING_START_TIME` as vesting start time.
@@ -133,14 +141,14 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         assertEq(lockup.isTransferable(expectedStreamId), STREAM_TRANSFERABLE, "is transferable");
         assertEq(lockup.wasCanceled(expectedStreamId), false, "was canceled");
 
-        assertTrue(merkleLT.hasClaimed(INDEX1), "not claimed");
+        assertTrue(merkleLT.hasClaimed(getIndexInMerkleTree()), "not claimed");
 
         // It should create the stream with the correct Lockup model.
         assertEq(lockup.getLockupModel(expectedStreamId), Lockup.Model.LOCKUP_TRANCHED);
 
         uint256[] memory expectedClaimedStreamIds = new uint256[](1);
         expectedClaimedStreamIds[0] = expectedStreamId;
-        assertEq(merkleLT.claimedStreams(users.recipient1), expectedClaimedStreamIds, "claimed streams");
+        assertEq(merkleLT.claimedStreams(users.recipient), expectedClaimedStreamIds, "claimed streams");
 
         assertEq(address(factoryMerkleLT).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
     }

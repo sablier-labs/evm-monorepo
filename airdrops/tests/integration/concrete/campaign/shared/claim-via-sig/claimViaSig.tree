@@ -1,0 +1,21 @@
+ClaimViaSig_Integration_Test
+├── when to address zero
+│  └── it should revert
+└── when to address not zero
+   ├── given recipient is EOA
+   │  ├── when signature not compatible
+   │  │  └── it should revert
+   │  └── when signature compatible
+   │     ├── when signer different from recipient
+   │     │  └── it should revert
+   │     └── when signer same as recipient
+   │        ├── it should mark the index as Claimed
+   │        ├── it should transfer the ETH to the merkle lockup
+   │        └── it should emit {Claim} event
+   └── given recipient is contract
+      ├── when recipient not implement IERC1271 interface
+      │  └── it should revert
+      └── when recipient implements IERC1271 interface
+         ├── it should mark the index as Claimed
+         ├── it should transfer the ETH to the merkle lockup
+         └── it should emit {Claim} event

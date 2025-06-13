@@ -34,8 +34,8 @@ interface ISablierMerkleLL is ISablierMerkleLockup {
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Makes the claim. If the vesting end time is in the future, it creates a Lockup Linear stream,
-    /// otherwise it transfers the tokens directly to the recipient.
+    /// @notice Claim airdrop on behalf of eligible recipient. If the vesting end time is in the future, it creates a
+    /// Lockup Linear stream, otherwise it transfers the tokens directly to the recipient address.
     ///
     /// @dev It emits a {Claim} event.
     ///
@@ -53,7 +53,7 @@ interface ISablierMerkleLL is ISablierMerkleLockup {
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     function claim(uint256 index, address recipient, uint128 amount, bytes32[] calldata merkleProof) external payable;
 
-    /// @notice Makes the claim. If the vesting end time is in the future, it creates a Lockup Linear stream with `to`
+    /// @notice Claim airdrop. If the vesting end time is in the future, it creates a Lockup Linear stream with `to`
     /// address as the stream recipient, otherwise it transfers the tokens directly to the `to` address.
     ///
     /// @dev It emits a {Claim} event.
@@ -68,4 +68,64 @@ interface ISablierMerkleLL is ISablierMerkleLockup {
     /// @param amount The amount of ERC-20 tokens allocated to the `msg.sender`.
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     function claimTo(uint256 index, address to, uint128 amount, bytes32[] calldata merkleProof) external payable;
+
+    /// @notice Claim airdrop on behalf of eligible recipient using an EIP-712 or EIP-1271 signature. If the vesting end
+    /// time is in the future, it creates a Lockup Linear stream with `to` address as the stream recipient, otherwise it
+    /// transfers the tokens directly to the `to` address.
+    ///
+    /// @dev It emits a {Claim} event.
+    ///
+    /// Requirements:
+    /// - If `recipient` is an EOA, it must match the recovered signer.
+    /// - If `recipient` is a contract, it must implement the IERC-1271 interface.
+    /// - The `to` is not the zero address.
+    /// - Refer to the requirements in {claim}.
+    ///
+    /// Below is the example of typed data to be signed by the airdrop recipient, referenced from
+    /// https://docs.metamask.io/wallet/how-to/sign-data/#example.
+    ///
+    /// ```json
+    /// types: {
+    ///   EIP712Domain: [
+    ///     { name: "name", type: "string" },
+    ///     { name: "chainId", type: "uint256" },
+    ///     { name: "verifyingContract", type: "address" },
+    ///   ],
+    ///   Claim: [
+    ///     { name: "index", type: "uint256" },
+    ///     { name: "recipient", type: "address" },
+    ///     { name: "to", type: "address" },
+    ///     { name: "amount", type: "uint128" },
+    ///   ],
+    /// },
+    /// domain: {
+    ///   name: "Sablier Airdrops Protocol",
+    ///   chainId: 1, // Chain on which the contract is deployed
+    ///   verifyingContract: "0xTheAddressOfThisContract", // The address of this contract
+    /// },
+    /// primaryType: "Claim",
+    /// message: {
+    ///   index: 2, // The index of the signer in the Merkle tree
+    ///   recipient: "0xTheAddressOfTheRecipient", // The address of the airdrop recipient
+    ///   to: "0xTheAddressReceivingTheTokens", // The address where recipient wants to transfer the tokens
+    ///   amount: "1000000000000000000000" // The amount of tokens allocated to the recipient
+    /// },
+    /// ```
+    ///
+    /// @param index The index of the recipient in the Merkle tree.
+    /// @param recipient The address of the airdrop recipient who is providing the signature.
+    /// @param to The address to which Lockup stream or ERC-20 tokens will be sent on behalf of the recipient.
+    /// @param amount The amount of ERC-20 tokens allocated to the recipient.
+    /// @param merkleProof The proof of inclusion in the Merkle tree.
+    /// @param signature The EIP-712 or EIP-1271 signature from the airdrop recipient.
+    function claimViaSig(
+        uint256 index,
+        address recipient,
+        address to,
+        uint128 amount,
+        bytes32[] calldata merkleProof,
+        bytes calldata signature
+    )
+        external
+        payable;
 }

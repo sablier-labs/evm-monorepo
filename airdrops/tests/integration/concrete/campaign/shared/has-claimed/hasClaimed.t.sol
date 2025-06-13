@@ -4,14 +4,14 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract HasClaimed_Integration_Test is Integration_Test {
-    function test_WhenIndexNotInMerkleTree() external {
+    function test_WhenIndexNotInMerkleTree() external view {
         uint256 indexNotInTree = 1337e18;
         assertFalse(merkleBase.hasClaimed(indexNotInTree), "claimed");
     }
 
-    function test_GivenRecipientNotClaimed() external whenIndexInMerkleTree {
+    function test_GivenRecipientNotClaimed() external view whenIndexInMerkleTree {
         // It should return false.
-        assertFalse(merkleBase.hasClaimed(INDEX1), "claimed");
+        assertFalse(merkleBase.hasClaimed(getIndexInMerkleTree()), "claimed");
     }
 
     function test_GivenRecipientClaimed() external whenIndexInMerkleTree {
@@ -19,6 +19,6 @@ abstract contract HasClaimed_Integration_Test is Integration_Test {
         claim();
 
         // It should return true.
-        assertTrue(merkleBase.hasClaimed(INDEX1), "not claimed");
+        assertTrue(merkleBase.hasClaimed(getIndexInMerkleTree()), "not claimed");
     }
 }

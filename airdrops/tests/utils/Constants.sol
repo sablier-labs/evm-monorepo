@@ -14,7 +14,6 @@ abstract contract Constants {
     uint256 public constant AGGREGATE_AMOUNT = CLAIM_AMOUNT * RECIPIENT_COUNT;
     uint128 public constant CLAIM_AMOUNT = 10_000e18;
     uint128 public constant CLIFF_AMOUNT = (CLAIM_AMOUNT * VESTING_CLIFF_DURATION) / VESTING_TOTAL_DURATION;
-    uint256 public constant MAX_FEE_USD = 100e8; // $100
     uint256 public constant MIN_FEE_USD = 3e8; // $3 fee
     uint256 public constant MIN_FEE_WEI = (1e18 * MIN_FEE_USD) / 3000e8; // at $3000 per ETH price
     uint128 public constant VCA_FULL_AMOUNT = CLAIM_AMOUNT;

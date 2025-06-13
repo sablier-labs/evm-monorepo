@@ -3,9 +3,10 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
 
-import { MerkleVCA_Integration_Shared_Test } from "./MerkleVCA.t.sol";
+import { Utilities } from "../../../../utils/Utilities.sol";
+import { Integration_Test } from "./../../../Integration.t.sol";
 
-contract Constructor_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_Test {
+contract Constructor_MerkleVCA_Integration_Test is Integration_Test {
     function test_Constructor() external {
         // Make Factory the caller for the constructor test.
         setMsgSender(address(factoryMerkleVCA));
@@ -17,6 +18,11 @@ contract Constructor_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_
         assertEq(constructedVCA.admin(), users.campaignCreator, "admin");
         assertEq(constructedVCA.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedVCA.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
+        assertEq(
+            constructedVCA.DOMAIN_SEPARATOR(),
+            Utilities.computeEIP712DomainSeparator(address(constructedVCA)),
+            "domain separator"
+        );
         assertEq(constructedVCA.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(address(constructedVCA.FACTORY()), address(factoryMerkleVCA), "factory");
         assertEq(constructedVCA.ipfsCID(), IPFS_CID, "IPFS CID");

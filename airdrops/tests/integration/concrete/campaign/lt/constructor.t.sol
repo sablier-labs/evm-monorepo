@@ -4,6 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
 import { MerkleLT } from "src/types/DataTypes.sol";
 
+import { Utilities } from "../../../../utils/Utilities.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
 
 contract Constructor_MerkleLT_Integration_Test is Integration_Test {
@@ -24,6 +25,11 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         assertEq(constructedLT.admin(), users.campaignCreator, "admin");
         assertEq(constructedLT.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedLT.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
+        assertEq(
+            constructedLT.DOMAIN_SEPARATOR(),
+            Utilities.computeEIP712DomainSeparator(address(constructedLT)),
+            "domain separator"
+        );
         assertEq(constructedLT.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(address(constructedLT.FACTORY()), address(factoryMerkleLT), "factory");
         assertEq(constructedLT.ipfsCID(), IPFS_CID, "IPFS CID");

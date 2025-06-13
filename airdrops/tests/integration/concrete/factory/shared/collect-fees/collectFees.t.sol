@@ -11,7 +11,7 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
         setMsgSender(users.accountant);
 
         // It should transfer fee to the fee recipient.
-        _test_CollectFees({ feeRecipient: users.recipient });
+        _test_CollectFees({ feeRecipient: users.accountant });
     }
 
     function test_RevertWhen_FeeRecipientNotAdmin() external whenCallerNotAdmin whenCallerWithoutFeeCollectorRole {
@@ -30,7 +30,7 @@ abstract contract CollectFees_Integration_Test is Integration_Test {
 
     function test_WhenFeeRecipientNotContract() external whenCallerAdmin {
         // It should transfer fee to the fee recipient.
-        _test_CollectFees({ feeRecipient: users.recipient });
+        _test_CollectFees({ feeRecipient: users.accountant });
     }
 
     function test_RevertWhen_FeeRecipientDoesNotImplementReceiveFunction()

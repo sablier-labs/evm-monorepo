@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
@@ -9,6 +8,7 @@ import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "../Base.t.sol";
+import { Utilities } from "../utils/Utilities.sol";
 
 abstract contract Integration_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
@@ -39,14 +39,14 @@ abstract contract Integration_Test is Base_Test {
                                    MERKLE-CLAIMS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Claim to `users.recipient1` address using {claim} function.
+    /// @dev Claim to `users.recipient` address using {claim} function.
     function claim() internal {
         claim({
             msgValue: MIN_FEE_WEI,
-            index: INDEX1,
-            recipient: users.recipient1,
+            index: getIndexInMerkleTree(),
+            recipient: users.recipient,
             amount: CLAIM_AMOUNT,
-            merkleProof: index1Proof()
+            merkleProof: getMerkleProof()
         });
     }
 
@@ -59,40 +59,21 @@ abstract contract Integration_Test is Base_Test {
     )
         internal
     {
-        if (Strings.equal(campaignType, "instant")) {
-            merkleInstant.claim{ value: msgValue }({
-                index: index,
-                recipient: recipient,
-                amount: amount,
-                merkleProof: merkleProof
-            });
-        } else if (Strings.equal(campaignType, "ll")) {
-            merkleLL.claim{ value: msgValue }({
-                index: index,
-                recipient: recipient,
-                amount: amount,
-                merkleProof: merkleProof
-            });
-        } else if (Strings.equal(campaignType, "lt")) {
-            merkleLT.claim{ value: msgValue }({
-                index: index,
-                recipient: recipient,
-                amount: amount,
-                merkleProof: merkleProof
-            });
-        } else if (Strings.equal(campaignType, "vca")) {
-            merkleVCA.claim{ value: msgValue }({
-                index: index,
-                recipient: recipient,
-                fullAmount: amount,
-                merkleProof: merkleProof
-            });
-        }
+        // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
+        // claim function signature.
+        address campaignAddr = address(merkleBase);
+        ISablierMerkleInstant(campaignAddr).claim{ value: msgValue }(index, recipient, amount, merkleProof);
     }
 
-    /// @dev Claim to Eve address on behalf of `users.recipient1` using {claimTo} function.
+    /// @dev Claim to Eve address on behalf of `users.recipient` using {claimTo} function.
     function claimTo() internal {
-        claimTo({ msgValue: MIN_FEE_WEI, index: INDEX1, to: users.eve, amount: CLAIM_AMOUNT, merkleProof: index1Proof() });
+        claimTo({
+            msgValue: MIN_FEE_WEI,
+            index: getIndexInMerkleTree(),
+            to: users.eve,
+            amount: CLAIM_AMOUNT,
+            merkleProof: getMerkleProof()
+        });
     }
 
     function claimTo(
@@ -104,15 +85,54 @@ abstract contract Integration_Test is Base_Test {
     )
         internal
     {
-        if (Strings.equal(campaignType, "instant")) {
-            merkleInstant.claimTo{ value: msgValue }({ index: index, to: to, amount: amount, merkleProof: merkleProof });
-        } else if (Strings.equal(campaignType, "ll")) {
-            merkleLL.claimTo{ value: msgValue }({ index: index, to: to, amount: amount, merkleProof: merkleProof });
-        } else if (Strings.equal(campaignType, "lt")) {
-            merkleLT.claimTo{ value: msgValue }({ index: index, to: to, amount: amount, merkleProof: merkleProof });
-        } else if (Strings.equal(campaignType, "vca")) {
-            merkleVCA.claimTo{ value: msgValue }({ index: index, to: to, fullAmount: amount, merkleProof: merkleProof });
-        }
+        // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
+        // claimTo function signature.
+        address campaignAddr = address(merkleBase);
+        ISablierMerkleInstant(campaignAddr).claimTo{ value: msgValue }(index, to, amount, merkleProof);
+    }
+
+    /// @dev Claim to Eve address on behalf of `users.recipient` using {claimViaSig} function.
+    function claimViaSig() internal {
+        claimViaSig({
+            msgValue: MIN_FEE_WEI,
+            index: getIndexInMerkleTree(),
+            recipient: users.recipient,
+            to: users.eve,
+            amount: CLAIM_AMOUNT,
+            merkleProof: getMerkleProof(),
+            signature: eip712Signature
+        });
+    }
+
+    function claimViaSig(
+        uint256 msgValue,
+        uint256 index,
+        address recipient,
+        address to,
+        uint128 amount,
+        bytes32[] memory merkleProof,
+        bytes memory signature
+    )
+        internal
+    {
+        // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
+        // claimViaSig function signature.
+        address campaignAddr = address(merkleBase);
+        ISablierMerkleInstant(campaignAddr).claimViaSig{ value: msgValue }(
+            index, recipient, to, amount, merkleProof, signature
+        );
+    }
+
+    /// @dev Generate the EIP-712 signature to claim with default parameters.
+    function generateSignature(address user, address merkleContract) internal view returns (bytes memory) {
+        return Utilities.generateEIP712Signature({
+            signerPrivateKey: recipientPrivateKey,
+            merkleContract: merkleContract,
+            index: getIndexInMerkleTree(user),
+            recipient: user,
+            to: users.eve,
+            amount: CLAIM_AMOUNT
+        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

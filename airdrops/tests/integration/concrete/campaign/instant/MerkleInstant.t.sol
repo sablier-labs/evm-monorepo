@@ -20,6 +20,7 @@ abstract contract MerkleInstant_Integration_Shared_Test is Integration_Test {
 
         // Cast the {FactoryMerkleInstant} contract as {ISablierFactoryMerkleBase}
         factoryMerkleBase = factoryMerkleInstant;
+
         // Cast the {MerkleInstant} contract as {ISablierMerkleBase}
         merkleBase = merkleInstant;
 

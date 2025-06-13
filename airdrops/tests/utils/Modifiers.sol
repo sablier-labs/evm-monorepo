@@ -47,6 +47,14 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier givenRecipientIsContract() {
+        _;
+    }
+
+    modifier givenRecipientIsEOA() {
+        _;
+    }
+
     modifier givenRecipientNotClaimed() {
         _;
     }
@@ -76,7 +84,7 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenCallerEligible() {
-        setMsgSender(users.recipient1);
+        setMsgSender(users.recipient);
         _;
     }
 
@@ -169,6 +177,10 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenRecipientEligible() {
+        _;
+    }
+
+    modifier whenSignatureCompatible() {
         _;
     }
 

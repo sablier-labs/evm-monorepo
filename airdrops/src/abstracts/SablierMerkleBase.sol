@@ -5,11 +5,14 @@ import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/inte
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import { BitMaps } from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
 import { ISablierFactoryMerkleBase } from "./../interfaces/ISablierFactoryMerkleBase.sol";
 import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
+import { SignatureHash } from "./../libraries/SignatureHash.sol";
 
 /// @title SablierMerkleBase
 /// @notice See the documentation in {ISablierMerkleBase}.
@@ -26,6 +29,9 @@ abstract contract SablierMerkleBase is
 
     /// @inheritdoc ISablierMerkleBase
     uint40 public immutable override CAMPAIGN_START_TIME;
+
+    /// @inheritdoc ISablierMerkleBase
+    bytes32 public immutable DOMAIN_SEPARATOR;
 
     /// @inheritdoc ISablierMerkleBase
     uint40 public immutable override EXPIRATION;
@@ -61,6 +67,17 @@ abstract contract SablierMerkleBase is
     BitMaps.BitMap internal _claimedBitMap;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                     MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Modifier to check that `to` is not zero address.
+    modifier notZeroAddress(address to) {
+        _revertIfToZeroAddress(to);
+
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -77,12 +94,18 @@ abstract contract SablierMerkleBase is
     )
         Adminable(initialAdmin)
     {
+        // Compute the domain separator to be used for claiming using an EIP-712 or EIP-1271 signature.
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(SignatureHash.DOMAIN_TYPEHASH, SignatureHash.PROTOCOL_NAME, block.chainid, address(this))
+        );
+
         CAMPAIGN_START_TIME = campaignStartTime;
         EXPIRATION = expiration;
         FACTORY = ISablierFactoryMerkleBase(msg.sender);
         MERKLE_ROOT = merkleRoot;
         ORACLE = FACTORY.oracle();
         TOKEN = token;
+
         campaignName = campaignName_;
         ipfsCID = ipfsCID_;
         minFeeUSD = FACTORY.minFeeUSDFor(campaignCreator);
@@ -158,10 +181,44 @@ abstract contract SablierMerkleBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                            INTERNAL READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Verifies the signature against the provided parameters. It supports both EIP-712 and EIP-1271 signatures.
+    function _checkSignature(
+        uint256 index,
+        address recipient,
+        address to,
+        uint128 amount,
+        bytes calldata signature
+    )
+        internal
+        view
+    {
+        // Encode the claim parameters using claim type hash and hash it.
+        bytes32 claimHash = keccak256(abi.encode(SignatureHash.CLAIM_TYPEHASH, index, recipient, to, amount));
+
+        // Returns the keccak256 digest of the claim parameters using claim hash and the domain separator.
+        bytes32 digest = MessageHashUtils.toTypedDataHash({ domainSeparator: DOMAIN_SEPARATOR, structHash: claimHash });
+
+        // If recipient is an EOA, `isValidSignatureNow` recovers the signer using ECDSA from the signature and the
+        // digest. It returns true if the recovered signer matches the recipient. If the recipient is a contract,
+        // `isValidSignatureNow` checks if the recipient implements the `IERC1271` interface and returns the magic value
+        // as per EIP-1271 for the given digest and signature.
+        bool isSignatureValid =
+            SignatureChecker.isValidSignatureNow({ signer: recipient, hash: digest, signature: signature });
+
+        // Check: `isSignatureValid` is true.
+        if (!isSignatureValid) {
+            revert Errors.SablierMerkleBase_InvalidSignature();
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this private function.
     function _calculateMinFeeWei() private view returns (uint256) {
         // If the oracle is not set, return 0.
         if (ORACLE == address(0)) {
@@ -216,6 +273,13 @@ abstract contract SablierMerkleBase is
     /// @dev The grace period is 7 days after the first claim.
     function _hasGracePeriodPassed() private view returns (bool) {
         return firstClaimTime > 0 && block.timestamp > firstClaimTime + 7 days;
+    }
+
+    /// @dev This function checks if `to` is zero address.
+    function _revertIfToZeroAddress(address to) private pure {
+        if (to == address(0)) {
+            revert Errors.SablierMerkleBase_ToZeroAddress();
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

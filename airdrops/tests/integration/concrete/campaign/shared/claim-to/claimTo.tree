@@ -8,7 +8,7 @@ ClaimTo_Integration_Test
       ├── when caller not eligible
       │  └── it should revert
       └── when caller eligible
-         └── when Merkle proof valid
+         └── when merkle proof valid
             ├── it should mark the index as Claimed
             ├── it should transfer the ETH to the merkle lockup
             └── it should emit {Claim} event

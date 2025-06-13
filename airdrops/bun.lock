@@ -7,8 +7,8 @@
         "@chainlink/contracts": "1.3.0",
         "@openzeppelin/contracts": "5.3.0",
         "@prb/math": "4.1.0",
-        "@sablier/evm-utils": "github:sablier-labs/evm-utils#e81a04b",
-        "@sablier/lockup": "github:sablier-labs/lockup#0c8f8fa",
+        "@sablier/evm-utils": "github:sablier-labs/evm-utils#e66fb2d",
+        "@sablier/lockup": "github:sablier-labs/lockup#07303b1",
       },
       "devDependencies": {
         "@sablier/devkit": "github:sablier-labs/devkit",
@@ -174,9 +174,9 @@
 
     "@sablier/devkit": ["@sablier/devkit@github:sablier-labs/devkit#da0e832", {}, "sablier-labs-devkit-da0e832"],
 
-    "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#e81a04b", {}, "sablier-labs-evm-utils-e81a04b"],
+    "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#e66fb2d", { "dependencies": { "@chainlink/contracts": "1.3.0" } }, "sablier-labs-evm-utils-e66fb2d"],
 
-    "@sablier/lockup": ["@sablier/lockup@github:sablier-labs/lockup#0c8f8fa", { "dependencies": { "@openzeppelin/contracts": "5.3.0", "@prb/math": "4.1.0", "@sablier/evm-utils": "github:sablier-labs/evm-utils#64835cd" }, "peerDependencies": { "@prb/math": "4.x.x" } }, "sablier-labs-lockup-0c8f8fa"],
+    "@sablier/lockup": ["@sablier/lockup@github:sablier-labs/lockup#07303b1", { "dependencies": { "@openzeppelin/contracts": "5.3.0", "@prb/math": "4.1.0", "@sablier/evm-utils": "github:sablier-labs/evm-utils#e81a04b" }, "peerDependencies": { "@prb/math": "4.x.x" } }, "sablier-labs-lockup-07303b1"],
 
     "@scroll-tech/contracts": ["@scroll-tech/contracts@0.1.0", "", {}, "sha512-aBbDOc3WB/WveZdpJYcrfvMYMz7ZTEiW8M9XMJLba8p9FAR5KGYB/cV+8+EUsq3MKt7C1BfR+WnXoTVdvwIY6w=="],
 
@@ -812,7 +812,7 @@
 
     "@pnpm/network.ca-file/graceful-fs": ["graceful-fs@4.2.10", "", {}, "sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA=="],
 
-    "@sablier/lockup/@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#64835cd", {}, "sablier-labs-evm-utils-64835cd"],
+    "@sablier/lockup/@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#e81a04b", {}, "sablier-labs-evm-utils-e81a04b"],
 
     "cli-truncate/slice-ansi": ["slice-ansi@7.1.2", "", { "dependencies": { "ansi-styles": "^6.2.1", "is-fullwidth-code-point": "^5.0.0" } }, "sha512-iOBWFgUX7caIZiuutICxVgX1SdxwAVFFKwt1EvMYYec/NWO5meOJ6K5uQxhrYBdQJne4KxiqZc+KptFOWFSI9w=="],
 

@@ -7,6 +7,28 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 /// @notice Library containing all custom errors the protocol may revert with.
 library Errors {
     /*//////////////////////////////////////////////////////////////////////////
+                            SABLIER-FACTORY-MERKLE-BASE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when an unauthorized address collects fee without setting the fee recipient to admin address.
+    error SablierFactoryMerkleBase_FeeRecipientNotAdmin(address feeRecipient, address admin);
+
+    /// @notice Thrown if fee transfer fails.
+    error SablierFactoryMerkleBase_FeeTransferFailed(address feeRecipient, uint256 feeAmount);
+
+    /// @notice Thrown when trying to create a campaign with native token.
+    error SablierFactoryMerkleBase_ForbidNativeToken(address nativeToken);
+
+    /// @notice Thrown when trying to set fee to a value that exceeds the maximum USD fee.
+    error SablierFactoryMerkleBase_MaxFeeUSDExceeded(uint256 newFeeUSD, uint256 maxFeeUSD);
+
+    /// @notice Thrown when trying to set the native token address when it is already set.
+    error SablierFactoryMerkleBase_NativeTokenAlreadySet(address nativeToken);
+
+    /// @notice Thrown when trying to set zero address as native token.
+    error SablierFactoryMerkleBase_NativeTokenZeroAddress();
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER-MERKLE-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -35,44 +57,14 @@ library Errors {
     /// @notice Thrown when trying to claim with an invalid Merkle proof.
     error SablierMerkleBase_InvalidProof();
 
+    /// @notice Thrown when claiming with an invalid EIP-712 or EIP-1271 signature.
+    error SablierMerkleBase_InvalidSignature();
+
     /// @notice Thrown when trying to set a new min USD fee that is higher than the current fee.
     error SablierMerkleBase_NewMinFeeUSDNotLower(uint256 currentMinFeeUSD, uint256 newMinFeeUSD);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            SABLIER-FACTORY-MERKLE-BASE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when an unauthorized address collects fee without setting the fee recipient to admin address.
-    error SablierFactoryMerkleBase_FeeRecipientNotAdmin(address feeRecipient, address admin);
-
-    /// @notice Thrown if fee transfer fails.
-    error SablierFactoryMerkleBase_FeeTransferFailed(address feeRecipient, uint256 feeAmount);
-
-    /// @notice Thrown when trying to create a campaign with native token.
-    error SablierFactoryMerkleBase_ForbidNativeToken(address nativeToken);
-
-    /// @notice Thrown when trying to set fee to a value that exceeds the maximum USD fee.
-    error SablierFactoryMerkleBase_MaxFeeUSDExceeded(uint256 newFeeUSD, uint256 maxFeeUSD);
-
-    /// @notice Thrown when trying to set the native token address when it is already set.
-    error SablierFactoryMerkleBase_NativeTokenAlreadySet(address nativeToken);
-
-    /// @notice Thrown when trying to set zero address as native token.
-    error SablierFactoryMerkleBase_NativeTokenZeroAddress();
-
-    /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-MERKLE-INSTANT
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @notice Thrown when trying to claim to the zero address.
-    error SablierMerkleInstant_ToZeroAddress();
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-MERKLE-LL
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when trying to claim to the zero address.
-    error SablierMerkleLL_ToZeroAddress();
+    error SablierMerkleBase_ToZeroAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-MERKLE-LT
@@ -80,9 +72,6 @@ library Errors {
 
     /// @notice Thrown when trying to claim from an LT campaign with tranches' unlock percentages not adding up to 100%.
     error SablierMerkleLT_TotalPercentageNotOneHundred(uint64 totalPercentage);
-
-    /// @notice Thrown when trying to claim to the zero address.
-    error SablierMerkleLT_ToZeroAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-MERKLE-VCA
@@ -102,9 +91,6 @@ library Errors {
 
     /// @notice Thrown if the start time is zero.
     error SablierMerkleVCA_StartTimeZero();
-
-    /// @notice Thrown when trying to claim to the zero address.
-    error SablierMerkleVCA_ToZeroAddress();
 
     /// @notice Thrown if the unlock percentage is greater than 100%.
     error SablierMerkleVCA_UnlockPercentageTooHigh(UD60x18 unlockPercentage);

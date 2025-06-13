@@ -25,7 +25,7 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
-        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, users.eve);
+        emit ISablierMerkleLockup.Claim(getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.eve);
 
         expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
         expectCallToClaimToWithMsgValue(address(merkleLT), MIN_FEE_WEI);
@@ -48,7 +48,9 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
         params.tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);
         params.tranchesWithPercentages[1].unlockPercentage = ud2x18(0.2e18);
 
+        // Create the MerkleLT campaign and cast it as {ISablierMerkleBase}.
         merkleLT = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        merkleBase = merkleLT;
 
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 0.25e18));
 
@@ -63,11 +65,12 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
     {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
 
-        // Create a MerkleLT campaign with a total percentage less than 100.
         params.tranchesWithPercentages[0].unlockPercentage = ud2x18(0.75e18);
         params.tranchesWithPercentages[1].unlockPercentage = ud2x18(0.8e18);
 
+        // Create the MerkleLT campaign and cast it as {ISablierMerkleBase}.
         merkleLT = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        merkleBase = merkleLT;
 
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 1.55e18));
 
@@ -83,7 +86,9 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
         params.vestingStartTime = 0;
 
+        // Create the MerkleLT campaign and cast it as {ISablierMerkleBase}.
         merkleLT = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        merkleBase = merkleLT;
 
         // It should create a stream with `block.timestamp` as stream start time.
         // It should create a stream with Eve as recipient.
@@ -110,7 +115,9 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
-        emit ISablierMerkleLockup.Claim(INDEX1, users.recipient1, CLAIM_AMOUNT, expectedStreamId, users.eve);
+        emit ISablierMerkleLockup.Claim(
+            getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, expectedStreamId, users.eve
+        );
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: CLAIM_AMOUNT });
         expectCallToClaimToWithMsgValue(address(merkleLT), MIN_FEE_WEI);
@@ -136,14 +143,14 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
         assertEq(lockup.isTransferable(expectedStreamId), STREAM_TRANSFERABLE, "is transferable");
         assertEq(lockup.wasCanceled(expectedStreamId), false, "was canceled");
 
-        assertTrue(merkleLT.hasClaimed(INDEX1), "not claimed");
+        assertTrue(merkleLT.hasClaimed(getIndexInMerkleTree()), "not claimed");
 
         // It should create the stream with the correct Lockup model.
         assertEq(lockup.getLockupModel(expectedStreamId), Lockup.Model.LOCKUP_TRANCHED);
 
         uint256[] memory expectedClaimedStreamIds = new uint256[](1);
         expectedClaimedStreamIds[0] = expectedStreamId;
-        assertEq(merkleLT.claimedStreams(users.recipient1), expectedClaimedStreamIds, "claimed streams");
+        assertEq(merkleLT.claimedStreams(users.recipient), expectedClaimedStreamIds, "claimed streams");
 
         assertEq(address(factoryMerkleLT).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
     }

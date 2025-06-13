@@ -155,10 +155,10 @@ contract SablierMerkleVCA is
         payable
         override
     {
-        // Check, Effect and Interaction: Pre-process the claim parameters.
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
         _preProcessClaim({ index: index, recipient: recipient, amount: fullAmount, merkleProof: merkleProof });
 
-        // Check, Effect and Interaction: Post-process the claim parameters.
+        // Check, Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
         _postProcessClaim({ index: index, recipient: recipient, to: recipient, fullAmount: fullAmount });
     }
 
@@ -172,17 +172,37 @@ contract SablierMerkleVCA is
         external
         payable
         override
+        notZeroAddress(to)
     {
-        // Check: `to` must not be the zero address.
-        if (to == address(0)) {
-            revert Errors.SablierMerkleVCA_ToZeroAddress();
-        }
-
-        // Check, Effect and Interaction: Pre-process the claim parameters.
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
         _preProcessClaim({ index: index, recipient: msg.sender, amount: fullAmount, merkleProof: merkleProof });
 
-        // Check, Effect and Interaction: Post-process the claim parameters.
+        // Check, Effect and Interaction: Post-process the claim parameters on behalf of `msg.sender`.
         _postProcessClaim({ index: index, recipient: msg.sender, to: to, fullAmount: fullAmount });
+    }
+
+    /// @inheritdoc ISablierMerkleVCA
+    function claimViaSig(
+        uint256 index,
+        address recipient,
+        address to,
+        uint128 fullAmount,
+        bytes32[] calldata merkleProof,
+        bytes calldata signature
+    )
+        external
+        payable
+        override
+        notZeroAddress(to)
+    {
+        // Check: the signature is valid and the recovered signer matches the recipient.
+        _checkSignature(index, recipient, to, fullAmount, signature);
+
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
+        _preProcessClaim(index, recipient, fullAmount, merkleProof);
+
+        // Check, Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
+        _postProcessClaim(index, recipient, to, fullAmount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

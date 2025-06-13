@@ -20,14 +20,14 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
         merkleVCA = createMerkleVCA(params);
 
         // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleVCA_ClaimAmountZero.selector, users.recipient1));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleVCA_ClaimAmountZero.selector, users.recipient));
 
         // Claim the airdrop.
         merkleVCA.claim{ value: MIN_FEE_WEI }({
-            index: INDEX1,
-            recipient: users.recipient1,
+            index: getIndexInMerkleTree(),
+            recipient: users.recipient,
             fullAmount: CLAIM_AMOUNT,
-            merkleProof: index1Proof()
+            merkleProof: getMerkleProof()
         });
     }
 
@@ -52,27 +52,32 @@ contract Claim_MerkleVCA_Integration_Test is Claim_Integration_Test, MerkleVCA_I
     }
 
     function _test_Claim(uint128 claimAmount) private {
+        // Cast the {MerkleVCA} contract as {ISablierMerkleBase}.
+        merkleBase = merkleVCA;
+
+        uint256 index = getIndexInMerkleTree();
+
         uint128 forgoneAmount = VCA_FULL_AMOUNT - claimAmount;
         uint256 previousFeeAccrued = address(factoryMerkleVCA).balance;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleVCA) });
         emit ISablierMerkleVCA.Claim({
-            index: INDEX1,
-            recipient: users.recipient1,
+            index: index,
+            recipient: users.recipient,
             claimAmount: claimAmount,
             forgoneAmount: forgoneAmount,
-            to: users.recipient1
+            to: users.recipient
         });
 
         // It should transfer a portion of the amount.
-        expectCallToTransfer({ to: users.recipient1, value: claimAmount });
+        expectCallToTransfer({ to: users.recipient, value: claimAmount });
         expectCallToClaimWithMsgValue(address(merkleVCA), MIN_FEE_WEI);
 
         claim();
 
         // It should update the claimed status.
-        assertTrue(merkleVCA.hasClaimed(INDEX1), "not claimed");
+        assertTrue(merkleVCA.hasClaimed(index), "not claimed");
 
         // It should update the total forgone amount.
         assertEq(merkleVCA.totalForgoneAmount(), forgoneAmount, "total forgone amount");

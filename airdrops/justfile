@@ -4,6 +4,3 @@ import "./node_modules/@sablier/devkit/just/evm.just"
 
 default:
   @just --list
-
-test *args:
-  forge test --nmc ChainlinkOracle_Fork_Test {{ args }}
