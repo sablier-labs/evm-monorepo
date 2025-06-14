@@ -20,7 +20,7 @@ contract ClaimViaSig_MerkleLT_Integration_Test is ClaimViaSig_Integration_Test, 
         whenSignatureCompatible
     {
         uint256 expectedStreamId = lockup.nextStreamId();
-        uint256 previousFeeAccrued = address(factoryMerkleLT).balance;
+        uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();
 
         eip712Signature = generateSignature(users.recipient, address(merkleLT));
@@ -29,14 +29,14 @@ contract ClaimViaSig_MerkleLT_Integration_Test is ClaimViaSig_Integration_Test, 
         emit ISablierMerkleLockup.Claim(index, users.recipient, CLAIM_AMOUNT, expectedStreamId, users.eve);
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: CLAIM_AMOUNT });
-        expectCallToClaimViaSigWithMsgValue(address(merkleLT), MIN_FEE_WEI);
+        expectCallToClaimViaSigWithMsgValue(address(merkleLT), AIRDROP_MIN_FEE_WEI);
 
         // Claim the airstream.
         claimViaSig();
 
         assertTrue(merkleLT.hasClaimed(index), "not claimed");
 
-        assertEq(address(factoryMerkleLT).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
+        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }
 
     function test_WhenRecipientImplementsIERC1271Interface()
@@ -46,7 +46,7 @@ contract ClaimViaSig_MerkleLT_Integration_Test is ClaimViaSig_Integration_Test, 
         givenRecipientIsContract
     {
         uint256 expectedStreamId = lockup.nextStreamId();
-        uint256 previousFeeAccrued = address(factoryMerkleLT).balance;
+        uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree(users.smartWalletWithIERC1271);
 
         eip712Signature = generateSignature(users.smartWalletWithIERC1271, address(merkleLT));
@@ -58,7 +58,7 @@ contract ClaimViaSig_MerkleLT_Integration_Test is ClaimViaSig_Integration_Test, 
 
         // Claim the airstream.
         claimViaSig({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: index,
             recipient: users.smartWalletWithIERC1271,
             to: users.eve,
@@ -69,6 +69,6 @@ contract ClaimViaSig_MerkleLT_Integration_Test is ClaimViaSig_Integration_Test, 
 
         assertTrue(merkleLT.hasClaimed(index), "not claimed");
 
-        assertEq(address(factoryMerkleLT).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
+        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }
 }

@@ -15,7 +15,7 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         // Deploy the SablierMerkleLT contract.
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
 
-        SablierMerkleLT constructedLT = new SablierMerkleLT(params, users.campaignCreator);
+        SablierMerkleLT constructedLT = new SablierMerkleLT(params, users.campaignCreator, address(comptroller));
 
         // Token allowance
         uint256 actualAllowance = dai.allowance(address(constructedLT), address(lockup));
@@ -25,18 +25,17 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         assertEq(constructedLT.admin(), users.campaignCreator, "admin");
         assertEq(constructedLT.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedLT.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
+        assertEq(constructedLT.COMPTROLLER(), address(comptroller), "comptroller");
         assertEq(
             constructedLT.DOMAIN_SEPARATOR(),
             Utilities.computeEIP712DomainSeparator(address(constructedLT)),
             "domain separator"
         );
         assertEq(constructedLT.EXPIRATION(), EXPIRATION, "expiration");
-        assertEq(address(constructedLT.FACTORY()), address(factoryMerkleLT), "factory");
         assertEq(constructedLT.ipfsCID(), IPFS_CID, "IPFS CID");
         assertEq(constructedLT.IS_SABLIER_MERKLE(), true, "is sablier merkle");
         assertEq(constructedLT.MERKLE_ROOT(), MERKLE_ROOT, "Merkle root");
-        assertEq(constructedLT.minFeeUSD(), MIN_FEE_USD, "min fee USD");
-        assertEq(constructedLT.ORACLE(), address(oracle), "oracle");
+        assertEq(constructedLT.minFeeUSD(), AIRDROP_MIN_FEE_USD, "min fee USD");
         assertEq(address(constructedLT.TOKEN()), address(dai), "token");
 
         // SablierMerkleLockup

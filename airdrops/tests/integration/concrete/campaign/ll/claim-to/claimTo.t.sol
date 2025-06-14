@@ -28,7 +28,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         emit ISablierMerkleLockup.Claim(getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.eve);
 
         expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
-        expectCallToClaimToWithMsgValue(address(merkleLL), MIN_FEE_WEI);
+        expectCallToClaimToWithMsgValue(address(merkleLL), AIRDROP_MIN_FEE_WEI);
 
         claimTo();
 
@@ -124,7 +124,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         deal({ token: address(dai), to: address(merkleLL), give: AGGREGATE_AMOUNT });
 
         uint256 expectedStreamId = lockup.nextStreamId();
-        uint256 previousFeeAccrued = address(factoryMerkleLL).balance;
+        uint256 previousFeeAccrued = address(comptroller).balance;
 
         uint256 index = getIndexInMerkleTree();
 
@@ -133,7 +133,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         emit ISablierMerkleLockup.Claim(index, users.recipient, CLAIM_AMOUNT, expectedStreamId, users.eve);
 
         expectCallToTransferFrom({ from: address(merkleLL), to: address(lockup), value: CLAIM_AMOUNT });
-        expectCallToClaimToWithMsgValue(address(merkleLL), MIN_FEE_WEI);
+        expectCallToClaimToWithMsgValue(address(merkleLL), AIRDROP_MIN_FEE_WEI);
 
         // Claim the airstream.
         claimTo();
@@ -165,6 +165,6 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         expectedClaimedStreamIds[0] = expectedStreamId;
         assertEq(merkleLL.claimedStreams(users.recipient), expectedClaimedStreamIds, "claimed streams");
 
-        assertEq(address(factoryMerkleLL).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
+        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }
 }

@@ -30,7 +30,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
         givenCampaignNotExpired
     {
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleBase_InsufficientFeePayment.selector, 0, MIN_FEE_WEI)
+            abi.encodeWithSelector(Errors.SablierMerkleBase_InsufficientFeePayment.selector, 0, AIRDROP_MIN_FEE_WEI)
         );
         claim({
             msgValue: 0,
@@ -64,7 +64,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
 
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
         claim({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: invalidIndex,
             recipient: users.recipient,
             amount: CLAIM_AMOUNT,
@@ -84,7 +84,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
 
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
         claim({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
             recipient: invalidRecipient,
             amount: CLAIM_AMOUNT,
@@ -105,7 +105,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
 
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
         claim({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
             recipient: users.recipient,
             amount: invalidAmount,
@@ -125,7 +125,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
     {
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
         claim({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
             recipient: users.recipient,
             amount: CLAIM_AMOUNT,

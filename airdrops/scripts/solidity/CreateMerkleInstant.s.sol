@@ -2,21 +2,19 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
+import { BaseScript as EvmUtilsBaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
+
 import { ISablierMerkleInstant } from "../../src/interfaces/ISablierMerkleInstant.sol";
 import { SablierFactoryMerkleInstant } from "../../src/SablierFactoryMerkleInstant.sol";
 import { MerkleInstant } from "../../src/types/DataTypes.sol";
 
 /// @dev Creates a dummy MerkleInstant campaign.
-contract CreateMerkleInstant is BaseScript {
+contract CreateMerkleInstant is EvmUtilsBaseScript {
     /// @dev Deploy via Forge.
     function run() public broadcast returns (ISablierMerkleInstant merkleInstant) {
         // TODO: Load deployed addresses from Ethereum Mainnet.
-        SablierFactoryMerkleInstant factory = new SablierFactoryMerkleInstant({
-            initialAdmin: DEFAULT_SABLIER_ADMIN,
-            initialMinFeeUSD: 0,
-            initialOracle: address(0)
-        });
+        SablierFactoryMerkleInstant factory =
+            new SablierFactoryMerkleInstant({ initialComptroller: comptrollerAddress() });
 
         // Prepare the constructor parameters.
         MerkleInstant.ConstructorParams memory params;

@@ -59,13 +59,15 @@ contract SablierMerkleLT is
     /// contract.
     constructor(
         MerkleLT.ConstructorParams memory params,
-        address campaignCreator
+        address campaignCreator,
+        address comptroller
     )
         SablierMerkleLockup(
             campaignCreator,
             params.campaignName,
             params.campaignStartTime,
             params.cancelable,
+            comptroller,
             params.lockup,
             params.expiration,
             params.initialAdmin,

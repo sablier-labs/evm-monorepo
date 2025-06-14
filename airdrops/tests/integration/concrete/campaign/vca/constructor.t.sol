@@ -12,24 +12,24 @@ contract Constructor_MerkleVCA_Integration_Test is Integration_Test {
         setMsgSender(address(factoryMerkleVCA));
 
         // Deploy the SablierMerkleVCA contract.
-        SablierMerkleVCA constructedVCA = new SablierMerkleVCA(merkleVCAConstructorParams(), users.campaignCreator);
+        SablierMerkleVCA constructedVCA =
+            new SablierMerkleVCA(merkleVCAConstructorParams(), users.campaignCreator, address(comptroller));
 
         // SablierMerkleBase
         assertEq(constructedVCA.admin(), users.campaignCreator, "admin");
         assertEq(constructedVCA.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedVCA.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
+        assertEq(constructedVCA.COMPTROLLER(), address(comptroller), "comptroller");
         assertEq(
             constructedVCA.DOMAIN_SEPARATOR(),
             Utilities.computeEIP712DomainSeparator(address(constructedVCA)),
             "domain separator"
         );
         assertEq(constructedVCA.EXPIRATION(), EXPIRATION, "expiration");
-        assertEq(address(constructedVCA.FACTORY()), address(factoryMerkleVCA), "factory");
         assertEq(constructedVCA.ipfsCID(), IPFS_CID, "IPFS CID");
         assertEq(constructedVCA.IS_SABLIER_MERKLE(), true, "is sablier merkle");
         assertEq(constructedVCA.MERKLE_ROOT(), MERKLE_ROOT, "Merkle root");
-        assertEq(constructedVCA.minFeeUSD(), MIN_FEE_USD, "min fee USD");
-        assertEq(constructedVCA.ORACLE(), address(oracle), "oracle");
+        assertEq(constructedVCA.minFeeUSD(), AIRDROP_MIN_FEE_USD, "min fee USD");
         assertEq(address(constructedVCA.TOKEN()), address(dai), "token");
 
         // SablierMerkleVCA

@@ -102,7 +102,13 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         params.expiration = boundUint40(params.expiration, getBlockTimestamp() + 365 days + 1 weeks, MAX_UNIX_TIMESTAMP);
 
         // Set the custom fee if enabled.
-        params.feeForUser = params.enableCustomFeeUSD ? testSetCustomFeeUSD(params.feeForUser) : MIN_FEE_USD;
+        if (params.enableCustomFeeUSD) {
+            params.feeForUser = bound(params.feeForUser, 0, MAX_FEE_USD);
+            setMsgSender(admin);
+            comptroller.setAirdropsCustomFeeUSD(users.campaignCreator, params.feeForUser);
+        } else {
+            params.feeForUser = AIRDROP_MIN_FEE_USD;
+        }
 
         // Test creating the MerkleVCA campaign.
         _testCreateMerkleVCA(
@@ -120,9 +126,6 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
 
         // Test clawback of funds.
         testClawback(params.clawbackAmount);
-
-        // Test collecting fees earned.
-        testCollectFees();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -175,8 +178,8 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
             params: params,
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
-            minFeeUSD: feeForUser,
-            oracle: address(oracle)
+            comptroller: address(comptroller),
+            minFeeUSD: feeForUser
         });
 
         // Create the campaign.

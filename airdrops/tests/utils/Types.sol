@@ -4,10 +4,6 @@ pragma solidity >=0.8.22;
 import { LeafData } from "./MerkleBuilder.sol";
 
 struct Users {
-    // User authorized for fee related actions.
-    address payable accountant;
-    // Default admin.
-    address payable admin;
     // Default campaign creator.
     address payable campaignCreator;
     // Malicious user.

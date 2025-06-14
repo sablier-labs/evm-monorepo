@@ -13,7 +13,7 @@ Licensed Work: Sablier Airdrops The Licensed Work is (C) 2025 Sablier Labs Ltd
 
 Additional Use Grant: Any uses listed and defined at license-grants.sablier.eth
 
-Change Date: The earlier of 2029-04-15 or a date specified at airdrops-license-date.sablier.eth
+Change Date: The earlier of 2029-07-01 or a date specified at license-date.sablier.eth
 
 Change License: GNU General Public License v3.0 or later
 

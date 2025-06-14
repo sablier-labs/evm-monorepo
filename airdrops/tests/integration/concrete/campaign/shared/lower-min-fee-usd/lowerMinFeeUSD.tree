@@ -1,7 +1,7 @@
 LowerMinFeeUSD_Integration_Test
-├── when caller not factory admin
+├── when caller not comptroller
 │  └── it should revert
-└── when caller factory admin
+└── when caller comptroller
    ├── when new fee not lower
    │  └── it should revert
    └── when new fee lower

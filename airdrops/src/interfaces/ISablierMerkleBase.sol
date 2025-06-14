@@ -3,7 +3,6 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
-import { ISablierFactoryMerkleBase } from "./ISablierFactoryMerkleBase.sol";
 
 /// @title ISablierMerkleBase
 /// @dev Common interface between campaign contracts.
@@ -15,8 +14,8 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice Emitted when the admin claws back the unclaimed tokens.
     event Clawback(address indexed admin, address indexed to, uint128 amount);
 
-    /// @notice Emitted when the min USD fee is lowered by the admin.
-    event LowerMinFeeUSD(address indexed factoryAdmin, uint256 newMinFeeUSD, uint256 previousMinFeeUSD);
+    /// @notice Emitted when the min USD fee is lowered by the comptroller.
+    event LowerMinFeeUSD(address indexed comptroller, uint256 newMinFeeUSD, uint256 previousMinFeeUSD);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
@@ -26,6 +25,9 @@ interface ISablierMerkleBase is IAdminable {
     /// @dev This is an immutable state variable.
     function CAMPAIGN_START_TIME() external view returns (uint40);
 
+    /// @notice Retrieves the address of the comptroller contract.
+    function COMPTROLLER() external view returns (address);
+
     /// @notice The domain separator, as required by EIP-712 and EIP-1271, used for signing claim to prevent replay
     /// attacks across different campaigns.
     function DOMAIN_SEPARATOR() external view returns (bytes32);
@@ -33,9 +35,6 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice The cut-off point for the campaign, as a Unix timestamp. A value of zero means there is no expiration.
     /// @dev This is an immutable state variable.
     function EXPIRATION() external view returns (uint40);
-
-    /// @notice Retrieves the address of the factory contract.
-    function FACTORY() external view returns (ISablierFactoryMerkleBase);
 
     /// @notice Returns `true` indicating that this campaign contract is deployed using the Sablier Factory.
     /// @dev This is a constant state variable.
@@ -45,26 +44,9 @@ interface ISablierMerkleBase is IAdminable {
     /// @dev This is an immutable state variable.
     function MERKLE_ROOT() external view returns (bytes32);
 
-    /// @notice Retrieves the oracle contract address.
-    /// @dev This is an immutable state variable.
-    function ORACLE() external view returns (address);
-
     /// @notice The ERC-20 token to distribute.
     /// @dev This is an immutable state variable.
     function TOKEN() external view returns (IERC20);
-
-    /// @notice Calculates the min fee in wei required to claim the airdrop.
-    /// @dev Uses {minFeeUSD} and the oracle price.
-    ///
-    /// The price is considered to be 0 if:
-    /// 1. The oracle is not set.
-    /// 2. The min USD fee is 0.
-    /// 3. The oracle price is ≤ 0.
-    /// 4. The oracle's update timestamp is in the future.
-    /// 5. The oracle price hasn't been updated in the last 24 hours.
-    ///
-    /// @return The min fee in wei, denominated in 18 decimals (1e18 = 1 native token).
-    function calculateMinFeeWei() external view returns (uint256);
 
     /// @notice Retrieves the name of the campaign.
     function campaignName() external view returns (string memory);
@@ -111,7 +93,7 @@ interface ISablierMerkleBase is IAdminable {
     /// @dev Emits a {LowerMinFeeUSD} event.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the admin of {FACTORY}.
+    /// - `msg.sender` must be the comptroller.
     /// - The new fee must be less than the current {minFeeUSD}.
     /// @param newMinFeeUSD The new min USD fee to set, denominated in 8 decimals.
     function lowerMinFeeUSD(uint256 newMinFeeUSD) external;

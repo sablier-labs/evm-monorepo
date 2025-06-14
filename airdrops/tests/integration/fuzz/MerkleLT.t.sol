@@ -51,7 +51,13 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
             prepareCommonCreateParams(params.rawLeavesData, params.expiration, params.indexesToClaim.length);
 
         // Set the custom fee if enabled.
-        params.feeForUser = params.enableCustomFeeUSD ? testSetCustomFeeUSD(params.feeForUser) : MIN_FEE_USD;
+        if (params.enableCustomFeeUSD) {
+            params.feeForUser = bound(params.feeForUser, 0, MAX_FEE_USD);
+            setMsgSender(admin);
+            comptroller.setAirdropsCustomFeeUSD(users.campaignCreator, params.feeForUser);
+        } else {
+            params.feeForUser = AIRDROP_MIN_FEE_USD;
+        }
 
         // Test creating the MerkleLT campaign.
         _testCreateMerkleLT(aggregateAmount, expiration_, params.feeForUser, merkleRoot, tranches, vestingStartTime);
@@ -61,9 +67,6 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
 
         // Test clawbacking funds.
         testClawback(params.clawbackAmount);
-
-        // Test collecting fees earned.
-        testCollectFees();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -110,8 +113,8 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
             totalDuration: streamDuration,
-            minFeeUSD: feeForUser,
-            oracle: address(oracle)
+            comptroller: address(comptroller),
+            minFeeUSD: feeForUser
         });
 
         // Create the campaign.

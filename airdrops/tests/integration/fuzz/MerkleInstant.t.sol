@@ -44,7 +44,13 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
             prepareCommonCreateParams(params.rawLeavesData, params.expiration, params.indexesToClaim.length);
 
         // Set the custom fee if enabled.
-        params.feeForUser = params.enableCustomFeeUSD ? testSetCustomFeeUSD(params.feeForUser) : MIN_FEE_USD;
+        if (params.enableCustomFeeUSD) {
+            params.feeForUser = bound(params.feeForUser, 0, MAX_FEE_USD);
+            setMsgSender(admin);
+            comptroller.setAirdropsCustomFeeUSD(users.campaignCreator, params.feeForUser);
+        } else {
+            params.feeForUser = AIRDROP_MIN_FEE_USD;
+        }
 
         // Test creating the MerkleInstant campaign.
         _testCreateMerkleInstant(aggregateAmount, expiration_, params.feeForUser, merkleRoot);
@@ -54,9 +60,6 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
 
         // Test clawback of funds.
         testClawback(params.clawbackAmount);
-
-        // Test collecting fees earned.
-        testCollectFees();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -89,8 +92,8 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
             params: params,
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
-            minFeeUSD: feeForUser,
-            oracle: address(oracle)
+            comptroller: address(comptroller),
+            minFeeUSD: feeForUser
         });
 
         // Create the campaign.

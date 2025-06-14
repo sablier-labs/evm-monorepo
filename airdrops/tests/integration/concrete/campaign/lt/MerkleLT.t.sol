@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Integration_Test } from "./../../../Integration.t.sol";
-import { CalculateMinFeeWei_Integration_Test } from "./../shared/calculate-min-fee-wei/calculateMinFeeWei.t.sol";
+
 import { Clawback_Integration_Test } from "./../shared/clawback/clawback.t.sol";
 import { HasClaimed_Integration_Test } from "./../shared/has-claimed/hasClaimed.t.sol";
 import { HasExpired_Integration_Test } from "./../shared/has-expired/hasExpired.t.sol";
@@ -29,16 +29,6 @@ abstract contract MerkleLT_Integration_Shared_Test is Integration_Test {
 /*//////////////////////////////////////////////////////////////////////////
                                 SHARED TESTS
 //////////////////////////////////////////////////////////////////////////*/
-
-contract CalculateMinFeeWei_MerkleLT_Integration_Test is
-    MerkleLT_Integration_Shared_Test,
-    CalculateMinFeeWei_Integration_Test
-{
-    function setUp() public override(MerkleLT_Integration_Shared_Test, CalculateMinFeeWei_Integration_Test) {
-        MerkleLT_Integration_Shared_Test.setUp();
-        CalculateMinFeeWei_Integration_Test.setUp();
-    }
-}
 
 contract Clawback_MerkleLT_Integration_Test is MerkleLT_Integration_Shared_Test, Clawback_Integration_Test {
     function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {

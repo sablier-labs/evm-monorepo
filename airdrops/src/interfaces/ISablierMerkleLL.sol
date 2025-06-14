@@ -42,7 +42,7 @@ interface ISablierMerkleLL is ISablierMerkleLockup {
     /// Requirements:
     /// - The current time must be greater than or equal to the campaign start time.
     /// - The campaign must not have expired.
-    /// - `msg.value` must not be less than the value returned by {calculateMinFeeWei}.
+    /// - `msg.value` must not be less than the value returned by {COMPTROLLER.calculateMinFeeWei}.
     /// - The `index` must not be claimed already.
     /// - The Merkle proof must be valid.
     /// - All requirements from {ISablierLockup.createWithTimestampsLL} must be met.

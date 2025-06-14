@@ -19,8 +19,8 @@ interface ISablierFactoryMerkleLL is ISablierFactoryMerkleBase {
         MerkleLL.ConstructorParams params,
         uint256 aggregateAmount,
         uint256 recipientCount,
-        uint256 minFeeUSD,
-        address oracle
+        address comptroller,
+        uint256 minFeeUSD
     );
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -57,7 +57,7 @@ abstract contract Shared_Fuzz_Test is Integration_Test {
             }
 
             // Bound `msgValue` so that it's >= min USD fee.
-            msgValue = bound(msgValue, merkleBase.calculateMinFeeWei(), 1 ether);
+            msgValue = bound(msgValue, comptroller.calculateAirdropsMinFeeWeiFor(users.campaignCreator), 1 ether);
 
             // If the claim amount for VCA airdrops is zero, skip this claim.
             if (merkleBase == merkleVCA && merkleVCA.calculateClaimAmount(leafData.amount, getBlockTimestamp()) == 0) {
@@ -152,32 +152,6 @@ abstract contract Shared_Fuzz_Test is Integration_Test {
 
         // Clawback the funds.
         merkleBase.clawback({ to: users.campaignCreator, amount: amount });
-    }
-
-    /// @dev Test collecting fees earned.
-    function testCollectFees() internal {
-        // Load the initial ETH balance of the admin.
-        uint256 initialAdminBalance = users.admin.balance;
-
-        // Collect the fees earned.
-        factoryMerkleBase.collectFees({ feeRecipient: users.admin });
-
-        // It should decrease factory contract balance to zero.
-        assertEq(address(factoryMerkleBase).balance, 0, "final ETH balance");
-
-        // It should transfer fee to the factory admin.
-        assertEq(users.admin.balance, initialAdminBalance + feeEarned, "admin ETH balance");
-    }
-
-    /// @dev Test setting custom fee.
-    function testSetCustomFeeUSD(uint256 customFeeUSD) internal returns (uint256) {
-        customFeeUSD = bound(customFeeUSD, 0, MAX_FEE_USD);
-
-        setMsgSender(users.admin);
-        factoryMerkleBase.setCustomFeeUSD(users.campaignCreator, customFeeUSD);
-        assertEq(factoryMerkleBase.minFeeUSDFor(users.campaignCreator), customFeeUSD, "custom fee");
-
-        return customFeeUSD;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

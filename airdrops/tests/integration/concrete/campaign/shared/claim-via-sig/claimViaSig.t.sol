@@ -15,7 +15,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
     function test_RevertWhen_ToAddressZero() external {
         vm.expectRevert(Errors.SablierMerkleBase_ToZeroAddress.selector);
         claimViaSig({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
             recipient: users.recipient,
             to: address(0),
@@ -35,7 +35,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         // Expect revert.
         vm.expectRevert(Errors.SablierMerkleBase_InvalidSignature.selector);
         claimViaSig({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: index,
             recipient: users.recipient,
             to: users.eve,
@@ -66,7 +66,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         // Expect revert.
         vm.expectRevert(Errors.SablierMerkleBase_InvalidSignature.selector);
         claimViaSig({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: index,
             recipient: users.recipient,
             to: users.eve,
@@ -97,7 +97,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
     {
         vm.expectRevert(Errors.SablierMerkleBase_InvalidSignature.selector);
         claimViaSig({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(users.smartWalletWithoutIERC1271),
             recipient: users.smartWalletWithoutIERC1271,
             to: users.eve,

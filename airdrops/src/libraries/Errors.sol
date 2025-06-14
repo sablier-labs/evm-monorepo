@@ -10,17 +10,8 @@ library Errors {
                             SABLIER-FACTORY-MERKLE-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when an unauthorized address collects fee without setting the fee recipient to admin address.
-    error SablierFactoryMerkleBase_FeeRecipientNotAdmin(address feeRecipient, address admin);
-
-    /// @notice Thrown if fee transfer fails.
-    error SablierFactoryMerkleBase_FeeTransferFailed(address feeRecipient, uint256 feeAmount);
-
     /// @notice Thrown when trying to create a campaign with native token.
     error SablierFactoryMerkleBase_ForbidNativeToken(address nativeToken);
-
-    /// @notice Thrown when trying to set fee to a value that exceeds the maximum USD fee.
-    error SablierFactoryMerkleBase_MaxFeeUSDExceeded(uint256 newFeeUSD, uint256 maxFeeUSD);
 
     /// @notice Thrown when trying to set the native token address when it is already set.
     error SablierFactoryMerkleBase_NativeTokenAlreadySet(address nativeToken);
@@ -32,8 +23,8 @@ library Errors {
                                 SABLIER-MERKLE-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when caller is not the factory admin.
-    error SablierMerkleBase_CallerNotFactoryAdmin(address factoryAdmin, address caller);
+    /// @notice Thrown when caller is not the comptroller.
+    error SablierMerkleBase_CallerNotComptroller(address comptroller, address caller);
 
     /// @notice Thrown when trying to claim after the campaign has expired.
     error SablierMerkleBase_CampaignExpired(uint256 blockTimestamp, uint40 expiration);

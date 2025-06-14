@@ -1,42 +1,44 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+// import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
+
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract LowerMinFeeUSD_Integration_Test is Integration_Test {
-    function test_RevertWhen_CallerNotFactoryAdmin() external {
-        setMsgSender(users.campaignCreator);
+    function test_RevertWhen_CallerNotComptroller() external {
+        setMsgSender(users.eve);
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleBase_CallerNotFactoryAdmin.selector, users.admin, users.campaignCreator
+                Errors.SablierMerkleBase_CallerNotComptroller.selector, address(comptroller), users.eve
             )
         );
-        merkleBase.lowerMinFeeUSD(MIN_FEE_USD - 1);
+        merkleBase.lowerMinFeeUSD(AIRDROP_MIN_FEE_USD - 1);
     }
 
-    function test_RevertWhen_NewFeeNotLower() external whenCallerFactoryAdmin {
-        uint256 newMinFeeUSD = MIN_FEE_USD + 1;
-        setMsgSender(users.admin);
+    function test_RevertWhen_NewFeeNotLower() external whenCallerComptroller {
+        uint256 newMinFeeUSD = AIRDROP_MIN_FEE_USD + 1;
 
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleBase_NewMinFeeUSDNotLower.selector, MIN_FEE_USD, newMinFeeUSD)
+            abi.encodeWithSelector(
+                Errors.SablierMerkleBase_NewMinFeeUSDNotLower.selector, AIRDROP_MIN_FEE_USD, newMinFeeUSD
+            )
         );
         merkleBase.lowerMinFeeUSD(newMinFeeUSD);
     }
 
-    function test_WhenNewFeeNotZero() external whenCallerFactoryAdmin whenNewFeeLower {
-        uint256 newMinFeeUSD = MIN_FEE_USD - 1;
-        setMsgSender(users.admin);
+    function test_WhenNewFeeNotZero() external whenCallerComptroller whenNewFeeLower {
+        uint256 newMinFeeUSD = AIRDROP_MIN_FEE_USD - 1;
 
         // It should emit a {LowerMinFeeUSD} event.
         vm.expectEmit({ emitter: address(merkleBase) });
-        emit ISablierMerkleBase.LowerMinFeeUSD(users.admin, newMinFeeUSD, MIN_FEE_USD);
+        emit ISablierMerkleBase.LowerMinFeeUSD(address(comptroller), newMinFeeUSD, AIRDROP_MIN_FEE_USD);
 
         merkleBase.lowerMinFeeUSD(newMinFeeUSD);
 
@@ -44,12 +46,10 @@ abstract contract LowerMinFeeUSD_Integration_Test is Integration_Test {
         assertEq(merkleBase.minFeeUSD(), newMinFeeUSD);
     }
 
-    function test_WhenNewFeeZero() external whenCallerFactoryAdmin whenNewFeeLower {
-        setMsgSender(users.admin);
-
+    function test_WhenNewFeeZero() external whenCallerComptroller whenNewFeeLower {
         // It should emit a {LowerMinFeeUSD} event.
         vm.expectEmit({ emitter: address(merkleBase) });
-        emit ISablierMerkleBase.LowerMinFeeUSD(users.admin, 0, MIN_FEE_USD);
+        emit ISablierMerkleBase.LowerMinFeeUSD(address(comptroller), 0, AIRDROP_MIN_FEE_USD);
 
         merkleBase.lowerMinFeeUSD(0);
 

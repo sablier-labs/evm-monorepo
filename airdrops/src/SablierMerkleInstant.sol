@@ -41,12 +41,14 @@ contract SablierMerkleInstant is
     /// @dev Constructs the contract by initializing the immutable state variables.
     constructor(
         MerkleInstant.ConstructorParams memory params,
-        address campaignCreator
+        address campaignCreator,
+        address comptroller
     )
         SablierMerkleBase(
             campaignCreator,
             params.campaignName,
             params.campaignStartTime,
+            comptroller,
             params.expiration,
             params.initialAdmin,
             params.ipfsCID,

@@ -19,18 +19,18 @@ contract ClaimTo_MerkleInstant_Integration_Test is ClaimTo_Integration_Test, Mer
         givenCallerNotClaimed
         whenCallerEligible
     {
-        uint256 previousFeeAccrued = address(factoryMerkleInstant).balance;
+        uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();
 
         vm.expectEmit({ emitter: address(merkleInstant) });
         emit ISablierMerkleInstant.Claim(index, users.recipient, CLAIM_AMOUNT, users.eve);
 
         expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
-        expectCallToClaimToWithMsgValue(address(merkleInstant), MIN_FEE_WEI);
+        expectCallToClaimToWithMsgValue(address(merkleInstant), AIRDROP_MIN_FEE_WEI);
         claimTo();
 
         assertTrue(merkleInstant.hasClaimed(index), "not claimed");
 
-        assertEq(address(factoryMerkleInstant).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
+        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }
 }

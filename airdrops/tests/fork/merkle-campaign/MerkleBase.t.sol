@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ISablierFactoryMerkleBase } from "src/interfaces/ISablierFactoryMerkleBase.sol";
+
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { LeafData, MerkleBuilder } from "./../../utils/MerkleBuilder.sol";
 import { Fork_Test } from "./../Fork.t.sol";
@@ -33,7 +33,6 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         bytes32 merkleRoot;
         uint256 minFeeUSD;
         uint256 minFeeWei;
-        address oracle;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -63,9 +62,6 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
             params.expiration = boundUint40(params.expiration, getBlockTimestamp() + 1 seconds, MAX_UNIX_TIMESTAMP);
         }
 
-        // Load the factory admin from mainnet.
-        factoryAdmin = factoryMerkleBase.admin();
-
         // Exclude the factory contract from being the recipient. Otherwise, the fee accrued may not be equal to the sum
         // of all `msg.value`.
         address[] memory excludedAddresses = new address[](1);
@@ -87,9 +83,8 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         // Make the campaign creator as the caller.
         setMsgSender(params.campaignCreator);
 
-        // Load the mainnet values from the deployed contract.
-        vars.oracle = factoryMerkleBase.oracle();
-        vars.minFeeUSD = factoryMerkleBase.minFeeUSD();
+        // Load the min fee in USD.
+        vars.minFeeUSD = comptroller.getAirdropsMinFeeUSDFor(params.campaignCreator);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -108,7 +103,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         assertFalse(merkleBase.hasClaimed(vars.leafToClaim.index));
 
         vars.merkleProof = computeMerkleProof(vars.leafToClaim, vars.leaves);
-        vars.minFeeWei = merkleBase.calculateMinFeeWei();
+        vars.minFeeWei = comptroller.calculateAirdropsMinFeeWeiFor(params.campaignCreator);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -132,24 +127,5 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
             });
             merkleBase.clawback({ to: params.campaignCreator, amount: vars.clawbackAmount });
         }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    COLLECT-FEES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function testCollectFees() internal {
-        vars.initialAdminBalance = factoryAdmin.balance;
-
-        vm.expectEmit({ emitter: address(factoryMerkleBase) });
-        emit ISablierFactoryMerkleBase.CollectFees({
-            admin: factoryAdmin,
-            feeRecipient: factoryAdmin,
-            feeAmount: vars.minFeeWei
-        });
-        factoryMerkleBase.collectFees({ feeRecipient: factoryAdmin });
-
-        assertEq(address(factoryMerkleBase).balance, 0, "final ETH balance");
-        assertEq(factoryAdmin.balance, vars.initialAdminBalance + vars.minFeeWei, "admin ETH balance");
     }
 }

@@ -22,7 +22,7 @@ contract ClaimViaSig_MerkleInstant_Integration_Test is
         givenRecipientIsEOA
         whenSignatureCompatible
     {
-        uint256 previousFeeAccrued = address(factoryMerkleInstant).balance;
+        uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();
 
         eip712Signature = generateSignature(users.recipient, address(merkleInstant));
@@ -31,12 +31,12 @@ contract ClaimViaSig_MerkleInstant_Integration_Test is
         emit ISablierMerkleInstant.Claim(index, users.recipient, CLAIM_AMOUNT, users.eve);
 
         expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
-        expectCallToClaimViaSigWithMsgValue(address(merkleInstant), MIN_FEE_WEI);
+        expectCallToClaimViaSigWithMsgValue(address(merkleInstant), AIRDROP_MIN_FEE_WEI);
         claimViaSig();
 
         assertTrue(merkleInstant.hasClaimed(index), "not claimed");
 
-        assertEq(address(factoryMerkleInstant).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
+        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }
 
     function test_WhenRecipientImplementsIERC1271Interface()
@@ -45,7 +45,7 @@ contract ClaimViaSig_MerkleInstant_Integration_Test is
         whenToAddressNotZero
         givenRecipientIsContract
     {
-        uint256 previousFeeAccrued = address(factoryMerkleInstant).balance;
+        uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree(users.smartWalletWithIERC1271);
 
         eip712Signature = generateSignature(users.smartWalletWithIERC1271, address(merkleInstant));
@@ -55,7 +55,7 @@ contract ClaimViaSig_MerkleInstant_Integration_Test is
 
         expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
         claimViaSig({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: index,
             recipient: users.smartWalletWithIERC1271,
             to: users.eve,
@@ -66,6 +66,6 @@ contract ClaimViaSig_MerkleInstant_Integration_Test is
 
         assertTrue(merkleInstant.hasClaimed(index), "not claimed");
 
-        assertEq(address(factoryMerkleInstant).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
+        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }
 }

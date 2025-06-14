@@ -42,7 +42,7 @@ abstract contract Integration_Test is Base_Test {
     /// @dev Claim to `users.recipient` address using {claim} function.
     function claim() internal {
         claim({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
             recipient: users.recipient,
             amount: CLAIM_AMOUNT,
@@ -68,7 +68,7 @@ abstract contract Integration_Test is Base_Test {
     /// @dev Claim to Eve address on behalf of `users.recipient` using {claimTo} function.
     function claimTo() internal {
         claimTo({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
             to: users.eve,
             amount: CLAIM_AMOUNT,
@@ -94,7 +94,7 @@ abstract contract Integration_Test is Base_Test {
     /// @dev Claim to Eve address on behalf of `users.recipient` using {claimViaSig} function.
     function claimViaSig() internal {
         claimViaSig({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
             recipient: users.recipient,
             to: users.eve,

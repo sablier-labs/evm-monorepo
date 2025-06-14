@@ -74,8 +74,8 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.leavesData.length,
             totalDuration: VESTING_TOTAL_DURATION,
-            minFeeUSD: vars.minFeeUSD,
-            oracle: vars.oracle
+            comptroller: address(comptroller),
+            minFeeUSD: vars.minFeeUSD
         });
 
         merkleLT = factoryMerkleLT.createMerkleLT(constructorParams, vars.aggregateAmount, vars.leavesData.length);
@@ -179,11 +179,5 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         testClawback(params);
-
-        /*//////////////////////////////////////////////////////////////////////////
-                                        COLLECT-FEES
-        //////////////////////////////////////////////////////////////////////////*/
-
-        testCollectFees();
     }
 }

@@ -2,12 +2,9 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import { ISablierFactoryMerkleInstant } from "src/interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
-
 import { MerkleInstant } from "src/types/DataTypes.sol";
-
 import { Fork_Test } from "./../Fork.t.sol";
 import { MerkleBase_Fork_Test } from "./MerkleBase.t.sol";
 
@@ -57,8 +54,8 @@ abstract contract MerkleInstant_Fork_Test is MerkleBase_Fork_Test {
             params: constructorParams,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.leavesData.length,
-            minFeeUSD: vars.minFeeUSD,
-            oracle: vars.oracle
+            comptroller: address(comptroller),
+            minFeeUSD: vars.minFeeUSD
         });
 
         merkleInstant =
@@ -105,11 +102,5 @@ abstract contract MerkleInstant_Fork_Test is MerkleBase_Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         testClawback(params);
-
-        /*//////////////////////////////////////////////////////////////////////////
-                                        COLLECT-FEES
-        //////////////////////////////////////////////////////////////////////////*/
-
-        testCollectFees();
     }
 }

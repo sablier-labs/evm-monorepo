@@ -5,6 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Arrays } from "@openzeppelin/contracts/utils/Arrays.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
+
 import { ERC1271WalletMock } from "@sablier/evm-utils/src/mocks/ERC1271WalletMock.sol";
 import { Noop } from "@sablier/evm-utils/src/mocks/Noop.sol";
 import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
@@ -76,13 +77,9 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
     function setUp() public virtual override {
         EvmUtilsBase.setUp();
 
-        // Create the protocol admin.
-        users.admin = payable(makeAddr({ name: "Admin" }));
-        vm.startPrank(users.admin);
-
         // Deploy the Lockup contract.
         address nftDescriptor = address(new LockupNFTDescriptor());
-        lockup = new SablierLockup(users.admin, nftDescriptor);
+        lockup = new SablierLockup(admin, nftDescriptor);
 
         // Deploy the factories.
         deployFactoriesConditionally();
@@ -129,29 +126,23 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         dealAndApproveSpenders(users.smartWalletWithoutIERC1271, spenders);
 
         // Create rest of the users.
-        users.accountant = createUser("Accountant", spenders);
         users.campaignCreator = createUser("CampaignCreator", spenders);
         users.eve = createUser("Eve", spenders);
         users.unknownRecipient = createUser("UnknownRecipient", spenders);
         users.sender = createUser("Sender", spenders);
-
-        // Assign fee collector and fee management roles to the accountant user.
-        setMsgSender(users.admin);
-        for (uint256 i; i < spenders.length; ++i) {
-            grantAllRoles({ account: users.accountant, target: spenders[i] });
-        }
     }
 
     /// @dev Deploys the factories conditionally based on the test profile.
     function deployFactoriesConditionally() internal {
         if (!isTestOptimizedProfile()) {
-            factoryMerkleInstant = new SablierFactoryMerkleInstant(users.admin, MIN_FEE_USD, address(oracle));
-            factoryMerkleLL = new SablierFactoryMerkleLL(users.admin, MIN_FEE_USD, address(oracle));
-            factoryMerkleLT = new SablierFactoryMerkleLT(users.admin, MIN_FEE_USD, address(oracle));
-            factoryMerkleVCA = new SablierFactoryMerkleVCA(users.admin, MIN_FEE_USD, address(oracle));
+            factoryMerkleInstant = new SablierFactoryMerkleInstant(address(comptroller));
+            factoryMerkleLL = new SablierFactoryMerkleLL(address(comptroller));
+            factoryMerkleLL = new SablierFactoryMerkleLL(address(comptroller));
+            factoryMerkleLT = new SablierFactoryMerkleLT(address(comptroller));
+            factoryMerkleVCA = new SablierFactoryMerkleVCA(address(comptroller));
         } else {
             (factoryMerkleInstant, factoryMerkleLL, factoryMerkleLT, factoryMerkleVCA) =
-                deployOptimizedFactories(users.admin, MIN_FEE_USD, address(oracle));
+                deployOptimizedFactories(address(comptroller));
         }
         vm.label({ account: address(factoryMerkleInstant), newLabel: "FactoryMerkleInstant" });
         vm.label({ account: address(factoryMerkleLL), newLabel: "FactoryMerkleLL" });
@@ -328,17 +319,20 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         view
         returns (address)
     {
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
         bytes32 creationBytecodeHash;
 
         if (!isTestOptimizedProfile()) {
-            creationBytecodeHash =
-                keccak256(bytes.concat(type(SablierMerkleInstant).creationCode, abi.encode(params, campaignCreator)));
+            creationBytecodeHash = keccak256(
+                bytes.concat(
+                    type(SablierMerkleInstant).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+                )
+            );
         } else {
             creationBytecodeHash = keccak256(
                 bytes.concat(
                     vm.getCode("out-optimized/SablierMerkleInstant.sol/SablierMerkleInstant.json"),
-                    abi.encode(params, campaignCreator)
+                    abi.encode(params, campaignCreator, address(comptroller))
                 )
             );
         }
@@ -417,17 +411,20 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         view
         returns (address)
     {
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
 
         bytes32 creationBytecodeHash;
         if (!isTestOptimizedProfile()) {
-            creationBytecodeHash =
-                keccak256(bytes.concat(type(SablierMerkleLL).creationCode, abi.encode(params, campaignCreator)));
+            creationBytecodeHash = keccak256(
+                bytes.concat(
+                    type(SablierMerkleLL).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+                )
+            );
         } else {
             creationBytecodeHash = keccak256(
                 bytes.concat(
                     vm.getCode("out-optimized/SablierMerkleLL.sol/SablierMerkleLL.json"),
-                    abi.encode(params, campaignCreator)
+                    abi.encode(params, campaignCreator, address(comptroller))
                 )
             );
         }
@@ -514,17 +511,20 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         view
         returns (address)
     {
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
 
         bytes32 creationBytecodeHash;
         if (!isTestOptimizedProfile()) {
-            creationBytecodeHash =
-                keccak256(bytes.concat(type(SablierMerkleLT).creationCode, abi.encode(params, campaignCreator)));
+            creationBytecodeHash = keccak256(
+                bytes.concat(
+                    type(SablierMerkleLT).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+                )
+            );
         } else {
             creationBytecodeHash = keccak256(
                 bytes.concat(
                     vm.getCode("out-optimized/SablierMerkleLT.sol/SablierMerkleLT.json"),
-                    abi.encode(params, campaignCreator)
+                    abi.encode(params, campaignCreator, address(comptroller))
                 )
             );
         }
@@ -692,17 +692,20 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         view
         returns (address)
     {
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
 
         bytes32 creationBytecodeHash;
         if (!isTestOptimizedProfile()) {
-            creationBytecodeHash =
-                keccak256(bytes.concat(type(SablierMerkleVCA).creationCode, abi.encode(params, campaignCreator)));
+            creationBytecodeHash = keccak256(
+                bytes.concat(
+                    type(SablierMerkleVCA).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+                )
+            );
         } else {
             creationBytecodeHash = keccak256(
                 bytes.concat(
                     vm.getCode("out-optimized/SablierMerkleVCA.sol/SablierMerkleVCA.json"),
-                    abi.encode(params, campaignCreator)
+                    abi.encode(params, campaignCreator, address(comptroller))
                 )
             );
         }

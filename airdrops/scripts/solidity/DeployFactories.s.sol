@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
-import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
+import { BaseScript as EvmUtilsBaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
+
 import { SablierFactoryMerkleInstant } from "../../src/SablierFactoryMerkleInstant.sol";
 import { SablierFactoryMerkleLL } from "../../src/SablierFactoryMerkleLL.sol";
 import { SablierFactoryMerkleLT } from "../../src/SablierFactoryMerkleLT.sol";
 import { SablierFactoryMerkleVCA } from "../../src/SablierFactoryMerkleVCA.sol";
 
 /// @notice Deploys the FactoryMerkle contracts.
-contract DeployFactories is BaseScript {
+contract DeployFactories is EvmUtilsBaseScript {
     function run()
         public
         broadcast
@@ -19,12 +20,9 @@ contract DeployFactories is BaseScript {
             SablierFactoryMerkleVCA factoryMerkleVCA
         )
     {
-        address initialAdmin = protocolAdmin();
-        uint256 initialMinFeeUSD = initialMinFeeUSD();
-        address initialOracle = chainlinkOracle();
-        factoryMerkleInstant = new SablierFactoryMerkleInstant(initialAdmin, initialMinFeeUSD, initialOracle);
-        factoryMerkleLL = new SablierFactoryMerkleLL(initialAdmin, initialMinFeeUSD, initialOracle);
-        factoryMerkleLT = new SablierFactoryMerkleLT(initialAdmin, initialMinFeeUSD, initialOracle);
-        factoryMerkleVCA = new SablierFactoryMerkleVCA(initialAdmin, initialMinFeeUSD, initialOracle);
+        factoryMerkleInstant = new SablierFactoryMerkleInstant(comptrollerAddress());
+        factoryMerkleLL = new SablierFactoryMerkleLL(comptrollerAddress());
+        factoryMerkleLT = new SablierFactoryMerkleLT(comptrollerAddress());
+        factoryMerkleVCA = new SablierFactoryMerkleVCA(comptrollerAddress());
     }
 }

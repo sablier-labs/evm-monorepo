@@ -1,7 +1,7 @@
 SetNativeToken_Integration_Test
-├── when caller not admin
+├── when caller not comptroller
 │  └── it should revert
-└── when caller admin
+└── when caller comptroller
    ├── when provided address zero
    │  └── it should revert
    └── when provided address not zero

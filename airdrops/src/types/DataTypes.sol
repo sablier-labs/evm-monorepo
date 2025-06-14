@@ -6,16 +6,6 @@ import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
-library FactoryMerkle {
-    /// @notice Struct encapsulating the parameters of a custom USD fee.
-    /// @param enabled Whether the fee is enabled. If false, the min USD fee will apply instead.
-    /// @param fee The fee amount.
-    struct CustomFeeUSD {
-        bool enabled;
-        uint256 fee;
-    }
-}
-
 library MerkleInstant {
     /// @notice Struct encapsulating the constructor parameters of Merkle Instant campaigns.
     /// @dev The fields are arranged alphabetically.

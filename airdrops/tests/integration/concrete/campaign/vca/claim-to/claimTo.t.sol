@@ -24,7 +24,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is ClaimTo_Integration_Test, MerkleV
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleVCA_ClaimAmountZero.selector, users.recipient));
 
         // Claim the airdrop.
-        merkleVCA.claimTo{ value: MIN_FEE_WEI }({
+        merkleVCA.claimTo{ value: AIRDROP_MIN_FEE_WEI }({
             index: getIndexInMerkleTree(),
             to: users.eve,
             fullAmount: CLAIM_AMOUNT,
@@ -59,7 +59,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is ClaimTo_Integration_Test, MerkleV
         uint256 index = getIndexInMerkleTree();
 
         uint128 forgoneAmount = VCA_FULL_AMOUNT - claimAmount;
-        uint256 previousFeeAccrued = address(factoryMerkleVCA).balance;
+        uint256 previousFeeAccrued = address(comptroller).balance;
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleVCA) });
@@ -73,7 +73,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is ClaimTo_Integration_Test, MerkleV
 
         // It should transfer a portion of the amount to Eve.
         expectCallToTransfer({ to: users.eve, value: claimAmount });
-        expectCallToClaimToWithMsgValue(address(merkleVCA), MIN_FEE_WEI);
+        expectCallToClaimToWithMsgValue(address(merkleVCA), AIRDROP_MIN_FEE_WEI);
 
         claimTo();
 
@@ -83,6 +83,6 @@ contract ClaimTo_MerkleVCA_Integration_Test is ClaimTo_Integration_Test, MerkleV
         // It should update the total forgone amount.
         assertEq(merkleVCA.totalForgoneAmount(), forgoneAmount, "total forgone amount");
 
-        assertEq(address(factoryMerkleVCA).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
+        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }
 }

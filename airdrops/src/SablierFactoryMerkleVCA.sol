@@ -32,16 +32,8 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @param initialAdmin The address of the initial contract admin.
-    /// @param initialMinFeeUSD The initial min USD fee charged for claiming an airdrop.
-    /// @param initialOracle The initial oracle contract address.
-    constructor(
-        address initialAdmin,
-        uint256 initialMinFeeUSD,
-        address initialOracle
-    )
-        SablierFactoryMerkleBase(initialAdmin, initialMinFeeUSD, initialOracle)
-    { }
+    /// @param initialComptroller The address of the initial comptroller contract.
+    constructor(address initialComptroller) SablierFactoryMerkleBase(initialComptroller) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                         USER-FACING STATE-CHANGING FUNCTIONS
@@ -60,10 +52,14 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
         _forbidNativeToken(address(params.token));
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(msg.sender, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(msg.sender, comptroller, abi.encode(params)));
 
         // Deploy the MerkleVCA contract with CREATE2.
-        merkleVCA = new SablierMerkleVCA{ salt: salt }({ params: params, campaignCreator: msg.sender });
+        merkleVCA = new SablierMerkleVCA{ salt: salt }({
+            params: params,
+            campaignCreator: msg.sender,
+            comptroller: address(comptroller)
+        });
 
         // Log the creation of the MerkleVCA contract, including some metadata that is not stored on-chain.
         emit CreateMerkleVCA({
@@ -71,8 +67,8 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
             params: params,
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount,
-            minFeeUSD: _minFeeUSDFor(msg.sender),
-            oracle: oracle
+            comptroller: address(comptroller),
+            minFeeUSD: comptroller.getAirdropsMinFeeUSDFor(msg.sender)
         });
     }
 }

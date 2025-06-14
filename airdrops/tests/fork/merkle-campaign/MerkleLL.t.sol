@@ -74,8 +74,8 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
             params: constructorParams,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.leavesData.length,
-            minFeeUSD: vars.minFeeUSD,
-            oracle: vars.oracle
+            comptroller: address(comptroller),
+            minFeeUSD: vars.minFeeUSD
         });
 
         merkleLL = factoryMerkleLL.createMerkleLL(constructorParams, vars.aggregateAmount, vars.leavesData.length);
@@ -190,11 +190,5 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         testClawback(params);
-
-        /*//////////////////////////////////////////////////////////////////////////
-                                        COLLECT-FEES
-        //////////////////////////////////////////////////////////////////////////*/
-
-        testCollectFees();
     }
 }

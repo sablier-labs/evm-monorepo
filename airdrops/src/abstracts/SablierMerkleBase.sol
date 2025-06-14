@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
@@ -9,7 +8,8 @@ import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/Mes
 import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import { BitMaps } from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
-import { ISablierFactoryMerkleBase } from "./../interfaces/ISablierFactoryMerkleBase.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
+
 import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
 import { SignatureHash } from "./../libraries/SignatureHash.sol";
@@ -31,22 +31,19 @@ abstract contract SablierMerkleBase is
     uint40 public immutable override CAMPAIGN_START_TIME;
 
     /// @inheritdoc ISablierMerkleBase
+    address public immutable override COMPTROLLER;
+
+    /// @inheritdoc ISablierMerkleBase
     bytes32 public immutable DOMAIN_SEPARATOR;
 
     /// @inheritdoc ISablierMerkleBase
     uint40 public immutable override EXPIRATION;
 
     /// @inheritdoc ISablierMerkleBase
-    ISablierFactoryMerkleBase public immutable override FACTORY;
-
-    /// @inheritdoc ISablierMerkleBase
     bool public constant override IS_SABLIER_MERKLE = true;
 
     /// @inheritdoc ISablierMerkleBase
     bytes32 public immutable override MERKLE_ROOT;
-
-    /// @inheritdoc ISablierMerkleBase
-    address public immutable override ORACLE;
 
     /// @inheritdoc ISablierMerkleBase
     IERC20 public immutable override TOKEN;
@@ -86,6 +83,7 @@ abstract contract SablierMerkleBase is
         address campaignCreator,
         string memory campaignName_,
         uint40 campaignStartTime,
+        address comptroller,
         uint40 expiration,
         address initialAdmin,
         string memory ipfsCID_,
@@ -100,25 +98,19 @@ abstract contract SablierMerkleBase is
         );
 
         CAMPAIGN_START_TIME = campaignStartTime;
+        COMPTROLLER = comptroller;
         EXPIRATION = expiration;
-        FACTORY = ISablierFactoryMerkleBase(msg.sender);
         MERKLE_ROOT = merkleRoot;
-        ORACLE = FACTORY.oracle();
         TOKEN = token;
 
         campaignName = campaignName_;
         ipfsCID = ipfsCID_;
-        minFeeUSD = FACTORY.minFeeUSDFor(campaignCreator);
+        minFeeUSD = ISablierComptroller(COMPTROLLER).getAirdropsMinFeeUSDFor(campaignCreator);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierMerkleBase
-    function calculateMinFeeWei() external view override returns (uint256) {
-        return _calculateMinFeeWei();
-    }
 
     /// @inheritdoc ISablierMerkleBase
     function hasClaimed(uint256 index) public view override returns (bool) {
@@ -154,12 +146,9 @@ abstract contract SablierMerkleBase is
 
     /// @inheritdoc ISablierMerkleBase
     function lowerMinFeeUSD(uint256 newMinFeeUSD) external override {
-        // Safe Interaction: retrieve the factory admin.
-        address factoryAdmin = FACTORY.admin();
-
-        // Check: the caller is the factory admin.
-        if (factoryAdmin != msg.sender) {
-            revert Errors.SablierMerkleBase_CallerNotFactoryAdmin({ factoryAdmin: factoryAdmin, caller: msg.sender });
+        // Check: the caller is the comptroller.
+        if (COMPTROLLER != msg.sender) {
+            revert Errors.SablierMerkleBase_CallerNotComptroller(COMPTROLLER, msg.sender);
         }
 
         uint256 currentMinFeeUSD = minFeeUSD;
@@ -173,11 +162,7 @@ abstract contract SablierMerkleBase is
         minFeeUSD = newMinFeeUSD;
 
         // Log the event.
-        emit LowerMinFeeUSD({
-            factoryAdmin: factoryAdmin,
-            newMinFeeUSD: newMinFeeUSD,
-            previousMinFeeUSD: currentMinFeeUSD
-        });
+        emit LowerMinFeeUSD({ comptroller: COMPTROLLER, newMinFeeUSD: newMinFeeUSD, previousMinFeeUSD: currentMinFeeUSD });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -218,57 +203,6 @@ abstract contract SablierMerkleBase is
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev See the documentation for the user-facing functions that call this private function.
-    function _calculateMinFeeWei() private view returns (uint256) {
-        // If the oracle is not set, return 0.
-        if (ORACLE == address(0)) {
-            return 0;
-        }
-
-        // If the min USD fee is 0, skip the calculations.
-        if (minFeeUSD == 0) {
-            return 0;
-        }
-
-        // Interactions: query the oracle price and the time at which it was updated.
-        (, int256 price,, uint256 updatedAt,) = AggregatorV3Interface(ORACLE).latestRoundData();
-
-        // If the price is not greater than 0, skip the calculations.
-        if (price <= 0) {
-            return 0;
-        }
-
-        // Due to reorgs and latency issues, the oracle can have an `updatedAt` timestamp that is in the future. In
-        // this case, we ignore the price and return 0.
-        if (block.timestamp < updatedAt) {
-            return 0;
-        }
-
-        // If the oracle hasn't been updated in the last 24 hours, we ignore the price and return 0. This is a safety
-        // check to avoid using outdated prices.
-        unchecked {
-            if (block.timestamp - updatedAt > 24 hours) {
-                return 0;
-            }
-        }
-
-        // Interactions: query the oracle decimals.
-        uint8 oracleDecimals = AggregatorV3Interface(ORACLE).decimals();
-
-        // Adjust the price so that it has 8 decimals.
-        uint256 price8D;
-        if (oracleDecimals == 8) {
-            price8D = uint256(price);
-        } else if (oracleDecimals < 8) {
-            price8D = uint256(price) * 10 ** (8 - oracleDecimals);
-        } else {
-            price8D = uint256(price) / 10 ** (oracleDecimals - 8);
-        }
-
-        // Multiply by 10^18 because the native token is assumed to have 18 decimals.
-        return minFeeUSD * 1e18 / price8D;
-    }
-
     /// @notice Returns a flag indicating whether the grace period has passed.
     /// @dev The grace period is 7 days after the first claim.
     function _hasGracePeriodPassed() private view returns (bool) {
@@ -308,12 +242,12 @@ abstract contract SablierMerkleBase is
             revert Errors.SablierMerkleBase_CampaignExpired({ blockTimestamp: block.timestamp, expiration: EXPIRATION });
         }
 
-        // Calculate the min fee in wei.
-        uint256 minFeeWei = _calculateMinFeeWei();
+        // Safe interaction: calculate the min fee in wei.
+        uint256 minFeeWei = ISablierComptroller(COMPTROLLER).calculateMinFeeWei(minFeeUSD);
 
         uint256 feePaid = msg.value;
 
-        // Check: the min fee was paid.
+        // Check: the min fee is paid.
         if (feePaid < minFeeWei) {
             revert Errors.SablierMerkleBase_InsufficientFeePayment(feePaid, minFeeWei);
         }
@@ -339,13 +273,13 @@ abstract contract SablierMerkleBase is
         // Effect: mark the index as claimed.
         _claimedBitMap.set(index);
 
-        // Interaction: transfer the fee to factory if it's greater than 0.
+        // Interaction: transfer the fee to comptroller if it's greater than 0.
         if (feePaid > 0) {
-            (bool success,) = address(FACTORY).call{ value: feePaid }("");
+            (bool success,) = COMPTROLLER.call{ value: feePaid }("");
 
             // Revert if the transfer failed.
             if (!success) {
-                revert Errors.SablierMerkleBase_FeeTransferFailed(address(FACTORY), feePaid);
+                revert Errors.SablierMerkleBase_FeeTransferFailed(COMPTROLLER, feePaid);
             }
         }
     }

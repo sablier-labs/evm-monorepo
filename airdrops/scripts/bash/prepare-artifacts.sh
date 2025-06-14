@@ -41,6 +41,7 @@ cp out-optimized/ISablierMerkleVCA.sol/ISablierMerkleVCA.json $interfaces
 
 libraries=./artifacts/libraries
 cp out-optimized/libraries/Errors.sol/Errors.json $libraries
+cp out-optimized/libraries/SignatureHash.sol/SignatureHash.json $libraries
 
 ################################################
 ####                OTHERS                  ####

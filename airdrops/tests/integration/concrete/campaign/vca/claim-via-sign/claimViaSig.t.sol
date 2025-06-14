@@ -20,7 +20,7 @@ contract ClaimViaSig_MerkleVCA_Integration_Test is ClaimViaSig_Integration_Test,
         whenSignatureCompatible
     {
         uint128 forgoneAmount = VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT;
-        uint256 previousFeeAccrued = address(factoryMerkleVCA).balance;
+        uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();
 
         eip712Signature = generateSignature(users.recipient, address(merkleVCA));
@@ -35,13 +35,13 @@ contract ClaimViaSig_MerkleVCA_Integration_Test is ClaimViaSig_Integration_Test,
         });
 
         expectCallToTransfer({ to: users.eve, value: VCA_CLAIM_AMOUNT });
-        expectCallToClaimViaSigWithMsgValue(address(merkleVCA), MIN_FEE_WEI);
+        expectCallToClaimViaSigWithMsgValue(address(merkleVCA), AIRDROP_MIN_FEE_WEI);
 
         claimViaSig();
 
         assertTrue(merkleVCA.hasClaimed(index), "not claimed");
         assertEq(merkleVCA.totalForgoneAmount(), forgoneAmount, "total forgone amount");
-        assertEq(address(factoryMerkleVCA).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
+        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }
 
     function test_WhenRecipientImplementsIERC1271Interface()
@@ -51,7 +51,7 @@ contract ClaimViaSig_MerkleVCA_Integration_Test is ClaimViaSig_Integration_Test,
         givenRecipientIsContract
     {
         uint128 forgoneAmount = VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT;
-        uint256 previousFeeAccrued = address(factoryMerkleVCA).balance;
+        uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree(users.smartWalletWithIERC1271);
 
         eip712Signature = generateSignature(users.smartWalletWithIERC1271, address(merkleVCA));
@@ -68,7 +68,7 @@ contract ClaimViaSig_MerkleVCA_Integration_Test is ClaimViaSig_Integration_Test,
         expectCallToTransfer({ to: users.eve, value: VCA_CLAIM_AMOUNT });
 
         claimViaSig({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: index,
             recipient: users.smartWalletWithIERC1271,
             to: users.eve,
@@ -79,6 +79,6 @@ contract ClaimViaSig_MerkleVCA_Integration_Test is ClaimViaSig_Integration_Test,
 
         assertTrue(merkleVCA.hasClaimed(index), "not claimed");
         assertEq(merkleVCA.totalForgoneAmount(), forgoneAmount, "total forgone amount");
-        assertEq(address(factoryMerkleVCA).balance, previousFeeAccrued + MIN_FEE_WEI, "fee collected");
+        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }
 }

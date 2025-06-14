@@ -14,7 +14,7 @@ abstract contract ClaimTo_Integration_Test is Integration_Test {
     function test_RevertWhen_ToAddressZero() external {
         vm.expectRevert(Errors.SablierMerkleBase_ToZeroAddress.selector);
         claimTo({
-            msgValue: MIN_FEE_WEI,
+            msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
             to: address(0),
             amount: CLAIM_AMOUNT,

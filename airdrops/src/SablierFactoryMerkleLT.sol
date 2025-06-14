@@ -34,16 +34,8 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @param initialAdmin The address of the initial contract admin.
-    /// @param initialMinFeeUSD The initial min USD fee charged for claiming an airdrop.
-    /// @param initialOracle The initial oracle contract address.
-    constructor(
-        address initialAdmin,
-        uint256 initialMinFeeUSD,
-        address initialOracle
-    )
-        SablierFactoryMerkleBase(initialAdmin, initialMinFeeUSD, initialOracle)
-    { }
+    /// @param initialComptroller The address of the initial comptroller contract.
+    constructor(address initialComptroller) SablierFactoryMerkleBase(initialComptroller) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
@@ -91,10 +83,14 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
         }
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(msg.sender, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(msg.sender, comptroller, abi.encode(params)));
 
         // Deploy the MerkleLT contract with CREATE2.
-        merkleLT = new SablierMerkleLT{ salt: salt }({ params: params, campaignCreator: msg.sender });
+        merkleLT = new SablierMerkleLT{ salt: salt }({
+            params: params,
+            campaignCreator: msg.sender,
+            comptroller: address(comptroller)
+        });
 
         // Log the creation of the MerkleLT contract, including some metadata that is not stored on-chain.
         emit CreateMerkleLT({
@@ -103,8 +99,8 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount,
             totalDuration: totalDuration,
-            minFeeUSD: _minFeeUSDFor(msg.sender),
-            oracle: oracle
+            comptroller: address(comptroller),
+            minFeeUSD: comptroller.getAirdropsMinFeeUSDFor(msg.sender)
         });
     }
 }

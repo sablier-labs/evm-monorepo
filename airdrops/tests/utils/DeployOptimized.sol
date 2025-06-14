@@ -9,11 +9,7 @@ import { ISablierFactoryMerkleLT } from "../../src/interfaces/ISablierFactoryMer
 import { ISablierFactoryMerkleVCA } from "../../src/interfaces/ISablierFactoryMerkleVCA.sol";
 
 abstract contract DeployOptimized is StdCheats {
-    function deployOptimizedFactories(
-        address initialAdmin,
-        uint256 initialMinFeeUSD,
-        address initialOracle
-    )
+    function deployOptimizedFactories(address initialComptroller)
         internal
         returns (
             ISablierFactoryMerkleInstant factoryMerkleInstant,
@@ -25,25 +21,22 @@ abstract contract DeployOptimized is StdCheats {
         factoryMerkleInstant = ISablierFactoryMerkleInstant(
             deployCode(
                 "out-optimized/SablierFactoryMerkleInstant.sol/SablierFactoryMerkleInstant.json",
-                abi.encode(initialAdmin, initialMinFeeUSD, initialOracle)
+                abi.encode(initialComptroller)
             )
         );
         factoryMerkleLL = ISablierFactoryMerkleLL(
             deployCode(
-                "out-optimized/SablierFactoryMerkleLL.sol/SablierFactoryMerkleLL.json",
-                abi.encode(initialAdmin, initialMinFeeUSD, initialOracle)
+                "out-optimized/SablierFactoryMerkleLL.sol/SablierFactoryMerkleLL.json", abi.encode(initialComptroller)
             )
         );
         factoryMerkleLT = ISablierFactoryMerkleLT(
             deployCode(
-                "out-optimized/SablierFactoryMerkleLT.sol/SablierFactoryMerkleLT.json",
-                abi.encode(initialAdmin, initialMinFeeUSD, initialOracle)
+                "out-optimized/SablierFactoryMerkleLT.sol/SablierFactoryMerkleLT.json", abi.encode(initialComptroller)
             )
         );
         factoryMerkleVCA = ISablierFactoryMerkleVCA(
             deployCode(
-                "out-optimized/SablierFactoryMerkleVCA.sol/SablierFactoryMerkleVCA.json",
-                abi.encode(initialAdmin, initialMinFeeUSD, initialOracle)
+                "out-optimized/SablierFactoryMerkleVCA.sol/SablierFactoryMerkleVCA.json", abi.encode(initialComptroller)
             )
         );
     }
