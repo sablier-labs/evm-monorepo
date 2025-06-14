@@ -5,7 +5,6 @@ import { UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierFactoryMerkleLL } from "src/interfaces/ISablierFactoryMerkleLL.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
-import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
 
 import { MerkleLL } from "src/types/DataTypes.sol";
 
@@ -185,11 +184,12 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         // If the vesting has ended, the claim should be transferred directly to the `to` address.
         if (expectedVestingStartTime + merkleLL.VESTING_TOTAL_DURATION() <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLL) });
-            emit ISablierMerkleLockup.Claim({
+            emit ISablierMerkleLL.ClaimLLWithTransfer({
                 index: leafData.index,
                 recipient: leafData.recipient,
                 amount: leafData.amount,
-                to: to
+                to: to,
+                viaSig: false
             });
 
             expectCallToTransfer({ token: dai, to: to, value: leafData.amount });
@@ -198,12 +198,13 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         else {
             uint256 expectedStreamId = lockup.nextStreamId();
             vm.expectEmit({ emitter: address(merkleLL) });
-            emit ISablierMerkleLockup.Claim({
+            emit ISablierMerkleLL.ClaimLLWithVesting({
                 index: leafData.index,
                 recipient: leafData.recipient,
                 amount: leafData.amount,
                 streamId: expectedStreamId,
-                to: to
+                to: to,
+                viaSig: false
             });
 
             expectCallToTransferFrom({ token: dai, from: address(merkleLL), to: address(lockup), value: leafData.amount });

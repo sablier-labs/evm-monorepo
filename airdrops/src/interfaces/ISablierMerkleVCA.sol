@@ -13,8 +13,16 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when `to` receives the airdrop through a direct transfer on behalf of `recipient`.
-    event Claim(uint256 index, address indexed recipient, uint128 claimAmount, uint128 forgoneAmount, address to);
+    /// @notice Emitted when an airdrop is claimed on behalf of an eligible recipient.
+    /// @param index The index of the airdrop recipient in the Merkle tree.
+    /// @param recipient The address of the airdrop recipient.
+    /// @param claimAmount The amount of ERC-20 tokens claimed.
+    /// @param forgoneAmount The amount of ERC-20 tokens forgone.
+    /// @param to The address receiving the claim amount on behalf of the airdrop recipient.
+    /// @param viaSig Bool indicating whether the claim is made via a signature.
+    event ClaimVCA(
+        uint256 index, address indexed recipient, uint128 claimAmount, uint128 forgoneAmount, address to, bool viaSig
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
@@ -55,7 +63,7 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @notice Claim airdrop on behalf of eligible recipient and transfer it to the recipient address. If the vesting
     /// end time is in the future, it calculates the claim amount, otherwise it transfers the full amount.
     ///
-    /// @dev It emits a {Claim} event.
+    /// @dev It emits a {ClaimVCA} event.
     ///
     /// Requirements:
     /// - The current time must be greater than or equal to the campaign start time.
@@ -81,7 +89,7 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @notice Claim airdrop. If the vesting end time is in the future, it calculates the claim amount to transfer to
     /// the `to` address, otherwise it transfers the full amount.
     ///
-    /// @dev It emits a {Claim} event.
+    /// @dev It emits a {ClaimVCA} event.
     ///
     /// Requirements:
     /// - `msg.sender` must be the airdrop recipient.
@@ -98,7 +106,7 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// time is in the future, it calculates the claim amount to transfer to the `to` address, otherwise it transfers
     /// the full amount.
     ///
-    /// @dev It emits a {Claim} event.
+    /// @dev It emits a {ClaimVCA} event.
     ///
     /// Requirements:
     /// - If `recipient` is an EOA, it must match the recovered signer.

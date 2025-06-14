@@ -161,7 +161,7 @@ contract SablierMerkleVCA is
         _preProcessClaim({ index: index, recipient: recipient, amount: fullAmount, merkleProof: merkleProof });
 
         // Check, Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
-        _postProcessClaim({ index: index, recipient: recipient, to: recipient, fullAmount: fullAmount });
+        _postProcessClaim({ index: index, recipient: recipient, to: recipient, fullAmount: fullAmount, viaSig: false });
     }
 
     /// @inheritdoc ISablierMerkleVCA
@@ -180,7 +180,7 @@ contract SablierMerkleVCA is
         _preProcessClaim({ index: index, recipient: msg.sender, amount: fullAmount, merkleProof: merkleProof });
 
         // Check, Effect and Interaction: Post-process the claim parameters on behalf of `msg.sender`.
-        _postProcessClaim({ index: index, recipient: msg.sender, to: to, fullAmount: fullAmount });
+        _postProcessClaim({ index: index, recipient: msg.sender, to: to, fullAmount: fullAmount, viaSig: false });
     }
 
     /// @inheritdoc ISablierMerkleVCA
@@ -204,7 +204,7 @@ contract SablierMerkleVCA is
         _preProcessClaim(index, recipient, fullAmount, merkleProof);
 
         // Check, Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
-        _postProcessClaim(index, recipient, to, fullAmount);
+        _postProcessClaim({ index: index, recipient: recipient, to: to, fullAmount: fullAmount, viaSig: true });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -248,7 +248,7 @@ contract SablierMerkleVCA is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Post-processes the claim execution by handling the tokens transfer and emitting an event.
-    function _postProcessClaim(uint256 index, address recipient, address to, uint128 fullAmount) private {
+    function _postProcessClaim(uint256 index, address recipient, address to, uint128 fullAmount, bool viaSig) private {
         // Calculate the claim amount.
         uint128 claimAmount = _calculateClaimAmount(fullAmount, uint40(block.timestamp));
 
@@ -274,7 +274,7 @@ contract SablierMerkleVCA is
         // Interaction: transfer the tokens to the recipient.
         TOKEN.safeTransfer({ to: to, value: claimAmount });
 
-        // Log the claim.
-        emit Claim(index, recipient, claimAmount, forgoneAmount, to);
+        // Emit claim event.
+        emit ClaimVCA(index, recipient, claimAmount, forgoneAmount, to, viaSig);
     }
 }

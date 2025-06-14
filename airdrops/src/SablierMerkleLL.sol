@@ -109,7 +109,7 @@ contract SablierMerkleLL is
         _preProcessClaim(index, recipient, amount, merkleProof);
 
         // Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
-        _postProcessClaim({ index: index, recipient: recipient, to: recipient, amount: amount });
+        _postProcessClaim({ index: index, recipient: recipient, to: recipient, amount: amount, viaSig: false });
     }
 
     /// @inheritdoc ISablierMerkleLL
@@ -128,7 +128,7 @@ contract SablierMerkleLL is
         _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
 
         // Effect and Interaction: Post-process the claim parameters on behalf of `msg.sender`.
-        _postProcessClaim({ index: index, recipient: msg.sender, to: to, amount: amount });
+        _postProcessClaim({ index: index, recipient: msg.sender, to: to, amount: amount, viaSig: false });
     }
 
     /// @inheritdoc ISablierMerkleLL
@@ -152,7 +152,7 @@ contract SablierMerkleLL is
         _preProcessClaim(index, recipient, amount, merkleProof);
 
         // Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
-        _postProcessClaim(index, recipient, to, amount);
+        _postProcessClaim({ index: index, recipient: recipient, to: to, amount: amount, viaSig: true });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ contract SablierMerkleLL is
 
     /// @dev Post-processes the claim execution by creating the stream or transferring the tokens directly and emitting
     /// an event.
-    function _postProcessClaim(uint256 index, address recipient, address to, uint128 amount) private {
+    function _postProcessClaim(uint256 index, address recipient, address to, uint128 amount, bool viaSig) private {
         // Calculate the timestamps.
         Lockup.Timestamps memory timestamps;
         // Zero is a sentinel value for `block.timestamp`.
@@ -177,8 +177,8 @@ contract SablierMerkleLL is
             // Interaction: transfer the tokens to the `to` address.
             TOKEN.safeTransfer(to, amount);
 
-            // Log the claim.
-            emit Claim(index, recipient, amount, to);
+            // Emit claim event.
+            emit ClaimLLWithTransfer(index, recipient, amount, to, viaSig);
         }
         // Otherwise, create the Lockup stream to start the vesting.
         else {
@@ -212,8 +212,8 @@ contract SablierMerkleLL is
             // Effect: push the stream ID into the claimed streams array.
             _claimedStreams[recipient].push(streamId);
 
-            // Log the claim.
-            emit Claim(index, recipient, amount, streamId, to);
+            // Emit claim event.
+            emit ClaimLLWithVesting(index, recipient, amount, streamId, to, viaSig);
         }
     }
 }

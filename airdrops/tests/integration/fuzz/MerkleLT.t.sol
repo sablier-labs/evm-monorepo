@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierFactoryMerkleLT } from "src/interfaces/ISablierFactoryMerkleLT.sol";
-import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 
 import { MerkleLT } from "src/types/DataTypes.sol";
@@ -154,11 +153,12 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
         // If the vesting has ended, the claim should be transferred directly to the `to` address.
         if (vestingEndTime <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLT) });
-            emit ISablierMerkleLockup.Claim({
+            emit ISablierMerkleLT.ClaimLTWithTransfer({
                 index: leafData.index,
                 recipient: leafData.recipient,
                 amount: leafData.amount,
-                to: to
+                to: to,
+                viaSig: false
             });
 
             expectCallToTransfer({ token: dai, to: to, value: leafData.amount });
@@ -167,12 +167,13 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
         else {
             uint256 expectedStreamId = lockup.nextStreamId();
             vm.expectEmit({ emitter: address(merkleLT) });
-            emit ISablierMerkleLockup.Claim({
+            emit ISablierMerkleLT.ClaimLTWithVesting({
                 index: leafData.index,
                 recipient: leafData.recipient,
                 amount: leafData.amount,
                 streamId: expectedStreamId,
-                to: to
+                to: to,
+                viaSig: false
             });
 
             expectCallToTransferFrom({ token: dai, from: address(merkleLT), to: address(lockup), value: leafData.amount });

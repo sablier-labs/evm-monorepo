@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
+import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 
 import { ClaimViaSig_Integration_Test } from "./../../shared/claim-via-sig/claimViaSig.t.sol";
 import { MerkleLT_Integration_Shared_Test } from "./../MerkleLT.t.sol";
@@ -26,7 +26,9 @@ contract ClaimViaSig_MerkleLT_Integration_Test is ClaimViaSig_Integration_Test, 
         eip712Signature = generateSignature(users.recipient, address(merkleLT));
 
         vm.expectEmit({ emitter: address(merkleLT) });
-        emit ISablierMerkleLockup.Claim(index, users.recipient, CLAIM_AMOUNT, expectedStreamId, users.eve);
+        emit ISablierMerkleLT.ClaimLTWithVesting(
+            index, users.recipient, CLAIM_AMOUNT, expectedStreamId, users.eve, true
+        );
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: CLAIM_AMOUNT });
         expectCallToClaimViaSigWithMsgValue(address(merkleLT), AIRDROP_MIN_FEE_WEI);
@@ -52,7 +54,9 @@ contract ClaimViaSig_MerkleLT_Integration_Test is ClaimViaSig_Integration_Test, 
         eip712Signature = generateSignature(users.smartWalletWithIERC1271, address(merkleLT));
 
         vm.expectEmit({ emitter: address(merkleLT) });
-        emit ISablierMerkleLockup.Claim(index, users.smartWalletWithIERC1271, CLAIM_AMOUNT, expectedStreamId, users.eve);
+        emit ISablierMerkleLT.ClaimLTWithVesting(
+            index, users.smartWalletWithIERC1271, CLAIM_AMOUNT, expectedStreamId, users.eve, true
+        );
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: CLAIM_AMOUNT });
 

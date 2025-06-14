@@ -26,12 +26,13 @@ contract ClaimViaSig_MerkleVCA_Integration_Test is ClaimViaSig_Integration_Test,
         eip712Signature = generateSignature(users.recipient, address(merkleVCA));
 
         vm.expectEmit({ emitter: address(merkleVCA) });
-        emit ISablierMerkleVCA.Claim({
+        emit ISablierMerkleVCA.ClaimVCA({
             index: index,
             recipient: users.recipient,
             claimAmount: VCA_CLAIM_AMOUNT,
             forgoneAmount: forgoneAmount,
-            to: users.eve
+            to: users.eve,
+            viaSig: true
         });
 
         expectCallToTransfer({ to: users.eve, value: VCA_CLAIM_AMOUNT });
@@ -57,12 +58,13 @@ contract ClaimViaSig_MerkleVCA_Integration_Test is ClaimViaSig_Integration_Test,
         eip712Signature = generateSignature(users.smartWalletWithIERC1271, address(merkleVCA));
 
         vm.expectEmit({ emitter: address(merkleVCA) });
-        emit ISablierMerkleVCA.Claim({
+        emit ISablierMerkleVCA.ClaimVCA({
             index: index,
             recipient: users.smartWalletWithIERC1271,
             claimAmount: VCA_CLAIM_AMOUNT,
             forgoneAmount: forgoneAmount,
-            to: users.eve
+            to: users.eve,
+            viaSig: true
         });
 
         expectCallToTransfer({ to: users.eve, value: VCA_CLAIM_AMOUNT });

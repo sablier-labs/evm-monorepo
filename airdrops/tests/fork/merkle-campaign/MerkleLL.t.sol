@@ -7,7 +7,6 @@ import { Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
 
 import { ISablierFactoryMerkleLL } from "src/interfaces/ISablierFactoryMerkleLL.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
-import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
 import { MerkleLL } from "src/types/DataTypes.sol";
 
 import { Fork_Test } from "./../Fork.t.sol";
@@ -98,22 +97,24 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
         // It should emit {Claim} event based on the vesting end time.
         if (expectedVestingStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLL) });
-            emit ISablierMerkleLockup.Claim({
+            emit ISablierMerkleLL.ClaimLLWithTransfer({
                 index: vars.leafToClaim.index,
                 recipient: vars.leafToClaim.recipient,
                 amount: vars.leafToClaim.amount,
-                to: vars.leafToClaim.recipient
+                to: vars.leafToClaim.recipient,
+                viaSig: false
             });
             expectCallToTransfer({ token: FORK_TOKEN, to: vars.leafToClaim.recipient, value: vars.leafToClaim.amount });
         } else {
             expectedStreamId = lockup.nextStreamId();
             vm.expectEmit({ emitter: address(merkleLL) });
-            emit ISablierMerkleLockup.Claim({
+            emit ISablierMerkleLL.ClaimLLWithVesting({
                 index: vars.leafToClaim.index,
                 recipient: vars.leafToClaim.recipient,
                 amount: vars.leafToClaim.amount,
                 streamId: expectedStreamId,
-                to: vars.leafToClaim.recipient
+                to: vars.leafToClaim.recipient,
+                viaSig: false
             });
             expectCallToTransferFrom({
                 token: FORK_TOKEN,

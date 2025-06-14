@@ -23,7 +23,7 @@ contract ClaimTo_MerkleInstant_Integration_Test is ClaimTo_Integration_Test, Mer
         uint256 index = getIndexInMerkleTree();
 
         vm.expectEmit({ emitter: address(merkleInstant) });
-        emit ISablierMerkleInstant.Claim(index, users.recipient, CLAIM_AMOUNT, users.eve);
+        emit ISablierMerkleInstant.ClaimInstant(index, users.recipient, CLAIM_AMOUNT, users.eve, false);
 
         expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
         expectCallToClaimToWithMsgValue(address(merkleInstant), AIRDROP_MIN_FEE_WEI);

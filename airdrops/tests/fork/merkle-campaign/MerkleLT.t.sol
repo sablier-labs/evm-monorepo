@@ -5,7 +5,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
 
 import { ISablierFactoryMerkleLT } from "src/interfaces/ISablierFactoryMerkleLT.sol";
-import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { MerkleLT } from "src/types/DataTypes.sol";
 
@@ -98,22 +97,24 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
         // It should emit {Claim} event based on the schedule end time.
         if (expectedVestingStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLT) });
-            emit ISablierMerkleLockup.Claim({
+            emit ISablierMerkleLT.ClaimLTWithTransfer({
                 index: vars.leafToClaim.index,
                 recipient: vars.leafToClaim.recipient,
                 amount: vars.leafToClaim.amount,
-                to: vars.leafToClaim.recipient
+                to: vars.leafToClaim.recipient,
+                viaSig: false
             });
             expectCallToTransfer({ token: FORK_TOKEN, to: vars.leafToClaim.recipient, value: vars.leafToClaim.amount });
         } else {
             expectedStreamId = lockup.nextStreamId();
             vm.expectEmit({ emitter: address(merkleLT) });
-            emit ISablierMerkleLockup.Claim({
+            emit ISablierMerkleLT.ClaimLTWithVesting({
                 index: vars.leafToClaim.index,
                 recipient: vars.leafToClaim.recipient,
                 amount: vars.leafToClaim.amount,
                 streamId: expectedStreamId,
-                to: vars.leafToClaim.recipient
+                to: vars.leafToClaim.recipient,
+                viaSig: false
             });
         }
 

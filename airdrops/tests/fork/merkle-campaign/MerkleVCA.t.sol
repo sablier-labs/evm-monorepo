@@ -104,12 +104,13 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
         });
 
         vm.expectEmit({ emitter: address(merkleVCA) });
-        emit ISablierMerkleVCA.Claim({
+        emit ISablierMerkleVCA.ClaimVCA({
             index: vars.leafToClaim.index,
             recipient: vars.leafToClaim.recipient,
             claimAmount: claimAmount,
             forgoneAmount: forgoneAmount,
-            to: vars.leafToClaim.recipient
+            to: vars.leafToClaim.recipient,
+            viaSig: false
         });
 
         expectCallToClaimWithData({

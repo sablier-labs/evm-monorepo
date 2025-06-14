@@ -223,12 +223,13 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleVCA) });
-        emit ISablierMerkleVCA.Claim({
+        emit ISablierMerkleVCA.ClaimVCA({
             index: leafData.index,
             recipient: leafData.recipient,
             claimAmount: uint128(claimAmount),
             forgoneAmount: uint128(forgoneAmount),
-            to: to
+            to: to,
+            viaSig: false
         });
 
         // It should transfer the claim amount to the `to` address.

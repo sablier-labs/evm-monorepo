@@ -63,12 +63,13 @@ contract ClaimTo_MerkleVCA_Integration_Test is ClaimTo_Integration_Test, MerkleV
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleVCA) });
-        emit ISablierMerkleVCA.Claim({
+        emit ISablierMerkleVCA.ClaimVCA({
             index: index,
             recipient: users.recipient,
             claimAmount: claimAmount,
             forgoneAmount: forgoneAmount,
-            to: users.eve
+            to: users.eve,
+            viaSig: false
         });
 
         // It should transfer a portion of the amount to Eve.

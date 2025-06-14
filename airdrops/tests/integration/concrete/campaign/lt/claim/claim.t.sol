@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
 
-import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
+import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { MerkleLT } from "src/types/DataTypes.sol";
 
@@ -24,7 +24,9 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
-        emit ISablierMerkleLockup.Claim(getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.recipient);
+        emit ISablierMerkleLT.ClaimLTWithTransfer(
+            getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.recipient, false
+        );
 
         expectCallToTransfer({ to: users.recipient, value: CLAIM_AMOUNT });
         expectCallToClaimWithMsgValue(address(merkleLT), AIRDROP_MIN_FEE_WEI);
@@ -113,8 +115,8 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLT) });
-        emit ISablierMerkleLockup.Claim(
-            getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, expectedStreamId, users.recipient
+        emit ISablierMerkleLT.ClaimLTWithVesting(
+            getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, expectedStreamId, users.recipient, false
         );
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: CLAIM_AMOUNT });

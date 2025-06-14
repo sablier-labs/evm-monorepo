@@ -28,7 +28,7 @@ contract ClaimViaSig_MerkleInstant_Integration_Test is
         eip712Signature = generateSignature(users.recipient, address(merkleInstant));
 
         vm.expectEmit({ emitter: address(merkleInstant) });
-        emit ISablierMerkleInstant.Claim(index, users.recipient, CLAIM_AMOUNT, users.eve);
+        emit ISablierMerkleInstant.ClaimInstant(index, users.recipient, CLAIM_AMOUNT, users.eve, true);
 
         expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
         expectCallToClaimViaSigWithMsgValue(address(merkleInstant), AIRDROP_MIN_FEE_WEI);
@@ -51,7 +51,7 @@ contract ClaimViaSig_MerkleInstant_Integration_Test is
         eip712Signature = generateSignature(users.smartWalletWithIERC1271, address(merkleInstant));
 
         vm.expectEmit({ emitter: address(merkleInstant) });
-        emit ISablierMerkleInstant.Claim(index, users.smartWalletWithIERC1271, CLAIM_AMOUNT, users.eve);
+        emit ISablierMerkleInstant.ClaimInstant(index, users.smartWalletWithIERC1271, CLAIM_AMOUNT, users.eve, true);
 
         expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
         claimViaSig({

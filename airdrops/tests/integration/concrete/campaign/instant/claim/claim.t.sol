@@ -26,7 +26,7 @@ contract Claim_MerkleInstant_Integration_Test is Claim_Integration_Test, MerkleI
         uint256 index = getIndexInMerkleTree();
 
         vm.expectEmit({ emitter: address(merkleInstant) });
-        emit ISablierMerkleInstant.Claim(index, users.recipient, CLAIM_AMOUNT, users.recipient);
+        emit ISablierMerkleInstant.ClaimInstant(index, users.recipient, CLAIM_AMOUNT, users.recipient, false);
 
         expectCallToTransfer({ to: users.recipient, value: CLAIM_AMOUNT });
         expectCallToClaimWithMsgValue(address(merkleInstant), AIRDROP_MIN_FEE_WEI);

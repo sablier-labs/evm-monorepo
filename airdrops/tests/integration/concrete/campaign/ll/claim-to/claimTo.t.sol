@@ -5,7 +5,7 @@ import { ud, ZERO } from "@prb/math/src/UD60x18.sol";
 import { Errors as LockupErrors } from "@sablier/lockup/src/libraries/Errors.sol";
 import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
 
-import { ISablierMerkleLockup } from "src/interfaces/ISablierMerkleLockup.sol";
+import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { MerkleLL } from "src/types/DataTypes.sol";
 
 import { ClaimTo_Integration_Test } from "../../shared/claim-to/claimTo.t.sol";
@@ -25,7 +25,9 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
-        emit ISablierMerkleLockup.Claim(getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.eve);
+        emit ISablierMerkleLL.ClaimLLWithTransfer(
+            getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.eve, false
+        );
 
         expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
         expectCallToClaimToWithMsgValue(address(merkleLL), AIRDROP_MIN_FEE_WEI);
@@ -130,7 +132,9 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
 
         // It should emit a {Claim} event.
         vm.expectEmit({ emitter: address(merkleLL) });
-        emit ISablierMerkleLockup.Claim(index, users.recipient, CLAIM_AMOUNT, expectedStreamId, users.eve);
+        emit ISablierMerkleLL.ClaimLLWithVesting(
+            index, users.recipient, CLAIM_AMOUNT, expectedStreamId, users.eve, false
+        );
 
         expectCallToTransferFrom({ from: address(merkleLL), to: address(lockup), value: CLAIM_AMOUNT });
         expectCallToClaimToWithMsgValue(address(merkleLL), AIRDROP_MIN_FEE_WEI);

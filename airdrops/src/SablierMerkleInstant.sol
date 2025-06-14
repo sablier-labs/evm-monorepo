@@ -76,7 +76,7 @@ contract SablierMerkleInstant is
         _preProcessClaim(index, recipient, amount, merkleProof);
 
         // Interaction: Post-process the claim parameters on behalf of the recipient.
-        _postProcessClaim({ index: index, recipient: recipient, to: recipient, amount: amount });
+        _postProcessClaim({ index: index, recipient: recipient, to: recipient, amount: amount, viaSig: false });
     }
 
     /// @inheritdoc ISablierMerkleInstant
@@ -95,7 +95,7 @@ contract SablierMerkleInstant is
         _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
 
         // Interaction: Post-process the claim parameters on behalf of `msg.sender`.
-        _postProcessClaim({ index: index, recipient: msg.sender, to: to, amount: amount });
+        _postProcessClaim({ index: index, recipient: msg.sender, to: to, amount: amount, viaSig: false });
     }
 
     /// @inheritdoc ISablierMerkleInstant
@@ -119,7 +119,7 @@ contract SablierMerkleInstant is
         _preProcessClaim(index, recipient, amount, merkleProof);
 
         // Interaction: Post-process the claim parameters on behalf of the recipient.
-        _postProcessClaim(index, recipient, to, amount);
+        _postProcessClaim({ index: index, recipient: recipient, to: to, amount: amount, viaSig: true });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -127,11 +127,11 @@ contract SablierMerkleInstant is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Post-processes the claim execution by handling the tokens transfer and emitting an event.
-    function _postProcessClaim(uint256 index, address recipient, address to, uint128 amount) private {
+    function _postProcessClaim(uint256 index, address recipient, address to, uint128 amount, bool viaSig) private {
         // Interaction: withdraw the tokens to the `to` address.
         TOKEN.safeTransfer(to, amount);
 
-        // Log the claim.
-        emit Claim(index, recipient, amount, to);
+        // Emit claim event.
+        emit ClaimInstant(index, recipient, amount, to, viaSig);
     }
 }
