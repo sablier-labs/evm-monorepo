@@ -7,7 +7,8 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ISablierBatchLockup } from "./interfaces/ISablierBatchLockup.sol";
 import { ISablierLockup } from "./interfaces/ISablierLockup.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { BatchLockup, Lockup } from "./types/DataTypes.sol";
+import { BatchLockup } from "./types/BatchLockup.sol";
+import { Lockup } from "./types/Lockup.sol";
 
 /*
 

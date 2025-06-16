@@ -4,9 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupLinear } from "src/interfaces/ISablierLockupLinear.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
 
 import {
     CreateWithTimestamps_Integration_Concrete_Test,
@@ -195,7 +195,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupLinearStream({
+        emit ISablierLockupLinear.CreateLockupLinearStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(_usdt, defaults.DEPOSIT_AMOUNT_6D()),
             cliffTime: _defaultParams.cliffTime,
@@ -254,7 +254,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupLinearStream({
+        emit ISablierLockupLinear.CreateLockupLinearStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
             cliffTime: cliffTime,

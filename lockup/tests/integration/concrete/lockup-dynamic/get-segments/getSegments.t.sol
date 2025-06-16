@@ -2,7 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
 
 import { Lockup_Dynamic_Integration_Concrete_Test } from "../LockupDynamic.t.sol";
 

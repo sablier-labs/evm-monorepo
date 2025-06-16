@@ -4,8 +4,11 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { BatchLockup, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
-
+import { BatchLockup } from "../../src/types/BatchLockup.sol";
+import { Lockup } from "../../src/types/Lockup.sol";
+import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
+import { LockupLinear } from "../../src/types/LockupLinear.sol";
+import { LockupTranched } from "../../src/types/LockupTranched.sol";
 import { ArrayBuilder } from "./ArrayBuilder.sol";
 import { BatchLockupBuilder } from "./BatchLockupBuilder.sol";
 import { Constants } from "./Constants.sol";

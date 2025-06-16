@@ -7,7 +7,9 @@ import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 
 import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
-import { Lockup, LockupDynamic, LockupLinear } from "../../src/types/DataTypes.sol";
+import { Lockup } from "../../src/types/Lockup.sol";
+import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
+import { LockupLinear } from "../../src/types/LockupLinear.sol";
 
 interface IERC20Mint {
     function mint(address beneficiary, uint256 value) external;

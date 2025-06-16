@@ -6,7 +6,10 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ILockupNFTDescriptor } from "../interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockupState } from "../interfaces/ISablierLockupState.sol";
 import { Errors } from "../libraries/Errors.sol";
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../types/DataTypes.sol";
+import { Lockup } from "../types/Lockup.sol";
+import { LockupDynamic } from "../types/LockupDynamic.sol";
+import { LockupLinear } from "../types/LockupLinear.sol";
+import { LockupTranched } from "../types/LockupTranched.sol";
 
 /// @title SablierLockupState
 /// @notice See the documentation in {ISablierLockupState}.
@@ -258,6 +261,29 @@ abstract contract SablierLockupState is ISablierLockupState {
     /// @notice Calculates the streamed amount of the stream.
     /// @dev This function is implemented by child contract. The logic varies according to the distribution model.
     function _streamedAmountOf(uint256 streamId) internal view virtual returns (uint128);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                         INTERNAL STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice This function is implemented by {SablierLockup} and is used in the {SablierLockupDynamic},
+    /// {SablierLockupLinear} and {SablierLockupTranched} contracts.
+    /// @dev It updates state variables based on the stream parameters, mints an NFT to the recipient, bumps stream ID,
+    /// and transfers the deposit amount.
+    function _create(
+        bool cancelable,
+        uint128 depositAmount,
+        Lockup.Model lockupModel,
+        address recipient,
+        address sender,
+        uint256 streamId,
+        Lockup.Timestamps memory timestamps,
+        IERC20 token,
+        bool transferable
+    )
+        internal
+        virtual
+    { }
 
     /*//////////////////////////////////////////////////////////////////////////
                              PRIVATE READ-ONLY FUNCTIONS

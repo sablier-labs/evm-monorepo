@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { NFTSVG } from "src/libraries/NFTSVG.sol";
 import { SVGElements } from "src/libraries/SVGElements.sol";
 import { LockupNFTDescriptor } from "src/LockupNFTDescriptor.sol";
-import { Lockup } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
 
 /// @dev This mock is needed for:
 /// - Running the tests against optimized contracts compiled with `--via-ir`

@@ -3,8 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
+import { ISablierLockupLinear } from "src/interfaces/ISablierLockupLinear.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupLinear } from "src/types/LockupLinear.sol";
 
 import { Lockup_Linear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
 
@@ -49,7 +50,7 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupLinearStream({
+        emit ISablierLockupLinear.CreateLockupLinearStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(timestamps),
             cliffTime: cliffTime,

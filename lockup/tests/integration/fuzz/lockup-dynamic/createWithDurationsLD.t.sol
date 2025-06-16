@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
+import { ISablierLockupDynamic } from "src/interfaces/ISablierLockupDynamic.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
 import { Lockup_Dynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
 contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integration_Fuzz_Test {
@@ -50,7 +51,7 @@ contract CreateWithDurationsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrati
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupDynamicStream({
+        emit ISablierLockupDynamic.CreateLockupDynamicStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(vars.depositAmount, timestamps),
             segments: vars.segmentsWithTimestamps

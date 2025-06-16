@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
+import { Lockup } from "../types/Lockup.sol";
+import { LockupDynamic } from "../types/LockupDynamic.sol";
+import { LockupLinear } from "../types/LockupLinear.sol";
+import { LockupTranched } from "../types/LockupTranched.sol";
 import { Errors } from "./Errors.sol";
 
 /// @title Helpers

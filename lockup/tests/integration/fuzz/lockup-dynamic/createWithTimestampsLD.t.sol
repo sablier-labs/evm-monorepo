@@ -2,9 +2,10 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { stdError } from "forge-std/src/StdError.sol";
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupDynamic } from "src/interfaces/ISablierLockupDynamic.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
 import { Lockup_Dynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
 contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integration_Fuzz_Test {
@@ -180,7 +181,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupDynamicStream({
+        emit ISablierLockupDynamic.CreateLockupDynamicStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(params, dai),
             segments: segments

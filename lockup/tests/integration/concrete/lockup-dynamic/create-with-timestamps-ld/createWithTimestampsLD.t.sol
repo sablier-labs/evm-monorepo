@@ -5,9 +5,10 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { stdError } from "forge-std/src/StdError.sol";
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupDynamic } from "src/interfaces/ISablierLockupDynamic.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
 
 import {
     CreateWithTimestamps_Integration_Concrete_Test,
@@ -252,7 +253,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupDynamicStream({
+        emit ISablierLockupDynamic.CreateLockupDynamicStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(_usdt, _defaultParams.createWithTimestamps.depositAmount),
             segments: _defaultParams.segments
@@ -305,7 +306,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupDynamicStream({
+        emit ISablierLockupDynamic.CreateLockupDynamicStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
             segments: defaults.segments()

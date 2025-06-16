@@ -3,8 +3,8 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-import { Lockup } from "src/types/DataTypes.sol";
+import { ISablierLockupTranched } from "src/interfaces/ISablierLockupTranched.sol";
+import { Lockup } from "src/types/Lockup.sol";
 import { Lockup_Fork_Test } from "./Lockup.t.sol";
 
 abstract contract Lockup_Tranched_Fork_Test is Lockup_Fork_Test {
@@ -58,7 +58,7 @@ abstract contract Lockup_Tranched_Fork_Test is Lockup_Fork_Test {
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupTranchedStream({
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: vars.streamId,
             commonParams: defaults.lockupCreateEvent({ params: params.create, token_: FORK_TOKEN }),
             tranches: params.tranches

@@ -6,10 +6,16 @@ import { BaseTest as CommonBase } from "@sablier/evm-utils/src/tests/BaseTest.so
 import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
 import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupDynamic } from "src/interfaces/ISablierLockupDynamic.sol";
+import { ISablierLockupLinear } from "src/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockupTranched } from "src/interfaces/ISablierLockupTranched.sol";
 import { LockupNFTDescriptor } from "src/LockupNFTDescriptor.sol";
 import { SablierBatchLockup } from "src/SablierBatchLockup.sol";
 import { SablierLockup } from "src/SablierLockup.sol";
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
+import { LockupLinear } from "src/types/LockupLinear.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { RecipientGood } from "./mocks/Hooks.sol";
 import { NFTDescriptorMock } from "./mocks/NFTDescriptorMock.sol";
@@ -128,7 +134,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
                                 CALL EXPECTS - LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLD}.
+    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithDurationsLD}.
     function expectMultipleCallsToCreateWithDurationsLD(
         uint64 count,
         Lockup.CreateWithDurations memory params,
@@ -139,11 +145,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithDurationsLD, (params, segmentsWithDuration))
+            data: abi.encodeCall(ISablierLockupDynamic.createWithDurationsLD, (params, segmentsWithDuration))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLL}.
+    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithDurationsLL}.
     function expectMultipleCallsToCreateWithDurationsLL(
         uint64 count,
         Lockup.CreateWithDurations memory params,
@@ -155,11 +161,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithDurationsLL, (params, unlockAmounts, durations))
+            data: abi.encodeCall(ISablierLockupLinear.createWithDurationsLL, (params, unlockAmounts, durations))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLT}.
+    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithDurationsLT}.
     function expectMultipleCallsToCreateWithDurationsLT(
         uint64 count,
         Lockup.CreateWithDurations memory params,
@@ -170,11 +176,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithDurationsLT, (params, tranches))
+            data: abi.encodeCall(ISablierLockupTranched.createWithDurationsLT, (params, tranches))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLD}.
+    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithTimestampsLD}.
     function expectMultipleCallsToCreateWithTimestampsLD(
         uint64 count,
         Lockup.CreateWithTimestamps memory params,
@@ -185,11 +191,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithTimestampsLD, (params, segments))
+            data: abi.encodeCall(ISablierLockupDynamic.createWithTimestampsLD, (params, segments))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLL}.
+    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithTimestampsLL}.
     function expectMultipleCallsToCreateWithTimestampsLL(
         uint64 count,
         Lockup.CreateWithTimestamps memory params,
@@ -201,11 +207,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithTimestampsLL, (params, unlockAmounts, cliffTime))
+            data: abi.encodeCall(ISablierLockupLinear.createWithTimestampsLL, (params, unlockAmounts, cliffTime))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLT}.
+    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithTimestampsLT}.
     function expectMultipleCallsToCreateWithTimestampsLT(
         uint64 count,
         Lockup.CreateWithTimestamps memory params,
@@ -216,7 +222,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithTimestampsLT, (params, tranches))
+            data: abi.encodeCall(ISablierLockupTranched.createWithTimestampsLT, (params, tranches))
         });
     }
 }

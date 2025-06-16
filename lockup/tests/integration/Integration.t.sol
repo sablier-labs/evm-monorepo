@@ -4,7 +4,10 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
+import { LockupLinear } from "src/types/LockupLinear.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { Base_Test } from "../Base.t.sol";
 import {

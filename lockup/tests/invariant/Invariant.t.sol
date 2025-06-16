@@ -2,7 +2,9 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { StdInvariant } from "forge-std/src/StdInvariant.sol";
-import { Lockup, LockupDynamic, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
 import { Base_Test } from "../Base.t.sol";
 import { LockupComptrollerHandler } from "./handlers/LockupComptrollerHandler.sol";
 import { LockupCreateHandler } from "./handlers/LockupCreateHandler.sol";

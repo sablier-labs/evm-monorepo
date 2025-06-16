@@ -3,9 +3,10 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { stdError } from "forge-std/src/StdError.sol";
 
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupTranched } from "src/interfaces/ISablierLockupTranched.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { Lockup_Tranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
 
@@ -185,7 +186,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupTranchedStream({
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(params, dai),
             tranches: tranches

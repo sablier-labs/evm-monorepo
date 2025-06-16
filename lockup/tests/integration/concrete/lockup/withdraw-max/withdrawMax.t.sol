@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-import { Lockup } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 

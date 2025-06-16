@@ -6,7 +6,9 @@ import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uin
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
+import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
+import { LockupLinear } from "../../src/types/LockupLinear.sol";
+import { LockupTranched } from "../../src/types/LockupTranched.sol";
 
 abstract contract Calculations {
     using CastingUint128 for uint128;

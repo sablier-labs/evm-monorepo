@@ -5,9 +5,10 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { stdError } from "forge-std/src/StdError.sol";
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupTranched } from "src/interfaces/ISablierLockupTranched.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import {
     CreateWithTimestamps_Integration_Concrete_Test,
@@ -244,7 +245,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupTranchedStream({
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(_usdt, defaults.DEPOSIT_AMOUNT_6D()),
             tranches: _defaultParams.tranches
@@ -294,7 +295,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupTranchedStream({
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
             tranches: defaults.tranches()

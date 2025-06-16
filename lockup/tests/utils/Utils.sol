@@ -4,7 +4,8 @@ pragma solidity >=0.8.22;
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
 import { BaseTest as CommonBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
-import { LockupDynamic, LockupTranched } from "../../src/types/DataTypes.sol";
+import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
+import { LockupTranched } from "../../src/types/LockupTranched.sol";
 
 abstract contract Utils is CommonBase, PRBMathUtils {
     /// @dev Turns the segments with durations into canonical segments, which have timestamps.

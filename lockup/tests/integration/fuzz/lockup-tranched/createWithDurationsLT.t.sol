@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-import { Lockup, LockupTranched } from "src/types/DataTypes.sol";
+import { ISablierLockupTranched } from "src/interfaces/ISablierLockupTranched.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { Lockup_Tranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
 
@@ -51,7 +52,7 @@ contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Tranched_Integrat
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupTranchedStream({
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(vars.depositAmount, timestamps),
             tranches: vars.tranchesWithTimestamps

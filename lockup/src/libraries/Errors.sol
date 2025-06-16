@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { Lockup } from "../types/DataTypes.sol";
+import { Lockup } from "../types/Lockup.sol";
 
 /// @title Errors
 /// @notice Library containing all custom errors the protocol may revert with.

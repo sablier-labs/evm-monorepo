@@ -9,16 +9,18 @@ import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
 import { ComptrollerManager } from "@sablier/evm-utils/src/ComptrollerManager.sol";
-import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
 
+import { SablierLockupDynamic } from "./abstracts/SablierLockupDynamic.sol";
+import { SablierLockupLinear } from "./abstracts/SablierLockupLinear.sol";
 import { SablierLockupState } from "./abstracts/SablierLockupState.sol";
+import { SablierLockupTranched } from "./abstracts/SablierLockupTranched.sol";
 import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockup } from "./interfaces/ISablierLockup.sol";
 import { ISablierLockupRecipient } from "./interfaces/ISablierLockupRecipient.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { Helpers } from "./libraries/Helpers.sol";
 import { LockupMath } from "./libraries/LockupMath.sol";
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./types/DataTypes.sol";
+import { Lockup } from "./types/Lockup.sol";
+
 /*
 
 ███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ██╗      ██████╗  ██████╗██╗  ██╗██╗   ██╗██████╗
@@ -36,9 +38,10 @@ contract SablierLockup is
     Batch, // 1 inherited component
     ComptrollerManager, // 1 inherited component
     ERC721, // 6 inherited components
-    ISablierLockup, // 8 inherited components
-    NoDelegateCall, // 0 inherited components
-    SablierLockupState // 1 inherited component
+    ISablierLockup, // 10 inherited components
+    SablierLockupDynamic, // 4 inherited components
+    SablierLockupLinear, // 4 inherited components
+    SablierLockupTranched // 4 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -229,191 +232,6 @@ contract SablierLockup is
                 refundedAmounts[i] = abi.decode(result, (uint128));
             }
         }
-    }
-
-    /// @inheritdoc ISablierLockup
-    function createWithDurationsLD(
-        Lockup.CreateWithDurations calldata params,
-        LockupDynamic.SegmentWithDuration[] calldata segmentsWithDuration
-    )
-        external
-        payable
-        override
-        noDelegateCall
-        returns (uint256 streamId)
-    {
-        // Use the block timestamp as the start time.
-        uint40 startTime = uint40(block.timestamp);
-
-        // Generate the canonical segments.
-        LockupDynamic.Segment[] memory segments = Helpers.calculateSegmentTimestamps(segmentsWithDuration, startTime);
-
-        // Declare the timestamps for the stream.
-        Lockup.Timestamps memory timestamps =
-            Lockup.Timestamps({ start: startTime, end: segments[segments.length - 1].timestamp });
-
-        // Checks, Effects and Interactions: create the stream.
-        streamId = _createLD({
-            cancelable: params.cancelable,
-            depositAmount: params.depositAmount,
-            recipient: params.recipient,
-            segments: segments,
-            sender: params.sender,
-            shape: params.shape,
-            timestamps: timestamps,
-            token: params.token,
-            transferable: params.transferable
-        });
-    }
-
-    /// @inheritdoc ISablierLockup
-    function createWithDurationsLL(
-        Lockup.CreateWithDurations calldata params,
-        LockupLinear.UnlockAmounts calldata unlockAmounts,
-        LockupLinear.Durations calldata durations
-    )
-        external
-        payable
-        override
-        noDelegateCall
-        returns (uint256 streamId)
-    {
-        // Set the current block timestamp as the stream's start time.
-        Lockup.Timestamps memory timestamps = Lockup.Timestamps({ start: uint40(block.timestamp), end: 0 });
-
-        uint40 cliffTime;
-
-        // Calculate the cliff time and the end time.
-        if (durations.cliff > 0) {
-            cliffTime = timestamps.start + durations.cliff;
-        }
-        timestamps.end = timestamps.start + durations.total;
-
-        // Checks, Effects and Interactions: create the stream.
-        streamId = _createLL({
-            cancelable: params.cancelable,
-            cliffTime: cliffTime,
-            depositAmount: params.depositAmount,
-            recipient: params.recipient,
-            sender: params.sender,
-            shape: params.shape,
-            timestamps: timestamps,
-            token: params.token,
-            transferable: params.transferable,
-            unlockAmounts: unlockAmounts
-        });
-    }
-
-    /// @inheritdoc ISablierLockup
-    function createWithDurationsLT(
-        Lockup.CreateWithDurations calldata params,
-        LockupTranched.TrancheWithDuration[] calldata tranchesWithDuration
-    )
-        external
-        payable
-        override
-        noDelegateCall
-        returns (uint256 streamId)
-    {
-        // Use the block timestamp as the start time.
-        uint40 startTime = uint40(block.timestamp);
-
-        // Generate the canonical tranches.
-        LockupTranched.Tranche[] memory tranches = Helpers.calculateTrancheTimestamps(tranchesWithDuration, startTime);
-
-        // Declare the timestamps for the stream.
-        Lockup.Timestamps memory timestamps =
-            Lockup.Timestamps({ start: startTime, end: tranches[tranches.length - 1].timestamp });
-
-        // Checks, Effects and Interactions: create the stream.
-        streamId = _createLT({
-            cancelable: params.cancelable,
-            depositAmount: params.depositAmount,
-            recipient: params.recipient,
-            sender: params.sender,
-            shape: params.shape,
-            timestamps: timestamps,
-            token: params.token,
-            tranches: tranches,
-            transferable: params.transferable
-        });
-    }
-
-    /// @inheritdoc ISablierLockup
-    function createWithTimestampsLD(
-        Lockup.CreateWithTimestamps calldata params,
-        LockupDynamic.Segment[] calldata segments
-    )
-        external
-        payable
-        override
-        noDelegateCall
-        returns (uint256 streamId)
-    {
-        // Checks, Effects and Interactions: create the stream.
-        streamId = _createLD({
-            cancelable: params.cancelable,
-            depositAmount: params.depositAmount,
-            recipient: params.recipient,
-            segments: segments,
-            sender: params.sender,
-            shape: params.shape,
-            timestamps: params.timestamps,
-            token: params.token,
-            transferable: params.transferable
-        });
-    }
-
-    /// @inheritdoc ISablierLockup
-    function createWithTimestampsLL(
-        Lockup.CreateWithTimestamps calldata params,
-        LockupLinear.UnlockAmounts calldata unlockAmounts,
-        uint40 cliffTime
-    )
-        external
-        payable
-        override
-        noDelegateCall
-        returns (uint256 streamId)
-    {
-        // Checks, Effects and Interactions: create the stream.
-        streamId = _createLL({
-            cancelable: params.cancelable,
-            cliffTime: cliffTime,
-            depositAmount: params.depositAmount,
-            recipient: params.recipient,
-            sender: params.sender,
-            shape: params.shape,
-            timestamps: params.timestamps,
-            token: params.token,
-            transferable: params.transferable,
-            unlockAmounts: unlockAmounts
-        });
-    }
-
-    /// @inheritdoc ISablierLockup
-    function createWithTimestampsLT(
-        Lockup.CreateWithTimestamps calldata params,
-        LockupTranched.Tranche[] calldata tranches
-    )
-        external
-        payable
-        override
-        noDelegateCall
-        returns (uint256 streamId)
-    {
-        // Checks, Effects and Interactions: create the stream.
-        streamId = _createLT({
-            cancelable: params.cancelable,
-            depositAmount: params.depositAmount,
-            recipient: params.recipient,
-            sender: params.sender,
-            shape: params.shape,
-            timestamps: params.timestamps,
-            token: params.token,
-            tranches: tranches,
-            transferable: params.transferable
-        });
     }
 
     /// @inheritdoc ISablierLockup
@@ -660,6 +478,50 @@ contract SablierLockup is
                          INTERNAL STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @inheritdoc SablierLockupState
+    function _create(
+        bool cancelable,
+        uint128 depositAmount,
+        Lockup.Model lockupModel,
+        address recipient,
+        address sender,
+        uint256 streamId,
+        Lockup.Timestamps memory timestamps,
+        IERC20 token,
+        bool transferable
+    )
+        internal
+        override
+    {
+        // Effect: create the stream.
+        _streams[streamId] = Lockup.Stream({
+            sender: sender,
+            startTime: timestamps.start,
+            endTime: timestamps.end,
+            isCancelable: cancelable,
+            wasCanceled: false,
+            token: token,
+            isDepleted: false,
+            isTransferable: transferable,
+            lockupModel: lockupModel,
+            amounts: Lockup.Amounts({ deposited: depositAmount, withdrawn: 0, refunded: 0 })
+        });
+
+        // Effect: mint the NFT to the recipient.
+        _mint({ to: recipient, tokenId: streamId });
+
+        unchecked {
+            // Effect: bump the next stream ID.
+            nextStreamId = streamId + 1;
+
+            // Effect: increase the aggregate amount.
+            aggregateAmount[token] += depositAmount;
+        }
+
+        // Interaction: transfer the deposit amount.
+        token.safeTransferFrom({ from: msg.sender, to: address(this), value: depositAmount });
+    }
+
     /// @notice Overrides the {ERC-721._update} function to check that the stream is transferable, and emits an
     /// ERC-4906 event.
     /// @dev There are two cases when the transferable flag is ignored:
@@ -779,249 +641,6 @@ contract SablierLockup is
                 revert Errors.SablierLockup_InvalidHookSelector(recipient);
             }
         }
-    }
-
-    /// @dev Common logic for creating a stream.
-    function _create(
-        bool cancelable,
-        uint128 depositAmount,
-        Lockup.Model lockupModel,
-        address recipient,
-        address sender,
-        uint256 streamId,
-        Lockup.Timestamps memory timestamps,
-        IERC20 token,
-        bool transferable
-    )
-        private
-    {
-        // Effect: create the stream.
-        _streams[streamId] = Lockup.Stream({
-            sender: sender,
-            startTime: timestamps.start,
-            endTime: timestamps.end,
-            isCancelable: cancelable,
-            wasCanceled: false,
-            token: token,
-            isDepleted: false,
-            isTransferable: transferable,
-            lockupModel: lockupModel,
-            amounts: Lockup.Amounts({ deposited: depositAmount, withdrawn: 0, refunded: 0 })
-        });
-
-        // Effect: mint the NFT to the recipient.
-        _mint({ to: recipient, tokenId: streamId });
-
-        unchecked {
-            // Effect: bump the next stream ID.
-            nextStreamId = streamId + 1;
-
-            // Effect: increase the aggregate amount.
-            aggregateAmount[token] += depositAmount;
-        }
-
-        // Interaction: transfer the deposit amount.
-        token.safeTransferFrom({ from: msg.sender, to: address(this), value: depositAmount });
-    }
-
-    /// @dev See the documentation for the user-facing functions that call this private function.
-    function _createLD(
-        bool cancelable,
-        uint128 depositAmount,
-        address recipient,
-        LockupDynamic.Segment[] memory segments,
-        address sender,
-        string memory shape,
-        Lockup.Timestamps memory timestamps,
-        IERC20 token,
-        bool transferable
-    )
-        private
-        returns (uint256 streamId)
-    {
-        // Check: validate the user-provided parameters and segments.
-        Helpers.checkCreateLD({
-            sender: sender,
-            timestamps: timestamps,
-            depositAmount: depositAmount,
-            segments: segments,
-            token: address(token),
-            nativeToken: nativeToken,
-            shape: shape
-        });
-
-        // Load the stream ID in a variable.
-        streamId = nextStreamId;
-
-        // Effect: store the segments. Since Solidity lacks a syntax for copying arrays of structs directly from
-        // memory to storage, a manual approach is necessary. See https://github.com/ethereum/solidity/issues/12783.
-        uint256 segmentCount = segments.length;
-        for (uint256 i = 0; i < segmentCount; ++i) {
-            _segments[streamId].push(segments[i]);
-        }
-
-        // Effect: create the stream, mint the NFT and transfer the deposit amount.
-        _create({
-            cancelable: cancelable,
-            depositAmount: depositAmount,
-            lockupModel: Lockup.Model.LOCKUP_DYNAMIC,
-            recipient: recipient,
-            sender: sender,
-            streamId: streamId,
-            timestamps: timestamps,
-            token: token,
-            transferable: transferable
-        });
-
-        // Log the newly created stream.
-        emit ISablierLockup.CreateLockupDynamicStream({
-            streamId: streamId,
-            commonParams: Lockup.CreateEventCommon({
-                sender: sender,
-                recipient: recipient,
-                depositAmount: depositAmount,
-                token: token,
-                cancelable: cancelable,
-                transferable: transferable,
-                timestamps: timestamps,
-                shape: shape
-            }),
-            segments: segments
-        });
-    }
-
-    /// @dev See the documentation for the user-facing functions that call this private function.
-    function _createLL(
-        bool cancelable,
-        uint40 cliffTime,
-        uint128 depositAmount,
-        address recipient,
-        address sender,
-        string memory shape,
-        Lockup.Timestamps memory timestamps,
-        IERC20 token,
-        bool transferable,
-        LockupLinear.UnlockAmounts memory unlockAmounts
-    )
-        private
-        returns (uint256 streamId)
-    {
-        // Check: validate the user-provided parameters and cliff time.
-        Helpers.checkCreateLL({
-            sender: sender,
-            timestamps: timestamps,
-            cliffTime: cliffTime,
-            depositAmount: depositAmount,
-            unlockAmounts: unlockAmounts,
-            token: address(token),
-            nativeToken: nativeToken,
-            shape: shape
-        });
-
-        // Load the stream ID in a variable.
-        streamId = nextStreamId;
-
-        // Effect: set the start and cliff unlock amounts.
-        _unlockAmounts[streamId] = unlockAmounts;
-
-        // Effect: update cliff time.
-        _cliffs[streamId] = cliffTime;
-
-        // Effect: create the stream, mint the NFT and transfer the deposit amount.
-        _create({
-            cancelable: cancelable,
-            depositAmount: depositAmount,
-            lockupModel: Lockup.Model.LOCKUP_LINEAR,
-            recipient: recipient,
-            sender: sender,
-            streamId: streamId,
-            timestamps: timestamps,
-            token: token,
-            transferable: transferable
-        });
-
-        // Log the newly created stream.
-        emit ISablierLockup.CreateLockupLinearStream({
-            streamId: streamId,
-            commonParams: Lockup.CreateEventCommon({
-                sender: sender,
-                recipient: recipient,
-                depositAmount: depositAmount,
-                token: token,
-                cancelable: cancelable,
-                transferable: transferable,
-                timestamps: timestamps,
-                shape: shape
-            }),
-            cliffTime: cliffTime,
-            unlockAmounts: unlockAmounts
-        });
-    }
-
-    /// @dev See the documentation for the user-facing functions that call this private function.
-    function _createLT(
-        bool cancelable,
-        uint128 depositAmount,
-        address recipient,
-        address sender,
-        string memory shape,
-        Lockup.Timestamps memory timestamps,
-        IERC20 token,
-        bool transferable,
-        LockupTranched.Tranche[] memory tranches
-    )
-        private
-        returns (uint256 streamId)
-    {
-        // Check: validate the user-provided parameters and tranches.
-        Helpers.checkCreateLT({
-            sender: sender,
-            timestamps: timestamps,
-            depositAmount: depositAmount,
-            tranches: tranches,
-            token: address(token),
-            nativeToken: nativeToken,
-            shape: shape
-        });
-
-        // Load the stream ID in a variable.
-        streamId = nextStreamId;
-
-        // Effect: store the tranches. Since Solidity lacks a syntax for copying arrays of structs directly from
-        // memory to storage, a manual approach is necessary. See https://github.com/ethereum/solidity/issues/12783.
-        uint256 trancheCount = tranches.length;
-        for (uint256 i = 0; i < trancheCount; ++i) {
-            _tranches[streamId].push(tranches[i]);
-        }
-
-        // Effect: create the stream, mint the NFT and transfer the deposit amount.
-        _create({
-            cancelable: cancelable,
-            depositAmount: depositAmount,
-            lockupModel: Lockup.Model.LOCKUP_TRANCHED,
-            recipient: recipient,
-            sender: sender,
-            streamId: streamId,
-            timestamps: timestamps,
-            token: token,
-            transferable: transferable
-        });
-
-        // Log the newly created stream.
-        emit ISablierLockup.CreateLockupTranchedStream({
-            streamId: streamId,
-            commonParams: Lockup.CreateEventCommon({
-                sender: sender,
-                recipient: recipient,
-                depositAmount: depositAmount,
-                token: token,
-                cancelable: cancelable,
-                transferable: transferable,
-                timestamps: timestamps,
-                shape: shape
-            }),
-            tranches: tranches
-        });
     }
 
     /// @dev See the documentation for the user-facing functions that call this private function.

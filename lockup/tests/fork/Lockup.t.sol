@@ -5,7 +5,10 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-import { Lockup, LockupLinear, LockupDynamic, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
+import { LockupLinear } from "src/types/LockupLinear.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { Fork_Test } from "./Fork.t.sol";
 

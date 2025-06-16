@@ -10,7 +10,7 @@ import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockup } from "./interfaces/ISablierLockup.sol";
 import { NFTSVG } from "./libraries/NFTSVG.sol";
 import { SVGElements } from "./libraries/SVGElements.sol";
-import { Lockup } from "./types/DataTypes.sol";
+import { Lockup } from "./types/Lockup.sol";
 
 /*
 

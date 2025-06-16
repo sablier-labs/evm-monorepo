@@ -3,8 +3,11 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ILockupNFTDescriptor } from "../interfaces/ILockupNFTDescriptor.sol";
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../types/DataTypes.sol";
+import { Lockup } from "../types/Lockup.sol";
+import { LockupDynamic } from "../types/LockupDynamic.sol";
+import { LockupLinear } from "../types/LockupLinear.sol";
+import { LockupTranched } from "../types/LockupTranched.sol";
+import { ILockupNFTDescriptor } from "./ILockupNFTDescriptor.sol";
 
 /// @title ISablierLockupState
 /// @notice Contract with state variables (storage and constants) for the {SablierLockup} contract, their respective
@@ -49,7 +52,7 @@ interface ISablierLockupState {
     /// @notice Retrieves the segments used to compose the dynamic distribution function.
     /// @dev Reverts if `streamId` references either a null stream or a non-LD stream.
     /// @param streamId The stream ID for the query.
-    /// @return segments See the documentation in {DataTypes}.
+    /// @return segments See the documentation in {LockupDynamic} type.
     function getSegments(uint256 streamId) external view returns (LockupDynamic.Segment[] memory segments);
 
     /// @notice Retrieves the stream's sender.
@@ -65,7 +68,7 @@ interface ISablierLockupState {
     /// @notice Retrieves the tranches used to compose the tranched distribution function.
     /// @dev Reverts if `streamId` references either a null stream or a non-LT stream.
     /// @param streamId The stream ID for the query.
-    /// @return tranches See the documentation in {DataTypes}.
+    /// @return tranches See the documentation in {LockupTranched} type.
     function getTranches(uint256 streamId) external view returns (LockupTranched.Tranche[] memory tranches);
 
     /// @notice Retrieves the address of the underlying ERC-20 token being distributed.
@@ -76,7 +79,7 @@ interface ISablierLockupState {
     /// @notice Retrieves the unlock amounts used to compose the linear distribution function.
     /// @dev Reverts if `streamId` references either a null stream or a non-LL stream.
     /// @param streamId The stream ID for the query.
-    /// @return unlockAmounts See the documentation in {DataTypes}.
+    /// @return unlockAmounts See the documentation in {LockupLinear} type.
     function getUnlockAmounts(uint256 streamId)
         external
         view

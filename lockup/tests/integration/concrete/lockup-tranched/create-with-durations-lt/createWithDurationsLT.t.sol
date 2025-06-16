@@ -3,9 +3,10 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupTranched } from "src/interfaces/ISablierLockupTranched.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { Lockup_Tranched_Integration_Concrete_Test } from "./../LockupTranched.t.sol";
 
@@ -126,7 +127,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupTranchedStream({
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(timestamps),
             tranches: tranches

@@ -6,7 +6,9 @@ import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uin
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
+import { LockupDynamic } from "../types/LockupDynamic.sol";
+import { LockupLinear } from "../types/LockupLinear.sol";
+import { LockupTranched } from "../types/LockupTranched.sol";
 
 /// @title LockupMath
 /// @notice Provides functions for calculating the streamed amounts in Lockup streams. Note that 'streamed' is
