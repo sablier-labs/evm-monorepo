@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
@@ -63,6 +64,21 @@ contract FlowHandler is BaseHandler {
         currentSender = flow.getSender(currentStreamId);
         setMsgSender(currentSender);
         _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                      GENERICS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev A function that does nothing but warp the time into the future.
+    function passTime(uint256 timeJump) external adjustTimestamp(timeJump) { }
+
+    /// @dev Function to increase the flow contract balance for the fuzzed token.
+    function randomTransfer(uint256 tokenIndex, uint256 amount) external useFuzzedToken(tokenIndex) {
+        vm.assume(amount > 0 && amount < 100e18);
+        amount *= 10 ** IERC20Metadata(address(currentToken)).decimals();
+
+        deal({ token: address(currentToken), to: address(flow), give: currentToken.balanceOf(address(flow)) + amount });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -149,9 +165,6 @@ contract FlowHandler is BaseHandler {
         flowStore.updateTotalDeposits(currentStreamId, token, depositAmount);
     }
 
-    /// @dev A function that does nothing but warp the time into the future.
-    function passTime(uint256 timeJump) external adjustTimestamp(timeJump) { }
-
     function pause(
         uint256 timeJump,
         uint256 streamIndex
@@ -167,7 +180,7 @@ contract FlowHandler is BaseHandler {
         vm.assume(flow.getRatePerSecond(currentStreamId).unwrap() > 0);
 
         // The stream must not be PENDING.
-        vm.assume(flow.getSnapshotTime(currentStreamId) <= getBlockTimestamp());
+        vm.assume(flow.getSnapshotTime(currentStreamId) <= block.timestamp);
 
         // Pause the stream.
         flow.pause(currentStreamId);
@@ -277,7 +290,7 @@ contract FlowHandler is BaseHandler {
         // Check if there is anything to withdraw.
         vm.assume(flow.coveredDebtOf(currentStreamId) > 0);
 
-        // Make sure the withdraw amount is non-zero and it is less or equal to the maximum wihtdrawable amount.
+        // Make sure the withdraw amount is non-zero and it is less or equal to the maximum withdrawable amount.
         vm.assume(amount >= 1 && amount <= flow.withdrawableAmountOf(currentStreamId));
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
@@ -287,7 +300,7 @@ contract FlowHandler is BaseHandler {
         }
 
         // Withdraw from the stream.
-        flow.withdraw({ streamId: currentStreamId, to: to, amount: amount });
+        flow.withdraw{ value: MIN_FEE_WEI }({ streamId: currentStreamId, to: to, amount: amount });
 
         // Update the withdrawal totals.
         flowStore.updateTotalWithdrawals(currentStreamId, flow.getToken(currentStreamId), amount);

@@ -254,7 +254,7 @@ contract Batch_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         expectCallToTransfer({ token: usdc, to: users.recipient, value: WITHDRAW_AMOUNT_6D });
 
         // Call the batch function.
-        flow.batch{ value: 1 wei }(calls);
-        assertEq(address(flow).balance, initialEthBalance + 1 wei, "lockup contract balance");
+        flow.batch{ value: FLOW_MIN_FEE_WEI }(calls);
+        assertEq(address(flow).balance, initialEthBalance + FLOW_MIN_FEE_WEI, "lockup contract balance");
     }
 }

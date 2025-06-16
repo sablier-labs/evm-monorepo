@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
-import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
 import { SafeCastLib } from "solady/src/utils/SafeCastLib.sol";
 import { Constants } from "./Constants.sol";
 
-abstract contract Utils is Constants, EvmUtilsBase, PRBMathUtils {
+abstract contract Utils is Constants, PRBMathUtils {
     using SafeCastLib for uint256;
 
     /// @dev Bound deposit amount to avoid overflow.
@@ -21,17 +20,17 @@ abstract contract Utils is Constants, EvmUtilsBase, PRBMathUtils {
         pure
         returns (uint128 depositAmount)
     {
-        uint128 maxDepositAmount = (MAX_UINT128 - balance);
+        uint128 maxDepositAmount = (type(uint128).max - balance);
         if (decimals < 18) {
             maxDepositAmount = maxDepositAmount / uint128(10 ** (18 - decimals));
         }
 
-        depositAmount = boundUint128(amount, 1, maxDepositAmount - 1);
+        depositAmount = uint128(_bound(amount, 1, maxDepositAmount - 1));
     }
 
     /// @dev Bounds the rate per second between a realistic range i.e. for USDC [$50/month $5000/month].
     function boundRatePerSecond(UD21x18 ratePerSecond) internal pure returns (UD21x18) {
-        return ud21x18(boundUint128(ratePerSecond.unwrap(), 0.00002e18, 0.002e18));
+        return bound(ratePerSecond, 0.00002e18, 0.002e18);
     }
 
     /// @dev Calculates the default deposit amount using `TRANSFER_VALUE` and `decimals`.

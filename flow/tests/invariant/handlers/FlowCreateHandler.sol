@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import { ud21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
@@ -18,19 +18,7 @@ contract FlowCreateHandler is BaseHandler {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public currentToken;
     uint256 internal streamId;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier useFuzzedToken(uint256 tokenIndex) {
-        IERC20[] memory tokens = flowStore.getTokens();
-        vm.assume(tokenIndex < tokens.length);
-        currentToken = tokens[tokenIndex];
-        _;
-    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -90,7 +78,7 @@ contract FlowCreateHandler is BaseHandler {
         _checkParams(params);
 
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
-        vm.assume(params.startTime <= getBlockTimestamp());
+        vm.assume(params.startTime <= block.timestamp);
 
         // Calculate the upper bound, based on the token decimals, for the deposit amount.
         uint256 upperBound = getDescaledAmount(1_000_000e18, IERC20Metadata(address(currentToken)).decimals());

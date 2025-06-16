@@ -62,7 +62,7 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         // It should perform the ERC-20 transfer.
         expectCallToTransfer({ token: usdc, to: users.recipient, value: vars.expectedWithdrawAmount });
 
-        vars.actualWithdrawnAmount = flow.withdrawMax(defaultStreamId, users.recipient);
+        vars.actualWithdrawnAmount = flow.withdrawMax{ value: FLOW_MIN_FEE_WEI }(defaultStreamId, users.recipient);
 
         // It should update the stream balance.
         vars.actualStreamBalance = flow.getBalance(defaultStreamId);

@@ -1,20 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { Users } from "./Types.sol";
+import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
+
 import { Utils } from "./Utils.sol";
 
-abstract contract Modifiers is Utils {
-    /*//////////////////////////////////////////////////////////////////////////
-                                     VARIABLES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    Users private users;
-
-    function setVariables(Users memory _users) public {
-        users = _users;
-    }
-
+abstract contract Modifiers is Utils, EvmUtilsBase {
     /*//////////////////////////////////////////////////////////////////////////
                                        COMMON
     //////////////////////////////////////////////////////////////////////////*/
@@ -39,8 +30,8 @@ abstract contract Modifiers is Utils {
         _;
     }
 
-    modifier whenCallerAdmin() {
-        setMsgSender(users.admin);
+    modifier whenCallerComptroller() {
+        setMsgSender(address(comptroller));
         _;
     }
 
@@ -57,26 +48,6 @@ abstract contract Modifiers is Utils {
     }
 
     modifier whenTokenNotMissERC20Return() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    COLLECT-FEES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenAdminIsContract() {
-        _;
-    }
-
-    modifier whenCallerNotAdmin() {
-        _;
-    }
-
-    modifier whenCallerWithoutFeeCollectorRole() {
-        _;
-    }
-
-    modifier whenFeeRecipientContract() {
         _;
     }
 
@@ -133,10 +104,6 @@ abstract contract Modifiers is Utils {
     }
 
     modifier whenSenderMatches() {
-        _;
-    }
-
-    modifier whenTotalAmountNotZero() {
         _;
     }
 
@@ -197,6 +164,10 @@ abstract contract Modifiers is Utils {
     }
 
     modifier whenAmountNotZero() {
+        _;
+    }
+
+    modifier whenFeeNotLessThanMinFee() {
         _;
     }
 

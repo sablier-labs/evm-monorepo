@@ -8,7 +8,6 @@ import { SablierFlow } from "../../src/SablierFlow.sol";
 /// @notice Deploys {SablierFlow}.
 contract DeployFlow is BaseScript {
     function run(address nftDescriptor) public broadcast returns (SablierFlow flow) {
-        address initialAdmin = protocolAdmin();
-        flow = new SablierFlow(initialAdmin, nftDescriptor);
+        flow = new SablierFlow(comptrollerAddress(), nftDescriptor);
     }
 }

@@ -7,7 +7,7 @@ import { StdInvariant } from "forge-std/src/StdInvariant.sol";
 import { Flow } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "./../Base.t.sol";
-import { FlowAdminHandler } from "./handlers/FlowAdminHandler.sol";
+import { FlowComptrollerHandler } from "./handlers/FlowComptrollerHandler.sol";
 import { FlowCreateHandler } from "./handlers/FlowCreateHandler.sol";
 import { FlowHandler } from "./handlers/FlowHandler.sol";
 import { FlowStore } from "./stores/FlowStore.sol";
@@ -18,7 +18,7 @@ contract Flow_Invariant_Test is Base_Test, StdInvariant {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    FlowAdminHandler internal flowAdminHandler;
+    FlowComptrollerHandler internal flowComptrollerHandler;
     FlowCreateHandler internal flowCreateHandler;
     FlowHandler internal flowHandler;
     FlowStore internal flowStore;
@@ -34,24 +34,24 @@ contract Flow_Invariant_Test is Base_Test, StdInvariant {
         flowStore = new FlowStore(tokens);
 
         // Deploy the handlers.
-        flowAdminHandler = new FlowAdminHandler({ flowStore_: flowStore, flow_: flow });
+        flowComptrollerHandler = new FlowComptrollerHandler({ flowStore_: flowStore, flow_: flow });
         flowCreateHandler = new FlowCreateHandler({ flowStore_: flowStore, flow_: flow });
         flowHandler = new FlowHandler({ flowStore_: flowStore, flow_: flow });
 
         // Label the contracts.
-        vm.label({ account: address(flowAdminHandler), newLabel: "flowAdminHandler" });
+        vm.label({ account: address(flowComptrollerHandler), newLabel: "flowComptrollerHandler" });
         vm.label({ account: address(flowHandler), newLabel: "flowHandler" });
         vm.label({ account: address(flowCreateHandler), newLabel: "flowCreateHandler" });
         vm.label({ account: address(flowStore), newLabel: "flowStore" });
 
         // Target the flow handlers for invariant testing.
-        targetContract(address(flowAdminHandler));
+        targetContract(address(flowComptrollerHandler));
         targetContract(address(flowCreateHandler));
         targetContract(address(flowHandler));
 
         // Prevent these contracts from being fuzzed as `msg.sender`.
         excludeSender(address(flow));
-        excludeSender(address(flowAdminHandler));
+        excludeSender(address(flowComptrollerHandler));
         excludeSender(address(flowCreateHandler));
         excludeSender(address(flowHandler));
         excludeSender(address(flowStore));

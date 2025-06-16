@@ -7,7 +7,6 @@ abstract contract Constants {
     // Amounts
     uint128 internal constant DEPOSIT_AMOUNT_18D = 50_000e18;
     uint128 internal constant DEPOSIT_AMOUNT_6D = 50_000e6;
-
     uint128 internal constant REFUND_AMOUNT_18D = 10_000e18;
     uint128 internal constant REFUND_AMOUNT_6D = 10_000e6;
     uint128 internal constant TRANSFER_VALUE = 50_000;
@@ -16,6 +15,7 @@ abstract contract Constants {
 
     // Misc
     uint8 internal constant DECIMALS = 6;
+    uint256 internal constant MIN_FEE_WEI = 0.001 ether;
     UD21x18 internal constant RATE_PER_SECOND = UD21x18.wrap(0.001e18); // 86.4 daily
     uint128 internal constant RATE_PER_SECOND_U128 = 0.001e18; // 86.4 daily
     uint256 internal constant SCALE_FACTOR = 10 ** 12;

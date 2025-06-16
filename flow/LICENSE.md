@@ -11,7 +11,7 @@ Licensor: Sablier Labs Ltd
 
 Licensed Work: Sablier Flow The Licensed Work is (C) 2025 Sablier Labs Ltd
 
-Additional Use Grant: Any uses listed and defined at flow-license-grants.sablier.eth
+Additional Use Grant: Any uses listed and defined at license-grants.sablier.eth
 
 Change Date: The earlier of 2029-07-01 or a date specified at license-date.sablier.eth
 

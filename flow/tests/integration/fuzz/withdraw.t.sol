@@ -129,7 +129,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Withdraw the tokens.
-        flow.withdraw(streamId, to, withdrawAmount);
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }(streamId, to, withdrawAmount);
 
         assertEq(flow.ongoingDebtScaledOf(streamId), 0, "ongoing debt");
 

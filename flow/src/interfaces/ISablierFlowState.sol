@@ -10,7 +10,6 @@ import { IFlowNFTDescriptor } from "./IFlowNFTDescriptor.sol";
 /// @title ISablierFlowState
 /// @notice Contract with state variables (storage and constants) for the {SablierFlow} contract, their respective
 /// getters and helpful modifiers.
-/// @dev This contract also includes admin control functions.
 interface ISablierFlowState {
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS

@@ -81,7 +81,7 @@ contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         whenSenderNotAddressZero
         whenRatePerSecondNotZero
     {
-        setMsgSender(users.admin);
+        setMsgSender(address(comptroller));
         flow.setNativeToken(address(usdc));
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_CreateNativeToken.selector, address(usdc)));
         createDefaultStream();

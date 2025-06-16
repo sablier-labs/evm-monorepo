@@ -19,11 +19,8 @@ library Errors {
     /// @notice Thrown when trying to create a stream with a zero deposit amount.
     error SablierFlow_DepositAmountZero(uint256 streamId);
 
-    /// @notice Thrown when an unauthorized address collects fee without setting the fee recipient to admin address.
-    error SablierFlow_FeeRecipientNotAdmin(address feeRecipient, address admin);
-
-    /// @notice Thrown when the fee transfer fails.
-    error SablierFlow_FeeTransferFail(address feeRecipient, uint256 feeAmount);
+    /// @notice Thrown when trying to withdraw with a fee amount less than the minimum fee.
+    error SablierFlow_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
 
     /// @notice Thrown when an unexpected error occurs during the calculation of an amount.
     error SablierFlow_InvalidCalculation(uint256 streamId, uint128 availableAmount, uint128 amount);

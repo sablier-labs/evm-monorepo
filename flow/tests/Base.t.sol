@@ -34,11 +34,9 @@ abstract contract Base_Test is Assertions, Modifiers {
     function setUp() public virtual override {
         EvmUtilsBase.setUp();
 
-        users.admin = payable(makeAddr("admin"));
-
         if (!isTestOptimizedProfile()) {
             nftDescriptor = new FlowNFTDescriptor();
-            flow = new SablierFlow(users.admin, address(nftDescriptor));
+            flow = new SablierFlow(address(comptroller), address(nftDescriptor));
         } else {
             flow = deployOptimizedSablierFlow();
         }
@@ -52,9 +50,6 @@ abstract contract Base_Test is Assertions, Modifiers {
 
         // Create users for testing.
         createTestUsers();
-
-        // Set the variables in Modifiers contract.
-        setVariables(users);
 
         setMsgSender(users.sender);
 
@@ -78,10 +73,6 @@ abstract contract Base_Test is Assertions, Modifiers {
         users.operator = createUser("operator", spenders);
         users.recipient = createUser("recipient", spenders);
         users.sender = createUser("sender", spenders);
-
-        // Assign fee collector role to the accountant user.
-        setMsgSender(users.admin);
-        flow.grantRole(FEE_COLLECTOR_ROLE, users.accountant);
     }
 
     /// @dev Deploys {SablierFlow} from an optimized source compiled with `--via-ir`.
@@ -90,7 +81,8 @@ abstract contract Base_Test is Assertions, Modifiers {
 
         return SablierFlow(
             deployCode(
-                "out-optimized/SablierFlow.sol/SablierFlow.json", abi.encode(users.admin, address(nftDescriptor))
+                "out-optimized/SablierFlow.sol/SablierFlow.json",
+                abi.encode(address(comptroller), address(nftDescriptor))
             )
         );
     }

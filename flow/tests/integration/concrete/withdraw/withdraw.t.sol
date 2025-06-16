@@ -38,22 +38,42 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         expectRevert_Null(callData);
     }
 
-    function test_RevertWhen_AmountZero() external whenNoDelegateCall givenNotNull {
+    function test_RevertWhen_FeeLessThanMinFee() external whenNoDelegateCall givenNotNull {
+        uint256 feePaid = FLOW_MIN_FEE_WEI - 1;
         // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_WithdrawAmountZero.selector, defaultStreamId));
-        flow.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierFlow_InsufficientFeePayment.selector, feePaid, FLOW_MIN_FEE_WEI)
+        );
+        flow.withdraw{ value: feePaid }({ streamId: defaultStreamId, to: users.recipient, amount: WITHDRAW_AMOUNT_6D });
     }
 
-    function test_RevertWhen_WithdrawalAddressZero() external whenNoDelegateCall givenNotNull whenAmountNotZero {
+    function test_RevertWhen_AmountZero() external whenNoDelegateCall givenNotNull whenFeeNotLessThanMinFee {
+        // It should revert.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_WithdrawAmountZero.selector, defaultStreamId));
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
+    }
+
+    function test_RevertWhen_WithdrawalAddressZero()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        whenFeeNotLessThanMinFee
+        whenAmountNotZero
+    {
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_WithdrawToZeroAddress.selector, defaultStreamId));
-        flow.withdraw({ streamId: defaultStreamId, to: address(0), amount: WITHDRAW_AMOUNT_6D });
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }({
+            streamId: defaultStreamId,
+            to: address(0),
+            amount: WITHDRAW_AMOUNT_6D
+        });
     }
 
     function test_RevertWhen_CallerSender()
         external
         whenNoDelegateCall
         givenNotNull
+        whenFeeNotLessThanMinFee
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressNotOwner
@@ -66,13 +86,14 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
                 Errors.SablierFlow_WithdrawalAddressNotRecipient.selector, defaultStreamId, users.sender, users.eve
             )
         );
-        flow.withdraw({ streamId: defaultStreamId, to: users.eve, amount: WITHDRAW_AMOUNT_6D });
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }({ streamId: defaultStreamId, to: users.eve, amount: WITHDRAW_AMOUNT_6D });
     }
 
     function test_RevertWhen_CallerUnknown()
         external
         whenNoDelegateCall
         givenNotNull
+        whenFeeNotLessThanMinFee
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressNotOwner
@@ -85,13 +106,14 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
                 Errors.SablierFlow_WithdrawalAddressNotRecipient.selector, defaultStreamId, users.eve, users.eve
             )
         );
-        flow.withdraw({ streamId: defaultStreamId, to: users.eve, amount: WITHDRAW_AMOUNT_6D });
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }({ streamId: defaultStreamId, to: users.eve, amount: WITHDRAW_AMOUNT_6D });
     }
 
     function test_WhenCallerRecipient()
         external
         whenNoDelegateCall
         givenNotNull
+        whenFeeNotLessThanMinFee
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressNotOwner
@@ -125,6 +147,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         external
         whenNoDelegateCall
         givenNotNull
+        whenFeeNotLessThanMinFee
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressOwner
@@ -137,13 +160,18 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
                 Errors.SablierFlow_Overdraw.selector, defaultStreamId, ONE_MONTH_DEBT_6D + 1, ONE_MONTH_DEBT_6D
             )
         );
-        flow.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: ONE_MONTH_DEBT_6D + 1 });
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }({
+            streamId: defaultStreamId,
+            to: users.recipient,
+            amount: ONE_MONTH_DEBT_6D + 1
+        });
     }
 
     function test_WhenAmountNotExceedBalance()
         external
         whenNoDelegateCall
         givenNotNull
+        whenFeeNotLessThanMinFee
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressOwner
@@ -164,6 +192,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         external
         whenNoDelegateCall
         givenNotNull
+        whenFeeNotLessThanMinFee
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressOwner
@@ -176,13 +205,18 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFlow_Overdraw.selector, defaultStreamId, totalDebt + 1, totalDebt)
         );
-        flow.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: totalDebt + 1 });
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }({
+            streamId: defaultStreamId,
+            to: users.recipient,
+            amount: totalDebt + 1
+        });
     }
 
     function test_WhenAmountEqualsTotalDebt()
         external
         whenNoDelegateCall
         givenNotNull
+        whenFeeNotLessThanMinFee
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressOwner
@@ -204,6 +238,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         external
         whenNoDelegateCall
         givenNotNull
+        whenFeeNotLessThanMinFee
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressOwner
@@ -235,6 +270,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         external
         whenNoDelegateCall
         givenNotNull
+        whenFeeNotLessThanMinFee
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressOwner
@@ -261,6 +297,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         external
         whenNoDelegateCall
         givenNotNull
+        whenFeeNotLessThanMinFee
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressOwner
@@ -296,6 +333,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         external
         whenNoDelegateCall
         givenNotNull
+        whenFeeNotLessThanMinFee
         whenAmountNotZero
         whenWithdrawalAddressNotZero
         whenWithdrawalAddressOwner
@@ -348,7 +386,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
-        flow.withdraw({ streamId: streamId, to: to, amount: withdrawAmount });
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }({ streamId: streamId, to: to, amount: withdrawAmount });
 
         // It should decrease the total debt by the withdrawn amount requested.
         vars.expectedTotalDebt = vars.previousTotalDebt - withdrawAmount;

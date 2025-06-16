@@ -171,7 +171,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         }
 
         // Assert that the flow balance has changed.
-        uint256 expectedFlowBalance = initialFlowBalance + FEE;
+        uint256 expectedFlowBalance = initialFlowBalance + FLOW_MIN_FEE_WEI;
         assertEq(address(flow).balance, expectedFlowBalance, "Flow balance");
     }
 
@@ -258,7 +258,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
-        flow.adjustRatePerSecond{ value: FEE }({ streamId: streamId, newRatePerSecond: newRatePerSecond });
+        flow.adjustRatePerSecond{ value: FLOW_MIN_FEE_WEI }({ streamId: streamId, newRatePerSecond: newRatePerSecond });
 
         // It should update snapshot debt.
         vars.actualSnapshotDebtScaled = flow.getSnapshotDebtScaled(streamId);
@@ -299,7 +299,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
             snapshotTime: getBlockTimestamp()
         });
 
-        vars.actualStreamId = flow.create{ value: FEE }({
+        vars.actualStreamId = flow.create{ value: FLOW_MIN_FEE_WEI }({
             recipient: recipient,
             sender: sender,
             ratePerSecond: ratePerSecond,
@@ -370,7 +370,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         expectCallToTransferFrom({ token: FORK_TOKEN, from: sender, to: address(flow), value: depositAmount });
 
         // Make the deposit.
-        flow.deposit{ value: FEE }(streamId, depositAmount, sender, flow.getRecipient(streamId));
+        flow.deposit{ value: FLOW_MIN_FEE_WEI }(streamId, depositAmount, sender, flow.getRecipient(streamId));
 
         // Assert that the token balance of stream has been updated.
         vars.actualTokenBalance = FORK_TOKEN.balanceOf(address(flow));
@@ -413,7 +413,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Pause the stream.
-        flow.pause{ value: FEE }(streamId);
+        flow.pause{ value: FLOW_MIN_FEE_WEI }(streamId);
 
         // It should pause the stream.
         assertTrue(
@@ -460,7 +460,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Request the refund.
-        flow.refund{ value: FEE }(streamId, refundAmount);
+        flow.refund{ value: FLOW_MIN_FEE_WEI }(streamId, refundAmount);
 
         // Assert that the token balance of stream has been updated.
         vars.actualTokenBalance = FORK_TOKEN.balanceOf(address(flow));
@@ -501,7 +501,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
-        flow.restart{ value: FEE }({ streamId: streamId, ratePerSecond: ratePerSecond });
+        flow.restart{ value: FLOW_MIN_FEE_WEI }({ streamId: streamId, ratePerSecond: ratePerSecond });
 
         // It should restart the stream.
         assertTrue(
@@ -552,7 +552,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
-        flow.void{ value: FEE }(streamId);
+        flow.void{ value: FLOW_MIN_FEE_WEI }(streamId);
 
         // It should set the rate per second to zero.
         assertEq(flow.getRatePerSecond(streamId), 0, "Void: rate per second");
@@ -612,7 +612,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Withdraw the tokens.
-        flow.withdraw{ value: FEE }(streamId, recipient, withdrawAmount);
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }(streamId, recipient, withdrawAmount);
 
         // It should update snapshot time.
         vars.actualSnapshotTime = flow.getSnapshotTime(streamId);

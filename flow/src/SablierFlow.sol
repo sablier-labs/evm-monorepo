@@ -11,8 +11,8 @@ import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
+import { ComptrollerManager } from "@sablier/evm-utils/src/ComptrollerManager.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
-import { RoleAdminable } from "@sablier/evm-utils/src/RoleAdminable.sol";
 
 import { SablierFlowState } from "./abstracts/SablierFlowState.sol";
 import { IFlowNFTDescriptor } from "./interfaces/IFlowNFTDescriptor.sol";
@@ -25,10 +25,10 @@ import { Flow } from "./types/DataTypes.sol";
 /// @notice See the documentation in {ISablierFlow}.
 contract SablierFlow is
     Batch, // 1 inherited component
+    ComptrollerManager, // 1 inherited component
     ERC721, // 6 inherited components
     ISablierFlow, // 8 inherited components
     NoDelegateCall, // 0 inherited components
-    RoleAdminable, // 3 inherited components
     SablierFlowState // 1 inherited component
 {
     using SafeCast for uint256;
@@ -38,14 +38,14 @@ contract SablierFlow is
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @param initialAdmin The address of the initial contract admin.
+    /// @param initialComptroller The address of the initial comptroller contract.
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
     constructor(
-        address initialAdmin,
+        address initialComptroller,
         address initialNFTDescriptor
     )
+        ComptrollerManager(initialComptroller)
         ERC721("Sablier Flow NFT", "SAB-FLOW")
-        RoleAdminable(initialAdmin)
         SablierFlowState(initialNFTDescriptor)
     { }
 
@@ -245,29 +245,6 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function collectFees(address feeRecipient) external override {
-        // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
-        // `feeRecipient` must be the admin address.
-        bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
-        if (!hasRoleOrIsAdmin && feeRecipient != admin) {
-            revert Errors.SablierFlow_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
-        }
-
-        uint256 feeAmount = address(this).balance;
-
-        // Effect: transfer the fees to the fee recipient.
-        (bool success,) = feeRecipient.call{ value: feeAmount }("");
-
-        // Revert if the call failed.
-        if (!success) {
-            revert Errors.SablierFlow_FeeTransferFail(feeRecipient, feeAmount);
-        }
-
-        // Log the fee withdrawal.
-        emit ISablierFlow.CollectFees(admin, feeRecipient, feeAmount);
-    }
-
-    /// @inheritdoc ISablierFlow
     function create(
         address sender,
         address recipient,
@@ -368,7 +345,7 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function recover(IERC20 token, address to) external override onlyAdmin {
+    function recover(IERC20 token, address to) external override onlyComptroller {
         uint256 surplus = token.balanceOf(address(this)) - aggregateAmount[token];
 
         // Check: there is a surplus to recover.
@@ -379,7 +356,7 @@ contract SablierFlow is
         // Interaction: transfer the surplus to the provided address.
         token.safeTransfer(to, surplus);
 
-        emit ISablierFlow.Recover(msg.sender, token, to, surplus);
+        emit ISablierFlow.Recover(comptroller, token, to, surplus);
     }
 
     /// @inheritdoc ISablierFlow
@@ -478,7 +455,7 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function setNativeToken(address newNativeToken) external override onlyAdmin {
+    function setNativeToken(address newNativeToken) external override onlyComptroller {
         // Check: provided token is not zero address.
         if (newNativeToken == address(0)) {
             revert Errors.SablierFlow_NativeTokenZeroAddress();
@@ -493,21 +470,17 @@ contract SablierFlow is
         nativeToken = newNativeToken;
 
         // Log the update.
-        emit ISablierFlow.SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
+        emit ISablierFlow.SetNativeToken({ comptroller: comptroller, nativeToken: newNativeToken });
     }
 
     /// @inheritdoc ISablierFlow
-    function setNFTDescriptor(IFlowNFTDescriptor newNFTDescriptor) external override onlyAdmin {
+    function setNFTDescriptor(IFlowNFTDescriptor newNFTDescriptor) external override onlyComptroller {
         // Effect: set the NFT descriptor.
         IFlowNFTDescriptor oldNftDescriptor = nftDescriptor;
         nftDescriptor = newNFTDescriptor;
 
         // Log the change of the NFT descriptor.
-        emit ISablierFlow.SetNFTDescriptor({
-            admin: msg.sender,
-            oldNFTDescriptor: oldNftDescriptor,
-            newNFTDescriptor: newNFTDescriptor
-        });
+        emit ISablierFlow.SetNFTDescriptor(comptroller, oldNftDescriptor, newNFTDescriptor);
 
         // Refresh the NFT metadata for all streams.
         emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
@@ -974,6 +947,14 @@ contract SablierFlow is
 
     /// @dev See the documentation for the user-facing functions that call this private function.
     function _withdraw(uint256 streamId, address to, uint128 amount) private {
+        uint256 minFeeWei = comptroller.calculateFlowMinFeeWeiFor(_streams[streamId].sender);
+        uint256 feePaid = msg.value;
+
+        // Check: fee paid is at least the minimum fee.
+        if (feePaid < minFeeWei) {
+            revert Errors.SablierFlow_InsufficientFeePayment(feePaid, minFeeWei);
+        }
+
         // Check: the withdraw amount is not zero.
         if (amount == 0) {
             revert Errors.SablierFlow_WithdrawAmountZero(streamId);

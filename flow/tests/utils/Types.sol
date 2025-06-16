@@ -4,8 +4,6 @@ pragma solidity >=0.8.22;
 struct Users {
     // User authorized for fee related actions.
     address payable accountant;
-    // Default protocol admin.
-    address payable admin;
     // Malicious user.
     address payable eve;
     // Default NFT operator.

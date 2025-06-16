@@ -12,7 +12,6 @@ import { NFTDescriptorAddresses } from "./NFTDescriptorAddresses.sol";
 /// @dev Reverts if the contract has already been deployed.
 contract DeployDeterministicFlow is BaseScript, NFTDescriptorAddresses {
     function run() public broadcast returns (SablierFlow flow, FlowNFTDescriptor nftDescriptor) {
-        address initialAdmin = protocolAdmin();
         bytes32 salt = constructCreate2Salt();
 
         // If the contract is not already, deploy it.
@@ -24,6 +23,6 @@ contract DeployDeterministicFlow is BaseScript, NFTDescriptorAddresses {
             nftDescriptor = FlowNFTDescriptor(nftDescriptorAddress());
         }
 
-        flow = new SablierFlow{ salt: salt }(initialAdmin, address(nftDescriptor));
+        flow = new SablierFlow{ salt: salt }(comptrollerAddress(), address(nftDescriptor));
     }
 }
