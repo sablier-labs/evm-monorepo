@@ -15,7 +15,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     // 40% of fuzz tests will load input parameters from the below fixtures.
-    address[4] public fixtureCaller = [users.sender, users.recipient, users.operator, users.eve];
+    address[4] public fixtureCaller;
     uint256[19] public fixtureStreamId;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -28,6 +28,9 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
 
         // Create streams with all possible decimals.
         _setupStreamsWithAllDecimals();
+
+        // Initialize the fixture array.
+        fixtureCaller = [users.sender, users.recipient, users.operator, users.eve];
     }
 
     /*//////////////////////////////////////////////////////////////////////////
