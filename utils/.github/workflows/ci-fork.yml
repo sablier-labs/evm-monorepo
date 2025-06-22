@@ -1,0 +1,37 @@
+name: "CI Fork tests"
+
+on:
+  schedule:
+    - cron: "0 5 * * 6" # at 5:00 AM UTC on Saturday
+
+jobs:
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+
+  build:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+    with:
+      foundry-profiles: "default"
+
+  test-fork:
+    needs: ["check", "build"]
+    secrets:
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-profile: "default"
+      match-path: "tests/fork/**/*.sol"
+      name: "Fork tests"
+
+  notify-on-failure:
+    if: failure()
+    needs: ["check", "build", "test-fork"]
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Send Slack notification"
+        uses: "rtCamp/action-slack-notify@v2"
+        env:
+          SLACK_CHANNEL: "#ci-notifications"
+          SLACK_MESSAGE: "CI Workflow failed for ${{ github.repository }} on branch ${{ github.ref }} at job ${{ github.job }}."
+          SLACK_USERNAME: "GitHub CI"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}

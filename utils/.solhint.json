@@ -2,7 +2,7 @@
   "extends": "solhint:recommended",
   "rules": {
     "avoid-low-level-calls": "off",
-    "code-complexity": ["error", 10],
+    "code-complexity": ["off"],
     "compiler-version": ["error", ">=0.8.22"],
     "contract-name-capwords": "off",
     "const-name-snakecase": "off",

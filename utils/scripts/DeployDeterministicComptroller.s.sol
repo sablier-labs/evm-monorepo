@@ -7,7 +7,7 @@ import { BaseScript } from "../src/tests/BaseScript.sol";
 contract DeployDeterministicComptroller is BaseScript {
     function run() public broadcast returns (SablierComptroller comptroller) {
         comptroller = new SablierComptroller{ salt: SALT }(
-            protocolAdmin(), initialMinFeeUSD(), initialMinFeeUSD(), initialMinFeeUSD(), chainlinkOracle()
+            getAdmin(), getInitialMinFeeUSD(), getInitialMinFeeUSD(), getInitialMinFeeUSD(), getChainlinkOracle()
         );
     }
 }
