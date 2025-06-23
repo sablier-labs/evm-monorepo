@@ -16,6 +16,6 @@ contract DeployProtocol is BaseScript {
     {
         batchLockup = new SablierBatchLockup();
         nftDescriptor = new LockupNFTDescriptor();
-        lockup = new SablierLockup(comptrollerAddress(), address(nftDescriptor));
+        lockup = new SablierLockup(getComptroller(), address(nftDescriptor));
     }
 }
