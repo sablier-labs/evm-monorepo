@@ -20,9 +20,9 @@ contract DeployFactories is EvmUtilsBaseScript {
             SablierFactoryMerkleVCA factoryMerkleVCA
         )
     {
-        factoryMerkleInstant = new SablierFactoryMerkleInstant(comptrollerAddress());
-        factoryMerkleLL = new SablierFactoryMerkleLL(comptrollerAddress());
-        factoryMerkleLT = new SablierFactoryMerkleLT(comptrollerAddress());
-        factoryMerkleVCA = new SablierFactoryMerkleVCA(comptrollerAddress());
+        factoryMerkleInstant = new SablierFactoryMerkleInstant(getComptroller());
+        factoryMerkleLL = new SablierFactoryMerkleLL(getComptroller());
+        factoryMerkleLT = new SablierFactoryMerkleLT(getComptroller());
+        factoryMerkleVCA = new SablierFactoryMerkleVCA(getComptroller());
     }
 }

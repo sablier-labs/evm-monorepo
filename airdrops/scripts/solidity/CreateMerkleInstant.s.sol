@@ -13,8 +13,7 @@ contract CreateMerkleInstant is EvmUtilsBaseScript {
     /// @dev Deploy via Forge.
     function run() public broadcast returns (ISablierMerkleInstant merkleInstant) {
         // TODO: Load deployed addresses from Ethereum Mainnet.
-        SablierFactoryMerkleInstant factory =
-            new SablierFactoryMerkleInstant({ initialComptroller: comptrollerAddress() });
+        SablierFactoryMerkleInstant factory = new SablierFactoryMerkleInstant({ initialComptroller: getComptroller() });
 
         // Prepare the constructor parameters.
         MerkleInstant.ConstructorParams memory params;

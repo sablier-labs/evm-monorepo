@@ -13,7 +13,7 @@ contract CreateMerkleVCA is EvmUtilsBaseScript {
     /// @dev Deploy via Forge.
     function run() public broadcast returns (ISablierMerkleVCA merkleVCA) {
         // TODO: Load deployed addresses from Ethereum Mainnet.
-        SablierFactoryMerkleVCA factory = new SablierFactoryMerkleVCA({ initialComptroller: comptrollerAddress() });
+        SablierFactoryMerkleVCA factory = new SablierFactoryMerkleVCA({ initialComptroller: getComptroller() });
 
         // Prepare the constructor parameters.
         MerkleVCA.ConstructorParams memory params;

@@ -15,7 +15,7 @@ contract CreateMerkleLL is EvmUtilsBaseScript {
     /// @dev Deploy via Forge.
     function run() public broadcast returns (ISablierMerkleLL merkleLL) {
         // TODO: Load deployed addresses from Ethereum Mainnet.
-        SablierFactoryMerkleLL factory = new SablierFactoryMerkleLL({ initialComptroller: comptrollerAddress() });
+        SablierFactoryMerkleLL factory = new SablierFactoryMerkleLL({ initialComptroller: getComptroller() });
 
         // Prepare the constructor parameters.
         MerkleLL.ConstructorParams memory params;

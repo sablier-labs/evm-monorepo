@@ -22,9 +22,9 @@ contract DeployDeterministicFactories is EvmUtilsBaseScript {
             SablierFactoryMerkleVCA factoryMerkleVCA
         )
     {
-        factoryMerkleInstant = new SablierFactoryMerkleInstant{ salt: SALT }(comptrollerAddress());
-        factoryMerkleLL = new SablierFactoryMerkleLL{ salt: SALT }(comptrollerAddress());
-        factoryMerkleLT = new SablierFactoryMerkleLT{ salt: SALT }(comptrollerAddress());
-        factoryMerkleVCA = new SablierFactoryMerkleVCA{ salt: SALT }(comptrollerAddress());
+        factoryMerkleInstant = new SablierFactoryMerkleInstant{ salt: SALT }(getComptroller());
+        factoryMerkleLL = new SablierFactoryMerkleLL{ salt: SALT }(getComptroller());
+        factoryMerkleLT = new SablierFactoryMerkleLT{ salt: SALT }(getComptroller());
+        factoryMerkleVCA = new SablierFactoryMerkleVCA{ salt: SALT }(getComptroller());
     }
 }

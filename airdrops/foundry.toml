@@ -29,38 +29,13 @@
 # Speed up compilation and tests during development
 [profile.lite]
   fuzz.runs = 50
+  optimizer = false
 
-# Compile only the production code and the test mocks with via IR
+# Compile only the production code
 [profile.optimized]
   out = "out-optimized"
-  test = "tests/mocks"
-  via_ir = true
-
-# See "SMTChecker and Formal Verification" in the Solidity docs
-[profile.smt]
-  ignored_error_codes = [
-    7737, # Disable inline assembly warnings
-  ]
-  out = "out-optimized"
-  script = "src"
   test = "src"
   via_ir = true
-
-[profile.smt.model_checker]
-  engine = "chc" # constrained Horn clauses
-  invariants = ["contract", "reentrancy"]
-  show_proved_safe = true
-  show_unproved = true
-  show_unsupported = true
-  targets = [
-    "assert",
-    "constantCondition",
-    "divByZero",
-    "outOfBounds",
-    "overflow",
-    "underflow",
-  ]
-  timeout = 100_000 # in milliseconds, per solving query
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
@@ -91,7 +66,7 @@
   base = "https://mainnet.base.org"
   berachain = "https://rpc.berachain.com"
   blast = "https://rpc.blast.io"
-  bnb = "https://bsc-mainnet.infura.io/v3/${API_KEY_INFURA}"
+  bsc = "https://bsc-mainnet.infura.io/v3/${API_KEY_INFURA}"
   chiliz = "https://rpc.chiliz.com"
   core_dao = "https://rpc.coredao.org"
   form = "https://rpc.form.network/http"

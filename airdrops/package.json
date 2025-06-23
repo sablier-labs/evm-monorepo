@@ -14,7 +14,7 @@
     "@openzeppelin/contracts": "5.3.0",
     "@prb/math": "4.1.0",
     "@sablier/lockup": "github:sablier-labs/lockup#6f49eb8",
-    "@sablier/evm-utils": "github:sablier-labs/evm-utils#7c10048"
+    "@sablier/evm-utils": "github:sablier-labs/evm-utils#1cb72ac"
   },
   "devDependencies": {
     "@sablier/devkit": "github:sablier-labs/devkit",
