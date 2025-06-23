@@ -1,5 +1,18 @@
 {
-  "[json][markdown][yaml]": {
+  "editor.formatOnSave": true,
+  "evenBetterToml.formatter.alignComments": true,
+  "evenBetterToml.formatter.arrayAutoCollapse": false,
+  "evenBetterToml.formatter.columnWidth": 120,
+  "evenBetterToml.formatter.reorderArrays": true,
+  "evenBetterToml.formatter.reorderKeys": true,
+  "evenBetterToml.formatter.reorderInlineTables": true,
+  "prettier.documentSelectors": ["**/*.svg"],
+  "solidity.formatter": "forge",
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/repomix": true
+  },
+  "[javascript][json][jsonc][markdown][svg][yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[solidity]": {
@@ -7,10 +20,5 @@
   },
   "[toml]": {
     "editor.defaultFormatter": "tamasfe.even-better-toml"
-  },
-  "editor.formatOnSave": true,
-  "search.exclude": {
-    "**/node_modules": true
-  },
-  "solidity.formatter": "forge"
+  }
 }

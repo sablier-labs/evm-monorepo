@@ -8,6 +8,7 @@ docs
 node_modules
 out
 out-*
+repomix
 
 # files
 *.sol

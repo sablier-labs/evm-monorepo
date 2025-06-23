@@ -1,0 +1,13 @@
+{
+  "$schema": "https://repomix.com/schemas/latest/schema.json",
+  "ignore": {
+    "customPatterns": ["LICENSE-GPL.md"],
+    "useDefaultPatterns": true,
+    "useGitignore": true,
+  },
+  "include": ["."],
+  "output": {
+    "filePath": "repomix/output.txt",
+    "style": "plain",
+  },
+}
