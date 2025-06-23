@@ -23,6 +23,6 @@ contract DeployDeterministicFlow is BaseScript, NFTDescriptorAddresses {
             nftDescriptor = FlowNFTDescriptor(nftDescriptorAddress());
         }
 
-        flow = new SablierFlow{ salt: salt }(comptrollerAddress(), address(nftDescriptor));
+        flow = new SablierFlow{ salt: salt }(getComptroller(), address(nftDescriptor));
     }
 }

@@ -71,12 +71,12 @@
 
 [rpc_endpoints]
   # Mainnets
-  arbitrum = "https://rpc.ankr.com/arbitrum"
-  avalanche = "https://rpc.ankr.com/avalanche"
+  arbitrum = "https://arbitrum-mainnet.infura.io/v3/${API_KEY_INFURA}"
+  avalanche = "https://avalanche-mainnet.infura.io/v3/${API_KEY_INFURA}"
   base = "https://mainnet.base.org"
   berachain = "https://rpc.berachain.com"
   blast = "https://rpc.blast.io"
-  bnb = "https://rpc.ankr.com/bsc"
+  bsc = "https://bsc-mainnet.infura.io/v3/${API_KEY_INFURA}"
   chiliz = "https://rpc.chiliz.com"
   core_dao = "https://rpc.coredao.org"
   form = "https://rpc.form.network/http"
@@ -87,8 +87,8 @@
   meld = "https://rpc-1.meld.com"
   mode = "https://mainnet.mode.network"
   morph = "https://rpc.morphl2.io"
-  optimism = "https://rpc.ankr.com/optimism"
-  polygon = "https://rpc.ankr.com/polygon"
+  optimism = "https://optimism-mainnet.infura.io/v3/${API_KEY_INFURA}"
+  polygon = "https://polygon-mainnet.infura.io/v3/${API_KEY_INFURA}"
   scroll = "https://rpc.scroll.io"
   sei = "https://evm-rpc.sei-apis.com"
   superseed = "https://mainnet.superseed.xyz"

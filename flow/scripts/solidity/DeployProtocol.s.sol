@@ -20,6 +20,6 @@ contract DeployProtocol is BaseScript, NFTDescriptorAddresses {
             nftDescriptor = FlowNFTDescriptor(nftDescriptorAddress());
         }
 
-        flow = new SablierFlow(comptrollerAddress(), address(nftDescriptor));
+        flow = new SablierFlow(getComptroller(), address(nftDescriptor));
     }
 }

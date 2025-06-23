@@ -10,6 +10,6 @@ import { SablierFlow } from "../../src/SablierFlow.sol";
 contract DeployDeterministicFlow is BaseScript {
     function run(address nftDescriptor) public broadcast returns (SablierFlow flow) {
         bytes32 salt = constructCreate2Salt();
-        flow = new SablierFlow{ salt: salt }(comptrollerAddress(), nftDescriptor);
+        flow = new SablierFlow{ salt: salt }(getComptroller(), nftDescriptor);
     }
 }
