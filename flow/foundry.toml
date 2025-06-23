@@ -4,7 +4,7 @@
   evm_version = "shanghai" # needed for greater coverage of EVM chains
   fs_permissions = [
     { access = "read", path = "./out-optimized" },
-    { access = "read", path = "package.json" }
+    { access = "read", path = "package.json" },
   ]
   gas_limit = 9223372036854775807
   gas_reports = ["SablierFlow"]
@@ -19,15 +19,15 @@
 
 [profile.default.fuzz]
   max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
-  runs = 10000
+  runs = 10_000
 
 [profile.default.invariant]
-  call_override = false # Override unsafe external calls to perform reentrancy checks
+  call_override = false  # Override unsafe external calls to perform reentrancy checks
+  depth = 100            # Number of calls executed in one run
   dictionary_weight = 50
-  depth = 100           # Number of calls executed in one run
   fail_on_revert = true
   runs = 1000
-  shrink_run_limit = 0 # Disable shrinking of a failed sequence
+  shrink_run_limit = 0   # Disable shrinking of a failed sequence
 
 # Speed up compilation and tests during development
 [profile.lite]
@@ -40,9 +40,8 @@
 [profile.lite.fuzz]
   runs = 20
 
-# Compile only the production code and the test mocks with via IR and 10,000 optimizer runs
+# Compile only the production code
 [profile.optimized]
-  optimizer = true
   optimizer_runs = 1_000_000
   out = "out-optimized"
   test = "src"
@@ -71,7 +70,7 @@
   wrap_comments = true
 
 [rpc_endpoints]
-  # mainnets
+  # Mainnets
   arbitrum = "https://rpc.ankr.com/arbitrum"
   avalanche = "https://rpc.ankr.com/avalanche"
   base = "https://mainnet.base.org"
@@ -86,22 +85,22 @@
   linea = "https://rpc.linea.build"
   mainnet = "${MAINNET_RPC_URL}"
   meld = "https://rpc-1.meld.com"
-  mode = "https://mainnet.mode.network/"
+  mode = "https://mainnet.mode.network"
   morph = "https://rpc.morphl2.io"
   optimism = "https://rpc.ankr.com/optimism"
   polygon = "https://rpc.ankr.com/polygon"
-  scroll = "https://rpc.scroll.io/"
+  scroll = "https://rpc.scroll.io"
   sei = "https://evm-rpc.sei-apis.com"
   superseed = "https://mainnet.superseed.xyz"
   xdc = "https://rpc.xdc.org"
-  # testnets
+  # Testnets
   arbitrum_sepolia = "https://arbitrum-sepolia-rpc.publicnode.com"
   base_sepolia = "https://sepolia.base.org"
-  berachain_artio = "https://bartio.rpc.berachain.com/"
+  berachain_artio = "https://bartio.rpc.berachain.com"
   blast_sepolia = "https://sepolia.blast.io"
   linea_sepolia = "https://rpc.sepolia.linea.build"
   localhost = "http://localhost:8545"
-  mode_sepolia = "https://sepolia.mode.network/"
+  mode_sepolia = "https://sepolia.mode.network"
   monat_testnet = "https://testnet-rpc.monad.xyz"
   morph_holesky = "https://rpc-holesky.morphl2.io"
   optimism_sepolia = "https://sepolia.optimism.io"
