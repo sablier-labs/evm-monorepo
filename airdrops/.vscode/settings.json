@@ -1,13 +1,4 @@
 {
-  "[json][markdown][yaml]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[solidity]": {
-    "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
-  },
-  "[toml]": {
-    "editor.defaultFormatter": "tamasfe.even-better-toml"
-  },
   "editor.formatOnSave": true,
   "evenBetterToml.formatter.alignComments": true,
   "evenBetterToml.formatter.arrayAutoCollapse": false,
@@ -15,8 +6,19 @@
   "evenBetterToml.formatter.reorderArrays": true,
   "evenBetterToml.formatter.reorderKeys": true,
   "evenBetterToml.formatter.reorderInlineTables": true,
+  "prettier.documentSelectors": ["**/*.svg"],
+  "solidity.formatter": "forge",
   "search.exclude": {
-    "**/node_modules": true
+    "**/node_modules": true,
+    "**/repomix": true
   },
-  "solidity.formatter": "forge"
+  "[javascript][json][jsonc][markdown][svg][yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[solidity]": {
+    "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  }
 }
