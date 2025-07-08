@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { StdAssertions } from "forge-std/src/StdAssertions.sol";
 import { AdminableMock } from "src/mocks/AdminableMock.sol";
 import { BatchMock } from "src/mocks/BatchMock.sol";
-import { ComptrollerManagerMock } from "src/mocks/ComptrollerManagerMock.sol";
+import { ComptrollerableMock } from "src/mocks/ComptrollerableMock.sol";
 import { NoDelegateCallMock } from "src/mocks/NoDelegateCallMock.sol";
 import { RoleAdminableMock } from "src/mocks/RoleAdminableMock.sol";
 import { BaseTest } from "src/tests/BaseTest.sol";
@@ -32,7 +32,7 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions {
 
     AdminableMock internal adminableMock;
     BatchMock internal batchMock;
-    ComptrollerManagerMock internal comptrollerManagerMock;
+    ComptrollerableMock internal comptrollerableMock;
     NoDelegateCallMock internal noDelegateCallMock;
     RoleAdminableMock internal roleAdminableMock;
 
@@ -54,7 +54,7 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions {
         // Deploy mock contracts.
         adminableMock = new AdminableMock(admin);
         batchMock = new BatchMock();
-        comptrollerManagerMock = new ComptrollerManagerMock(address(comptroller));
+        comptrollerableMock = new ComptrollerableMock(address(comptroller));
         noDelegateCallMock = new NoDelegateCallMock();
         roleAdminableMock = new RoleAdminableMock(admin);
 

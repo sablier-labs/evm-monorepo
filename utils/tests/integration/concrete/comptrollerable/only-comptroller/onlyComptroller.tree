@@ -1,4 +1,4 @@
-OnlyComptroller_ComptrollerManager_Concrete_Test
+OnlyComptroller_Comptrollerable_Concrete_Test
 ├── when caller not comptroller
 │  └── it should revert
 └── when caller comptroller

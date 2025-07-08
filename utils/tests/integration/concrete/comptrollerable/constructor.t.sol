@@ -3,9 +3,9 @@ pragma solidity >=0.8.22;
 
 import { Base_Test } from "../../../Base.t.sol";
 
-contract ComptrollerManager_Constructor_Concrete_Test is Base_Test {
+contract Comptrollerable_Constructor_Concrete_Test is Base_Test {
     function test_Constructor() public view {
         // Assert the state variables.
-        assertEq(address(comptrollerManagerMock.comptroller()), address(comptroller), "comptroller");
+        assertEq(address(comptrollerableMock.comptroller()), address(comptroller), "comptroller");
     }
 }

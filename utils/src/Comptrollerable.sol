@@ -1,18 +1,18 @@
-// SPDX-License-Identifier: BUSL-1.1
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
 import { ISablierComptroller } from "./interfaces/ISablierComptroller.sol";
-import { IComptrollerManager } from "./interfaces/IComptrollerManager.sol";
+import { IComptrollerable } from "./interfaces/IComptrollerable.sol";
 import { Errors } from "./libraries/Errors.sol";
 
-/// @title ComptrollerManager
-/// @notice See the documentation in {IComptrollerManager}.
-abstract contract ComptrollerManager is IComptrollerManager {
+/// @title Comptrollerable
+/// @notice See the documentation in {IComptrollerable}.
+abstract contract Comptrollerable is IComptrollerable {
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc IComptrollerManager
+    /// @inheritdoc IComptrollerable
     ISablierComptroller public override comptroller;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -39,13 +39,13 @@ abstract contract ComptrollerManager is IComptrollerManager {
                         USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc IComptrollerManager
+    /// @inheritdoc IComptrollerable
     function setComptroller(ISablierComptroller newComptroller) external override onlyComptroller {
         // Checks and Effects: set the new comptroller.
         _setComptroller(newComptroller);
     }
 
-    /// @inheritdoc IComptrollerManager
+    /// @inheritdoc IComptrollerable
     function transferFeesToComptroller() external override {
         uint256 feeAmount = address(this).balance;
 
@@ -57,7 +57,7 @@ abstract contract ComptrollerManager is IComptrollerManager {
         success;
 
         // Log the fee transfer.
-        emit IComptrollerManager.TransferFeesToComptroller(comptroller, feeAmount);
+        emit IComptrollerable.TransferFeesToComptroller(comptroller, feeAmount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ abstract contract ComptrollerManager is IComptrollerManager {
     /// @dev See the documentation for the user-facing functions that call this private function.
     function _checkComptroller() private view {
         if (msg.sender != address(comptroller)) {
-            revert Errors.ComptrollerManager_CallerNotComptroller(address(comptroller), msg.sender);
+            revert Errors.Comptrollerable_CallerNotComptroller(address(comptroller), msg.sender);
         }
     }
 
@@ -79,7 +79,7 @@ abstract contract ComptrollerManager is IComptrollerManager {
     function _setComptroller(ISablierComptroller newComptroller) private {
         // Check: the new comptroller address is not zero.
         if (address(newComptroller) == address(0)) {
-            revert Errors.ComptrollerManager_ZeroAddress();
+            revert Errors.Comptrollerable_ZeroAddress();
         }
 
         // Load the current comptroller address.

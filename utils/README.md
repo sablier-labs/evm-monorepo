@@ -80,7 +80,4 @@ contract MyContract is Adminable, Batch, NoDelegateCall {
 
 ## License
 
-This repo is licensed under the [GNU General Public License](/LICENSE-GPL.md) with the below exceptions:
-
-- [`ComptrollerManager.sol`](./src/ComptrollerManager.sol) and [`SablierComptroller.sol`](./src/SablierComptroller.sol)
-  are licensed under the Business Source License 1.1 (`BUSL-1.1`), see [`LICENSE.md`](./LICENSE.md).
+See [LICENSE.md](./LICENSE.md).

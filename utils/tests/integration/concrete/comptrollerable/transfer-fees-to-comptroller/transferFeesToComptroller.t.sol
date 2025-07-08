@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IComptrollerManager } from "src/interfaces/IComptrollerManager.sol";
+import { IComptrollerable } from "src/interfaces/IComptrollerable.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
 
@@ -15,18 +15,18 @@ contract TransferFeesToComptroller_Lockup_Integration_Concrete_Test is Base_Test
     }
 
     function _test_TransferFeesToComptroller(uint256 fee) private {
-        // Deal some ETH to the comptroller manager.
-        vm.deal(address(comptrollerManagerMock), fee);
+        // Deal some ETH to the comptrollerable mock contract.
+        vm.deal(address(comptrollerableMock), fee);
 
         // Get the initial balance.
         uint256 initialEthBalance = address(comptroller).balance;
 
         // It should emit {TransferFeesToComptroller} event.
-        vm.expectEmit({ emitter: address(comptrollerManagerMock) });
-        emit IComptrollerManager.TransferFeesToComptroller(comptroller, fee);
+        vm.expectEmit({ emitter: address(comptrollerableMock) });
+        emit IComptrollerable.TransferFeesToComptroller(comptroller, fee);
 
         // Call the function.
-        comptrollerManagerMock.transferFeesToComptroller();
+        comptrollerableMock.transferFeesToComptroller();
 
         assertEq(address(comptroller).balance, initialEthBalance + fee, "eth balance");
     }

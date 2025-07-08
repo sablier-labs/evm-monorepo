@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
-import { IComptrollerManager } from "./interfaces/IComptrollerManager.sol";
+import { IComptrollerable } from "./interfaces/IComptrollerable.sol";
 import { ISablierComptroller } from "./interfaces/ISablierComptroller.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { RoleAdminable } from "./RoleAdminable.sol";
@@ -356,10 +356,10 @@ contract SablierComptroller is ISablierComptroller, RoleAdminable {
         onlyRole(FEE_COLLECTOR_ROLE)
     {
         // Interactions: transfer fees from Flow to this contract.
-        IComptrollerManager(flow).transferFeesToComptroller();
+        IComptrollerable(flow).transferFeesToComptroller();
 
         // Interactions: transfer fees from Lockup to this contract.
-        IComptrollerManager(lockup).transferFeesToComptroller();
+        IComptrollerable(lockup).transferFeesToComptroller();
 
         // Effect: collect the fees.
         _collectFees(feeRecipient);

@@ -5,7 +5,7 @@ import { stdError } from "forge-std/src/StdError.sol";
 
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { ComptrollerManagerMock } from "src/mocks/ComptrollerManagerMock.sol";
+import { ComptrollerableMock } from "src/mocks/ComptrollerableMock.sol";
 
 import { TargetPanic } from "./targets/TargetPanic.sol";
 import { TargetReverter } from "./targets/TargetReverter.sol";
@@ -13,7 +13,7 @@ import { SablierComptroller_Concrete_Test } from "../SablierComptroller.t.sol";
 
 contract Execute_Concrete_Test is SablierComptroller_Concrete_Test {
     struct Targets {
-        ComptrollerManagerMock comptrollerManagerMock;
+        ComptrollerableMock comptrollerableMock;
         TargetPanic panic;
         TargetReverter reverter;
     }
@@ -26,19 +26,19 @@ contract Execute_Concrete_Test is SablierComptroller_Concrete_Test {
 
         // Create the targets.
         targets = Targets({
-            comptrollerManagerMock: comptrollerManagerMock,
+            comptrollerableMock: comptrollerableMock,
             panic: new TargetPanic(),
             reverter: new TargetReverter()
         });
 
         // Declare the data to change the admin.
-        data = abi.encodeCall(comptrollerManagerMock.setComptroller, (comptrollerZero));
+        data = abi.encodeCall(comptrollerableMock.setComptroller, (comptrollerZero));
     }
 
     function test_RevertWhen_CallerNotAdmin() external {
         setMsgSender(users.eve);
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, admin, users.eve));
-        comptroller.execute({ target: address(comptrollerManagerMock), data: data });
+        comptroller.execute({ target: address(comptrollerableMock), data: data });
     }
 
     function test_RevertWhen_TargetNotContract() external whenCallerAdmin {
@@ -92,13 +92,13 @@ contract Execute_Concrete_Test is SablierComptroller_Concrete_Test {
     function test_WhenCallDoesNotRevert() external whenCallerAdmin whenTargetContract {
         // It should emit an {Execute} event.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ISablierComptroller.Execute({ target: address(comptrollerManagerMock), data: data, result: "" });
+        emit ISablierComptroller.Execute({ target: address(comptrollerableMock), data: data, result: "" });
 
-        comptroller.execute({ target: address(targets.comptrollerManagerMock), data: data });
+        comptroller.execute({ target: address(targets.comptrollerableMock), data: data });
 
         // It should execute the call.
         assertEq(
-            address(comptrollerManagerMock.comptroller()),
+            address(comptrollerableMock.comptroller()),
             address(comptrollerZero),
             "The new comptroller should be set to the comptroller zero"
         );

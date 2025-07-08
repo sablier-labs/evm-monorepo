@@ -3,9 +3,9 @@ pragma solidity >=0.8.22;
 
 import { ISablierComptroller } from "./ISablierComptroller.sol";
 
-/// @title IComptrollerManager
-/// @notice Contract module that provides a setter and getter for the Sablier comptroller.
-interface IComptrollerManager {
+/// @title IComptrollerable
+/// @notice Contract module that provides a setter and getter for the Sablier Comptroller.
+interface IComptrollerable {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/

@@ -1,7 +1,7 @@
 {
   "name": "@sablier/evm-utils",
   "description": "Utilities solidity files used across Sablier's smart contracts",
-  "license": "BUSL-1.1",
+  "license": "SEE LICENSE IN LICENSE",
   "version": "1.0.0",
   "author": {
     "name": "Sablier Labs Ltd",
@@ -26,6 +26,8 @@
     "artifacts",
     "src",
     "CHANGELOG.md",
+    "LICENSE.md",
+    "LICENSE-BUSL.md",
     "LICENSE-GPL.md"
   ],
   "homepage": "https://github.com/sablier-labs/evm-utils#readme",

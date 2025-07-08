@@ -12,16 +12,6 @@ library Errors {
     error CallerNotAdmin(address admin, address caller);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                COMPTROLLER-MANAGER
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when `msg.sender` is not the comptroller.
-    error ComptrollerManager_CallerNotComptroller(address comptroller, address caller);
-
-    /// @notice Thrown when trying to set zero as the comptroller address.
-    error ComptrollerManager_ZeroAddress();
-
-    /*//////////////////////////////////////////////////////////////////////////
                                     COMPTROLLER
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -36,6 +26,16 @@ library Errors {
 
     /// @notice Thrown if fee transfer fails.
     error SablierComptroller_FeeTransferFailed(address feeRecipient, uint256 feeAmount);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  COMPTROLLERABLE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when `msg.sender` is not the comptroller.
+    error Comptrollerable_CallerNotComptroller(address comptroller, address caller);
+
+    /// @notice Thrown when trying to set zero as the comptroller address.
+    error Comptrollerable_ZeroAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
                                   NO-DELEGATE-CALL
