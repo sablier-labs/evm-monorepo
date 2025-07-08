@@ -58,6 +58,14 @@ contract Invariant_Test is Base_Test, StdInvariant {
                                  COMMON INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function invariant_NextStreamId() external view {
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 nextStreamId = lockup.nextStreamId();
+            assertEq(nextStreamId, lastStreamId + 1, "Invariant violation: next stream ID not incremented");
+        }
+    }
+
     function invariant_Balances() external view {
         uint256 erc20Balance = dai.balanceOf(address(lockup));
 
@@ -141,20 +149,36 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    function invariant_NextStreamId() external view {
-        uint256 lastStreamId = lockupStore.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 nextStreamId = lockup.nextStreamId();
-            assertEq(nextStreamId, lastStreamId + 1, "Invariant violation: next stream ID not incremented");
-        }
-    }
-
     function invariant_StartTimeNotZero() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
             uint40 startTime = lockup.getStartTime(streamId);
             assertGt(startTime, 0, "Invariant violation: start time zero");
+        }
+    }
+
+    function invariant_StreamedGteWithdrawable() external view {
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupStore.streamIds(i);
+            assertGe(
+                lockup.streamedAmountOf(streamId),
+                lockup.withdrawableAmountOf(streamId),
+                "Invariant violation: streamed amount < withdrawable amount"
+            );
+        }
+    }
+
+    function invariant_StreamedGteWithdrawn() external view {
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupStore.streamIds(i);
+            assertGe(
+                lockup.streamedAmountOf(streamId),
+                lockup.getWithdrawnAmount(streamId),
+                "Invariant violation: streamed amount < withdrawn amount"
+            );
         }
     }
 
@@ -333,30 +357,6 @@ contract Invariant_Test is Base_Test, StdInvariant {
 
             // Set the current status as the previous status.
             lockupStore.updatePreviousStatusOf(streamId, currentStatus);
-        }
-    }
-
-    function invariant_StreamedGteWithdrawable() external view {
-        uint256 lastStreamId = lockupStore.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupStore.streamIds(i);
-            assertGe(
-                lockup.streamedAmountOf(streamId),
-                lockup.withdrawableAmountOf(streamId),
-                "Invariant violation: streamed amount < withdrawable amount"
-            );
-        }
-    }
-
-    function invariant_StreamedGteWithdrawn() external view {
-        uint256 lastStreamId = lockupStore.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupStore.streamIds(i);
-            assertGe(
-                lockup.streamedAmountOf(streamId),
-                lockup.getWithdrawnAmount(streamId),
-                "Invariant violation: streamed amount < withdrawn amount"
-            );
         }
     }
 
