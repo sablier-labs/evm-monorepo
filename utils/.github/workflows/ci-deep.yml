@@ -1,0 +1,44 @@
+name: "CI Deep"
+
+env:
+  MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+
+on:
+  schedule:
+    - cron: "0 3 * * 3,6" # at 3:00am UTC on Wednesday and Saturday
+  workflow_dispatch:
+    inputs:
+      integrationFuzzRuns:
+        default: "100000"
+        description: "Integration: number of fuzz runs."
+        required: false
+
+jobs:
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+
+  build:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+    with:
+      foundry-profiles: "default"
+
+  test-integration:
+    needs: ["check", "build"]
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: ${{ fromJSON(inputs.integrationFuzzRuns || '100000') }}
+      match-path: "tests/integration/**/*.sol"
+      name: "Integration tests"
+
+  notify-on-failure:
+    if: failure()
+    needs: ["check", "build", "test-integration"]
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Send Slack notification"
+        uses: "rtCamp/action-slack-notify@v2"
+        env:
+          SLACK_CHANNEL: "#ci-notifications"
+          SLACK_MESSAGE: "CI Workflow failed for ${{ github.repository }} on branch ${{ github.ref }} at job ${{ github.job }}."
+          SLACK_USERNAME: "GitHub CI"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}

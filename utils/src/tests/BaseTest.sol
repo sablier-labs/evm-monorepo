@@ -3,11 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { CommonBase as StdBase } from "forge-std/src/Base.sol";
-import { console2 } from "forge-std/src/console2.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-import { StdStyle } from "forge-std/src/StdStyle.sol";
-import { StdUtils } from "forge-std/src/StdUtils.sol";
 
 import { IRoleAdminable } from "../interfaces/IRoleAdminable.sol";
 import { ISablierComptroller } from "../interfaces/ISablierComptroller.sol";
@@ -16,34 +12,10 @@ import { ERC20MissingReturn } from "../mocks/erc20/ERC20MissingReturn.sol";
 import { ERC20Mock } from "../mocks/erc20/ERC20Mock.sol";
 import { ContractWithoutReceive, ContractWithReceive } from "../mocks/Receive.sol";
 import { SablierComptroller } from "../SablierComptroller.sol";
+import { BaseConstants } from "./BaseConstants.sol";
+import { BaseUtils } from "./BaseUtils.sol";
 
-abstract contract BaseTest is StdBase, StdCheats, StdUtils {
-    /*//////////////////////////////////////////////////////////////////////////
-                                   CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
-    uint256 internal constant AIRDROP_MIN_FEE_USD = 3e8; // equivalent to $3
-    uint256 public constant AIRDROP_MIN_FEE_WEI = (1e18 * AIRDROP_MIN_FEE_USD) / 3000e8; // at $3000 per ETH
-    uint256 internal constant AIRDROPS_CUSTOM_FEE_USD = 0.5e8; // equivalent to $0.5
-    uint256 internal constant AIRDROPS_CUSTOM_FEE_WEI = (1e18 * AIRDROPS_CUSTOM_FEE_USD) / 3000e8; // at $3000 per ETH
-    bytes32 public constant FEE_COLLECTOR_ROLE = keccak256("FEE_COLLECTOR_ROLE");
-    bytes32 public constant FEE_MANAGEMENT_ROLE = keccak256("FEE_MANAGEMENT_ROLE");
-    uint256 internal constant FLOW_MIN_FEE_USD = 1e8; // equivalent to $1
-    uint256 internal constant FLOW_MIN_FEE_WEI = (1e18 * FLOW_MIN_FEE_USD) / 3000e8; // at $3000 per ETH
-    uint256 internal constant FLOW_CUSTOM_FEE_USD = 0.1e8; // equivalent to $0.1
-    uint256 internal constant FLOW_CUSTOM_FEE_WEI = (1e18 * FLOW_CUSTOM_FEE_USD) / 3000e8; // at $3000 per ETH
-    uint256 internal constant LOCKUP_MIN_FEE_USD = 1e8; // equivalent to $1
-    uint256 internal constant LOCKUP_MIN_FEE_WEI = (1e18 * LOCKUP_MIN_FEE_USD) / 3000e8; // at $3000 per ETH
-    uint256 internal constant LOCKUP_CUSTOM_FEE_USD = 0.1e8; // equivalent to $0.1
-    uint256 internal constant LOCKUP_CUSTOM_FEE_WEI = (1e18 * LOCKUP_CUSTOM_FEE_USD) / 3000e8; // at $3000 per ETH
-    uint256 internal constant MAX_FEE_USD = 100e8; // equivalent to $100
-    uint128 internal constant MAX_UINT128 = type(uint128).max;
-    uint256 internal constant MAX_UINT256 = type(uint256).max;
-    uint40 internal constant MAX_UINT40 = type(uint40).max;
-    uint64 internal constant MAX_UINT64 = type(uint64).max;
-    uint40 internal constant MAX_UNIX_TIMESTAMP = 2_147_483_647; // 2^31 - 1
-
+abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -103,26 +75,6 @@ abstract contract BaseTest is StdBase, StdCheats, StdUtils {
         vm.startPrank(from);
         (bool success,) = token_.call(abi.encodeCall(IERC20.approve, (spender, UINT256_MAX)));
         success;
-    }
-
-    /// @dev Bounds a `uint128` number.
-    function boundUint128(uint128 x, uint128 min, uint128 max) internal pure returns (uint128) {
-        return uint128(_bound(x, min, max));
-    }
-
-    /// @dev Bounds a `uint40` number.
-    function boundUint40(uint40 x, uint40 min, uint40 max) internal pure returns (uint40) {
-        return uint40(_bound(x, min, max));
-    }
-
-    /// @dev Bounds a `uint64` number.
-    function boundUint64(uint64 x, uint64 min, uint64 max) internal pure returns (uint64) {
-        return uint64(_bound(x, min, max));
-    }
-
-    /// @dev Bounds a `uint8` number.
-    function boundUint8(uint8 x, uint8 min, uint8 max) internal pure returns (uint8) {
-        return uint8(_bound(x, min, max));
     }
 
     /// @dev Creates a new ERC-20 token with `decimals`.
@@ -192,11 +144,6 @@ abstract contract BaseTest is StdBase, StdCheats, StdUtils {
         return address(new SablierComptroller(admin_, airdropMinFeeUSD, flowMinFeeUSD, lockupMinFeeUSD, oracle_));
     }
 
-    /// @dev Retrieves the current block timestamp as an `uint40`.
-    function getBlockTimestamp() internal view returns (uint40) {
-        return uint40(block.timestamp);
-    }
-
     /// @dev Authorize `account` to take admin actions on `target` contract.
     function grantAllRoles(address account, address target) internal {
         IRoleAdminable(target).grantRole(FEE_COLLECTOR_ROLE, account);
@@ -207,29 +154,6 @@ abstract contract BaseTest is StdBase, StdCheats, StdUtils {
     function isTestOptimizedProfile() internal view returns (bool) {
         string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
         return Strings.equal(profile, "test-optimized");
-    }
-
-    /// @notice Logs a message in blue color.
-    /// @param message The message to log.
-    function logBlue(string memory message) internal pure {
-        // solhint-disable-next-line no-console
-        console2.log(StdStyle.blue(message));
-    }
-
-    /// @notice Logs a message in green color with a ✓ checkmark.
-    /// @param message The message to log.
-    function logGreen(string memory message) internal pure {
-        // solhint-disable-next-line no-console
-        console2.log(StdStyle.green(string.concat(unicode"✓ ", message)));
-    }
-
-    /// @dev Stops the active prank and sets a new one.
-    function setMsgSender(address msgSender) internal {
-        vm.stopPrank();
-        vm.startPrank(msgSender);
-
-        // Deal some ETH to the new caller.
-        vm.deal(msgSender, 1 ether);
     }
 
     /// @dev Forks the Ethereum Mainnet at the latest block and reverts if the environment variable is not set or the
