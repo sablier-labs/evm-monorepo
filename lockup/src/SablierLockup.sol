@@ -8,7 +8,7 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
-import { ComptrollerManager } from "@sablier/evm-utils/src/ComptrollerManager.sol";
+import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
 
 import { SablierLockupDynamic } from "./abstracts/SablierLockupDynamic.sol";
 import { SablierLockupLinear } from "./abstracts/SablierLockupLinear.sol";
@@ -36,7 +36,7 @@ import { Lockup } from "./types/Lockup.sol";
 /// @notice See the documentation in {ISablierLockup}.
 contract SablierLockup is
     Batch, // 1 inherited component
-    ComptrollerManager, // 1 inherited component
+    Comptrollerable, // 1 inherited component
     ERC721, // 6 inherited components
     ISablierLockup, // 10 inherited components
     SablierLockupDynamic, // 4 inherited components
@@ -55,7 +55,7 @@ contract SablierLockup is
         address initialComptroller,
         address initialNFTDescriptor
     )
-        ComptrollerManager(initialComptroller)
+        Comptrollerable(initialComptroller)
         ERC721("Sablier Lockup NFT", "SAB-LOCKUP")
         SablierLockupState(initialNFTDescriptor)
     { }

@@ -10,9 +10,7 @@ contract Recover_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CallerNotComptroller() external {
         setMsgSender(users.eve);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                EvmUtilsErrors.ComptrollerManager_CallerNotComptroller.selector, comptroller, users.eve
-            )
+            abi.encodeWithSelector(EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, comptroller, users.eve)
         );
         lockup.recover(dai, users.eve);
     }

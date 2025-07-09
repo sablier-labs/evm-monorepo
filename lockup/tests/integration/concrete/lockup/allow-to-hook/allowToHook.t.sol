@@ -24,7 +24,7 @@ contract AllowToHook_Integration_Concrete_Test is Integration_Test {
         // Run the test.
         vm.expectRevert(
             abi.encodeWithSelector(
-                EvmUtilsErrors.ComptrollerManager_CallerNotComptroller.selector, address(comptroller), users.eve
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.eve
             )
         );
         lockup.allowToHook(users.eve);

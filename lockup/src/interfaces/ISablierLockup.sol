@@ -5,7 +5,7 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IBatch } from "@sablier/evm-utils/src/interfaces/IBatch.sol";
-import { IComptrollerManager } from "@sablier/evm-utils/src/interfaces/IComptrollerManager.sol";
+import { IComptrollerable } from "@sablier/evm-utils/src/interfaces/IComptrollerable.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { Lockup } from "../types/Lockup.sol";
@@ -18,7 +18,7 @@ import { ISablierLockupTranched } from "./ISablierLockupTranched.sol";
 /// @notice Interface to manage Lockup streams with various distribution models.
 interface ISablierLockup is
     IBatch, // 0 inherited components
-    IComptrollerManager, // 0 inherited components
+    IComptrollerable, // 0 inherited components
     IERC4906, // 2 inherited components
     IERC721Metadata, // 2 inherited components
     ISablierLockupDynamic, // 1 inherited component

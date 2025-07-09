@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IComptrollerManager } from "@sablier/evm-utils/src/interfaces/IComptrollerManager.sol";
+import { IComptrollerable } from "@sablier/evm-utils/src/interfaces/IComptrollerable.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 import { SablierLockup } from "src/SablierLockup.sol";
 
@@ -11,7 +11,7 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
     function test_Constructor() external {
         // Expect the relevant event to be emitted.
         vm.expectEmit();
-        emit IComptrollerManager.SetComptroller({
+        emit IComptrollerable.SetComptroller({
             newComptroller: comptroller,
             oldComptroller: ISablierComptroller(address(0))
         });
@@ -22,7 +22,7 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
             initialNFTDescriptor: address(nftDescriptor)
         });
 
-        // {ComptrollerManager.constructor}
+        // {Comptrollerable.constructor}
         address actualComptroller = address(constructedLockup.comptroller());
         address expectedComptroller = address(comptroller);
         assertEq(actualComptroller, expectedComptroller, "comptroller");
