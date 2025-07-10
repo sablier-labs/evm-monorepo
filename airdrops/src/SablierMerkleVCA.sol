@@ -133,10 +133,12 @@ contract SablierMerkleVCA is
             claimTime = uint40(block.timestamp);
         }
 
-        // If the claim time is less than the vesting start time, no amount can be forgone since the claim cannot be
-        // made, so we return zero.
+        // Check: the claim time is not less than the vesting start time.
         if (claimTime < VESTING_START_TIME) {
-            return 0;
+            revert Errors.SablierMerkleVCA_CampaignNotStarted({
+                claimTime: claimTime,
+                vestingStartTime: VESTING_START_TIME
+            });
         }
 
         return fullAmount - _calculateClaimAmount(fullAmount, claimTime);

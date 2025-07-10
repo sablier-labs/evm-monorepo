@@ -1,22 +1,28 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
+
 import { MerkleVCA_Integration_Shared_Test } from "../MerkleVCA.t.sol";
 
 contract CalculateForgoneAmount_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_Test {
-    function test_WhenClaimTimeZero() external {
-        vm.warp({ newTimestamp: VCA_START_TIME - 1 seconds });
+    function test_WhenClaimTimeZero() external view {
         uint40 claimTime = 0;
+        uint128 expectedForgoneAmount = VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT;
 
-        // It should use block time and return 0.
-        assertEq(merkleVCA.calculateForgoneAmount(VCA_FULL_AMOUNT, claimTime), 0, "forgone amount");
+        // It should use block time.
+        assertEq(merkleVCA.calculateForgoneAmount(VCA_FULL_AMOUNT, claimTime), expectedForgoneAmount, "forgone amount");
     }
 
-    function test_WhenClaimTimeLessThanVestingStartTime() external view whenClaimTimeNotZero {
+    function test_RevertWhen_ClaimTimeLessThanVestingStartTime() external whenClaimTimeNotZero {
         uint40 claimTime = VCA_START_TIME - 1 seconds;
 
-        // It should return the full amount.
-        assertEq(merkleVCA.calculateForgoneAmount(VCA_FULL_AMOUNT, claimTime), 0, "forgone amount");
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierMerkleVCA_CampaignNotStarted.selector, claimTime, VCA_START_TIME)
+        );
+
+        // It should revert.
+        merkleVCA.calculateForgoneAmount(VCA_FULL_AMOUNT, claimTime);
     }
 
     function test_WhenClaimTimeEqualVestingStartTime() external view whenClaimTimeNotZero {

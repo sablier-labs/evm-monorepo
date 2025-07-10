@@ -46,7 +46,7 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     function calculateClaimAmount(uint128 fullAmount, uint40 claimTime) external view returns (uint128);
 
     /// @notice Calculates the amount that would be forgone if the claim were made at `claimTime`.
-    /// @dev This is for informational purposes only. Returns zero if the claim time is less than the vesting start
+    /// @dev This is for informational purposes only. Reverts if the claim time is less than the vesting start
     /// time, since the claim cannot be made, no amount can be forgone.
     /// @param fullAmount The amount of tokens allocated to a user, denominated in the token's decimals.
     /// @param claimTime A hypothetical time at which to make the claim. Zero is a sentinel value for `block.timestamp`.

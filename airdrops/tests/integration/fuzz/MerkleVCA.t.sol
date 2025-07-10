@@ -5,10 +5,10 @@ import { ud, UD60x18, UNIT } from "@prb/math/src/UD60x18.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 import { ISablierFactoryMerkleVCA } from "src/interfaces/ISablierFactoryMerkleVCA.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
+import { Errors } from "src/libraries/Errors.sol";
 import { MerkleVCA } from "src/types/DataTypes.sol";
-
-import { LeafData } from "../../utils/MerkleBuilder.sol";
-import { Params } from "../../utils/Types.sol";
+import { LeafData } from "./../../utils/MerkleBuilder.sol";
+import { Params } from "./../../utils/Types.sol";
 import { Shared_Fuzz_Test, Integration_Test } from "./Fuzz.t.sol";
 
 contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
@@ -34,7 +34,16 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
     /// the instance of `merkleVCA` deployed in {Integration_Test}.
     function testFuzz_ClaimAndForgoneAmount(uint128 fullAmount, uint40 claimTime) external {
         uint128 actualClaimAmount = merkleVCA.calculateClaimAmount(fullAmount, claimTime);
-        uint128 actualForgoneAmount = merkleVCA.calculateForgoneAmount(fullAmount, claimTime);
+        uint128 actualForgoneAmount;
+        if (claimTime > 0 && claimTime < VCA_START_TIME) {
+            vm.expectRevert(
+                abi.encodeWithSelector(Errors.SablierMerkleVCA_CampaignNotStarted.selector, claimTime, VCA_START_TIME)
+            );
+            merkleVCA.calculateForgoneAmount(fullAmount, claimTime);
+            actualForgoneAmount = 0;
+        } else {
+            actualForgoneAmount = merkleVCA.calculateForgoneAmount(fullAmount, claimTime);
+        }
 
         // Because zero is the sentinel value for `block.timestamp`, warp to the claim time if its not 0.
         if (claimTime > 0) {

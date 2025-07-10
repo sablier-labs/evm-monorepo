@@ -68,6 +68,9 @@ library Errors {
                                  SABLIER-MERKLE-VCA
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when calculating the forgone amount with claim time less than the vesting start time.
+    error SablierMerkleVCA_CampaignNotStarted(uint40 claimTime, uint40 vestingStartTime);
+
     /// @notice Thrown when the claim amount is zero.
     error SablierMerkleVCA_ClaimAmountZero(address recipient);
 
