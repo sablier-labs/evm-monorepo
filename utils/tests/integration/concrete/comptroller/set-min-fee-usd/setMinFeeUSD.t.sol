@@ -29,7 +29,7 @@ contract SetMinFeeUSD_Comptroller_Concrete_Test is Base_Test {
         setMsgSender(users.accountant);
 
         // Set the min fee USD.
-        _setMinFeeUSD(protocol, newMinFeeUSD);
+        _setMinFeeUSD(protocol, users.accountant, newMinFeeUSD);
     }
 
     function test_RevertWhen_NewMinFeeExceedsMaxFee(
@@ -57,16 +57,16 @@ contract SetMinFeeUSD_Comptroller_Concrete_Test is Base_Test {
         newMinFeeUSD = boundUint128(newMinFeeUSD, 0, uint128(MAX_FEE_USD));
 
         // Set the min fee USD.
-        _setMinFeeUSD(protocol, newMinFeeUSD);
+        _setMinFeeUSD(protocol, admin, newMinFeeUSD);
     }
 
     /// @dev Shared logic to test setting the min fee USD.
-    function _setMinFeeUSD(ISablierComptroller.Protocol protocol, uint128 newMinFeeUSD) private {
+    function _setMinFeeUSD(ISablierComptroller.Protocol protocol, address caller, uint128 newMinFeeUSD) private {
         uint256 previousMinFeeUSD = comptroller.getMinFeeUSD(protocol);
 
         // It should emit a {SetMinFeeUSD} event.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ISablierComptroller.SetMinFeeUSD(protocol, previousMinFeeUSD, newMinFeeUSD);
+        emit ISablierComptroller.SetMinFeeUSD(protocol, caller, previousMinFeeUSD, newMinFeeUSD);
 
         comptroller.setMinFeeUSD(protocol, newMinFeeUSD);
 

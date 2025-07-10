@@ -29,24 +29,24 @@ contract DisableCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
         setMsgSender(users.accountant);
 
         // Disable the custom fee.
-        _disableCustomFeeUSDFor(protocol);
+        _disableCustomFeeUSDFor(protocol, users.accountant);
     }
 
     function test_WhenCallerAdmin(uint8 protocolIndex) external {
         ISablierComptroller.Protocol protocol = boundProtocolEnum(protocolIndex);
 
         // Disable the custom fee.
-        _disableCustomFeeUSDFor(protocol);
+        _disableCustomFeeUSDFor(protocol, admin);
     }
 
     /// @dev Shared logic to test disabling the custom fee.
-    function _disableCustomFeeUSDFor(ISablierComptroller.Protocol protocol) private {
+    function _disableCustomFeeUSDFor(ISablierComptroller.Protocol protocol, address caller) private {
         // Check that custom fee is set.
         assertEq(comptroller.calculateMinFeeWeiFor(protocol, users.sender), 0, "custom fee set");
 
         // It should emit a {DisableCustomFeeUSD} event.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ISablierComptroller.DisableCustomFeeUSD(protocol, users.sender);
+        emit ISablierComptroller.DisableCustomFeeUSD(protocol, caller, users.sender);
 
         // Disable the custom fee.
         comptroller.disableCustomFeeUSDFor(protocol, users.sender);
