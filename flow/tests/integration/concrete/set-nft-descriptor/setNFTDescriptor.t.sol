@@ -13,7 +13,7 @@ contract SetNFTDescriptor_Integration_Concrete_Test is Shared_Integration_Concre
         setMsgSender(users.eve);
         vm.expectRevert(
             abi.encodeWithSelector(
-                EvmUtilsErrors.ComptrollerManager_CallerNotComptroller.selector, address(comptroller), users.eve
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.eve
             )
         );
         flow.setNFTDescriptor(FlowNFTDescriptor(users.eve));

@@ -11,7 +11,8 @@ import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
-import { ComptrollerManager } from "@sablier/evm-utils/src/ComptrollerManager.sol";
+import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
 
 import { SablierFlowState } from "./abstracts/SablierFlowState.sol";
@@ -25,7 +26,7 @@ import { Flow } from "./types/DataTypes.sol";
 /// @notice See the documentation in {ISablierFlow}.
 contract SablierFlow is
     Batch, // 1 inherited component
-    ComptrollerManager, // 1 inherited component
+    Comptrollerable, // 1 inherited component
     ERC721, // 6 inherited components
     ISablierFlow, // 8 inherited components
     NoDelegateCall, // 0 inherited components
@@ -44,7 +45,7 @@ contract SablierFlow is
         address initialComptroller,
         address initialNFTDescriptor
     )
-        ComptrollerManager(initialComptroller)
+        Comptrollerable(initialComptroller)
         ERC721("Sablier Flow NFT", "SAB-FLOW")
         SablierFlowState(initialNFTDescriptor)
     { }
@@ -62,6 +63,21 @@ contract SablierFlow is
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierFlow
+    function calculateMinFeeWei(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        returns (uint256 minFeeWei)
+    {
+        // Calculate the minimum fee in wei for the stream sender.
+        minFeeWei = comptroller.calculateMinFeeWeiFor({
+            protocol: ISablierComptroller.Protocol.Flow,
+            user: _streams[streamId].sender
+        });
+    }
 
     /// @inheritdoc ISablierFlow
     function coveredDebtOf(uint256 streamId) external view override notNull(streamId) returns (uint128 coveredDebt) {
@@ -947,7 +963,12 @@ contract SablierFlow is
 
     /// @dev See the documentation for the user-facing functions that call this private function.
     function _withdraw(uint256 streamId, address to, uint128 amount) private {
-        uint256 minFeeWei = comptroller.calculateFlowMinFeeWeiFor(_streams[streamId].sender);
+        // Calculate the minimum fee in wei for the stream sender.
+        uint256 minFeeWei = comptroller.calculateMinFeeWeiFor({
+            protocol: ISablierComptroller.Protocol.Flow,
+            user: _streams[streamId].sender
+        });
+
         uint256 feePaid = msg.value;
 
         // Check: fee paid is at least the minimum fee.

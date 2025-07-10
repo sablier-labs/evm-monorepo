@@ -113,10 +113,4 @@ Refer to [CONTRIBUTING](./CONTRIBUTING.md) guidelines if you wish to create a PR
 
 ## License
 
-The primary license for Sablier Flow is the Business Source License 1.1 (`BUSL-1.1`), see [`LICENSE.md`](./LICENSE.md).
-However, there are exceptions:
-
-- All files in `src/` with the exception of `SablierFlow.sol` are licensed under `GPL-3.0-or-later`. Refer to
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md) for preamble.
-- All files in `scripts/solidity` are licensed under `GPL-3.0-or-later`.
-- All files in `tests/` are unlicensed (as indicated in their SPDX headers).
+See [LICENSE.md](./LICENSE.md).

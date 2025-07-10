@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { IComptrollerManager } from "@sablier/evm-utils/src/interfaces/IComptrollerManager.sol";
+import { IComptrollerable } from "@sablier/evm-utils/src/interfaces/IComptrollerable.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { SablierFlow } from "src/SablierFlow.sol";
@@ -12,7 +12,7 @@ contract Constructor_Integration_Concrete_Test is Shared_Integration_Concrete_Te
     function test_Constructor() external {
         // Expect the relevant event to be emitted.
         vm.expectEmit();
-        emit IComptrollerManager.SetComptroller({
+        emit IComptrollerable.SetComptroller({
             newComptroller: comptroller,
             oldComptroller: ISablierComptroller(address(0))
         });
@@ -25,7 +25,7 @@ contract Constructor_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");
 
-        // {ComptrollerManager.constructor}
+        // {Comptrollerable.constructor}
         address actualComptroller = address(constructedFlow.comptroller());
         assertEq(actualComptroller, address(comptroller), "comptroller");
 

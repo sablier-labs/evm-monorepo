@@ -1,7 +1,7 @@
 {
   "name": "@sablier/flow",
   "description": "Flow smart contracts of the Sablier token distribution protocol",
-  "license": "BUSL-1.1",
+  "license": "SEE LICENSE IN LICENSE",
   "version": "1.1.1",
   "author": {
     "name": "Sablier Labs Ltd",
@@ -13,7 +13,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "5.3.0",
     "@prb/math": "4.1.0",
-    "@sablier/evm-utils": "github:sablier-labs/evm-utils#1cb72ac"
+    "@sablier/evm-utils": "github:sablier-labs/evm-utils"
   },
   "devDependencies": {
     "@sablier/devkit": "github:sablier-labs/devkit",
@@ -28,6 +28,8 @@
     "artifacts",
     "src",
     "tests/utils",
+    "LICENSE.md",
+    "LICENSE-BUSL.md",
     "LICENSE-GPL.md"
   ],
   "keywords": [

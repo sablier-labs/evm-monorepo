@@ -6,7 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { IBatch } from "@sablier/evm-utils/src/interfaces/IBatch.sol";
-import { IComptrollerManager } from "@sablier/evm-utils/src/interfaces/IComptrollerManager.sol";
+import { IComptrollerable } from "@sablier/evm-utils/src/interfaces/IComptrollerable.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { Flow } from "../types/DataTypes.sol";
@@ -17,7 +17,7 @@ import { ISablierFlowState } from "./ISablierFlowState.sol";
 /// @notice Creates and manages Flow streams with linear streaming functions.
 interface ISablierFlow is
     IBatch, // 0 inherited components
-    IComptrollerManager, // 0 inherited components
+    IComptrollerable, // 0 inherited components
     IERC4906, // 2 inherited components
     IERC721Metadata, // 2 inherited components
     ISablierFlowState // 0 inherited components
@@ -133,6 +133,11 @@ interface ISablierFlow is
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Calculates the minimum fee in wei required to withdraw from the given stream ID.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    function calculateMinFeeWei(uint256 streamId) external view returns (uint256 minFeeWei);
 
     /// @notice Returns the amount of debt covered by the stream balance, denoted in token's decimals.
     /// @dev Reverts if `streamId` references a null stream.

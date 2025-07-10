@@ -12,7 +12,7 @@ contract SetNativeToken_Integration_Test is Shared_Integration_Concrete_Test {
         setMsgSender(users.eve);
         vm.expectRevert(
             abi.encodeWithSelector(
-                EvmUtilsErrors.ComptrollerManager_CallerNotComptroller.selector, address(comptroller), users.eve
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.eve
             )
         );
         flow.setNativeToken(address(dai));

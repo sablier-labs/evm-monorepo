@@ -1,0 +1,8 @@
+CalculateMinFeeWeiFor_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given custom fee set
+   │  └── it should return the custom fee in wei
+   └── given custom fee not set
+      └── it should return the minimum fee in wei
