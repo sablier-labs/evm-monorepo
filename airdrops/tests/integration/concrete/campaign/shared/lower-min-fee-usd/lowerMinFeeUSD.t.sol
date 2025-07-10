@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-// import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
-
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 

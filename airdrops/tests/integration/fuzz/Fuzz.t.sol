@@ -57,7 +57,7 @@ abstract contract Shared_Fuzz_Test is Integration_Test {
             }
 
             // Bound `msgValue` so that it's >= min USD fee.
-            msgValue = bound(msgValue, comptroller.calculateAirdropsMinFeeWeiFor(users.campaignCreator), 1 ether);
+            msgValue = bound(msgValue, merkleBase.calculateMinFeeWei(), 1 ether);
 
             // If the claim amount for VCA airdrops is zero, skip this claim.
             if (merkleBase == merkleVCA && merkleVCA.calculateClaimAmount(leafData.amount, getBlockTimestamp()) == 0) {

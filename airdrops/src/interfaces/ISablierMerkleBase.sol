@@ -48,6 +48,9 @@ interface ISablierMerkleBase is IAdminable {
     /// @dev This is an immutable state variable.
     function TOKEN() external view returns (IERC20);
 
+    /// @notice Calculates the minimum fee in wei required to claim the airdrop.
+    function calculateMinFeeWei() external view returns (uint256);
+
     /// @notice Retrieves the name of the campaign.
     function campaignName() external view returns (string memory);
 

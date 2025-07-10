@@ -84,7 +84,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         setMsgSender(params.campaignCreator);
 
         // Load the min fee in USD.
-        vars.minFeeUSD = comptroller.getAirdropsMinFeeUSDFor(params.campaignCreator);
+        vars.minFeeUSD = AIRDROP_MIN_FEE_USD;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         assertFalse(merkleBase.hasClaimed(vars.leafToClaim.index));
 
         vars.merkleProof = computeMerkleProof(vars.leafToClaim, vars.leaves);
-        vars.minFeeWei = comptroller.calculateAirdropsMinFeeWeiFor(params.campaignCreator);
+        vars.minFeeWei = AIRDROP_MIN_FEE_WEI;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

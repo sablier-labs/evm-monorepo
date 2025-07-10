@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { ComptrollerManager } from "@sablier/evm-utils/src/ComptrollerManager.sol";
+import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
 
 import { ISablierFactoryMerkleBase } from "./../interfaces/ISablierFactoryMerkleBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
@@ -9,7 +9,7 @@ import { Errors } from "./../libraries/Errors.sol";
 /// @title SablierFactoryMerkleBase
 /// @notice See the documentation in {ISablierFactoryMerkleBase}.
 abstract contract SablierFactoryMerkleBase is
-    ComptrollerManager, // 1 inherited component
+    Comptrollerable, // 1 inherited component
     ISablierFactoryMerkleBase // 1 inherited component
 {
     /*//////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ abstract contract SablierFactoryMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @param initialComptroller The address of the initial comptroller contract.
-    constructor(address initialComptroller) ComptrollerManager(initialComptroller) { }
+    constructor(address initialComptroller) Comptrollerable(initialComptroller) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                         USER-FACING STATE-CHANGING FUNCTIONS

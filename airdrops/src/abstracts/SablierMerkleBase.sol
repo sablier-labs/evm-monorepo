@@ -105,12 +105,20 @@ abstract contract SablierMerkleBase is
 
         campaignName = campaignName_;
         ipfsCID = ipfsCID_;
-        minFeeUSD = ISablierComptroller(COMPTROLLER).getAirdropsMinFeeUSDFor(campaignCreator);
+        minFeeUSD = ISablierComptroller(COMPTROLLER).getMinFeeUSDFor({
+            protocol: ISablierComptroller.Protocol.Airdrops,
+            user: campaignCreator
+        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierMerkleBase
+    function calculateMinFeeWei() external view override returns (uint256) {
+        return ISablierComptroller(COMPTROLLER).convertUSDFeeToWei(minFeeUSD);
+    }
 
     /// @inheritdoc ISablierMerkleBase
     function hasClaimed(uint256 index) public view override returns (bool) {
@@ -243,7 +251,7 @@ abstract contract SablierMerkleBase is
         }
 
         // Safe interaction: calculate the min fee in wei.
-        uint256 minFeeWei = ISablierComptroller(COMPTROLLER).calculateMinFeeWei(minFeeUSD);
+        uint256 minFeeWei = ISablierComptroller(COMPTROLLER).convertUSDFeeToWei(minFeeUSD);
 
         uint256 feePaid = msg.value;
 

@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { ISablierFactoryMerkleLL } from "src/interfaces/ISablierFactoryMerkleLL.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
@@ -59,7 +60,9 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         if (params.enableCustomFeeUSD) {
             params.feeForUser = bound(params.feeForUser, 0, MAX_FEE_USD);
             setMsgSender(admin);
-            comptroller.setAirdropsCustomFeeUSD(users.campaignCreator, params.feeForUser);
+            comptroller.setCustomFeeUSDFor(
+                ISablierComptroller.Protocol.Airdrops, users.campaignCreator, params.feeForUser
+            );
         } else {
             params.feeForUser = AIRDROP_MIN_FEE_USD;
         }

@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { UNIT } from "@prb/math/src/UD60x18.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 import { ISablierFactoryMerkleVCA } from "src/interfaces/ISablierFactoryMerkleVCA.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -155,7 +156,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         uint256 customFeeUSD = 0;
 
         setMsgSender(admin);
-        comptroller.setAirdropsCustomFeeUSD(users.campaignCreator, customFeeUSD);
+        comptroller.setCustomFeeUSDFor(ISablierComptroller.Protocol.Airdrops, users.campaignCreator, customFeeUSD);
 
         setMsgSender(users.campaignCreator);
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();

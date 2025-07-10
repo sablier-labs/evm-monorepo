@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { uUNIT } from "@prb/math/src/UD2x18.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { SablierFactoryMerkleBase } from "./abstracts/SablierFactoryMerkleBase.sol";
 import { ISablierFactoryMerkleLT } from "./interfaces/ISablierFactoryMerkleLT.sol";
@@ -100,7 +101,7 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
             recipientCount: recipientCount,
             totalDuration: totalDuration,
             comptroller: address(comptroller),
-            minFeeUSD: comptroller.getAirdropsMinFeeUSDFor(msg.sender)
+            minFeeUSD: comptroller.getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: msg.sender })
         });
     }
 }

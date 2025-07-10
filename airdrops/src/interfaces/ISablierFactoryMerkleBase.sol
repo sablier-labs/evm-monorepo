@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { IComptrollerManager } from "@sablier/evm-utils/src/interfaces/IComptrollerManager.sol";
+import { IComptrollerable } from "@sablier/evm-utils/src/interfaces/IComptrollerable.sol";
 
 /// @title ISablierFactoryMerkleBase
 /// @dev Common interface between factories that deploy campaign contracts. The contracts are deployed using CREATE2.
-interface ISablierFactoryMerkleBase is IComptrollerManager {
+interface ISablierFactoryMerkleBase is IComptrollerable {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/

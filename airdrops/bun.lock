@@ -6,8 +6,8 @@
       "dependencies": {
         "@openzeppelin/contracts": "5.3.0",
         "@prb/math": "4.1.0",
-        "@sablier/evm-utils": "github:sablier-labs/evm-utils#1cb72ac",
-        "@sablier/lockup": "github:sablier-labs/lockup#6f49eb8",
+        "@sablier/evm-utils": "github:sablier-labs/evm-utils#31f94ff811584ac5e638240b562683516460d1d4",
+        "@sablier/lockup": "github:sablier-labs/lockup#staging",
       },
       "devDependencies": {
         "@sablier/devkit": "github:sablier-labs/devkit",
@@ -173,9 +173,9 @@
 
     "@sablier/devkit": ["@sablier/devkit@github:sablier-labs/devkit#da0e832", {}, "sablier-labs-devkit-da0e832"],
 
-    "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#1cb72ac", { "dependencies": { "@chainlink/contracts": "1.3.0" } }, "sablier-labs-evm-utils-1cb72ac"],
+    "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#31f94ff", { "dependencies": { "@chainlink/contracts": "1.3.0" } }, "sablier-labs-evm-utils-31f94ff"],
 
-    "@sablier/lockup": ["@sablier/lockup@github:sablier-labs/lockup#6f49eb8", { "dependencies": { "@openzeppelin/contracts": "5.3.0", "@prb/math": "4.1.0", "@sablier/evm-utils": "github:sablier-labs/evm-utils#e66fb2d" }, "peerDependencies": { "@prb/math": "4.x.x" } }, "sablier-labs-lockup-6f49eb8"],
+    "@sablier/lockup": ["@sablier/lockup@github:sablier-labs/lockup#d648b49", { "dependencies": { "@openzeppelin/contracts": "5.3.0", "@prb/math": "4.1.0", "@sablier/evm-utils": "1.0.0" }, "peerDependencies": { "@prb/math": "4.x.x" } }, "sablier-labs-lockup-d648b49"],
 
     "@scroll-tech/contracts": ["@scroll-tech/contracts@0.1.0", "", {}, "sha512-aBbDOc3WB/WveZdpJYcrfvMYMz7ZTEiW8M9XMJLba8p9FAR5KGYB/cV+8+EUsq3MKt7C1BfR+WnXoTVdvwIY6w=="],
 
@@ -815,7 +815,7 @@
 
     "@pnpm/network.ca-file/graceful-fs": ["graceful-fs@4.2.10", "", {}, "sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA=="],
 
-    "@sablier/lockup/@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#e66fb2d", { "dependencies": { "@chainlink/contracts": "1.3.0" } }, "sablier-labs-evm-utils-e66fb2d"],
+    "@sablier/lockup/@sablier/evm-utils": ["@sablier/evm-utils@1.0.0", "", { "dependencies": { "@chainlink/contracts": "1.3.0", "@openzeppelin/contracts": "5.3.0", "@openzeppelin/contracts-upgradeable": "5.3.0", "forge-std": "github:foundry-rs/forge-std#v1.10.0" } }, "sha512-GMkIjV0Io0HdIa5o/XaGAcXYqsCpZQZbyXqit9AwMvWKEy4okA0x1mW8k6Gw8UyC2nye9kjKkH9jAstxfRqNeA=="],
 
     "cli-truncate/slice-ansi": ["slice-ansi@7.1.2", "", { "dependencies": { "ansi-styles": "^6.2.1", "is-fullwidth-code-point": "^5.0.0" } }, "sha512-iOBWFgUX7caIZiuutICxVgX1SdxwAVFFKwt1EvMYYec/NWO5meOJ6K5uQxhrYBdQJne4KxiqZc+KptFOWFSI9w=="],
 
@@ -898,6 +898,10 @@
     "@manypkg/get-packages/fs-extra/jsonfile": ["jsonfile@4.0.0", "", { "optionalDependencies": { "graceful-fs": "^4.1.6" } }, "sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg=="],
 
     "@manypkg/get-packages/fs-extra/universalify": ["universalify@0.1.2", "", {}, "sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg=="],
+
+    "@sablier/lockup/@sablier/evm-utils/@openzeppelin/contracts-upgradeable": ["@openzeppelin/contracts-upgradeable@5.3.0", "", { "peerDependencies": { "@openzeppelin/contracts": "5.3.0" } }, "sha512-yVzSSyTMWO6rapGI5tuqkcLpcGGXA0UA1vScyV5EhE5yw8By3Ewex9rDUw8lfVw0iTkvR/egjfcW5vpk03lqZg=="],
+
+    "@sablier/lockup/@sablier/evm-utils/forge-std": ["forge-std@github:foundry-rs/forge-std#8bbcf6e", {}, "foundry-rs-forge-std-8bbcf6e"],
 
     "cli-truncate/slice-ansi/ansi-styles": ["ansi-styles@6.2.3", "", {}, "sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg=="],
 

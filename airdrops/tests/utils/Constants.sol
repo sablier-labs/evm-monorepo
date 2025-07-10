@@ -4,8 +4,9 @@ pragma solidity >=0.8.22;
 import { uUNIT } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud60x18 } from "@prb/math/src/UD60x18.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
+import { BaseConstants } from "@sablier/evm-utils/src/tests/BaseConstants.sol";
 
-abstract contract Constants {
+abstract contract Constants is BaseConstants {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/

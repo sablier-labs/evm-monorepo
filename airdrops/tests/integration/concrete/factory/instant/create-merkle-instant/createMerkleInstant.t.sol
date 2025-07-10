@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 import { ISablierFactoryMerkleInstant } from "src/interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -36,7 +37,7 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
         // Set a custom fee.
         setMsgSender(admin);
         uint256 customFeeUSD = 0;
-        comptroller.setAirdropsCustomFeeUSD(users.campaignCreator, customFeeUSD);
+        comptroller.setCustomFeeUSDFor(ISablierComptroller.Protocol.Airdrops, users.campaignCreator, customFeeUSD);
 
         setMsgSender(users.campaignCreator);
 

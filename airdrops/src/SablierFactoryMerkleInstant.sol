@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 import { SablierFactoryMerkleBase } from "./abstracts/SablierFactoryMerkleBase.sol";
 import { ISablierFactoryMerkleInstant } from "./interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierMerkleInstant } from "./interfaces/ISablierMerkleInstant.sol";
@@ -69,7 +70,7 @@ contract SablierFactoryMerkleInstant is ISablierFactoryMerkleInstant, SablierFac
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount,
             comptroller: address(comptroller),
-            minFeeUSD: comptroller.getAirdropsMinFeeUSDFor(msg.sender)
+            minFeeUSD: comptroller.getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: msg.sender })
         });
     }
 }

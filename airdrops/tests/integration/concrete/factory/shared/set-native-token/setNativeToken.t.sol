@@ -11,7 +11,7 @@ abstract contract SetNativeToken_Integration_Test is Integration_Test {
         setMsgSender(users.eve);
         vm.expectRevert(
             abi.encodeWithSelector(
-                EvmUtilsErrors.ComptrollerManager_CallerNotComptroller.selector, address(comptroller), users.eve
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.eve
             )
         );
         factoryMerkleBase.setNativeToken(address(dai));

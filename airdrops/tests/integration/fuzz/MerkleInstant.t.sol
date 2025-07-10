@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 import { ISablierFactoryMerkleInstant } from "src/interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 
@@ -47,7 +48,9 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
         if (params.enableCustomFeeUSD) {
             params.feeForUser = bound(params.feeForUser, 0, MAX_FEE_USD);
             setMsgSender(admin);
-            comptroller.setAirdropsCustomFeeUSD(users.campaignCreator, params.feeForUser);
+            comptroller.setCustomFeeUSDFor(
+                ISablierComptroller.Protocol.Airdrops, users.campaignCreator, params.feeForUser
+            );
         } else {
             params.feeForUser = AIRDROP_MIN_FEE_USD;
         }
