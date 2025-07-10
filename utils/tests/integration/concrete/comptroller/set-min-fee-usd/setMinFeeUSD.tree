@@ -1,0 +1,13 @@
+SetMinFeeUSD_Comptroller_Concrete_Test
+├── when caller not admin
+│  ├── when caller without fee management role
+│  │  └── it should revert
+│  └── when caller with fee management role
+│     ├── it should set the min fee USD
+│     └── it should emit a {SetMinFeeUSD} event
+└── when caller admin
+   ├── when new min fee exceeds max fee
+   │  └── it should revert
+   └── when new min fee not exceed max fee
+      ├── it should set the min fee USD
+      └── it should emit a {SetMinFeeUSD} event

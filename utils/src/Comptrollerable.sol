@@ -89,6 +89,6 @@ abstract contract Comptrollerable is IComptrollerable {
         comptroller = newComptroller;
 
         // Log the change.
-        emit SetComptroller(newComptroller, previousComptroller);
+        emit SetComptroller(previousComptroller, newComptroller);
     }
 }

@@ -28,6 +28,10 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenAddressesHaveFee() {
+        _;
+    }
+
     modifier whenCallerAdmin() {
         setMsgSender(admin);
         _;
@@ -62,7 +66,7 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
-    modifier whenMinFeeUSDNotZero() {
+    modifier whenFeeUSDNotZero() {
         _;
     }
 
@@ -99,6 +103,10 @@ abstract contract Modifiers is BaseTest {
     }
 
     modifier whenPayable() {
+        _;
+    }
+
+    modifier whenAddressesImplementIComptrollerable() {
         _;
     }
 

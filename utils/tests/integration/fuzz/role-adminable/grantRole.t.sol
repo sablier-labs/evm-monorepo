@@ -19,7 +19,7 @@ contract GrantRole_RoleAdminable_Fuzz_Test is Base_Test {
     }
 
     function testFuzz_RevertWhen_AccountHasRole(address account, bytes32 role) external whenCallerAdmin {
-        vm.assume(account != address(0));
+        vm.assume(account != address(0) && account != users.accountant && account != admin);
 
         // Grant the role to the account as a precondition.
         roleAdminableMock.grantRole(role, account);

@@ -9,20 +9,21 @@ import { ComptrollerableMock } from "src/mocks/ComptrollerableMock.sol";
 
 import { TargetPanic } from "./targets/TargetPanic.sol";
 import { TargetReverter } from "./targets/TargetReverter.sol";
-import { SablierComptroller_Concrete_Test } from "../SablierComptroller.t.sol";
+import { Base_Test } from "tests/Base.t.sol";
 
-contract Execute_Concrete_Test is SablierComptroller_Concrete_Test {
+contract Execute_Concrete_Test is Base_Test {
     struct Targets {
         ComptrollerableMock comptrollerableMock;
         TargetPanic panic;
         TargetReverter reverter;
     }
 
-    bytes internal data;
+    ISablierComptroller internal newComptroller;
+    bytes internal setComptrollerPayload;
     Targets internal targets;
 
     function setUp() public override {
-        SablierComptroller_Concrete_Test.setUp();
+        Base_Test.setUp();
 
         // Create the targets.
         targets = Targets({
@@ -31,76 +32,80 @@ contract Execute_Concrete_Test is SablierComptroller_Concrete_Test {
             reverter: new TargetReverter()
         });
 
-        // Declare the data to change the admin.
-        data = abi.encodeCall(comptrollerableMock.setComptroller, (comptrollerZero));
+        newComptroller = ISablierComptroller(vm.randomAddress());
+
+        // Encode set comptroller function call.
+        setComptrollerPayload = abi.encodeCall(comptrollerableMock.setComptroller, (newComptroller));
     }
 
     function test_RevertWhen_CallerNotAdmin() external {
         setMsgSender(users.eve);
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, admin, users.eve));
-        comptroller.execute({ target: address(comptrollerableMock), data: data });
+        comptroller.execute({ target: address(comptrollerableMock), data: setComptrollerPayload });
     }
 
     function test_RevertWhen_TargetNotContract() external whenCallerAdmin {
-        comptroller.execute({ target: address(0), data: data });
+        comptroller.execute({ target: address(0), data: setComptrollerPayload });
     }
 
     function test_WhenCallPanics() external whenCallerAdmin whenTargetContract whenCallReverts {
         // It should panic due to a failed assertion.
-        data = bytes.concat(targets.panic.failedAssertion.selector);
+        bytes memory revertingPayload = bytes.concat(targets.panic.failedAssertion.selector);
         vm.expectRevert(stdError.assertionError);
-        comptroller.execute(address(targets.panic), data);
+        comptroller.execute(address(targets.panic), revertingPayload);
 
         // It should panic due to an arithmetic overflow.
-        data = bytes.concat(targets.panic.arithmeticOverflow.selector);
+        revertingPayload = bytes.concat(targets.panic.arithmeticOverflow.selector);
         vm.expectRevert(stdError.arithmeticError);
-        comptroller.execute(address(targets.panic), data);
+        comptroller.execute(address(targets.panic), revertingPayload);
 
         // It should panic due to a division by zero.
-        data = bytes.concat(targets.panic.divisionByZero.selector);
+        revertingPayload = bytes.concat(targets.panic.divisionByZero.selector);
         vm.expectRevert(stdError.divisionError);
-        comptroller.execute(address(targets.panic), data);
+        comptroller.execute(address(targets.panic), revertingPayload);
 
         // It should panic due to an index out of bounds.
-        data = bytes.concat(targets.panic.indexOOB.selector);
+        revertingPayload = bytes.concat(targets.panic.indexOOB.selector);
         vm.expectRevert(stdError.indexOOBError);
-        comptroller.execute(address(targets.panic), data);
+        comptroller.execute(address(targets.panic), revertingPayload);
     }
 
     function test_WhenCallRevertsSilently() external whenCallerAdmin whenTargetContract whenCallReverts {
         // It should revert with an empty revert statement.
-        data = bytes.concat(targets.reverter.withNothing.selector);
+        bytes memory revertingPayload = bytes.concat(targets.reverter.withNothing.selector);
         vm.expectRevert(Errors.SablierComptroller_ExecutionFailedSilently.selector);
-        comptroller.execute(address(targets.reverter), data);
+        comptroller.execute(address(targets.reverter), revertingPayload);
 
         // It should revert with a custom error.
-        data = bytes.concat(targets.reverter.withCustomError.selector);
+        revertingPayload = bytes.concat(targets.reverter.withCustomError.selector);
         vm.expectRevert(TargetReverter.SomeError.selector);
-        comptroller.execute(address(targets.reverter), data);
+        comptroller.execute(address(targets.reverter), revertingPayload);
 
         // It should revert with a require.
-        data = bytes.concat(targets.reverter.withRequire.selector);
+        revertingPayload = bytes.concat(targets.reverter.withRequire.selector);
         vm.expectRevert("You shall not pass");
-        comptroller.execute(address(targets.reverter), data);
+        comptroller.execute(address(targets.reverter), revertingPayload);
 
         // It should revert with a reason string.
-        data = bytes.concat(targets.reverter.withReasonString.selector);
+        revertingPayload = bytes.concat(targets.reverter.withReasonString.selector);
         vm.expectRevert("You shall not pass");
-        comptroller.execute(address(targets.reverter), data);
+        comptroller.execute(address(targets.reverter), revertingPayload);
     }
 
     function test_WhenCallDoesNotRevert() external whenCallerAdmin whenTargetContract {
         // It should emit an {Execute} event.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ISablierComptroller.Execute({ target: address(comptrollerableMock), data: data, result: "" });
+        emit ISablierComptroller.Execute({
+            target: address(comptrollerableMock),
+            data: setComptrollerPayload,
+            result: ""
+        });
 
-        comptroller.execute({ target: address(targets.comptrollerableMock), data: data });
+        comptroller.execute({ target: address(targets.comptrollerableMock), data: setComptrollerPayload });
 
         // It should execute the call.
         assertEq(
-            address(comptrollerableMock.comptroller()),
-            address(comptrollerZero),
-            "The new comptroller should be set to the comptroller zero"
+            address(comptrollerableMock.comptroller()), address(newComptroller), "The new comptroller should be set"
         );
     }
 }

@@ -1,0 +1,10 @@
+DisableCustomFeeUSDFor_Comptroller_Concrete_Test
+├── when caller not admin
+│  ├── when caller without fee management role
+│  │  └── it should revert
+│  └── when caller with fee management role
+│     ├── it should disable the custom fee
+│     └── it should emit a {DisableCustomFeeUSD} event
+└── when caller admin
+   ├── it should disable the custom fee
+   └── it should emit a {DisableCustomFeeUSD} event

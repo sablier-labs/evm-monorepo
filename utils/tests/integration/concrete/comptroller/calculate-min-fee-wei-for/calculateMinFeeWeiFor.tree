@@ -1,0 +1,5 @@
+CalculateMinFeeWeiFor_Comptroller_Concrete_Test
+├── given custom fee not set
+│  └── it should return the min fee in wei
+└── given custom fee set
+   └── it should return the custom fee in wei

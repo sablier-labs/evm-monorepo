@@ -11,7 +11,7 @@ interface IComptrollerable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when the comptroller address is set by the admin.
-    event SetComptroller(ISablierComptroller newComptroller, ISablierComptroller oldComptroller);
+    event SetComptroller(ISablierComptroller oldComptroller, ISablierComptroller newComptroller);
 
     /// @notice Emitted when the fees are transferred to the comptroller contract.
     event TransferFeesToComptroller(ISablierComptroller indexed comptroller, uint256 feeAmount);

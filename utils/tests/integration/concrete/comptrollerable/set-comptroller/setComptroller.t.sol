@@ -32,7 +32,7 @@ contract SetComptroller_Comptrollerable_Concrete_Test is Base_Test {
 
     function test_WhenNewComptrollerNotZeroAddress() external whenCallerCurrentComptroller {
         vm.expectEmit({ emitter: address(comptrollerableMock) });
-        emit IComptrollerable.SetComptroller(newComptroller, comptroller);
+        emit IComptrollerable.SetComptroller(comptroller, newComptroller);
         comptrollerableMock.setComptroller(newComptroller);
         assertEq(address(comptrollerableMock.comptroller()), address(newComptroller), "Comptroller not set correctly");
     }

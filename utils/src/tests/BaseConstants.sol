@@ -6,6 +6,7 @@ abstract contract BaseConstants {
                                       GENERICS
     //////////////////////////////////////////////////////////////////////////*/
 
+    uint256 public constant ETH_PRICE_USD = 3000e8; // $3000 per ETH
     bytes32 public constant FEE_COLLECTOR_ROLE = keccak256("FEE_COLLECTOR_ROLE");
     bytes32 public constant FEE_MANAGEMENT_ROLE = keccak256("FEE_MANAGEMENT_ROLE");
     uint256 public constant MAX_FEE_USD = 100e8; // equivalent to $100
@@ -20,25 +21,26 @@ abstract contract BaseConstants {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 public constant AIRDROP_MIN_FEE_USD = 3e8; // equivalent to $3
-    uint256 public constant AIRDROP_MIN_FEE_WEI = (1e18 * AIRDROP_MIN_FEE_USD) / 3000e8; // at $3000 per ETH
-    uint256 public constant AIRDROPS_CUSTOM_FEE_USD = 0.5e8; // equivalent to $0.5
-    uint256 public constant AIRDROPS_CUSTOM_FEE_WEI = (1e18 * AIRDROPS_CUSTOM_FEE_USD) / 3000e8; // at $3000 per ETH
+    uint256 public constant AIRDROP_MIN_FEE_WEI = (1e18 * AIRDROP_MIN_FEE_USD) / ETH_PRICE_USD;
 
     /*//////////////////////////////////////////////////////////////////////////
                                         FLOW
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 public constant FLOW_MIN_FEE_USD = 1e8; // equivalent to $1
-    uint256 public constant FLOW_MIN_FEE_WEI = (1e18 * FLOW_MIN_FEE_USD) / 3000e8; // at $3000 per ETH
-    uint256 public constant FLOW_CUSTOM_FEE_USD = 0.1e8; // equivalent to $0.1
-    uint256 public constant FLOW_CUSTOM_FEE_WEI = (1e18 * FLOW_CUSTOM_FEE_USD) / 3000e8; // at $3000 per ETH
+    uint256 public constant FLOW_MIN_FEE_WEI = (1e18 * FLOW_MIN_FEE_USD) / ETH_PRICE_USD;
 
     /*//////////////////////////////////////////////////////////////////////////
                                        LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 public constant LOCKUP_MIN_FEE_USD = 1e8; // equivalent to $1
-    uint256 public constant LOCKUP_MIN_FEE_WEI = (1e18 * LOCKUP_MIN_FEE_USD) / 3000e8; // at $3000 per ETH
-    uint256 public constant LOCKUP_CUSTOM_FEE_USD = 0.1e8; // equivalent to $0.1
-    uint256 public constant LOCKUP_CUSTOM_FEE_WEI = (1e18 * LOCKUP_CUSTOM_FEE_USD) / 3000e8; // at $3000 per ETH
+    uint256 public constant LOCKUP_MIN_FEE_WEI = (1e18 * LOCKUP_MIN_FEE_USD) / ETH_PRICE_USD;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                      STAKING
+    //////////////////////////////////////////////////////////////////////////*/
+
+    uint256 public constant STAKING_MIN_FEE_USD = 10e8; // equivalent to $10
+    uint256 public constant STAKING_MIN_FEE_WEI = (1e18 * STAKING_MIN_FEE_USD) / ETH_PRICE_USD;
 }
