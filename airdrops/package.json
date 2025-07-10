@@ -13,7 +13,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "5.3.0",
     "@prb/math": "4.1.0",
-    "@sablier/evm-utils": "github:sablier-labs/evm-utils#31f94ff811584ac5e638240b562683516460d1d4",
+    "@sablier/evm-utils": "github:sablier-labs/evm-utils",
     "@sablier/lockup": "github:sablier-labs/lockup#staging"
   },
   "devDependencies": {
