@@ -113,11 +113,4 @@ For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) gui
 
 ## License
 
-The primary license for Sablier Lockup is the Business Source License 1.1 (`BUSL-1.1`), see
-[`LICENSE.md`](./LICENSE.md). However, there are exceptions:
-
-- All files in `src/interfaces/` and `src/types` are licensed under `GPL-3.0-or-later`, see
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Several files in `src`, `scripts/solidity`, and `tests` are licensed under `GPL-3.0-or-later`, see
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Many files in `tests/` remain unlicensed (as indicated in their SPDX headers).
+See [LICENSE.md](./LICENSE.md).
