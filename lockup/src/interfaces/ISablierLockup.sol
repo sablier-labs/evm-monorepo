@@ -87,6 +87,11 @@ interface ISablierLockup is
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Calculates the minimum fee in wei required to withdraw from the given stream ID.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    function calculateMinFeeWei(uint256 streamId) external view returns (uint256 minFeeWei);
+
     /// @notice Retrieves the stream's recipient.
     /// @dev Reverts if the NFT has been burned.
     /// @param streamId The stream ID for the query.

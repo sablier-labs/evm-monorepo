@@ -9,6 +9,7 @@ import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
 import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { SablierLockupDynamic } from "./abstracts/SablierLockupDynamic.sol";
 import { SablierLockupLinear } from "./abstracts/SablierLockupLinear.sol";
@@ -63,6 +64,21 @@ contract SablierLockup is
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierLockup
+    function calculateMinFeeWei(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        returns (uint256 minFeeWei)
+    {
+        // Calculate the minimum fee in wei for the stream sender.
+        minFeeWei = comptroller.calculateMinFeeWeiFor({
+            protocol: ISablierComptroller.Protocol.Lockup,
+            user: _streams[streamId].sender
+        });
+    }
 
     /// @inheritdoc ISablierLockup
     function getRecipient(uint256 streamId) external view override returns (address recipient) {
@@ -645,7 +661,12 @@ contract SablierLockup is
 
     /// @dev See the documentation for the user-facing functions that call this private function.
     function _withdraw(uint256 streamId, address to, uint128 amount) private {
-        uint256 minFeeWei = comptroller.calculateLockupMinFeeWeiFor(_streams[streamId].sender);
+        // Calculate the minimum fee in wei for the stream sender.
+        uint256 minFeeWei = comptroller.calculateMinFeeWeiFor({
+            protocol: ISablierComptroller.Protocol.Lockup,
+            user: _streams[streamId].sender
+        });
+
         uint256 feePaid = msg.value;
 
         // Check: fee paid is at least the minimum fee.
