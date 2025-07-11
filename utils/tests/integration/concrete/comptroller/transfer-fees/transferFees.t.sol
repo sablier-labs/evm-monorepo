@@ -28,14 +28,24 @@ contract TransferFees_Comptroller_Concrete_Test is Base_Test {
         protocolAddresses[0] = address(comptrollerableMock);
     }
 
-    function test_WhenCallerWithFeeCollectorRole() external whenCallerNotAdmin {
+    function test_RevertWhen_FeeRecipientZero() external {
+        vm.expectRevert(Errors.SablierComptroller_FeeRecipientZero.selector);
+        comptroller.transferFees(protocolAddresses, address(0));
+    }
+
+    function test_WhenCallerWithFeeCollectorRole() external whenFeeRecipientNotZero whenCallerNotAdmin {
         setMsgSender(users.accountant);
 
         // Transfer fees to the fee recipient.
         _test_TransferFees(protocolAddresses, users.accountant);
     }
 
-    function test_RevertWhen_FeeRecipientNotAdmin() external whenCallerNotAdmin whenCallerWithoutFeeCollectorRole {
+    function test_RevertWhen_FeeRecipientNotAdmin()
+        external
+        whenFeeRecipientNotZero
+        whenCallerNotAdmin
+        whenCallerWithoutFeeCollectorRole
+    {
         setMsgSender(users.eve);
 
         // It should revert.
@@ -45,14 +55,19 @@ contract TransferFees_Comptroller_Concrete_Test is Base_Test {
         comptroller.transferFees(protocolAddresses, users.accountant);
     }
 
-    function test_WhenFeeRecipientAdmin() external whenCallerNotAdmin whenCallerWithoutFeeCollectorRole {
+    function test_WhenFeeRecipientAdmin()
+        external
+        whenFeeRecipientNotZero
+        whenCallerNotAdmin
+        whenCallerWithoutFeeCollectorRole
+    {
         setMsgSender(users.eve);
 
         // Transfer fees to the admin.
         _test_TransferFees(protocolAddresses, admin);
     }
 
-    function test_RevertWhen_AddressesNotImplementIComptrollerable() external whenCallerAdmin {
+    function test_RevertWhen_AddressesNotImplementIComptrollerable() external whenFeeRecipientNotZero whenCallerAdmin {
         address[] memory randomAddresses = new address[](1);
         randomAddresses[0] = vm.randomAddress();
 
@@ -61,7 +76,12 @@ contract TransferFees_Comptroller_Concrete_Test is Base_Test {
         comptroller.transferFees(randomAddresses, admin);
     }
 
-    function test_WhenAddressesHaveZeroFee() external whenAddressesImplementIComptrollerable whenCallerAdmin {
+    function test_WhenAddressesHaveZeroFee()
+        external
+        whenFeeRecipientNotZero
+        whenAddressesImplementIComptrollerable
+        whenCallerAdmin
+    {
         // Deploy a new comptrollerable contract with no fees.
         comptrollerableMock = new ComptrollerableMock(address(comptroller));
         protocolAddresses[0] = address(comptrollerableMock);

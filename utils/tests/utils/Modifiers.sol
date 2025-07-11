@@ -58,6 +58,10 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenFeeRecipientNotZero() {
+        _;
+    }
+
     modifier whenFlowCallNotRevert() {
         _;
     }

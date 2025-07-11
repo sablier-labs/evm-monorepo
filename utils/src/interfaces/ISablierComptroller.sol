@@ -188,6 +188,7 @@ interface ISablierComptroller is IRoleAdminable {
     /// - `protocolAddresses` can be empty.
     ///
     /// Requirements:
+    /// `feeRecipient` must not be the zero address.
     /// - If `msg.sender` has neither the {IRoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin, then
     /// `feeRecipient` must be the admin address.
     /// - `protocolAddresses` must implement the {IComptrollerable} interface.

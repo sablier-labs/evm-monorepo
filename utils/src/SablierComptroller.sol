@@ -214,6 +214,11 @@ contract SablierComptroller is ISablierComptroller, RoleAdminable {
 
     /// @inheritdoc ISablierComptroller
     function transferFees(address[] calldata protocolAddresses, address feeRecipient) external override {
+        // Check: the fee recipient is not the zero address.
+        if (feeRecipient == address(0)) {
+            revert Errors.SablierComptroller_FeeRecipientZero();
+        }
+
         // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
         // `feeRecipient` must be the admin address.
         bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });

@@ -24,6 +24,9 @@ library Errors {
     /// @notice Thrown when an unauthorized address collects fee without setting the fee recipient to admin address.
     error SablierComptroller_FeeRecipientNotAdmin(address feeRecipient, address admin);
 
+    /// @notice Thrown when trying to transfer fees to the zero address.
+    error SablierComptroller_FeeRecipientZero();
+
     /// @notice Thrown if fee transfer fails.
     error SablierComptroller_FeeTransferFailed(address feeRecipient, uint256 feeAmount);
 
