@@ -40,7 +40,7 @@ abstract contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Claim to `users.recipient` address using {claim} function.
-    function claim() internal {
+    function claim() internal virtual {
         claim({
             msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
@@ -58,6 +58,7 @@ abstract contract Integration_Test is Base_Test {
         bytes32[] memory merkleProof
     )
         internal
+        virtual
     {
         // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
         // claim function signature.

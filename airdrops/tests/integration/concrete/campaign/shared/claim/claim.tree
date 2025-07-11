@@ -25,4 +25,4 @@ Claim_Integration_Test
                      └── when merkle proof valid
                         ├── it should mark the index as Claimed
                         ├── it should transfer the ETH to the merkle lockup
-                        └── it should emit {Claim} event
+                        └── it should emit claim event

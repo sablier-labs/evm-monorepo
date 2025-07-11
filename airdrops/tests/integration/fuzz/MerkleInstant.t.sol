@@ -123,7 +123,7 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function expectClaimEvent(LeafData memory leafData, address to) internal override {
-        // it should emit a {Claim} event.
+        // It should emit a {ClaimInstant} event.
         vm.expectEmit({ emitter: address(merkleInstant) });
         emit ISablierMerkleInstant.ClaimInstant({
             index: leafData.index,

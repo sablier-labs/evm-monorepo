@@ -94,7 +94,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
         uint256 expectedStreamId;
         uint256 initialRecipientTokenBalance = FORK_TOKEN.balanceOf(vars.leafToClaim.recipient);
 
-        // It should emit {Claim} event based on the schedule end time.
+        // It should emit claim event based on the schedule end time.
         if (expectedVestingStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             vm.expectEmit({ emitter: address(merkleLT) });
             emit ISablierMerkleLT.ClaimLTWithTransfer({

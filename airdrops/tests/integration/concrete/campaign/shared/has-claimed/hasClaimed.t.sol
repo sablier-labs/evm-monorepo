@@ -16,7 +16,8 @@ abstract contract HasClaimed_Integration_Test is Integration_Test {
 
     function test_GivenRecipientClaimed() external whenIndexInMerkleTree {
         // Make the first claim to set `firstClaimTime`.
-        claim();
+        setMsgSender(users.recipient);
+        claimTo();
 
         // It should return true.
         assertTrue(merkleBase.hasClaimed(getIndexInMerkleTree()), "not claimed");

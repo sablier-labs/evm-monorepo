@@ -2,7 +2,7 @@ ClaimTo_MerkleLT_Integration_Test
 └── when merkle proof valid
    ├── when vesting end time not exceed claim time
    │  ├── it should transfer the tokens to Eve
-   │  └── it should emit a {Claim} event
+   │  └── it should emit a {ClaimLTWithTransfer} event
    └── when vesting end time exceeds claim time
       ├── when total percentage not 100
       │  ├── when total percentage less than 100
@@ -13,8 +13,8 @@ ClaimTo_MerkleLT_Integration_Test
          ├── when vesting start time zero
          │  ├── it should create a stream with block.timestamp as stream start time
          │  ├── it should create a stream with Eve as recipient
-         │  └── it should emit a {Claim} event
+         │  └── it should emit a {ClaimLTWithVesting} event
          └── when vesting start time not zero
             ├── it should create a ranged stream with provided start time
             ├── it should create a stream with Eve as recipient
-            └── it should emit a {Claim} event
+            └── it should emit a {ClaimLTWithVesting} event

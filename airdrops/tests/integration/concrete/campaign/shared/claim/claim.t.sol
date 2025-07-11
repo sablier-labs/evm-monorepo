@@ -82,6 +82,8 @@ abstract contract Claim_Integration_Test is Integration_Test {
     {
         address invalidRecipient = address(1337);
 
+        setMsgSender(invalidRecipient);
+
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
         claim({
             msgValue: AIRDROP_MIN_FEE_WEI,

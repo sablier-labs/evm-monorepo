@@ -224,7 +224,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
             vestingStartTime: merkleVCA.VESTING_START_TIME()
         });
 
-        // It should emit a {Claim} event.
+        // It should emit a {ClaimVCA} event.
         vm.expectEmit({ emitter: address(merkleVCA) });
         emit ISablierMerkleVCA.ClaimVCA({
             index: leafData.index,

@@ -17,12 +17,13 @@ abstract contract Clawback_Integration_Test is Integration_Test {
     }
 
     function test_WhenFirstClaimNotMade() external whenCallerCampaignCreator {
-        test_Clawback(users.campaignCreator);
+        _test_Clawback(users.campaignCreator);
     }
 
     modifier whenFirstClaimMade() {
         // Make the first claim to set `firstClaimTime`.
-        claim();
+        setMsgSender(users.recipient);
+        claimTo();
 
         // Change the caller back to the campaign creator.
         setMsgSender(users.campaignCreator);
@@ -32,7 +33,7 @@ abstract contract Clawback_Integration_Test is Integration_Test {
     function test_GivenSevenDaysNotPassed() external whenCallerCampaignCreator whenFirstClaimMade {
         // Skip forward by 6 days.
         skip(6 days);
-        test_Clawback(users.campaignCreator);
+        _test_Clawback(users.campaignCreator);
     }
 
     function test_RevertGiven_CampaignNotExpired()
@@ -57,10 +58,10 @@ abstract contract Clawback_Integration_Test is Integration_Test {
     {
         vm.warp({ newTimestamp: EXPIRATION + 1 seconds });
         vm.assume(to != address(0));
-        test_Clawback(to);
+        _test_Clawback(to);
     }
 
-    function test_Clawback(address to) internal {
+    function _test_Clawback(address to) private {
         uint128 clawbackAmount = uint128(dai.balanceOf(address(merkleBase)));
         // It should perform the ERC-20 transfer.
         expectCallToTransfer({ to: to, value: clawbackAmount });

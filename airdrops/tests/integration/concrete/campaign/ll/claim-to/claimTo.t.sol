@@ -23,7 +23,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
 
         uint256 expectedEveBalance = dai.balanceOf(users.eve) + CLAIM_AMOUNT;
 
-        // It should emit a {Claim} event.
+        // It should emit a {ClaimLLWithTransfer} event.
         vm.expectEmit({ emitter: address(merkleLL) });
         emit ISablierMerkleLL.ClaimLLWithTransfer(
             getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.eve, false
@@ -130,7 +130,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
 
         uint256 index = getIndexInMerkleTree();
 
-        // It should emit a {Claim} event.
+        // It should emit a {ClaimLLWithVesting} event.
         vm.expectEmit({ emitter: address(merkleLL) });
         emit ISablierMerkleLL.ClaimLLWithVesting(
             index, users.recipient, CLAIM_AMOUNT, expectedStreamId, users.eve, false

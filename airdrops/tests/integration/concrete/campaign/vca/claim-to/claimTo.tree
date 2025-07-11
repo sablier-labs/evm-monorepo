@@ -6,15 +6,15 @@ ClaimTo_MerkleVCA_Integration_Test
    │  ├── it should transfer the unlock amount to Eve
    │  ├── it should update the claimed status
    │  ├── it should update total forgone amount
-   │  └── it should emit a {Claim} event
+   │  └── it should emit a {ClaimVCA} event
    └── when vesting start time in past
       ├── when vesting end time in past
       │  ├── it should transfer the full amount to Eve
       │  ├── it should update the claimed status
       │  ├── it should not update total forgone amount
-      │  └── it should emit a {Claim} event
+      │  └── it should emit a {ClaimVCA} event
       └── when vesting end time not in past
          ├── it should transfer a portion of the amount to Eve
          ├── it should update the claimed status
          ├── it should update total forgone amount
-         └── it should emit a {Claim} event
+         └── it should emit a {ClaimVCA} event

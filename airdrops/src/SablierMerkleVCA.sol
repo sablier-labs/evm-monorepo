@@ -147,24 +147,6 @@ contract SablierMerkleVCA is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleVCA
-    function claim(
-        uint256 index,
-        address recipient,
-        uint128 fullAmount,
-        bytes32[] calldata merkleProof
-    )
-        external
-        payable
-        override
-    {
-        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
-        _preProcessClaim({ index: index, recipient: recipient, amount: fullAmount, merkleProof: merkleProof });
-
-        // Check, Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
-        _postProcessClaim({ index: index, recipient: recipient, to: recipient, fullAmount: fullAmount, viaSig: false });
-    }
-
-    /// @inheritdoc ISablierMerkleVCA
     function claimTo(
         uint256 index,
         address to,

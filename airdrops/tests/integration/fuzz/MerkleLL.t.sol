@@ -180,7 +180,7 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function expectClaimEvent(LeafData memory leafData, address to) internal override {
-        // It should emit {Claim} event based on the vesting end time.
+        // It should emit claim event based on the vesting end time.
         uint40 expectedVestingStartTime =
             merkleLL.VESTING_START_TIME() == 0 ? getBlockTimestamp() : merkleLL.VESTING_START_TIME();
 

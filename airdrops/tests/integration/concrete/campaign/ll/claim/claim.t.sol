@@ -22,7 +22,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         uint256 expectedRecipientBalance = dai.balanceOf(users.recipient) + CLAIM_AMOUNT;
 
-        // It should emit a {Claim} event.
+        // It should emit a {ClaimLLWithTransfer} event.
         vm.expectEmit({ emitter: address(merkleLL) });
         emit ISablierMerkleLL.ClaimLLWithTransfer(
             getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.recipient, false
@@ -124,7 +124,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         uint256 expectedStreamId = lockup.nextStreamId();
         uint256 previousFeeAccrued = address(comptroller).balance;
 
-        // It should emit a {Claim} event.
+        // It should emit a {ClaimLLWithVesting} event.
         vm.expectEmit({ emitter: address(merkleLL) });
         emit ISablierMerkleLL.ClaimLLWithVesting(
             getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, expectedStreamId, users.recipient, false

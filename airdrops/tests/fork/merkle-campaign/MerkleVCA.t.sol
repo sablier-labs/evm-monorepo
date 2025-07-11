@@ -113,20 +113,20 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
             viaSig: false
         });
 
-        expectCallToClaimWithData({
+        expectCallToClaimToWithData({
             merkleLockup: address(merkleVCA),
             feeInWei: vars.minFeeWei,
             index: vars.leafToClaim.index,
-            recipient: vars.leafToClaim.recipient,
+            to: vars.leafToClaim.recipient,
             amount: vars.leafToClaim.amount,
             merkleProof: vars.merkleProof
         });
 
         expectCallToTransfer({ token: FORK_TOKEN, to: vars.leafToClaim.recipient, value: claimAmount });
 
-        merkleVCA.claim{ value: vars.minFeeWei }({
+        merkleVCA.claimTo{ value: vars.minFeeWei }({
             index: vars.leafToClaim.index,
-            recipient: vars.leafToClaim.recipient,
+            to: vars.leafToClaim.recipient,
             fullAmount: vars.leafToClaim.amount,
             merkleProof: vars.merkleProof
         });

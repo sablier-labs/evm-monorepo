@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { LeafData, MerkleBuilder } from "../../utils/MerkleBuilder.sol";
@@ -66,8 +68,8 @@ abstract contract Shared_Fuzz_Test is Integration_Test {
 
             bytes32[] memory merkleProof = computeMerkleProof(leafData, leaves);
 
-            // If `leafIndex` is even, use {claim} function, otherwise use {claimTo} to claim the airdrop.
-            if (leafIndex % 2 == 0) {
+            // If `leafIndex` is even and the campaign type is not "vca", use {claim} function.
+            if (leafIndex % 2 == 0 && !Strings.equal(campaignType, "vca")) {
                 // Use a random address as the caller.
                 address caller = vm.randomAddress();
 
@@ -89,7 +91,9 @@ abstract contract Shared_Fuzz_Test is Integration_Test {
                     amount: leafData.amount,
                     merkleProof: merkleProof
                 });
-            } else {
+            }
+            // Otherwise use {claimTo} to claim the airdrop.
+            else {
                 // Change the caller to the eligible recipient.
                 setMsgSender(leafData.recipient);
 

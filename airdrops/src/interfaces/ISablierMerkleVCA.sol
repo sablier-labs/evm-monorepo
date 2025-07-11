@@ -60,8 +60,8 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Claim airdrop on behalf of eligible recipient and transfer it to the recipient address. If the vesting
-    /// end time is in the future, it calculates the claim amount, otherwise it transfers the full amount.
+    /// @notice Claim airdrop. If the vesting end time is in the future, it calculates the claim amount to transfer to
+    /// the `to` address, otherwise it transfers the full amount.
     ///
     /// @dev It emits a {ClaimVCA} event.
     ///
@@ -72,29 +72,8 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// - The `index` must not be claimed already.
     /// - The Merkle proof must be valid.
     /// - The claim amount must be greater than zero.
-    ///
-    /// @param index The index of the recipient in the Merkle tree.
-    /// @param recipient The address of the airdrop recipient.
-    /// @param fullAmount The total amount of ERC-20 tokens allocated to the recipient.
-    /// @param merkleProof The proof of inclusion in the Merkle tree.
-    function claim(
-        uint256 index,
-        address recipient,
-        uint128 fullAmount,
-        bytes32[] calldata merkleProof
-    )
-        external
-        payable;
-
-    /// @notice Claim airdrop. If the vesting end time is in the future, it calculates the claim amount to transfer to
-    /// the `to` address, otherwise it transfers the full amount.
-    ///
-    /// @dev It emits a {ClaimVCA} event.
-    ///
-    /// Requirements:
     /// - `msg.sender` must be the airdrop recipient.
     /// - The `to` must not be the zero address.
-    /// - Refer to the requirements in {claim}.
     ///
     /// @param index The index of the `msg.sender` in the Merkle tree.
     /// @param to The address receiving the ERC-20 tokens on behalf of `msg.sender`.
@@ -111,8 +90,7 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// Requirements:
     /// - If `recipient` is an EOA, it must match the recovered signer.
     /// - If `recipient` is a contract, it must implement the IERC-1271 interface.
-    /// - The `to` must not be the zero address.
-    /// - Refer to the requirements in {claim}.
+    /// - Refer to the requirements in {claimTo} except that there are no restrictions on `msg.sender`.
     ///
     /// Below is the example of typed data to be signed by the airdrop recipient, referenced from
     /// https://docs.metamask.io/wallet/how-to/sign-data/#example.

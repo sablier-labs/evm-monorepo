@@ -29,7 +29,7 @@ abstract contract FactoryMerkleVCA_Integration_Shared_Test is Integration_Test {
 
         // Claim to collect some fees.
         setMsgSender(users.recipient);
-        claim();
+        claimTo();
     }
 }
 
