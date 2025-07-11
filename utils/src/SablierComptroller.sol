@@ -262,8 +262,19 @@ contract SablierComptroller is ISablierComptroller, RoleAdminable {
             return 0;
         }
 
+        uint256 price;
+        uint256 updatedAt;
+
         // Interactions: query the oracle price and the time at which it was updated.
-        (, int256 price,, uint256 updatedAt,) = AggregatorV3Interface(oracle).latestRoundData();
+        try AggregatorV3Interface(oracle).latestRoundData() returns (
+            uint80, int256 _price, uint256, uint256 _updatedAt, uint80
+        ) {
+            price = uint256(_price);
+            updatedAt = _updatedAt;
+        } catch {
+            // If the oracle call fails, return 0.
+            return 0;
+        }
 
         // If the price is not greater than 0, skip the calculations.
         if (price <= 0) {
@@ -284,8 +295,15 @@ contract SablierComptroller is ISablierComptroller, RoleAdminable {
             }
         }
 
+        uint8 oracleDecimals;
+
         // Interactions: query the oracle decimals.
-        uint8 oracleDecimals = AggregatorV3Interface(oracle).decimals();
+        try AggregatorV3Interface(oracle).decimals() returns (uint8 _decimals) {
+            oracleDecimals = _decimals;
+        } catch {
+            // If the oracle call fails, return 0.
+            return 0;
+        }
 
         // If the oracle decimals are 8, calculate the minimum fee in wei.
         if (oracleDecimals == 8) {
@@ -293,7 +311,7 @@ contract SablierComptroller is ISablierComptroller, RoleAdminable {
         }
         // Otherwise, adjust the calculation to account for the oracle decimals.
         else {
-            // The price is assumed to be much less than the maximum value of `uint256` so it is safe to multiply.
+            // The USD fee is assumed to be much less than the maximum value of `uint256` so it is safe to multiply.
             return minFeeUSD * 10 ** (10 + oracleDecimals) / uint256(price);
         }
     }

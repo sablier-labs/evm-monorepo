@@ -5,18 +5,24 @@ ConvertUSDFeeToWei_Comptroller_Concrete_Test
    ├── when fee USD zero
    │  └── it should return zero
    └── when fee USD not zero
-      ├── when oracle updated time in future
+      ├── when latest round call fails
       │  └── it should return zero
-      └── when oracle updated time not in future
-         ├── when oracle price outdated
+      └── when latest round call not fail
+         ├── when oracle updated time in future
          │  └── it should return zero
-         └── when oracle price not outdated
-            ├── when oracle price zero
+         └── when oracle updated time not in future
+            ├── when oracle price outdated
             │  └── it should return zero
-            └── when oracle price not zero
-               ├── when oracle returns eight decimals
-               │  └── it should convert the fee to wei
-               ├── when oracle returns more than eight decimals
-               │  └── it should convert the fee to wei
-               └── when oracle returns less than eight decimals
-                  └── it should convert the fee to wei
+            └── when oracle price not outdated
+               ├── when decimals call fails
+               │  └── it should return zero
+               └── when decimals call not fail
+                  ├── when oracle price zero
+                  │  └── it should return zero
+                  └── when oracle price not zero
+                     ├── when oracle returns eight decimals
+                     │  └── it should convert the fee to wei
+                     ├── when oracle returns more than eight decimals
+                     │  └── it should convert the fee to wei
+                     └── when oracle returns less than eight decimals
+                        └── it should convert the fee to wei

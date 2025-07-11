@@ -54,6 +54,10 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenDecimalsCallNotFail() {
+        _;
+    }
+
     modifier whenFeeRecipientContract() {
         _;
     }
@@ -71,6 +75,10 @@ abstract contract Modifiers is BaseTest {
     }
 
     modifier whenFeeUSDNotZero() {
+        _;
+    }
+
+    modifier whenLatestRoundCallNotFail() {
         _;
     }
 
