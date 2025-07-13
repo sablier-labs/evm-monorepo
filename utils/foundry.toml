@@ -1,6 +1,9 @@
 [profile.default]
+  auto_detect_solc = false
+  bytecode_hash = "ipfs"
   evm_version = "shanghai" # needed for greater coverage of EVM chains
   fs_permissions = [
+    { access = "read", path = "./out-optimized" },
     { access = "read", path = "package.json" },
   ]
   fuzz = { runs = 1000 }
@@ -8,8 +11,8 @@
   optimizer = true
   optimizer_runs = 10_000
   out = "out"
-  solc = "0.8.29"
   script = "scripts"
+  solc = "0.8.29"
   src = "src"
   test = "tests"
 
