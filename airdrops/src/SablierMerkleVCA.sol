@@ -202,15 +202,15 @@ contract SablierMerkleVCA is
             return 0;
         }
 
-        // Calculate the initial unlock amount.
-        uint128 unlockAmount = ud(fullAmount).mul(UNLOCK_PERCENTAGE).intoUint128();
-
         // If the vesting period has ended, the full amount can be claimed.
         if (claimTime >= VESTING_END_TIME) {
             return fullAmount;
         }
         // Otherwise, calculate the claim amount based on the elapsed time.
         else {
+            // Calculate the initial unlock amount.
+            uint128 unlockAmount = ud(fullAmount).mul(UNLOCK_PERCENTAGE).intoUint128();
+
             uint40 elapsedTime;
             uint40 totalDuration;
 
