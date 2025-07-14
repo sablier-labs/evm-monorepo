@@ -269,15 +269,15 @@ contract SablierComptroller is ISablierComptroller, RoleAdminable {
         try AggregatorV3Interface(oracle).latestRoundData() returns (
             uint80, int256 _price, uint256, uint256 _updatedAt, uint80
         ) {
+            // If the price is not greater than 0, skip the calculations.
+            if (_price <= 0) {
+                return 0;
+            }
+
             price = uint256(_price);
             updatedAt = _updatedAt;
         } catch {
             // If the oracle call fails, return 0.
-            return 0;
-        }
-
-        // If the price is not greater than 0, skip the calculations.
-        if (price <= 0) {
             return 0;
         }
 
