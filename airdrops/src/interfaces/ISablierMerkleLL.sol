@@ -68,7 +68,7 @@ interface ISablierMerkleLL is ISablierMerkleLockup {
     /// - `msg.value` must not be less than the value returned by {COMPTROLLER.calculateMinFeeWei}.
     /// - The `index` must not be claimed already.
     /// - The Merkle proof must be valid.
-    /// - All requirements from {ISablierLockup.createWithTimestampsLL} must be met.
+    /// - All requirements from {ISablierLockupLinear.createWithTimestampsLL} must be met.
     ///
     /// @param index The index of the recipient in the Merkle tree.
     /// @param recipient The address of the airdrop recipient.

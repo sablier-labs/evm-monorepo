@@ -60,7 +60,7 @@ interface ISablierMerkleLT is ISablierMerkleLockup {
     /// - The `index` must not be claimed already.
     /// - The Merkle proof must be valid.
     /// - The sum of percentages of the tranches must equal 100%.
-    /// - All requirements from {ISablierLockup.createWithTimestampsLT} must be met.
+    /// - All requirements from {ISablierLockupTranched.createWithTimestampsLT} must be met.
     ///
     /// @param index The index of the recipient in the Merkle tree.
     /// @param recipient The address of the airdrop recipient.
