@@ -102,6 +102,10 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenOraclePriceNotNegative() {
+        _;
+    }
+
     modifier whenOraclePriceNotOutdated() {
         _;
     }

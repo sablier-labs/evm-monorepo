@@ -42,6 +42,22 @@ contract ChainlinkOracleFutureDatedPrice {
     }
 }
 
+contract ChainlinkOracleNegativePrice {
+    function decimals() external pure returns (uint8) {
+        return DEFAULT_DECIMALS;
+    }
+
+    function latestRoundData()
+        external
+        view
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
+    {
+        int256 answer_ = -3000e8; // Negative price
+        uint256 updatedAt_ = block.timestamp;
+        return (0, answer_, 0, updatedAt_, 0);
+    }
+}
+
 /// @notice A mock Chainlink oracle that was updated more than 24 hours ago.
 contract ChainlinkOracleOutdatedPrice {
     function decimals() external pure returns (uint8) {

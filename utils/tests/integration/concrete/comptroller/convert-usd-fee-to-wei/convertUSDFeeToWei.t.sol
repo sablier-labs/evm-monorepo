@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import {
     ChainlinkOracleFutureDatedPrice,
+    ChainlinkOracleNegativePrice,
     ChainlinkOracleOutdatedPrice,
     ChainlinkOracleWith18Decimals,
     ChainlinkOracleWith6Decimals,
@@ -46,11 +47,24 @@ contract ConvertUSDFeeToWei_Comptroller_Concrete_Test is Base_Test {
         assertEq(comptroller.convertUSDFeeToWei(feeUSD), 0, "oracle call failed");
     }
 
+    function test_WhenOraclePriceNegative(uint128 feeUSD)
+        external
+        givenOracleNotZero
+        whenFeeUSDNotZero
+        whenLatestRoundCallNotFail
+    {
+        comptroller.setOracle(address(new ChainlinkOracleNegativePrice()));
+
+        // It should return zero.
+        assertEq(comptroller.convertUSDFeeToWei(feeUSD), 0, "negative price");
+    }
+
     function test_WhenOracleUpdatedTimeInFuture(uint128 feeUSD)
         external
         givenOracleNotZero
         whenFeeUSDNotZero
         whenLatestRoundCallNotFail
+        whenOraclePriceNotNegative
     {
         comptroller.setOracle(address(new ChainlinkOracleFutureDatedPrice()));
 
@@ -63,6 +77,7 @@ contract ConvertUSDFeeToWei_Comptroller_Concrete_Test is Base_Test {
         givenOracleNotZero
         whenFeeUSDNotZero
         whenLatestRoundCallNotFail
+        whenOraclePriceNotNegative
         whenOracleUpdatedTimeNotInFuture
     {
         comptroller.setOracle(address(new ChainlinkOracleOutdatedPrice()));
@@ -76,6 +91,7 @@ contract ConvertUSDFeeToWei_Comptroller_Concrete_Test is Base_Test {
         givenOracleNotZero
         whenFeeUSDNotZero
         whenLatestRoundCallNotFail
+        whenOraclePriceNotNegative
         whenOracleUpdatedTimeNotInFuture
         whenOraclePriceNotOutdated
     {
@@ -90,6 +106,7 @@ contract ConvertUSDFeeToWei_Comptroller_Concrete_Test is Base_Test {
         givenOracleNotZero
         whenFeeUSDNotZero
         whenLatestRoundCallNotFail
+        whenOraclePriceNotNegative
         whenOracleUpdatedTimeNotInFuture
         whenOraclePriceNotOutdated
         whenDecimalsCallNotFail
@@ -106,6 +123,7 @@ contract ConvertUSDFeeToWei_Comptroller_Concrete_Test is Base_Test {
         givenOracleNotZero
         whenFeeUSDNotZero
         whenLatestRoundCallNotFail
+        whenOraclePriceNotNegative
         whenOracleUpdatedTimeNotInFuture
         whenOraclePriceNotOutdated
         whenDecimalsCallNotFail
@@ -122,6 +140,7 @@ contract ConvertUSDFeeToWei_Comptroller_Concrete_Test is Base_Test {
         givenOracleNotZero
         whenFeeUSDNotZero
         whenLatestRoundCallNotFail
+        whenOraclePriceNotNegative
         whenOracleUpdatedTimeNotInFuture
         whenOraclePriceNotOutdated
         whenDecimalsCallNotFail
@@ -140,6 +159,7 @@ contract ConvertUSDFeeToWei_Comptroller_Concrete_Test is Base_Test {
         givenOracleNotZero
         whenFeeUSDNotZero
         whenLatestRoundCallNotFail
+        whenOraclePriceNotNegative
         whenOracleUpdatedTimeNotInFuture
         whenOraclePriceNotOutdated
         whenDecimalsCallNotFail
