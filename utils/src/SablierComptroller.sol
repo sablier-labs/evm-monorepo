@@ -52,6 +52,11 @@ contract SablierComptroller is ISablierComptroller, RoleAdminable {
     )
         RoleAdminable(initialAdmin)
     {
+        // Check: the initial minimum fees do not exceed the maximum allowed fee.
+        _notExceedMaxFeeUSD(initialAirdropMinFeeUSD);
+        _notExceedMaxFeeUSD(initialFlowMinFeeUSD);
+        _notExceedMaxFeeUSD(initialLockupMinFeeUSD);
+
         _protocolFees[Protocol.Airdrops].minFeeUSD = initialAirdropMinFeeUSD;
         _protocolFees[Protocol.Flow].minFeeUSD = initialFlowMinFeeUSD;
         _protocolFees[Protocol.Lockup].minFeeUSD = initialLockupMinFeeUSD;

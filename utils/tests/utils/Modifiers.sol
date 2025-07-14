@@ -78,6 +78,14 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenInitialAirdropFeeNotExceedMaxFee() {
+        _;
+    }
+
+    modifier whenInitialFlowFeeNotExceedMaxFee() {
+        _;
+    }
+
     modifier whenLatestRoundCallNotFail() {
         _;
     }
