@@ -41,13 +41,17 @@ interface ISablierComptroller is IRoleAdminable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when the admin or the fee manager disables the custom USD fee for the provided user.
-    event DisableCustomFeeUSD(Protocol indexed protocol, address caller, address indexed user);
+    event DisableCustomFeeUSD(
+        Protocol indexed protocol, address caller, address indexed user, uint256 previousMinFeeUSD, uint256 newMinFeeUSD
+    );
 
     /// @notice Emitted when a target contract is called.
     event Execute(address indexed target, bytes data, bytes result);
 
     /// @notice Emitted when the admin or the fee manager sets the custom USD fee for the provided user.
-    event SetCustomFeeUSD(Protocol indexed protocol, address caller, address indexed user, uint256 customFeeUSD);
+    event SetCustomFeeUSD(
+        Protocol indexed protocol, address caller, address indexed user, uint256 previousMinFeeUSD, uint256 newMinFeeUSD
+    );
 
     /// @notice Emitted when the admin or the fee manager sets a new minimum USD fee.
     event SetMinFeeUSD(Protocol indexed protocol, address caller, uint256 previousMinFeeUSD, uint256 newMinFeeUSD);

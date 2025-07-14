@@ -46,7 +46,13 @@ contract DisableCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
 
         // It should emit a {DisableCustomFeeUSD} event.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ISablierComptroller.DisableCustomFeeUSD(protocol, caller, users.sender);
+        emit ISablierComptroller.DisableCustomFeeUSD({
+            protocol: protocol,
+            caller: caller,
+            user: users.sender,
+            previousMinFeeUSD: 0,
+            newMinFeeUSD: getFeeInUSD(protocol)
+        });
 
         // Disable the custom fee.
         comptroller.disableCustomFeeUSDFor(protocol, users.sender);

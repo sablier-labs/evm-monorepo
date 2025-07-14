@@ -36,7 +36,13 @@ contract SetCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
         setMsgSender(users.accountant);
 
         // Set the custom fee.
-        _setCustomFeeUSDFor(protocol, users.accountant, user, customFeeUSD);
+        _setCustomFeeUSDFor({
+            protocol: protocol,
+            caller: users.accountant,
+            user: user,
+            currentFeeUSD: getFeeInUSD(protocol),
+            newCustomFeeUSD: customFeeUSD
+        });
     }
 
     function test_RevertWhen_NewFeeExceedsMaxFee(
@@ -76,7 +82,13 @@ contract SetCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
         assertEq(comptroller.calculateMinFeeWeiFor(protocol, user), getFeeInWei(protocol), "custom fee USD enabled");
 
         // Set the custom fee.
-        _setCustomFeeUSDFor(protocol, admin, user, customFeeUSD);
+        _setCustomFeeUSDFor({
+            protocol: protocol,
+            caller: admin,
+            user: user,
+            currentFeeUSD: getFeeInUSD(protocol),
+            newCustomFeeUSD: customFeeUSD
+        });
     }
 
     function test_WhenEnabled(
@@ -100,7 +112,13 @@ contract SetCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
         assertEq(comptroller.getMinFeeUSDFor(protocol, user), customFeeUSD, "custom fee USD not enabled");
 
         // Set the custom fee.
-        _setCustomFeeUSDFor(protocol, admin, user, customFeeUSD);
+        _setCustomFeeUSDFor({
+            protocol: protocol,
+            caller: admin,
+            user: user,
+            currentFeeUSD: customFeeUSD,
+            newCustomFeeUSD: customFeeUSD
+        });
     }
 
     /// @dev Shared logic to test setting the custom fee.
@@ -108,18 +126,19 @@ contract SetCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
         ISablierComptroller.Protocol protocol,
         address caller,
         address user,
-        uint128 customFeeUSD
+        uint256 currentFeeUSD,
+        uint128 newCustomFeeUSD
     )
         private
     {
         // It should emit a {SetCustomFeeUSD} event.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ISablierComptroller.SetCustomFeeUSD(protocol, caller, user, customFeeUSD);
+        emit ISablierComptroller.SetCustomFeeUSD(protocol, caller, user, currentFeeUSD, newCustomFeeUSD);
 
         // Set the custom fee.
-        comptroller.setCustomFeeUSDFor(protocol, user, customFeeUSD);
+        comptroller.setCustomFeeUSDFor(protocol, user, newCustomFeeUSD);
 
         // It should set the custom fee.
-        assertEq(comptroller.getMinFeeUSDFor(protocol, user), customFeeUSD, "custom fee USD");
+        assertEq(comptroller.getMinFeeUSDFor(protocol, user), newCustomFeeUSD, "custom fee USD");
     }
 }

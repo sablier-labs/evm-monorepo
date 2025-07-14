@@ -88,6 +88,19 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions {
         amountWei = (1e18 * uint256(amountUSD)) / ETH_PRICE_USD;
     }
 
+    /// @dev Returns the fee in USD for the given protocol.
+    function getFeeInUSD(ISablierComptroller.Protocol protocol) internal pure returns (uint256 feeInUSD) {
+        if (protocol == ISablierComptroller.Protocol.Airdrops) {
+            feeInUSD = AIRDROP_MIN_FEE_USD;
+        } else if (protocol == ISablierComptroller.Protocol.Flow) {
+            feeInUSD = FLOW_MIN_FEE_USD;
+        } else if (protocol == ISablierComptroller.Protocol.Lockup) {
+            feeInUSD = LOCKUP_MIN_FEE_USD;
+        } else if (protocol == ISablierComptroller.Protocol.Staking) {
+            feeInUSD = STAKING_MIN_FEE_USD;
+        }
+    }
+
     /// @dev Returns the fee in wei for the given protocol.
     function getFeeInWei(ISablierComptroller.Protocol protocol) internal pure returns (uint256 feeInWei) {
         if (protocol == ISablierComptroller.Protocol.Airdrops) {
