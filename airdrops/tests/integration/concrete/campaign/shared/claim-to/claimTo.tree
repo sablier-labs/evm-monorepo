@@ -10,5 +10,5 @@ ClaimTo_Integration_Test
       └── when caller eligible
          └── when merkle proof valid
             ├── it should mark the index as Claimed
-            ├── it should transfer the ETH to the merkle lockup
+            ├── it should transfer the ETH to the comptroller
             └── it should emit claim event

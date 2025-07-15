@@ -196,13 +196,14 @@ abstract contract SablierMerkleBase is
         address recipient,
         address to,
         uint128 amount,
+        uint40 validFrom,
         bytes calldata signature
     )
         internal
         view
     {
-        // Encode the claim parameters using claim type hash and hash it.
-        bytes32 claimHash = keccak256(abi.encode(SignatureHash.CLAIM_TYPEHASH, index, recipient, to, amount));
+        // Encode the parameters using claim type hash and hash it.
+        bytes32 claimHash = keccak256(abi.encode(SignatureHash.CLAIM_TYPEHASH, index, recipient, to, amount, validFrom));
 
         // Returns the keccak256 digest of the claim parameters using claim hash and the domain separator.
         bytes32 digest =
@@ -218,6 +219,11 @@ abstract contract SablierMerkleBase is
         // Check: `isSignatureValid` is true.
         if (!isSignatureValid) {
             revert Errors.SablierMerkleBase_InvalidSignature();
+        }
+
+        // Check: the `validFrom` is less than or equal to the current block timestamp.
+        if (validFrom > uint40(block.timestamp)) {
+            revert Errors.SablierMerkleBase_SignatureNotYetValid(validFrom, uint40(block.timestamp));
         }
     }
 

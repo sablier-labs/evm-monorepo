@@ -12,12 +12,13 @@ contract ClaimViaSig_MerkleVCA_Integration_Test is ClaimViaSig_Integration_Test,
         ClaimViaSig_Integration_Test.setUp();
     }
 
-    function test_WhenSignerSameAsRecipient()
+    function test_WhenSignatureValidityTimestampNotInFuture()
         external
         override
         whenToAddressNotZero
         givenRecipientIsEOA
         whenSignatureCompatible
+        whenSignerSameAsRecipient
     {
         uint128 forgoneAmount = VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT;
         uint256 previousFeeAccrued = address(comptroller).balance;
@@ -69,15 +70,7 @@ contract ClaimViaSig_MerkleVCA_Integration_Test is ClaimViaSig_Integration_Test,
 
         expectCallToTransfer({ to: users.eve, value: VCA_CLAIM_AMOUNT });
 
-        claimViaSig({
-            msgValue: AIRDROP_MIN_FEE_WEI,
-            index: index,
-            recipient: users.smartWalletWithIERC1271,
-            to: users.eve,
-            amount: VCA_FULL_AMOUNT,
-            merkleProof: getMerkleProof(users.smartWalletWithIERC1271),
-            signature: eip712Signature
-        });
+        claimViaSig(users.smartWalletWithIERC1271, VCA_FULL_AMOUNT);
 
         assertTrue(merkleVCA.hasClaimed(index), "not claimed");
         assertEq(merkleVCA.totalForgoneAmount(), forgoneAmount, "total forgone amount");

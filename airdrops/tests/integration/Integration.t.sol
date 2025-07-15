@@ -92,16 +92,22 @@ abstract contract Integration_Test is Base_Test {
         ISablierMerkleInstant(campaignAddr).claimTo{ value: msgValue }(index, to, amount, merkleProof);
     }
 
-    /// @dev Claim to Eve address on behalf of `users.recipient` using {claimViaSig} function.
+    /// @dev Claim using default values for {claimViaSig} function.
     function claimViaSig() internal {
+        claimViaSig(users.recipient, CLAIM_AMOUNT);
+    }
+
+    /// @dev Claim using recipient and amount parameters for {claimViaSig} function.
+    function claimViaSig(address recipient, uint128 amount) internal {
         claimViaSig({
             msgValue: AIRDROP_MIN_FEE_WEI,
-            index: getIndexInMerkleTree(),
-            recipient: users.recipient,
+            index: getIndexInMerkleTree(recipient),
+            recipient: recipient,
             to: users.eve,
-            amount: CLAIM_AMOUNT,
-            merkleProof: getMerkleProof(),
-            signature: eip712Signature
+            amount: amount,
+            validFrom: VALID_FROM,
+            merkleProof: getMerkleProof(recipient),
+            signature: generateSignature(recipient, address(merkleBase))
         });
     }
 
@@ -111,6 +117,7 @@ abstract contract Integration_Test is Base_Test {
         address recipient,
         address to,
         uint128 amount,
+        uint40 validFrom,
         bytes32[] memory merkleProof,
         bytes memory signature
     )
@@ -120,7 +127,7 @@ abstract contract Integration_Test is Base_Test {
         // claimViaSig function signature.
         address campaignAddr = address(merkleBase);
         ISablierMerkleInstant(campaignAddr).claimViaSig{ value: msgValue }(
-            index, recipient, to, amount, merkleProof, signature
+            index, recipient, to, amount, validFrom, merkleProof, signature
         );
     }
 
@@ -132,7 +139,8 @@ abstract contract Integration_Test is Base_Test {
             index: getIndexInMerkleTree(user),
             recipient: user,
             to: users.eve,
-            amount: CLAIM_AMOUNT
+            amount: CLAIM_AMOUNT,
+            validFrom: VALID_FROM
         });
     }
 

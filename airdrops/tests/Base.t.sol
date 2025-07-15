@@ -262,7 +262,15 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
             msgValue,
             abi.encodeCall(
                 ISablierMerkleInstant.claimViaSig,
-                (getIndexInMerkleTree(), users.recipient, users.eve, CLAIM_AMOUNT, getMerkleProof(), eip712Signature)
+                (
+                    getIndexInMerkleTree(),
+                    users.recipient,
+                    users.eve,
+                    CLAIM_AMOUNT,
+                    getBlockTimestamp(),
+                    getMerkleProof(),
+                    eip712Signature
+                )
             )
         );
     }

@@ -54,6 +54,9 @@ library Errors {
     /// @notice Thrown when trying to set a new min USD fee that is higher than the current fee.
     error SablierMerkleBase_NewMinFeeUSDNotLower(uint256 currentMinFeeUSD, uint256 newMinFeeUSD);
 
+    /// @notice Thrown when trying to claim with a signature that is not yet valid.
+    error SablierMerkleBase_SignatureNotYetValid(uint40 validFrom, uint40 blockTimestamp);
+
     /// @notice Thrown when trying to claim to the zero address.
     error SablierMerkleBase_ToZeroAddress();
 

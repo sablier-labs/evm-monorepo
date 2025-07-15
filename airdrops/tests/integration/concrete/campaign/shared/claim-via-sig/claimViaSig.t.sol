@@ -20,6 +20,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
             recipient: users.recipient,
             to: address(0),
             amount: CLAIM_AMOUNT,
+            validFrom: VALID_FROM,
             merkleProof: getMerkleProof(),
             signature: abi.encode(0)
         });
@@ -29,8 +30,9 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         uint256 index = getIndexInMerkleTree();
 
         // Generate an incompatible signature.
-        bytes memory incompatibleSignature =
-            Utilities.generateEIP191Signature(recipientPrivateKey, index, users.eve, users.recipient, CLAIM_AMOUNT);
+        bytes memory incompatibleSignature = Utilities.generateEIP191Signature(
+            recipientPrivateKey, index, users.eve, users.recipient, CLAIM_AMOUNT, getBlockTimestamp()
+        );
 
         // Expect revert.
         vm.expectRevert(Errors.SablierMerkleBase_InvalidSignature.selector);
@@ -40,6 +42,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
             recipient: users.recipient,
             to: users.eve,
             amount: CLAIM_AMOUNT,
+            validFrom: VALID_FROM,
             merkleProof: getMerkleProof(),
             signature: incompatibleSignature
         });
@@ -59,9 +62,15 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         setMsgSender(newSigner);
 
         // Generate the signature using the new user's private key.
-        bytes memory signatureFromNewSigner = Utilities.generateEIP712Signature(
-            newSignerPrivateKey, address(merkleBase), index, users.recipient, users.eve, CLAIM_AMOUNT
-        );
+        bytes memory signatureFromNewSigner = Utilities.generateEIP712Signature({
+            signerPrivateKey: newSignerPrivateKey,
+            merkleContract: address(merkleBase),
+            index: index,
+            recipient: users.recipient,
+            to: users.eve,
+            amount: CLAIM_AMOUNT,
+            validFrom: VALID_FROM
+        });
 
         // Expect revert.
         vm.expectRevert(Errors.SablierMerkleBase_InvalidSignature.selector);
@@ -71,6 +80,46 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
             recipient: users.recipient,
             to: users.eve,
             amount: CLAIM_AMOUNT,
+            validFrom: VALID_FROM,
+            merkleProof: getMerkleProof(),
+            signature: signatureFromNewSigner
+        });
+    }
+
+    function test_RevertWhen_SignatureValidityTimestampInFuture()
+        external
+        whenToAddressNotZero
+        givenRecipientIsEOA
+        whenSignatureCompatible
+        whenSignerSameAsRecipient
+    {
+        uint256 index = getIndexInMerkleTree();
+
+        // Warp to a timestamp before the `VALID_FROM` so that the signature is not valid.
+        vm.warp(VALID_FROM - 1);
+
+        // Generate the signature using the new user's private key.
+        bytes memory signatureFromNewSigner = Utilities.generateEIP712Signature({
+            signerPrivateKey: recipientPrivateKey,
+            merkleContract: address(merkleBase),
+            index: index,
+            recipient: users.recipient,
+            to: users.eve,
+            amount: CLAIM_AMOUNT,
+            validFrom: VALID_FROM
+        });
+
+        // Expect revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierMerkleBase_SignatureNotYetValid.selector, VALID_FROM, VALID_FROM - 1)
+        );
+        claimViaSig({
+            msgValue: AIRDROP_MIN_FEE_WEI,
+            index: index,
+            recipient: users.recipient,
+            to: users.eve,
+            amount: CLAIM_AMOUNT,
+            validFrom: VALID_FROM,
             merkleProof: getMerkleProof(),
             signature: signatureFromNewSigner
         });
@@ -78,16 +127,17 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
 
     /// @dev Since the implementation of `claimViaSig()` differs in each Merkle campaign, we declare this virtual dummy
     /// test. The child contracts implement it.
-    function test_WhenSignerSameAsRecipient()
+    function test_WhenSignatureValidityTimestampNotInFuture()
         external
         virtual
         whenToAddressNotZero
         givenRecipientIsEOA
         whenSignatureCompatible
+        whenSignerSameAsRecipient
     {
         // The child contract must check that the claim event is emitted.
         // It should mark the index as claimed.
-        // It should transfer the fee from the caller address to the merkle lockup.
+        // It should transfer the fee from the caller address to the comptroller.
     }
 
     function test_RevertWhen_RecipientNotImplementIERC1271Interface()
@@ -102,6 +152,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
             recipient: users.smartWalletWithoutIERC1271,
             to: users.eve,
             amount: CLAIM_AMOUNT,
+            validFrom: VALID_FROM,
             merkleProof: getMerkleProof(users.smartWalletWithoutIERC1271),
             signature: abi.encode(0)
         });
@@ -117,6 +168,6 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
     {
         // The child contract must check that the claim event is emitted.
         // It should mark the index as claimed.
-        // It should transfer the fee from the caller address to the merkle lockup.
+        // It should transfer the fee from the caller address to the comptroller.
     }
 }

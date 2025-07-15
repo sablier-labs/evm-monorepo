@@ -47,6 +47,6 @@ abstract contract ClaimTo_Integration_Test is Integration_Test {
     {
         // The child contract must check that the claim event is emitted.
         // It should mark the index as claimed.
-        // It should transfer the fee from the caller address to the merkle lockup.
+        // It should transfer the fee from the caller address to the comptroller.
     }
 }

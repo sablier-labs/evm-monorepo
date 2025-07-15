@@ -90,6 +90,8 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// Requirements:
     /// - If `recipient` is an EOA, it must match the recovered signer.
     /// - If `recipient` is a contract, it must implement the IERC-1271 interface.
+    /// - The `to` must not be the zero address.
+    /// - The `validFrom` must be less than or equal to the current block timestamp.
     /// - Refer to the requirements in {claimTo} except that there are no restrictions on `msg.sender`.
     ///
     /// Below is the example of typed data to be signed by the airdrop recipient, referenced from
@@ -107,6 +109,7 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     ///     { name: "recipient", type: "address" },
     ///     { name: "to", type: "address" },
     ///     { name: "amount", type: "uint128" },
+    ///     { name: "validFrom", type: "uint40" },
     ///   ],
     /// },
     /// domain: {
@@ -119,7 +122,8 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     ///   index: 2, // The index of the signer in the Merkle tree
     ///   recipient: "0xTheAddressOfTheRecipient", // The address of the airdrop recipient
     ///   to: "0xTheAddressReceivingTheTokens", // The address where recipient wants to transfer the tokens
-    ///   amount: "1000000000000000000000" // The amount of tokens allocated to the recipient
+    ///   amount: "1000000000000000000000", // The amount of tokens allocated to the recipient
+    ///   validFrom: 1752425637 // The timestamp from which the claim signature is valid
     /// },
     /// ```
     ///
@@ -127,6 +131,7 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @param recipient The address of the airdrop recipient who is providing the signature.
     /// @param to The address receiving the ERC-20 tokens on behalf of the recipient.
     /// @param fullAmount The total amount of ERC-20 tokens allocated to the recipient.
+    /// @param validFrom The timestamp from which the claim signature is valid.
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     /// @param signature The EIP-712 or EIP-1271 signature from the airdrop recipient.
     function claimViaSig(
@@ -134,6 +139,7 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
         address recipient,
         address to,
         uint128 fullAmount,
+        uint40 validFrom,
         bytes32[] calldata merkleProof,
         bytes calldata signature
     )

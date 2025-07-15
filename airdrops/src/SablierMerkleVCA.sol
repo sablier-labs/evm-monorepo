@@ -173,6 +173,7 @@ contract SablierMerkleVCA is
         address recipient,
         address to,
         uint128 fullAmount,
+        uint40 validFrom,
         bytes32[] calldata merkleProof,
         bytes calldata signature
     )
@@ -182,7 +183,7 @@ contract SablierMerkleVCA is
         notZeroAddress(to)
     {
         // Check: the signature is valid and the recovered signer matches the recipient.
-        _checkSignature(index, recipient, to, fullAmount, signature);
+        _checkSignature(index, recipient, to, fullAmount, validFrom, signature);
 
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
         _preProcessClaim(index, recipient, fullAmount, merkleProof);

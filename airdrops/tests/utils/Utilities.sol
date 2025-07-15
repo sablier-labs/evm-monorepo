@@ -19,14 +19,15 @@ library Utilities {
         uint256 index,
         address recipient,
         address to,
-        uint128 amount
+        uint128 amount,
+        uint40 validFrom
     )
         internal
         pure
         returns (bytes memory signature)
     {
         // Compute the claim hash.
-        bytes32 claimHash = keccak256(abi.encodePacked(index, recipient, to, amount));
+        bytes32 claimHash = keccak256(abi.encodePacked(index, recipient, to, amount, validFrom));
 
         // Compute the keccak256 digest of the claim hash.
         bytes32 digest = MessageHashUtils.toEthSignedMessageHash(claimHash);
@@ -42,7 +43,8 @@ library Utilities {
         uint256 index,
         address recipient,
         address to,
-        uint128 amount
+        uint128 amount,
+        uint40 validFrom
     )
         internal
         view
@@ -52,7 +54,7 @@ library Utilities {
         bytes32 domainSeparator = computeEIP712DomainSeparator(merkleContract);
 
         // Compute the claim hash.
-        bytes32 claimHash = keccak256(abi.encode(SignatureHash.CLAIM_TYPEHASH, index, recipient, to, amount));
+        bytes32 claimHash = keccak256(abi.encode(SignatureHash.CLAIM_TYPEHASH, index, recipient, to, amount, validFrom));
 
         // Compute the keccak256 digest of the EIP-712 typed data.
         bytes32 digest = MessageHashUtils.toTypedDataHash({ domainSeparator: domainSeparator, structHash: claimHash });

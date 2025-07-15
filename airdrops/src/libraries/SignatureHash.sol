@@ -6,7 +6,7 @@ pragma solidity >=0.8.22;
 library SignatureHash {
     /// @dev The struct type hash for computing the domain separator for EIP-712 and EIP-1271 signatures.
     bytes32 public constant CLAIM_TYPEHASH =
-        keccak256("Claim(uint256 index,address recipient,address to,uint128 amount)");
+        keccak256("Claim(uint256 index,address recipient,address to,uint128 amount,uint40 validFrom)");
 
     /// @notice The domain type hash for computing the domain separator.
     bytes32 public constant DOMAIN_TYPEHASH =

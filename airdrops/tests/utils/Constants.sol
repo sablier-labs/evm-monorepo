@@ -21,6 +21,7 @@ abstract contract Constants is BaseConstants {
     uint40 public constant EXPIRATION = FEB_1_2025 + 12 weeks;
     uint40 public constant CAMPAIGN_START_TIME = FEB_1_2025;
     uint40 public constant FIRST_CLAIM_TIME = FEB_1_2025;
+    uint40 public constant VALID_FROM = FEB_1_2025;
     uint40 public constant VESTING_CLIFF_DURATION = 2 days;
     uint40 public constant VESTING_END_TIME = VESTING_START_TIME + VESTING_TOTAL_DURATION;
     uint40 public constant VESTING_START_TIME = FEB_1_2025 - 2 days;

@@ -12,12 +12,13 @@ contract ClaimViaSig_MerkleLL_Integration_Test is ClaimViaSig_Integration_Test, 
         ClaimViaSig_Integration_Test.setUp();
     }
 
-    function test_WhenSignerSameAsRecipient()
+    function test_WhenSignatureValidityTimestampNotInFuture()
         external
         override
         whenToAddressNotZero
         givenRecipientIsEOA
         whenSignatureCompatible
+        whenSignerSameAsRecipient
     {
         uint256 expectedStreamId = lockup.nextStreamId();
         uint256 previousFeeAccrued = address(comptroller).balance;
@@ -61,15 +62,7 @@ contract ClaimViaSig_MerkleLL_Integration_Test is ClaimViaSig_Integration_Test, 
         expectCallToTransferFrom({ from: address(merkleLL), to: address(lockup), value: CLAIM_AMOUNT });
 
         // Claim the airstream.
-        claimViaSig({
-            msgValue: AIRDROP_MIN_FEE_WEI,
-            index: index,
-            recipient: users.smartWalletWithIERC1271,
-            to: users.eve,
-            amount: CLAIM_AMOUNT,
-            merkleProof: getMerkleProof(users.smartWalletWithIERC1271),
-            signature: eip712Signature
-        });
+        claimViaSig(users.smartWalletWithIERC1271, CLAIM_AMOUNT);
 
         assertTrue(merkleLL.hasClaimed(index), "not claimed");
 

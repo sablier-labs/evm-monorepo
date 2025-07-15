@@ -137,6 +137,7 @@ contract SablierMerkleLL is
         address recipient,
         address to,
         uint128 amount,
+        uint40 validFrom,
         bytes32[] calldata merkleProof,
         bytes calldata signature
     )
@@ -146,7 +147,7 @@ contract SablierMerkleLL is
         notZeroAddress(to)
     {
         // Check: the signature is valid and the recovered signer matches the recipient.
-        _checkSignature(index, recipient, to, amount, signature);
+        _checkSignature(index, recipient, to, amount, validFrom, signature);
 
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
         _preProcessClaim(index, recipient, amount, merkleProof);
