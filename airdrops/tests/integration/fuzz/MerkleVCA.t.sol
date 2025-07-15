@@ -37,7 +37,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         uint128 actualForgoneAmount;
         if (claimTime > 0 && claimTime < VCA_START_TIME) {
             vm.expectRevert(
-                abi.encodeWithSelector(Errors.SablierMerkleVCA_CampaignNotStarted.selector, claimTime, VCA_START_TIME)
+                abi.encodeWithSelector(Errors.SablierMerkleVCA_VestingNotStarted.selector, claimTime, VCA_START_TIME)
             );
             merkleVCA.calculateForgoneAmount(fullAmount, claimTime);
             actualForgoneAmount = 0;

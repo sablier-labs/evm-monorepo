@@ -18,7 +18,7 @@ contract CalculateForgoneAmount_MerkleVCA_Integration_Test is MerkleVCA_Integrat
         uint40 claimTime = VCA_START_TIME - 1 seconds;
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleVCA_CampaignNotStarted.selector, claimTime, VCA_START_TIME)
+            abi.encodeWithSelector(Errors.SablierMerkleVCA_VestingNotStarted.selector, claimTime, VCA_START_TIME)
         );
 
         // It should revert.
