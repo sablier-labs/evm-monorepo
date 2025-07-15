@@ -7,6 +7,7 @@ import { Integration_Test } from "./../../../Integration.t.sol";
 
 import { CalculateMinFeeWei_Integration_Test } from "./../shared/calculate-min-fee-wei/calculateMinFeeWei.t.sol";
 import { Clawback_Integration_Test } from "./../shared/clawback/clawback.t.sol";
+import { DomainSeparator_Integration_Test } from "./../shared/domain-separator/domainSeparator.t.sol";
 import { HasClaimed_Integration_Test } from "./../shared/has-claimed/hasClaimed.t.sol";
 import { HasExpired_Integration_Test } from "./../shared/has-expired/hasExpired.t.sol";
 import { LowerMinFeeUSD_Integration_Test } from "./../shared/lower-min-fee-usd/lowerMinFeeUSD.t.sol";
@@ -44,6 +45,15 @@ contract CalculateMinFeeWei_MerkleInstant_Integration_Test is
 }
 
 contract Clawback_MerkleInstant_Integration_Test is MerkleInstant_Integration_Shared_Test, Clawback_Integration_Test {
+    function setUp() public override(MerkleInstant_Integration_Shared_Test, Integration_Test) {
+        MerkleInstant_Integration_Shared_Test.setUp();
+    }
+}
+
+contract DomainSeparator_MerkleInstant_Integration_Test is
+    MerkleInstant_Integration_Shared_Test,
+    DomainSeparator_Integration_Test
+{
     function setUp() public override(MerkleInstant_Integration_Shared_Test, Integration_Test) {
         MerkleInstant_Integration_Shared_Test.setUp();
     }

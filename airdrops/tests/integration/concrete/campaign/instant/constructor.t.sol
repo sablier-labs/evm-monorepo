@@ -3,7 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleInstant } from "src/SablierMerkleInstant.sol";
 
-import { Utilities } from "../../../../utils/Utilities.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
 
 contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
@@ -20,11 +19,6 @@ contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
         assertEq(constructedInstant.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedInstant.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
         assertEq(constructedInstant.COMPTROLLER(), address(comptroller), "comptroller");
-        assertEq(
-            constructedInstant.DOMAIN_SEPARATOR(),
-            Utilities.computeEIP712DomainSeparator(address(constructedInstant)),
-            "domain separator"
-        );
         assertEq(constructedInstant.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(constructedInstant.ipfsCID(), IPFS_CID, "IPFS CID");
         assertEq(constructedInstant.IS_SABLIER_MERKLE(), true, "is sablier merkle");

@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Utilities } from "../../../../../utils/Utilities.sol";
+import { Utilities } from "tests/utils/Utilities.sol";
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract ClaimViaSig_Integration_Test is Integration_Test {

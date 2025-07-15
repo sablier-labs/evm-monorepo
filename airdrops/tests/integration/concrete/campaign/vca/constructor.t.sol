@@ -3,7 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
 
-import { Utilities } from "../../../../utils/Utilities.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
 
 contract Constructor_MerkleVCA_Integration_Test is Integration_Test {
@@ -20,11 +19,6 @@ contract Constructor_MerkleVCA_Integration_Test is Integration_Test {
         assertEq(constructedVCA.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedVCA.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
         assertEq(constructedVCA.COMPTROLLER(), address(comptroller), "comptroller");
-        assertEq(
-            constructedVCA.DOMAIN_SEPARATOR(),
-            Utilities.computeEIP712DomainSeparator(address(constructedVCA)),
-            "domain separator"
-        );
         assertEq(constructedVCA.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(constructedVCA.ipfsCID(), IPFS_CID, "IPFS CID");
         assertEq(constructedVCA.IS_SABLIER_MERKLE(), true, "is sablier merkle");

@@ -3,7 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleLL } from "src/SablierMerkleLL.sol";
 
-import { Utilities } from "../../../../utils/Utilities.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
 
 contract Constructor_MerkleLL_Integration_Test is Integration_Test {
@@ -23,11 +22,6 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         assertEq(constructedLL.admin(), users.campaignCreator, "admin");
         assertEq(constructedLL.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
         assertEq(constructedLL.COMPTROLLER(), address(comptroller), "comptroller");
-        assertEq(
-            constructedLL.DOMAIN_SEPARATOR(),
-            Utilities.computeEIP712DomainSeparator(address(constructedLL)),
-            "domain separator"
-        );
         assertEq(constructedLL.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedLL.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(constructedLL.ipfsCID(), IPFS_CID, "IPFS CID");
