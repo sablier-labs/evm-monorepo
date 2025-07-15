@@ -31,8 +31,17 @@ abstract contract Comptrollerable is IComptrollerable {
 
     /// @param initialComptroller The address of the initial comptroller contract.
     constructor(address initialComptroller) {
+        // Define the minimal interface ID required by the contracts inherited from {Comptrollerable}.
+        bytes4 initialMInimalInterfaceId = ISablierComptroller.calculateMinFeeWeiFor.selector
+            ^ ISablierComptroller.convertUSDFeeToWei.selector ^ ISablierComptroller.execute.selector
+            ^ ISablierComptroller.getMinFeeUSDFor.selector;
+
         // Set the initial comptroller.
-        _setComptroller(ISablierComptroller(initialComptroller));
+        _setComptroller({
+            previousComptroller: ISablierComptroller(address(0)),
+            newComptroller: ISablierComptroller(initialComptroller),
+            minimalInterfaceId: initialMInimalInterfaceId
+        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -42,7 +51,11 @@ abstract contract Comptrollerable is IComptrollerable {
     /// @inheritdoc IComptrollerable
     function setComptroller(ISablierComptroller newComptroller) external override onlyComptroller {
         // Checks and Effects: set the new comptroller.
-        _setComptroller(newComptroller);
+        _setComptroller({
+            previousComptroller: comptroller,
+            newComptroller: newComptroller,
+            minimalInterfaceId: comptroller.MINIMAL_INTERFACE_ID()
+        });
     }
 
     /// @inheritdoc IComptrollerable
@@ -76,14 +89,21 @@ abstract contract Comptrollerable is IComptrollerable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this private function.
-    function _setComptroller(ISablierComptroller newComptroller) private {
-        // Check: the new comptroller address is not zero.
-        if (address(newComptroller) == address(0)) {
-            revert Errors.Comptrollerable_ZeroAddress();
+    function _setComptroller(
+        ISablierComptroller previousComptroller,
+        ISablierComptroller newComptroller,
+        bytes4 minimalInterfaceId
+    )
+        private
+    {
+        // Check: the new comptroller supports the minimal interface ID.
+        if (!newComptroller.supportsInterface(minimalInterfaceId)) {
+            revert Errors.Comptrollerable_UnsupportedInterfaceId({
+                previousComptroller: address(previousComptroller),
+                newComptroller: address(newComptroller),
+                minimalInterfaceId: minimalInterfaceId
+            });
         }
-
-        // Load the current comptroller address.
-        ISablierComptroller previousComptroller = comptroller;
 
         // Effect: set the new comptroller.
         comptroller = newComptroller;

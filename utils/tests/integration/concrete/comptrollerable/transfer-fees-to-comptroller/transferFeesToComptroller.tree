@@ -1,4 +1,4 @@
-TransferFeesToComptroller_Lockup_Integration_Concrete_Test
+TransferFeesToComptroller_Comptrollerable_Concrete_Test
 ├── given fee zero
 │  ├── it should transfer no value
 │  └── it should emit {TransferFeesToComptroller} event

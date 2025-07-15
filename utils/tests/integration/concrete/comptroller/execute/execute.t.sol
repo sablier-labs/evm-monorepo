@@ -6,6 +6,7 @@ import { stdError } from "forge-std/src/StdError.sol";
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { ComptrollerableMock } from "src/mocks/ComptrollerableMock.sol";
+import { SablierComptroller } from "src/SablierComptroller.sol";
 
 import { TargetPanic } from "./targets/TargetPanic.sol";
 import { TargetReverter } from "./targets/TargetReverter.sol";
@@ -32,7 +33,8 @@ contract Execute_Concrete_Test is Base_Test {
             reverter: new TargetReverter()
         });
 
-        newComptroller = ISablierComptroller(vm.randomAddress());
+        // Deploy a new comptroller.
+        newComptroller = new SablierComptroller(admin, 0, 0, 0, address(oracle));
 
         // Encode set comptroller function call.
         setComptrollerPayload = abi.encodeCall(comptrollerableMock.setComptroller, (newComptroller));

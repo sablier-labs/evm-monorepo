@@ -32,6 +32,12 @@ interface IComptrollerable {
     ///
     /// Requirements:
     /// - `msg.sender` must be the current comptroller.
+    /// - The new comptroller must return `true` from {supportsInterface} with the comptroller's minimal interface ID
+    /// which is defined as the XOR of the following function selectors:
+    /// 1. {calculateMinFeeWeiFor}
+    /// 2. {convertUSDFeeToWei}
+    /// 3. {execute}
+    /// 4. {getMinFeeUSDFor}
     ///
     /// @param newComptroller The address of the new comptroller contract.
     function setComptroller(ISablierComptroller newComptroller) external;

@@ -2,6 +2,8 @@
 pragma solidity >=0.8.22;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import { IComptrollerable } from "./interfaces/IComptrollerable.sol";
 import { ISablierComptroller } from "./interfaces/ISablierComptroller.sol";
@@ -10,13 +12,21 @@ import { RoleAdminable } from "./RoleAdminable.sol";
 
 /// @title SablierComptroller
 /// @notice See the documentation in {ISablierComptroller}.
-contract SablierComptroller is ISablierComptroller, RoleAdminable {
+contract SablierComptroller is
+    ERC165, // 1 inherited component
+    ISablierComptroller, // 3 inherited interface
+    RoleAdminable // 3 inherited component
+{
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierComptroller
     uint256 public constant override MAX_FEE_USD = 100e8;
+
+    /// @inheritdoc ISablierComptroller
+    bytes4 public constant MINIMAL_INTERFACE_ID = this.calculateMinFeeWeiFor.selector ^ this.convertUSDFeeToWei.selector
+        ^ this.execute.selector ^ this.getMinFeeUSDFor.selector;
 
     /// @inheritdoc ISablierComptroller
     address public override oracle;
@@ -108,6 +118,11 @@ contract SablierComptroller is ISablierComptroller, RoleAdminable {
     /// @inheritdoc ISablierComptroller
     function getMinFeeUSDFor(Protocol protocol, address user) external view override returns (uint256) {
         return _getMinFeeUSDFor(protocol, user);
+    }
+
+    /// @inheritdoc IERC165
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
+        return interfaceId == type(IERC165).interfaceId || interfaceId == MINIMAL_INTERFACE_ID;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

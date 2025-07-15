@@ -5,7 +5,7 @@ import { IComptrollerable } from "src/interfaces/IComptrollerable.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract TransferFeesToComptroller_Lockup_Integration_Concrete_Test is Base_Test {
+contract TransferFeesToComptroller_Comptrollerable_Concrete_Test is Base_Test {
     function test_GivenFeeZero() external {
         _test_TransferFeesToComptroller(0);
     }

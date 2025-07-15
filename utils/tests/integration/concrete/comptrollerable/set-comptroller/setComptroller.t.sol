@@ -4,6 +4,8 @@ pragma solidity >=0.8.22;
 import { Errors } from "src/libraries/Errors.sol";
 import { IComptrollerable } from "src/interfaces/IComptrollerable.sol";
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
+import { ComptrollerWithoutMinimalInterfaceId } from "src/mocks/ComptrollerMock.sol";
+import { SablierComptroller } from "src/SablierComptroller.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
 
@@ -14,7 +16,7 @@ contract SetComptroller_Comptrollerable_Concrete_Test is Base_Test {
         super.setUp();
 
         // Deploy a new comptroller.
-        newComptroller = ISablierComptroller(admin);
+        newComptroller = new SablierComptroller(admin, 0, 0, 0, address(oracle));
     }
 
     function test_RevertWhen_CallerNotCurrentComptroller() external {
@@ -25,12 +27,21 @@ contract SetComptroller_Comptrollerable_Concrete_Test is Base_Test {
         comptrollerableMock.setComptroller(newComptroller);
     }
 
-    function test_RevertWhen_NewComptrollerZeroAddress() external whenCallerCurrentComptroller {
-        vm.expectRevert(Errors.Comptrollerable_ZeroAddress.selector);
-        comptrollerableMock.setComptroller(ISablierComptroller(address(0)));
+    function test_RevertWhen_NewComptrollerWithoutMinimalInterfaceId() external whenCallerCurrentComptroller {
+        address newComptrollerWithoutMinimalInterfaceId = address(new ComptrollerWithoutMinimalInterfaceId());
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.Comptrollerable_UnsupportedInterfaceId.selector,
+                comptroller,
+                newComptrollerWithoutMinimalInterfaceId,
+                comptroller.MINIMAL_INTERFACE_ID()
+            )
+        );
+        comptrollerableMock.setComptroller(ISablierComptroller(newComptrollerWithoutMinimalInterfaceId));
     }
 
-    function test_WhenNewComptrollerNotZeroAddress() external whenCallerCurrentComptroller {
+    function test_WhenNewComptrollerWithMinimalInterfaceId() external whenCallerCurrentComptroller {
         vm.expectEmit({ emitter: address(comptrollerableMock) });
         emit IComptrollerable.SetComptroller(comptroller, newComptroller);
         comptrollerableMock.setComptroller(newComptroller);

@@ -37,8 +37,10 @@ library Errors {
     /// @notice Thrown when `msg.sender` is not the comptroller.
     error Comptrollerable_CallerNotComptroller(address comptroller, address caller);
 
-    /// @notice Thrown when trying to set zero as the comptroller address.
-    error Comptrollerable_ZeroAddress();
+    /// @notice Thrown when the new comptroller does not support the minimal interface ID from the previous comptroller.
+    error Comptrollerable_UnsupportedInterfaceId(
+        address previousComptroller, address newComptroller, bytes4 minimalInterfaceId
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                   NO-DELEGATE-CALL
