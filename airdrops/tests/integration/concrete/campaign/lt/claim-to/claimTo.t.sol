@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
 
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
-import { Errors } from "src/libraries/Errors.sol";
 import { MerkleLT } from "src/types/DataTypes.sol";
 
 import { ClaimTo_Integration_Test } from "../../shared/claim-to/claimTo.t.sol";
@@ -38,53 +36,7 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
         assertEq(dai.balanceOf(users.eve), expectedEveBalance, "eve balance");
     }
 
-    function test_RevertWhen_TotalPercentageLessThan100()
-        external
-        whenMerkleProofValid
-        whenVestingEndTimeExceedsClaimTime
-        whenTotalPercentageNot100
-    {
-        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
-
-        // Create a MerkleLT campaign with a total percentage less than 100.
-        params.tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);
-        params.tranchesWithPercentages[1].unlockPercentage = ud2x18(0.2e18);
-
-        // Create the MerkleLT campaign and cast it as {ISablierMerkleBase}.
-        merkleLT = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
-        merkleBase = merkleLT;
-
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 0.25e18));
-
-        claimTo();
-    }
-
-    function test_RevertWhen_TotalPercentageGreaterThan100()
-        external
-        whenMerkleProofValid
-        whenVestingEndTimeExceedsClaimTime
-        whenTotalPercentageNot100
-    {
-        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
-
-        params.tranchesWithPercentages[0].unlockPercentage = ud2x18(0.75e18);
-        params.tranchesWithPercentages[1].unlockPercentage = ud2x18(0.8e18);
-
-        // Create the MerkleLT campaign and cast it as {ISablierMerkleBase}.
-        merkleLT = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
-        merkleBase = merkleLT;
-
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleLT_TotalPercentageNotOneHundred.selector, 1.55e18));
-
-        claimTo();
-    }
-
-    function test_WhenVestingStartTimeZero()
-        external
-        whenMerkleProofValid
-        whenVestingEndTimeExceedsClaimTime
-        whenTotalPercentage100
-    {
+    function test_WhenVestingStartTimeZero() external whenMerkleProofValid whenVestingEndTimeExceedsClaimTime {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
         params.vestingStartTime = 0;
 
@@ -97,12 +49,7 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
         _test_ClaimTo({ streamStartTime: getBlockTimestamp() });
     }
 
-    function test_WhenVestingStartTimeNotZero()
-        external
-        whenMerkleProofValid
-        whenVestingEndTimeExceedsClaimTime
-        whenTotalPercentage100
-    {
+    function test_WhenVestingStartTimeNotZero() external whenMerkleProofValid whenVestingEndTimeExceedsClaimTime {
         // It should create a ranged stream with provided start time.
         // It should create a stream with Eve as recipient.
         _test_ClaimTo({ streamStartTime: VESTING_START_TIME });

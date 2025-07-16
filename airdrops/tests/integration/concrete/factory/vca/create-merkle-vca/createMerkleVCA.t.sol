@@ -42,7 +42,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         params.vestingStartTime = 0;
 
         // It should revert.
-        vm.expectRevert(Errors.SablierMerkleVCA_StartTimeZero.selector);
+        vm.expectRevert(Errors.SablierFactoryMerkleVCA_StartTimeZero.selector);
         createMerkleVCA(params);
     }
 
@@ -59,7 +59,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime.selector,
+                Errors.SablierFactoryMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime.selector,
                 params.vestingStartTime,
                 params.vestingEndTime
             )
@@ -80,7 +80,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime.selector,
+                Errors.SablierFactoryMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime.selector,
                 params.vestingStartTime,
                 params.vestingEndTime
             )
@@ -99,7 +99,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         params.expiration = 0;
 
         // It should revert.
-        vm.expectRevert(Errors.SablierMerkleVCA_ExpirationTimeZero.selector);
+        vm.expectRevert(Errors.SablierFactoryMerkleVCA_ExpirationTimeZero.selector);
         createMerkleVCA(params);
     }
 
@@ -117,7 +117,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_ExpirationTooEarly.selector, params.vestingEndTime, params.expiration
+                Errors.SablierFactoryMerkleVCA_ExpirationTooEarly.selector, params.vestingEndTime, params.expiration
             )
         );
         createMerkleVCA(params);
@@ -137,7 +137,9 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
 
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleVCA_UnlockPercentageTooHigh.selector, params.unlockPercentage)
+            abi.encodeWithSelector(
+                Errors.SablierFactoryMerkleVCA_UnlockPercentageTooHigh.selector, params.unlockPercentage
+            )
         );
         createMerkleVCA(params);
     }

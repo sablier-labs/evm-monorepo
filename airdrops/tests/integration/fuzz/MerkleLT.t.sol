@@ -131,7 +131,6 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
 
         // It should return the correct schedule tranches.
         assertEq(merkleLT.tranchesWithPercentages(), tranches);
-        assertEq(merkleLT.TRANCHES_TOTAL_PERCENTAGE(), 1e18);
         assertEq(merkleLT.VESTING_START_TIME(), vestingStartTime);
 
         // Fund the MerkleLT contract.

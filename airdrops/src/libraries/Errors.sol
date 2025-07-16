@@ -20,6 +20,34 @@ library Errors {
     error SablierFactoryMerkleBase_NativeTokenZeroAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
+                             SABLIER-FACTORY-MERKLE-LT
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to create an LT campaign with tranches' unlock percentages not adding up to 100%.
+    error SablierFactoryMerkleLT_TotalPercentageNotOneHundred(uint64 totalPercentage);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                             SABLIER-FACTORY-MERKLE-VCA
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown if expiration time is within 1 week from the vesting end time.
+    error SablierFactoryMerkleVCA_ExpirationTooEarly(uint40 vestingEndTime, uint40 expiration);
+
+    /// @notice Thrown if expiration time is zero.
+    error SablierFactoryMerkleVCA_ExpirationTimeZero();
+
+    /// @notice Thrown if vesting end time is not greater than the vesting start time.
+    error SablierFactoryMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime(
+        uint40 vestingStartTime, uint40 vestingEndTime
+    );
+
+    /// @notice Thrown if the start time is zero.
+    error SablierFactoryMerkleVCA_StartTimeZero();
+
+    /// @notice Thrown if the unlock percentage is greater than 100%.
+    error SablierFactoryMerkleVCA_UnlockPercentageTooHigh(UD60x18 unlockPercentage);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER-MERKLE-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -61,13 +89,6 @@ library Errors {
     error SablierMerkleBase_ToZeroAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-MERKLE-LT
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when trying to claim from an LT campaign with tranches' unlock percentages not adding up to 100%.
-    error SablierMerkleLT_TotalPercentageNotOneHundred(uint64 totalPercentage);
-
-    /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-MERKLE-VCA
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -76,19 +97,4 @@ library Errors {
 
     /// @notice Thrown when the claim amount is zero.
     error SablierMerkleVCA_ClaimAmountZero(address recipient);
-
-    /// @notice Thrown if expiration time is within 1 week from the vesting end time.
-    error SablierMerkleVCA_ExpirationTooEarly(uint40 vestingEndTime, uint40 expiration);
-
-    /// @notice Thrown if expiration time is zero.
-    error SablierMerkleVCA_ExpirationTimeZero();
-
-    /// @notice Thrown if vesting end time is not greater than the vesting start time.
-    error SablierMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime(uint40 vestingStartTime, uint40 vestingEndTime);
-
-    /// @notice Thrown if the start time is zero.
-    error SablierMerkleVCA_StartTimeZero();
-
-    /// @notice Thrown if the unlock percentage is greater than 100%.
-    error SablierMerkleVCA_UnlockPercentageTooHigh(UD60x18 unlockPercentage);
 }

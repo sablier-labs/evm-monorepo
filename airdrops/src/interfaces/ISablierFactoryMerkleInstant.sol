@@ -24,6 +24,20 @@ interface ISablierFactoryMerkleInstant is ISablierFactoryMerkleBase {
     );
 
     /*//////////////////////////////////////////////////////////////////////////
+                                READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Computes the deterministic address where {SablierMerkleInstant} campaign will be deployed.
+    /// @dev Reverts if the requirements from {createMerkleInstant} are not met.
+    function computeMerkleInstant(
+        address campaignCreator,
+        MerkleInstant.ConstructorParams memory params
+    )
+        external
+        view
+        returns (address merkleInstant);
+
+    /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -35,6 +49,9 @@ interface ISablierFactoryMerkleInstant is ISablierFactoryMerkleBase {
     /// - The contract is created with CREATE2.
     /// - The campaign's fee will be set to the min USD fee unless a custom fee is set for `msg.sender`.
     /// - A value of zero for `params.expiration` means the campaign does not expire.
+    ///
+    /// Requirements:
+    /// - `params.token` must not be the forbidden native token.
     ///
     /// @param params Struct encapsulating the input parameters, which are documented in {DataTypes}.
     /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.

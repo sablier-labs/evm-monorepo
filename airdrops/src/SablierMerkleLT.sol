@@ -3,13 +3,11 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { uUNIT } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud60x18 } from "@prb/math/src/UD60x18.sol";
 import { Lockup, LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol";
 
 import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
-import { Errors } from "./libraries/Errors.sol";
 import { MerkleLT } from "./types/DataTypes.sol";
 
 /*
@@ -41,9 +39,6 @@ contract SablierMerkleLT is
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierMerkleLT
-    uint64 public immutable override TRANCHES_TOTAL_PERCENTAGE;
 
     /// @inheritdoc ISablierMerkleLT
     uint40 public immutable override VESTING_START_TIME;
@@ -80,16 +75,11 @@ contract SablierMerkleLT is
     {
         VESTING_START_TIME = params.vestingStartTime;
 
+        // Save the tranches in the contract state.
         uint256 count = params.tranchesWithPercentages.length;
-
-        // Calculate the total percentage of the tranches and save them in the contract state.
-        uint64 totalPercentage;
         for (uint256 i = 0; i < count; ++i) {
-            uint64 percentage = params.tranchesWithPercentages[i].unlockPercentage.unwrap();
-            totalPercentage += percentage;
             _tranchesWithPercentages.push(params.tranchesWithPercentages[i]);
         }
-        TRANCHES_TOTAL_PERCENTAGE = totalPercentage;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -239,11 +229,6 @@ contract SablierMerkleLT is
     /// @dev Post-processes the claim execution by creating the stream or transferring the tokens directly and emitting
     /// an event.
     function _postProcessClaim(uint256 index, address recipient, address to, uint128 amount, bool viaSig) private {
-        // Check: the sum of percentages equals 100%.
-        if (TRANCHES_TOTAL_PERCENTAGE != uUNIT) {
-            revert Errors.SablierMerkleLT_TotalPercentageNotOneHundred(TRANCHES_TOTAL_PERCENTAGE);
-        }
-
         // Declare the variables needed for the stream creation.
         Lockup.Timestamps memory timestamps;
         LockupTranched.Tranche[] memory tranches;

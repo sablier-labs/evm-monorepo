@@ -24,6 +24,20 @@ interface ISablierFactoryMerkleVCA is ISablierFactoryMerkleBase {
     );
 
     /*//////////////////////////////////////////////////////////////////////////
+                                READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Computes the deterministic address where {SablierMerkleVCA} campaign will be deployed.
+    /// @dev Reverts if the requirements from {createMerkleVCA} are not met.
+    function computeMerkleVCA(
+        address campaignCreator,
+        MerkleVCA.ConstructorParams memory params
+    )
+        external
+        view
+        returns (address merkleVCA);
+
+    /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -38,6 +52,7 @@ interface ISablierFactoryMerkleVCA is ISablierFactoryMerkleBase {
     /// the campaign deployment will revert.
     ///
     /// Requirements:
+    /// - `params.token` must not be the forbidden native token.
     /// - `params.expiration` must be greater than 0.
     /// - `params.expiration` must be at least 1 week beyond the end time to ensure loyal recipients have enough time to
     /// claim.

@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
+
 import { ISablierFactoryMerkleLT } from "src/interfaces/ISablierFactoryMerkleLT.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -24,15 +26,50 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
     }
 
+    function test_RevertWhen_TotalPercentageLessThan100() external whenNativeTokenNotFound whenTotalPercentageNot100 {
+        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
+
+        // Create a MerkleLT campaign with a total percentage less than 100.
+        params.tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);
+        params.tranchesWithPercentages[1].unlockPercentage = ud2x18(0.2e18);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierFactoryMerkleLT_TotalPercentageNotOneHundred.selector, 0.25e18)
+        );
+        createMerkleLT(params);
+    }
+
+    function test_RevertWhen_TotalPercentageGreaterThan100()
+        external
+        whenNativeTokenNotFound
+        whenTotalPercentageNot100
+    {
+        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
+
+        // Create a MerkleLT campaign with a total percentage greater than 100.
+        params.tranchesWithPercentages[0].unlockPercentage = ud2x18(0.75e18);
+        params.tranchesWithPercentages[1].unlockPercentage = ud2x18(0.8e18);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierFactoryMerkleLT_TotalPercentageNotOneHundred.selector, 1.55e18)
+        );
+        createMerkleLT(params);
+    }
+
     /// @dev This test reverts because a default MerkleLT contract is deployed in {Integration_Test.setUp}
-    function test_RevertGiven_CampaignAlreadyExists() external whenNativeTokenNotFound {
+    function test_RevertGiven_CampaignAlreadyExists() external whenNativeTokenNotFound whenTotalPercentage100 {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
         // Expect a revert due to CREATE2.
         vm.expectRevert();
         createMerkleLT(params);
     }
 
-    function test_GivenCustomFeeUSDSet() external whenNativeTokenNotFound givenCampaignNotExists {
+    function test_GivenCustomFeeUSDSet()
+        external
+        whenNativeTokenNotFound
+        whenTotalPercentage100
+        givenCampaignNotExists
+    {
         // Set a custom fee.
         setMsgSender(admin);
         uint256 customFeeUSD = 0;
@@ -64,7 +101,12 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
         assertEq(actualLT.minFeeUSD(), customFeeUSD, "min fee USD");
     }
 
-    function test_GivenCustomFeeUSDNotSet() external whenNativeTokenNotFound givenCampaignNotExists {
+    function test_GivenCustomFeeUSDNotSet()
+        external
+        whenNativeTokenNotFound
+        whenTotalPercentage100
+        givenCampaignNotExists
+    {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
         params.campaignName = "Merkle LT campaign with no custom fee USD";
 

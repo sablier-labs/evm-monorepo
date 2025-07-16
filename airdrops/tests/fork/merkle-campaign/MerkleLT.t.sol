@@ -71,8 +71,8 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
             merkleLT: ISablierMerkleLT(vars.expectedMerkleCampaign),
             params: constructorParams,
             aggregateAmount: vars.aggregateAmount,
-            recipientCount: vars.leavesData.length,
             totalDuration: VESTING_TOTAL_DURATION,
+            recipientCount: vars.leavesData.length,
             comptroller: address(comptroller),
             minFeeUSD: vars.minFeeUSD
         });

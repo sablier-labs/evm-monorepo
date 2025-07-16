@@ -34,9 +34,6 @@ interface ISablierMerkleLT is ISablierMerkleLockup {
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The total percentage of the tranches.
-    function TRANCHES_TOTAL_PERCENTAGE() external view returns (uint64);
-
     /// @notice Retrieves the start time of the vesting stream, as a Unix timestamp. Zero is a sentinel value for
     /// `block.timestamp`.
     function VESTING_START_TIME() external view returns (uint40);
@@ -59,7 +56,6 @@ interface ISablierMerkleLT is ISablierMerkleLockup {
     /// - `msg.value` must not be less than the value returned by {COMPTROLLER.calculateMinFeeWei}.
     /// - The `index` must not be claimed already.
     /// - The Merkle proof must be valid.
-    /// - The sum of percentages of the tranches must equal 100%.
     /// - All requirements from {ISablierLockupTranched.createWithTimestampsLT} must be met.
     ///
     /// @param index The index of the recipient in the Merkle tree.

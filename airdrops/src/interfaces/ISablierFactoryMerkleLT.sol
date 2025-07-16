@@ -18,8 +18,8 @@ interface ISablierFactoryMerkleLT is ISablierFactoryMerkleBase {
         ISablierMerkleLT indexed merkleLT,
         MerkleLT.ConstructorParams params,
         uint256 aggregateAmount,
-        uint256 recipientCount,
         uint256 totalDuration,
+        uint256 recipientCount,
         address comptroller,
         uint256 minFeeUSD
     );
@@ -37,6 +37,16 @@ interface ISablierFactoryMerkleLT is ISablierFactoryMerkleBase {
         pure
         returns (bool result);
 
+    /// @notice Computes the deterministic address where {SablierMerkleLT} campaign will be deployed.
+    /// @dev Reverts if the requirements from {createMerkleLT} are not met.
+    function computeMerkleLT(
+        address campaignCreator,
+        MerkleLT.ConstructorParams memory params
+    )
+        external
+        view
+        returns (address merkleLT);
+
     /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -49,6 +59,10 @@ interface ISablierFactoryMerkleLT is ISablierFactoryMerkleBase {
     /// - The contract is created with CREATE2.
     /// - The campaign's fee will be set to the min USD fee unless a custom fee is set for `msg.sender`.
     /// - A value of zero for `params.expiration` means the campaign does not expire.
+    ///
+    /// Requirements:
+    /// - `params.token` must not be the forbidden native token.
+    /// - The sum of percentages of the tranches must equal 100%.
     ///
     /// @param params Struct encapsulating the input parameters, which are documented in {DataTypes}.
     /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.

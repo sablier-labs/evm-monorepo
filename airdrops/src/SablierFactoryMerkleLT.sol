@@ -7,6 +7,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 import { SablierFactoryMerkleBase } from "./abstracts/SablierFactoryMerkleBase.sol";
 import { ISablierFactoryMerkleLT } from "./interfaces/ISablierFactoryMerkleLT.sol";
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
+import { Errors } from "./libraries/Errors.sol";
 import { SablierMerkleLT } from "./SablierMerkleLT.sol";
 import { MerkleLT } from "./types/DataTypes.sol";
 
@@ -43,16 +44,47 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFactoryMerkleLT
+    function computeMerkleLT(
+        address campaignCreator,
+        MerkleLT.ConstructorParams memory params
+    )
+        external
+        view
+        override
+        returns (address merkleLT)
+    {
+        // Calculate the total percentage.
+        (, uint64 totalPercentage) = _calculateTrancheTotals(params.tranchesWithPercentages);
+
+        // Check: validate the user-provided token and the total percentage.
+        _checkDeploymentParams(address(params.token), totalPercentage);
+
+        // Hash the parameters to generate a salt.
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
+
+        // Get the bytecode hash for the {SablierMerkleLT} contract.
+        bytes32 bytecodeHash = keccak256(
+            abi.encodePacked(
+                type(SablierMerkleLT).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+            )
+        );
+
+        // Compute CREATE2 address using `keccak256(0xff + deployer + salt + bytecodeHash)`.
+        merkleLT =
+            address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), address(this), salt, bytecodeHash)))));
+    }
+
+    /// @inheritdoc ISablierFactoryMerkleLT
     function isPercentagesSum100(MerkleLT.TrancheWithPercentage[] calldata tranches)
         external
         pure
         override
         returns (bool result)
     {
-        uint256 totalPercentage;
-        for (uint256 i = 0; i < tranches.length; ++i) {
-            totalPercentage += tranches[i].unlockPercentage.unwrap();
-        }
+        // Calculate the total percentage.
+        (, uint64 totalPercentage) = _calculateTrancheTotals(tranches);
+
+        // Return true if the sum of percentages equals 100%.
         return totalPercentage == uUNIT;
     }
 
@@ -70,18 +102,11 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
         override
         returns (ISablierMerkleLT merkleLT)
     {
-        // Check: user-provided token is not the native token.
-        _forbidNativeToken(address(params.token));
+        // Calculate the total percentage.
+        (uint256 totalDuration, uint64 totalPercentage) = _calculateTrancheTotals(params.tranchesWithPercentages);
 
-        // Calculate the sum of percentages and durations across all tranches.
-        uint256 count = params.tranchesWithPercentages.length;
-        uint256 totalDuration;
-        for (uint256 i = 0; i < count; ++i) {
-            unchecked {
-                // Safe to use `unchecked` because its only used in the event.
-                totalDuration += params.tranchesWithPercentages[i].duration;
-            }
-        }
+        // Check: validate the user-provided token and the total percentage.
+        _checkDeploymentParams(address(params.token), totalPercentage);
 
         // Hash the parameters to generate a salt.
         bytes32 salt = keccak256(abi.encodePacked(msg.sender, comptroller, abi.encode(params)));
@@ -98,10 +123,42 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
             merkleLT: merkleLT,
             params: params,
             aggregateAmount: aggregateAmount,
-            recipientCount: recipientCount,
             totalDuration: totalDuration,
+            recipientCount: recipientCount,
             comptroller: address(comptroller),
             minFeeUSD: comptroller.getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: msg.sender })
         });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            PRIVATE READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Calculate the total duration and total percentage of the tranches.
+    function _calculateTrancheTotals(MerkleLT.TrancheWithPercentage[] memory tranches)
+        private
+        pure
+        returns (uint256 totalDuration, uint64 totalPercentage)
+    {
+        uint256 count = tranches.length;
+        for (uint256 i = 0; i < count; ++i) {
+            totalPercentage += tranches[i].unlockPercentage.unwrap();
+
+            // Safe to use `unchecked` for total duration because its only used in the event.
+            unchecked {
+                totalDuration += tranches[i].duration;
+            }
+        }
+    }
+
+    /// @dev Validate the token and the total percentage.
+    function _checkDeploymentParams(address token, uint64 totalPercentage) private view {
+        // Check: token is not the native token.
+        _forbidNativeToken(token);
+
+        // Check: the sum of percentages equals 100%.
+        if (totalPercentage != uUNIT) {
+            revert Errors.SablierFactoryMerkleLT_TotalPercentageNotOneHundred(totalPercentage);
+        }
     }
 }

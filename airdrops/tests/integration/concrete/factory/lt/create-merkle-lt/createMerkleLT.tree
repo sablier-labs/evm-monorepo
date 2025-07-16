@@ -2,14 +2,20 @@ CreateMerkleLT_Integration_Test
 ├── when native token found
 │  └── it should revert
 └── when native token not found
-   ├── given campaign already exists
-   │  └── it should revert
-   └── given campaign not exists
-      ├── given custom fee USD set
-      │  ├── it should create the campaign with custom fee USD
-      │  ├── it should set the current factory address
-      │  └── it should emit a {CreateMerkleLT} event
-      └── given custom fee USD not set
-         ├── it should create the campaign with min fee USD
-         ├── it should set the current factory address
-         └── it should emit a {CreateMerkleLT} event
+   ├── when total percentage not 100
+   │  ├── when total percentage less than 100
+   │  │  └── it should revert
+   │  └── when total percentage greater than 100
+   │     └── it should revert
+   └── when total percentage 100
+      ├── given campaign already exists
+      │  └── it should revert
+      └── given campaign not exists
+         ├── given custom fee USD set
+         │  ├── it should create the campaign with custom fee USD
+         │  ├── it should set the current factory address
+         │  └── it should emit a {CreateMerkleLT} event
+         └── given custom fee USD not set
+            ├── it should create the campaign with min fee USD
+            ├── it should set the current factory address
+            └── it should emit a {CreateMerkleLT} event

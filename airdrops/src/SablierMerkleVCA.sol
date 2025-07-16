@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { ud, UD60x18, uUNIT } from "@prb/math/src/UD60x18.sol";
+import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleVCA } from "./interfaces/ISablierMerkleVCA.sol";
@@ -74,37 +74,6 @@ contract SablierMerkleVCA is
             params.token
         )
     {
-        // Check: vesting start time is not zero.
-        if (params.vestingStartTime == 0) {
-            revert Errors.SablierMerkleVCA_StartTimeZero();
-        }
-
-        // Check: vesting end time is greater than the vesting start time.
-        if (params.vestingEndTime <= params.vestingStartTime) {
-            revert Errors.SablierMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime({
-                vestingStartTime: params.vestingStartTime,
-                vestingEndTime: params.vestingEndTime
-            });
-        }
-
-        // Check: campaign expiration is not zero.
-        if (params.expiration == 0) {
-            revert Errors.SablierMerkleVCA_ExpirationTimeZero();
-        }
-
-        // Check: campaign expiration is at least 1 week later than the vesting end time.
-        if (params.expiration < params.vestingEndTime + 1 weeks) {
-            revert Errors.SablierMerkleVCA_ExpirationTooEarly({
-                vestingEndTime: params.vestingEndTime,
-                expiration: params.expiration
-            });
-        }
-
-        // Check: unlock percentage is not greater than 100%.
-        if (params.unlockPercentage.unwrap() > uUNIT) {
-            revert Errors.SablierMerkleVCA_UnlockPercentageTooHigh(params.unlockPercentage);
-        }
-
         // Effect: set the immutable variables.
         UNLOCK_PERCENTAGE = params.unlockPercentage;
         VESTING_END_TIME = params.vestingEndTime;

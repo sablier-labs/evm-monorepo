@@ -37,6 +37,38 @@ contract SablierFactoryMerkleLL is ISablierFactoryMerkleLL, SablierFactoryMerkle
     constructor(address initialComptroller) SablierFactoryMerkleBase(initialComptroller) { }
 
     /*//////////////////////////////////////////////////////////////////////////
+                          USER-FACING READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierFactoryMerkleLL
+    function computeMerkleLL(
+        address campaignCreator,
+        MerkleLL.ConstructorParams memory params
+    )
+        external
+        view
+        override
+        returns (address merkleLL)
+    {
+        // Check: user-provided token is not the native token.
+        _forbidNativeToken(address(params.token));
+
+        // Hash the parameters to generate a salt.
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
+
+        // Get the bytecode hash for the {SablierMerkleLL} contract.
+        bytes32 bytecodeHash = keccak256(
+            abi.encodePacked(
+                type(SablierMerkleLL).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+            )
+        );
+
+        // Compute CREATE2 address using `keccak256(0xff + deployer + salt + bytecodeHash)`.
+        merkleLL =
+            address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), address(this), salt, bytecodeHash)))));
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                         USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
