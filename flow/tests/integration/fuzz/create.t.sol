@@ -60,6 +60,7 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.CreateFlowStream({
             streamId: expectedStreamId,
+            creator: users.sender,
             sender: sender,
             recipient: recipient,
             ratePerSecond: ratePerSecond,

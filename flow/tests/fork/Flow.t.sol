@@ -291,6 +291,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.CreateFlowStream({
             streamId: vars.expectedStreamId,
+            creator: users.sender,
             token: FORK_TOKEN,
             sender: sender,
             recipient: recipient,

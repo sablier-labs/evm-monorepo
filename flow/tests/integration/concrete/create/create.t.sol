@@ -207,6 +207,7 @@ contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         // vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.CreateFlowStream({
             streamId: expectedStreamId,
+            creator: users.sender,
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,

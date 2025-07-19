@@ -808,6 +808,7 @@ contract SablierFlow is
         // Log the newly created stream.
         emit ISablierFlow.CreateFlowStream({
             streamId: streamId,
+            creator: msg.sender,
             sender: sender,
             recipient: recipient,
             ratePerSecond: ratePerSecond,
