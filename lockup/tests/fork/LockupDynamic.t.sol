@@ -59,7 +59,7 @@ abstract contract Lockup_Dynamic_Fork_Test is Lockup_Fork_Test {
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupDynamic.CreateLockupDynamicStream({
             streamId: vars.streamId,
-            commonParams: defaults.lockupCreateEvent({ params: params.create, token_: FORK_TOKEN }),
+            commonParams: defaults.lockupCreateEvent({ caller: forkTokenHolder, params: params.create, token_: FORK_TOKEN }),
             segments: params.segments
         });
 

@@ -144,6 +144,7 @@ abstract contract SablierLockupLinear is
         emit ISablierLockupLinear.CreateLockupLinearStream({
             streamId: streamId,
             commonParams: Lockup.CreateEventCommon({
+                funder: msg.sender,
                 sender: sender,
                 recipient: recipient,
                 depositAmount: depositAmount,

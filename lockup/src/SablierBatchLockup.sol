@@ -83,6 +83,9 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 batch[i].segmentsWithDuration
             );
         }
+
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -139,6 +142,9 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 batch[i].segments
             );
         }
+
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -188,6 +194,9 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 batch[i].durations
             );
         }
+
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -238,6 +247,9 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 batch[i].cliffTime
             );
         }
+
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -286,6 +298,9 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 batch[i].tranchesWithDuration
             );
         }
+
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -342,6 +357,9 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 batch[i].tranches
             );
         }
+
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

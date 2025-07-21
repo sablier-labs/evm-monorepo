@@ -138,6 +138,7 @@ abstract contract SablierLockupTranched is
         emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: streamId,
             commonParams: Lockup.CreateEventCommon({
+                funder: msg.sender,
                 sender: sender,
                 recipient: recipient,
                 depositAmount: depositAmount,

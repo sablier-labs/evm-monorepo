@@ -20,6 +20,7 @@ library Lockup {
     }
 
     /// @notice Struct encapsulating the common parameters emitted in the stream creation events.
+    /// @param funder The address funding the stream.
     /// @param sender The address distributing the tokens, which is able to cancel the stream.
     /// @param recipient The address receiving the tokens, as well as the NFT owner.
     /// @param depositAmount The deposit amount, denoted in units of the token's decimals.
@@ -30,6 +31,7 @@ library Lockup {
     /// @param shape An optional parameter to specify the shape of the distribution function. This helps differentiate
     /// streams in the UI.
     struct CreateEventCommon {
+        address funder;
         address sender;
         address recipient;
         uint128 depositAmount;

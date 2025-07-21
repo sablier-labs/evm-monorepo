@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { BatchLockup } from "src/types/BatchLockup.sol";
 
@@ -14,6 +15,8 @@ contract CreateWithDurationsLD_Integration_Test is Integration_Test {
     }
 
     function test_WhenBatchSizeNotZero() external {
+        uint256[] memory expectedStreamIds = defaults.incrementalStreamIds({ firstStreamId: lockup.nextStreamId() });
+
         // Token flow: Sender → batchLockup → SablierLockup
         // Expect transfers from Alice to the batchLockup, and then from the batchLockup to the Lockup contract.
         expectCallToTransferFrom({
@@ -34,12 +37,13 @@ contract CreateWithDurationsLD_Integration_Test is Integration_Test {
             value: defaults.DEPOSIT_AMOUNT()
         });
 
-        uint256 firstStreamId = lockup.nextStreamId();
+        // It should emit a {CreateLockupBatch} event.
+        vm.expectEmit({ emitter: address(batchLockup) });
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: users.sender, lockup: lockup, streamIds: expectedStreamIds });
 
         // Assert that the batch of streams has been created successfully.
         uint256[] memory actualStreamIds =
             batchLockup.createWithDurationsLD(lockup, dai, defaults.batchCreateWithDurationsLD());
-        uint256[] memory expectedStreamIds = defaults.incrementalStreamIds({ firstStreamId: firstStreamId });
         assertEq(actualStreamIds, expectedStreamIds, "stream ids mismatch");
     }
 }

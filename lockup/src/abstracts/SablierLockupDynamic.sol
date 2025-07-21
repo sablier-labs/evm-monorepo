@@ -138,6 +138,7 @@ abstract contract SablierLockupDynamic is
         emit ISablierLockupDynamic.CreateLockupDynamicStream({
             streamId: streamId,
             commonParams: Lockup.CreateEventCommon({
+                funder: msg.sender,
                 sender: sender,
                 recipient: recipient,
                 depositAmount: depositAmount,
