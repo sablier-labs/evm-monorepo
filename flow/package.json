@@ -1,6 +1,6 @@
 {
   "name": "@sablier/flow",
-  "description": "Flow smart contracts of the Sablier token distribution protocol",
+  "description": "EVM smart contracts of the Sablier Flow token distribution protocol",
   "license": "SEE LICENSE IN LICENSE",
   "version": "1.1.1",
   "author": {
