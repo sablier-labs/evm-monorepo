@@ -1,6 +1,6 @@
 {
   "name": "@sablier/lockup",
-  "description": "Core smart contracts of the Lockup token distribution protocol",
+  "description": "EVM smart contracts of the Sablier Lockup token distribution protocol",
   "license": "SEE LICENSE IN LICENSE",
   "version": "2.0.1",
   "author": {
