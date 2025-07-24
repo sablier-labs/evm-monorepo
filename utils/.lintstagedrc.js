@@ -4,7 +4,7 @@
 module.exports = {
   "*.{json,md,yml}": "bun prettier --cache --write",
   "*.sol": [
-    "bun solhint --fix --noPrompt",
+    "bun solhint --cache --fix --noPrompt",
     "forge fmt",
   ],
 };

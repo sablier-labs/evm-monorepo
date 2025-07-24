@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { ConvertUSDFeeToWei_Comptroller_Concrete_Test } from "../convert-usd-fee-to-wei/convertUSDFeeToWei.t.sol";
-
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
+import { ConvertUSDFeeToWei_Comptroller_Concrete_Test } from "../convert-usd-fee-to-wei/convertUSDFeeToWei.t.sol";
 
 /// @dev It inherits from {ConvertUSDFeeToWei_Comptroller_Concrete_Test} to avoid duplicating the common tests.
 contract CalculateMinFeeWeiFor_Comptroller_Concrete_Test is ConvertUSDFeeToWei_Comptroller_Concrete_Test {

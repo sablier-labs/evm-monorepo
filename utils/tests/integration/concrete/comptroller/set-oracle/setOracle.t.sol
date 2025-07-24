@@ -3,8 +3,8 @@ pragma solidity >=0.8.22;
 
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Noop } from "src/mocks/Noop.sol";
 import { ChainlinkOracleMock } from "src/mocks/ChainlinkMocks.sol";
+import { Noop } from "src/mocks/Noop.sol";
 
 import { Base_Test } from "tests/Base.t.sol";
 

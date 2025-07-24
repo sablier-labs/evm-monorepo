@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { ISablierComptroller } from "./interfaces/ISablierComptroller.sol";
 import { IComptrollerable } from "./interfaces/IComptrollerable.sol";
+import { ISablierComptroller } from "./interfaces/ISablierComptroller.sol";
 import { Errors } from "./libraries/Errors.sol";
 
 /// @title Comptrollerable

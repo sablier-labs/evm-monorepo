@@ -8,9 +8,9 @@ import { Errors } from "src/libraries/Errors.sol";
 import { ComptrollerableMock } from "src/mocks/ComptrollerableMock.sol";
 import { SablierComptroller } from "src/SablierComptroller.sol";
 
+import { Base_Test } from "tests/Base.t.sol";
 import { TargetPanic } from "./targets/TargetPanic.sol";
 import { TargetReverter } from "./targets/TargetReverter.sol";
-import { Base_Test } from "tests/Base.t.sol";
 
 contract Execute_Concrete_Test is Base_Test {
     struct Targets {

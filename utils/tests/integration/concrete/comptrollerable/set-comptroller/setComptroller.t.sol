@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { Errors } from "src/libraries/Errors.sol";
 import { IComptrollerable } from "src/interfaces/IComptrollerable.sol";
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
+import { Errors } from "src/libraries/Errors.sol";
 import { ComptrollerWithoutMinimalInterfaceId } from "src/mocks/ComptrollerMock.sol";
 import { SablierComptroller } from "src/SablierComptroller.sol";
 

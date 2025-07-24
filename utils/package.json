@@ -20,7 +20,7 @@
     "husky": "^9.1",
     "lint-staged": "^16.1",
     "prettier": "^3.5",
-    "solhint": "^5.1"
+    "solhint": "^6.0"
   },
   "files": [
     "artifacts",

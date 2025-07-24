@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { Adminable } from "./Adminable.sol";
 import { IRoleAdminable } from "./interfaces/IRoleAdminable.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { Adminable } from "./Adminable.sol";
 
 /// @title RoleAdminable
 /// @notice See the documentation in {IRoleAdminable}.
