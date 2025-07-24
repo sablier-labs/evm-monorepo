@@ -12,7 +12,7 @@ Licensor: Sablier Labs Ltd
 Licensed Work: Sablier Lockup The Licensed Work is (C) 2025 Sablier Labs Ltd
 
 Additional Use Grant: Any uses listed and defined at
-[`lockup-license-grants.sablier.eth`](https://app.ens.domains/lockup-license-grants.sablier.eth)
+[`license-grants.sablier.eth`](https://app.ens.domains/license-grants.sablier.eth)
 
 Change Date: The earlier of 2029-07-01 or a date specified at
 [`license-dates.sablier.eth`](https://app.ens.domains/license-dates.sablier.eth)
