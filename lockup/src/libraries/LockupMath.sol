@@ -49,7 +49,7 @@ library LockupMath {
     function calculateStreamedAmountLD(
         uint128 depositedAmount,
         uint40 endTime,
-        LockupDynamic.Segment[] memory segments,
+        LockupDynamic.Segment[] calldata segments,
         uint40 startTime,
         uint128 withdrawnAmount
     )
@@ -147,7 +147,7 @@ library LockupMath {
         uint128 depositedAmount,
         uint40 endTime,
         uint40 startTime,
-        LockupLinear.UnlockAmounts memory unlockAmounts,
+        LockupLinear.UnlockAmounts calldata unlockAmounts,
         uint128 withdrawnAmount
     )
         external
@@ -231,7 +231,7 @@ library LockupMath {
         uint128 depositedAmount,
         uint40 endTime,
         uint40 startTime,
-        LockupTranched.Tranche[] memory tranches
+        LockupTranched.Tranche[] calldata tranches
     )
         external
         view
