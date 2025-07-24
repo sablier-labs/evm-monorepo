@@ -3,5 +3,5 @@
  */
 module.exports = {
   "*.{json,md,yml}": "prettier --cache --write",
-  "*.sol": ["bun solhint --fix --noPrompt", "forge fmt"],
+  "*.sol": ["bun solhint --cache --fix --noPrompt", "forge fmt"],
 };

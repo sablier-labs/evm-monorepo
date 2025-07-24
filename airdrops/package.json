@@ -24,7 +24,7 @@
     "murky": "github:dmfxyz/murky#6f67641",
     "prettier": "^3.5",
     "solady": "0.0.208",
-    "solhint": "^5.1"
+    "solhint": "^6.0"
   },
   "files": [
     "artifacts",

@@ -43,7 +43,7 @@ contract SablierFactoryMerkleInstant is ISablierFactoryMerkleInstant, SablierFac
     /// @inheritdoc ISablierFactoryMerkleInstant
     function computeMerkleInstant(
         address campaignCreator,
-        MerkleInstant.ConstructorParams memory params
+        MerkleInstant.ConstructorParams calldata params
     )
         external
         view
@@ -74,7 +74,7 @@ contract SablierFactoryMerkleInstant is ISablierFactoryMerkleInstant, SablierFac
 
     /// @inheritdoc ISablierFactoryMerkleInstant
     function createMerkleInstant(
-        MerkleInstant.ConstructorParams memory params,
+        MerkleInstant.ConstructorParams calldata params,
         uint256 aggregateAmount,
         uint256 recipientCount
     )

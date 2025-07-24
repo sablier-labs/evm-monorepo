@@ -79,7 +79,7 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
 
         // Deploy the Lockup contract.
         address nftDescriptor = address(new LockupNFTDescriptor());
-        lockup = new SablierLockup(admin, nftDescriptor);
+        lockup = new SablierLockup(address(comptroller), nftDescriptor);
 
         // Deploy the factories.
         deployFactoriesConditionally();

@@ -46,7 +46,7 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
     /// @inheritdoc ISablierFactoryMerkleLT
     function computeMerkleLT(
         address campaignCreator,
-        MerkleLT.ConstructorParams memory params
+        MerkleLT.ConstructorParams calldata params
     )
         external
         view
@@ -94,7 +94,7 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
 
     /// @inheritdoc ISablierFactoryMerkleLT
     function createMerkleLT(
-        MerkleLT.ConstructorParams memory params,
+        MerkleLT.ConstructorParams calldata params,
         uint256 aggregateAmount,
         uint256 recipientCount
     )

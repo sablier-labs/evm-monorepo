@@ -46,7 +46,7 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
     /// @inheritdoc ISablierFactoryMerkleVCA
     function computeMerkleVCA(
         address campaignCreator,
-        MerkleVCA.ConstructorParams memory params
+        MerkleVCA.ConstructorParams calldata params
     )
         external
         view
@@ -83,7 +83,7 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
 
     /// @inheritdoc ISablierFactoryMerkleVCA
     function createMerkleVCA(
-        MerkleVCA.ConstructorParams memory params,
+        MerkleVCA.ConstructorParams calldata params,
         uint256 aggregateAmount,
         uint256 recipientCount
     )

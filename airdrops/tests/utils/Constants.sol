@@ -15,6 +15,7 @@ abstract contract Constants is BaseConstants {
     uint256 public constant AGGREGATE_AMOUNT = CLAIM_AMOUNT * RECIPIENT_COUNT;
     uint128 public constant CLAIM_AMOUNT = 10_000e18;
     uint128 public constant CLIFF_AMOUNT = (CLAIM_AMOUNT * VESTING_CLIFF_DURATION) / VESTING_TOTAL_DURATION;
+    uint128 public constant UNLOCK_START_AMOUNT = 100e18;
     uint128 public constant VCA_FULL_AMOUNT = CLAIM_AMOUNT;
 
     // Durations and Timestamps
@@ -51,7 +52,6 @@ abstract contract Constants is BaseConstants {
                                      IMMUTABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint128 public immutable UNLOCK_START_AMOUNT = 100e18;
     UD60x18 public immutable VESTING_CLIFF_UNLOCK_PERCENTAGE = ud(CLIFF_AMOUNT).div(ud(CLAIM_AMOUNT));
     UD60x18 public immutable VESTING_START_UNLOCK_PERCENTAGE = ud(UNLOCK_START_AMOUNT).div(ud(CLAIM_AMOUNT));
     uint128 public immutable VCA_VESTING_AMOUNT = CLAIM_AMOUNT - UNLOCK_START_AMOUNT;
