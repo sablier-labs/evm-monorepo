@@ -1,11 +1,15 @@
 [profile.default]
+  ast = true                       # needed for upgrade safety validations by foundry-upgrades
   auto_detect_solc = false
+  build_info = true                # needed for upgrade safety validations by foundry-upgrades
   bytecode_hash = "ipfs"
-  evm_version = "shanghai" # needed for greater coverage of EVM chains
+  evm_version = "shanghai"         # needed for greater coverage of EVM chains
+  extra_output = ["storageLayout"] # needed for upgrade safety validations by foundry-upgrades
   fs_permissions = [
     { access = "read", path = "./out-optimized" },
     { access = "read", path = "package.json" },
   ]
+  ffi = true                        # needed for upgrade safety validations by foundry-upgrades
   fuzz = { runs = 1000 }
   gas_reports = ["*"]
   optimizer = true

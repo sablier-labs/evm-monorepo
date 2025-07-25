@@ -2,12 +2,13 @@
 pragma solidity >=0.8.22;
 
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import { IERC1822Proxiable } from "@openzeppelin/contracts/interfaces/draft-IERC1822.sol";
 import { IRoleAdminable } from "./IRoleAdminable.sol";
 
 /// @title ISablierComptroller
 /// @notice Manage fees across all Sablier protocols. State-changing functions are only accessible to the admin and the
 /// fee manager.
-interface ISablierComptroller is IERC165, IRoleAdminable {
+interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        TYPES
     //////////////////////////////////////////////////////////////////////////*/

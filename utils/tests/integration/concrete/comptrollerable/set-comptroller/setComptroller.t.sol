@@ -16,7 +16,7 @@ contract SetComptroller_Comptrollerable_Concrete_Test is Base_Test {
         super.setUp();
 
         // Deploy a new comptroller.
-        newComptroller = new SablierComptroller(admin, 0, 0, 0, address(oracle));
+        newComptroller = new SablierComptroller(admin);
     }
 
     function test_RevertWhen_CallerNotCurrentComptroller() external {

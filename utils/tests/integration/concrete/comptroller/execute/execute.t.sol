@@ -34,7 +34,7 @@ contract Execute_Concrete_Test is Base_Test {
         });
 
         // Deploy a new comptroller.
-        newComptroller = new SablierComptroller(admin, 0, 0, 0, address(oracle));
+        newComptroller = new SablierComptroller(admin);
 
         // Encode set comptroller function call.
         setComptrollerPayload = abi.encodeCall(comptrollerableMock.setComptroller, (newComptroller));

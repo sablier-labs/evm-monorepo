@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { stdStorage, StdStorage } from "forge-std/src/StdStorage.sol";
+import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
+
 import {
     ChainlinkOracleFutureDatedPrice,
     ChainlinkOracleNegativePrice,
@@ -15,6 +18,8 @@ import {
 import { Base_Test } from "tests/Base.t.sol";
 
 contract ConvertUSDFeeToWei_Comptroller_Concrete_Test is Base_Test {
+    using stdStorage for StdStorage;
+
     function test_GivenOracleZero(uint128 feeUSD) external {
         comptroller.setOracle(address(0));
 
@@ -30,17 +35,11 @@ contract ConvertUSDFeeToWei_Comptroller_Concrete_Test is Base_Test {
     function test_WhenLatestRoundCallFails(uint128 feeUSD) external givenOracleNotZero whenFeeUSDNotZero {
         address revertOracle = address(new ChainlinkOracleWithRevertingPrice());
 
-        // Try different slots until we find the right one (it should be at 2, but we use this approach in case it
-        // going to change)
-        for (uint256 slot = 0; slot < 10; ++slot) {
-            bytes32 currentValue = vm.load(address(comptroller), bytes32(slot));
-            if (address(uint160(uint256(currentValue))) == address(oracle)) {
-                // Use `vm.store` instead of `setOracle` as this function checks if `latestRoundData` call fails.
-                vm.store(address(comptroller), bytes32(slot), bytes32(uint256(uint160(revertOracle))));
-                break;
-            }
-        }
+        // Use `vm.store` since `setOracle` function reverts if call to `latestRoundData` fails.
+        uint256 oracleSlot = stdstore.target(address(comptroller)).sig(ISablierComptroller.oracle.selector).find();
+        vm.store(address(comptroller), bytes32(oracleSlot), bytes32(uint256(uint160(revertOracle))));
 
+        // Check: the oracle is modified.
         assertEq(comptroller.oracle(), revertOracle, "oracle not modified");
 
         // It should return zero.

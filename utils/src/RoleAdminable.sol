@@ -8,7 +8,9 @@ import { Errors } from "./libraries/Errors.sol";
 /// @title RoleAdminable
 /// @notice See the documentation in {IRoleAdminable}.
 /// @dev This contract is a lightweight version of OpenZeppelin's AccessControl contract which can be found at
-/// https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.0.2/contracts/access/AccessControl.sol.
+/// https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/access/AccessControl.sol. The contract
+/// inherits from {Adminable} and extends it with role-based permissions where the admin can grant and revoke roles to
+/// other accounts. Both role holders and the admin can access functions protected by roles.
 abstract contract RoleAdminable is IRoleAdminable, Adminable {
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
@@ -83,16 +85,8 @@ abstract contract RoleAdminable is IRoleAdminable, Adminable {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                        CONTRACT-INTERNAL READ-ONLY FUNCTIONS
+                            INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Checks whether `msg.sender` has the `role` or is the admin. This is used in the {onlyRole} modifier.
-    function _checkRoleOrIsAdmin(bytes32 role) private view {
-        // Check: `msg.sender` is the admin or has the `role`.
-        if (!_hasRoleOrIsAdmin(role, msg.sender)) {
-            revert Errors.UnauthorizedAccess({ caller: msg.sender, neededRole: role });
-        }
-    }
 
     /// @dev Returns `true` if `account` is the admin or has the `role`.
     function _hasRoleOrIsAdmin(bytes32 role, address account) internal view returns (bool) {
@@ -103,5 +97,17 @@ abstract contract RoleAdminable is IRoleAdminable, Adminable {
 
         // Otherwise, return false.
         return false;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            PRIVATE READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Checks whether `msg.sender` has the `role` or is the admin. This is used in the {onlyRole} modifier.
+    function _checkRoleOrIsAdmin(bytes32 role) private view {
+        // Check: `msg.sender` is the admin or has the `role`.
+        if (!_hasRoleOrIsAdmin(role, msg.sender)) {
+            revert Errors.UnauthorizedAccess({ caller: msg.sender, neededRole: role });
+        }
     }
 }

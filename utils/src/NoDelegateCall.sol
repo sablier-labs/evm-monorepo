@@ -33,7 +33,7 @@ abstract contract NoDelegateCall {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                        CONTRACT-INTERNAL READ-ONLY FUNCTIONS
+                            PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev This function checks whether the current call is a delegate call, and reverts if it is.

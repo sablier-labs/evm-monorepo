@@ -1,0 +1,17 @@
+Initialize_Comptroller_Concrete_Test
+├── when called on implementation
+│  └── it should revert
+└── when called on proxy
+   ├── given initialized
+   │  └── it should revert
+   └── given not initialized
+      ├── when initial airdrop fee exceeds max fee
+      │  └── it should revert
+      └── when initial airdrop fee not exceed max fee
+         ├── when initial flow fee exceeds max fee
+         │  └── it should revert
+         └── when initial flow fee not exceed max fee
+            ├── when initial lockup fee exceeds max fee
+            │  └── it should revert
+            └── when initial lockup fee not exceed max fee
+               └── it should initialize the proxy states

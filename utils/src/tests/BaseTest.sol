@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { UnsafeUpgrades } from "@openzeppelin/foundry-upgrades/src/Upgrades.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 
 import { IRoleAdminable } from "../interfaces/IRoleAdminable.sol";
@@ -44,8 +45,11 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
 
         // Deploy the Sablier Comptroller.
         oracle = new ChainlinkOracleMock();
-        comptroller =
-            new SablierComptroller(admin, AIRDROP_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle));
+        comptroller = ISablierComptroller(
+            deployComptrollerWithProxy(
+                admin, AIRDROP_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle)
+            )
+        );
 
         // Deploy the tokens.
         dai = new ERC20Mock("Dai stablecoin", "DAI", 18);
@@ -130,18 +134,28 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
         }
     }
 
-    /// @dev Function to deploy the Sablier Comptroller with the given parameters.
-    function deployComptroller(
+    /// @dev Function to deploy the Sablier Comptroller using the UUPS proxy pattern.
+    function deployComptrollerWithProxy(
         address admin_,
-        uint256 airdropMinFeeUSD,
-        uint256 flowMinFeeUSD,
-        uint256 lockupMinFeeUSD,
+        uint256 airdropMinFeeUSD_,
+        uint256 flowMinFeeUSD_,
+        uint256 lockupMinFeeUSD_,
         address oracle_
     )
         internal
-        returns (address)
+        returns (address proxy)
     {
-        return address(new SablierComptroller(admin_, airdropMinFeeUSD, flowMinFeeUSD, lockupMinFeeUSD, oracle_));
+        // Deploy the implementation.
+        address implementation = address(new SablierComptroller(admin_));
+
+        // Deploy the proxy and initialize the state variables. See
+        // https://docs.openzeppelin.com/upgrades-plugins/foundry-upgrades#coverage_testing for more details.
+        proxy = UnsafeUpgrades.deployUUPSProxy(
+            implementation,
+            abi.encodeCall(
+                SablierComptroller.initialize, (admin_, airdropMinFeeUSD_, flowMinFeeUSD_, lockupMinFeeUSD_, oracle_)
+            )
+        );
     }
 
     /// @dev Authorize `account` to take admin actions on `target` contract.

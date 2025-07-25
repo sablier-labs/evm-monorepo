@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Upgrades } from "@openzeppelin/foundry-upgrades/src/Upgrades.sol";
 import { StdAssertions } from "forge-std/src/StdAssertions.sol";
 
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
@@ -86,6 +87,11 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions {
     /// @dev Convert value from USD to ETH wei.
     function convertUSDToWei(uint128 amountUSD) internal pure returns (uint256 amountWei) {
         amountWei = (1e18 * uint256(amountUSD)) / ETH_PRICE_USD;
+    }
+
+    /// @dev Get the implementation address of the comptroller.
+    function getComptrollerImplAddress() internal view returns (address payable) {
+        return payable(Upgrades.getImplementationAddress(address(comptroller)));
     }
 
     /// @dev Returns the fee in USD for the given protocol.

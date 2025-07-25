@@ -8,6 +8,10 @@ abstract contract Modifiers is BaseTest {
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier givenNotInitialized() {
+        _;
+    }
+
     modifier givenOracleNotZero() {
         _;
     }
@@ -43,6 +47,10 @@ abstract contract Modifiers is BaseTest {
 
     modifier whenCallerCurrentComptroller() {
         setMsgSender(address(comptroller));
+        _;
+    }
+
+    modifier whenCalledOnProxy() {
         _;
     }
 
