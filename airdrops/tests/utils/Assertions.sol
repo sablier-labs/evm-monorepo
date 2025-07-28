@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// solhint-disable event-name-camelcase
+// solhint-disable event-name-capwords
 pragma solidity >=0.8.22;
 
 import { Assertions as LockupAssertions } from "@sablier/lockup/tests/utils/Assertions.sol";
