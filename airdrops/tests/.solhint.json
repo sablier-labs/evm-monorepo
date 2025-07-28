@@ -2,7 +2,6 @@
   "rules": {
     "avoid-low-level-calls": "off",
     "contract-name-capwords": "off",
-    "func-name-mixedcase": "off",
     "gas-calldata-parameters": "off",
     "gas-custom-errors": "off",
     "gas-increment-by-one": "off",
