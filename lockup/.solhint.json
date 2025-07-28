@@ -4,7 +4,7 @@
     "avoid-low-level-calls": "off",
     "code-complexity": ["error", 10],
     "compiler-version": ["error", ">=0.8.22"],
-    "contract-name-camelcase": "off",
+    "contract-name-capwords": "off",
     "const-name-snakecase": "off",
     "func-name-mixedcase": "off",
     "func-visibility": ["error", { "ignoreConstructors": true }],
