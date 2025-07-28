@@ -6,7 +6,7 @@
       "dependencies": {
         "@openzeppelin/contracts": "5.3.0",
         "@prb/math": "4.1.0",
-        "@sablier/evm-utils": "github:sablier-labs/evm-utils",
+        "@sablier/evm-utils": "1.0.0-beta.1",
       },
       "devDependencies": {
         "@sablier/devkit": "github:sablier-labs/devkit",
@@ -157,7 +157,7 @@
 
     "@openzeppelin/contracts": ["@openzeppelin/contracts@5.3.0", "", {}, "sha512-zj/KGoW7zxWUE8qOI++rUM18v+VeLTTzKs/DJFkSzHpQFPD/jKKF0TrMxBfGLl3kpdELCNccvB3zmofSzm4nlA=="],
 
-    "@openzeppelin/contracts-upgradeable": ["@openzeppelin/contracts-upgradeable@4.9.3", "", {}, "sha512-jjaHAVRMrE4UuZNfDwjlLGDxTHWIOwTJS2ldnc278a0gevfXfPr8hxKEVBGFBE96kl2G3VHDZhUimw/+G3TG2A=="],
+    "@openzeppelin/contracts-upgradeable": ["@openzeppelin/contracts-upgradeable@5.3.0", "", { "peerDependencies": { "@openzeppelin/contracts": "5.3.0" } }, "sha512-yVzSSyTMWO6rapGI5tuqkcLpcGGXA0UA1vScyV5EhE5yw8By3Ewex9rDUw8lfVw0iTkvR/egjfcW5vpk03lqZg=="],
 
     "@openzeppelin/upgrades-core": ["@openzeppelin/upgrades-core@1.44.1", "", { "dependencies": { "@nomicfoundation/slang": "^0.18.3", "bignumber.js": "^9.1.2", "cbor": "^10.0.0", "chalk": "^4.1.0", "compare-versions": "^6.0.0", "debug": "^4.1.1", "ethereumjs-util": "^7.0.3", "minimatch": "^9.0.5", "minimist": "^1.2.7", "proper-lockfile": "^4.1.1", "solidity-ast": "^0.4.60" }, "bin": { "openzeppelin-upgrades-core": "dist/cli/cli.js" } }, "sha512-yqvDj7eC7m5kCDgqCxVFgk9sVo9SXP/fQFaExPousNfAJJbX+20l4fKZp17aXbNTpo1g+2205s6cR9VhFFOCaQ=="],
 
@@ -171,7 +171,7 @@
 
     "@sablier/devkit": ["@sablier/devkit@github:sablier-labs/devkit#8ca7daa", {}, "sablier-labs-devkit-8ca7daa"],
 
-    "@sablier/evm-utils": ["@sablier/evm-utils@github:sablier-labs/evm-utils#abd0aed", { "dependencies": { "@chainlink/contracts": "1.3.0" } }, "sablier-labs-evm-utils-abd0aed"],
+    "@sablier/evm-utils": ["@sablier/evm-utils@1.0.0-beta.1", "", { "dependencies": { "@chainlink/contracts": "1.3.0", "@openzeppelin/contracts": "5.3.0", "@openzeppelin/contracts-upgradeable": "5.3.0", "forge-std": "github:foundry-rs/forge-std#v1.9.7" } }, "sha512-jm9/Q0kZM1jTX6+GP2GP3b/7pR3k1mXSgsrOTI52XGu9h+UvuWgXbyRgPn9g+ofdsbrBaAsqUF0CULUg2HLCMg=="],
 
     "@scroll-tech/contracts": ["@scroll-tech/contracts@0.1.0", "", {}, "sha512-aBbDOc3WB/WveZdpJYcrfvMYMz7ZTEiW8M9XMJLba8p9FAR5KGYB/cV+8+EUsq3MKt7C1BfR+WnXoTVdvwIY6w=="],
 
@@ -770,6 +770,8 @@
     "@arbitrum/token-bridge-contracts/@openzeppelin/contracts-upgradeable": ["@openzeppelin/contracts-upgradeable@4.8.3", "", {}, "sha512-SXDRl7HKpl2WDoJpn7CK/M9U4Z8gNXDHHChAKh0Iz+Wew3wu6CmFYBeie3je8V0GSXZAIYYwUktSrnW/kwVPtg=="],
 
     "@chainlink/contracts/@openzeppelin/contracts": ["@openzeppelin/contracts@4.9.3", "", {}, "sha512-He3LieZ1pP2TNt5JbkPA4PNT9WC3gOTOlDcFGJW4Le4QKqwmiNJCRt44APfxMxvq7OugU/cqYuPcSBzOw38DAg=="],
+
+    "@chainlink/contracts/@openzeppelin/contracts-upgradeable": ["@openzeppelin/contracts-upgradeable@4.9.3", "", {}, "sha512-jjaHAVRMrE4UuZNfDwjlLGDxTHWIOwTJS2ldnc278a0gevfXfPr8hxKEVBGFBE96kl2G3VHDZhUimw/+G3TG2A=="],
 
     "@changesets/apply-release-plan/fs-extra": ["fs-extra@7.0.1", "", { "dependencies": { "graceful-fs": "^4.1.2", "jsonfile": "^4.0.0", "universalify": "^0.1.0" } }, "sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw=="],
 
