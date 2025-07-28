@@ -6,7 +6,7 @@ default:
   @just --list
 
 clean:
-  rm -rf broadcast cache coverage lcov.info
+  rm -rf artifacts broadcast cache coverage lcov.info
   forge clean
 
 coverage:

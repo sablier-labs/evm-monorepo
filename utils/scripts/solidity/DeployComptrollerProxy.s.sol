@@ -2,8 +2,8 @@
 pragma solidity >=0.8.22;
 
 import { Options, Upgrades } from "@openzeppelin/foundry-upgrades/src/Upgrades.sol";
-import { SablierComptroller } from "../src/SablierComptroller.sol";
-import { BaseScript } from "../src/tests/BaseScript.sol";
+import { SablierComptroller } from "src/SablierComptroller.sol";
+import { BaseScript } from "src/tests/BaseScript.sol";
 
 /// @notice Deploys a new proxy and the Sablier Comptroller.
 /// @dev The deployed Sablier Comptroller is set as the implementation of the proxy. See
