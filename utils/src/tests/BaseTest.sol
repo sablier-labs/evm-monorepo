@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { UnsafeUpgrades } from "@openzeppelin/foundry-upgrades/src/Upgrades.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 
 import { IRoleAdminable } from "../interfaces/IRoleAdminable.sol";
@@ -50,6 +50,10 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
                 admin, AIRDROP_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle)
             )
         );
+
+        // Label the contracts.
+        vm.label(address(oracle), "Oracle");
+        vm.label(address(comptroller), "Comptroller");
 
         // Deploy the tokens.
         dai = new ERC20Mock("Dai stablecoin", "DAI", 18);
@@ -148,14 +152,19 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
         // Deploy the implementation.
         address implementation = address(new SablierComptroller(admin_));
 
-        // Deploy the proxy and initialize the state variables. See
-        // https://docs.openzeppelin.com/upgrades-plugins/foundry-upgrades#coverage_testing for more details.
-        proxy = UnsafeUpgrades.deployUUPSProxy(
-            implementation,
-            abi.encodeCall(
-                SablierComptroller.initialize, (admin_, airdropMinFeeUSD_, flowMinFeeUSD_, lockupMinFeeUSD_, oracle_)
+        // Deploy the proxy and initialize the state variables.
+        proxy = address(
+            new ERC1967Proxy(
+                implementation,
+                abi.encodeCall(
+                    SablierComptroller.initialize,
+                    (admin_, airdropMinFeeUSD_, flowMinFeeUSD_, lockupMinFeeUSD_, oracle_)
+                )
             )
         );
+
+        // Label the implementation.
+        vm.label(address(implementation), "Implementation");
     }
 
     /// @dev Authorize `account` to take admin actions on `target` contract.
