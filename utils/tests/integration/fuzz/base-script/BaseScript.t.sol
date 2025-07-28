@@ -11,6 +11,9 @@ contract BaseScriptMock is BaseScript { }
 
 contract BaseScript_Fuzz_Test is StdAssertions {
     BaseScriptMock internal baseScript;
+
+    string public constant PACKAGE_VERSION = "1.0.0-beta.1";
+
     Vm internal vm = StdConstants.VM;
 
     /// @dev Sets the `block.chainid` to the given chain ID.
@@ -26,7 +29,7 @@ contract BaseScript_Fuzz_Test is StdAssertions {
     }
 
     function testFuzz_Constructor(uint64 chainId) external setChainId(chainId) {
-        string memory salt = string.concat("ChainID ", vm.toString(chainId), ", Version 1.0.0");
+        string memory salt = string.concat("ChainID ", vm.toString(chainId), ", Version ", PACKAGE_VERSION);
         bytes32 expectedSalt = bytes32(abi.encodePacked(salt));
 
         assertEq(baseScript.DEFAULT_SABLIER_ADMIN(), 0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F, "default admin");
@@ -35,7 +38,7 @@ contract BaseScript_Fuzz_Test is StdAssertions {
     }
 
     function testFuzz_ConstructCreate2Salt(uint64 chainId) external setChainId(chainId) {
-        string memory salt = string.concat("ChainID ", vm.toString(chainId), ", Version 1.0.0");
+        string memory salt = string.concat("ChainID ", vm.toString(chainId), ", Version ", PACKAGE_VERSION);
         bytes32 expectedSalt = bytes32(abi.encodePacked(salt));
 
         assertEq(baseScript.constructCreate2Salt(), expectedSalt, "create2 salt");
@@ -118,6 +121,6 @@ contract BaseScript_Fuzz_Test is StdAssertions {
     }
 
     function testFuzz_GetVersion(uint64 chainId) external setChainId(chainId) {
-        assertEq(baseScript.getVersion(), "1.0.0", "version");
+        assertEq(baseScript.getVersion(), PACKAGE_VERSION, "version");
     }
 }
