@@ -21,6 +21,4 @@ vulnerability, it must adhere to these assumptions as well:
 - The token contract has only one entry point.
 - The token contract does not allow callbacks (e.g. ERC-777 is not supported).
 - The native token of the chain, i.e. the one used for `msg.value` payments, has 18 decimals.
-- Campaign creator does not fund an Airdrop campaign contract before deploying it through the Sablier Merkle Factory.  
-  Because, in the case of MerkleVCA, if the constructor arguments are invalid, the campaign will not be deployed at the
-  intended CREATE2 address, which could lead to funds getting stuck in the address.
+- Campaign creator does not fund an Airdrop campaign contract before deploying it through the Sablier Merkle Factory.
