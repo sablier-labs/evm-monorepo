@@ -10,7 +10,6 @@
     { access = "read", path = "package.json" },
   ]
   ffi = true                        # needed for upgrade safety validations by foundry-upgrades
-  fuzz = { runs = 1000 }
   gas_reports = ["*"]
   optimizer = true
   optimizer_runs = 10_000
@@ -19,6 +18,16 @@
   solc = "0.8.29"
   src = "src"
   test = "tests"
+
+[profile.default.fuzz]
+  max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
+  runs = 1000
+
+[profile.default.invariant]
+  call_override = false  # Override unsafe external calls to perform reentrancy checks
+  depth = 100            # Number of calls executed in one run
+  fail_on_revert = true
+  runs = 200
 
 # Compile only the production code and the test mocks with via IR
 [profile.optimized]

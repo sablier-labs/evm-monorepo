@@ -38,6 +38,16 @@ jobs:
       match-path: "tests/integration/**/*.sol"
       name: "Integration tests"
 
+  test-invariant:
+    needs: ["check", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-invariant-depth: 100
+      foundry-invariant-runs: 300
+      match-path: "tests/invariant/**/*.sol"
+      name: "Invariant tests"
+
   coverage:
     needs: ["check", "build"]
     if: needs.build.outputs.cache-status != 'primary'

@@ -12,6 +12,14 @@ on:
         default: "100000"
         description: "Integration: number of fuzz runs."
         required: false
+      invariantRuns:
+        default: "50000"
+        description: "Invariant runs: number of sequences of function calls generated and run."
+        required: false
+      invariantDepth:
+        default: "200"
+        description: "Invariant depth: number of function calls made in a given run."
+        required: false
 
 jobs:
   check:
@@ -29,6 +37,15 @@ jobs:
       foundry-fuzz-runs: ${{ fromJSON(inputs.integrationFuzzRuns || '100000') }}
       match-path: "tests/integration/**/*.sol"
       name: "Integration tests"
+
+  test-invariant:
+    needs: ["check", "build"]
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-invariant-depth: ${{ fromJSON(inputs.invariantDepth || '200') }}
+      foundry-invariant-runs: ${{ fromJSON(inputs.invariantRuns || '50000') }}
+      match-path: "tests/invariant/**/*.sol"
+      name: "Invariant tests"
 
   notify-on-failure:
     if: failure()

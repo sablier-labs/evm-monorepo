@@ -13,10 +13,11 @@ import { RoleAdminableMock } from "src/mocks/RoleAdminableMock.sol";
 import { BaseTest } from "src/tests/BaseTest.sol";
 
 import { Modifiers } from "./utils/Modifiers.sol";
+import { Utils } from "./utils/Utils.sol";
 import { Users } from "./utils/Types.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
-abstract contract Base_Test is BaseTest, Modifiers, StdAssertions {
+abstract contract Base_Test is BaseTest, Modifiers, StdAssertions, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -79,44 +80,8 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions {
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Bound the protocol to a valid enum value.
-    function boundProtocolEnum(uint8 protocolIndex) internal pure returns (ISablierComptroller.Protocol) {
-        return ISablierComptroller.Protocol(boundUint8(protocolIndex, 0, 3));
-    }
-
-    /// @dev Convert value from USD to ETH wei.
-    function convertUSDToWei(uint128 amountUSD) internal pure returns (uint256 amountWei) {
-        amountWei = (1e18 * uint256(amountUSD)) / ETH_PRICE_USD;
-    }
-
     /// @dev Get the implementation address of the comptroller.
     function getComptrollerImplAddress() internal view returns (address payable) {
         return payable(Upgrades.getImplementationAddress(address(comptroller)));
-    }
-
-    /// @dev Returns the fee in USD for the given protocol.
-    function getFeeInUSD(ISablierComptroller.Protocol protocol) internal pure returns (uint256 feeInUSD) {
-        if (protocol == ISablierComptroller.Protocol.Airdrops) {
-            feeInUSD = AIRDROP_MIN_FEE_USD;
-        } else if (protocol == ISablierComptroller.Protocol.Flow) {
-            feeInUSD = FLOW_MIN_FEE_USD;
-        } else if (protocol == ISablierComptroller.Protocol.Lockup) {
-            feeInUSD = LOCKUP_MIN_FEE_USD;
-        } else if (protocol == ISablierComptroller.Protocol.Staking) {
-            feeInUSD = STAKING_MIN_FEE_USD;
-        }
-    }
-
-    /// @dev Returns the fee in wei for the given protocol.
-    function getFeeInWei(ISablierComptroller.Protocol protocol) internal pure returns (uint256 feeInWei) {
-        if (protocol == ISablierComptroller.Protocol.Airdrops) {
-            feeInWei = AIRDROP_MIN_FEE_WEI;
-        } else if (protocol == ISablierComptroller.Protocol.Flow) {
-            feeInWei = FLOW_MIN_FEE_WEI;
-        } else if (protocol == ISablierComptroller.Protocol.Lockup) {
-            feeInWei = LOCKUP_MIN_FEE_WEI;
-        } else if (protocol == ISablierComptroller.Protocol.Staking) {
-            feeInWei = STAKING_MIN_FEE_WEI;
-        }
     }
 }
