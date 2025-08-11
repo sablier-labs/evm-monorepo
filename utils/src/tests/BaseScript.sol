@@ -147,7 +147,6 @@ abstract contract BaseScript is Script {
         if (chainId == ChainId.SEI) return address(0xCAFE);
         if (chainId == ChainId.SOPHON) return address(0xCAFE);
         if (chainId == ChainId.SUPERSEED) return address(0xCAFE);
-        if (chainId == ChainId.TAIKO) return address(0xCAFE);
         if (chainId == ChainId.TANGLE) return address(0xCAFE);
         if (chainId == ChainId.ULTRA) return address(0xCAFE);
         if (chainId == ChainId.UNICHAIN) return address(0xCAFE);
@@ -164,7 +163,6 @@ abstract contract BaseScript is Script {
         if (chainId == ChainId.MONAD_TESTNET) return address(0xCAFE);
         if (chainId == ChainId.OPTIMISM_SEPOLIA) return address(0xCAFE);
         if (chainId == ChainId.SUPERSEED_SEPOLIA) return address(0xCAFE);
-        if (chainId == ChainId.TAIKO_HEKLA) return address(0xCAFE);
         if (chainId == ChainId.ZKSYNC_SEPOLIA) return address(0xCAFE);
 
         // Otherwise, revert.

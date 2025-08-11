@@ -12,13 +12,13 @@ library ChainId {
             || chainId == BERACHAIN || chainId == BLAST || chainId == BSC || chainId == CHILIZ || chainId == COREDAO
             || chainId == ETHEREUM || chainId == FORM || chainId == GNOSIS || chainId == IOTEX || chainId == LIGHTLINK
             || chainId == LINEA || chainId == MODE || chainId == MORPH || chainId == OPTIMISM || chainId == POLYGON
-            || chainId == SCROLL || chainId == SEI || chainId == SOPHON || chainId == SUPERSEED || chainId == TAIKO
-            || chainId == TANGLE || chainId == ULTRA || chainId == UNICHAIN || chainId == XDC || chainId == ZKSYNC;
+            || chainId == SCROLL || chainId == SEI || chainId == SOPHON || chainId == SUPERSEED || chainId == TANGLE
+            || chainId == ULTRA || chainId == UNICHAIN || chainId == XDC || chainId == ZKSYNC;
 
         bool isTestnet = chainId == ARBITRUM_SEPOLIA || chainId == BASE_SEPOLIA || chainId == BLAST_SEPOLIA
             || chainId == ETHEREUM_SEPOLIA || chainId == LINEA_SEPOLIA || chainId == MODE_SEPOLIA
             || chainId == MONAD_TESTNET || chainId == OPTIMISM_SEPOLIA || chainId == SUPERSEED_SEPOLIA
-            || chainId == TAIKO_HEKLA || chainId == ZKSYNC_SEPOLIA;
+            || chainId == ZKSYNC_SEPOLIA;
 
         return isMainnet || isTestnet;
     }
@@ -50,7 +50,6 @@ library ChainId {
     uint256 public constant SEI = 1329;
     uint256 public constant SOPHON = 50_104;
     uint256 public constant SUPERSEED = 5330;
-    uint256 public constant TAIKO = 167_000;
     uint256 public constant TANGLE = 5845;
     uint256 public constant ULTRA = 19_991;
     uint256 public constant UNICHAIN = 130;
@@ -70,6 +69,5 @@ library ChainId {
     uint256 public constant MONAD_TESTNET = 10_143;
     uint256 public constant OPTIMISM_SEPOLIA = 11_155_420;
     uint256 public constant SUPERSEED_SEPOLIA = 53_302;
-    uint256 public constant TAIKO_HEKLA = 167_009;
     uint256 public constant ZKSYNC_SEPOLIA = 300;
 }
