@@ -34,7 +34,6 @@ abstract contract NFTDescriptorAddresses {
         if (chainId == ChainId.SEI) return 0xF3D18b06c87735a58DAb3baC45af058b3772fD54;
         if (chainId == ChainId.SOPHON) return 0x2F1eB117A87217E8bE9AA96795F69c9e380686Db;
         if (chainId == ChainId.SUPERSEED) return 0xd932fDA016eE9d9F70f745544b4F56715b1E723b;
-        if (chainId == ChainId.TAIKO) return 0x80Bde7C505eFE9960b673567CB25Cd8af85552BE;
         if (chainId == ChainId.TANGLE) return 0xDf578C2c70A86945999c65961417057363530a1c;
         if (chainId == ChainId.ULTRA) return 0x9f5d28C8ed7F09e65519C1f6f394e523524cA38F;
         if (chainId == ChainId.UNICHAIN) return 0x89824A7e48dcf6B7AE9DeE6E566f62A5aDF037F2;
@@ -50,7 +49,6 @@ abstract contract NFTDescriptorAddresses {
         if (chainId == ChainId.MONAD_TESTNET) return 0x80004e0b60c4aE862c405793FE684d43AdfdB905;
         if (chainId == ChainId.OPTIMISM_SEPOLIA) return 0x4739327acfb56E90177d44Cb0845e759276BCA88;
         if (chainId == ChainId.SUPERSEED_SEPOLIA) return 0xC373b8b68542c533B90f4A85a81b7D5F31F4E3eF;
-        if (chainId == ChainId.TAIKO_HEKLA) return 0xB197D4142b9DBf34979588cf8BF1222Ea3907916;
 
         // Return address zero for unsupported chain.
         return address(0);
