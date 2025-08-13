@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+/// @notice Enum to represent actions performed on a stream.
+/// @dev If there are multiple functions that can perform the same action, the same enum value should be associated with
+/// all of them. For example, a `WITHDRAW` action should be associated with `withdraw` and `withdrawMax` functions.
+enum StreamAction {
+    CANCEL,
+    CREATE,
+    WITHDRAW
+}
+
 struct StreamIds {
     // Default stream ID.
     uint256 defaultStream;

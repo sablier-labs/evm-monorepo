@@ -10,6 +10,7 @@ import { LockupLinear } from "src/types/LockupLinear.sol";
 import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { Calculations } from "tests/utils/Calculations.sol";
+import { StreamAction } from "tests/utils/Types.sol";
 import { LockupStore } from "../stores/LockupStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
@@ -65,7 +66,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream.
         params.token = token;
         params.shape = "Dynamic Stream";
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLD(params, segments);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -97,7 +104,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream.
         params.token = token;
         params.shape = "Linear Stream";
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLL(params, unlockAmounts, durations);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -135,7 +148,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream.
         params.token = token;
         params.shape = "Tranched Stream";
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLT(params, tranches);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -176,7 +195,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         params.token = token;
         params.shape = "Dynamic Stream";
         params.timestamps.end = segments[segments.length - 1].timestamp;
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -208,7 +233,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream.
         params.token = token;
         params.shape = "Linear Stream";
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -249,7 +280,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         params.token = token;
         params.shape = "Tranched Stream";
         params.timestamps.end = tranches[tranches.length - 1].timestamp;
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);

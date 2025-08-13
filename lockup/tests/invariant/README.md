@@ -52,10 +52,14 @@
    - CANCELED $`\not\to`$ { PENDING, STREAMING, SETTLED }
    - DEPLETED $`\to`$ DEPLETED
 
-10. For a Dynamic stream, segment timestamps should be strictly increasing.
+10. Gas usage:
+    - Create $`\ge`$ Cancel
+    - Create $`\ge`$ Withdraw
 
-11. For a Linear stream,
+11. For a Dynamic stream, segment timestamps should be strictly increasing.
+
+12. For a Linear stream,
     - If Cliff time > 0, $`\implies`$ Cliff time > Start time.
     - End time > Cliff time
 
-12. For a Tranched stream, tranche timestamps should be strictly increasing.
+13. For a Tranched stream, tranche timestamps should be strictly increasing.
