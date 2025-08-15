@@ -2,12 +2,12 @@
 pragma solidity >=0.8.22;
 
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
-import { BaseTest as CommonBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
+import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 
 import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
 import { LockupTranched } from "../../src/types/LockupTranched.sol";
 
-abstract contract Utils is CommonBase, PRBMathUtils {
+abstract contract Utils is BaseUtils, PRBMathUtils {
     /// @dev Turns the segments with durations into canonical segments, which have timestamps.
     function getSegmentsWithTimestamps(LockupDynamic.SegmentWithDuration[] memory segments)
         internal

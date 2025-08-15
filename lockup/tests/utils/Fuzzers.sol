@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { BaseConstants } from "@sablier/evm-utils/src/tests/BaseConstants.sol";
 import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
 import { LockupTranched } from "../../src/types/LockupTranched.sol";
 import { Utils } from "./Utils.sol";
 
-abstract contract Fuzzers is Utils {
+abstract contract Fuzzers is BaseConstants, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                    LOCKUP-DYNAMIC
     //////////////////////////////////////////////////////////////////////////*/

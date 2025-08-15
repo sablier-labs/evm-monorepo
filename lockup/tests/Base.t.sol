@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { BaseTest as CommonBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
+import { BaseTest as EvmBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
 import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
 import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";
@@ -53,8 +53,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        // Set up the common base.
-        CommonBase.setUp();
+        EvmBase.setUp();
 
         // Deploy the base test contracts.
         noop = new Noop();
