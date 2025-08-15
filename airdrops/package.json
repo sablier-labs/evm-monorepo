@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@sablier/devkit": "github:sablier-labs/devkit",
-    "forge-std": "github:foundry-rs/forge-std#v1.9.7",
+    "forge-std": "github:foundry-rs/forge-std#v1.10.0",
     "husky": "^9.1",
     "lint-staged": "^16.1",
     "murky": "github:dmfxyz/murky#6f67641",
