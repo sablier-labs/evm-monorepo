@@ -27,6 +27,7 @@
   dictionary_weight = 50
   fail_on_revert = true
   runs = 1000
+  show_metrics = false
   shrink_run_limit = 0   # Disable shrinking of a failed sequence
 
 # Speed up compilation and tests during development
@@ -68,6 +69,9 @@
   quote_style = "double"
   tab_width = 4
   wrap_comments = true
+
+[lint]
+  lint_on_build = false
 
 [rpc_endpoints]
   # Mainnets
