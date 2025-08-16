@@ -25,6 +25,7 @@
   depth = 20            # Number of calls executed in one run
   fail_on_revert = true
   runs = 20
+  show_metrics = false
 
 # Speed up compilation and tests during development
 [profile.lite]
@@ -58,6 +59,9 @@
   quote_style = "double"
   tab_width = 4
   wrap_comments = true
+
+[lint]
+  lint_on_build = false
 
 [rpc_endpoints]
   # Mainnets

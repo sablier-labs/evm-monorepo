@@ -16,6 +16,7 @@ abstract contract Fuzzers is Modifiers, PRBMathUtils {
         address[] memory excludedAddresses
     )
         internal
+        view
         returns (uint256 aggregateAmount)
     {
         for (uint256 i = 0; i < leavesData.length; ++i) {
