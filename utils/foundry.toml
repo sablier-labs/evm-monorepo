@@ -28,6 +28,7 @@
   depth = 100            # Number of calls executed in one run
   fail_on_revert = true
   runs = 200
+  show_metrics = false
 
 # Compile only the production code and the test mocks with via IR
 [profile.optimized]
@@ -46,6 +47,9 @@
   quote_style = "double"
   tab_width = 4
   wrap_comments = true
+
+[lint]
+  lint_on_build = false
 
 [rpc_endpoints]
   # mainnets
