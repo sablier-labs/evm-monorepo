@@ -18,6 +18,7 @@ jobs:
     needs: ["check", "build"]
     secrets:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+      ROUTEME_API_KEY: ${{ secrets.ROUTEME_API_KEY }}
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-profile: "default"
