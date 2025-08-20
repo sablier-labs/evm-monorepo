@@ -10,7 +10,6 @@ import { FlowCreateHandler } from "./handlers/FlowCreateHandler.sol";
 import { FlowHandler } from "./handlers/FlowHandler.sol";
 import { FlowStore } from "./stores/FlowStore.sol";
 
-/// @notice Common invariant test logic needed across contracts that inherit from {SablierFlow}.
 contract Flow_Invariant_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS

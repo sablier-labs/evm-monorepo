@@ -45,6 +45,7 @@ jobs:
       foundry-invariant-depth: 100
       foundry-invariant-runs: 1000
       foundry-profile: "test-optimized"
+      foundry-version: "v1.2.3"
       match-path: "tests/invariant/**/*.sol"
       name: "Invariant tests"
 
