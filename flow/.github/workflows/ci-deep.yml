@@ -48,7 +48,6 @@ jobs:
       foundry-invariant-depth: ${{ fromJSON(inputs.invariantDepth || '200') }}
       foundry-invariant-runs: ${{ fromJSON(inputs.invariantRuns || '50000') }}
       foundry-profile: "test-optimized"
-      foundry-version: "v1.2.3"
       match-path: "tests/invariant/**/*.sol"
       name: "Invariant tests"
 
