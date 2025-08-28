@@ -39,7 +39,7 @@ abstract contract Fork_Test is Base_Test {
 
     function setUp() public virtual override {
         // Fork Ethereum Mainnet at the latest block number.
-        vm.createSelectFork({ urlOrAlias: "mainnet" });
+        vm.createSelectFork({ urlOrAlias: "ethereum" });
 
         // Load mainnet address.
         flow = ISablierFlow(0x3DF2AAEdE81D2F6b261F79047517713B8E844E04);

@@ -72,7 +72,7 @@ populate it with the appropriate environment values. You need to provide your mn
 To make CI work in your pull request, ensure that the necessary environment variables are configured in your forked
 repository's secrets. Please add the following variable in your GitHub Secrets:
 
-- `MAINNET_RPC_URL`
+- `ROUTEMESH_API_KEY`
 
 ## Integration with VSCode:
 
