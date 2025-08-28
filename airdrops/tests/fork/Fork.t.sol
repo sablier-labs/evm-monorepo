@@ -32,7 +32,7 @@ abstract contract Fork_Test is Base_Test, Merkle {
 
     function setUp() public virtual override {
         // Fork Ethereum Mainnet at the latest block number.
-        vm.createSelectFork({ urlOrAlias: "mainnet" });
+        vm.createSelectFork({ urlOrAlias: "ethereum" });
 
         // Load deployed addresses from Ethereum mainnet.
         merkleFactory = ISablierMerkleFactory(0x71DD3Ca88E7564416E5C2E350090C12Bf8F6144a);

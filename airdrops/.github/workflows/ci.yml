@@ -41,8 +41,8 @@ jobs:
     needs: ["lint", "build"]
     if: needs.build.outputs.cache-status != 'primary'
     secrets:
-      API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+      ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: 20
