@@ -59,6 +59,7 @@ jobs:
       foundry-profile: "test-optimized"
       match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
+      retry-attempts: 2
 
   notify-on-failure:
     if: failure()
