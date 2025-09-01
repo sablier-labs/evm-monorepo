@@ -23,6 +23,7 @@ jobs:
       fuzz-seed: true
       match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
+      retry-attempts: 2
 
   test-utils:
     needs: ["lint", "build"]
