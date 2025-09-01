@@ -24,6 +24,7 @@ jobs:
       foundry-profile: "default"
       match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
+      retry-attempts: 2
 
   notify-on-failure:
     if: failure()
