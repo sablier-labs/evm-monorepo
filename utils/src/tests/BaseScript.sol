@@ -157,7 +157,7 @@ abstract contract BaseScript is Script {
         if (chainId == ChainId.ARBITRUM_SEPOLIA) return address(0xCAFE);
         if (chainId == ChainId.BASE_SEPOLIA) return address(0xCAFE);
         if (chainId == ChainId.BLAST_SEPOLIA) return address(0xCAFE);
-        if (chainId == ChainId.ETHEREUM_SEPOLIA) return address(0xCAFE);
+        if (chainId == ChainId.ETHEREUM_SEPOLIA) return 0xAA38c6819c79d04d8008c4a84DDB95fDb328EB68;
         if (chainId == ChainId.LINEA_SEPOLIA) return address(0xCAFE);
         if (chainId == ChainId.MODE_SEPOLIA) return address(0xCAFE);
         if (chainId == ChainId.MONAD_TESTNET) return address(0xCAFE);
