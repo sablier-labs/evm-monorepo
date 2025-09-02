@@ -103,7 +103,9 @@ contract BaseScript_Fuzz_Test is StdAssertions {
     }
 
     function testFuzz_GetComptroller(uint64 chainId) external setChainId(chainId) {
-        if (ChainId.isSupported(chainId)) {
+        if (chainId == ChainId.ETHEREUM_SEPOLIA) {
+            assertEq(baseScript.getComptroller(), 0xAA38c6819c79d04d8008c4a84DDB95fDb328EB68, "sepolia comptroller");
+        } else if (ChainId.isSupported(chainId)) {
             assertEq(baseScript.getComptroller(), address(0xCAFE), "comptroller");
         } else {
             // It should revert.
