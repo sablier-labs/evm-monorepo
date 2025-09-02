@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file. The format 
 [Common Changelog](https://common-changelog.org/).
 
 [v1.0.0-beta.1]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0-beta.1
+[v1.0.0-beta.2]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0-beta.2
+
+## [v1.0.0-beta.2] - 2025-09-02
+
+### Changed
+
+- Bump forge-std to v1.10.0
+
+### Added
+
+- Add Comptroller address on Sepolia
+
+### Removed
+
+- Support for Taiko.
 
 ## [v1.0.0-beta.1] - 2025-07-28
 
