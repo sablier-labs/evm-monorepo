@@ -6,7 +6,7 @@
       "dependencies": {
         "@openzeppelin/contracts": "5.3.0",
         "@prb/math": "4.1.0",
-        "@sablier/evm-utils": "1.0.0-beta.1",
+        "@sablier/evm-utils": "1.0.0-beta.2",
       },
       "devDependencies": {
         "@sablier/devkit": "github:sablier-labs/devkit",
@@ -172,7 +172,7 @@
 
     "@sablier/devkit": ["@sablier/devkit@github:sablier-labs/devkit#da0e832", {}, "sablier-labs-devkit-da0e832"],
 
-    "@sablier/evm-utils": ["@sablier/evm-utils@1.0.0-beta.1", "", { "dependencies": { "@chainlink/contracts": "1.3.0", "@openzeppelin/contracts": "5.3.0", "@openzeppelin/contracts-upgradeable": "5.3.0", "forge-std": "github:foundry-rs/forge-std#v1.9.7" } }, "sha512-jm9/Q0kZM1jTX6+GP2GP3b/7pR3k1mXSgsrOTI52XGu9h+UvuWgXbyRgPn9g+ofdsbrBaAsqUF0CULUg2HLCMg=="],
+    "@sablier/evm-utils": ["@sablier/evm-utils@1.0.0-beta.2", "", { "dependencies": { "@chainlink/contracts": "1.3.0", "@openzeppelin/contracts": "5.3.0", "@openzeppelin/contracts-upgradeable": "5.3.0", "forge-std": "github:foundry-rs/forge-std#v1.10.0" } }, "sha512-G5foWha8IpMoHuPh55dOaVyGNaX39/zhMRM9ow5emsfG/SF1X2SDkzsPJgUrhu7fv/P1Nw4xt7oNku+Q4svsgg=="],
 
     "@scroll-tech/contracts": ["@scroll-tech/contracts@0.1.0", "", {}, "sha512-aBbDOc3WB/WveZdpJYcrfvMYMz7ZTEiW8M9XMJLba8p9FAR5KGYB/cV+8+EUsq3MKt7C1BfR+WnXoTVdvwIY6w=="],
 
@@ -802,7 +802,7 @@
 
     "@pnpm/network.ca-file/graceful-fs": ["graceful-fs@4.2.10", "", {}, "sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA=="],
 
-    "@sablier/evm-utils/forge-std": ["forge-std@github:foundry-rs/forge-std#77041d2", {}, "foundry-rs-forge-std-77041d2"],
+    "@sablier/evm-utils/forge-std": ["forge-std@github:foundry-rs/forge-std#8bbcf6e", {}, "foundry-rs-forge-std-8bbcf6e"],
 
     "cli-truncate/slice-ansi": ["slice-ansi@7.1.2", "", { "dependencies": { "ansi-styles": "^6.2.1", "is-fullwidth-code-point": "^5.0.0" } }, "sha512-iOBWFgUX7caIZiuutICxVgX1SdxwAVFFKwt1EvMYYec/NWO5meOJ6K5uQxhrYBdQJne4KxiqZc+KptFOWFSI9w=="],
 
