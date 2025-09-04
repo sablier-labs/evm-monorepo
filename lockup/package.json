@@ -67,6 +67,6 @@
   },
   "scripts": {
     "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh",
-    "prepare": "husky"
+    "setup": "husky"
   }
 }
