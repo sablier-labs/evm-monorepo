@@ -78,6 +78,14 @@ contract MyContract is Adminable, Batch, NoDelegateCall {
 }
 ```
 
+## Contributing
+
+Feel free to dive in! [Open](https://github.com/sablier-labs/evm-utils/issues/new) an issue,
+[start](https://github.com/sablier-labs/evm-utils/discussions/new) a discussion or submit a PR. For any informal
+concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
+
+For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) guide.
+
 ## License
 
 See [LICENSE.md](./LICENSE.md).
