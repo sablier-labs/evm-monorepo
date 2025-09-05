@@ -25,20 +25,31 @@ In addition, familiarity with [Solidity](https://soliditylang.org) is requisite.
 Clone this repository:
 
 ```shell
-$ git clone git@github.com:sablier-labs/flow.git sablier-flow && cd sablier-flow
+git clone git@github.com:sablier-labs/flow.git sablier-flow && cd sablier-flow
 ```
 
-Then, inside the project's directory, run these commands to install the Node.js dependencies and build the contracts:
+To install the dependencies:
 
 ```shell
-$ just install
-$ just build
+bun install
+```
+
+Then, execute the one-time setup script:
+
+```shell
+just setup
+```
+
+To build the contracts:
+
+```shell
+just build
 ```
 
 Switch to the `staging` branch, where all development work should be done:
 
 ```shell
-$ git switch staging
+git switch staging
 ```
 
 Now you can start making changes.
@@ -46,7 +57,7 @@ Now you can start making changes.
 To see a list of all available scripts, run this command:
 
 ```shell
-$ just --list
+just --list
 ```
 
 ## Pull Requests
