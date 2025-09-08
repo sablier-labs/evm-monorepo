@@ -49,7 +49,7 @@ jobs:
         run: | #shell
           forge test \
             --match-path "tests/unit/**/*.sol" \
-            --root flow
+            --root lockup
 
   test-integration:
     needs: check
@@ -69,7 +69,7 @@ jobs:
         run: | #shell
           forge test \
             --match-path "tests/integration/**/*.sol" \
-            --root flow
+            --root lockup
 
   test-invariant:
     needs: check
@@ -88,4 +88,4 @@ jobs:
         run: | #shell
           forge test \
             --match-path "tests/invariant/**/*.sol" \
-            --root flow
+            --root lockup
