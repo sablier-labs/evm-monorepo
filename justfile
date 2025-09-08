@@ -3,9 +3,10 @@
 import "./node_modules/@sablier/devkit/just/evm.just"
 
 # ---------------------------------------------------------------------------- #
-#                                   CONSTANTS                                  #
+#                                   ENV VARS                                   #
 # ---------------------------------------------------------------------------- #
 
+FOUNDRY_DISABLE_NIGHTLY_WARNING := "true"
 # Generate fuzz seed that changes weekly to avoid burning through RPC allowance
 FOUNDRY_FUZZ_SEED := `echo $(($EPOCHSECONDS / 604800))`
 GLOBS_SOLIDITY := "**/*.sol"
@@ -41,23 +42,6 @@ alias b := build
 [group("test")]
 test path="tests/**/*.sol":
     forge test --match-path "{{ path }}"
-
-# [group("test")]
-# test-integration:
-#     FOUNDRY_FUZZ_RUNS=2000 \
-#     FOUNDRY_PROFILE="test-optimized" \
-#         forge test --match-path "tests/integration/**/*.sol"
-
-# [group("test")]
-# test-invariant:
-#     FOUNDRY_PROFILE="test-optimized" \
-#         forge test --match-path "tests/invariant/**/*.sol"
-
-# [group("test")]
-# test-unit:
-#     FOUNDRY_FUZZ_RUNS=2000 \
-#     FOUNDRY_PROFILE="test-optimized" \
-#         forge test --match-path "tests/unit/**/*.sol"
 
 # ---------------------------------------------------------------------------- #
 #                                PRIVATE SCRIPTS                               #

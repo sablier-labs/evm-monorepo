@@ -17,53 +17,75 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: sablier-labs/devkit/actions/setup@main
+      - uses: extractions/setup-just@v3
+      - uses: foundry-rs/foundry-toolchain@v1
         with:
-          package-manager: bun
+          version: "nightly"
+      - uses: oven-sh/setup-bun@v2
+      - run: npm install -g @antfu/ni
+      - run: bun install
 
       - name: Run all code checks
         run: just full-check
+
+      # - name: Build all packages
+      #   run: just build-all
 
   test-unit:
     needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: sablier-labs/devkit/actions/setup@main
+      - uses: foundry-rs/foundry-toolchain@v1
         with:
-          package-manager: bun
+          version: "nightly"
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
 
       - name: Run unit tests
         env:
           FOUNDRY_FUZZ_RUNS: 2000
           FOUNDRY_PROFILE: test-optimized
-        run: forge test --match-path "tests/unit/**/*.sol"
+        run: | #shell
+          forge test \
+            --match-path "tests/unit/**/*.sol" \
+            --root flow
 
   test-integration:
     needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: sablier-labs/devkit/actions/setup@main
+      - uses: foundry-rs/foundry-toolchain@v1
         with:
-          package-manager: bun
+          version: "nightly"
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
 
       - name: Run integration tests
         env:
           FOUNDRY_FUZZ_RUNS: 2000
           FOUNDRY_PROFILE: test-optimized
-        run: forge test --match-path "tests/integration/**/*.sol"
+        run: | #shell
+          forge test \
+            --match-path "tests/integration/**/*.sol" \
+            --root flow
 
   test-invariant:
     needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: sablier-labs/devkit/actions/setup@main
+      - uses: foundry-rs/foundry-toolchain@v1
         with:
-          package-manager: bun
+          version: "nightly"
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
 
       - name: Run invariant tests
         env:
           FOUNDRY_PROFILE: test-optimized
-        run: forge test --match-path "tests/invariant/**/*.sol"
+        run: | #shell
+          forge test \
+            --match-path "tests/invariant/**/*.sol" \
+            --root flow
