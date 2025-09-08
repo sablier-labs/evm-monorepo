@@ -1,0 +1,9 @@
+WithdrawableAmountOf_Lockup_Tranched_Integration_Concrete_Test
+└── given STREAMING status
+   ├── given start time in present
+   │  └── it should return zero
+   └── given start time in past
+      ├── given no previous withdrawals
+      │  └── it should return the correct withdrawable amount
+      └── given previous withdrawal
+         └── it should return the correct withdrawable amount

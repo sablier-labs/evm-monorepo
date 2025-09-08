@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "code-complexity": "off",
+    "contract-name-capwords": "off",
+    "func-name-mixedcase": "off",
+    "gas-custom-errors": "off",
+    "one-contract-per-file": "off"
+  }
+}

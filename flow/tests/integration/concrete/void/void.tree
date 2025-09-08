@@ -1,0 +1,27 @@
+Void_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      ├── given voided
+      │  └── it should revert
+      └── given not voided
+         ├── when caller not authorized
+         │  └── it should revert
+         └── when caller authorized
+            ├── given stream has no uncovered debt
+            │  ├── it should void the stream
+            │  ├── it should set the rate per second to zero
+            │  └── it should not change the total debt
+            └── given stream has uncovered debt
+               ├── when caller sender
+               │  └── it should void the stream
+               ├── when caller approved third party
+               │  └── it should void the stream
+               └── when caller recipient
+                  ├── it should set the rate per second to zero
+                  ├── it should void the stream
+                  ├── it should update the total debt to stream balance
+                  └── it should emit 1 {VoidFlowStream}, 1 {MetadataUpdate} events

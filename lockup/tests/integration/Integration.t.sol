@@ -1,0 +1,272 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity >=0.8.22 <0.9.0;
+
+import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
+
+import { Errors } from "src/libraries/Errors.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
+import { LockupLinear } from "src/types/LockupLinear.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
+
+import { Base_Test } from "../Base.t.sol";
+import {
+    RecipientInterfaceIDIncorrect,
+    RecipientInterfaceIDMissing,
+    RecipientInvalidSelector,
+    RecipientReentrant,
+    RecipientReverting
+} from "../mocks/Hooks.sol";
+
+/// @notice Common logic needed by all integration tests, both concrete and fuzz tests.
+abstract contract Integration_Test is Base_Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                     VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
+    Lockup.Model internal lockupModel;
+
+    struct CreateParams {
+        Lockup.CreateWithTimestamps createWithTimestamps;
+        Lockup.CreateWithDurations createWithDurations;
+        uint40 cliffTime;
+        LockupLinear.UnlockAmounts unlockAmounts;
+        LockupLinear.Durations durations;
+        LockupDynamic.Segment[] segments;
+        LockupDynamic.SegmentWithDuration[] segmentsWithDurations;
+        LockupTranched.Tranche[] tranches;
+        LockupTranched.TrancheWithDuration[] tranchesWithDurations;
+    }
+
+    CreateParams internal _defaultParams;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                   TEST CONTRACTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    // The following recipients are not allowed to hook.
+    RecipientInterfaceIDIncorrect internal recipientInterfaceIDIncorrect;
+    RecipientInterfaceIDMissing internal recipientInterfaceIDMissing;
+
+    // The following recipients are allowed to hook.
+    RecipientInvalidSelector internal recipientInvalidSelector;
+    RecipientReentrant internal recipientReentrant;
+    RecipientReverting internal recipientReverting;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  SET-UP FUNCTION
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function setUp() public virtual override {
+        Base_Test.setUp();
+
+        // Initialize the recipients with Hook implementations.
+        initializeRecipientsWithHooks();
+
+        _defaultParams.createWithTimestamps = defaults.createWithTimestamps();
+        _defaultParams.createWithDurations = defaults.createWithDurations();
+        _defaultParams.cliffTime = defaults.CLIFF_TIME();
+        _defaultParams.durations = defaults.durations();
+        _defaultParams.unlockAmounts = defaults.unlockAmounts();
+
+        // See https://github.com/ethereum/solidity/issues/12783
+        LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations = defaults.segmentsWithDurations();
+        LockupDynamic.Segment[] memory segments = defaults.segments();
+        for (uint256 i; i < defaults.SEGMENT_COUNT(); ++i) {
+            _defaultParams.segments.push(segments[i]);
+            _defaultParams.segmentsWithDurations.push(segmentsWithDurations[i]);
+        }
+        LockupTranched.TrancheWithDuration[] memory tranchesWithDurations = defaults.tranchesWithDurations();
+        LockupTranched.Tranche[] memory tranches = defaults.tranches();
+        for (uint256 i; i < defaults.TRANCHE_COUNT(); ++i) {
+            _defaultParams.tranches.push(tranches[i]);
+            _defaultParams.tranchesWithDurations.push(tranchesWithDurations[i]);
+        }
+
+        // Set the default Lockup model as Dynamic, we will override the default stream IDs where necessary.
+        lockupModel = Lockup.Model.LOCKUP_DYNAMIC;
+
+        // Initialize default streams.
+        initializeDefaultStreams();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INITIALIZE-FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function initializeDefaultStreams() internal {
+        ids.defaultStream = createDefaultStream();
+        ids.notAllowedToHookStream = createDefaultStreamWithRecipient(address(recipientInterfaceIDIncorrect));
+        ids.notCancelableStream = createDefaultStreamNonCancelable();
+        ids.notTransferableStream = createDefaultStreamNonTransferable();
+        ids.nullStream = 1729;
+        ids.recipientGoodStream = createDefaultStreamWithRecipient(address(recipientGood));
+        ids.recipientInvalidSelectorStream = createDefaultStreamWithRecipient(address(recipientInvalidSelector));
+        ids.recipientReentrantStream = createDefaultStreamWithRecipient(address(recipientReentrant));
+        ids.recipientRevertStream = createDefaultStreamWithRecipient(address(recipientReverting));
+    }
+
+    function initializeRecipientsWithHooks() internal {
+        recipientInterfaceIDIncorrect = new RecipientInterfaceIDIncorrect();
+        recipientInterfaceIDMissing = new RecipientInterfaceIDMissing();
+        recipientInvalidSelector = new RecipientInvalidSelector();
+        recipientReentrant = new RecipientReentrant();
+        recipientReverting = new RecipientReverting();
+        vm.label({ account: address(recipientInterfaceIDIncorrect), newLabel: "Recipient Interface ID Incorrect" });
+        vm.label({ account: address(recipientInterfaceIDMissing), newLabel: "Recipient Interface ID Missing" });
+        vm.label({ account: address(recipientInvalidSelector), newLabel: "Recipient Invalid Selector" });
+        vm.label({ account: address(recipientReentrant), newLabel: "Recipient Reentrant" });
+        vm.label({ account: address(recipientReverting), newLabel: "Recipient Reverting" });
+
+        // Deal some ETH to the `recipientReentrant` because its used in reentrant tests.
+        vm.deal({ account: address(recipientReentrant), newBalance: 100 ether });
+
+        // Allow the selected recipients to hook.
+        setMsgSender(address(comptroller));
+        lockup.allowToHook(address(recipientGood));
+        lockup.allowToHook(address(recipientInvalidSelector));
+        lockup.allowToHook(address(recipientReentrant));
+        lockup.allowToHook(address(recipientReverting));
+        setMsgSender(users.sender);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CREATE-DEFAULT
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function createDefaultStream(Lockup.CreateWithTimestamps memory params) internal returns (uint256 streamId) {
+        if (lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {
+            streamId = lockup.createWithTimestampsLD(params, _defaultParams.segments);
+        } else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
+            streamId = lockup.createWithTimestampsLL(params, _defaultParams.unlockAmounts, _defaultParams.cliffTime);
+        } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
+            streamId = lockup.createWithTimestampsLT(params, _defaultParams.tranches);
+        }
+    }
+
+    function createDefaultStream() internal returns (uint256 streamId) {
+        streamId = createDefaultStream(_defaultParams.createWithTimestamps);
+    }
+
+    function createDefaultStreamNonCancelable() internal returns (uint256 streamId) {
+        Lockup.CreateWithTimestamps memory params = _defaultParams.createWithTimestamps;
+        params.cancelable = false;
+        streamId = createDefaultStream(params);
+    }
+
+    function createDefaultStreamNonTransferable() internal returns (uint256 streamId) {
+        Lockup.CreateWithTimestamps memory params = _defaultParams.createWithTimestamps;
+        params.transferable = false;
+        streamId = createDefaultStream(params);
+    }
+
+    function createDefaultStreamWithDurations() internal returns (uint256 streamId) {
+        if (lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {
+            streamId =
+                lockup.createWithDurationsLD(_defaultParams.createWithDurations, _defaultParams.segmentsWithDurations);
+        } else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
+            streamId = lockup.createWithDurationsLL(
+                _defaultParams.createWithDurations, _defaultParams.unlockAmounts, _defaultParams.durations
+            );
+        } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
+            streamId =
+                lockup.createWithDurationsLT(_defaultParams.createWithDurations, _defaultParams.tranchesWithDurations);
+        }
+    }
+
+    function createDefaultStreamWithEndTime(uint40 endTime) internal returns (uint256 streamId) {
+        Lockup.CreateWithTimestamps memory params = _defaultParams.createWithTimestamps;
+        params.timestamps.end = endTime;
+        if (lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {
+            LockupDynamic.Segment[] memory segments = _defaultParams.segments;
+            segments[1].timestamp = endTime;
+            streamId = lockup.createWithTimestampsLD(params, segments);
+        } else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
+            streamId = lockup.createWithTimestampsLL(params, _defaultParams.unlockAmounts, defaults.CLIFF_TIME());
+        } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
+            LockupTranched.Tranche[] memory tranches = _defaultParams.tranches;
+            tranches[1].timestamp = endTime;
+            streamId = lockup.createWithTimestampsLT(params, tranches);
+        }
+    }
+
+    function createDefaultStreamWithRecipient(address recipient) internal returns (uint256 streamId) {
+        streamId = createDefaultStreamWithUsers(recipient, users.sender);
+    }
+
+    function createDefaultStreamWithUsers(address recipient, address sender) internal returns (uint256 streamId) {
+        Lockup.CreateWithTimestamps memory params = _defaultParams.createWithTimestamps;
+        params.recipient = recipient;
+        params.sender = sender;
+        streamId = createDefaultStream(params);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                COMMON-REVERT-TESTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function expectRevert_CallerMaliciousThirdParty(bytes memory callData) internal {
+        setMsgSender(users.eve);
+        (bool success, bytes memory returnData) = address(lockup).call(callData);
+        assertFalse(success, "malicious call success");
+        assertEq(
+            returnData,
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, ids.defaultStream, users.eve),
+            "malicious call return data"
+        );
+    }
+
+    function expectRevert_CANCELEDStatus(bytes memory callData) internal {
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
+        lockup.cancel(ids.defaultStream);
+
+        (bool success, bytes memory returnData) = address(lockup).call(callData);
+        assertFalse(success, "canceled status call success");
+        assertEq(
+            returnData,
+            abi.encodeWithSelector(Errors.SablierLockup_StreamCanceled.selector, ids.defaultStream),
+            "canceled status call return data"
+        );
+    }
+
+    function expectRevert_DelegateCall(bytes memory callData) internal {
+        (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
+        assertFalse(success, "delegatecall success");
+        assertEq(returnData, abi.encodeWithSelector(EvmUtilsErrors.DelegateCall.selector), "delegatecall return data");
+    }
+
+    function expectRevert_DEPLETEDStatus(bytes memory callData) internal {
+        vm.warp({ newTimestamp: defaults.END_TIME() });
+        lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: ids.defaultStream, to: users.recipient });
+
+        (bool success, bytes memory returnData) = address(lockup).call(callData);
+        assertFalse(success, "depleted status call success");
+        assertEq(
+            returnData,
+            abi.encodeWithSelector(Errors.SablierLockup_StreamDepleted.selector, ids.defaultStream),
+            "depleted status call return data"
+        );
+    }
+
+    function expectRevert_Null(bytes memory callData) internal {
+        (bool success, bytes memory returnData) = address(lockup).call(callData);
+        assertFalse(success, "null call success");
+        assertEq(
+            returnData,
+            abi.encodeWithSelector(Errors.SablierLockupState_Null.selector, ids.nullStream),
+            "null call return data"
+        );
+    }
+
+    function expectRevert_SETTLEDStatus(bytes memory callData) internal {
+        vm.warp({ newTimestamp: defaults.END_TIME() });
+
+        (bool success, bytes memory returnData) = address(lockup).call(callData);
+        assertFalse(success, "settled status call success");
+        assertEq(
+            returnData,
+            abi.encodeWithSelector(Errors.SablierLockup_StreamSettled.selector, ids.defaultStream),
+            "settled status call return data"
+        );
+    }
+}

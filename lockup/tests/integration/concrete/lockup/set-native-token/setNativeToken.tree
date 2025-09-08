@@ -1,0 +1,8 @@
+SetNativeToken_Integration_Test
+├── when caller not comptroller
+│  └── it should revert
+└── when caller comptroller
+   ├── given native token already set
+   │  └── it should revert
+   └── given native token not set
+      └── it should set native token

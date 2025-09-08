@@ -1,0 +1,8 @@
+SafeTokenDecimals_Integration_Concrete_Test
+├── when token not contract
+│   └── it should return 0
+└── when token contract
+    ├── when decimals not implemented
+    │   └── it should return 0
+    └── when decimals implemented
+        └── it should return the correct decimal value

@@ -1,0 +1,17 @@
+DepletionTimeOf_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given paused
+   │  └── it should revert
+   └── given not paused
+      ├── given balance zero
+      │  └── it should revert
+      └── given balance not zero
+         ├── given uncovered debt
+         │  └── it should return 0
+         └── given no uncovered debt
+            ├── when exact division
+            │  └── it should return the time at which the total debt exceeds the balance
+            └── when not exact division
+               └── it should return the time at which the total debt exceeds the balance

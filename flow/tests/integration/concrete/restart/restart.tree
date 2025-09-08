@@ -1,0 +1,26 @@
+Restart_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      ├── given voided
+      │  └── it should revert
+      └── given not voided
+         ├── when caller not sender
+         │  ├── when caller recipient
+         │  │  └── it should revert
+         │  └── when caller malicious third party
+         │     └── it should revert
+         └── when caller sender
+            ├── given not paused
+            │  └── it should revert
+            └── given paused
+               ├── when new rate per second zero
+               │  └── it should revert
+               └── when new rate per second not zero
+                  ├── it should restart the stream
+                  ├── it should update rate per second
+                  ├── it should update snapshot time
+                  └── it should emit 1 {RestartFlowStream}, 1 {MetadataUpdate} event

@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------------- #
+#                                  FLOW CONFIG                                 #
+# ---------------------------------------------------------------------------- #
+
+[profile.default]
+  extends = "../foundry.base.toml"
+  gas_reports = ["SablierFlow"]
+  optimizer_runs = 1000
+
+[profile.default.fuzz]
+  runs = 10_000
+
+[profile.default.invariant]
+  depth = 100
+  dictionary_weight = 50
+  runs = 1000
+  shrink_run_limit = 0
+
+[profile.lite]
+  extends = "../foundry.base.toml"
+
+[profile.lite.invariant]
+  depth = 50
+  runs = 50
+
+[profile.lite.fuzz]
+  runs = 20
+
+[profile.optimized]
+  extends = "../foundry.base.toml"
+  optimizer_runs = 1_000_000
+
+[profile.test-optimized]
+  extends = "../foundry.base.toml"
+
+[doc]
+  path = "flow"
+
+[lint]
+  lint_on_build = false

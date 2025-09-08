@@ -1,0 +1,33 @@
+# ---------------------------------------------------------------------------- #
+#                                AIRDROPS CONFIG                               #
+# ---------------------------------------------------------------------------- #
+
+[profile.default]
+  extends = "../foundry.base.toml"
+  optimizer_runs = 100_000_000
+  remappings = [
+    "murky/=../node_modules/murky/",
+  ]
+
+[profile.default.fuzz]
+  runs = 1000
+
+[profile.default.invariant]
+  depth = 20
+  runs = 20
+
+[profile.lite]
+  extends = "../foundry.base.toml"
+
+[profile.lite.fuzz]
+  runs = 50
+
+[profile.optimized]
+  extends = "../foundry.base.toml"
+  optimizer_runs = 1_000_000
+
+[profile.test-optimized]
+  extends = "../foundry.base.toml"
+
+[doc]
+  path = "airdrops"

@@ -1,0 +1,14 @@
+codecov:
+  require_ci_to_pass: false
+comment: false
+coverage:
+  status:
+    patch: off
+ignore:
+  - "scripts"
+  - "scripts/solidity"
+  - "src/libraries/NFTSVG.sol"
+  - "src/libraries/SVGElements.sol"
+  - "src/mocks"
+  - "src/tests"
+  - "tests"

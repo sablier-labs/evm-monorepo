@@ -1,0 +1,49 @@
+{
+  "name": "@sablier/monorepo",
+  "description": "Monorepo for Sablier's EVM smart contracts including Lockup, Flow, Airdrops, and Utils protocols",
+  "license": "SEE LICENSE IN LICENSE",
+  "private": true,
+  "version": "1.0.0",
+  "author": {
+    "name": "Sablier Labs Ltd",
+    "url": "https://sablier.com"
+  },
+  "devDependencies": {
+    "@sablier/devkit": "github:sablier-labs/devkit#main",
+    "forge-std": "github:foundry-rs/forge-std#v1.10.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "prettier": "^3.5.3",
+    "solhint": "^6.0.1"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "evm",
+    "foundry",
+    "monorepo",
+    "sablier",
+    "smart-contracts",
+    "solidity",
+    "token-streaming",
+    "web3"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sablier-labs/evm-monorepo.git"
+  },
+  "scripts": {
+    "setup": "husky"
+  },
+  "workspaces": {
+    "packages": [
+      "airdrops",
+      "flow",
+      "lockup",
+      "utils"
+    ]
+  }
+}

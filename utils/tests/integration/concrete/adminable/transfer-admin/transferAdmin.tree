@@ -1,0 +1,14 @@
+TransferAdmin_Adminable_Concrete_Test
+├── when caller not admin
+│  └── it should revert
+└── when caller admin
+   ├── when new admin same as current admin
+   │  ├── it should keep the same admin
+   │  └── it should emit a {TransferAdmin} event
+   └── when new admin not same as current admin
+      ├── when new admin zero address
+      │  ├── it should set the admin to the zero address
+      │  └── it should emit a {TransferAdmin}
+      └── when new admin not zero address
+         ├── it should set the new admin
+         └── it should emit a {TransferAdmin} event

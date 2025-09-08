@@ -1,0 +1,11 @@
+TotalDebtOf_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given paused
+   │  └── it should return snapshot debt
+   └── given not paused
+      ├── when current time equals snapshot time
+      │  └── it should return snapshot debt
+      └── when current time greater than snapshot time
+         └── it should return the sum of snapshot debt and ongoing debt

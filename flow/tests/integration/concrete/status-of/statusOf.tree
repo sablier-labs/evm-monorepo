@@ -1,0 +1,16 @@
+StatusOf_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given not started
+   │  └── it should return PENDING
+   ├── given voided
+   │  └── it should return VOIDED
+   ├── given paused and no uncovered debt
+   │  └── it should return PAUSED_SOLVENT
+   ├── given paused and uncovered debt
+   │  └── it should return PAUSED_INSOLVENT
+   ├── given streaming and no uncovered debt
+   │  └── it should return STREAMING_SOLVENT
+   └── given streaming and uncovered debt
+      └── it should return STREAMING_INSOLVENT

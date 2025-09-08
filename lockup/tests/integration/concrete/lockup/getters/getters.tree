@@ -1,0 +1,148 @@
+Getters_Integration_Concrete_Test::getDepositedAmount
+├── given null
+│  └── it should revert
+└── given not null
+   └── it should return the correct deposited amount
+
+Getters_Integration_Concrete_Test::getEndTime
+├── given null
+│  └── it should revert
+└── given not null
+   └── it should return the correct end time
+
+Getters_Integration_Concrete_Test::getRecipient
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given burned NFT
+   │  └── it should revert
+   └── given not burned NFT
+      └── it should return the correct recipient
+
+Getters_Integration_Concrete_Test::getRefundedAmount
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given canceled stream and CANCELED status
+   │  └── it should return the correct refunded amount
+   ├── given canceled stream and DEPLETED status
+   │  └── it should return the correct refunded amount
+   └── given not canceled stream
+        ├── given PENDING status
+        │  └── it should return zero
+        ├── given SETTLED status
+        │  └── it should return zero
+        ├── given DEPLETED status
+        │  └── it should return zero
+        └── given STREAMING status
+            └── it should return zero
+
+Getters_Integration_Concrete_Test::getSender
+├── given null
+│  └── it should revert
+└── given not null
+   └── it should return the correct sender
+
+Getters_Integration_Concrete_Test::getStartTime
+├── given null
+│  └── it should revert
+└── given not null
+   └── it should return the correct start time
+
+Getters_Integration_Concrete_Test::getUnderlyingToken
+├── given null
+│  └── it should revert
+└── given not null
+   └── it should return the correct address of the token
+
+Getters_Integration_Concrete_Test::getWithdrawnAmount
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given no previous withdrawals
+   │  └── it should return zero
+   └── given previous withdrawal
+      └── it should return the correct withdrawn amount
+
+
+Getters_Integration_Concrete_Test::isAllowedToHook
+├── given provided address not allowed to hook
+│  └── it should return false
+└── given provided address allowed to hook
+   └── it should return true
+
+Getters_Integration_Concrete_Test::isCancelable
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given cold stream
+   │  └── it should return true
+   └── given warm stream
+      ├── given cancelable stream
+      │  └── it should return true
+      └── given non cancelable stream
+         └── it should return false
+
+Getters_Integration_Concrete_Test::isCold
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given PENDING status
+   │  └── it should return false
+   ├── given STREAMING status
+   │  └── it should return false
+   ├── given SETTLED status
+   │  └── it should return true
+   ├── given CANCELED status
+   │  └── it should return true
+   └── given DEPLETED status
+      └── it should return true
+
+
+Getters_Integration_Concrete_Test::isDepleted
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given not depleted stream
+   │  └── it should return false
+   └── given depleted stream
+      └── it should return true
+
+Getters_Integration_Concrete_Test::isStream
+├── given null
+│  └── it should return false
+└── given not null
+   └── it should return true
+
+Getters_Integration_Concrete_Test::isTransferable
+├── given null
+│   └── it should revert
+└── given not null
+    ├── given non transferable stream
+    │   └── it should return false
+    └── given transferable stream
+        └── it should return true
+
+Getters_Integration_Concrete_Test::isWarm
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given PENDING status
+   │  └── it should return true
+   ├── given STREAMING status
+   │  └── it should return true
+   ├── given SETTLED status
+   │  └── it should return false
+   ├── given CANCELED status
+   │  └── it should return false
+   └── given DEPLETED status
+      └── it should return false
+
+Getters_Integration_Concrete_Test::wasCanceled
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given canceled stream
+   │  └── it should return false
+   └── given not canceled stream
+      └── it should return true

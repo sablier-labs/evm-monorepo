@@ -1,0 +1,6 @@
+TransferFrom_Integration_Concrete_Test
+├── given stream not transferable
+│  └── it should revert
+└── given stream transferable
+   ├── it should transfer the NFT
+   └── it should emit 1 {Transfer} and 1 {MetadataUpdate} event

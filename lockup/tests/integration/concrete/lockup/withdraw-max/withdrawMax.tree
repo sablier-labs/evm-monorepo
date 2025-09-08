@@ -1,0 +1,10 @@
+WithdrawMax_Integration_Concrete_Test
+├── given end time not in future
+│  ├── it should update the withdrawn amount
+│  ├── it should mark the stream as depleted
+│  ├── it should make the stream not cancelable
+│  ├── it should emit a {WithdrawFromLockupStream} event
+│  └── it should return the withdrawn amount
+└── given end time in future
+   ├── it should emit a {WithdrawFromLockupStream} event
+   └── it should return the withdrawable amount

@@ -1,0 +1,11 @@
+CoveredDebtOf_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given balance zero
+   │  └── it should return zero
+   └── given balance not zero
+      ├── when total debt exceeds balance
+      │   └── it should return the stream balance
+      └── when total debt not exceed balance
+          └── it should return the correct covered debt

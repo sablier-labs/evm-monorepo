@@ -1,0 +1,22 @@
+DepositAndPause_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      ├── given paused
+      │  └── it should revert
+      └── given not paused
+         ├── when caller not sender
+         │  ├── when caller recipient
+         │  │  └── it should revert
+         │  └── when caller malicious third party
+         │     └── it should revert
+         └── when caller sender
+            ├── it should update the stream balance
+            ├── it should perform the ERC20 transfer
+            ├── it should pause the stream
+            ├── it should set rate per second to 0
+            ├── it should update the snapshot debt
+            └── it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events

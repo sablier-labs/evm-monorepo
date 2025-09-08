@@ -1,0 +1,14 @@
+OngoingDebtScaledOf_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given pending
+   │  └── it should return zero
+   └── given not pending
+      ├── given paused
+      │  └── it should return zero
+      └── given not paused
+         ├── when snapshot time in present
+         │  └── it should return zero
+         └── when snapshot time in past
+            └── it should return the correct ongoing debt

@@ -1,0 +1,111 @@
+# ---------------------------------------------------------------------------- #
+#                                   PROFILES                                   #
+# ---------------------------------------------------------------------------- #
+
+[profile.default]
+  allow_paths = ["../"]
+  auto_detect_solc = false
+  bytecode_hash = "ipfs"
+  evm_version = "shanghai" # needed for greater coverage of EVM chains
+  gas_limit = 9223372036854775807
+  gas_reports = ["*"]
+  optimizer = true
+  out = "out"
+  remappings = [
+    "@chainlink/=../node_modules/@chainlink/",
+    "@openzeppelin/=../node_modules/@openzeppelin/",
+    "@prb/=../node_modules/@prb/",
+    "@sablier/=../node_modules/@sablier/",
+    "forge-std/=../node_modules/forge-std/",
+    "solady/=../node_modules/solady/",
+  ]
+  script = "scripts/solidity"
+  sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
+  solc = "0.8.29"
+  src = "src"
+  test = "tests"
+
+[profile.default.fuzz]
+  max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
+
+[profile.default.invariant]
+  call_override = false # Override unsafe external calls to perform reentrancy checks
+  fail_on_revert = true
+  show_metrics = false
+
+# Speed up compilation and tests during development
+[profile.lite]
+  optimizer = false
+
+# Compile only the production code
+[profile.optimized]
+  out = "out-optimized"
+  test = "src"
+  via_ir = true
+
+# Test the optimized contracts without re-compiling them
+[profile.test-optimized]
+  src = "tests"
+
+  # ---------------------------------------------------------------------------- #
+  #                                 OTHER CONFIG                                 #
+  # ---------------------------------------------------------------------------- #
+
+[doc]
+  ignore = ["**/*.t.sol"]
+  out = "docs"
+  repository = "https://github.com/sablier-labs/evm-monorepo"
+
+[etherscan]
+  etherscan = { key = "${ETHERSCAN_API_KEY}" }
+
+[fmt]
+  bracket_spacing = true
+  int_types = "long"
+  line_length = 120
+  multiline_func_header = "all"
+  number_underscore = "thousands"
+  quote_style = "double"
+  tab_width = 4
+  wrap_comments = true
+
+[lint]
+  lint_on_build = false
+
+[rpc_endpoints]
+  # mainnets
+  arbitrum = "https://lb.routeme.sh/rpc/42161/${ROUTEMESH_API_KEY}"
+  avalanche = "https://lb.routeme.sh/rpc/43114/${ROUTEMESH_API_KEY}"
+  base = "https://lb.routeme.sh/rpc/8453/${ROUTEMESH_API_KEY}"
+  berachain = "https://lb.routeme.sh/rpc/80094/${ROUTEMESH_API_KEY}"
+  blast = "https://lb.routeme.sh/rpc/81457/${ROUTEMESH_API_KEY}"
+  bsc = "https://lb.routeme.sh/rpc/56/${ROUTEMESH_API_KEY}"
+  chiliz = "https://lb.routeme.sh/rpc/88888/${ROUTEMESH_API_KEY}"
+  core_dao = "https://lb.routeme.sh/rpc/1116/${ROUTEMESH_API_KEY}"
+  ethereum = "https://lb.routeme.sh/rpc/1/${ROUTEMESH_API_KEY}"
+  form = "https://lb.routeme.sh/rpc/478/${ROUTEMESH_API_KEY}"
+  gnosis = "https://lb.routeme.sh/rpc/100/${ROUTEMESH_API_KEY}"
+  lightlink = "https://lb.routeme.sh/rpc/1890/${ROUTEMESH_API_KEY}"
+  linea = "https://lb.routeme.sh/rpc/59144/${ROUTEMESH_API_KEY}"
+  mainnet = "${MAINNET_RPC_URL}"
+  meld = "https://rpc-1.meld.com"
+  mode = "https://lb.routeme.sh/rpc/34443/${ROUTEMESH_API_KEY}"
+  morph = "https://lb.routeme.sh/rpc/2818/${ROUTEMESH_API_KEY}"
+  optimism = "https://lb.routeme.sh/rpc/10/${ROUTEMESH_API_KEY}"
+  polygon = "https://lb.routeme.sh/rpc/137/${ROUTEMESH_API_KEY}"
+  scroll = "https://lb.routeme.sh/rpc/534352/${ROUTEMESH_API_KEY}"
+  sei = "https://lb.routeme.sh/rpc/1329/${ROUTEMESH_API_KEY}"
+  superseed = "https://lb.routeme.sh/rpc/5330/${ROUTEMESH_API_KEY}"
+  xdc = "https://lb.routeme.sh/rpc/50/${ROUTEMESH_API_KEY}"
+  # testnets
+  arbitrum_sepolia = "https://lb.routeme.sh/rpc/421614/${ROUTEMESH_API_KEY}"
+  base_sepolia = "https://lb.routeme.sh/rpc/84532/${ROUTEMESH_API_KEY}"
+  blast_sepolia = "https://lb.routeme.sh/rpc/168587773/${ROUTEMESH_API_KEY}"
+  linea_sepolia = "https://lb.routeme.sh/rpc/59141/${ROUTEMESH_API_KEY}"
+  localhost = "http://localhost:8545"
+  mode_sepolia = "https://lb.routeme.sh/rpc/919/${ROUTEMESH_API_KEY}"
+  monad_testnet = "https://lb.routeme.sh/rpc/10143/${ROUTEMESH_API_KEY}"
+  optimism_sepolia = "https://lb.routeme.sh/rpc/11155420/${ROUTEMESH_API_KEY}"
+  sei_testnet = "https://lb.routeme.sh/rpc/713715/${ROUTEMESH_API_KEY}"
+  sepolia = "${SEPOLIA_RPC_URL}"
+  superseed_sepolia = "https://sepolia.superseed.xyz"

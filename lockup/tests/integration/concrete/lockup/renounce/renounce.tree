@@ -1,0 +1,23 @@
+Renounce_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      ├── given cold stream
+      │  ├── given DEPLETED status
+      │  │  └── it should revert
+      │  ├── given CANCELED status
+      │  │  └── it should revert
+      │  └── given SETTLED status
+      │     └── it should revert
+      └── given warm stream
+         ├── when caller not sender
+         │  └── it should revert
+         └── when caller sender
+            ├── given non cancelable stream
+            │  └── it should revert
+            └── given cancelable stream
+               ├── it should emit {RenounceLockupStream} event
+               └── it should make stream non cancelable

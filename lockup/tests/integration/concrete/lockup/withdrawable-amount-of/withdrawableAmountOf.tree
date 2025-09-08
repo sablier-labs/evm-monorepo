@@ -1,0 +1,15 @@
+WithdrawableAmountOf_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given canceled stream and CANCELED status
+   │  └── it should return the correct withdrawable amount
+   ├── given canceled stream and DEPLETED status
+   │  └── it should return zero
+   └── given not canceled stream
+      ├── given PENDING status
+      │  └── it should return zero
+      ├── given SETTLED status
+      │  └── it should return the correct withdrawable amount
+      └── given DEPLETED status
+         └── it should return zero

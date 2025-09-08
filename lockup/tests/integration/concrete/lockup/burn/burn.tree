@@ -1,0 +1,34 @@
+Burn_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      ├── given not depleted stream
+      │  ├── given PENDING status
+      │  │  └── it should revert
+      │  ├── given STREAMING status
+      │  │  └── it should revert
+      │  ├── given SETTLED status
+      │  │  └── it should revert
+      │  └── given CANCELED status
+      │     └── it should revert
+      └── given depleted stream
+         ├── when caller not recipient
+         │  ├── when caller malicious third party
+         │  │  └── it should revert
+         │  ├── when caller sender
+         │  │  └── it should revert
+         │  └── when caller approved third party
+         │     └── it should burn the NFT
+         └── when caller recipient
+            ├── given NFT not exist
+            │  └── it should revert
+            └── given NFT exists
+               ├── given non transferable NFT
+               │  ├── it should burn the NFT
+               │  └── it should emit a {MetadataUpdate} event
+               └── given transferable NFT
+                  ├── it should burn the NFT
+                  └── it should emit a {MetadataUpdate} event

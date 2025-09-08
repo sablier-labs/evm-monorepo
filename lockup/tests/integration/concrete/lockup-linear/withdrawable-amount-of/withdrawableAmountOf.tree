@@ -1,0 +1,9 @@
+WithdrawableAmountOf_Lockup_Linear_Integration_Concrete_Test
+└── given STREAMING status
+   ├── given cliff time in future
+   │  └── it should return zero
+   └── given cliff time not in future
+      ├── given no previous withdrawals
+      │  └── it should return the correct withdrawable amount
+      └── given previous withdrawal
+         └── it should return the correct withdrawable amount

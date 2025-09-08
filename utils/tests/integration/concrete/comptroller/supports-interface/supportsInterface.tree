@@ -1,0 +1,9 @@
+SupportsInterface_Comptroller_Concrete_Test
+├── when input matches none
+│  └── it should return false
+├── when input matches only one function selector
+│  └── it should return false
+├── when input matches IERC165 interface id
+│  └── it should return true
+└── when input matches minimal interface id
+   └── it should return true

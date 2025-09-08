@@ -1,0 +1,16 @@
+GetUnlockAmounts_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given not linear model
+   │  └── it should revert
+   └── given linear model
+      ├── given both amounts zero
+      │  └── it should return the correct unlock amount
+      ├── given only one amount zero
+      │  ├── given start unlock amount zero
+      │  │  └── it should return the correct unlock amount
+      │  └── given start unlock amount not zero
+      │     └── it should return the correct unlock amount
+      └── given both amounts not zero
+         └── it should return the correct unlock amount

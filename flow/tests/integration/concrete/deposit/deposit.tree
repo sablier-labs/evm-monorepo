@@ -1,0 +1,33 @@
+Deposit_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      ├── given voided
+      │  └── it should revert
+      └── given not voided
+         ├── when sender not match
+         │  └── it should revert
+         └── when sender matches
+            ├── when recipient not match
+            │  └── it should revert
+            └── when recipient matches
+               ├── when deposit amount zero
+               │  └── it should revert
+               └── when deposit amount not zero
+                  ├── when token misses ERC20 return
+                  │  └── it should make the deposit
+                  └── when token not miss ERC20 return
+                     ├── given token has 18 decimals
+                     │  ├── it should update the stream balance
+                     │  ├── it should increase the aggregate amount
+                     │  ├── it should perform the ERC20 transfer
+                     │  └── it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
+                     └── given token not have 18 decimals
+                        ├── it should update the stream balance
+                        ├── it should increase the aggregate amount
+                        ├── it should perform the ERC20 transfer
+                        └── it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
+

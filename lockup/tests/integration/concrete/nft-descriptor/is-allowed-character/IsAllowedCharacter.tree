@@ -1,0 +1,8 @@
+IsAllowedCharacter_Integration_Concrete_Test
+├── when empty string
+│  └── it should return true
+└── when not empty string
+   ├── given unsupported characters
+   │  └── it should return false
+   └── given supported characters
+      └── it should return true

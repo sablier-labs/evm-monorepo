@@ -1,0 +1,16 @@
+CreateWithDurationsLL_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── when cliff duration not zero
+   │  ├── it should create the stream
+   │  ├── it should bump the next stream ID
+   │  ├── it should mint the NFT
+   │  ├── it should perform the ERC-20 transfers
+   │  └── it should emit {CreateLockupLinearStream} and {MetadataUpdate} events
+   └── when cliff duration zero
+      ├── it should create the stream
+      ├── it should bump the next stream ID
+      ├── it should mint the NFT
+      ├── it should perform the ERC-20 transfers
+      └── it should emit {CreateLockupLinearStream} and {MetadataUpdate} events

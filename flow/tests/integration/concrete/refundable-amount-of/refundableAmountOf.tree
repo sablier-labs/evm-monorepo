@@ -1,0 +1,14 @@
+RefundableAmountOf_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given balance zero
+   │  └── it should return zero
+   └── given balance not zero
+      ├── given paused
+      │  └── it should return correct refundable amount
+      └── given not paused
+         ├── when total debt exceeds balance
+         │  └── it should return zero
+         └── when total debt not exceed balance
+            └── it should return correct refundable amount

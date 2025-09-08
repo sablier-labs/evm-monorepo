@@ -1,0 +1,26 @@
+# ---------------------------------------------------------------------------- #
+#                                 LOCKUP CONFIG                                #
+# ---------------------------------------------------------------------------- #
+
+[profile.default]
+  extends = "../foundry.base.toml"
+  optimizer_runs = 500
+  remappings = [
+    "solarray/=../node_modules/solarray/",
+  ]
+
+[profile.default.fuzz]
+  runs = 50
+
+[profile.lite]
+  extends = "../foundry.base.toml"
+
+[profile.optimized]
+  extends = "../foundry.base.toml"
+  test = "tests/mocks"
+
+[profile.test-optimized]
+  extends = "../foundry.base.toml"
+
+[lint]
+  lint_on_build = false

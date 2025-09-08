@@ -1,0 +1,29 @@
+Pause_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      ├── given paused
+      │  └── it should revert
+      └── given not paused
+          ├── when caller not sender
+          │  ├── when caller recipient
+          │  │  └── it should revert
+          │  └── when caller malicious third party
+          │     └── it should revert
+          └── when caller sender
+             ├── given not started
+             │  └── it should revert
+             └── given started
+                ├── given uncovered debt
+                │  ├── it should pause the stream
+                │  ├── it should set the rate per second to zero
+                │  ├── it should update the snapshot debt
+                │  └──it should emit 1 {PauseFlowStream}, 1 {MetadataUpdate} events
+                └── given no uncovered debt
+                   ├── it should pause the stream
+                   ├── it should set the rate per second to zero
+                   ├── it should update the snapshot debt
+                   └── it should emit 1 {PauseFlowStream}, 1 {MetadataUpdate} events

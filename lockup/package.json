@@ -1,0 +1,67 @@
+{
+  "name": "@sablier/lockup",
+  "description": "EVM smart contracts of the Sablier Lockup token distribution protocol",
+  "license": "SEE LICENSE IN LICENSE",
+  "version": "2.0.1",
+  "author": {
+    "name": "Sablier Labs Ltd",
+    "url": "https://sablier.com"
+  },
+  "bugs": {
+    "url": "https://github.com/sablier-labs/lockup/issues"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.3.0",
+    "@prb/math": "4.1.0",
+    "@sablier/evm-utils": "1.0.0-beta.2"
+  },
+  "devDependencies": {
+    "forge-std": "github:foundry-rs/forge-std#v1.10.0",
+    "solady": "0.0.208",
+    "solarray": "github:evmcheb/solarray#a547630"
+  },
+  "files": [
+    "artifacts",
+    "src",
+    "tests/utils",
+    "CHANGELOG.md",
+    "LICENSE.md",
+    "LICENSE-BUSL.md",
+    "LICENSE-GPL.md"
+  ],
+  "homepage": "https://github.com/sablier-labs/lockup#readme",
+  "keywords": [
+    "blockchain",
+    "cryptoasset-streaming",
+    "cryptoassets",
+    "ethereum",
+    "evm",
+    "foundry",
+    "lockup",
+    "money-streaming",
+    "real-time-finance",
+    "sablier",
+    "sablier-lockup",
+    "smart-contracts",
+    "solidity",
+    "token-distribution",
+    "token-streaming",
+    "token-vesting",
+    "vesting",
+    "web3"
+  ],
+  "peerDependencies": {
+    "@prb/math": "4.x.x"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sablier-labs/lockup.git"
+  },
+  "scripts": {
+    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh",
+    "setup": "husky"
+  }
+}

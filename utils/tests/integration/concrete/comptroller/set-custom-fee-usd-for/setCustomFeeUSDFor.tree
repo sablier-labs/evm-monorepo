@@ -1,0 +1,17 @@
+SetCustomFeeUSDFor_Comptroller_Concrete_Test
+├── when caller not admin
+│  ├── when caller without fee management role
+│  │  └── it should revert
+│  └── when caller with fee management role
+│     ├── it should set the custom fee
+│     └── it should emit a {SetCustomFeeUSD} event
+└── when caller admin
+   ├── when new fee exceeds max fee
+   │  └── it should revert
+   └── when new fee not exceed max fee
+      ├── when not enabled
+      │  ├── it should set the custom fee
+      │  └── it should emit a {SetCustomFeeUSD} event
+      └── when enabled
+         ├── it should set the custom fee
+         └── it should emit a {SetCustomFeeUSD} event

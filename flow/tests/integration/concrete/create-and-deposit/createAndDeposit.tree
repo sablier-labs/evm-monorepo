@@ -1,0 +1,10 @@
+CreateAndDeposit_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── it should create the stream
+   ├── it should bump the next stream id
+   ├── it should mint the NFT
+   ├── it should update the stream balance
+   ├── it should perform the ERC20 transfer
+   └── it should emit events: 1 {MetadataUpdate}, 1 {CreateFlowStream}, 1 {Transfer}, 1 {DepositFlowStream}

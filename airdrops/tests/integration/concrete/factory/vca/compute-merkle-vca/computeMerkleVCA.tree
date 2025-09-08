@@ -1,0 +1,22 @@
+ComputeMerkleVCA_Integration_Test
+├── when native token found
+│  └── it should revert
+└── when native token not found
+    ├── when vesting start time zero
+    │  └── it should revert
+    └── when vesting start time not zero
+        ├── when vesting end time less than vesting start time
+        │  └── it should revert
+        ├── when vesting end time equals vesting start time
+        │  └── it should revert
+        └── when vesting end time greater than vesting start time
+            ├── when zero expiration
+            │  └── it should revert
+            └── when not zero expiration
+                ├── when expiration not exceed one week from vesting end time
+                │  └── it should revert
+                └── when expiration exceeds one week from vesting end time
+                    ├── when unlock percentage greater than 100
+                    │  └── it should revert
+                    └── when unlock percentage not greater than 100
+                        └── it should return the address

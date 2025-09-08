@@ -1,0 +1,8 @@
+HasClaimed_Integration_Test
+├── when index not in Merkle tree
+│  └── it should return false
+└── when index in Merkle tree
+   ├── given recipient not claimed
+   │  └── it should return false
+   └── given recipient claimed
+      └── it should return true

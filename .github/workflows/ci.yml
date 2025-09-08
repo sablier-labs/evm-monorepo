@@ -1,0 +1,69 @@
+name: "CI"
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{github.workflow}}-${{github.ref}}
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "staging"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: sablier-labs/devkit/actions/setup@main
+        with:
+          package-manager: bun
+
+      - name: Run all code checks
+        run: just full-check
+
+  test-unit:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: sablier-labs/devkit/actions/setup@main
+        with:
+          package-manager: bun
+
+      - name: Run unit tests
+        env:
+          FOUNDRY_FUZZ_RUNS: 2000
+          FOUNDRY_PROFILE: test-optimized
+        run: forge test --match-path "tests/unit/**/*.sol"
+
+  test-integration:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: sablier-labs/devkit/actions/setup@main
+        with:
+          package-manager: bun
+
+      - name: Run integration tests
+        env:
+          FOUNDRY_FUZZ_RUNS: 2000
+          FOUNDRY_PROFILE: test-optimized
+        run: forge test --match-path "tests/integration/**/*.sol"
+
+  test-invariant:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: sablier-labs/devkit/actions/setup@main
+        with:
+          package-manager: bun
+
+      - name: Run invariant tests
+        env:
+          FOUNDRY_PROFILE: test-optimized
+        run: forge test --match-path "tests/invariant/**/*.sol"
