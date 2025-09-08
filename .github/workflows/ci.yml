@@ -4,6 +4,9 @@ concurrency:
   cancel-in-progress: true
   group: ${{github.workflow}}-${{github.ref}}
 
+env:
+  FOUNDRY_DISABLE_NIGHTLY_WARNING: "true"
+
 on:
   pull_request:
   workflow_dispatch:
