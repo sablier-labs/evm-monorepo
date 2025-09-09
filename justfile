@@ -40,8 +40,12 @@ alias b := build
 # ---------------------------------------------------------------------------- #
 
 [group("test")]
-test path="tests/**/*.sol":
-    forge test --match-path "{{ path }}"
+test workspace path="tests/**/*.sol":
+    forge test --root {{ workspace }} --match-path "{{ path }}"
+alias test-forge := test
+
+test-bulloak workspace:
+    bulloak check --tree-path "{{ workspace }}/tests/**/*.tree"
 
 # ---------------------------------------------------------------------------- #
 #                                PRIVATE SCRIPTS                               #

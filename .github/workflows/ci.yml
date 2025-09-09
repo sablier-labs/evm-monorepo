@@ -99,6 +99,13 @@ jobs:
           FOUNDRY_PROFILE: optimized
         run: forge build --root ${{ matrix.workspace }}
 
+      - name: Run Bulloak check
+        if: steps.cache-step.outputs.cache-status != 'primary'
+        uses: "smol-ninja/bulloak-toolchain@v1"
+        with:
+          skip-modifiers: true
+          tree-path: ${{ matrix.workspace }}/tests/{{ matrix.test-type }}/**/*.tree
+
       - name: Run tests
         if: steps.cache-step.outputs.cache-status != 'primary'
         env:
