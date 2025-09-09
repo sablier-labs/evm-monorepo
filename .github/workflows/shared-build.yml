@@ -1,0 +1,64 @@
+name: "Shared Build"
+
+on:
+  workflow_call:
+    inputs:
+      workspace:
+        description: "Workspace to build"
+        required: true
+        type: string
+    outputs:
+      # See https://github.com/actions/cache/issues/1566
+      cache-status:
+        description: "Descriptive cache status: 'primary', 'fallback', or 'not-found'"
+        value: ${{ jobs.build.outputs.cache-status }}
+
+env:
+  FOUNDRY_DISABLE_NIGHTLY_WARNING: "true"
+
+jobs:
+  build:
+    name: Build ${{ inputs.workspace }}
+    runs-on: ubuntu-latest
+    outputs:
+      cache-status: ${{ steps.cache-step.outputs.cache-status }}
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v5
+
+      - name: Setup Sablier devkit
+        uses: sablier-labs/devkit/actions/setup@main
+        with:
+          frozen-lockfile: false
+          package-manager: bun
+
+      - name: Setup Foundry toolchain
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: "nightly"
+
+      - name: Run code checks
+        working-directory: ${{ inputs.workspace }}
+        run: just full-check
+
+      - name: Cache Foundry artifacts and Node.js dependencies
+        id: cache-step
+        uses: sablier-labs/gha-utils/.github/actions/evm-cache@main
+        with:
+          cache-path: |
+            node_modules
+            ${{ inputs.workspace }}/cache
+            ${{ inputs.workspace }}/ou
+            ${{ inputs.workspace }}/out-optimized
+          sol-files-path: ${{ inputs.workspace }}/**/*.sol
+
+      - name: Build contracts
+        if: steps.cache-step.outputs.cache-status != 'primary'
+        run: | #shell
+          FOUNDRY_PROFILE=optimized just build ${{ inputs.workspace }}
+          FOUNDRY_PROFILE=test-optimized just build ${{ inputs.workspace }}
+
+      - name: Add summary
+        run: | # shell
+          echo "## Build result for ${{ inputs.workspace }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY

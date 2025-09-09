@@ -67,6 +67,10 @@ test-coverage workspace:
         --match-path "tests/{fork,integration,unit}/**/*.sol" \
         --report lcov
 
+[group("test")]
+test-all:
+    just for-each "forge test --root"
+
 # ---------------------------------------------------------------------------- #
 #                                PRIVATE SCRIPTS                               #
 # ---------------------------------------------------------------------------- #

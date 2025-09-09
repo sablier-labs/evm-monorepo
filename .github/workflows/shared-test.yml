@@ -1,0 +1,61 @@
+name: "Shared Test"
+
+on:
+  workflow_call:
+    inputs:
+      test-type:
+        description: "Type of tests to run (unit, integration, invariant, fork, coverage)"
+        required: true
+        type: string
+      workspace:
+        description: "Workspace to test"
+        required: true
+        type: string
+
+env:
+  FOUNDRY_DISABLE_NIGHTLY_WARNING: "true"
+
+jobs:
+  test:
+    name: ${{ inputs.test-type }} tests - ${{ inputs.workspace }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Sablier devkit
+        uses: sablier-labs/devkit/actions/setup@main
+        with:
+          frozen-lockfile: false
+          package-manager: bun
+
+      - name: Setup Foundry toolchain
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Restore the cached build
+        uses: sablier-labs/gha-utils/.github/actions/evm-cache@main
+        with:
+          cache-path: |
+            node_modules
+            ${{ inputs.workspace }}/cache
+            ${{ inputs.workspace }}/out-optimized
+          fail-on-cache-miss: true
+
+      - name: Run Bulloak check
+        if: inputs.test-type == 'integration'
+        uses: PaulRBerg/bulloak-toolchain@refactor/setup-rust-toolchain
+        with:
+          skip-modifiers: true
+          test-dir: ${{ inputs.workspace }}/tests/${{ inputs.test-type }}
+
+      - name: Run tests
+        env:
+          FOUNDRY_PROFILE: test-optimized
+        run: | # shell
+          case "${{ inputs.test-type }}" in
+            unit|integration) export FOUNDRY_FUZZ_RUNS=2000 ;;
+            fork|coverage) export FOUNDRY_FUZZ_RUNS=20 ;;
+          esac
+          just test-${{ inputs.test-type }} ${{ inputs.workspace }}
