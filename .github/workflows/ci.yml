@@ -106,7 +106,7 @@ jobs:
             node_modules
             ${{ matrix.workspace }}/cache
             ${{ matrix.workspace }}/out-optimized
-          workspace-path: ${{ matrix.workspace }}/
+          sol-files-path: ${{ matrix.workspace }}/**/*.sol
 
       - name: Build contracts
         if: steps.cache-step.outputs.cache-status != 'primary'
@@ -115,11 +115,11 @@ jobs:
         run: forge build --root ${{ matrix.workspace }}
 
       - name: Run Bulloak check
-        if: steps.cache-step.outputs.cache-status != 'primary'
+        if: steps.cache-step.outputs.cache-status != 'primary' && matrix.test-type == 'integration'
         uses: "smol-ninja/bulloak-toolchain@v1"
         with:
           skip-modifiers: true
-          tree-path: ${{ matrix.workspace }}/tests/${{ matrix.test-type }}/**/*.tree
+          tree-path: ${{ matrix.workspace }}/tests/${{ matrix.test-type }}
 
       - name: Run tests
         if: steps.cache-step.outputs.cache-status != 'primary'
