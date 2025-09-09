@@ -87,7 +87,14 @@ contract FlowStore {
         lastStreamId = streamId;
     }
 
-    function pushPeriod(uint256 streamId, uint128 newRatePerSecond, string memory typeOfPeriod, uint40 blockTimestamp) external {
+    function pushPeriod(
+        uint256 streamId,
+        uint128 newRatePerSecond,
+        string memory typeOfPeriod,
+        uint40 blockTimestamp
+    )
+        external
+    {
         uint256 count = periods[streamId].length - 1;
 
         // If the previous start time is in the future keep the same periods.

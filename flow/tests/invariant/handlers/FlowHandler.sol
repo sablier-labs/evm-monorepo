@@ -120,7 +120,12 @@ contract FlowHandler is BaseHandler {
         // Adjust the rate per second.
         flow.adjustRatePerSecond(currentStreamId, newRatePerSecond);
 
-        flowStore.pushPeriod({ streamId: currentStreamId, newRatePerSecond: newRatePerSecond.unwrap(), typeOfPeriod: "adjustRatePerSecond", blockTimestamp: uint40(vm.getBlockTimestamp()) });
+        flowStore.pushPeriod({
+            streamId: currentStreamId,
+            newRatePerSecond: newRatePerSecond.unwrap(),
+            typeOfPeriod: "adjustRatePerSecond",
+            blockTimestamp: uint40(vm.getBlockTimestamp())
+        });
     }
 
     function deposit(
@@ -185,7 +190,12 @@ contract FlowHandler is BaseHandler {
         // Pause the stream.
         flow.pause(currentStreamId);
 
-        flowStore.pushPeriod({ streamId: currentStreamId, newRatePerSecond: 0, typeOfPeriod: "pause", blockTimestamp: uint40(vm.getBlockTimestamp()) });
+        flowStore.pushPeriod({
+            streamId: currentStreamId,
+            newRatePerSecond: 0,
+            typeOfPeriod: "pause",
+            blockTimestamp: uint40(vm.getBlockTimestamp())
+        });
     }
 
     function refund(
@@ -248,7 +258,12 @@ contract FlowHandler is BaseHandler {
         // Restart the stream.
         flow.restart(currentStreamId, ratePerSecond);
 
-        flowStore.pushPeriod({ streamId: currentStreamId, newRatePerSecond: ratePerSecond.unwrap(), typeOfPeriod: "restart", blockTimestamp: uint40(vm.getBlockTimestamp()) });
+        flowStore.pushPeriod({
+            streamId: currentStreamId,
+            newRatePerSecond: ratePerSecond.unwrap(),
+            typeOfPeriod: "restart",
+            blockTimestamp: uint40(vm.getBlockTimestamp())
+        });
     }
 
     function void(
@@ -268,7 +283,12 @@ contract FlowHandler is BaseHandler {
         // Void the stream.
         flow.void(currentStreamId);
 
-        flowStore.pushPeriod({ streamId: currentStreamId, newRatePerSecond: 0, typeOfPeriod: "void", blockTimestamp: uint40(vm.getBlockTimestamp()) });
+        flowStore.pushPeriod({
+            streamId: currentStreamId,
+            newRatePerSecond: 0,
+            typeOfPeriod: "void",
+            blockTimestamp: uint40(vm.getBlockTimestamp())
+        });
     }
 
     function withdraw(

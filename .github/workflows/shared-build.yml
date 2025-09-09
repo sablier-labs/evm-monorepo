@@ -18,7 +18,7 @@ env:
 
 jobs:
   build:
-    name: Build ${{ inputs.workspace }}
+    name: ${{ inputs.workspace }}
     runs-on: ubuntu-latest
     outputs:
       cache-status: ${{ steps.cache-step.outputs.cache-status }}
