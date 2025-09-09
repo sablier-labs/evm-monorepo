@@ -65,6 +65,17 @@ jobs:
             test-type: invariant
           - workspace: utils
             test-type: invariant
+          # ---------------------------------------------------------------------------- #
+          #                                     FORK                                     #
+          # ---------------------------------------------------------------------------- #
+          # - workspace: airdrops
+          #   test-type: fork
+          - workspace: flow
+            test-type: fork
+          - workspace: lockup
+            test-type: fork
+          - workspace: utils
+            test-type: fork
     steps:
       - uses: actions/checkout@v5
       - uses: foundry-rs/foundry-toolchain@v1
@@ -93,6 +104,9 @@ jobs:
         env:
           FOUNDRY_PROFILE: test-optimized
         run: | #shell
+          if [ "${{ matrix.test-type }}" == "fork" ]; then
+            export FOUNDRY_FUZZ_RUNS=20
+          fi
           forge test \
             --match-path "tests/${{ matrix.test-type }}/**/*.sol" \
             --root ${{ matrix.workspace }}
