@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------- #
 
 [profile.default]
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
   optimizer_runs = 100_000_000
   remappings = [
     "murky/=../node_modules/murky/",
@@ -17,17 +17,17 @@
   runs = 20
 
 [profile.lite]
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
 
 [profile.lite.fuzz]
   runs = 50
 
 [profile.optimized]
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
   optimizer_runs = 1_000_000
 
 [profile.test-optimized]
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
 
 [doc]
   path = "airdrops"

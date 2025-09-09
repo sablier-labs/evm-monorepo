@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------- #
 
 [profile.default]
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
   optimizer_runs = 500
   remappings = [
     "solarray/=../node_modules/solarray/",
@@ -13,14 +13,14 @@
   runs = 50
 
 [profile.lite]
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
 
 [profile.optimized]
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
   test = "tests/mocks"
 
 [profile.test-optimized]
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
 
 [lint]
   lint_on_build = false

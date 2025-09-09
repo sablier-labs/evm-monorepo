@@ -31,12 +31,45 @@ jobs:
       - name: Run all code checks
         run: just full-check
 
-  test-unit:
+  test:
     needs: check
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        workspace: [airdrops, lockup]
+        include:
+          # ---------------------------------------------------------------------------- #
+          #                                     Unit                                     #
+          # ---------------------------------------------------------------------------- #
+          - workspace: airdrops
+            fuzz-runs: 2000
+            test-type: unit
+          - workspace: lockup
+            fuzz-runs: 2000
+            test-type: unit
+          # ---------------------------------------------------------------------------- #
+          #                                 INTEGRATION                                  #
+          # ---------------------------------------------------------------------------- #
+          - workspace: airdrops
+            fuzz-runs: 2000
+            test-type: integration
+          - workspace: flow
+            fuzz-runs: 2000
+            test-type: integration
+          - workspace: lockup
+            fuzz-runs: 2000
+            test-type: integration
+          - workspace: utils
+            fuzz-runs: 2000
+            test-type: integration
+          # ---------------------------------------------------------------------------- #
+          #                                   INVARIANT                                  #
+          # ---------------------------------------------------------------------------- #
+          - workspace: flow
+            test-type: invariant
+          - workspace: lockup
+            test-type: invariant
+          - workspace: utils
+            test-type: invariant
     steps:
       - uses: actions/checkout@v5
       - uses: foundry-rs/foundry-toolchain@v1
@@ -45,72 +78,28 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install
 
-      - name: Build contracts
-        run: |
-          just build ${{ matrix.workspace }} optimized
-
-      - name: Run unit tests
-        env:
-          FOUNDRY_FUZZ_RUNS: 2000
-          FOUNDRY_PROFILE: test-optimized
-        run: | #shell
-          forge test \
-            --match-path "tests/unit/**/*.sol" \
-            --root ${{ matrix.workspace }}
-
-  test-integration:
-    needs: check
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        workspace: [airdrops, flow, lockup, utils]
-    steps:
-      - uses: actions/checkout@v5
-      - uses: foundry-rs/foundry-toolchain@v1
+      - name: "Cache Foundry artifacts and Node.js dependencies"
+        id: "cache-step"
+        uses: "sablier-labs/gha-utils/.github/actions/evm-cache@main"
         with:
-          version: "nightly"
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install
+          cache-path: |
+            node_modules
+            ${{ matrix.workspace }}/cache
+            ${{ matrix.workspace }}/out-optimized
 
       - name: Build contracts
+        if: steps.cache-step.outputs.cache-status != 'primary'
         env:
           FOUNDRY_PROFILE: optimized
         run: |
-          just build ${{ matrix.workspace }}
+          forge build --root ${{ matrix.workspace }}
 
-      - name: Run integration tests
+      - name: Run tests
+        if: steps.cache-step.outputs.cache-status != 'primary'
         env:
-          FOUNDRY_FUZZ_RUNS: 2000
+          FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs || '' }}
           FOUNDRY_PROFILE: test-optimized
         run: | #shell
           forge test \
-            --match-path "tests/integration/**/*.sol" \
-            --root ${{ matrix.workspace }}
-
-  test-invariant:
-    needs: check
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        workspace: [flow, lockup, utils]
-    steps:
-      - uses: actions/checkout@v5
-      - uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: "nightly"
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install
-
-      - name: Build contracts
-        env:
-          FOUNDRY_PROFILE: optimized
-        run: |
-          just build ${{ matrix.workspace }}
-
-      - name: Run invariant tests
-        env:
-          FOUNDRY_PROFILE: test-optimized
-        run: | #shell
-          forge test \
-            --match-path "tests/invariant/**/*.sol" \
+            --match-path "tests/${{ matrix.test-type }}/**/*.sol" \
             --root ${{ matrix.workspace }}

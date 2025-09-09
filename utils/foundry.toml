@@ -5,7 +5,7 @@
 [profile.default]
   ast = true
   build_info = true
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
   extra_output = ["storageLayout"]
   ffi = true
   gas_reports = ["*"]
@@ -23,14 +23,14 @@
   runs = 200
 
 [profile.lite]
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
 
 [profile.optimized]
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
   optimizer_runs = 100_000_000
 
 [profile.test-optimized]
-  extends = "../foundry.base.toml"
+  extends = "../foundry.toml"
 
 [doc]
   path = "utils"
