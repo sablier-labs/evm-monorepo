@@ -63,7 +63,7 @@ contract FlowCreateHandler is BaseHandler {
         );
 
         // Store the stream id and rate per second.
-        flowStore.initStreamId(streamId, params.ratePerSecond, params.startTime);
+        flowStore.initStreamId(streamId, params.ratePerSecond, params.startTime, uint40(vm.getBlockTimestamp()));
     }
 
     /// @dev We assume a start time earlier than the current block timestamp to avoid having too many PENDING
@@ -78,7 +78,7 @@ contract FlowCreateHandler is BaseHandler {
         _checkParams(params);
 
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
-        vm.assume(params.startTime <= block.timestamp);
+        vm.assume(params.startTime <= vm.getBlockTimestamp());
 
         // Calculate the upper bound, based on the token decimals, for the deposit amount.
         uint256 upperBound = getDescaledAmount(1_000_000e18, IERC20Metadata(address(currentToken)).decimals());
@@ -109,7 +109,7 @@ contract FlowCreateHandler is BaseHandler {
         );
 
         // Store the stream id and rate per second.
-        flowStore.initStreamId(streamId, params.ratePerSecond, params.startTime);
+        flowStore.initStreamId(streamId, params.ratePerSecond, params.startTime, uint40(vm.getBlockTimestamp()));
 
         // Store the deposit totals.
         flowStore.updateTotalDeposits(streamId, currentToken, params.depositAmount);

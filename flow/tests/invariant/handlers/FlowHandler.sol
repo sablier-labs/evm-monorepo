@@ -120,7 +120,7 @@ contract FlowHandler is BaseHandler {
         // Adjust the rate per second.
         flow.adjustRatePerSecond(currentStreamId, newRatePerSecond);
 
-        flowStore.pushPeriod(currentStreamId, newRatePerSecond.unwrap(), "adjustRatePerSecond");
+        flowStore.pushPeriod({ streamId: currentStreamId, newRatePerSecond: newRatePerSecond.unwrap(), typeOfPeriod: "adjustRatePerSecond", blockTimestamp: uint40(vm.getBlockTimestamp()) });
     }
 
     function deposit(
@@ -180,12 +180,12 @@ contract FlowHandler is BaseHandler {
         vm.assume(flow.getRatePerSecond(currentStreamId).unwrap() > 0);
 
         // The stream must not be PENDING.
-        vm.assume(flow.getSnapshotTime(currentStreamId) <= block.timestamp);
+        vm.assume(flow.getSnapshotTime(currentStreamId) <= vm.getBlockTimestamp());
 
         // Pause the stream.
         flow.pause(currentStreamId);
 
-        flowStore.pushPeriod(currentStreamId, 0, "pause");
+        flowStore.pushPeriod({ streamId: currentStreamId, newRatePerSecond: 0, typeOfPeriod: "pause", blockTimestamp: uint40(vm.getBlockTimestamp()) });
     }
 
     function refund(
@@ -248,7 +248,7 @@ contract FlowHandler is BaseHandler {
         // Restart the stream.
         flow.restart(currentStreamId, ratePerSecond);
 
-        flowStore.pushPeriod(currentStreamId, ratePerSecond.unwrap(), "restart");
+        flowStore.pushPeriod({ streamId: currentStreamId, newRatePerSecond: ratePerSecond.unwrap(), typeOfPeriod: "restart", blockTimestamp: uint40(vm.getBlockTimestamp()) });
     }
 
     function void(
@@ -268,7 +268,7 @@ contract FlowHandler is BaseHandler {
         // Void the stream.
         flow.void(currentStreamId);
 
-        flowStore.pushPeriod(currentStreamId, 0, "void");
+        flowStore.pushPeriod({ streamId: currentStreamId, newRatePerSecond: 0, typeOfPeriod: "void", blockTimestamp: uint40(vm.getBlockTimestamp()) });
     }
 
     function withdraw(

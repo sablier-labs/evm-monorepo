@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { CommonBase as StdBase } from "forge-std/src/Base.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
@@ -10,7 +11,7 @@ import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
 import { LockupLinear } from "../../src/types/LockupLinear.sol";
 import { LockupTranched } from "../../src/types/LockupTranched.sol";
 
-abstract contract Calculations {
+abstract contract Calculations is StdBase {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
 
@@ -24,7 +25,7 @@ abstract contract Calculations {
         view
         returns (uint128)
     {
-        uint40 blockTimestamp = uint40(block.timestamp);
+        uint40 blockTimestamp = uint40(vm.getBlockTimestamp());
 
         if (startTime >= blockTimestamp) {
             return 0;
@@ -77,7 +78,7 @@ abstract contract Calculations {
         view
         returns (uint128)
     {
-        uint40 blockTimestamp = uint40(block.timestamp);
+        uint40 blockTimestamp = uint40(vm.getBlockTimestamp());
 
         if (startTime >= blockTimestamp) {
             return 0;
@@ -115,7 +116,7 @@ abstract contract Calculations {
         view
         returns (uint128)
     {
-        uint40 blockTimestamp = uint40(block.timestamp);
+        uint40 blockTimestamp = uint40(vm.getBlockTimestamp());
 
         if (tranches[0].timestamp > blockTimestamp) {
             return 0;
