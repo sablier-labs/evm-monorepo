@@ -1,4 +1,4 @@
-name: "Shared Build"
+name: "Shared Build Workflow"
 
 on:
   workflow_call:
@@ -48,7 +48,7 @@ jobs:
           cache-path: |
             node_modules
             ${{ inputs.workspace }}/cache
-            ${{ inputs.workspace }}/ou
+            ${{ inputs.workspace }}/out
             ${{ inputs.workspace }}/out-optimized
           sol-files-path: ${{ inputs.workspace }}/**/*.sol
 

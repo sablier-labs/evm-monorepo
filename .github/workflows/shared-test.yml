@@ -1,4 +1,4 @@
-name: "Shared Test"
+name: "Shared Test Workflow"
 
 on:
   workflow_call:
@@ -17,7 +17,7 @@ env:
 
 jobs:
   test:
-    name: ${{ inputs.test-type }} tests - ${{ inputs.workspace }}
+    name: ${{ inputs.workspace }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -40,8 +40,10 @@ jobs:
           cache-path: |
             node_modules
             ${{ inputs.workspace }}/cache
+            ${{ inputs.workspace }}/out
             ${{ inputs.workspace }}/out-optimized
           fail-on-cache-miss: true
+          sol-files-path: ${{ inputs.workspace }}/**/*.sol
 
       - name: Run Bulloak check
         if: inputs.test-type == 'integration'

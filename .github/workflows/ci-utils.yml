@@ -1,0 +1,54 @@
+name: "CI Utils"
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+on:
+  push:
+    branches:
+      - "main"
+      - "staging"
+    paths: &on_paths
+      - ".github/workflows/ci-utils.yml"
+      - ".github/workflows/shared-*.yml"
+      - "utils/**"
+      - "foundry.toml"
+      - "justfile"
+      - "package.json"
+  # pull_request:
+  #   paths: *on_paths
+  workflow_dispatch:
+jobs:
+  build:
+    secrets: inherit
+    uses: ./.github/workflows/shared-build.yml
+    with:
+      workspace: utils
+
+  test-integration:
+    needs: build
+    if: needs.build.outputs.cache-status != 'primary'
+    secrets: inherit
+    uses: ./.github/workflows/shared-test.yml
+    with:
+      workspace: utils
+      test-type: integration
+
+  test-fork:
+    needs: build
+    if: needs.build.outputs.cache-status != 'primary'
+    secrets: inherit
+    uses: ./.github/workflows/shared-test.yml
+    with:
+      workspace: utils
+      test-type: fork
+
+  test-coverage:
+    needs: build
+    if: needs.build.outputs.cache-status != 'primary'
+    secrets: inherit
+    uses: ./.github/workflows/shared-test.yml
+    with:
+      workspace: utils
+      test-type: coverage
