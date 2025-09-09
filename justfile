@@ -41,11 +41,31 @@ alias b := build
 
 [group("test")]
 test workspace path="tests/**/*.sol":
-    forge test --root {{ workspace }} --match-path "{{ path }}"
-alias test-forge := test
+    forge test --root {{ workspace }} \
+        --match-path "{{ path }}"
 
+[group("test")]
+test-fork workspace: (test workspace "tests/fork/**/*.sol")
+
+[group("test")]
+test-integration workspace: (test workspace "tests/integration/**/*.sol")
+
+[group("test")]
+test-invariant workspace: (test workspace "tests/invariant/**/*.sol")
+
+[group("test")]
+test-unit workspace: (test workspace "tests/unit/**/*.sol")
+
+[group("test")]
 test-bulloak workspace:
     bulloak check --tree-path "{{ workspace }}/tests/**/*.tree"
+
+[group("test")]
+test-coverage workspace:
+    forge coverage --root {{ workspace }} \
+        --ir-minimum \
+        --match-path "tests/{fork,integration,unit}/**/*.sol" \
+        --report lcov
 
 # ---------------------------------------------------------------------------- #
 #                                PRIVATE SCRIPTS                               #

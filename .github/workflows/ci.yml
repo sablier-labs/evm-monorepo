@@ -41,48 +41,62 @@ jobs:
           # ---------------------------------------------------------------------------- #
           #                                     Unit                                     #
           # ---------------------------------------------------------------------------- #
-          # - workspace: airdrops
-          #   test-type: unit
-          - workspace: lockup
-            test-type: unit
+          # - test-type: unit
+          #   workspace: airdrops
+          - test-type: unit
+            workspace: lockup
+
           # ---------------------------------------------------------------------------- #
           #                                 INTEGRATION                                  #
           # ---------------------------------------------------------------------------- #
-          # - workspace: airdrops
-          #   test-type: integration
-          - workspace: flow
-            test-type: integration
-          - workspace: lockup
-            test-type: integration
-          - workspace: utils
-            test-type: integration
+          # - test-type: integration
+          #   workspace: airdrops
+          - test-type: integration
+            workspace: flow
+          - test-type: integration
+            workspace: lockup
+          - test-type: integration
+            workspace: utils
           # ---------------------------------------------------------------------------- #
           #                                   INVARIANT                                  #
           # ---------------------------------------------------------------------------- #
-          - workspace: flow
-            test-type: invariant
-          - workspace: lockup
-            test-type: invariant
-          - workspace: utils
-            test-type: invariant
+          - test-type: invariant
+            workspace: flow
+          - test-type: invariant
+            workspace: lockup
+          - test-type: invariant
+            workspace: utils
           # ---------------------------------------------------------------------------- #
           #                                     FORK                                     #
           # ---------------------------------------------------------------------------- #
-          # - workspace: airdrops
-          #   test-type: fork
-          - workspace: flow
-            test-type: fork
-          - workspace: lockup
-            test-type: fork
-          - workspace: utils
-            test-type: fork
+          # - test-type: fork
+          #   workspace: airdrops
+          - test-type: fork
+            workspace: flow
+          - test-type: fork
+            workspace: lockup
+          - test-type: fork
+            workspace: utils
+          # ---------------------------------------------------------------------------- #
+          #                                   COVERAGE                                   #
+          # ---------------------------------------------------------------------------- #
+          # - test-type: coverage
+          #   workspace: airdrops
+          - test-type: coverage
+            workspace: flow
+          - test-type: coverage
+            workspace: lockup
+          - test-type: coverage
+            workspace: utils
     steps:
       - uses: actions/checkout@v5
+      - uses: sablier-labs/devkit/actions/setup@main
+        with:
+          frozen-lockfile: false
+          package-manager: bun
       - uses: foundry-rs/foundry-toolchain@v1
         with:
           version: "nightly"
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install
 
       - name: "Cache Foundry artifacts and Node.js dependencies"
         id: "cache-step"
@@ -92,6 +106,7 @@ jobs:
             node_modules
             ${{ matrix.workspace }}/cache
             ${{ matrix.workspace }}/out-optimized
+          workspace-path: ${{ matrix.workspace }}/
 
       - name: Build contracts
         if: steps.cache-step.outputs.cache-status != 'primary'
@@ -104,16 +119,15 @@ jobs:
         uses: "smol-ninja/bulloak-toolchain@v1"
         with:
           skip-modifiers: true
-          tree-path: ${{ matrix.workspace }}/tests/{{ matrix.test-type }}/**/*.tree
+          tree-path: ${{ matrix.workspace }}/tests/${{ matrix.test-type }}/**/*.tree
 
       - name: Run tests
         if: steps.cache-step.outputs.cache-status != 'primary'
         env:
           FOUNDRY_PROFILE: test-optimized
         run: | #shell
-          if [ "${{ matrix.test-type }}" == "fork" ]; then
-            export FOUNDRY_FUZZ_RUNS=20
-          fi
-          forge test \
-            --match-path "tests/${{ matrix.test-type }}/**/*.sol" \
-            --root ${{ matrix.workspace }}
+          case "${{ matrix.test-type }}" in
+            unit|integration) export FOUNDRY_FUZZ_RUNS=2000 ;;
+            fork|coverage) export FOUNDRY_FUZZ_RUNS=20 ;;
+          esac
+          just test-${{ matrix.test-type }} ${{ matrix.workspace }}
