@@ -116,10 +116,10 @@ jobs:
 
       - name: Run Bulloak check
         if: steps.cache-step.outputs.cache-status != 'primary' && matrix.test-type == 'integration'
-        uses: "smol-ninja/bulloak-toolchain@v1"
+        uses: "PaulRBerg/bulloak-toolchain@refactor/setup-rust-toolchain"
         with:
           skip-modifiers: true
-          tree-path: ${{ matrix.workspace }}/tests/${{ matrix.test-type }}
+          test-dir: ${{ matrix.workspace }}/tests/${{ matrix.test-type }}
 
       - name: Run tests
         if: steps.cache-step.outputs.cache-status != 'primary'
