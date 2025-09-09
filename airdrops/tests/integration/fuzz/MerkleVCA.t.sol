@@ -45,7 +45,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
             actualForgoneAmount = merkleVCA.calculateForgoneAmount(fullAmount, claimTime);
         }
 
-        // Because zero is the sentinel value for `block.timestamp`, warp to the claim time if its not 0.
+        // Zero is used as a sentinel value for `block.timestamp`, so we warp to the claim time if it's greater than 0.
         if (claimTime > 0) {
             vm.warp({ newTimestamp: claimTime });
         }

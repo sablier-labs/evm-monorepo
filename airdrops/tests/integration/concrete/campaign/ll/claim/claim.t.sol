@@ -80,7 +80,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
-        // It should create a stream with block.timestamp as vesting start time.
+        // It should create a stream with block timestamp as vesting start time.
         _test_Claim({ streamStartTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + VESTING_CLIFF_DURATION });
     }
 
@@ -97,7 +97,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
-        // It should create a stream with block.timestamp as vesting start time.
+        // It should create a stream with block timestamp as vesting start time.
         // It should create a stream with cliff as zero.
         _test_Claim({ streamStartTime: VESTING_START_TIME, cliffTime: 0 });
     }
@@ -109,7 +109,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
         whenTotalPercentageNotGreaterThan100
         whenVestingStartTimeNotZero
     {
-        // It should create a stream with block.timestamp as vesting start time.
+        // It should create a stream with block timestamp as vesting start time.
         // It should create a stream with cliff as vesting start time + cliff duration.
         _test_Claim({ streamStartTime: VESTING_START_TIME, cliffTime: VESTING_START_TIME + VESTING_CLIFF_DURATION });
     }

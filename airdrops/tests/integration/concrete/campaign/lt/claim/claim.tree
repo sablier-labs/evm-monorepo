@@ -5,7 +5,7 @@ Claim_MerkleLT_Integration_Test
    │  └── it should emit a {ClaimLTWithTransfer} event
    └── when vesting end time exceeds claim time
          ├── when vesting start time zero
-         │  ├── it should create a stream with block.timestamp as vesting start time
+         │  ├── it should create a stream with block timestamp as vesting start time
          │  └── it should emit a {ClaimLTWithVesting} event
          └── when vesting start time not zero
             ├── it should create a ranged stream with provided vesting start time
