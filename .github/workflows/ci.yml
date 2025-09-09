@@ -35,6 +35,7 @@ jobs:
     needs: check
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           # ---------------------------------------------------------------------------- #
@@ -85,8 +86,7 @@ jobs:
         if: steps.cache-step.outputs.cache-status != 'primary'
         env:
           FOUNDRY_PROFILE: optimized
-        run: |
-          forge build --root ${{ matrix.workspace }}
+        run: forge build --root ${{ matrix.workspace }}
 
       - name: Run tests
         if: steps.cache-step.outputs.cache-status != 'primary'
