@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import { UnsafeUpgrades } from "openzeppelin-foundry-upgrades/src/Upgrades.sol";
+import { UnsafeUpgrades } from "@openzeppelin/foundry-upgrades/src/Upgrades.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";

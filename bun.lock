@@ -72,7 +72,7 @@
         "forge-std": "github:foundry-rs/forge-std#v1.10.0",
       },
       "devDependencies": {
-        "@openzeppelin/foundry-upgrades": "0.4.0",
+        "@openzeppelin/foundry-upgrades": "github:sablier-labs/openzeppelin-foundry-upgrades#main",
         "@sablier/devkit": "github:sablier-labs/devkit",
       },
     },
@@ -280,7 +280,7 @@
 
     "@openzeppelin/defender-sdk-network-client": ["@openzeppelin/defender-sdk-network-client@2.7.0", "", { "dependencies": { "@openzeppelin/defender-sdk-base-client": "^2.7.0", "axios": "^1.7.4", "lodash": "^4.17.21" } }, "sha512-4CYWPa9+kSjojE5KS7kRmP161qsBATdp97TCrzyDdGoVahj0GyqgafRL9AAjm0eHZOM1c7EIYEpbvYRtFi8vyA=="],
 
-    "@openzeppelin/foundry-upgrades": ["@openzeppelin/foundry-upgrades@0.4.0", "", { "peerDependencies": { "@openzeppelin/defender-deploy-client-cli": "0.0.1-alpha.10", "@openzeppelin/upgrades-core": "^1.37.0" } }, "sha512-x9wxogNteR5rdDzh5d/XnINR+ncUdPsCLWud99ULCa1pNNqRVPYMadr6iEVmjdTEy/4keIgbHwLB0rw2zXiRyQ=="],
+    "@openzeppelin/foundry-upgrades": ["@openzeppelin/foundry-upgrades@github:sablier-labs/openzeppelin-foundry-upgrades#d5ab44d", { "peerDependencies": { "@openzeppelin/defender-deploy-client-cli": "0.0.1-alpha.10", "@openzeppelin/upgrades-core": "^1.37.0" } }, "sablier-labs-openzeppelin-foundry-upgrades-d5ab44d"],
 
     "@openzeppelin/upgrades-core": ["@openzeppelin/upgrades-core@1.44.1", "", { "dependencies": { "@nomicfoundation/slang": "^0.18.3", "bignumber.js": "^9.1.2", "cbor": "^10.0.0", "chalk": "^4.1.0", "compare-versions": "^6.0.0", "debug": "^4.1.1", "ethereumjs-util": "^7.0.3", "minimatch": "^9.0.5", "minimist": "^1.2.7", "proper-lockfile": "^4.1.1", "solidity-ast": "^0.4.60" }, "bin": { "openzeppelin-upgrades-core": "dist/cli/cli.js" } }, "sha512-yqvDj7eC7m5kCDgqCxVFgk9sVo9SXP/fQFaExPousNfAJJbX+20l4fKZp17aXbNTpo1g+2205s6cR9VhFFOCaQ=="],
 
@@ -1076,7 +1076,7 @@
 
     "@sablier/airdrops/@sablier/evm-utils": ["@sablier/evm-utils@1.0.0-beta.2", "", { "dependencies": { "@chainlink/contracts": "1.3.0", "@openzeppelin/contracts": "5.3.0", "@openzeppelin/contracts-upgradeable": "5.3.0", "forge-std": "github:foundry-rs/forge-std#v1.10.0" } }, "sha512-G5foWha8IpMoHuPh55dOaVyGNaX39/zhMRM9ow5emsfG/SF1X2SDkzsPJgUrhu7fv/P1Nw4xt7oNku+Q4svsgg=="],
 
-    "@sablier/evm-utils/@sablier/devkit": ["@sablier/devkit@github:sablier-labs/devkit#1add385", {}, "sablier-labs-devkit-1add385"],
+    "@sablier/evm-utils/@sablier/devkit": ["@sablier/devkit@github:sablier-labs/devkit#5a5b1d2", {}, "sablier-labs-devkit-5a5b1d2"],
 
     "@sablier/evm-utils/forge-std": ["forge-std@github:foundry-rs/forge-std#8bbcf6e", {}, "foundry-rs-forge-std-8bbcf6e"],
 

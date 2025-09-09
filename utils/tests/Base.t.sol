@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Upgrades } from "openzeppelin-foundry-upgrades/src/Upgrades.sol";
+import { Upgrades } from "@openzeppelin/foundry-upgrades/src/Upgrades.sol";
 import { StdAssertions } from "forge-std/src/StdAssertions.sol";
 
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";

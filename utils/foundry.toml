@@ -10,9 +10,6 @@
   ffi = true
   gas_reports = ["*"]
   optimizer_runs = 10_000
-  remappings = [
-    "openzeppelin-foundry-upgrades/=../node_modules/@openzeppelin/foundry-upgrades/",
-  ]
   script = "scripts"
 
 [profile.default.fuzz]
