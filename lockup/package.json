@@ -11,13 +11,13 @@
     "url": "https://github.com/sablier-labs/lockup/issues"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "5.3.0",
-    "@prb/math": "4.1.0",
-    "@sablier/evm-utils": "1.0.0-beta.2"
+    "@openzeppelin/contracts": "catalog:",
+    "@prb/math": "catalog:",
+    "@sablier/evm-utils": "catalog:"
   },
   "devDependencies": {
-    "forge-std": "github:foundry-rs/forge-std#v1.10.0",
-    "solady": "0.0.208",
+    "forge-std": "catalog:testing",
+    "solady": "catalog:testing",
     "solarray": "github:evmcheb/solarray#a547630"
   },
   "files": [
@@ -61,7 +61,6 @@
     "url": "git+https://github.com/sablier-labs/lockup.git"
   },
   "scripts": {
-    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh",
-    "setup": "husky"
+    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh"
   }
 }

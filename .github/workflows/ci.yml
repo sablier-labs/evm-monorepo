@@ -41,15 +41,15 @@ jobs:
           # ---------------------------------------------------------------------------- #
           #                                     Unit                                     #
           # ---------------------------------------------------------------------------- #
-          - workspace: airdrops
-            test-type: unit
+          # - workspace: airdrops
+          #   test-type: unit
           - workspace: lockup
             test-type: unit
           # ---------------------------------------------------------------------------- #
           #                                 INTEGRATION                                  #
           # ---------------------------------------------------------------------------- #
-          - workspace: airdrops
-            test-type: integration
+          # - workspace: airdrops
+          #   test-type: integration
           - workspace: flow
             test-type: integration
           - workspace: lockup

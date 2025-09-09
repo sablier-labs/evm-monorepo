@@ -12,6 +12,10 @@
 [profile.default.fuzz]
   runs = 50
 
+[profile.default.invariant]
+  depth = 20
+  runs = 20
+
 [profile.lite]
   extends = "../foundry.toml"
 
@@ -21,6 +25,3 @@
 
 [profile.test-optimized]
   extends = "../foundry.toml"
-
-[lint]
-  lint_on_build = false

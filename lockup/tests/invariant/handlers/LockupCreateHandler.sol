@@ -58,7 +58,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         params.depositAmount = fuzzDynamicStreamAmounts({ upperBound: 1_000_000_000e18, segments: segments });
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
+        deal({ token: address(token), to: params.sender, give: params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
         token.approve({ spender: address(lockup), value: params.depositAmount });
@@ -96,7 +96,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         (params, unlockAmounts, durations) = _boundCreateWithDurationsLLParams(params, unlockAmounts, durations);
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
+        deal({ token: address(token), to: params.sender, give: params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
         token.approve({ spender: address(lockup), value: params.depositAmount });
@@ -140,7 +140,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         params.depositAmount = fuzzTranchedStreamAmounts({ upperBound: 1_000_000_000e18, tranches: tranches });
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
+        deal({ token: address(token), to: params.sender, give: params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
         token.approve({ spender: address(lockup), value: params.depositAmount });
@@ -186,7 +186,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         params.depositAmount = fuzzDynamicStreamAmounts({ upperBound: 1_000_000_000e18, segments: segments });
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
+        deal({ token: address(token), to: params.sender, give: params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
         token.approve({ spender: address(lockup), value: params.depositAmount });
@@ -225,7 +225,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         (params, unlockAmounts, cliffTime) = _boundCreateWithTimestampsLLParams(params, unlockAmounts, cliffTime);
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
+        deal({ token: address(token), to: params.sender, give: params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
         token.approve({ spender: address(lockup), value: params.depositAmount });
@@ -271,7 +271,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         params.depositAmount = fuzzTranchedStreamAmounts({ upperBound: 1_000_000_000e18, tranches: tranches });
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(token), to: params.sender, give: token.balanceOf(params.sender) + params.depositAmount });
+        deal({ token: address(token), to: params.sender, give: params.depositAmount });
 
         // Approve {SablierLockup} to spend the tokens.
         token.approve({ spender: address(lockup), value: params.depositAmount });
