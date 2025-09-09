@@ -20,23 +20,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: extractions/setup-just@v3
+      - uses: sablier-labs/devkit/actions/setup@main
+        with:
+          frozen-lockfile: false
+          package-manager: bun
       - uses: foundry-rs/foundry-toolchain@v1
         with:
           version: "nightly"
-      - uses: oven-sh/setup-bun@v2
-      - run: npm install -g @antfu/ni
-      - run: bun install
 
       - name: Run all code checks
         run: just full-check
 
-      # - name: Build all packages
-      #   run: just build-all
-
   test-unit:
     needs: check
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        workspace: [airdrops, lockup]
     steps:
       - uses: actions/checkout@v5
       - uses: foundry-rs/foundry-toolchain@v1
@@ -44,6 +44,10 @@ jobs:
           version: "nightly"
       - uses: oven-sh/setup-bun@v2
       - run: bun install
+
+      - name: Build contracts
+        run: |
+          just build ${{ matrix.workspace }} optimized
 
       - name: Run unit tests
         env:
@@ -52,11 +56,14 @@ jobs:
         run: | #shell
           forge test \
             --match-path "tests/unit/**/*.sol" \
-            --root lockup
+            --root ${{ matrix.workspace }}
 
   test-integration:
     needs: check
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        workspace: [airdrops, flow, lockup, utils]
     steps:
       - uses: actions/checkout@v5
       - uses: foundry-rs/foundry-toolchain@v1
@@ -64,6 +71,12 @@ jobs:
           version: "nightly"
       - uses: oven-sh/setup-bun@v2
       - run: bun install
+
+      - name: Build contracts
+        env:
+          FOUNDRY_PROFILE: optimized
+        run: |
+          just build ${{ matrix.workspace }}
 
       - name: Run integration tests
         env:
@@ -72,11 +85,14 @@ jobs:
         run: | #shell
           forge test \
             --match-path "tests/integration/**/*.sol" \
-            --root lockup
+            --root ${{ matrix.workspace }}
 
   test-invariant:
     needs: check
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        workspace: [flow, lockup, utils]
     steps:
       - uses: actions/checkout@v5
       - uses: foundry-rs/foundry-toolchain@v1
@@ -85,10 +101,16 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install
 
+      - name: Build contracts
+        env:
+          FOUNDRY_PROFILE: optimized
+        run: |
+          just build ${{ matrix.workspace }}
+
       - name: Run invariant tests
         env:
           FOUNDRY_PROFILE: test-optimized
         run: | #shell
           forge test \
             --match-path "tests/invariant/**/*.sol" \
-            --root lockup
+            --root ${{ matrix.workspace }}

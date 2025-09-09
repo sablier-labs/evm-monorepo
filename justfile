@@ -18,14 +18,14 @@ GLOBS_SOLIDITY := "**/*.sol"
 default:
   @just --list
 
-# Build a package with a specific profile
-@build package profile="default":
-    FOUNDRY_PROFILE={{ profile }} forge build --root {{ package }}
+# Build a specific workspace
+@build workspace:
+    forge build --root {{ workspace }}
 alias b := build
 
-# Build all packages with a specific profile
-@build-all profile="default":
-    FOUNDRY_PROFILE={{ profile }} just for-each "forge build --root"
+# Build all workspaces
+@build-all:
+    just for-each "forge build --root"
 
 # Check code with Forge formatter
 @fmt-check:
