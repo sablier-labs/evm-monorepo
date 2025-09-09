@@ -41,25 +41,19 @@ jobs:
           #                                     Unit                                     #
           # ---------------------------------------------------------------------------- #
           - workspace: airdrops
-            fuzz-runs: 2000
             test-type: unit
           - workspace: lockup
-            fuzz-runs: 2000
             test-type: unit
           # ---------------------------------------------------------------------------- #
           #                                 INTEGRATION                                  #
           # ---------------------------------------------------------------------------- #
           - workspace: airdrops
-            fuzz-runs: 2000
             test-type: integration
           - workspace: flow
-            fuzz-runs: 2000
             test-type: integration
           - workspace: lockup
-            fuzz-runs: 2000
             test-type: integration
           - workspace: utils
-            fuzz-runs: 2000
             test-type: integration
           # ---------------------------------------------------------------------------- #
           #                                   INVARIANT                                  #
@@ -97,7 +91,6 @@ jobs:
       - name: Run tests
         if: steps.cache-step.outputs.cache-status != 'primary'
         env:
-          FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs || '' }}
           FOUNDRY_PROFILE: test-optimized
         run: | #shell
           forge test \
