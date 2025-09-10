@@ -16,6 +16,10 @@ jobs:
   test:
     name: ${{ inputs.workspace }}
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+      ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -44,7 +48,7 @@ jobs:
 
       - name: Run Bulloak check
         if: inputs.test-type == 'integration'
-        uses: PaulRBerg/bulloak-toolchain@refactor/setup-rust-toolchain
+        uses: smol-ninja/bulloak-toolchain@main
         with:
           skip-modifiers: true
           test-dir: ${{ inputs.workspace }}/tests/${{ inputs.test-type }}
