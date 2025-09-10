@@ -43,7 +43,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         merkleLT = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
         merkleBase = merkleLT;
 
-        // It should create a stream with `block.timestamp` as vesting start time.
+        // It should create a stream with block timestamp as vesting start time.
         _test_Claim({ streamStartTime: getBlockTimestamp() });
     }
 

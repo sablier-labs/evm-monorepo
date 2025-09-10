@@ -8,7 +8,7 @@ Claim_MerkleLL_Integration_Test
       │  └── it should revert
       └── when total percentage not greater than 100
          ├── when vesting start time zero
-         │  ├── it should create a stream with block.timestamp as vesting start time
+         │  ├── it should create a stream with block timestamp as vesting start time
          │  └── it should emit a {ClaimLLWithVesting} event
          └── when vesting start time not zero
             ├── when cliff duration zero

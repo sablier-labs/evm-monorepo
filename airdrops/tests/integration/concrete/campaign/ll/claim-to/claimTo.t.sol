@@ -82,7 +82,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
         merkleBase = merkleLL;
 
-        // It should create a stream with block.timestamp as vesting start time.
+        // It should create a stream with block timestamp as vesting start time.
         // It should create a stream with Eve as recipient.
         _test_ClaimTo({ streamStartTime: getBlockTimestamp(), cliffTime: getBlockTimestamp() + VESTING_CLIFF_DURATION });
     }
@@ -102,7 +102,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         merkleLL = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
         merkleBase = merkleLL;
 
-        // It should create a stream with block.timestamp as vesting start time.
+        // It should create a stream with block timestamp as vesting start time.
         // It should create a stream with cliff as zero.
         // It should create a stream with Eve as recipient.
         _test_ClaimTo({ streamStartTime: VESTING_START_TIME, cliffTime: 0 });
@@ -115,7 +115,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         whenTotalPercentageNotGreaterThan100
         whenVestingStartTimeNotZero
     {
-        // It should create a stream with block.timestamp as vesting start time.
+        // It should create a stream with block timestamp as vesting start time.
         // It should create a stream with cliff as vesting start time + cliff duration.
         // It should create a stream with Eve as recipient.
         _test_ClaimTo({ streamStartTime: VESTING_START_TIME, cliffTime: VESTING_START_TIME + VESTING_CLIFF_DURATION });

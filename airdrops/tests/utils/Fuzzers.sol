@@ -50,7 +50,7 @@ abstract contract Fuzzers is Modifiers, PRBMathUtils {
     {
         uint256 upperBoundDuration;
 
-        // Set upper bound based on the vesting start time. Zero is a sentinel value for `block.timestamp`.
+        // Set upper bound based on the vesting start time. Zero is used as a sentinel value for `block.timestamp`.
         if (vestingStartTime == 0) {
             vestingStartTime = getBlockTimestamp();
         }

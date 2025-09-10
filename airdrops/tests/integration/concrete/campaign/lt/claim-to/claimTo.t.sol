@@ -44,7 +44,7 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
         merkleLT = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
         merkleBase = merkleLT;
 
-        // It should create a stream with `block.timestamp` as stream start time.
+        // It should create a stream with block timestamp as vesting start time.
         // It should create a stream with Eve as recipient.
         _test_ClaimTo({ streamStartTime: getBlockTimestamp() });
     }
