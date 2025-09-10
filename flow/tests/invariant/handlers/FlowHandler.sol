@@ -120,7 +120,12 @@ contract FlowHandler is BaseHandler {
         // Adjust the rate per second.
         flow.adjustRatePerSecond(currentStreamId, newRatePerSecond);
 
-        flowStore.pushPeriod(currentStreamId, newRatePerSecond.unwrap(), "adjustRatePerSecond");
+        flowStore.pushPeriod({
+            typeOfPeriod: "adjustRatePerSecond",
+            streamId: currentStreamId,
+            newRatePerSecond: newRatePerSecond.unwrap(),
+            blockTimestamp: getBlockTimestamp()
+        });
     }
 
     function deposit(
@@ -180,12 +185,17 @@ contract FlowHandler is BaseHandler {
         vm.assume(flow.getRatePerSecond(currentStreamId).unwrap() > 0);
 
         // The stream must not be PENDING.
-        vm.assume(flow.getSnapshotTime(currentStreamId) <= block.timestamp);
+        vm.assume(flow.getSnapshotTime(currentStreamId) <= getBlockTimestamp());
 
         // Pause the stream.
         flow.pause(currentStreamId);
 
-        flowStore.pushPeriod(currentStreamId, 0, "pause");
+        flowStore.pushPeriod({
+            typeOfPeriod: "pause",
+            streamId: currentStreamId,
+            newRatePerSecond: 0,
+            blockTimestamp: getBlockTimestamp()
+        });
     }
 
     function refund(
@@ -248,7 +258,12 @@ contract FlowHandler is BaseHandler {
         // Restart the stream.
         flow.restart(currentStreamId, ratePerSecond);
 
-        flowStore.pushPeriod(currentStreamId, ratePerSecond.unwrap(), "restart");
+        flowStore.pushPeriod({
+            typeOfPeriod: "restart",
+            streamId: currentStreamId,
+            newRatePerSecond: ratePerSecond.unwrap(),
+            blockTimestamp: getBlockTimestamp()
+        });
     }
 
     function void(
@@ -268,7 +283,12 @@ contract FlowHandler is BaseHandler {
         // Void the stream.
         flow.void(currentStreamId);
 
-        flowStore.pushPeriod(currentStreamId, 0, "void");
+        flowStore.pushPeriod({
+            typeOfPeriod: "void",
+            streamId: currentStreamId,
+            newRatePerSecond: 0,
+            blockTimestamp: getBlockTimestamp()
+        });
     }
 
     function withdraw(

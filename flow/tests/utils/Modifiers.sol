@@ -5,7 +5,7 @@ import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.
 
 import { Utils } from "./Utils.sol";
 
-abstract contract Modifiers is Utils, EvmUtilsBase {
+abstract contract Modifiers is EvmUtilsBase, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                        COMMON
     //////////////////////////////////////////////////////////////////////////*/

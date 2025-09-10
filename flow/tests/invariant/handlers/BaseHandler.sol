@@ -3,7 +3,6 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
-import { CommonBase as StdBase } from "forge-std/src/Base.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
@@ -11,7 +10,7 @@ import { Utils } from "../../utils/Utils.sol";
 import { FlowStore } from "../stores/FlowStore.sol";
 
 /// @notice Base contract with common logic needed by all handler contracts.
-abstract contract BaseHandler is StdCheats, StdBase, Utils {
+abstract contract BaseHandler is StdCheats, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -77,18 +76,5 @@ abstract contract BaseHandler is StdCheats, StdBase, Utils {
         }
         totalCalls[functionName]++;
         _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                      HELPERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Stops the active prank and sets a new one.
-    function setMsgSender(address msgSender) internal {
-        vm.stopPrank();
-        vm.startPrank(msgSender);
-
-        // Deal some ETH to the new caller.
-        vm.deal(msgSender, 1 ether);
     }
 }
