@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file. The format 
 
 [v1.0.0-beta.1]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0-beta.1
 [v1.0.0-beta.2]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0-beta.2
+[v1.0.0-beta.3]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0-beta.3
+
+## [v1.0.0-beta.3] - 2025-09-10
+
+### Changed
+
+- Return `vm.getBlockTimestamp()` in `getBlockTimestamp()`
 
 ## [v1.0.0-beta.2] - 2025-09-02
 
