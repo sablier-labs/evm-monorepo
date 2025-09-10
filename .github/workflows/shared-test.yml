@@ -12,9 +12,6 @@ on:
         required: true
         type: string
 
-env:
-  FOUNDRY_DISABLE_NIGHTLY_WARNING: "true"
-
 jobs:
   test:
     name: ${{ inputs.workspace }}
@@ -61,3 +58,18 @@ jobs:
             fork|coverage) export FOUNDRY_FUZZ_RUNS=20 ;;
           esac
           just test-${{ inputs.test-type }} ${{ inputs.workspace }}
+
+      - name: Upload coverage report
+        if: inputs.test-type == 'coverage'
+        uses: codecov/codecov-action@v5
+        with:
+          files: ${{ inputs.workspace }}/lcov.info
+          flags: ${{ inputs.test-type }}
+          name: ${{ inputs.workspace }}-${{ inputs.test-type }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: sablier-labs/evm-monorepo
+
+      - name: Add summary
+        run: | # shell
+          echo "## Test result for ${{ inputs.workspace }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY

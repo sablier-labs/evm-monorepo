@@ -1,5 +1,5 @@
 name: "CI: Utils"
-run-name: "CI Utils -> ${{ github.event.head_commit.message || github.event.pull_request.title }}"
+run-name: "CI Utils :: ${{ github.event.head_commit.message || github.event.pull_request.title }}"
 
 concurrency:
   cancel-in-progress: true

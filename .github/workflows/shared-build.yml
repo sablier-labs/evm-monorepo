@@ -13,9 +13,6 @@ on:
         description: "Descriptive cache status: 'primary', 'fallback', or 'not-found'"
         value: ${{ jobs.build.outputs.cache-status }}
 
-env:
-  FOUNDRY_DISABLE_NIGHTLY_WARNING: "true"
-
 jobs:
   build:
     name: ${{ inputs.workspace }}
