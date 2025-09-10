@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { BaseTest as EvmBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
+import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
 import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
 import { Defaults } from "./Defaults.sol";
 import { Fuzzers } from "./Fuzzers.sol";
 import { Users } from "./Types.sol";
 
-abstract contract Modifiers is EvmBase, Fuzzers {
+abstract contract Modifiers is EvmUtilsBase, Fuzzers {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
