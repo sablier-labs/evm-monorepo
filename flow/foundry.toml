@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------- #
 
 [profile.default]
-  extends = "../foundry.toml"
+  extends = "../foundry.base.toml"
   gas_reports = ["SablierFlow"]
   optimizer_runs = 1000
 
@@ -17,7 +17,7 @@
   shrink_run_limit = 0
 
 [profile.lite]
-  extends = "../foundry.toml"
+  extends = "../foundry.base.toml"
 
 [profile.lite.invariant]
   depth = 50
@@ -27,11 +27,11 @@
   runs = 20
 
 [profile.optimized]
-  extends = "../foundry.toml"
+  extends = "../foundry.base.toml"
   optimizer_runs = 1_000_000
 
 [profile.test-optimized]
-  extends = "../foundry.toml"
+  extends = "../foundry.base.toml"
 
 [doc]
   path = "flow"
