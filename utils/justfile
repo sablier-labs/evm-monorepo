@@ -4,11 +4,3 @@ import "./node_modules/@sablier/devkit/just/evm.just"
 
 default:
   @just --list
-
-clean:
-    rm -rf artifacts broadcast cache coverage lcov.info
-    forge clean
-
-coverage:
-    forge coverage --report lcov
-    genhtml --ignore-errors inconsistent lcov.info --branch-coverage --output-dir coverage

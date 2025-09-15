@@ -6,6 +6,7 @@
   evm_version = "shanghai"         # needed for greater coverage of EVM chains
   extra_output = ["storageLayout"] # needed for upgrade safety validations by foundry-upgrades
   fs_permissions = [
+    { access = "read", path = "./out" },
     { access = "read", path = "./out-optimized" },
     { access = "read", path = "package.json" },
   ]
