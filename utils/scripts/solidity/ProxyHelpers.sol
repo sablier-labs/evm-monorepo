@@ -47,10 +47,22 @@ abstract contract ProxyHelpers is BaseScript {
     /// @dev Verifies the initial states of the proxy contract.
     function _verifyInitialStates(address proxy) internal view {
         ISablierComptroller comptrollerProxy = ISablierComptroller(payable(proxy));
-        assert(comptrollerProxy.admin() == getAdmin());
-        assert(comptrollerProxy.getMinFeeUSD(ISablierComptroller.Protocol.Airdrops) == getInitialMinFeeUSD());
-        assert(comptrollerProxy.getMinFeeUSD(ISablierComptroller.Protocol.Lockup) == getInitialMinFeeUSD());
-        assert(comptrollerProxy.getMinFeeUSD(ISablierComptroller.Protocol.Flow) == getInitialMinFeeUSD());
-        assert(address(comptrollerProxy.oracle()) == getChainlinkOracle());
+        vm.assertEq(comptrollerProxy.admin(), getAdmin(), "proxy: admin");
+        vm.assertEq(
+            comptrollerProxy.getMinFeeUSD(ISablierComptroller.Protocol.Airdrops),
+            getInitialMinFeeUSD(),
+            "proxy: minFeeUSD Airdrops"
+        );
+        vm.assertEq(
+            comptrollerProxy.getMinFeeUSD(ISablierComptroller.Protocol.Lockup),
+            getInitialMinFeeUSD(),
+            "proxy: minFeeUSD Lockup"
+        );
+        vm.assertEq(
+            comptrollerProxy.getMinFeeUSD(ISablierComptroller.Protocol.Flow),
+            getInitialMinFeeUSD(),
+            "proxy: minFeeUSD Flow"
+        );
+        vm.assertEq(address(comptrollerProxy.oracle()), getChainlinkOracle(), "proxy: oracle");
     }
 }

@@ -13,14 +13,20 @@ contract DeployDeterministicComptrollerProxy is ProxyHelpers {
         _runUpgradeSafetyChecks();
 
         // Generate CREATE2 salt independent of chain id.
-        bytes32 salt = bytes32(abi.encodePacked(string.concat("Version ", getVersion())));
+        bytes32 implSalt = bytes32(abi.encodePacked(string.concat("Version ", getVersion())));
 
         // Deploy implementation contract with default admin as its initial admin. The default EOA admin is used across
         // all chains so that we can have same the address for the implementation contract.
-        address impl = address(new SablierComptroller{ salt: salt }({ initialAdmin: DEFAULT_SABLIER_ADMIN }));
+        address impl = address(new SablierComptroller{ salt: implSalt }({ initialAdmin: DEFAULT_SABLIER_ADMIN }));
+
+        // A custom salt is to used to deploy Proxy at 0x0000008ABa1f7CDaa85E86595b9cCdfd7Fe64A08.
+        bytes32 proxySalt = 0xb1bef51ebca01eb12001a639bdbbff6eeca12b9fe14f0bc2a46455082b090234;
 
         // Deploy proxy without initialization.
-        proxy = address(new ERC1967Proxy{ salt: salt }({ implementation: impl, _data: "" }));
+        proxy = address(new ERC1967Proxy{ salt: proxySalt }({ implementation: impl, _data: "" }));
+
+        // Assert that proxy is deployed at the expected address.
+        vm.assertEq(proxy, 0x0000008ABa1f7CDaa85E86595b9cCdfd7Fe64A08, "proxy: not deployed at expected address");
 
         // Initialize the proxy by populating its initial states.
         _populateInitialStates(proxy);
