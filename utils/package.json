@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@openzeppelin/foundry-upgrades": "0.4.0",
-    "@sablier/devkit": "github:sablier-labs/devkit",
+    "@sablier/devkit": "github:sablier-labs/devkit#main",
     "husky": "^9.1",
     "lint-staged": "^16.1",
     "prettier": "^3.5",
