@@ -16,74 +16,74 @@ contract Payable_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         resetPrank({ msgSender: users.sender });
     }
 
-    function test_AdjustRatePerSecondWhenETHValueNotZero() external {
+    function test_AdjustRatePerSecond_WhenETHValueNotZero() external {
         flow.adjustRatePerSecond{ value: FEE }(defaultStreamId, ud21x18(RATE_PER_SECOND_U128 + 1));
     }
 
-    function test_BatchWhenETHValueNotZero() external {
+    function test_Batch_WhenETHValueNotZero() external {
         bytes[] memory calls = new bytes[](0);
         flow.batch{ value: FEE }(calls);
     }
 
-    function test_CreateWhenETHValueNotZero() external {
+    function test_Create_WhenETHValueNotZero() external {
         flow.create{ value: FEE }(users.sender, users.recipient, RATE_PER_SECOND, usdc, TRANSFERABLE);
     }
 
-    function test_CreateAndDepositWhenETHValueNotZero() external {
+    function test_CreateAndDeposit_WhenETHValueNotZero() external {
         flow.createAndDeposit{ value: FEE }(
             users.sender, users.recipient, RATE_PER_SECOND, usdc, TRANSFERABLE, DEPOSIT_AMOUNT_6D
         );
     }
 
-    function test_DepositWhenETHValueNotZero() external {
+    function test_Deposit_WhenETHValueNotZero() external {
         flow.deposit{ value: FEE }(defaultStreamId, DEPOSIT_AMOUNT_6D, users.sender, users.recipient);
     }
 
-    function test_DepositAndPauseWhenETHValueNotZero() external {
+    function test_DepositAndPause_WhenETHValueNotZero() external {
         flow.depositAndPause{ value: FEE }(defaultStreamId, DEPOSIT_AMOUNT_6D);
     }
 
-    function test_DepositViaBrokerWhenETHValueNotZero() external {
+    function test_DepositViaBroker_WhenETHValueNotZero() external {
         flow.depositViaBroker{ value: FEE }(
             defaultStreamId, DEPOSIT_AMOUNT_6D, users.sender, users.recipient, defaultBroker
         );
     }
 
-    function test_PauseWhenETHValueNotZero() external {
+    function test_Pause_WhenETHValueNotZero() external {
         flow.pause{ value: FEE }(defaultStreamId);
     }
 
-    function test_RefundWhenETHValueNotZero() external {
+    function test_Refund_WhenETHValueNotZero() external {
         flow.refund{ value: FEE }(defaultStreamId, REFUND_AMOUNT_6D);
     }
 
-    function test_RefundAndPauseWhenETHValueNotZero() external {
+    function test_RefundAndPause_WhenETHValueNotZero() external {
         flow.refundAndPause{ value: FEE }(defaultStreamId, REFUND_AMOUNT_6D);
     }
 
-    function test_RefundMaxWhenETHValueNotZero() external {
+    function test_RefundMax_WhenETHValueNotZero() external {
         flow.refundMax{ value: FEE }(defaultStreamId);
     }
 
-    function test_RestartWhenETHValueNotZero() external {
+    function test_Restart_WhenETHValueNotZero() external {
         flow.pause(defaultStreamId);
         flow.restart{ value: FEE }(defaultStreamId, RATE_PER_SECOND);
     }
 
-    function test_RestartAndDepositWhenETHValueNotZero() external {
+    function test_RestartAndDeposit_WhenETHValueNotZero() external {
         flow.pause(defaultStreamId);
         flow.restartAndDeposit{ value: FEE }(defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT_6D);
     }
 
-    function test_VoidWhenETHValueNotZero() external {
+    function test_Void_WhenETHValueNotZero() external {
         flow.void{ value: FEE }(defaultStreamId);
     }
 
-    function test_WithdrawWhenETHValueNotZero() external {
+    function test_Withdraw_WhenETHValueNotZero() external {
         flow.withdraw{ value: FEE }(defaultStreamId, users.recipient, WITHDRAW_AMOUNT_6D);
     }
 
-    function test_WithdrawMaxWhenETHValueNotZero() external {
+    function test_WithdrawMax_WhenETHValueNotZero() external {
         flow.withdrawMax{ value: FEE }(defaultStreamId, users.recipient);
     }
 }
