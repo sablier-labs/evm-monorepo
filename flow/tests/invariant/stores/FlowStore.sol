@@ -2,10 +2,11 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 import { Flow } from "src/types/DataTypes.sol";
 
 /// @dev Storage variables needed for handlers.
-contract FlowStore {
+contract FlowStore is BaseUtils {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -19,7 +20,7 @@ contract FlowStore {
     // Amounts
     mapping(uint256 streamId => uint128 amount) public totalDepositsByStream;
     mapping(uint256 streamId => uint128 amount) public totalRefundsByStream;
-    mapping(uint256 streamId => uint128 amount) public totalWithdrawalsByStream;
+    mapping(uint256 streamId => uint128 amount) public totalWithdrawnByStream;
     mapping(IERC20 token => uint256 amount) public totalDepositsByToken;
     mapping(IERC20 token => uint256 amount) public totalRefundsByToken;
     mapping(IERC20 token => uint256 amount) public totalWithdrawalsByToken;
@@ -31,12 +32,10 @@ contract FlowStore {
     mapping(uint256 streamId => uint256 amount) public previousUncoveredDebtOf;
 
     /// @dev This struct represents a time period during which rate per second remains constant.
-    /// @param funcName The name of the function updating the struct.
     /// @param ratePerSecond The rate per second for this period.
     /// @param start The start time of the period.
     /// @param end The end time of the period.
     struct Period {
-        string funcName;
         uint128 ratePerSecond;
         uint40 start;
         uint40 end;
@@ -75,40 +74,21 @@ contract FlowStore {
         // Store the stream id and the period during which provided ratePerSecond applies.
         streamIds.push(streamId);
         periods[streamId].push(
-            Period({
-                funcName: "create",
-                ratePerSecond: ratePerSecond,
-                start: startTime == 0 ? blockTimestamp : startTime,
-                end: 0
-            })
+            Period({ ratePerSecond: ratePerSecond, start: startTime == 0 ? blockTimestamp : startTime, end: 0 })
         );
 
         // Update the last stream id.
         lastStreamId = streamId;
     }
 
-    function pushPeriod(
-        string memory typeOfPeriod,
-        uint256 streamId,
-        uint128 newRatePerSecond,
-        uint40 blockTimestamp
-    )
-        external
-    {
-        uint256 count = periods[streamId].length - 1;
-
-        // If the previous start time is in the future keep the same periods.
-        if (periods[streamId][count].start >= blockTimestamp) {
-            return;
-        }
+    function pushPeriod(uint256 streamId, uint128 newRatePerSecond, uint40 blockTimestamp) external {
+        uint256 lastIndex = periods[streamId].length - 1;
 
         // Update the end time of the previous period.
-        periods[streamId][count].end = blockTimestamp;
+        periods[streamId][lastIndex].end = blockTimestamp;
 
         // Push the new period with the provided rate per second.
-        periods[streamId].push(
-            Period({ funcName: typeOfPeriod, ratePerSecond: newRatePerSecond, start: blockTimestamp, end: 0 })
-        );
+        periods[streamId].push(Period({ ratePerSecond: newRatePerSecond, start: blockTimestamp, end: 0 }));
     }
 
     function updatePreviousValues(
@@ -136,8 +116,8 @@ contract FlowStore {
         totalRefundsByToken[token] += amount;
     }
 
-    function updateTotalWithdrawals(uint256 streamId, IERC20 token, uint128 amount) external {
-        totalWithdrawalsByStream[streamId] += amount;
+    function updateTotalWithdrawn(uint256 streamId, IERC20 token, uint128 amount) external {
+        totalWithdrawnByStream[streamId] += amount;
         totalWithdrawalsByToken[token] += amount;
     }
 }

@@ -10,10 +10,9 @@ contract FlowComptrollerHandler is BaseHandler {
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Since all comptroller-related functions are rarely called compared to core flow functionalities, we limit
-    /// the number of calls to 10.
+    /// @dev Limit the number of calls to the comptroller functions.
     modifier limitNumberOfCalls(string memory name) {
-        vm.assume(totalCalls[name] < 10);
+        vm.assume(totalCalls[name] < 100);
         _;
     }
 

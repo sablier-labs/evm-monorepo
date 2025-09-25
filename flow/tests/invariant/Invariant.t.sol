@@ -114,7 +114,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
 
             assertGe(
                 flowStore.totalDepositsByStream(streamId),
-                flowStore.totalRefundsByStream(streamId) + flowStore.totalWithdrawalsByStream(streamId),
+                flowStore.totalRefundsByStream(streamId) + flowStore.totalWithdrawnByStream(streamId),
                 unicode"Invariant violation: Σ deposits < Σ refunds + Σ withdrawals"
             );
         }
@@ -299,10 +299,10 @@ contract Invariant_Test is Base_Test, StdInvariant {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
 
-            if (!flow.isVoided(streamId)) {
+            if (flow.statusOf(streamId) != Flow.Status.VOIDED) {
                 uint256 expectedTotalStreamed =
-                    calculateExpectedTotalStreamed(flowStore.streamIds(i), flow.getTokenDecimals(streamId));
-                uint256 actualTotalStreamed = flow.totalDebtOf(streamId) + flowStore.totalWithdrawalsByStream(streamId);
+                    calculateExpectedTotalStreamed(streamId, flow.getTokenDecimals(streamId));
+                uint256 actualTotalStreamed = flow.totalDebtOf(streamId) + flowStore.totalWithdrawnByStream(streamId);
 
                 assertEq(
                     expectedTotalStreamed,
@@ -404,18 +404,20 @@ contract Invariant_Test is Base_Test, StdInvariant {
         view
         returns (uint256 expectedStreamedAmount)
     {
-        uint256 count = flowStore.getPeriods(streamId).length;
+        uint256 len = flowStore.getPeriods(streamId).length;
+        uint40 streamStartTime = flowStore.getPeriod(streamId, 0).start;
 
-        for (uint256 i = 0; i < count; ++i) {
+        for (uint256 i = 0; i < len; ++i) {
             FlowStore.Period memory period = flowStore.getPeriod(streamId, i);
 
-            // If the start time is greater than the current time, then accumulating debt has not started yet.
-            if (period.start > getBlockTimestamp()) {
-                return 0;
-            }
+            // Calculate the adjusted end time for the calculations.
+            uint40 adjustedEndTime = period.end == 0 ? getBlockTimestamp() : period.end;
 
-            // If end time is 0, consider current time as the end time.
-            uint128 elapsed = period.end > 0 ? period.end - period.start : getBlockTimestamp() - period.start;
+            // Skip if the period's end time is less than the stream's start time.
+            if (adjustedEndTime <= streamStartTime) continue;
+
+            uint128 elapsed =
+                period.start > streamStartTime ? adjustedEndTime - period.start : adjustedEndTime - streamStartTime;
 
             // Increment total streamed amount by the amount streamed during this period.
             expectedStreamedAmount += period.ratePerSecond * elapsed;
