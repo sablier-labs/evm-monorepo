@@ -6,6 +6,21 @@ All notable changes to this project will be documented in this file. The format 
 [v1.0.0-beta.1]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0-beta.1
 [v1.0.0-beta.2]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0-beta.2
 [v1.0.0-beta.3]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0-beta.3
+[v1.0.0]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0
+
+## [v1.0.0] - 2025-09-25
+
+### Changed
+
+### Added
+
+- Support for HyperEVM and Sonic
+- Chainlink oracles for Sonic, Base Sepolia, Optimism Sepolia and Ethereum Sepolia
+- Comptroller addresses for all chains
+
+### Removed
+
+- Support for Form, Iotex, Ultra
 
 ## [v1.0.0-beta.3] - 2025-09-10
 
@@ -31,12 +46,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
-- Add `SablierComptroller` for managing fees across Sablier EVM protocols.
-- Add support for UUPS upgradeability for `SablierComptroller`.
-- Add `Comptrollerable` to provide a setter and getter for the Sablier Comptroller.
-- Add `Adminable` to provide admin functionality with ownership transfer.
-- Add `Batch` to provide support for batching of functions.
-- Add `NoDelegateCall` to provide support for preventing delegate calls.
-- Add `RoleAdminable` to provide role-based access control mechanisms.
-- Add base contracts for testing Sablier EVM protocols.
-- Add mock contracts used across Sablier EVM protocols.
+- Add `SablierComptroller` for managing fees across Sablier EVM protocols
+- Add support for UUPS upgradeability for `SablierComptroller`
+- Add `Comptrollerable` to provide a setter and getter for the Sablier Comptroller
+- Add `Adminable` to provide admin functionality with ownership transfer
+- Add `Batch` to provide support for batching of functions
+- Add `NoDelegateCall` to provide support for preventing delegate calls
+- Add `RoleAdminable` to provide role-based access control mechanisms
+- Add base contracts for testing Sablier EVM protocols
+- Add mock contracts used across Sablier EVM protocols
