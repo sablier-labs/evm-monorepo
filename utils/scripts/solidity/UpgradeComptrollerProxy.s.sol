@@ -7,9 +7,6 @@ import { BaseScript } from "src/tests/BaseScript.sol";
 /// @notice Deploys a new Sablier Comptroller.
 /// @dev The deployed Sablier Comptroller is set as the implementation of the existing proxy.
 contract UpgradeComptrollerProxy is BaseScript {
-    // TODO: Replace with the actual proxy address.
-    address public constant COMPTROLLER_PROXY = 0x0000000000000000000000000000000000000000;
-
     function run() public broadcast returns (address implementation) {
         // Declare the constructor parameters of the implementation contract.
         Options memory opts;
@@ -19,16 +16,19 @@ contract UpgradeComptrollerProxy is BaseScript {
         // See https://docs.openzeppelin.com/upgrades-plugins/faq#how-can-i-disable-checks
         opts.unsafeAllow = "constructor";
 
+        // Get comptroller proxy address.
+        address comptrollerProxy = getComptroller();
+
         // Perform the following steps:
         // 1. Deploys the Comptroller.
         // 2. Sets the implementation of the proxy to the address of the deployed Comptroller.
         Upgrades.upgradeProxy({
-            proxy: COMPTROLLER_PROXY,
+            proxy: comptrollerProxy,
             contractName: "SablierComptroller.sol:SablierComptroller",
             data: "",
             opts: opts
         });
 
-        implementation = Upgrades.getImplementationAddress(COMPTROLLER_PROXY);
+        implementation = Upgrades.getImplementationAddress(comptrollerProxy);
     }
 }

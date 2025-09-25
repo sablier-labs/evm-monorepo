@@ -10,15 +10,13 @@ library ChainId {
     function isSupported(uint256 chainId) internal pure returns (bool) {
         bool isMainnet = chainId == ABSTRACT || chainId == ARBITRUM || chainId == AVALANCHE || chainId == BASE
             || chainId == BERACHAIN || chainId == BLAST || chainId == BSC || chainId == CHILIZ || chainId == COREDAO
-            || chainId == ETHEREUM || chainId == FORM || chainId == GNOSIS || chainId == IOTEX || chainId == LIGHTLINK
-            || chainId == LINEA || chainId == MODE || chainId == MORPH || chainId == OPTIMISM || chainId == POLYGON
-            || chainId == SCROLL || chainId == SEI || chainId == SOPHON || chainId == SUPERSEED || chainId == TANGLE
-            || chainId == ULTRA || chainId == UNICHAIN || chainId == XDC || chainId == ZKSYNC;
+            || chainId == ETHEREUM || chainId == GNOSIS || chainId == HYPEREVM || chainId == LIGHTLINK || chainId == LINEA
+            || chainId == MODE || chainId == MORPH || chainId == OPTIMISM || chainId == POLYGON || chainId == SCROLL
+            || chainId == SEI || chainId == SOPHON || chainId == SUPERSEED || chainId == SONIC || chainId == UNICHAIN
+            || chainId == XDC || chainId == ZKSYNC;
 
-        bool isTestnet = chainId == ARBITRUM_SEPOLIA || chainId == BASE_SEPOLIA || chainId == BLAST_SEPOLIA
-            || chainId == ETHEREUM_SEPOLIA || chainId == LINEA_SEPOLIA || chainId == MODE_SEPOLIA
-            || chainId == MONAD_TESTNET || chainId == OPTIMISM_SEPOLIA || chainId == SUPERSEED_SEPOLIA
-            || chainId == ZKSYNC_SEPOLIA;
+        bool isTestnet = chainId == ARBITRUM_SEPOLIA || chainId == BASE_SEPOLIA || chainId == MODE_SEPOLIA
+            || chainId == OPTIMISM_SEPOLIA || chainId == SEPOLIA;
 
         return isMainnet || isTestnet;
     }
@@ -37,9 +35,8 @@ library ChainId {
     uint256 public constant CHILIZ = 88_888;
     uint256 public constant COREDAO = 1116;
     uint256 public constant ETHEREUM = 1;
-    uint256 public constant FORM = 478;
     uint256 public constant GNOSIS = 100;
-    uint256 public constant IOTEX = 4689;
+    uint256 public constant HYPEREVM = 999;
     uint256 public constant LIGHTLINK = 1890;
     uint256 public constant LINEA = 59_144;
     uint256 public constant MODE = 34_443;
@@ -48,10 +45,10 @@ library ChainId {
     uint256 public constant POLYGON = 137;
     uint256 public constant SCROLL = 534_352;
     uint256 public constant SEI = 1329;
+    uint256 public constant SONIC = 146;
     uint256 public constant SOPHON = 50_104;
     uint256 public constant SUPERSEED = 5330;
     uint256 public constant TANGLE = 5845;
-    uint256 public constant ULTRA = 19_991;
     uint256 public constant UNICHAIN = 130;
     uint256 public constant XDC = 50;
     uint256 public constant ZKSYNC = 324;
@@ -62,12 +59,7 @@ library ChainId {
 
     uint256 public constant ARBITRUM_SEPOLIA = 421_614;
     uint256 public constant BASE_SEPOLIA = 84_532;
-    uint256 public constant BLAST_SEPOLIA = 168_587_773;
-    uint256 public constant ETHEREUM_SEPOLIA = 11_155_111;
-    uint256 public constant LINEA_SEPOLIA = 59_141;
     uint256 public constant MODE_SEPOLIA = 919;
-    uint256 public constant MONAD_TESTNET = 10_143;
     uint256 public constant OPTIMISM_SEPOLIA = 11_155_420;
-    uint256 public constant SUPERSEED_SEPOLIA = 53_302;
-    uint256 public constant ZKSYNC_SEPOLIA = 300;
+    uint256 public constant SEPOLIA = 11_155_111;
 }

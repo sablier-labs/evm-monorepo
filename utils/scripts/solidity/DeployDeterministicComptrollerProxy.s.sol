@@ -19,14 +19,14 @@ contract DeployDeterministicComptrollerProxy is ProxyHelpers {
         // all chains so that we can have same the address for the implementation contract.
         address impl = address(new SablierComptroller{ salt: implSalt }({ initialAdmin: DEFAULT_SABLIER_ADMIN }));
 
-        // A custom salt is to used to deploy Proxy at 0x0000008ABa1f7CDaa85E86595b9cCdfd7Fe64A08.
-        bytes32 proxySalt = 0xb1bef51ebca01eb12001a639bdbbff6eeca12b9fe14f0bc2a46455082b090234;
+        // A custom salt is to used to deploy Proxy at 0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399.
+        bytes32 proxySalt = 0xf26994e6af0b95cca8dfa22a0bc25e1f38a54c42d98a250c915c3f25c66e005e;
 
         // Deploy proxy without initialization.
         proxy = address(new ERC1967Proxy{ salt: proxySalt }({ implementation: impl, _data: "" }));
 
         // Assert that proxy is deployed at the expected address.
-        vm.assertEq(proxy, 0x0000008ABa1f7CDaa85E86595b9cCdfd7Fe64A08, "proxy: not deployed at expected address");
+        vm.assertEq(proxy, 0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399, "proxy: not deployed at expected address");
 
         // Initialize the proxy by populating its initial states.
         _populateInitialStates(proxy);

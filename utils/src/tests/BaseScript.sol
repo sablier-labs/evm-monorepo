@@ -26,7 +26,7 @@ abstract contract BaseScript is Script {
     /// @dev The address of the transaction broadcaster.
     address public broadcaster;
 
-    uint64 public chainId;
+    uint256 public chainId;
 
     /// @dev Used to derive the broadcaster's address if $ETH_FROM is not defined.
     string public mnemonic;
@@ -54,7 +54,7 @@ abstract contract BaseScript is Script {
     /// The use case for $ETH_FROM is to specify the broadcaster key and its address via the command line.
     constructor() {
         // Set the chain ID.
-        chainId = uint64(block.chainid);
+        chainId = block.chainid;
 
         address from = vm.envOr({ name: "ETH_FROM", defaultValue: address(0) });
         if (from != address(0)) {
@@ -105,6 +105,7 @@ abstract contract BaseScript is Script {
     /// https://docs.chain.link/data-feeds/price-feeds/addresses.
     /// @dev Return 0, if no Chainlink oracle is found.
     function getChainlinkOracle() public view returns (address addr) {
+        // Mainnets
         if (chainId == ChainId.ARBITRUM) return 0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612;
         if (chainId == ChainId.AVALANCHE) return 0x0A77230d17318075983913bC2145DB16C7366156;
         if (chainId == ChainId.BASE) return 0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70;
@@ -115,55 +116,26 @@ abstract contract BaseScript is Script {
         if (chainId == ChainId.OPTIMISM) return 0x13e3Ee699D1909E989722E753853AE30b17e08c5;
         if (chainId == ChainId.POLYGON) return 0xAB594600376Ec9fD91F8e885dADF0CE036862dE0;
         if (chainId == ChainId.SCROLL) return 0x6bF14CB0A831078629D993FDeBcB182b21A8774C;
+        if (chainId == ChainId.SONIC) return 0xc76dFb89fF298145b417d221B2c747d84952e01d;
         if (chainId == ChainId.ZKSYNC) return 0x6D41d1dc818112880b40e26BD6FD347E41008eDA;
+
+        // Testnets
+        if (chainId == ChainId.BASE_SEPOLIA) return 0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1;
+        if (chainId == ChainId.OPTIMISM_SEPOLIA) return 0x61Ec26aA57019C486B10502285c5A3D4A4750AD7;
+        if (chainId == ChainId.SEPOLIA) return 0x694AA1769357215DE4FAC081bf1f309aDC325306;
 
         return address(0);
     }
 
-    /// @notice Returns the Sablier Comptroller on each chain. Revert if no comptroller is found.
+    /// @notice Returns the Sablier Comptroller on each chain.
     function getComptroller() public view returns (address) {
-        // TODO: Update the addresses to the actual Sablier Comptroller addresses for each chain.
-        // Mainnets
-        if (chainId == ChainId.ABSTRACT) return address(0xCAFE);
-        if (chainId == ChainId.ARBITRUM) return address(0xCAFE);
-        if (chainId == ChainId.AVALANCHE) return address(0xCAFE);
-        if (chainId == ChainId.BASE) return address(0xCAFE);
-        if (chainId == ChainId.BERACHAIN) return address(0xCAFE);
-        if (chainId == ChainId.BLAST) return address(0xCAFE);
-        if (chainId == ChainId.BSC) return address(0xCAFE);
-        if (chainId == ChainId.CHILIZ) return address(0xCAFE);
-        if (chainId == ChainId.COREDAO) return address(0xCAFE);
-        if (chainId == ChainId.ETHEREUM) return address(0xCAFE);
-        if (chainId == ChainId.FORM) return address(0xCAFE);
-        if (chainId == ChainId.GNOSIS) return address(0xCAFE);
-        if (chainId == ChainId.IOTEX) return address(0xCAFE);
-        if (chainId == ChainId.LIGHTLINK) return address(0xCAFE);
-        if (chainId == ChainId.LINEA) return address(0xCAFE);
-        if (chainId == ChainId.MODE) return address(0xCAFE);
-        if (chainId == ChainId.MORPH) return address(0xCAFE);
-        if (chainId == ChainId.OPTIMISM) return address(0xCAFE);
-        if (chainId == ChainId.POLYGON) return address(0xCAFE);
-        if (chainId == ChainId.SCROLL) return address(0xCAFE);
-        if (chainId == ChainId.SEI) return address(0xCAFE);
-        if (chainId == ChainId.SOPHON) return address(0xCAFE);
-        if (chainId == ChainId.SUPERSEED) return address(0xCAFE);
-        if (chainId == ChainId.TANGLE) return address(0xCAFE);
-        if (chainId == ChainId.ULTRA) return address(0xCAFE);
-        if (chainId == ChainId.UNICHAIN) return address(0xCAFE);
-        if (chainId == ChainId.XDC) return address(0xCAFE);
-        if (chainId == ChainId.ZKSYNC) return address(0xCAFE);
+        if (ChainId.isSupported(chainId)) {
+            // For Linea, return the different address.
+            if (chainId == ChainId.LINEA) return 0xF21b304A08993f98A79C7Eb841f812CCeab49B8b;
 
-        // Testnets
-        if (chainId == ChainId.ARBITRUM_SEPOLIA) return address(0xCAFE);
-        if (chainId == ChainId.BASE_SEPOLIA) return address(0xCAFE);
-        if (chainId == ChainId.BLAST_SEPOLIA) return address(0xCAFE);
-        if (chainId == ChainId.ETHEREUM_SEPOLIA) return 0xAA38c6819c79d04d8008c4a84DDB95fDb328EB68;
-        if (chainId == ChainId.LINEA_SEPOLIA) return address(0xCAFE);
-        if (chainId == ChainId.MODE_SEPOLIA) return address(0xCAFE);
-        if (chainId == ChainId.MONAD_TESTNET) return address(0xCAFE);
-        if (chainId == ChainId.OPTIMISM_SEPOLIA) return address(0xCAFE);
-        if (chainId == ChainId.SUPERSEED_SEPOLIA) return address(0xCAFE);
-        if (chainId == ChainId.ZKSYNC_SEPOLIA) return address(0xCAFE);
+            // For all other chains, return the vanity address.
+            return 0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399;
+        }
 
         // Otherwise, revert.
         revert("Comptroller: not found");

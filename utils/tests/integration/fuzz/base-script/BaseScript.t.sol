@@ -12,7 +12,7 @@ contract BaseScriptMock is BaseScript { }
 contract BaseScript_Fuzz_Test is StdAssertions {
     BaseScriptMock internal baseScript;
 
-    string public constant PACKAGE_VERSION = "1.0.0-beta.3";
+    string public constant PACKAGE_VERSION = "1.0.0";
 
     Vm internal vm = StdConstants.VM;
 
@@ -81,6 +81,8 @@ contract BaseScript_Fuzz_Test is StdAssertions {
             assertEq(baseScript.getChainlinkOracle(), 0x0A77230d17318075983913bC2145DB16C7366156, "avalanche oracle");
         } else if (chainId == ChainId.BASE) {
             assertEq(baseScript.getChainlinkOracle(), 0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70, "base oracle");
+        } else if (chainId == ChainId.BASE_SEPOLIA) {
+            assertEq(baseScript.getChainlinkOracle(), 0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1, "base sepolia oracle");
         } else if (chainId == ChainId.BSC) {
             assertEq(baseScript.getChainlinkOracle(), 0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE, "bsc oracle");
         } else if (chainId == ChainId.ETHEREUM) {
@@ -91,10 +93,18 @@ contract BaseScript_Fuzz_Test is StdAssertions {
             assertEq(baseScript.getChainlinkOracle(), 0x3c6Cd9Cc7c7a4c2Cf5a82734CD249D7D593354dA, "linea oracle");
         } else if (chainId == ChainId.OPTIMISM) {
             assertEq(baseScript.getChainlinkOracle(), 0x13e3Ee699D1909E989722E753853AE30b17e08c5, "optimism oracle");
+        } else if (chainId == ChainId.OPTIMISM_SEPOLIA) {
+            assertEq(
+                baseScript.getChainlinkOracle(), 0x61Ec26aA57019C486B10502285c5A3D4A4750AD7, "optimism sepolia oracle"
+            );
         } else if (chainId == ChainId.POLYGON) {
             assertEq(baseScript.getChainlinkOracle(), 0xAB594600376Ec9fD91F8e885dADF0CE036862dE0, "polygon oracle");
         } else if (chainId == ChainId.SCROLL) {
             assertEq(baseScript.getChainlinkOracle(), 0x6bF14CB0A831078629D993FDeBcB182b21A8774C, "scroll oracle");
+        } else if (chainId == ChainId.SEPOLIA) {
+            assertEq(baseScript.getChainlinkOracle(), 0x694AA1769357215DE4FAC081bf1f309aDC325306, "sepolia oracle");
+        } else if (chainId == ChainId.SONIC) {
+            assertEq(baseScript.getChainlinkOracle(), 0xc76dFb89fF298145b417d221B2c747d84952e01d, "sonic oracle");
         } else if (chainId == ChainId.ZKSYNC) {
             assertEq(baseScript.getChainlinkOracle(), 0x6D41d1dc818112880b40e26BD6FD347E41008eDA, "zksync oracle");
         } else {
@@ -103,14 +113,16 @@ contract BaseScript_Fuzz_Test is StdAssertions {
     }
 
     function testFuzz_GetComptroller(uint64 chainId) external setChainId(chainId) {
-        if (chainId == ChainId.ETHEREUM_SEPOLIA) {
-            assertEq(baseScript.getComptroller(), 0xAA38c6819c79d04d8008c4a84DDB95fDb328EB68, "sepolia comptroller");
-        } else if (ChainId.isSupported(chainId)) {
-            assertEq(baseScript.getComptroller(), address(0xCAFE), "comptroller");
+        if (ChainId.isSupported(chainId)) {
+            if (chainId == ChainId.LINEA) {
+                assertEq(baseScript.getComptroller(), 0xF21b304A08993f98A79C7Eb841f812CCeab49B8b, "comptroller");
+            } else {
+                assertEq(baseScript.getComptroller(), 0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399, "comptroller");
+            }
         } else {
             // It should revert.
             vm.expectRevert("Comptroller: not found");
-            assertEq(baseScript.getComptroller(), address(0), "default comptroller");
+            baseScript.getComptroller();
         }
     }
 

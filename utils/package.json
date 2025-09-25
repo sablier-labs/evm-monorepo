@@ -2,7 +2,7 @@
   "name": "@sablier/evm-utils",
   "description": "Utilities solidity files used across Sablier's smart contracts",
   "license": "SEE LICENSE IN LICENSE",
-  "version": "1.0.0-beta.3",
+  "version": "1.0.0",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
