@@ -9,6 +9,8 @@ import { LockupNFTDescriptor } from "../../src/LockupNFTDescriptor.sol";
 /// @dev Reverts if the contract has already been deployed.
 contract DeployDeterministicNFTDescriptor is BaseScript {
     function run() public broadcast returns (LockupNFTDescriptor nftDescriptor) {
-        nftDescriptor = new LockupNFTDescriptor{ salt: SALT }();
+        // Use just the version as salt as we want to deploy at the same address across all chains.
+        bytes32 nftDescriptorSalt = bytes32(abi.encodePacked(getVersion()));
+        nftDescriptor = new LockupNFTDescriptor{ salt: nftDescriptorSalt }();
     }
 }
