@@ -2,7 +2,7 @@
   "name": "@sablier/airdrops",
   "description": "EVM smart contracts of the Sablier Airdrops protocol",
   "license": "SEE LICENSE IN LICENSE",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
