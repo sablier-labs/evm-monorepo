@@ -1,14 +1,15 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented in this file. The format is based on
+[Common Changelog](https://common-changelog.org/).
 
-The format is based on [Common Changelog](https://common-changelog.org/).
+[1.3.0]: https://github.com/sablier-labs/airdrops/releases/tag/v1.3.0
 
 <!-- prettier-ignore -->
 > [!NOTE]
 > Versioning begins at 1.3.0 as this repository is the successor of [V2 Periphery](https://github.com/sablier-labs/v2-periphery). For previous changes, please refer to the [V2 Periphery Changelog](https://github.com/sablier-labs/v2-periphery/blob/main/CHANGELOG.md).
 
-## 1.3.0 - 2025-01-29
+## [1.3.0] - 2025-01-29
 
 ### Changed
 
