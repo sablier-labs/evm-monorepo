@@ -7,7 +7,7 @@ import { FlowNFTDescriptor } from "../../src/FlowNFTDescriptor.sol";
 
 /// @dev Deploys {FlowNFTDescriptor} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
-contract DeployDeterministicNFTDescriptor is BaseScript {
+contract DeployDeterministicFlowNFTDescriptor is BaseScript {
     function run() public broadcast returns (FlowNFTDescriptor nftDescriptor) {
         // Use just the version as salt as we want to deploy at the same address across all chains.
         bytes32 nftDescriptorSalt = bytes32(abi.encodePacked(getVersion()));
