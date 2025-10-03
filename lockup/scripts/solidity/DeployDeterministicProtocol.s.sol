@@ -14,6 +14,7 @@ contract DeployDeterministicProtocol is BaseScript, LockupNFTDescriptorAddresses
     /// @dev Deploys the protocol.
     function run()
         public
+        broadcast
         returns (SablierLockup lockup, SablierBatchLockup batchLockup, LockupNFTDescriptor nftDescriptor)
     {
         // If the contract is not already deployed, deploy it.
