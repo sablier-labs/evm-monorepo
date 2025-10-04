@@ -18,7 +18,7 @@ contract BaseScript_Test is StdAssertions {
 
     function test_ConstructCreate2Salt() public view {
         string memory chainId = block.chainid.toString();
-        string memory version = "1.1.1";
+        string memory version = "2.0.0";
         string memory salt = string.concat("ChainID ", chainId, ", Version ", version);
 
         bytes32 actualSalt = baseScript.SALT();
