@@ -10,7 +10,7 @@ import { NFTDescriptorAddresses } from "./NFTDescriptorAddresses.sol";
 
 /// @notice Deploys the protocol at a deterministic addresses across chains.
 /// @dev Reverts if the contract has already been deployed.
-contract DeployDeterministicFlow is BaseScript, NFTDescriptorAddresses {
+contract DeployDeterministicProtocol is BaseScript, NFTDescriptorAddresses {
     function run() public broadcast returns (SablierFlow flow, FlowNFTDescriptor nftDescriptor) {
         // If the contract is not already deployed, deploy it.
         if (nftDescriptorAddress() == address(0)) {
