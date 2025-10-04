@@ -30,17 +30,20 @@ abstract contract NFTDescriptorAddresses {
         if (chainId == ChainId.POLYGON) return 0x87B836a9e26673feB3E409A0da2EAf99C79f26C3;
         if (chainId == ChainId.SCROLL) return 0x797Fe78c41d9cbE81BBEA2f420101be5e47d2aFf;
         if (chainId == ChainId.SEI) return 0xF3D18b06c87735a58DAb3baC45af058b3772fD54;
+        if (chainId == ChainId.SONIC) return 0xAab30e5CB903f67F109aFc7102ac8ED803681EA5;
         if (chainId == ChainId.SOPHON) return 0x2F1eB117A87217E8bE9AA96795F69c9e380686Db;
         if (chainId == ChainId.SUPERSEED) return 0xd932fDA016eE9d9F70f745544b4F56715b1E723b;
         // if (chainId == ChainId.TANGLE) return 0xDf578C2c70A86945999c65961417057363530a1c;
         if (chainId == ChainId.UNICHAIN) return 0x89824A7e48dcf6B7AE9DeE6E566f62A5aDF037F2;
         if (chainId == ChainId.XDC) return 0x9D3F0122b260D2218ecf681c416495882003deDd;
+        if (chainId == ChainId.ZKSYNC) return 0x423C1b454250992Ede8516D36DE456F609714B53;
 
         // Testnets.
         if (chainId == ChainId.ARBITRUM_SEPOLIA) return 0x3E64A31C3974b6ae9f09a8fbc784519bF551e795;
         if (chainId == ChainId.BASE_SEPOLIA) return 0xcb5591F6d0e0fFC03037ef7b006D1361C6D33D25;
         if (chainId == ChainId.MODE_SEPOLIA) return 0xe1eDdA64eea2173a015A3738171C3a1C263324C7;
         if (chainId == ChainId.OPTIMISM_SEPOLIA) return 0x4739327acfb56E90177d44Cb0845e759276BCA88;
+        if (chainId == ChainId.SEPOLIA) return 0xc9dBf2D207D178875b698e5f7493ce2d8BA88994;
 
         // Return address zero for unsupported chain.
         return address(0);
