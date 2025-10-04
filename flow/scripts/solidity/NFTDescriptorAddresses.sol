@@ -22,6 +22,7 @@ abstract contract NFTDescriptorAddresses {
         if (chainId == ChainId.COREDAO) return 0x7293F2D4A4e676EF67C085E92277AdF560AECb88;
         if (chainId == ChainId.ETHEREUM) return 0x24bE13897eE1F83367661B6bA616a72523fC55C9;
         if (chainId == ChainId.GNOSIS) return 0x5A47FC8732d399a2f3845c4FC91aB91bb97da31F;
+        if (chainId == ChainId.HYPEREVM) return 0x81Cc8C4B57B9A60a56330d087D6854A8E17Dfc7A;
         if (chainId == ChainId.LIGHTLINK) return 0xc58E948Cb0a010105467C92856bcd4842B759fb1;
         if (chainId == ChainId.LINEA) return 0x294D7fceBa43C4507771707CeBBB7b6d81d0BFdE;
         if (chainId == ChainId.MODE) return 0xD9E2822a33606741BeDbA31614E68A745e430102;
