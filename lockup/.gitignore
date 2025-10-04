@@ -13,6 +13,7 @@ out
 out-*
 repomix
 typechain-types
+zkout
 
 # files
 *.env
