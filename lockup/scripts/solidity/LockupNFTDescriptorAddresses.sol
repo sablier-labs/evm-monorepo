@@ -22,6 +22,7 @@ abstract contract LockupNFTDescriptorAddresses {
         if (chainId == ChainId.COREDAO) return 0xac0cF0F2A96Ed7ec3cfA4D0Be621C67ADC9Dd903;
         if (chainId == ChainId.ETHEREUM) return 0xA9dC6878C979B5cc1d98a1803F0664ad725A1f56;
         if (chainId == ChainId.GNOSIS) return 0x3140a6900AA2FF3186730741ad8255ee4e6d8Ff1;
+        if (chainId == ChainId.HYPEREVM) return 0x7263d77e9e872f82A15e5E1a9816440D23758708;
         if (chainId == ChainId.LIGHTLINK) return 0xCFB5F90370A7884DEc59C55533782B45FA24f4d1;
         if (chainId == ChainId.LINEA) return 0x1514a869D29a8B22961e8F9eBa3DC64000b96BCe;
         if (chainId == ChainId.MODE) return 0x64e7879558b6dfE2f510bd4b9Ad196ef0371EAA8;
