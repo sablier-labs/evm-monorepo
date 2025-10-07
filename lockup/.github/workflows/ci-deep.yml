@@ -76,15 +76,7 @@ jobs:
 
   notify-on-failure:
     if: failure()
-    needs:
-      [
-        "lint",
-        "build",
-        "test-unit",
-        "test-integration",
-        "test-invariant",
-        "test-fork",
-      ]
+    needs: ["check", "build", "test-unit", "test-integration", "test-invariant", "test-fork"]
     runs-on: "ubuntu-latest"
     steps:
       - name: "Send Slack notification"

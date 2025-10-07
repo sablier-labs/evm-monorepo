@@ -10,6 +10,7 @@ import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
 import { Lockup } from "../../src/types/Lockup.sol";
 import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
 import { LockupLinear } from "../../src/types/LockupLinear.sol";
+import { LockupTranched } from "../../src/types/LockupTranched.sol";
 
 interface IERC20Mint {
     function mint(address beneficiary, uint256 value) external;
@@ -100,12 +101,11 @@ contract Init is BaseScript {
             Lockup.CreateWithDurations({
                 sender: sender,
                 recipient: recipient,
-                totalAmount: 2.5e18,
+                depositAmount: 2.5e18,
                 token: token,
                 cancelable: true,
                 transferable: true,
-                shape: "Two Tranches",
-                broker: Broker(address(0), ud60x18(0))
+                shape: "Two Tranches"
             }),
             tranches
         );
