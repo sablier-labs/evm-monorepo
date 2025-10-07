@@ -22,6 +22,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - **Breaking:** Refactor `SablierLockup` contract into model-specific abstract contracts
   ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
 - **Breaking:** Refactor `DataTypes` into separate type files
+  ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
 - Replace admin with comptroller ([#1260](https://github.com/sablier-labs/lockup/pull/1260),
   [#1268](https://github.com/sablier-labs/lockup/pull/1268))
 - Rename `VestingMath` library to `LockupMath`
@@ -34,20 +35,17 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Added
 
-- Add `@sablier/evm-utils` dependency
-- Add model-specific interfaces (`ISablierLockupDynamic`, `ISablierLockupLinear`, `ISablierLockupTranched`,
-  `ISablierLockupState`)
 - ERC20 recovery functionality ([#1182](https://github.com/sablier-labs/lockup/pull/1182))
 - Function to calculate minimum fee in wei ([#1270](https://github.com/sablier-labs/lockup/pull/1270))
 - `CreateBatchLockup` event in `BatchLockup` ([#1274](https://github.com/sablier-labs/lockup/pull/1274))
 - Return refunded amount in `cancel` ([#1173](https://github.com/sablier-labs/lockup/pull/1173))
+- Add `@sablier/evm-utils` dependency
 
 ### Removed
 
-- **Breaking:** Remove `IAdminable` interface and `Adminable` abstract (replaced by comptroller)
-- **Breaking:** Remove `IBatch` interface and `Batch` abstract (moved to `@sablier/evm-utils`)
 - **Breaking:** Remove `MAX_COUNT` constant ([#1243](https://github.com/sablier-labs/lockup/pull/1243))
-- Remove broker functionality ([#1166](https://github.com/sablier-labs/lockup/pull/1166))
+- **Breaking**: Remove broker functionality ([#1166](https://github.com/sablier-labs/lockup/pull/1166))
+- Remove `Adminable` and `Batch` contracts (moved to `@sablier/evm-utils`)
 
 ## [2.0.1] - 2025-02-05
 
