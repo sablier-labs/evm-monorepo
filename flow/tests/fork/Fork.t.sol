@@ -29,7 +29,7 @@ abstract contract Fork_Test is Base_Test {
     function setUp() public virtual override {
         // Fork Ethereum Mainnet at the latest block number.
         // TODO: uncomment the following line after deployment.
-        // vm.createSelectFork({ urlOrAlias: "mainnet" });
+        // vm.createSelectFork({ urlOrAlias: "ethereum" });
 
         // TODO: update the flow contract address once deployed and uncomment the following lines.
         // Load mainnet address.
