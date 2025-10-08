@@ -86,15 +86,12 @@ bug bounty program per the terms outlined in the aforementioned policy.
 
 ## Contributing
 
-See the [CONTRIBUTING](./CONTRIBUTING.md) guide.
+Feel free to dive in! [Open](https://github.com/sablier-labs/airdrops/issues/new) an issue,
+[start](https://github.com/sablier-labs/airdrops/discussions/new) a discussion or submit a PR. For any informal concerns
+or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
+
+For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) guide.
 
 ## License
 
-The primary license for Sablier Airdrops is the Business Source License 1.1 (`BUSL-1.1`), see
-[`LICENSE.md`](./LICENSE.md). However, there are exceptions:
-
-- All files in `src/interfaces/` and `src/types` are licensed under `GPL-3.0-or-later`, see
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Several files in `src`, `scripts/solidity`, and `tests` are licensed under `GPL-3.0-or-later`, see
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Many files in `tests/` remain unlicensed (as indicated in their SPDX headers).
+See [LICENSE.md](./LICENSE.md).

@@ -89,7 +89,6 @@
   sonic = "https://direct.routeme.sh/rpc/146/${ROUTEMESH_API_KEY}"
   sophon = "https://direct.routeme.sh/rpc/50104/${ROUTEMESH_API_KEY}"
   superseed = "https://direct.routeme.sh/rpc/5330/${ROUTEMESH_API_KEY}"
-  tangle = "https://direct.routeme.sh/rpc/5845/${ROUTEMESH_API_KEY}"
   unichain = "https://direct.routeme.sh/rpc/130/${ROUTEMESH_API_KEY}"
   xdc = "https://direct.routeme.sh/rpc/50/${ROUTEMESH_API_KEY}"
   zksync = "https://direct.routeme.sh/rpc/324/${ROUTEMESH_API_KEY}"
