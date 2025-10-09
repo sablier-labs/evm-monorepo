@@ -58,13 +58,13 @@ This installation method is not recommended, but it is available for those who p
 First, install the submodule using Forge:
 
 ```shell
-forge install --no-commit sablier-labs/airdrops
+forge install sablier-labs/airdrops
 ```
 
 Second, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.1.0 sablier-labs/lockup@v2.0.0
+forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0 sablier-labs/lockup@v3.0.0
 ```
 
 ### Branching Tree Technique
