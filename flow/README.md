@@ -65,7 +65,7 @@ forge install sablier-labs/flow
 Then, install the project's dependencies:
 
 ```shell
-forge install OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
+forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
 ```
 
 ### Branching Tree Technique
