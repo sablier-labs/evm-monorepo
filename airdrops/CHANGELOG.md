@@ -12,10 +12,13 @@ All notable changes to this project will be documented in this file. The format 
 
 - **BREAKING**: Replace single factory with separate factories for each campaign type
   ([#70](https://github.com/sablier-labs/airdrops/pull/70))
-- **BREAKING**: Store the fee in USD value instead of native token value
+- **BREAKING**: Store fee as USD value instead of native token value
   ([#68](https://github.com/sablier-labs/airdrops/pull/68))
-- Change the schedule state variables to `immutable` ([#125](https://github.com/sablier-labs/airdrops/pull/125))
-  - Rename the variables to include the `VESTING` prefix
+- Refactor existing `Claim` events ([#163](https://github.com/sablier-labs/airdrops/pull/163))
+- Refactor schedule struct into `immutable` variables in `SablierMerkleLL`
+  ([#125](https://github.com/sablier-labs/airdrops/pull/125))
+- Rename `STREAM_START_TIME` to `VESTING_START_TIME` in `SablierMerkleLT`
+  ([#125](https://github.com/sablier-labs/airdrops/pull/125))
 - Rename `getTranchesWithPercentages` to `tranchesWithPercentages`
 - Rename `getFirstClaimTime()` to `firstClaimTime()`
 
@@ -25,13 +28,12 @@ All notable changes to this project will be documented in this file. The format 
 - Add `SablierMerkleVCA` contract ([#58](https://github.com/sablier-labs/airdrops/pull/58))
 - Add `EIP-712` and `EIP-1271` signature support for claiming airdrops
   ([#160](https://github.com/sablier-labs/airdrops/pull/160))
-- Add ability to claim airdrops to a third-party address ([#152](https://github.com/sablier-labs/airdrops/pull/152))
+- Claim airdrops to a third-party address ([#152](https://github.com/sablier-labs/airdrops/pull/152))
 - Add campaign start time parameter ([#157](https://github.com/sablier-labs/airdrops/pull/157))
-- Add one more claim event ([#163](https://github.com/sablier-labs/airdrops/pull/163))
+- Add new `Claim` events ([#163](https://github.com/sablier-labs/airdrops/pull/163))
 - Add function to get stream IDs associated with airdrop claims
   ([#72](https://github.com/sablier-labs/airdrops/pull/72))
-- Add direct token transfer when claimed after vesting end time
-  ([#77](https://github.com/sablier-labs/airdrops/pull/77))
+- Transfer tokens directly if claimed after vesting end time ([#77](https://github.com/sablier-labs/airdrops/pull/77))
 
 ### Removed
 
