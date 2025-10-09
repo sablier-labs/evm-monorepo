@@ -39,16 +39,16 @@ bun add @sablier/lockup
 
 This installation method is not recommended, but it is available for those who prefer it.
 
-First, install the submodule using Forge:
+Install the submodule using Forge:
 
 ```shell
-forge install --no-commit sablier-labs/lockup
+forge install sablier-labs/lockup
 ```
 
-Second, install the project's dependencies:
+Then, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.1.0
+forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
 ```
 
 ### Branching Tree Technique
