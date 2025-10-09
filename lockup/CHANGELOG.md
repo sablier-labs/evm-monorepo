@@ -31,7 +31,6 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Rename `aggregateBalance` to `aggregateAmount` ([#1228](https://github.com/sablier-labs/lockup/pull/1228))
 - Bump Solidity compiler to 0.8.29 ([#1207](https://github.com/sablier-labs/lockup/pull/1207))
 - Bump `@openzeppelin/contracts` from 5.0.2 to 5.3.0
-- Bump `forge-std` to v1.10.0
 
 ### Added
 

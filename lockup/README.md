@@ -51,14 +51,6 @@ Second, install the project's dependencies:
 forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.1.0
 ```
 
-Finally, add these to your `remappings.txt` file:
-
-```text
-@sablier/lockup/=lib/lockup/
-@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-@prb/math/=lib/prb-math/
-```
-
 ### Branching Tree Technique
 
 You may notice that some test files are accompanied by `.tree` files. This is because we are using Branching Tree
