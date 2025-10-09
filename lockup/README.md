@@ -85,7 +85,8 @@ these [diagrams](https://docs.sablier.com/reference/lockup/diagrams).
 ## Deployments
 
 The list of all deployment addresses can be found [here](https://docs.sablier.com/guides/lockup/deployments). For
-guidance on the deployment scripts, see the [Deployments wiki](https://github.com/sablier-labs/lockup/wiki/Deployments).
+guidance on the deployment scripts, see the [Deployments Guide](https://docs.sablier.com/guides/custom-deployments) in
+our docs.
 
 ## Security
 
