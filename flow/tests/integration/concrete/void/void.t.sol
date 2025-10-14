@@ -4,6 +4,8 @@ pragma solidity >=0.8.22;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
+import { Errors } from "src/libraries/Errors.sol";
+import { Flow } from "src/types/DataTypes.sol";
 
 import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
@@ -15,7 +17,7 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         depositToDefaultStream();
 
         // Make the recipient the caller in this tests.
-        resetPrank({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -34,10 +36,12 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function test_RevertWhen_CallerNotAuthorized() external whenNoDelegateCall givenNotNull givenNotVoided {
-        bytes memory callData = abi.encodeCall(flow.void, (defaultStreamId));
-        expectRevert_CallerMaliciousThirdParty(callData);
+        setMsgSender(users.eve);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
+        flow.void(defaultStreamId);
     }
 
+    /// @dev No uncovered debt means that the stream is either SOLVENT or PENDING.
     function test_GivenStreamHasNoUncoveredDebt()
         external
         whenNoDelegateCall
@@ -48,6 +52,11 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         // It should void the stream.
         // It should set the rate per second to zero.
         // It should not change the total debt.
+        _test_Void(users.recipient);
+
+        // Create a new PENDING stream.
+        defaultStreamId = createDefaultStream({ startTime: getBlockTimestamp() + 100 seconds });
+
         _test_Void(users.recipient);
     }
 
@@ -67,7 +76,7 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         givenStreamHasUncoveredDebt
     {
         // Make the sender the caller in this test.
-        resetPrank({ msgSender: users.sender });
+        setMsgSender(users.sender);
 
         // It should void the stream.
         // It should set the rate per second to zero.
@@ -87,7 +96,7 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         flow.approve({ to: users.operator, tokenId: defaultStreamId });
 
         // Make the operator the caller in this test.
-        resetPrank({ msgSender: users.operator });
+        setMsgSender(users.operator);
 
         // It should void the stream.
         // It should set the rate per second to zero.
@@ -140,11 +149,11 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         // It should set the rate per second to zero.
         assertEq(flow.getRatePerSecond(defaultStreamId), 0, "rate per second");
 
-        // It should pause the stream.
-        assertTrue(flow.isPaused(defaultStreamId), "paused");
-
         // It should void the stream.
         assertTrue(flow.isVoided(defaultStreamId), "voided");
+
+        // Check the status of the stream.
+        assertEq(flow.statusOf(defaultStreamId), Flow.Status.VOIDED, "status");
 
         // Check the new total debt.
         assertEq(flow.totalDebtOf(defaultStreamId), expectedTotalDebt, "total debt");

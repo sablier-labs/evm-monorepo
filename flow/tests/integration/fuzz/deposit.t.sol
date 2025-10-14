@@ -34,7 +34,7 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
 
         // Following variables are used during assertions.
-        uint256 initialAggregateAmount = flow.aggregateBalance(token);
+        uint256 initialAggregateAmount = flow.aggregateAmount(token);
         uint256 initialTokenBalance = token.balanceOf(address(flow));
         uint128 initialStreamBalance = flow.getBalance(streamId);
 
@@ -46,13 +46,13 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Change prank to caller and deal some tokens to him.
         deal({ token: address(token), to: caller, give: depositAmount });
-        resetPrank(caller);
+        setMsgSender(caller);
 
         // Approve the flow contract to spend the token.
         token.approve(address(flow), depositAmount);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(token) });
@@ -65,7 +65,7 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransferFrom({ token: token, from: caller, to: address(flow), amount: depositAmount });
+        expectCallToTransferFrom({ token: token, from: caller, to: address(flow), value: depositAmount });
 
         // Make the deposit.
         flow.deposit(streamId, depositAmount, users.sender, users.recipient);
@@ -81,7 +81,7 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
         // Assert that aggregate amount has been updated.
-        uint256 actualAggregateAmount = flow.aggregateBalance(token);
+        uint256 actualAggregateAmount = flow.aggregateAmount(token);
         uint256 expectedAggregateAmount = initialAggregateAmount + depositAmount;
         assertEq(actualAggregateAmount, expectedAggregateAmount, "aggregate amount");
     }

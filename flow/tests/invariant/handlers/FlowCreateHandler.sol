@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import { ud21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
@@ -18,18 +18,7 @@ contract FlowCreateHandler is BaseHandler {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public currentToken;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier useFuzzedToken(uint256 tokenIndex) {
-        IERC20[] memory tokens = flowStore.getTokens();
-        vm.assume(tokenIndex < tokens.length);
-        currentToken = tokens[tokenIndex];
-        _;
-    }
+    uint256 internal streamId;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -49,6 +38,7 @@ contract FlowCreateHandler is BaseHandler {
         address sender;
         address recipient;
         uint128 ratePerSecond;
+        uint40 startTime;
         bool transferable;
     }
 
@@ -63,14 +53,22 @@ contract FlowCreateHandler is BaseHandler {
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
 
         // Create the stream.
-        uint256 streamId = flow.create(
-            params.sender, params.recipient, ud21x18(params.ratePerSecond), currentToken, params.transferable
+        streamId = flow.create(
+            params.sender,
+            params.recipient,
+            ud21x18(params.ratePerSecond),
+            params.startTime,
+            currentToken,
+            params.transferable
         );
 
         // Store the stream id and rate per second.
-        flowStore.initStreamId(streamId, params.ratePerSecond);
+        flowStore.initStreamId(streamId, params.ratePerSecond, params.startTime, getBlockTimestamp());
     }
 
+    /// @dev We assume a start time earlier than the current block timestamp to avoid having too many PENDING
+    /// streams. We chose this function because the deposit allows calls to other functions as well (refund and
+    /// withdraw).
     function createAndDeposit(CreateParams memory params)
         public
         useFuzzedToken(params.tokenIndex)
@@ -80,13 +78,15 @@ contract FlowCreateHandler is BaseHandler {
         _checkParams(params);
 
         vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
+        params.startTime = boundUint40(params.startTime, 1, getBlockTimestamp());
 
-        // Calculate the upper bound, based on the token decimals, for the deposit amount.
-        uint256 upperBound = getDescaledAmount(1_000_000e18, IERC20Metadata(address(currentToken)).decimals());
-        uint256 lowerBound = getDescaledAmount(1e18, IERC20Metadata(address(currentToken)).decimals());
-
-        // Make sure the deposit amount is non-zero and less than values that could cause an overflow.
-        vm.assume(params.depositAmount >= lowerBound && params.depositAmount <= upperBound);
+        // Bound the deposit amount.
+        params.depositAmount = boundDepositAmount({
+            amount: params.depositAmount,
+            lowerBound18D: 1e18,
+            upperBound18D: 1_000_000e18,
+            decimals: IERC20Metadata(address(currentToken)).decimals()
+        });
 
         // Mint enough tokens to the Sender.
         deal({
@@ -99,20 +99,21 @@ contract FlowCreateHandler is BaseHandler {
         currentToken.approve({ spender: address(flow), value: params.depositAmount });
 
         // Create the stream.
-        uint256 streamId = flow.createAndDeposit(
+        streamId = flow.createAndDeposit(
             params.sender,
             params.recipient,
             ud21x18(params.ratePerSecond),
+            params.startTime,
             currentToken,
             params.transferable,
             params.depositAmount
         );
 
         // Store the stream id and rate per second.
-        flowStore.initStreamId(streamId, params.ratePerSecond);
+        flowStore.initStreamId(streamId, params.ratePerSecond, params.startTime, getBlockTimestamp());
 
-        // Store the deposited amount.
-        flowStore.updateStreamDepositedAmountsSum(streamId, currentToken, params.depositAmount);
+        // Store the deposit totals.
+        flowStore.updateTotalDeposits(streamId, currentToken, params.depositAmount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -121,27 +122,23 @@ contract FlowCreateHandler is BaseHandler {
 
     /// @dev Check the relevant parameters fuzzed for create.
     function _checkParams(CreateParams memory params) private {
-        // The protocol doesn't allow the sender or recipient to be the zero address.
-        vm.assume(params.sender != address(0) && params.recipient != address(0));
+        // Make sure the sender and recipient are not the zero address or the contract itself.
+        params.sender = fuzzAddrWithExclusion(params.sender, address(this));
+        params.recipient = fuzzAddrWithExclusion(params.recipient, address(this));
 
-        // Prevent the contract itself from playing the role of any user.
-        vm.assume(params.sender != address(this) && params.recipient != address(this));
-
-        // Reset the caller.
-        resetPrank(params.sender);
+        // Change the caller.
+        setMsgSender(params.sender);
 
         uint8 decimals = IERC20Metadata(address(currentToken)).decimals();
 
-        // Calculate the minimum value in scaled version that can be withdrawn for this token.
-        uint256 mvt = getScaledAmount(1, decimals);
-
         // For 18 decimal, check the rate per second is within a realistic range.
         if (decimals == 18) {
-            vm.assume(params.ratePerSecond > 0.00001e18 && params.ratePerSecond <= 1e18);
+            params.ratePerSecond = boundUint128(params.ratePerSecond, 0.00001e18, 1e18);
         }
         // For all other decimals, choose the minimum rps such that it takes 100 seconds to stream 1 token.
         else {
-            vm.assume(params.ratePerSecond > mvt / 100 && params.ratePerSecond <= 1e18);
+            uint256 mvt = getScaledAmount({ amount: 1, decimals: decimals });
+            params.ratePerSecond = boundUint128(params.ratePerSecond, uint128(mvt / 100), 1e18);
         }
     }
 }

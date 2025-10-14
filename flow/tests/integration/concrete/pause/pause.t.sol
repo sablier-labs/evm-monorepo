@@ -5,6 +5,8 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
+import { Errors } from "src/libraries/Errors.sol";
+import { Flow } from "src/types/DataTypes.sol";
 
 import { Shared_Integration_Concrete_Test } from "../Concrete.t.sol";
 
@@ -46,7 +48,29 @@ contract Pause_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         expectRevert_CallerMaliciousThirdParty(callData);
     }
 
-    function test_GivenUncoveredDebt() external whenNoDelegateCall givenNotNull givenNotPaused whenCallerSender {
+    function test_RevertGiven_NotStarted() external whenNoDelegateCall givenNotNull givenNotPaused whenCallerSender {
+        uint40 startTime = getBlockTimestamp() + 1 days;
+        uint256 streamId = flow.create({
+            sender: users.sender,
+            recipient: users.recipient,
+            ratePerSecond: RATE_PER_SECOND,
+            startTime: startTime,
+            token: dai,
+            transferable: TRANSFERABLE
+        });
+
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamPending.selector, streamId, startTime));
+        flow.pause(streamId);
+    }
+
+    function test_GivenUncoveredDebt()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotPaused
+        whenCallerSender
+        givenStarted
+    {
         // Check that uncovered debt is greater than zero.
         assertGt(flow.uncoveredDebtOf(defaultStreamId), 0, "uncovered debt");
 
@@ -54,7 +78,14 @@ contract Pause_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         _test_Pause();
     }
 
-    function test_GivenNoUncoveredDebt() external whenNoDelegateCall givenNotNull givenNotPaused whenCallerSender {
+    function test_GivenNoUncoveredDebt()
+        external
+        whenNoDelegateCall
+        givenNotNull
+        givenNotPaused
+        whenCallerSender
+        givenStarted
+    {
         // Make deposit to repay uncovered debt.
         depositToDefaultStream();
 
@@ -81,7 +112,11 @@ contract Pause_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         flow.pause(defaultStreamId);
 
         // It should pause the stream.
-        assertTrue(flow.isPaused(defaultStreamId), "is paused");
+        assertTrue(
+            flow.statusOf(defaultStreamId) == Flow.Status.PAUSED_SOLVENT
+                || flow.statusOf(defaultStreamId) == Flow.Status.PAUSED_INSOLVENT,
+            "status"
+        );
 
         // It should set the rate per second to zero.
         UD21x18 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);

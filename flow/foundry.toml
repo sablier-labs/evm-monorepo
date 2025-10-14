@@ -1,39 +1,34 @@
 [profile.default]
   auto_detect_solc = false
-  bytecode_hash = "none"
-  evm_version = "shanghai"
+  bytecode_hash = "ipfs"
+  evm_version = "shanghai" # needed for greater coverage of EVM chains
   fs_permissions = [
     { access = "read", path = "./out-optimized" },
     { access = "read", path = "package.json" },
-    { access = "read-write", path = "./benchmark/results"},
-    { access = "read-write", path = "./script"}
   ]
   gas_limit = 9223372036854775807
   gas_reports = ["SablierFlow"]
   optimizer = true
   optimizer_runs = 1000
   out = "out"
-  script = "script"
+  script = "scripts/solidity"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
-  solc = "0.8.26"
+  solc = "0.8.29"
   src = "src"
   test = "tests"
 
 [profile.default.fuzz]
   max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
-  runs = 10000
+  runs = 10_000
 
 [profile.default.invariant]
-  call_override = false # Override unsafe external calls to perform reentrancy checks
+  call_override = false  # Override unsafe external calls to perform reentrancy checks
+  depth = 100            # Number of calls executed in one run
   dictionary_weight = 50
-  depth = 100           # Number of calls executed in one run
   fail_on_revert = true
   runs = 1000
-  shrink_run_limit = 0 # Disable shrinking of a failed sequence
-
-# Run only the code inside benchmark directory
-[profile.benchmark]
-  test = "benchmark"
+  show_metrics = false
+  shrink_run_limit = 0   # Disable shrinking of a failed sequence
 
 # Speed up compilation and tests during development
 [profile.lite]
@@ -46,12 +41,11 @@
 [profile.lite.fuzz]
   runs = 20
 
-# Compile only the production code and the test mocks with via IR and 10,000 optimizer runs
+# Compile only the production code
 [profile.optimized]
-  optimizer = true
-  optimizer_runs = 10_000
+  optimizer_runs = 1_000_000
   out = "out-optimized"
-  test = "tests/mocks"
+  test = "src"
   via_ir = true
 
 # Test the optimized contracts without re-compiling them
@@ -76,38 +70,41 @@
   tab_width = 4
   wrap_comments = true
 
+[lint]
+  lint_on_build = false
+
 [rpc_endpoints]
   # mainnets
-  arbitrum = "https://direct.routeme.sh/rpc/42161/${ROUTEMESH_API_KEY}"
-  avalanche = "https://direct.routeme.sh/rpc/43114/${ROUTEMESH_API_KEY}"
-  base = "https://direct.routeme.sh/rpc/8453/${ROUTEMESH_API_KEY}"
-  berachain = "https://direct.routeme.sh/rpc/80094/${ROUTEMESH_API_KEY}"
-  blast = "https://direct.routeme.sh/rpc/81457/${ROUTEMESH_API_KEY}"
-  bsc = "https://direct.routeme.sh/rpc/56/${ROUTEMESH_API_KEY}"
-  ethereum = "https://direct.routeme.sh/rpc/1/${ROUTEMESH_API_KEY}"
-  chiliz = "https://direct.routeme.sh/rpc/88888/${ROUTEMESH_API_KEY}"
-  core_dao = "https://direct.routeme.sh/rpc/1116/${ROUTEMESH_API_KEY}"
-  form = "https://direct.routeme.sh/rpc/478/${ROUTEMESH_API_KEY}"
-  gnosis = "https://direct.routeme.sh/rpc/100/${ROUTEMESH_API_KEY}"
-  lightlink = "https://direct.routeme.sh/rpc/1890/${ROUTEMESH_API_KEY}"
-  linea = "https://direct.routeme.sh/rpc/59144/${ROUTEMESH_API_KEY}"
-  mode = "https://direct.routeme.sh/rpc/34443/${ROUTEMESH_API_KEY}"
-  morph = "https://direct.routeme.sh/rpc/2818/${ROUTEMESH_API_KEY}"
-  optimism = "https://direct.routeme.sh/rpc/10/${ROUTEMESH_API_KEY}"
-  polygon = "https://direct.routeme.sh/rpc/137/${ROUTEMESH_API_KEY}"
-  scroll = "https://direct.routeme.sh/rpc/534352/${ROUTEMESH_API_KEY}"
-  sei = "https://direct.routeme.sh/rpc/1329/${ROUTEMESH_API_KEY}"
-  superseed = "https://direct.routeme.sh/rpc/5330/${ROUTEMESH_API_KEY}"
-  xdc = "https://direct.routeme.sh/rpc/50/${ROUTEMESH_API_KEY}"
+  abstract = "https://lb.routeme.sh/rpc/2741/${ROUTEMESH_API_KEY}"
+  arbitrum = "https://lb.routeme.sh/rpc/42161/${ROUTEMESH_API_KEY}"
+  avalanche = "https://lb.routeme.sh/rpc/43114/${ROUTEMESH_API_KEY}"
+  base = "https://lb.routeme.sh/rpc/8453/${ROUTEMESH_API_KEY}"
+  berachain = "https://lb.routeme.sh/rpc/80094/${ROUTEMESH_API_KEY}"
+  blast = "https://lb.routeme.sh/rpc/81457/${ROUTEMESH_API_KEY}"
+  bsc = "https://lb.routeme.sh/rpc/56/${ROUTEMESH_API_KEY}"
+  chiliz = "https://lb.routeme.sh/rpc/88888/${ROUTEMESH_API_KEY}"
+  core_dao = "https://lb.routeme.sh/rpc/1116/${ROUTEMESH_API_KEY}"
+  ethereum = "https://lb.routeme.sh/rpc/1/${ROUTEMESH_API_KEY}"
+  gnosis = "https://lb.routeme.sh/rpc/100/${ROUTEMESH_API_KEY}"
+  hyperevm = "https://lb.routeme.sh/rpc/999/${ROUTEMESH_API_KEY}"
+  lightlink = "https://replicator.phoenix.lightlink.io/rpc/v1"
+  linea = "https://lb.routeme.sh/rpc/59144/${ROUTEMESH_API_KEY}"
+  mode = "https://lb.routeme.sh/rpc/34443/${ROUTEMESH_API_KEY}"
+  morph = "https://rpc.morphl2.io"
+  optimism = "https://lb.routeme.sh/rpc/10/${ROUTEMESH_API_KEY}"
+  polygon = "https://lb.routeme.sh/rpc/137/${ROUTEMESH_API_KEY}"
+  scroll = "https://lb.routeme.sh/rpc/534352/${ROUTEMESH_API_KEY}"
+  sei = "https://lb.routeme.sh/rpc/1329/${ROUTEMESH_API_KEY}"
+  sonic = "https://lb.routeme.sh/rpc/146/${ROUTEMESH_API_KEY}"
+  sophon = "https://lb.routeme.sh/rpc/50104/${ROUTEMESH_API_KEY}"
+  superseed = "https://lb.routeme.sh/rpc/5330/${ROUTEMESH_API_KEY}"
+  tangle = "https://lb.routeme.sh/rpc/5845/${ROUTEMESH_API_KEY}"
+  unichain = "https://lb.routeme.sh/rpc/130/${ROUTEMESH_API_KEY}"
+  xdc = "https://lb.routeme.sh/rpc/50/${ROUTEMESH_API_KEY}"
+  zksync = "https://lb.routeme.sh/rpc/324/${ROUTEMESH_API_KEY}"
   # testnets
-  arbitrum_sepolia = "https://direct.routeme.sh/rpc/421614/${ROUTEMESH_API_KEY}"
-  base_sepolia = "https://direct.routeme.sh/rpc/84532/${ROUTEMESH_API_KEY}"
-  blast_sepolia = "https://direct.routeme.sh/rpc/168587773/${ROUTEMESH_API_KEY}"
-  linea_sepolia = "https://direct.routeme.sh/rpc/59141/${ROUTEMESH_API_KEY}"
-  localhost = "http://localhost:8545"
-  mode_sepolia = "https://direct.routeme.sh/rpc/919/${ROUTEMESH_API_KEY}"
-  monad_testnet = "https://direct.routeme.sh/rpc/10143/${ROUTEMESH_API_KEY}"
-  optimism_sepolia = "https://direct.routeme.sh/rpc/11155420/${ROUTEMESH_API_KEY}"
-  sei_testnet = "https://direct.routeme.sh/rpc/713715/${ROUTEMESH_API_KEY}"
-  sepolia = "https://direct.routeme.sh/rpc/11155111/${ROUTEMESH_API_KEY}"
-  superseed_sepolia = "https://sepolia.superseed.xyz"
+  arbitrum_sepolia = "https://sepolia-rollup.arbitrum.io/rpc"
+  base_sepolia = "https://sepolia.base.org"
+  mode_sepolia = "https://sepolia.mode.network/"
+  optimism_sepolia = "https://sepolia.optimism.io"
+  sepolia = "https://lb.routeme.sh/rpc/11155111/${ROUTEMESH_API_KEY}"

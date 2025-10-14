@@ -48,7 +48,7 @@ contract DepletionTimeOf_Integration_Concrete_Test is Shared_Integration_Concret
 
         // It should return the time at which the total debt exceeds the balance.
         uint40 actualDepletionTime = uint40(flow.depletionTimeOf(streamId));
-        uint40 exptectedDepletionTime = ONE_MONTH_SINCE_START + uint40(solvencyPeriod + 1);
+        uint40 exptectedDepletionTime = ONE_MONTH_SINCE_CREATE + uint40(solvencyPeriod + 1);
         assertEq(actualDepletionTime, exptectedDepletionTime, "depletion time");
     }
 

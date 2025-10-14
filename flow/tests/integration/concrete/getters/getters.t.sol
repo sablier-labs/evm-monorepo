@@ -83,7 +83,7 @@ contract Getters_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function test_GetSnapshotDebtScaled_GivenNotZero() external givenNotNull {
-        vm.warp(ONE_MONTH_SINCE_START);
+        vm.warp(ONE_MONTH_SINCE_CREATE);
         flow.adjustRatePerSecond(defaultStreamId, ud21x18(1));
         assertEq(flow.getSnapshotDebtScaled(defaultStreamId), ONE_MONTH_DEBT_18D, "snapshot debt scaled");
     }
@@ -98,7 +98,7 @@ contract Getters_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function test_GetSnapshotTime_GivenNotNull() external view {
-        assertEq(flow.getSnapshotTime(defaultStreamId), OCT_1_2024, "snapshot time");
+        assertEq(flow.getSnapshotTime(defaultStreamId), FEB_1_2025, "snapshot time");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ contract Getters_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
 
     function test_GetStream_GivenNotNull() external view {
         Flow.Stream memory stream = defaultStream();
-        stream.snapshotTime = OCT_1_2024;
+        stream.snapshotTime = FEB_1_2025;
         assertEq(abi.encode(flow.getStream(defaultStreamId)), abi.encode(stream), "stream");
     }
 
@@ -127,24 +127,6 @@ contract Getters_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
 
     function test_GetTokenDecimals_GivenNotNull() external view {
         assertEq(flow.getTokenDecimals(defaultStreamId), DECIMALS, "token decimals");
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     IS-PAUSED
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function test_IsPaused_RevertGiven_Null() external {
-        bytes memory callData = abi.encodeCall(flow.isPaused, nullStreamId);
-        expectRevert_Null(callData);
-    }
-
-    function test_IsPaused_GivenTrue() external givenNotNull {
-        flow.pause(defaultStreamId);
-        assertTrue(flow.isPaused(defaultStreamId), "paused");
-    }
-
-    function test_IsPaused_GivenNotTrue() external view givenNotNull {
-        assertFalse(flow.isPaused(defaultStreamId), "paused");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -173,7 +155,7 @@ contract Getters_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function test_IsTransferable_GivenFalse() external givenNotNull {
-        uint256 streamId = flow.create(users.sender, users.recipient, RATE_PER_SECOND, usdc, false);
+        uint256 streamId = flow.create(users.sender, users.recipient, RATE_PER_SECOND, ZERO, usdc, false);
         assertFalse(flow.isTransferable(streamId), "transferable");
     }
 

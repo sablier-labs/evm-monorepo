@@ -5,10 +5,37 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
+import { Flow } from "src/types/DataTypes.sol";
 
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
 contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
+    function testFuzz_RevertGiven_NotStarted(
+        uint256 streamId,
+        uint40 timeWarp,
+        uint8 decimals
+    )
+        external
+        whenNoDelegateCall
+        givenNotNull
+    {
+        (streamId,,) = useFuzzedStreamOrCreate(streamId, decimals);
+
+        uint40 snapshotTime = flow.getSnapshotTime(streamId);
+
+        // Bound the time warp to make the stream PENDING.
+        timeWarp = boundUint40(timeWarp, 1, snapshotTime - 1 seconds);
+
+        // Simulate the passage of time.
+        vm.warp({ newTimestamp: timeWarp });
+
+        // Expect the relevant error.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamPending.selector, streamId, snapshotTime));
+
+        // Adjust the rate per second.
+        flow.pause(streamId);
+    }
+
     /// @dev It should revert.
     ///
     /// Given enough runs, all of the following scenarios should be fuzzed:
@@ -31,11 +58,11 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Expect the relevant error.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamPaused.selector, streamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlowState_StreamPaused.selector, streamId));
 
         // Pause the stream.
         flow.pause(streamId);
@@ -64,8 +91,8 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(flow) });
@@ -82,8 +109,12 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Pause the stream.
         flow.pause(streamId);
 
-        // Assert that the stream is paused.
-        assertTrue(flow.isPaused(streamId), "paused");
+        // Assert that the status is paused.
+        assertTrue(
+            flow.statusOf(streamId) == Flow.Status.PAUSED_SOLVENT
+                || flow.statusOf(streamId) == Flow.Status.PAUSED_INSOLVENT,
+            "status"
+        );
 
         assertEq(flow.ongoingDebtScaledOf(streamId), 0, "ongoing debt");
 

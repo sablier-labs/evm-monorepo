@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
-import { CommonBase } from "forge-std/src/Base.sol";
+import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 import { SafeCastLib } from "solady/src/utils/SafeCastLib.sol";
 import { Constants } from "./Constants.sol";
 
-abstract contract Utils is CommonBase, Constants, PRBMathUtils {
+abstract contract Utils is Constants, BaseUtils, PRBMathUtils {
     using SafeCastLib for uint256;
 
     /// @dev Bound deposit amount to avoid overflow.
@@ -21,47 +20,65 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
         pure
         returns (uint128 depositAmount)
     {
-        uint128 maxDepositAmount = (UINT128_MAX - balance);
-        if (decimals < 18) {
-            maxDepositAmount = maxDepositAmount / uint128(10 ** (18 - decimals));
-        }
+        uint256 maxDepositAmount = getDescaledAmount({ amount: MAX_UINT128 - balance, decimals: decimals });
+        depositAmount = boundUint128(amount, 1, uint128(maxDepositAmount - 1));
+    }
 
-        depositAmount = boundUint128(amount, 1, maxDepositAmount - 1);
+    /// @dev Bound deposit amount within lower and upper bounds.
+    function boundDepositAmount(
+        uint128 amount,
+        uint128 lowerBound18D,
+        uint128 upperBound18D,
+        uint8 decimals
+    )
+        internal
+        pure
+        returns (uint128 depositAmount)
+    {
+        uint256 lowerBound = getDescaledAmount({ amount: lowerBound18D, decimals: decimals });
+        uint256 upperBound = getDescaledAmount({ amount: upperBound18D, decimals: decimals });
+        depositAmount = boundUint128(amount, uint128(lowerBound), uint128(upperBound));
     }
 
     /// @dev Bounds the rate per second between a realistic range i.e. for USDC [$50/month $5000/month].
     function boundRatePerSecond(UD21x18 ratePerSecond) internal pure returns (UD21x18) {
-        return ud21x18(boundUint128(ratePerSecond.unwrap(), 0.00002e18, 0.002e18));
+        return boundRatePerSecond({
+            ratePerSecond: ratePerSecond,
+            minRatePerSecond: UD21x18.wrap(0.00002e18),
+            maxRatePerSecond: UD21x18.wrap(0.002e18)
+        });
     }
 
-    /// @dev Bounds a `uint128` number.
-    function boundUint128(uint128 x, uint128 min, uint128 max) internal pure returns (uint128) {
-        return uint128(_bound(uint256(x), uint256(min), uint256(max)));
+    /// @dev Bounds the rate per second between given min and max values.
+    function boundRatePerSecond(
+        UD21x18 ratePerSecond,
+        UD21x18 minRatePerSecond,
+        UD21x18 maxRatePerSecond
+    )
+        internal
+        pure
+        returns (UD21x18)
+    {
+        return bound(ratePerSecond, minRatePerSecond, maxRatePerSecond);
     }
 
-    /// @dev Bounds a `uint40` number.
-    function boundUint40(uint40 x, uint40 min, uint40 max) internal pure returns (uint40) {
-        return uint40(_bound(uint256(x), uint256(min), uint256(max)));
-    }
+    /// @dev Fuzz an address by excluding the zero address and the address provided.
+    function fuzzAddrWithExclusion(address addr, address toExclude) internal view returns (address) {
+        while (addr == address(0) || addr == toExclude) {
+            addr = vm.randomAddress();
+        }
 
-    /// @dev Bounds a `uint8` number.
-    function boundUint8(uint8 x, uint8 min, uint8 max) internal pure returns (uint8) {
-        return uint8(_bound(uint256(x), uint256(min), uint256(max)));
-    }
-
-    /// @dev Retrieves the current block timestamp as an `uint40`.
-    function getBlockTimestamp() internal view returns (uint40) {
-        return uint40(block.timestamp);
+        return addr;
     }
 
     /// @dev Calculates the default deposit amount using `TRANSFER_VALUE` and `decimals`.
     function getDefaultDepositAmount(uint8 decimals) internal pure returns (uint128 depositAmount) {
-        return TRANSFER_VALUE * (10 ** decimals).toUint128();
+        return uint128(TRANSFER_VALUE * (10 ** decimals));
     }
 
     /// @dev Descales the amount to denote it in token's decimals.
     function getDescaledAmount(uint256 amount, uint8 decimals) internal pure returns (uint256) {
-        if (decimals == 18) {
+        if (decimals >= 18) {
             return amount;
         }
 
@@ -71,29 +88,11 @@ abstract contract Utils is CommonBase, Constants, PRBMathUtils {
 
     /// @dev Scales the amount to denote it in 18 decimals.
     function getScaledAmount(uint256 amount, uint8 decimals) internal pure returns (uint256) {
-        if (decimals == 18) {
+        if (decimals >= 18) {
             return amount;
         }
 
         uint256 scaleFactor = (10 ** (18 - decimals));
         return amount * scaleFactor;
-    }
-
-    /// @dev Checks if the Foundry profile is "benchmark".
-    function isBenchmarkProfile() internal view returns (bool) {
-        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
-        return Strings.equal(profile, "benchmark");
-    }
-
-    /// @dev Checks if the Foundry profile is "test-optimized".
-    function isTestOptimizedProfile() internal view returns (bool) {
-        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
-        return Strings.equal(profile, "test-optimized");
-    }
-
-    /// @dev Stops the active prank and sets a new one.
-    function resetPrank(address msgSender) internal {
-        vm.stopPrank();
-        vm.startPrank(msgSender);
     }
 }

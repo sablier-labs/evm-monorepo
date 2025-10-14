@@ -41,7 +41,7 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
 
     function _test_WithdrawMax() private {
         vars.expectedWithdrawAmount = ONE_MONTH_DEBT_6D;
-        vars.previousAggregateAmount = flow.aggregateBalance(usdc);
+        vars.previousAggregateAmount = flow.aggregateAmount(usdc);
 
         // It should emit 1 {Transfer}, 1 {WithdrawFromFlowStream} and 1 {MetadataUpdated} events.
         vm.expectEmit({ emitter: address(usdc) });
@@ -53,7 +53,6 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
             to: users.recipient,
             token: IERC20(address(usdc)),
             caller: users.sender,
-            protocolFeeAmount: 0,
             withdrawAmount: vars.expectedWithdrawAmount
         });
 
@@ -61,9 +60,9 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransfer({ token: usdc, to: users.recipient, amount: vars.expectedWithdrawAmount });
+        expectCallToTransfer({ token: usdc, to: users.recipient, value: vars.expectedWithdrawAmount });
 
-        (vars.actualWithdrawnAmount, vars.actualProtocolFeeAmount) = flow.withdrawMax(defaultStreamId, users.recipient);
+        vars.actualWithdrawnAmount = flow.withdrawMax{ value: FLOW_MIN_FEE_WEI }(defaultStreamId, users.recipient);
 
         // It should update the stream balance.
         vars.actualStreamBalance = flow.getBalance(defaultStreamId);
@@ -82,11 +81,10 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
 
         // It should return the actual withdrawn amount.
         assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawAmount, "withdrawn amount");
-        assertEq(vars.actualProtocolFeeAmount, 0, "protocol fee amount");
 
         // It should decrease the aggregate amount.
         assertEq(
-            flow.aggregateBalance(usdc), vars.previousAggregateAmount - vars.expectedWithdrawAmount, "aggregate amount"
+            flow.aggregateAmount(usdc), vars.previousAggregateAmount - vars.expectedWithdrawAmount, "aggregate amount"
         );
     }
 }

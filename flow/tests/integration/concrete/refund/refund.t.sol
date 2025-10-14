@@ -142,7 +142,7 @@ contract Refund_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     }
 
     function _test_Refund(uint256 streamId, IERC20 token, uint128 depositedAmount, uint128 refundAmount) private {
-        uint256 previousAggregateAmount = flow.aggregateBalance(token);
+        uint256 previousAggregateAmount = flow.aggregateAmount(token);
 
         // It should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(token) });
@@ -155,7 +155,7 @@ contract Refund_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransfer({ token: token, to: users.sender, amount: refundAmount });
+        expectCallToTransfer({ token: token, to: users.sender, value: refundAmount });
         flow.refund({ streamId: streamId, amount: refundAmount });
 
         // It should update the stream balance.
@@ -164,6 +164,6 @@ contract Refund_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
         // It should decrease the aggregate amount.
-        assertEq(flow.aggregateBalance(token), previousAggregateAmount - refundAmount, "aggregate amount");
+        assertEq(flow.aggregateAmount(token), previousAggregateAmount - refundAmount, "aggregate amount");
     }
 }

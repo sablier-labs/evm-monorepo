@@ -22,10 +22,6 @@ Payable_Integration_Concrete_Test::depositAndPause
 └── when ETH value not zero
    └── it should make the call
 
-Payable_Integration_Concrete_Test::depositViaBroker
-└── when ETH value not zero
-   └── it should make the call
-
 Payable_Integration_Concrete_Test::pause
 └── when ETH value not zero
    └── it should make the call

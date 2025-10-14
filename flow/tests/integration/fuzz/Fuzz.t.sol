@@ -15,7 +15,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     // 40% of fuzz tests will load input parameters from the below fixtures.
-    address[4] public fixtureCaller = [users.sender, users.recipient, users.operator, users.eve];
+    address[4] public fixtureCaller;
     uint256[19] public fixtureStreamId;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -28,6 +28,9 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
 
         // Create streams with all possible decimals.
         _setupStreamsWithAllDecimals();
+
+        // Initialize the fixture array.
+        fixtureCaller = [users.sender, users.recipient, users.operator, users.eve];
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -48,8 +51,11 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
             // If not, create a new stream.
             decimals = boundUint8(decimals, 0, 18);
 
+            uint256 startTimeSeed = uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals)));
+            uint40 startTime = uint40(bound(startTimeSeed, getBlockTimestamp() - 10 weeks, getBlockTimestamp()));
+
             // Create stream.
-            (token, streamId) = createTokenAndStream(decimals);
+            (token, streamId) = createTokenAndStream(startTime, decimals);
 
             // Hash the next stream ID and the decimal to generate a seed.
             uint128 amountSeed = uint128(uint256(keccak256(abi.encodePacked(flow.nextStreamId(), decimals))));
@@ -74,7 +80,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
         if (timeJump % 2 != 0) {
             return users.recipient;
         } else {
-            resetPrank({ msgSender: users.recipient });
+            setMsgSender(users.recipient);
             flow.approve({ to: users.operator, tokenId: streamId });
             return users.operator;
         }
@@ -83,7 +89,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
     function _setupStreamsWithAllDecimals() private {
         for (uint8 decimal; decimal < 19; ++decimal) {
             // Create token, create stream and deposit.
-            (token, fixtureStreamId[decimal]) = createTokenAndStream(decimal);
+            (token, fixtureStreamId[decimal]) = createTokenAndStream(ZERO, decimal);
 
             depositDefaultAmount(fixtureStreamId[decimal]);
         }

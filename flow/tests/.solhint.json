@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "avoid-low-level-calls": "off",
+    "contract-name-capwords": "off",
+    "func-name-mixedcase": "off",
+    "gas-calldata-parameters": "off",
+    "gas-custom-errors": "off",
+    "gas-increment-by-one": "off",
+    "no-empty-blocks": "off",
+    "one-contract-per-file": "off"
+  }
+}

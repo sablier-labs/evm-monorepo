@@ -4,12 +4,12 @@ pragma solidity >=0.8.22;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
+import { Flow } from "src/types/DataTypes.sol";
 
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
 contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// @dev It should revert.
-    /// - It should pause the stream.
     /// - It should set rate per second to 0.
     /// - It should set ongoing debt to 0 and keep the total debt unchanged.
     /// - It should emit the following events: {MetadataUpdate}, {VoidFlowStream}
@@ -38,14 +38,13 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vm.warp({ newTimestamp: timeJump });
 
         // Prank to either recipient or operator.
-        resetPrank({ msgSender: useRecipientOrOperator(streamId, timeJump) });
+        setMsgSender(useRecipientOrOperator(streamId, timeJump));
 
         // Void the stream.
         flow.void(streamId);
     }
 
     /// @dev Checklist:
-    /// - It should pause the stream.
     /// - It should set rate per second to 0.
     /// - It should set ongoing debt to 0, uncovered debt to 0, and total debt to the stream balance.
     /// - It should emit the following events: {MetadataUpdate}, {VoidFlowStream}
@@ -67,7 +66,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Bound the time jump so that it exceeds depletion timestamp.
         uint40 depletionTime = uint40(flow.depletionTimeOf(streamId));
-        timeJump = boundUint40(timeJump, depletionTime + 1, UINT40_MAX);
+        timeJump = boundUint40(timeJump, depletionTime + 1, MAX_UINT40);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: timeJump });
@@ -77,14 +76,13 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Prank to either recipient or operator.
         address caller = useRecipientOrOperator(streamId, timeJump);
-        resetPrank({ msgSender: caller });
+        setMsgSender(caller);
 
         // Void the stream.
         _test_Void(caller, streamId);
     }
 
     /// @dev Checklist:
-    /// - It should pause the stream.
     /// - It should set rate per second to 0.
     /// - It should set ongoing debt to 0, uncovered debt to 0, and total debt to the stream balance.
     /// - It should emit the following events: {MetadataUpdate}, {VoidFlowStream}
@@ -107,14 +105,14 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Bound the time jump so that it exceeds depletion timestamp.
         uint40 depletionTime = uint40(flow.depletionTimeOf(streamId));
-        timeJump = boundUint40(timeJump, depletionTime + 1, UINT40_MAX);
+        timeJump = boundUint40(timeJump, depletionTime + 1, MAX_UINT40);
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: timeJump });
 
         // Prank to either recipient or operator.
         address caller = useRecipientOrOperator(streamId, timeJump);
-        resetPrank({ msgSender: caller });
+        setMsgSender(caller);
 
         // Void the stream.
         _test_Void(caller, streamId);
@@ -152,7 +150,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Assert the checklist.
         assertTrue(flow.isVoided(streamId), "voided");
-        assertTrue(flow.isPaused(streamId), "paused");
+        assertEq(flow.statusOf(streamId), Flow.Status.VOIDED, "status");
         assertEq(flow.getRatePerSecond(streamId), 0, "rate per second");
         assertEq(flow.ongoingDebtScaledOf(streamId), 0, "ongoing debt");
         assertEq(flow.uncoveredDebtOf(streamId), 0, "uncovered debt");

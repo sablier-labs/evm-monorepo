@@ -1,20 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { Users } from "./Types.sol";
+import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
+
 import { Utils } from "./Utils.sol";
 
-abstract contract Modifiers is Utils {
-    /*//////////////////////////////////////////////////////////////////////////
-                                     VARIABLES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    Users private users;
-
-    function setVariables(Users memory _users) public {
-        users = _users;
-    }
-
+abstract contract Modifiers is EvmUtilsBase, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                        COMMON
     //////////////////////////////////////////////////////////////////////////*/
@@ -31,12 +22,16 @@ abstract contract Modifiers is Utils {
         _;
     }
 
+    modifier givenNotPending() {
+        _;
+    }
+
     modifier givenNotVoided() {
         _;
     }
 
-    modifier whenCallerAdmin() {
-        resetPrank({ msgSender: users.admin });
+    modifier whenCallerComptroller() {
+        setMsgSender(address(comptroller));
         _;
     }
 
@@ -57,26 +52,26 @@ abstract contract Modifiers is Utils {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                               ADJUST-RATE-PER-SECOND
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenNewRatePerSecondNotEqualsCurrentRatePerSecond() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    COLLECT-FEES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenAdminIsContract() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                        CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier whenRatePerSecondZero() {
+        _;
+    }
+
+    modifier whenRatePerSecondNotZero() {
+        _;
+    }
+
     modifier whenSenderNotAddressZero() {
+        _;
+    }
+
+    modifier whenStartTimeInThePast() {
+        _;
+    }
+
+    modifier whenStartTimeNotZero() {
         _;
     }
 
@@ -88,6 +83,10 @@ abstract contract Modifiers is Utils {
         _;
     }
 
+    modifier whenTokenNotNativeToken() {
+        _;
+    }
+
     modifier whenRecipientNotAddressZero() {
         _;
     }
@@ -95,14 +94,6 @@ abstract contract Modifiers is Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                       DEPOSIT
     //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenBrokerAddressNotZero() {
-        _;
-    }
-
-    modifier whenBrokerFeeNotGreaterThanMaxFee() {
-        _;
-    }
 
     modifier whenDepositAmountNotZero() {
         _;
@@ -116,7 +107,11 @@ abstract contract Modifiers is Utils {
         _;
     }
 
-    modifier whenTotalAmountNotZero() {
+    /*//////////////////////////////////////////////////////////////////////////
+                                       PAUSE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenStarted() {
         _;
     }
 
@@ -160,10 +155,6 @@ abstract contract Modifiers is Utils {
         _;
     }
 
-    modifier givenProtocolFeeZero() {
-        _;
-    }
-
     modifier whenAmountGreaterThanSnapshotDebt() {
         _;
     }
@@ -176,6 +167,10 @@ abstract contract Modifiers is Utils {
         _;
     }
 
+    modifier whenFeeNotLessThanMinFee() {
+        _;
+    }
+
     modifier whenWithdrawalAddressNotOwner() {
         _;
     }
@@ -185,6 +180,14 @@ abstract contract Modifiers is Utils {
     }
 
     modifier whenWithdrawalAddressOwner() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  SET-NATIVE-TOKEN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier whenProvidedAddressNotZero() {
         _;
     }
 }

@@ -1,8 +1,8 @@
 {
   "name": "@sablier/flow",
-  "description": "Flow smart contracts of the Sablier token distribution protocol",
-  "license": "BUSL-1.1",
-  "version": "1.1.1",
+  "description": "EVM smart contracts of the Sablier Flow token distribution protocol",
+  "license": "SEE LICENSE IN LICENSE",
+  "version": "2.0.0",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
@@ -11,21 +11,25 @@
     "url": "https://github.com/sablier-labs/flow/issues"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "5.0.2",
-    "@prb/math": "4.1.0"
+    "@openzeppelin/contracts": "5.3.0",
+    "@prb/math": "4.1.0",
+    "@sablier/evm-utils": "1.0.0"
   },
   "devDependencies": {
-    "forge-std": "github:foundry-rs/forge-std#v1.8.2",
-    "husky": "^9.1.4",
-    "lint-staged": "^15.2.8",
-    "prettier": "^3.3.2",
+    "@sablier/devkit": "github:sablier-labs/devkit",
+    "forge-std": "github:foundry-rs/forge-std#v1.10.0",
+    "husky": "^9.1",
+    "lint-staged": "^16.1",
+    "prettier": "^3.5",
     "solady": "0.0.208",
-    "solhint": "^5.0.3"
+    "solhint": "^6.0"
   },
   "files": [
     "artifacts",
     "src",
     "tests/utils",
+    "LICENSE.md",
+    "LICENSE-BUSL.md",
     "LICENSE-GPL.md"
   ],
   "keywords": [
@@ -34,7 +38,6 @@
     "blockchain",
     "crypto",
     "cryptoasset-streaming",
-    "cryptotoken-streaming",
     "ethereum",
     "forge",
     "foundry",
@@ -54,21 +57,12 @@
   "publishConfig": {
     "access": "public"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sablier-labs/flow.git"
+  },
   "scripts": {
-    "benchmark": "bun run build:optimized && FOUNDRY_PROFILE=benchmark forge test --mt testGas && bun run prettier:write",
-    "build": "forge build",
-    "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
-    "clean": "rm -rf artifacts broadcast cache docs out out-optimized out-svg",
-    "lint": "bun run lint:sol && bun run prettier:check",
-    "lint:fix": "bun run lint:sol:fix && forge fmt",
-    "lint:sol": "forge fmt --check && bun solhint \"{benchmark,script,src,tests}/**/*.sol\"",
-    "lint:sol:fix": "bun solhint \"{benchmark,script,src,tests}/**/*.sol\" --fix --noPrompt",
-    "prepack": "bun install && bash ./shell/prepare-artifacts.sh",
-    "prepare": "husky",
-    "prettier:check": "prettier --check \"**/*.{json,md,svg,yml}\"",
-    "prettier:write": "prettier --write \"**/*.{json,md,svg,yml}\"",
-    "test": "forge test",
-    "test:lite": "FOUNDRY_PROFILE=lite forge test --nmt \"testFork\"",
-    "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
+    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh",
+    "setup": "husky"
   }
 }

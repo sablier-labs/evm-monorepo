@@ -10,80 +10,74 @@ contract Payable_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         Shared_Integration_Concrete_Test.setUp();
         depositToDefaultStream();
 
-        vm.warp({ newTimestamp: ONE_MONTH_SINCE_START });
+        vm.warp({ newTimestamp: ONE_MONTH_SINCE_CREATE });
 
         // Make the sender the caller.
-        resetPrank({ msgSender: users.sender });
+        setMsgSender(users.sender);
     }
 
     function test_AdjustRatePerSecond_WhenETHValueNotZero() external {
-        flow.adjustRatePerSecond{ value: FEE }(defaultStreamId, ud21x18(RATE_PER_SECOND_U128 + 1));
+        flow.adjustRatePerSecond{ value: FLOW_MIN_FEE_WEI }(defaultStreamId, ud21x18(RATE_PER_SECOND_U128 + 1));
     }
 
     function test_Batch_WhenETHValueNotZero() external {
         bytes[] memory calls = new bytes[](0);
-        flow.batch{ value: FEE }(calls);
+        flow.batch{ value: FLOW_MIN_FEE_WEI }(calls);
     }
 
     function test_Create_WhenETHValueNotZero() external {
-        flow.create{ value: FEE }(users.sender, users.recipient, RATE_PER_SECOND, usdc, TRANSFERABLE);
+        flow.create{ value: FLOW_MIN_FEE_WEI }(users.sender, users.recipient, RATE_PER_SECOND, ZERO, usdc, TRANSFERABLE);
     }
 
     function test_CreateAndDeposit_WhenETHValueNotZero() external {
-        flow.createAndDeposit{ value: FEE }(
-            users.sender, users.recipient, RATE_PER_SECOND, usdc, TRANSFERABLE, DEPOSIT_AMOUNT_6D
+        flow.createAndDeposit{ value: FLOW_MIN_FEE_WEI }(
+            users.sender, users.recipient, RATE_PER_SECOND, ZERO, usdc, TRANSFERABLE, DEPOSIT_AMOUNT_6D
         );
     }
 
     function test_Deposit_WhenETHValueNotZero() external {
-        flow.deposit{ value: FEE }(defaultStreamId, DEPOSIT_AMOUNT_6D, users.sender, users.recipient);
+        flow.deposit{ value: FLOW_MIN_FEE_WEI }(defaultStreamId, DEPOSIT_AMOUNT_6D, users.sender, users.recipient);
     }
 
     function test_DepositAndPause_WhenETHValueNotZero() external {
-        flow.depositAndPause{ value: FEE }(defaultStreamId, DEPOSIT_AMOUNT_6D);
-    }
-
-    function test_DepositViaBroker_WhenETHValueNotZero() external {
-        flow.depositViaBroker{ value: FEE }(
-            defaultStreamId, DEPOSIT_AMOUNT_6D, users.sender, users.recipient, defaultBroker
-        );
+        flow.depositAndPause{ value: FLOW_MIN_FEE_WEI }(defaultStreamId, DEPOSIT_AMOUNT_6D);
     }
 
     function test_Pause_WhenETHValueNotZero() external {
-        flow.pause{ value: FEE }(defaultStreamId);
+        flow.pause{ value: FLOW_MIN_FEE_WEI }(defaultStreamId);
     }
 
     function test_Refund_WhenETHValueNotZero() external {
-        flow.refund{ value: FEE }(defaultStreamId, REFUND_AMOUNT_6D);
+        flow.refund{ value: FLOW_MIN_FEE_WEI }(defaultStreamId, REFUND_AMOUNT_6D);
     }
 
     function test_RefundAndPause_WhenETHValueNotZero() external {
-        flow.refundAndPause{ value: FEE }(defaultStreamId, REFUND_AMOUNT_6D);
+        flow.refundAndPause{ value: FLOW_MIN_FEE_WEI }(defaultStreamId, REFUND_AMOUNT_6D);
     }
 
     function test_RefundMax_WhenETHValueNotZero() external {
-        flow.refundMax{ value: FEE }(defaultStreamId);
+        flow.refundMax{ value: FLOW_MIN_FEE_WEI }(defaultStreamId);
     }
 
     function test_Restart_WhenETHValueNotZero() external {
         flow.pause(defaultStreamId);
-        flow.restart{ value: FEE }(defaultStreamId, RATE_PER_SECOND);
+        flow.restart{ value: FLOW_MIN_FEE_WEI }(defaultStreamId, RATE_PER_SECOND);
     }
 
     function test_RestartAndDeposit_WhenETHValueNotZero() external {
         flow.pause(defaultStreamId);
-        flow.restartAndDeposit{ value: FEE }(defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT_6D);
+        flow.restartAndDeposit{ value: FLOW_MIN_FEE_WEI }(defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT_6D);
     }
 
     function test_Void_WhenETHValueNotZero() external {
-        flow.void{ value: FEE }(defaultStreamId);
+        flow.void{ value: FLOW_MIN_FEE_WEI }(defaultStreamId);
     }
 
     function test_Withdraw_WhenETHValueNotZero() external {
-        flow.withdraw{ value: FEE }(defaultStreamId, users.recipient, WITHDRAW_AMOUNT_6D);
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }(defaultStreamId, users.recipient, WITHDRAW_AMOUNT_6D);
     }
 
     function test_WithdrawMax_WhenETHValueNotZero() external {
-        flow.withdrawMax{ value: FEE }(defaultStreamId, users.recipient);
+        flow.withdrawMax{ value: FLOW_MIN_FEE_WEI }(defaultStreamId, users.recipient);
     }
 }

@@ -2,19 +2,17 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Test } from "forge-std/src/Test.sol";
+import { ERC20Mock } from "@sablier/evm-utils/src/mocks/erc20/ERC20Mock.sol";
+import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { FlowNFTDescriptor } from "src/FlowNFTDescriptor.sol";
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { SablierFlow } from "src/SablierFlow.sol";
-import { ERC20MissingReturn } from "./mocks/ERC20MissingReturn.sol";
-import { ERC20Mock } from "./mocks/ERC20Mock.sol";
-import { ContractWithoutReceive, ContractWithReceive } from "./mocks/Receive.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
 import { Users } from "./utils/Types.sol";
 import { Vars } from "./utils/Vars.sol";
 
-abstract contract Base_Test is Assertions, Modifiers, Test {
+abstract contract Base_Test is Assertions, Modifiers {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -26,14 +24,6 @@ abstract contract Base_Test is Assertions, Modifiers, Test {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ContractWithoutReceive internal contractWithoutReceive;
-    ContractWithReceive internal contractWithReceive;
-    ERC20Mock internal dai;
-    ERC20Mock internal tokenWithoutDecimals;
-    ERC20Mock internal tokenWithProtocolFee;
-    ERC20Mock internal usdc;
-    ERC20MissingReturn internal usdt;
-
     ISablierFlow internal flow;
     FlowNFTDescriptor internal nftDescriptor;
 
@@ -41,91 +31,48 @@ abstract contract Base_Test is Assertions, Modifiers, Test {
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public virtual {
-        users.admin = payable(makeAddr("admin"));
+    function setUp() public virtual override {
+        EvmUtilsBase.setUp();
 
-        if (!isBenchmarkProfile() && !isTestOptimizedProfile()) {
+        if (!isTestOptimizedProfile()) {
             nftDescriptor = new FlowNFTDescriptor();
-            flow = new SablierFlow(users.admin, nftDescriptor);
+            flow = new SablierFlow(address(comptroller), address(nftDescriptor));
         } else {
             flow = deployOptimizedSablierFlow();
         }
 
-        contractWithoutReceive = new ContractWithoutReceive();
-        contractWithReceive = new ContractWithReceive();
-
         // Label the contracts.
         vm.label({ account: address(flow), newLabel: "Flow" });
-        vm.label({ account: address(contractWithoutReceive), newLabel: "Contract without Receive" });
-        vm.label({ account: address(contractWithReceive), newLabel: "Contract with Receive" });
 
-        // Create new tokens and label them.
-        createAndLabelTokens();
+        // Deploy the token without decimals and push it to the tokens array from CommonBase.
+        IERC20 tokenWithoutDecimals = new ERC20Mock("Token Without Decimals", "TWD", 0);
+        tokens.push(tokenWithoutDecimals);
 
-        // Turn on the protocol fee for tokenWithProtocolFee.
-        resetPrank(users.admin);
-        flow.setProtocolFee(tokenWithProtocolFee, PROTOCOL_FEE);
+        // Create users for testing.
+        createTestUsers();
 
-        // Create the users.
-        users.broker = createUser("broker");
-        users.eve = createUser("eve");
-        users.operator = createUser("operator");
-        users.recipient = createUser("recipient");
-        users.sender = createUser("sender");
+        setMsgSender(users.sender);
 
-        // Set the variables in Modifiers contract.
-        setVariables(users);
-
-        resetPrank(users.sender);
-
-        // Warp to May 1, 2024 at 00:00 GMT to provide a more realistic testing environment.
-        vm.warp({ newTimestamp: OCT_1_2024 });
+        // Warp to Feb 1, 2025 at 00:00 UTC to provide a more realistic testing environment.
+        vm.warp({ newTimestamp: FEB_1_2025 });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Create new tokens and label them.
-    function createAndLabelTokens() internal {
-        // Deploy the tokens.
-        tokenWithoutDecimals = createToken("Token without Decimals", "TWD", 0);
-        tokenWithProtocolFee = createToken("Token with Protocol Fee", "TPF", 6);
-        dai = createToken("Dai stablecoin", "DAI", 18);
-        usdc = createToken("USD Coin", "USDC", 6);
-        usdt = new ERC20MissingReturn("Tether", "USDT", 6);
+    /// @dev Create users for testing and assign roles if applicable.
+    function createTestUsers() internal {
+        // Create users for testing. Note that due to ERC-20 approvals, this has to go after the protocol deployment.
+        address[] memory spenders = new address[](1);
+        spenders[0] = address(flow);
 
-        // Label the tokens.
-        vm.label(address(tokenWithoutDecimals), "TWD");
-        vm.label(address(tokenWithProtocolFee), "TPF");
-        vm.label(address(dai), "DAI");
-        vm.label(address(usdc), "USDC");
-        vm.label(address(usdt), "USDT");
-    }
-
-    /// @dev Creates a new ERC-20 token with `decimals`.
-    function createToken(uint8 decimals) internal returns (ERC20Mock) {
-        return createToken("", "", decimals);
-    }
-
-    /// @dev Creates a new ERC-20 token with `name`, `symbol` and `decimals`.
-    function createToken(string memory name, string memory symbol, uint8 decimals) internal returns (ERC20Mock) {
-        return new ERC20Mock(name, symbol, decimals);
-    }
-
-    function createUser(string memory name) internal returns (address payable) {
-        address payable user = payable(makeAddr(name));
-        vm.deal({ account: user, newBalance: 100 ether });
-        deal({ token: address(tokenWithoutDecimals), to: user, give: 1_000_000 });
-        deal({ token: address(tokenWithProtocolFee), to: user, give: 1_000_000e6 });
-        deal({ token: address(dai), to: user, give: 1_000_000e18 });
-        deal({ token: address(usdc), to: user, give: 1_000_000e6 });
-        deal({ token: address(usdt), to: user, give: 1_000_000e6 });
-        resetPrank(user);
-        dai.approve({ spender: address(flow), value: UINT256_MAX });
-        usdc.approve({ spender: address(flow), value: UINT256_MAX });
-        usdt.approve({ spender: address(flow), value: UINT256_MAX });
-        return user;
+        // Create test users.
+        users.accountant = createUser("Accountant", spenders);
+        users.eve = createUser("eve", spenders);
+        users.operator = createUser("operator", spenders);
+        users.recipient = createUser("recipient", spenders);
+        users.sender = createUser("sender", spenders);
     }
 
     /// @dev Deploys {SablierFlow} from an optimized source compiled with `--via-ir`.
@@ -134,32 +81,9 @@ abstract contract Base_Test is Assertions, Modifiers, Test {
 
         return SablierFlow(
             deployCode(
-                "out-optimized/SablierFlow.sol/SablierFlow.json", abi.encode(users.admin, address(nftDescriptor))
+                "out-optimized/SablierFlow.sol/SablierFlow.json",
+                abi.encode(address(comptroller), address(nftDescriptor))
             )
         );
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CALL EXPECTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Expects a call to {IERC20.transfer}.
-    function expectCallToTransfer(address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
-    }
-
-    /// @dev Expects a call to {IERC20.transfer}.
-    function expectCallToTransfer(IERC20 token, address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(token), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
-    }
-
-    /// @dev Expects a call to {IERC20.transferFrom}.
-    function expectCallToTransferFrom(address from, address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
-    }
-
-    /// @dev Expects a call to {IERC20.transferFrom}.
-    function expectCallToTransferFrom(IERC20 token, address from, address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(token), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
     }
 }

@@ -17,7 +17,7 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 
 Sablier Flow is a debt tracking protocol that tracks tokens owed between two parties, enabling open-ended token
 streaming. A Flow stream is characterized by its rate per second (rps). The relationship between the amount owed and
-time elapsed is linear is be defined as:
+time elapsed is linear and defined as:
 
 ```math
 \text{amount owed} = rps \cdot \text{elapsed time}
@@ -52,14 +52,6 @@ Install Flow using your favorite package manager, e.g. with Bun:
 bun add @sablier/flow
 ```
 
-Then, if you are using Foundry, you need to add these to your `remappings.txt` file:
-
-```text
-@sablier/flow/=node_modules/@sablier/flow/
-@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
-@prb/math/=node_modules/@prb/math/
-```
-
 ### Git Submodules
 
 This installation method is not recommended, but it is available for those who prefer it.
@@ -67,21 +59,13 @@ This installation method is not recommended, but it is available for those who p
 Install the submodule using Forge:
 
 ```shell
-forge install --no-commit sablier-labs/flow
+forge install sablier-labs/flow
 ```
 
 Then, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math#95f00b2
-```
-
-Finally, add these to your `remappings.txt` file:
-
-```text
-@sablier/flow/=lib/flow/
-@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-@prb/math/=lib/prb-math/
+forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
 ```
 
 ### Branching Tree Technique
@@ -91,8 +75,7 @@ Technique and [Bulloak](https://bulloak.dev/).
 
 ## Usage
 
-This is just a glimpse of Sablier Flow. For more guides and examples, see the [documentation](https://docs.sablier.com)
-and the [technical file](./TECHNICAL-DOC.md).
+This is just a glimpse of Sablier Flow. For more guides and examples, see the [documentation](https://docs.sablier.com).
 
 ```solidity
 import { ISablierFlow } from "@sablier/flow/src/interfaces/ISablierFlow.sol";
@@ -130,10 +113,4 @@ Refer to [CONTRIBUTING](./CONTRIBUTING.md) guidelines if you wish to create a PR
 
 ## License
 
-The primary license for Sablier Flow is the Business Source License 1.1 (`BUSL-1.1`), see [`LICENSE.md`](./LICENSE.md).
-However, there are exceptions:
-
-- All files in `src/` with the exception of `SablierFlow.sol` are licensed under `GPL-3.0-or-later`. Refer to
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md) for preamble.
-- All files in `script/` are licensed under `GPL-3.0-or-later`.
-- All files in `tests/` are unlicensed (as indicated in their SPDX headers).
+See [LICENSE.md](./LICENSE.md).

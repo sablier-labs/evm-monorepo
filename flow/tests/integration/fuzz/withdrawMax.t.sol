@@ -36,12 +36,12 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Prank to either recipient or operator.
         address caller = useRecipientOrOperator(streamId, timeJump);
-        resetPrank({ msgSender: caller });
+        setMsgSender(caller);
 
         // Withdraw the tokens.
         _test_WithdrawMax(caller, withdrawTo, streamId);
@@ -74,11 +74,11 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Bound the time jump to provide a realistic time frame.
         timeJump = boundUint40(timeJump, 0 seconds, 100 weeks);
 
-        // Simulate the passage of time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + timeJump });
+        // Skip forward by `timeJump`.
+        skip(timeJump);
 
         // Prank the caller and withdraw the tokens.
-        resetPrank(caller);
+        setMsgSender(caller);
         _test_WithdrawMax(caller, users.recipient, streamId);
     }
 
@@ -89,7 +89,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             vm.warp({ newTimestamp: uint40(flow.depletionTimeOf(streamId)) - 1 });
         }
 
-        vars.previousAggregateAmount = flow.aggregateBalance(token);
+        vars.previousAggregateAmount = flow.aggregateAmount(token);
         vars.previousTotalDebt = flow.totalDebtOf(streamId);
         vars.previousTokenBalance = token.balanceOf(address(flow));
         vars.previousStreamBalance = flow.getBalance(streamId);
@@ -108,7 +108,6 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             to: withdrawTo,
             token: token,
             caller: caller,
-            protocolFeeAmount: 0,
             withdrawAmount: withdrawAmount
         });
 
@@ -116,11 +115,10 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Withdraw the tokens.
-        (vars.actualWithdrawnAmount, vars.actualProtocolFeeAmount) = flow.withdrawMax(streamId, withdrawTo);
+        vars.actualWithdrawnAmount = flow.withdrawMax{ value: FLOW_MIN_FEE_WEI }(streamId, withdrawTo);
 
         // Check the return values.
         assertEq(vars.actualWithdrawnAmount, withdrawAmount, "withdrawn amount");
-        assertEq(vars.actualProtocolFeeAmount, 0, "protocol fee amount");
 
         assertEq(flow.ongoingDebtScaledOf(streamId), 0, "ongoing debt");
 
@@ -153,7 +151,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "token balance");
 
         // Assert that aggregate amount has been updated.
-        vars.actualAggregateAmount = flow.aggregateBalance(token);
+        vars.actualAggregateAmount = flow.aggregateAmount(token);
         vars.expectedAggregateAmount = vars.previousAggregateAmount - withdrawAmount;
         assertEq(vars.actualAggregateAmount, vars.expectedAggregateAmount, "aggregate amount");
     }
