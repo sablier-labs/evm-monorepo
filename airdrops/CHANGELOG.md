@@ -3,8 +3,15 @@
 All notable changes to this project will be documented in this file. The format is based on
 [Common Changelog](https://common-changelog.org/).
 
+[2.0.1]: https://github.com/sablier-labs/airdrops/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/sablier-labs/airdrops/compare/v1.3.0...v2.0.0
 [1.3.0]: https://github.com/sablier-labs/airdrops/releases/tag/v1.3.0
+
+## [2.0.1] - 2025-10-14
+
+### Changed
+
+- Bump package version for NPM release ([#188](https://github.com/sablier-labs/airdrops/pull/188))
 
 ## [2.0.0] - 2025-10-08
 
