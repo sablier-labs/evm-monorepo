@@ -15,25 +15,31 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 - **Breaking:** Replace admin with comptroller ([#451](https://github.com/sablier-labs/flow/pull/451),
   [#454](https://github.com/sablier-labs/flow/pull/454))
+- **Breaking**: Adjusting rate per second is no longer allowed with 0 value
+  ([#392](https://github.com/sablier-labs/flow/pull/392))
 - Rename `aggregateBalance` to `aggregateAmount` ([#418](https://github.com/sablier-labs/flow/pull/418))
+- Rename `SablierFlowBase` to `SablierFlowState` ([#446](https://github.com/sablier-labs/flow/pull/446))
 - Bump Solidity compiler version 0.8.29 ([#403](https://github.com/sablier-labs/flow/pull/403))
 - Bump `@openzeppelin/contracts` from 5.0.2 to 5.3.0
 
 ### Added
 
-- Add support for creating streams with a specific start time ([#392](https://github.com/sablier-labs/flow/pull/392))
+- Add support for creating streams with a start time ([#392](https://github.com/sablier-labs/flow/pull/392))
+- Add `PENDING` status ([#392](https://github.com/sablier-labs/flow/pull/392))
 - Add token transfer wrapper functionality ([#391](https://github.com/sablier-labs/flow/pull/391))
 - Function to calculate minimum fee in wei ([#454](https://github.com/sablier-labs/flow/pull/454))
 - Emit creator address in stream creation events ([#456](https://github.com/sablier-labs/flow/pull/456))
 - Return refunded amount on `refundMax` function ([#445](https://github.com/sablier-labs/flow/pull/445))
+- ERC20 recovery functionality ([#446](https://github.com/sablier-labs/flow/pull/446))
+- `getRecipient` function to retrieve stream recipient ([#446](https://github.com/sablier-labs/flow/pull/446))
 - Add `@sablier/evm-utils` dependency
 
 ### Removed
 
 - **Breaking:** Remove the protocol fee in underlying token ([#385](https://github.com/sablier-labs/flow/pull/385))
 - **Breaking:** Remove broker fee functionality ([#384](https://github.com/sablier-labs/flow/pull/384))
+- **Breaking:** Remove return value from `withdraw` function ([#385](https://github.com/sablier-labs/flow/pull/385))
 - Remove `isPaused` getter function ([#440](https://github.com/sablier-labs/flow/pull/440))
-- Rename `SablierFlowBase` to `SablierFlowState` ([#446](https://github.com/sablier-labs/flow/pull/446))
 - Remove `Adminable` and `Batch` contracts (moved to` @sablier/evm-utils`)
 
 ## [1.1.1] - 2025-02-05

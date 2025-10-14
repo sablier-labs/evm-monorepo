@@ -120,7 +120,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
             streamId = _bound(streamId, initialStreamId, finalStreamId - 1);
 
             // For certain functions, we need to find a non-voided stream ID.
-            streamId = _findNonVoidedStreamId(streamId, initialStreamId);
+            streamId = _findNonVoidedStreamId(streamId);
 
             // Execute the flow function mentioned in flowFunc[i].
             _executeFunc(
@@ -177,7 +177,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
 
     /// @notice Find the first non-voided stream ID with the same token.
     /// @dev If no non-voided stream is found, it will create a new stream.
-    function _findNonVoidedStreamId(uint256 streamId, uint256 initialStreamId) private returns (uint256) {
+    function _findNonVoidedStreamId(uint256 streamId) private returns (uint256) {
         // Check if the current stream ID is voided.
         if (flow.isVoided(streamId)) {
             bool found = false;
@@ -291,7 +291,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.CreateFlowStream({
             streamId: vars.expectedStreamId,
-            creator: users.sender,
+            creator: sender,
             token: FORK_TOKEN,
             sender: sender,
             recipient: recipient,
@@ -300,6 +300,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
             snapshotTime: getBlockTimestamp()
         });
 
+        setMsgSender(sender);
         vars.actualStreamId = flow.create{ value: FLOW_MIN_FEE_WEI }({
             recipient: recipient,
             sender: sender,

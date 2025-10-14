@@ -3,10 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
-
-import { BaseScript } from "./Base.s.sol";
 
 interface IERC20Mint {
     function mint(address beneficiary, uint256 value) external;

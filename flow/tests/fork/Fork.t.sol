@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
@@ -28,18 +29,17 @@ abstract contract Fork_Test is Base_Test {
 
     function setUp() public virtual override {
         // Fork Ethereum Mainnet at the latest block number.
-        // TODO: uncomment the following line after deployment.
-        // vm.createSelectFork({ urlOrAlias: "ethereum" });
+        vm.createSelectFork({ urlOrAlias: "ethereum" });
 
-        // TODO: update the flow contract address once deployed and uncomment the following lines.
         // Load mainnet address.
-        // flow = ISablierFlow(0x3DF2AAEdE81D2F6b261F79047517713B8E844E04);
-        // Label the flow contract.
-        // vm.label(address(flow), "Flow");
+        flow = ISablierFlow(0x7a86d3e6894f9c5B5f25FFBDAaE658CFc7569623);
 
-        // TODO: comment the following two lines after deployment.
-        Base_Test.setUp();
-        vm.etch(address(FORK_TOKEN), address(usdc).code);
+        // Label the flow contract.
+        vm.label(address(flow), "Flow");
+
+        // We need these in case we work on a new iteration.
+        // Base_Test.setUp();
+        // vm.etch(address(FORK_TOKEN), address(usdc).code);
 
         // Label the token.
         vm.label({ account: address(FORK_TOKEN), newLabel: IERC20Metadata(address(FORK_TOKEN)).symbol() });
@@ -52,15 +52,8 @@ abstract contract Fork_Test is Base_Test {
     /// @notice Checks the fuzzed users.
     /// @dev The reason for not using `vm.assume` is because the compilation takes longer.
     function checkUsers(address sender, address recipient) internal virtual {
-        // Ensure that flow is not assigned as the fuzzed sender.
-        if (sender == address(flow)) {
-            sender = address(uint160(sender) + 1);
-        }
-
-        // Ensure that flow is not assigned as the fuzzed recipient.
-        if (recipient == address(flow)) {
-            recipient = address(uint160(recipient) + 1);
-        }
+        vm.assume(sender != address(0) && recipient != address(0));
+        vm.assume(sender != address(flow) && recipient != address(flow));
 
         // Avoid users blacklisted by USDC or USDT.
         assumeNoBlacklisted(address(FORK_TOKEN), sender);

@@ -93,7 +93,7 @@ To make CI work in your pull request, ensure that the necessary environment vari
 repository's secrets. Please add the following variable in your GitHub Secrets:
 
 - `MAINNET_RPC_URL`: sign up on [Alchemy](https://alchemy.com/)
-- `ROUTEMESH_API_KEY`
+- `ROUTEMESH_API_KEY`: sign up on [Routemesh](https://routeme.sh/)
 
 ## Integration with VSCode
 
