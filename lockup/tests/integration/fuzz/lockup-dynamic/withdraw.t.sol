@@ -3,11 +3,12 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
-import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
-import { Withdraw_Integration_Fuzz_Test } from "./../lockup-base/withdraw.t.sol";
+import { Withdraw_Integration_Fuzz_Test } from "./../lockup/withdraw.t.sol";
 import { Lockup_Dynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
 /// @dev This contract complements the tests in {Withdraw_Integration_Fuzz_Test} by testing the withdraw function
@@ -29,14 +30,12 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
     struct Vars {
         Lockup.Status actualStatus;
         uint256 actualWithdrawnAmount;
-        Lockup.CreateAmounts createAmounts;
         Lockup.Status expectedStatus;
         uint256 expectedWithdrawnAmount;
         bool isDepleted;
         bool isSettled;
-        address funder;
         uint256 streamId;
-        uint128 totalAmount;
+        uint128 depositAmount;
         uint40 totalDuration;
         uint128 withdrawAmount;
         uint128 withdrawableAmount;
@@ -53,29 +52,27 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         vm.assume(params.segments.length != 0);
         vm.assume(params.to != address(0));
 
-        // Make the Sender the stream's funder (recall that the Sender is the default caller).
         Vars memory vars;
-        vars.funder = users.sender;
 
         // Fuzz the segment timestamps.
         fuzzSegmentTimestamps(params.segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
-        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(params.segments, defaults.BROKER_FEE());
+        vars.depositAmount = fuzzDynamicStreamAmounts(params.segments);
 
         // Bound the time jump.
         vars.totalDuration = params.segments[params.segments.length - 1].timestamp - defaults.START_TIME();
         params.timeJump = _bound(params.timeJump, 1 seconds, vars.totalDuration + 100 seconds);
 
-        // Mint enough tokens to the funder.
-        deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
+        // Mint enough tokens to the sender.
+        deal({ token: address(dai), to: users.sender, give: vars.depositAmount });
 
         // Make the Sender the caller.
-        resetPrank({ msgSender: users.sender });
+        setMsgSender(users.sender);
 
         // Create the stream with the fuzzed segments.
         Lockup.CreateWithTimestamps memory createParams = defaults.createWithTimestamps();
-        createParams.totalAmount = vars.totalAmount;
+        createParams.depositAmount = vars.depositAmount;
         createParams.timestamps.end = params.segments[params.segments.length - 1].timestamp;
 
         vars.streamId = lockup.createWithTimestampsLD(createParams, params.segments);
@@ -94,12 +91,14 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         // Bound the withdraw amount.
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
+
         // Expect the tokens to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: params.to, value: vars.withdrawAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: vars.streamId,
             to: params.to,
             amount: vars.withdrawAmount,
@@ -109,14 +108,18 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         emit IERC4906.MetadataUpdate({ _tokenId: vars.streamId });
 
         // Make the Recipient the caller.
-        resetPrank({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
+        lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({
+            streamId: vars.streamId,
+            to: params.to,
+            amount: vars.withdrawAmount
+        });
 
         // Check if the stream is depleted or settled. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.
-        vars.isDepleted = vars.withdrawAmount == vars.createAmounts.deposit;
+        vars.isDepleted = vars.withdrawAmount == vars.depositAmount;
         vars.isSettled = lockup.refundableAmountOf(vars.streamId) == 0;
 
         // Assert that the stream's status is correct.
@@ -134,5 +137,8 @@ contract Withdraw_Lockup_Dynamic_Integration_Fuzz_Test is
         vars.actualWithdrawnAmount = lockup.getWithdrawnAmount(vars.streamId);
         vars.expectedWithdrawnAmount = vars.withdrawAmount;
         assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the aggregate amount has been updated.
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - vars.actualWithdrawnAmount, "aggregateAmount");
     }
 }

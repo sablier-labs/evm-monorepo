@@ -3,8 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
+import { ISablierLockupLinear } from "src/interfaces/ISablierLockupLinear.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupLinear } from "src/types/LockupLinear.sol";
 
 import { Lockup_Linear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
 
@@ -28,8 +29,6 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
     }
 
     function _test_CreateWithDurations(LockupLinear.Durations memory durations) private {
-        // Make the Sender the stream's funder
-        address funder = users.sender;
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Declare the timestamps.
@@ -45,16 +44,13 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
         }
 
         // It should perform the ERC-20 transfers.
-        expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
-
-        // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({ from: funder, to: users.broker, value: defaults.BROKER_FEE_AMOUNT() });
+        expectCallToTransferFrom({ from: users.sender, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
         // It should emit {CreateLockupLinearStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupLinearStream({
+        emit ISablierLockupLinear.CreateLockupLinearStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(timestamps),
             cliffTime: cliffTime,
@@ -77,8 +73,7 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
         assertEq(lockup.getSender(streamId), users.sender, "sender");
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
-        assertEq(lockup.getUnlockAmounts(streamId).start, _defaultParams.unlockAmounts.start, "unlockAmounts.start");
-        assertEq(lockup.getUnlockAmounts(streamId).cliff, _defaultParams.unlockAmounts.cliff, "unlockAmounts.cliff");
+        assertEq(lockup.getUnlockAmounts(streamId), _defaultParams.unlockAmounts);
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
         // Assert that the stream's status is "STREAMING".

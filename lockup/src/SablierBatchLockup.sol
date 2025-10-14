@@ -7,7 +7,8 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ISablierBatchLockup } from "./interfaces/ISablierBatchLockup.sol";
 import { ISablierLockup } from "./interfaces/ISablierLockup.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { BatchLockup, Lockup } from "./types/DataTypes.sol";
+import { BatchLockup } from "./types/BatchLockup.sol";
+import { Lockup } from "./types/Lockup.sol";
 
 /*
 
@@ -33,7 +34,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-LOCKUP-DYNAMIC
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierBatchLockup
@@ -58,7 +59,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -73,16 +74,18 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithDurations({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    shape: batch[i].shape,
-                    broker: batch[i].broker
+                    shape: batch[i].shape
                 }),
                 batch[i].segmentsWithDuration
             );
         }
+
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -107,7 +110,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -129,22 +132,20 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithTimestamps({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
                     timestamps: Lockup.Timestamps({ start: batch[i].startTime, end: endTime }),
-                    shape: batch[i].shape,
-                    broker: batch[i].broker
+                    shape: batch[i].shape
                 }),
                 batch[i].segments
             );
         }
-    }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-LOCKUP-LINEAR
-    //////////////////////////////////////////////////////////////////////////*/
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
+    }
 
     /// @inheritdoc ISablierBatchLockup
     function createWithDurationsLL(
@@ -168,7 +169,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -183,17 +184,19 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithDurations({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    broker: batch[i].broker,
                     shape: batch[i].shape
                 }),
                 batch[i].unlockAmounts,
                 batch[i].durations
             );
         }
+
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -218,7 +221,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -233,23 +236,21 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithTimestamps({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
                     timestamps: batch[i].timestamps,
-                    shape: batch[i].shape,
-                    broker: batch[i].broker
+                    shape: batch[i].shape
                 }),
                 batch[i].unlockAmounts,
                 batch[i].cliffTime
             );
         }
-    }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                              SABLIER-LOCKUP-TRANCHED
-    //////////////////////////////////////////////////////////////////////////*/
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
+    }
 
     /// @inheritdoc ISablierBatchLockup
     function createWithDurationsLT(
@@ -273,7 +274,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -288,16 +289,18 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithDurations({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
-                    shape: batch[i].shape,
-                    broker: batch[i].broker
+                    shape: batch[i].shape
                 }),
                 batch[i].tranchesWithDuration
             );
         }
+
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -322,7 +325,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
         uint256 transferAmount;
         for (i = 0; i < batchSize; ++i) {
             unchecked {
-                transferAmount += batch[i].totalAmount;
+                transferAmount += batch[i].depositAmount;
             }
         }
 
@@ -344,21 +347,23 @@ contract SablierBatchLockup is ISablierBatchLockup {
                 Lockup.CreateWithTimestamps({
                     sender: batch[i].sender,
                     recipient: batch[i].recipient,
-                    totalAmount: batch[i].totalAmount,
+                    depositAmount: batch[i].depositAmount,
                     token: token,
                     cancelable: batch[i].cancelable,
                     transferable: batch[i].transferable,
                     timestamps: Lockup.Timestamps({ start: batch[i].startTime, end: endTime }),
-                    shape: batch[i].shape,
-                    broker: batch[i].broker
+                    shape: batch[i].shape
                 }),
                 batch[i].tranches
             );
         }
+
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                           INTERNAL STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Helper function to approve a Lockup contract to spend funds from the batchLockup. If the current allowance

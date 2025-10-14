@@ -5,21 +5,18 @@ import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/U
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
+import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 
-import { LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
+import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
+import { LockupLinear } from "../../src/types/LockupLinear.sol";
+import { LockupTranched } from "../../src/types/LockupTranched.sol";
 
-abstract contract Calculations {
+abstract contract Calculations is BaseUtils {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
 
-    /// @dev Calculates the deposit amount by calculating and subtracting the broker fee amount from the total amount.
-    function calculateDepositAmount(uint128 totalAmount, UD60x18 brokerFee) internal pure returns (uint128) {
-        uint128 brokerFeeAmount = ud(totalAmount).mul(brokerFee).intoUint128();
-        return totalAmount - brokerFeeAmount;
-    }
-
-    /// @dev Replicates the logic of {VestingMath.calculateLockupDynamicStreamedAmount}.
-    function calculateLockupDynamicStreamedAmount(
+    /// @dev Replicates the logic of {LockupMath._calculateStreamedAmountLD}.
+    function calculateStreamedAmountLD(
         LockupDynamic.Segment[] memory segments,
         uint40 startTime,
         uint128 depositAmount
@@ -28,7 +25,12 @@ abstract contract Calculations {
         view
         returns (uint128)
     {
-        uint40 blockTimestamp = uint40(block.timestamp);
+        uint40 blockTimestamp = getBlockTimestamp();
+
+        if (startTime >= blockTimestamp) {
+            return 0;
+        }
+
         if (blockTimestamp >= segments[segments.length - 1].timestamp) {
             return depositAmount;
         }
@@ -64,8 +66,8 @@ abstract contract Calculations {
         }
     }
 
-    /// @dev Helper function that replicates the logic of {VestingMath.calculateLockupLinearStreamedAmount}.
-    function calculateLockupLinearStreamedAmount(
+    /// @dev Replicates the logic of {LockupMath._calculateStreamedAmountLL}.
+    function calculateStreamedAmountLL(
         uint40 startTime,
         uint40 cliffTime,
         uint40 endTime,
@@ -76,16 +78,16 @@ abstract contract Calculations {
         view
         returns (uint128)
     {
-        uint40 blockTimestamp = uint40(block.timestamp);
+        uint40 blockTimestamp = getBlockTimestamp();
 
         if (startTime >= blockTimestamp) {
             return 0;
         }
-        if (blockTimestamp >= endTime) {
-            return depositAmount;
-        }
         if (cliffTime > blockTimestamp) {
             return unlockAmounts.start;
+        }
+        if (blockTimestamp >= endTime) {
+            return depositAmount;
         }
 
         unchecked {
@@ -105,8 +107,8 @@ abstract contract Calculations {
         }
     }
 
-    /// @dev Helper function that replicates the logic of {VestingMath.calculateLockupTranchedStreamedAmount}.
-    function calculateLockupTranchedStreamedAmount(
+    /// @dev Replicates the logic of {LockupMath._calculateStreamedAmountLT}.
+    function calculateStreamedAmountLT(
         LockupTranched.Tranche[] memory tranches,
         uint128 depositAmount
     )
@@ -114,7 +116,11 @@ abstract contract Calculations {
         view
         returns (uint128)
     {
-        uint40 blockTimestamp = uint40(block.timestamp);
+        uint40 blockTimestamp = getBlockTimestamp();
+
+        if (tranches[0].timestamp > blockTimestamp) {
+            return 0;
+        }
         if (blockTimestamp >= tranches[tranches.length - 1].timestamp) {
             return depositAmount;
         }

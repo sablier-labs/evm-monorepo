@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupLinear } from "src/types/DataTypes.sol";
+import { LockupLinear } from "src/types/LockupLinear.sol";
 
 import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
@@ -29,8 +29,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
         dai.approve(address(lockup), depositAmount);
 
         // Create the stream with the fuzzed deposit amount.
-        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
-        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
+        _defaultParams.createWithTimestamps.depositAmount = depositAmount;
         _defaultParams.unlockAmounts = unlockAmounts;
         uint256 streamId = createDefaultStream();
 
@@ -72,8 +71,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
         dai.approve(address(lockup), depositAmount);
 
         // Create the stream with the fuzzed deposit amount.
-        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
-        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
+        _defaultParams.createWithTimestamps.depositAmount = depositAmount;
         _defaultParams.unlockAmounts = unlockAmounts;
         uint256 streamId = createDefaultStream();
 
@@ -82,7 +80,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
 
         // Run the test.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateLockupLinearStreamedAmount(
+        uint128 expectedStreamedAmount = calculateStreamedAmountLL(
             defaults.START_TIME(), defaults.CLIFF_TIME(), defaults.END_TIME(), depositAmount, unlockAmounts
         );
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -116,8 +114,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
 
         // Create the stream with the fuzzed deposit amount.
         _defaultParams.unlockAmounts = unlockAmounts;
-        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
-        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
+        _defaultParams.createWithTimestamps.depositAmount = depositAmount;
         uint256 streamId = createDefaultStream();
 
         // Warp to the future for the first time.

@@ -4,7 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-import { Lockup } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { StreamAction } from "tests/utils/Types.sol";
 
 import { LockupStore } from "../stores/LockupStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
@@ -48,14 +49,14 @@ contract LockupHandler is BaseHandler {
 
     modifier useFuzzedStreamRecipient() {
         currentRecipient = lockupStore.recipients(currentStreamId);
-        resetPrank(currentRecipient);
+        setMsgSender(currentRecipient);
         vm.deal({ account: currentRecipient, newBalance: 100 ether });
         _;
     }
 
     modifier useFuzzedStreamSender() {
         currentSender = lockupStore.senders(currentStreamId);
-        resetPrank(currentSender);
+        setMsgSender(currentSender);
         _;
     }
 
@@ -102,8 +103,12 @@ contract LockupHandler is BaseHandler {
         // Not cancelable streams cannot be canceled.
         vm.assume(lockup.isCancelable(currentStreamId));
 
-        // Cancel the stream.
+        // Cancel the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         lockup.cancel(currentStreamId);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: currentStreamId, action: StreamAction.CANCEL, gas: gasBefore - gasAfter });
     }
 
     function renounce(
@@ -130,8 +135,7 @@ contract LockupHandler is BaseHandler {
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         address to,
-        uint128 withdrawAmount,
-        bool payFee
+        uint128 withdrawAmount
     )
         external
         instrument("withdraw")
@@ -160,19 +164,22 @@ contract LockupHandler is BaseHandler {
             to = currentRecipient;
         }
 
-        // Withdraw from the stream.
-        lockup.withdraw{ value: payFee ? FEE : 0 }({ streamId: currentStreamId, to: to, amount: withdrawAmount });
-    }
+        // Withdraw from the stream and record the gas used.
+        uint256 gasBefore = gasleft();
+        lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to, amount: withdrawAmount });
+        uint256 gasAfter = gasleft();
 
-    function collectFees() external instrument("collectFees") {
-        lockup.collectFees();
+        lockupStore.recordGasUsage({
+            streamId: currentStreamId,
+            action: StreamAction.WITHDRAW,
+            gas: gasBefore - gasAfter
+        });
     }
 
     function withdrawMax(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        address to,
-        bool payFee
+        address to
     )
         external
         instrument("withdrawMax")
@@ -197,15 +204,22 @@ contract LockupHandler is BaseHandler {
             to = currentRecipient;
         }
 
-        // Make the max withdrawal.
-        lockup.withdrawMax{ value: payFee ? FEE : 0 }({ streamId: currentStreamId, to: to });
+        // Make the max withdrawal and record the gas used.
+        uint256 gasBefore = gasleft();
+        lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to });
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({
+            streamId: currentStreamId,
+            action: StreamAction.WITHDRAW,
+            gas: gasBefore - gasAfter
+        });
     }
 
     function withdrawMaxAndTransfer(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        address newRecipient,
-        bool payFee
+        address newRecipient
     )
         external
         instrument("withdrawMaxAndTransfer")
@@ -230,7 +244,7 @@ contract LockupHandler is BaseHandler {
         vm.assume(lockup.withdrawableAmountOf(currentStreamId) != 0);
 
         // Make the max withdrawal and transfer the NFT.
-        lockup.withdrawMaxAndTransfer{ value: payFee ? FEE : 0 }({
+        lockup.withdrawMaxAndTransfer{ value: LOCKUP_MIN_FEE_WEI }({
             streamId: currentStreamId,
             newRecipient: newRecipient
         });

@@ -3,27 +3,36 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierLockup } from "../interfaces/ISablierLockup.sol";
-
-import { BatchLockup } from "../types/DataTypes.sol";
+import { BatchLockup } from "../types/BatchLockup.sol";
+import { ISablierLockup } from "./ISablierLockup.sol";
 
 /// @title ISablierBatchLockup
 /// @notice Helper to batch create Lockup streams.
 interface ISablierBatchLockup {
     /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-LOCKUP-DYNAMIC
+                                       EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a batch of Lockup Dynamic streams using `createWithDurationsLD`.
+    /// @notice Emitted when a batch of Lockup streams are created.
+    /// @param funder The address funding the streams.
+    /// @param lockup The address of the {SablierLockup} contract used to create the streams.
+    /// @param streamIds The ids of the newly created streams, the ones that were successfully created.
+    event CreateLockupBatch(address indexed funder, ISablierLockup indexed lockup, uint256[] streamIds);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                        USER-FACING STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Creates a batch of LD streams using `createWithDurationsLD`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.
-    /// - All requirements from {ISablierLockup.createWithDurationsLD} must be met for each stream.
+    /// - All requirements from {ISablierLockupDynamic.createWithDurationsLD} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
-    /// {SablierLockup.createWithDurationsLD}.
+    /// {ISablierLockupDynamic.createWithDurationsLD}.
     /// @return streamIds The ids of the newly created streams.
     function createWithDurationsLD(
         ISablierLockup lockup,
@@ -33,16 +42,16 @@ interface ISablierBatchLockup {
         external
         returns (uint256[] memory streamIds);
 
-    /// @notice Creates a batch of Lockup Dynamic streams using `createWithTimestampsLD`.
+    /// @notice Creates a batch of LD streams using `createWithTimestampsLD`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.
-    /// - All requirements from {ISablierLockup.createWithTimestampsLD} must be met for each stream.
+    /// - All requirements from {ISablierLockupDynamic.createWithTimestampsLD} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
-    /// {SablierLockup.createWithTimestampsLD}.
+    /// {ISablierLockupDynamic.createWithTimestampsLD}.
     /// @return streamIds The ids of the newly created streams.
     function createWithTimestampsLD(
         ISablierLockup lockup,
@@ -52,20 +61,16 @@ interface ISablierBatchLockup {
         external
         returns (uint256[] memory streamIds);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-LOCKUP-LINEAR
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Creates a batch of Lockup Linear streams using `createWithDurationsLL`.
+    /// @notice Creates a batch of LL streams using `createWithDurationsLL`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.
-    /// - All requirements from {ISablierLockup.createWithDurationsLL} must be met for each stream.
+    /// - All requirements from {ISablierLockupLinear.createWithDurationsLL} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
-    /// {SablierLockup.createWithDurationsLL}.
+    /// {ISablierLockupLinear.createWithDurationsLL}.
     /// @return streamIds The ids of the newly created streams.
     function createWithDurationsLL(
         ISablierLockup lockup,
@@ -75,16 +80,16 @@ interface ISablierBatchLockup {
         external
         returns (uint256[] memory streamIds);
 
-    /// @notice Creates a batch of Lockup Linear streams using `createWithTimestampsLL`.
+    /// @notice Creates a batch of LL streams using `createWithTimestampsLL`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.
-    /// - All requirements from {ISablierLockup.createWithTimestampsLL} must be met for each stream.
+    /// - All requirements from {ISablierLockupLinear.createWithTimestampsLL} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
-    /// {SablierLockup.createWithTimestampsLL}.
+    /// {ISablierLockupLinear.createWithTimestampsLL}.
     /// @return streamIds The ids of the newly created streams.
     function createWithTimestampsLL(
         ISablierLockup lockup,
@@ -94,20 +99,16 @@ interface ISablierBatchLockup {
         external
         returns (uint256[] memory streamIds);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                              SABLIER-LOCKUP-TRANCHED
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Creates a batch of Lockup Tranched streams using `createWithDurationsLT`.
+    /// @notice Creates a batch of LT streams using `createWithDurationsLT`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.
-    /// - All requirements from {ISablierLockup.createWithDurationsLT} must be met for each stream.
+    /// - All requirements from {ISablierLockupTranched.createWithDurationsLT} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
-    /// {SablierLockup.createWithDurationsLT}.
+    /// {ISablierLockupTranched.createWithDurationsLT}.
     /// @return streamIds The ids of the newly created streams.
     function createWithDurationsLT(
         ISablierLockup lockup,
@@ -117,16 +118,16 @@ interface ISablierBatchLockup {
         external
         returns (uint256[] memory streamIds);
 
-    /// @notice Creates a batch of Lockup Tranched streams using `createWithTimestampsLT`.
+    /// @notice Creates a batch of LT streams using `createWithTimestampsLT`.
     ///
     /// @dev Requirements:
     /// - There must be at least one element in `batch`.
-    /// - All requirements from {ISablierLockup.createWithTimestampsLT} must be met for each stream.
+    /// - All requirements from {ISablierLockupTranched.createWithTimestampsLT} must be met for each stream.
     ///
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param batch An array of structs, each encapsulating a subset of the parameters of
-    /// {SablierLockup.createWithTimestampsLT}.
+    /// {ISablierLockupTranched.createWithTimestampsLT}.
     /// @return streamIds The ids of the newly created streams.
     function createWithTimestampsLT(
         ISablierLockup lockup,

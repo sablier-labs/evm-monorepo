@@ -1,9 +1,0 @@
-printWidth: 120
-trailingComma: "all"
-overrides:
-  - files: "*.svg"
-    options:
-      parser: "html"
-  - files: "*.md"
-    options:
-      proseWrap: "always"

@@ -1,57 +1,70 @@
+<!-- If you modify this file, remember to update it in the other EVM repos, too! -->
+
 # Contributing
 
-Feel free to dive in! [Open](https://github.com/sablier-labs/lockup/issues/new) an issue,
-[start](https://github.com/sablier-labs/lockup/discussions/new) a discussion or submit a PR. For any informal concerns
-or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
+Feel free to dive in! [Open](../../issues/new) an issue, [start](../../discussions/new) a discussion or submit a PR. For
+any informal concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
-Contributions to Sablier Lockup are welcome by anyone interested in writing more tests, improving readability,
-optimizing for gas efficiency, or extending the protocol via new features.
+Contributions are welcome by anyone interested in writing more tests, improving readability, optimizing for gas
+efficiency, or extending the protocol via new features.
 
-## Pre Requisites
+## Prerequisites
 
-You will need the following software on your machine:
+- [Node.js](https://nodejs.org) (v20+)
+- [Just](https://github.com/casey/just) (command runner)
+- [Bun](https://bun.sh) (package manager)
+- [Ni](https://github.com/antfu-collective/ni) (package manager resolver)
+- [Foundry](https://github.com/foundry-rs/foundry) (EVM development framework)
+- [Rust](https://rust-lang.org/tools/install) (Rust compiler)
+- [Bulloak](https://bulloak.dev) (CLI for checking tests)
 
-- [Git](https://git-scm.com/downloads)
-- [Foundry](https://github.com/foundry-rs/foundry)
-- [Node.Js](https://nodejs.org/en/download/)
-- [Bun](https://bun.sh/)
-
-In addition, familiarity with [Solidity](https://soliditylang.org/) is requisite.
+In addition, familiarity with [Solidity](https://soliditylang.org) is requisite.
 
 ## Set Up
 
-Clone this repository including submodules:
+Clone this repository:
 
 ```shell
-$ git clone --recurse-submodules -j8 git@github.com:sablier-labs/lockup.git
+git clone git@github.com:sablier-labs/lockup.git sablier-lockup && cd sablier-lockup
 ```
 
-Then, inside the project's directory, run this to install the Node.js dependencies and build the contracts:
+To install Node.js dependencies:
 
 ```shell
-$ bun install
-$ bun run build
+bun install
+```
+
+Then, execute the one-time setup script:
+
+```shell
+just setup
+```
+
+To build the contracts:
+
+```shell
+just build
 ```
 
 Switch to the `staging` branch, where all development work should be done:
 
 ```shell
-$ git switch staging
+git switch staging
 ```
 
 Now you can start making changes.
 
-To see a list of all available scripts:
+To see a list of all available scripts, run this command:
 
 ```shell
-$ bun run
+just --list
 ```
 
 ## Pull Requests
 
 When making a pull request, ensure that:
 
-- The base branch is `staging`.
+- The base development branch is `staging`.
 - All tests pass.
 - Concrete tests are generated using Bulloak and the Branching Tree Technique (BTT).
   - You can learn more about this on the [Bulloak website](https://bulloak.dev).
@@ -79,12 +92,14 @@ populate it with the appropriate environment values. You need to provide your mn
 To make CI work in your pull request, ensure that the necessary environment variables are configured in your forked
 repository's secrets. Please add the following variable in your GitHub Secrets:
 
+- MAINNET_RPC_URL
 - ROUTEMESH_API_KEY
 
-## Integration with VSCode:
+## Integration with VSCode
 
-Install the following VSCode extensions:
+The following VSCode extensions are not required but are recommended for a better development experience:
 
-- [esbenp.prettier-vscode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [even-better-toml](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
 - [hardhat-solidity](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity)
-- [vscode-tree-language](https://marketplace.visualstudio.com/items?itemName=CTC.vscode-tree-extension)
+- [prettier-vscode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [vscode-solidity-inspector](https://marketplace.visualstudio.com/items?itemName=PraneshASP.vscode-solidity-inspector)

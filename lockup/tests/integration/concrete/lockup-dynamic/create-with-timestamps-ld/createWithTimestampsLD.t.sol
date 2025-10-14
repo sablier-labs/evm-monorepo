@@ -5,14 +5,15 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { stdError } from "forge-std/src/StdError.sol";
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupDynamic } from "src/interfaces/ISablierLockupDynamic.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
 
 import {
     CreateWithTimestamps_Integration_Concrete_Test,
     Integration_Test
-} from "../../lockup-base/create-with-timestamps/createWithTimestamps.t.sol";
+} from "../../lockup/create-with-timestamps/createWithTimestamps.t.sol";
 
 contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamps_Integration_Concrete_Test {
     function setUp() public virtual override {
@@ -32,11 +33,11 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
     {
         LockupDynamic.Segment[] memory segments;
@@ -44,37 +45,17 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_SegmentCountExceedsMaxValue()
-        external
-        whenNoDelegateCall
-        whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
-        whenSenderNotZeroAddress
-        whenRecipientNotZeroAddress
-        whenDepositAmountNotZero
-        whenStartTimeNotZero
-        whenTokenContract
-        whenSegmentCountNotZero
-    {
-        uint256 segmentCount = defaults.MAX_COUNT() + 1;
-        LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
-        segments[segmentCount - 1].timestamp = defaults.END_TIME();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_SegmentCountTooHigh.selector, segmentCount));
-        createDefaultStreamWithSegments(segments);
-    }
-
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
     {
         LockupDynamic.Segment[] memory segments = defaults.segments();
         segments[0].amount = MAX_UINT128;
@@ -87,14 +68,13 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
     {
         // Change the timestamp of the first segment.
@@ -116,14 +96,13 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
     {
         // Change the timestamp of the first segment.
@@ -141,20 +120,45 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_TimestampsNotStrictlyIncreasing()
+    function test_RevertWhen_EndTimeNotEqualLastTimestamp()
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+    {
+        _defaultParams.createWithTimestamps.timestamps.end = defaults.END_TIME() + 1 seconds;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierHelpers_EndTimeNotEqualToLastSegmentTimestamp.selector,
+                _defaultParams.createWithTimestamps.timestamps.end,
+                _defaultParams.createWithTimestamps.timestamps.end - 1
+            )
+        );
+        createDefaultStream();
+    }
+
+    function test_RevertWhen_TimestampsNotStrictlyIncreasing()
+        external
+        whenNoDelegateCall
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
+        whenSegmentCountNotZero
+        whenSegmentAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
     {
         // Swap the segment timestamps.
         LockupDynamic.Segment[] memory segments = defaults.segments();
@@ -183,20 +187,19 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
     {
-        resetPrank({ msgSender: users.sender });
+        setMsgSender(users.sender);
 
         // Adjust the default deposit amount.
         uint128 defaultDepositAmount = defaults.DEPOSIT_AMOUNT();
         uint128 depositAmount = defaultDepositAmount + 100;
 
         // Prepare the params.
-        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
-        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
+        _defaultParams.createWithTimestamps.depositAmount = depositAmount;
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
@@ -213,20 +216,61 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
         whenDepositAmountEqualsSegmentAmountsSum
     {
-        _testCreateWithTimestampsLD(address(usdt));
+        IERC20 _usdt = IERC20(address(usdt));
+
+        uint256 previousAggregateAmount = lockup.aggregateAmount(_usdt);
+
+        // Update the default params.
+        _defaultParams.createWithTimestamps.depositAmount = defaults.DEPOSIT_AMOUNT_6D();
+        _defaultParams.createWithTimestamps.token = _usdt;
+        _defaultParams.segments[0].amount = 2600e6;
+        _defaultParams.segments[1].amount = 7400e6;
+
+        uint256 expectedStreamId = lockup.nextStreamId();
+
+        // It should perform the ERC-20 transfers.
+        expectCallToTransferFrom({
+            token: _usdt,
+            from: users.sender,
+            to: address(lockup),
+            value: _defaultParams.createWithTimestamps.depositAmount
+        });
+
+        // It should emit {CreateLockupDynamicStream} and {MetadataUpdate} events.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
+        vm.expectEmit({ emitter: address(lockup) });
+        emit ISablierLockupDynamic.CreateLockupDynamicStream({
+            streamId: expectedStreamId,
+            commonParams: defaults.lockupCreateEvent(_usdt, _defaultParams.createWithTimestamps.depositAmount),
+            segments: _defaultParams.segments
+        });
+
+        // Create the stream.
+        uint256 streamId = createDefaultStream();
+
+        // It should create the stream.
+        assertEqStream(streamId, _usdt);
+        assertEq(lockup.getSegments(streamId), _defaultParams.segments);
+        assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_DYNAMIC);
+        assertEq(
+            lockup.aggregateAmount(_usdt),
+            previousAggregateAmount + _defaultParams.createWithTimestamps.depositAmount,
+            "aggregateAmount"
+        );
     }
 
     function test_WhenTokenNotMissERC20ReturnValue()
@@ -238,57 +282,43 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenSegmentCountNotZero
-        whenSegmentCountNotExceedMaxValue
         whenSegmentAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
         whenDepositAmountNotEqualSegmentAmountsSum
-        whenBrokerFeeNotExceedMaxValue
+        whenTokenNotNativeToken
         whenTokenContract
     {
-        _testCreateWithTimestampsLD(address(dai));
-    }
-
-    function _testCreateWithTimestampsLD(address token) private {
-        // Make the Sender the stream's funder.
-        address funder = users.sender;
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
 
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({
-            token: IERC20(token),
-            from: funder,
+            token: dai,
+            from: users.sender,
             to: address(lockup),
             value: defaults.DEPOSIT_AMOUNT()
-        });
-
-        // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({
-            token: IERC20(token),
-            from: funder,
-            to: users.broker,
-            value: defaults.BROKER_FEE_AMOUNT()
         });
 
         // It should emit {CreateLockupDynamicStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupDynamicStream({
+        emit ISablierLockupDynamic.CreateLockupDynamicStream({
             streamId: expectedStreamId,
-            commonParams: defaults.lockupCreateEvent(IERC20(token)),
+            commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
             segments: defaults.segments()
         });
 
         // Create the stream.
-        _defaultParams.createWithTimestamps.token = IERC20(token);
         uint256 streamId = createDefaultStream();
 
         // It should create the stream.
-        assertEqStream(streamId);
-        assertEq(lockup.getUnderlyingToken(streamId), IERC20(token), "underlyingToken");
+        assertEqStream(streamId, dai);
         assertEq(lockup.getSegments(streamId), defaults.segments());
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_DYNAMIC);
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateAmount");
     }
 }

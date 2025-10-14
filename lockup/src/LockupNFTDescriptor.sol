@@ -10,7 +10,7 @@ import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockup } from "./interfaces/ISablierLockup.sol";
 import { NFTSVG } from "./libraries/NFTSVG.sol";
 import { SVGElements } from "./libraries/SVGElements.sol";
-import { Lockup } from "./types/DataTypes.sol";
+import { Lockup } from "./types/Lockup.sol";
 
 /*
 
@@ -38,7 +38,7 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
     using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING CONSTANT FUNCTIONS
+                          USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Needed to avoid Stack Too Deep.
@@ -120,7 +120,7 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
+                            INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Creates an abbreviated representation of the provided amount, rounded down and prefixed with ">= ".

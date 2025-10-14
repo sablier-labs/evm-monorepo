@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ZERO } from "@prb/math/src/UD60x18.sol";
-import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
 
 import { Lockup_Dynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
@@ -35,8 +35,8 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         deal({ token: address(dai), to: users.sender, give: segment.amount });
 
         // Create the stream with the fuzzed segment.
-        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
-        params.totalAmount = segment.amount;
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
+        params.depositAmount = segment.amount;
         params.timestamps.end = segment.timestamp;
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
 
@@ -46,7 +46,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         // Run the test.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount =
-            calculateLockupDynamicStreamedAmount(segments, defaults.START_TIME(), params.totalAmount);
+            calculateStreamedAmountLD(segments, defaults.START_TIME(), params.depositAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -75,8 +75,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         fuzzSegmentTimestamps(segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
-        (uint128 totalAmount,) =
-            fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments, brokerFee: ZERO });
+        uint128 depositAmount = fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments });
 
         // Bound the time jump.
         uint40 firstSegmentDuration = segments[1].timestamp - segments[0].timestamp;
@@ -84,11 +83,11 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         timeJump = boundUint40(timeJump, firstSegmentDuration, totalDuration + 100 seconds);
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(dai), to: users.sender, give: totalAmount });
+        deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed segments.
-        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
-        params.totalAmount = totalAmount;
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
+        params.depositAmount = depositAmount;
         params.timestamps.end = segments[segments.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
 
@@ -97,8 +96,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
 
         // Run the test.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount =
-            calculateLockupDynamicStreamedAmount(segments, defaults.START_TIME(), totalAmount);
+        uint128 expectedStreamedAmount = calculateStreamedAmountLD(segments, defaults.START_TIME(), depositAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -121,8 +119,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         fuzzSegmentTimestamps(segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
-        (uint128 totalAmount,) =
-            fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments, brokerFee: ZERO });
+        uint128 depositAmount = fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments });
 
         // Bound the time warps.
         uint40 firstSegmentDuration = segments[1].timestamp - segments[0].timestamp;
@@ -131,11 +128,11 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Fuzz_Test is Lockup_Dynamic
         timeWarp1 = boundUint40(timeWarp1, timeWarp0, totalDuration);
 
         // Mint enough tokens to the Sender.
-        deal({ token: address(dai), to: users.sender, give: totalAmount });
+        deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed segments.
-        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestampsBrokerNull();
-        params.totalAmount = totalAmount;
+        Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
+        params.depositAmount = depositAmount;
         params.timestamps.end = segments[segments.length - 1].timestamp;
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
 

@@ -5,14 +5,15 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { stdError } from "forge-std/src/StdError.sol";
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupTranched } from "src/interfaces/ISablierLockupTranched.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import {
     CreateWithTimestamps_Integration_Concrete_Test,
     Integration_Test
-} from "../../lockup-base/create-with-timestamps/createWithTimestamps.t.sol";
+} from "../../lockup/create-with-timestamps/createWithTimestamps.t.sol";
 
 contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamps_Integration_Concrete_Test {
     function setUp() public virtual override {
@@ -28,27 +29,11 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
     {
         LockupTranched.Tranche[] memory tranches;
         vm.expectRevert(Errors.SablierHelpers_TrancheCountZero.selector);
-        lockup.createWithTimestampsLT(_defaultParams.createWithTimestamps, tranches);
-    }
-
-    function test_RevertWhen_TrancheCountExceedsMaxValue()
-        external
-        whenNoDelegateCall
-        whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
-        whenSenderNotZeroAddress
-        whenRecipientNotZeroAddress
-        whenDepositAmountNotZero
-        whenStartTimeNotZero
-        whenTokenContract
-        whenTrancheCountNotZero
-    {
-        uint256 trancheCount = defaults.MAX_COUNT() + 1;
-        LockupTranched.Tranche[] memory tranches = new LockupTranched.Tranche[](trancheCount);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_TrancheCountTooHigh.selector, trancheCount));
         lockup.createWithTimestampsLT(_defaultParams.createWithTimestamps, tranches);
     }
 
@@ -56,14 +41,13 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
     {
         _defaultParams.tranches[0].amount = MAX_UINT128;
         _defaultParams.tranches[1].amount = 1;
@@ -75,14 +59,13 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
     {
         // Change the timestamp of the first tranche.
@@ -106,14 +89,13 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
     {
         // Change the timestamp of the first tranche.
@@ -130,20 +112,45 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStream();
     }
 
-    function test_RevertWhen_TimestampsNotStrictlyIncreasing()
+    function test_RevertWhen_EndTimeNotEqualLastTimestamp()
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+    {
+        _defaultParams.createWithTimestamps.timestamps.end = defaults.END_TIME() + 1 seconds;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierHelpers_EndTimeNotEqualToLastTrancheTimestamp.selector,
+                _defaultParams.createWithTimestamps.timestamps.end,
+                _defaultParams.createWithTimestamps.timestamps.end - 1
+            )
+        );
+        createDefaultStream();
+    }
+
+    function test_RevertWhen_TimestampsNotStrictlyIncreasing()
+        external
+        whenNoDelegateCall
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
+        whenTrancheCountNotZero
+        whenTrancheAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
     {
         // Swap the tranche timestamps.
         // LockupTranched.Tranche[] memory tranches = defaults.tranches();
@@ -168,25 +175,24 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
     {
-        resetPrank({ msgSender: users.sender });
+        setMsgSender(users.sender);
 
         // Adjust the default deposit amount.
         uint128 defaultDepositAmount = defaults.DEPOSIT_AMOUNT();
         uint128 depositAmount = defaultDepositAmount + 100;
-        _defaultParams.createWithTimestamps.broker = defaults.brokerNull();
-        _defaultParams.createWithTimestamps.totalAmount = depositAmount;
+        _defaultParams.createWithTimestamps.depositAmount = depositAmount;
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
@@ -203,82 +209,106 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
         whenTrancheAmountsSumNotOverflow
         whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
         whenTimestampsStrictlyIncreasing
         whenDepositAmountEqualsTrancheAmountsSum
     {
-        _testCreateWithTimestampsLT(address(usdt));
-    }
+        IERC20 _usdt = IERC20(address(usdt));
 
-    function test_WhenTokenNotMissERC20ReturnValue()
-        external
-        whenNoDelegateCall
-        whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
-        whenSenderNotZeroAddress
-        whenRecipientNotZeroAddress
-        whenDepositAmountNotZero
-        whenStartTimeNotZero
-        whenTokenContract
-        whenTrancheCountNotZero
-        whenTrancheCountNotExceedMaxValue
-        whenTrancheAmountsSumNotOverflow
-        whenStartTimeLessThanFirstTimestamp
-        whenTimestampsStrictlyIncreasing
-        whenDepositAmountEqualsTrancheAmountsSum
-    {
-        _testCreateWithTimestampsLT(address(dai));
-    }
+        // Update the default parameters.
+        _defaultParams.createWithTimestamps.depositAmount = defaults.DEPOSIT_AMOUNT_6D();
+        _defaultParams.createWithTimestamps.token = _usdt;
+        _defaultParams.tranches[0].amount = 2600e6;
+        _defaultParams.tranches[1].amount = 7400e6;
 
-    /// @dev Shared logic between {test_CreateWithTimestamps_TokenMissingReturnValue} and {test_CreateWithTimestamps}.
-    function _testCreateWithTimestampsLT(address token) internal {
-        // Make the Sender the stream's funder.
-        address funder = users.sender;
+        uint256 previousAggregateAmount = lockup.aggregateAmount(_usdt);
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({
-            token: IERC20(token),
-            from: funder,
+            token: _usdt,
+            from: users.sender,
             to: address(lockup),
-            value: defaults.DEPOSIT_AMOUNT()
-        });
-
-        // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({
-            token: IERC20(token),
-            from: funder,
-            to: users.broker,
-            value: defaults.BROKER_FEE_AMOUNT()
+            value: defaults.DEPOSIT_AMOUNT_6D()
         });
 
         // It should emit {CreateLockupTranchedStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupTranchedStream({
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
             streamId: expectedStreamId,
-            commonParams: defaults.lockupCreateEvent(IERC20(token)),
+            commonParams: defaults.lockupCreateEvent(_usdt, defaults.DEPOSIT_AMOUNT_6D()),
+            tranches: _defaultParams.tranches
+        });
+
+        // It should create the stream.
+        uint256 streamId = createDefaultStream();
+
+        // It should create the stream.
+        assertEqStream(streamId, _usdt);
+        assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_TRANCHED);
+        assertEq(
+            lockup.aggregateAmount(_usdt), previousAggregateAmount + defaults.DEPOSIT_AMOUNT_6D(), "aggregateAmount"
+        );
+        assertEq(lockup.getTranches(streamId), _defaultParams.tranches);
+    }
+
+    function test_WhenTokenNotMissERC20ReturnValue()
+        external
+        whenNoDelegateCall
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
+        whenTrancheCountNotZero
+        whenTrancheAmountsSumNotOverflow
+        whenStartTimeLessThanFirstTimestamp
+        whenEndTimeEqualsLastTimestamp
+        whenTimestampsStrictlyIncreasing
+        whenDepositAmountEqualsTrancheAmountsSum
+    {
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
+        uint256 expectedStreamId = lockup.nextStreamId();
+
+        // It should perform the ERC-20 transfers.
+        expectCallToTransferFrom({
+            token: dai,
+            from: users.sender,
+            to: address(lockup),
+            value: defaults.DEPOSIT_AMOUNT()
+        });
+
+        // It should emit {CreateLockupTranchedStream} and {MetadataUpdate} events.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
+        vm.expectEmit({ emitter: address(lockup) });
+        emit ISablierLockupTranched.CreateLockupTranchedStream({
+            streamId: expectedStreamId,
+            commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
             tranches: defaults.tranches()
         });
 
         // It should create the stream.
-        _defaultParams.createWithTimestamps.token = IERC20(token);
         uint256 streamId = createDefaultStream();
 
         // It should create the stream.
-        assertEqStream(streamId);
+        assertEqStream(streamId, dai);
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_TRANCHED);
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateAmount");
         assertEq(lockup.getTranches(streamId), defaults.tranches());
-        assertEq(lockup.getUnderlyingToken(streamId), IERC20(token), "underlyingToken");
+        assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
     }
 }

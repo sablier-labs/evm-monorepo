@@ -4,9 +4,10 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupDynamic } from "src/interfaces/ISablierLockupDynamic.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
 
 import { Lockup_Dynamic_Integration_Concrete_Test } from "../LockupDynamic.t.sol";
 
@@ -35,20 +36,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         });
     }
 
-    function test_RevertWhen_SegmentCountExceedsMaxValue() external whenNoDelegateCall {
-        LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations =
-            new LockupDynamic.SegmentWithDuration[](25_000);
-
-        // Set the default segments with duration.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_SegmentCountTooHigh.selector, 25_000));
-        createDefaultStreamWithDurations(segmentsWithDurations);
-    }
-
-    function test_RevertWhen_FirstIndexHasZeroDuration()
-        external
-        whenNoDelegateCall
-        whenSegmentCountNotExceedMaxValue
-    {
+    function test_RevertWhen_FirstIndexHasZeroDuration() external whenNoDelegateCall {
         uint40 startTime = getBlockTimestamp();
         LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations = _defaultParams.segmentsWithDurations;
         segmentsWithDurations[1].duration = 0;
@@ -69,7 +57,6 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
     function test_RevertWhen_StartTimeExceedsFirstTimestamp()
         external
         whenNoDelegateCall
-        whenSegmentCountNotExceedMaxValue
         whenFirstIndexHasNonZeroDuration
         whenTimestampsCalculationOverflows
     {
@@ -93,7 +80,6 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
     function test_RevertWhen_TimestampsNotStrictlyIncreasing()
         external
         whenNoDelegateCall
-        whenSegmentCountNotExceedMaxValue
         whenFirstIndexHasNonZeroDuration
         whenTimestampsCalculationOverflows
         whenStartTimeNotExceedsFirstTimestamp
@@ -126,14 +112,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         }
     }
 
-    function test_WhenTimestampsCalculationNotOverflow()
-        external
-        whenNoDelegateCall
-        whenSegmentCountNotExceedMaxValue
-        whenFirstIndexHasNonZeroDuration
-    {
-        // Make the Sender the stream's funder
-        address funder = users.sender;
+    function test_WhenTimestampsCalculationNotOverflow() external whenNoDelegateCall whenFirstIndexHasNonZeroDuration {
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Declare the timestamps.
@@ -147,16 +126,13 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         segments[1].timestamp = segments[0].timestamp + _defaultParams.segmentsWithDurations[1].duration;
 
         // It should perform the ERC-20 transfers.
-        expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
-
-        // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({ from: funder, to: users.broker, value: defaults.BROKER_FEE_AMOUNT() });
+        expectCallToTransferFrom({ from: users.sender, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
         // It should emit {CreateLockupDynamicStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupDynamicStream({
+        emit ISablierLockupDynamic.CreateLockupDynamicStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(timestamps),
             segments: segments

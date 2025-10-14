@@ -2,15 +2,14 @@
 // solhint-disable no-inline-assembly
 pragma solidity >=0.8.22 <0.9.0;
 
-import { CommonBase } from "forge-std/src/Base.sol";
-import { StdCheats } from "forge-std/src/StdCheats.sol";
+import { BaseTest as CommonBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { stdJson } from "forge-std/src/StdJson.sol";
 
 import { ILockupNFTDescriptor } from "../../src/interfaces/ILockupNFTDescriptor.sol";
 import { ISablierBatchLockup } from "../../src/interfaces/ISablierBatchLockup.sol";
 import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
 
-abstract contract DeployOptimized is StdCheats, CommonBase {
+abstract contract DeployOptimized is CommonBase {
     using stdJson for string;
 
     /// @dev Deploys {SablierBatchLockup} from an optimized source compiled with `--via-ir`.
@@ -18,24 +17,23 @@ abstract contract DeployOptimized is StdCheats, CommonBase {
         return ISablierBatchLockup(deployCode("out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json"));
     }
 
-    /// @dev Deploys the optimized {Helpers} and {VestingMath} libraries.
-    function deployOptimizedLibraries() internal returns (address helpers, address vestingMath) {
+    /// @dev Deploys the optimized {Helpers} and {LockupMath} libraries.
+    function deployOptimizedLibraries() internal returns (address helpers, address lockupMath) {
         // Deploy public libraries.
         helpers = deployCode("out-optimized/Helpers.sol/Helpers.json");
-        vestingMath = deployCode("out-optimized/VestingMath.sol/VestingMath.json");
+        lockupMath = deployCode("out-optimized/LockupMath.sol/LockupMath.json");
     }
 
     /// @dev Deploys {SablierLockup} from an optimized source compiled with `--via-ir`.
     function deployOptimizedLockup(
-        address initialAdmin,
-        ILockupNFTDescriptor nftDescriptor_,
-        uint256 maxCount
+        address initialComptroller,
+        ILockupNFTDescriptor nftDescriptor_
     )
         internal
         returns (ISablierLockup lockup)
     {
         // Deploy the libraries.
-        (address helpers, address vestingMath) = deployOptimizedLibraries();
+        (address helpers, address lockupMath) = deployOptimizedLibraries();
 
         // Get the bytecode from {SablierLockup} artifact.
         string memory artifactJson = vm.readFile("out-optimized/SablierLockup.sol/SablierLockup.json");
@@ -49,19 +47,19 @@ abstract contract DeployOptimized is StdCheats, CommonBase {
         });
         rawBytecode = vm.replace({
             input: rawBytecode,
-            from: libraryPlaceholder("src/libraries/VestingMath.sol:VestingMath"),
-            to: vm.replace(vm.toString(vestingMath), "0x", "")
+            from: libraryPlaceholder("src/libraries/LockupMath.sol:LockupMath"),
+            to: vm.replace(vm.toString(lockupMath), "0x", "")
         });
 
         // Generate the creation bytecode with the constructor arguments.
         bytes memory createBytecode =
-            bytes.concat(vm.parseBytes(rawBytecode), abi.encode(initialAdmin, nftDescriptor_, maxCount));
+            bytes.concat(vm.parseBytes(rawBytecode), abi.encode(initialComptroller, nftDescriptor_));
         assembly {
             // Deploy the Lockup contract.
             lockup := create(0, add(createBytecode, 0x20), mload(createBytecode))
         }
 
-        require(address(lockup) != address(0), "Lockup deployment failed.");
+        require(address(lockup) != address(0), "Lockup deployment failed");
 
         return ISablierLockup(lockup);
     }
@@ -76,15 +74,12 @@ abstract contract DeployOptimized is StdCheats, CommonBase {
     /// 1. {LockupNFTDescriptor}
     /// 2. {SablierLockup}
     /// 3. {SablierBatchLockup}
-    function deployOptimizedProtocol(
-        address initialAdmin,
-        uint256 maxCount
-    )
+    function deployOptimizedProtocol(address initialComptroller)
         internal
         returns (ILockupNFTDescriptor nftDescriptor_, ISablierLockup lockup_, ISablierBatchLockup batchLockup_)
     {
         nftDescriptor_ = deployOptimizedNFTDescriptor();
-        lockup_ = deployOptimizedLockup(initialAdmin, nftDescriptor_, maxCount);
+        lockup_ = deployOptimizedLockup(initialComptroller, nftDescriptor_);
         batchLockup_ = deployOptimizedBatchLockup();
     }
 

@@ -2,8 +2,12 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { StdInvariant } from "forge-std/src/StdInvariant.sol";
-import { Lockup, LockupDynamic, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
+import { StreamAction } from "tests/utils/Types.sol";
 import { Base_Test } from "../Base.t.sol";
+import { LockupComptrollerHandler } from "./handlers/LockupComptrollerHandler.sol";
 import { LockupCreateHandler } from "./handlers/LockupCreateHandler.sol";
 import { LockupHandler } from "./handlers/LockupHandler.sol";
 import { LockupStore } from "./stores/LockupStore.sol";
@@ -14,9 +18,10 @@ contract Invariant_Test is Base_Test, StdInvariant {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    LockupComptrollerHandler internal comptrollerHandler;
+    LockupCreateHandler internal createHandler;
     LockupHandler internal handler;
     LockupStore internal lockupStore;
-    LockupCreateHandler internal createHandler;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -30,6 +35,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         vm.label({ account: address(lockupStore), newLabel: "LockupStore" });
 
         // Deploy the Lockup handlers.
+        comptrollerHandler = new LockupComptrollerHandler({ token_: dai, lockup_: lockup });
         createHandler = new LockupCreateHandler({ token_: dai, lockupStore_: lockupStore, lockup_: lockup });
         handler = new LockupHandler({ token_: dai, lockupStore_: lockupStore, lockup_: lockup });
 
@@ -38,6 +44,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         vm.label({ account: address(handler), newLabel: "LockupHandler" });
 
         // Target the LockupDynamic handlers for invariant testing.
+        targetContract(address(comptrollerHandler));
         targetContract(address(createHandler));
         targetContract(address(handler));
 
@@ -49,32 +56,44 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                       COMMON
+                                 COMMON INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    // solhint-disable max-line-length
-    function invariant_ContractTokenBalance() external view {
-        uint256 contractBalance = dai.balanceOf(address(lockup));
+    function invariant_NextStreamId() external view {
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 nextStreamId = lockup.nextStreamId();
+            assertEq(nextStreamId, lastStreamId + 1, "Invariant violation: next stream ID not incremented");
+        }
+    }
+
+    function invariant_Balances() external view {
+        uint256 erc20Balance = dai.balanceOf(address(lockup));
 
         uint256 lastStreamId = lockupStore.lastStreamId();
-        uint256 depositedAmountsSum;
-        uint256 refundedAmountsSum;
-        uint256 withdrawnAmountsSum;
+        uint256 totalDeposits;
+        uint256 totalRefunds;
+        uint256 totalWithdrawals;
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            depositedAmountsSum += uint256(lockup.getDepositedAmount(streamId));
-            refundedAmountsSum += uint256(lockup.getRefundedAmount(streamId));
-            withdrawnAmountsSum += uint256(lockup.getWithdrawnAmount(streamId));
+            totalDeposits += uint256(lockup.getDepositedAmount(streamId));
+            totalRefunds += uint256(lockup.getRefundedAmount(streamId));
+            totalWithdrawals += uint256(lockup.getWithdrawnAmount(streamId));
         }
 
+        uint256 totals = totalDeposits - totalRefunds - totalWithdrawals;
+        assertEq(
+            lockup.aggregateAmount(dai),
+            totals,
+            unicode"Invariant violation: aggregate amount != Σ deposits - Σ refunds - Σ withdrawals"
+        );
+
         assertGe(
-            contractBalance,
-            depositedAmountsSum - refundedAmountsSum - withdrawnAmountsSum,
-            unicode"Invariant violation: contract balances < Σ deposited amounts - Σ refunded amounts - Σ withdrawn amounts"
+            erc20Balance, totals, unicode"Invariant violation: ERC-20 balance < Σ deposits - Σ refunds - Σ withdrawals"
         );
     }
 
-    function invariant_DepositedAmountGteStreamedAmount() external view {
+    function invariant_DepositedGteStreamed() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
@@ -86,7 +105,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    function invariant_DepositedAmountGteWithdrawableAmount() external view {
+    function invariant_DepositedGteWithdrawable() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
@@ -98,7 +117,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    function invariant_DepositedAmountGteWithdrawnAmount() external view {
+    function invariant_DepositedGteWithdrawn() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
@@ -110,12 +129,12 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    function invariant_DepositedAmountNotZero() external view {
+    function invariant_DepositedNotZero() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
             uint128 depositAmount = lockup.getDepositedAmount(streamId);
-            assertNotEq(depositAmount, 0, "Invariant violated: stream non-null, deposited amount zero");
+            assertNotEq(depositAmount, 0, "Invariant violation: stream non-null, deposited amount zero");
         }
     }
 
@@ -131,20 +150,36 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    function invariant_NextStreamId() external view {
-        uint256 lastStreamId = lockupStore.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 nextStreamId = lockup.nextStreamId();
-            assertEq(nextStreamId, lastStreamId + 1, "Invariant violation: next stream ID not incremented");
-        }
-    }
-
     function invariant_StartTimeNotZero() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
             uint40 startTime = lockup.getStartTime(streamId);
-            assertGt(startTime, 0, "Invariant violated: start time zero");
+            assertGt(startTime, 0, "Invariant violation: start time zero");
+        }
+    }
+
+    function invariant_StreamedGteWithdrawable() external view {
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupStore.streamIds(i);
+            assertGe(
+                lockup.streamedAmountOf(streamId),
+                lockup.withdrawableAmountOf(streamId),
+                "Invariant violation: streamed amount < withdrawable amount"
+            );
+        }
+    }
+
+    function invariant_StreamedGteWithdrawn() external view {
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupStore.streamIds(i);
+            assertGe(
+                lockup.streamedAmountOf(streamId),
+                lockup.getWithdrawnAmount(streamId),
+                "Invariant violation: streamed amount < withdrawn amount"
+            );
         }
     }
 
@@ -276,7 +311,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    /// @dev See diagram at https://docs.sablier.com/concepts/protocol/statuses#diagram
+    /// @dev See diagram at https://docs.sablier.com/concepts/lockup/statuses#diagram
     function invariant_StatusTransitions() external {
         uint256 lastStreamId = lockupStore.lastStreamId();
         if (lastStreamId == 0) {
@@ -326,32 +361,36 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    function invariant_StreamedAmountGteWithdrawableAmount() external view {
+    function invariant_GasUsedCreateGeCancel() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            assertGe(
-                lockup.streamedAmountOf(streamId),
-                lockup.withdrawableAmountOf(streamId),
-                "Invariant violation: streamed amount < withdrawable amount"
-            );
+            uint256 createGas = lockupStore.gasUsed(streamId, StreamAction.CREATE);
+            uint256 cancelGas = lockupStore.gasUsed(streamId, StreamAction.CANCEL);
+
+            // If cancel action is called 0 times, skip.
+            if (cancelGas == 0) return;
+
+            assertGe(createGas, cancelGas, "Invariant violation: cancel gas > create gas");
         }
     }
 
-    function invariant_StreamedAmountGteWithdrawnAmount() external view {
+    function invariant_GasUsedCreateGeWithdraw() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            assertGe(
-                lockup.streamedAmountOf(streamId),
-                lockup.getWithdrawnAmount(streamId),
-                "Invariant violation: streamed amount < withdrawn amount"
-            );
+            uint256 createGas = lockupStore.gasUsed(streamId, StreamAction.CREATE);
+            uint256 withdrawGas = lockupStore.gasUsed(streamId, StreamAction.WITHDRAW);
+
+            // If withdraw action is called 0 times, skip.
+            if (withdrawGas == 0) return;
+
+            assertGe(createGas, withdrawGas, "Invariant violation: withdraw gas > create gas");
         }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   LOCKUP DYNAMIC
+                                LD MODEL INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Unordered segment timestamps are not allowed.
@@ -364,7 +403,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 uint40 previousTimestamp = segments[0].timestamp;
                 for (uint256 j = 1; j < segments.length; ++j) {
                     assertGt(
-                        segments[j].timestamp, previousTimestamp, "Invariant violated: segment timestamps not ordered"
+                        segments[j].timestamp, previousTimestamp, "Invariant violation: segment timestamps not ordered"
                     );
                     previousTimestamp = segments[j].timestamp;
                 }
@@ -373,7 +412,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   LOCKUP LINEAR
+                                LL MODEL INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev If it is not zero, the cliff time must be strictly greater than the start time.
@@ -386,7 +425,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                     assertGt(
                         lockup.getCliffTime(streamId),
                         lockup.getStartTime(streamId),
-                        "Invariant violated: cliff time <= start time"
+                        "Invariant violation: cliff time <= start time"
                     );
                 }
             }
@@ -402,14 +441,14 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 assertGt(
                     lockup.getEndTime(streamId),
                     lockup.getCliffTime(streamId),
-                    "Invariant violated: end time <= cliff time"
+                    "Invariant violation: end time <= cliff time"
                 );
             }
         }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  LOCKUP TRANCHED
+                                LT MODEL INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Unordered tranche timestamps are not allowed.
@@ -422,7 +461,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 uint40 previousTimestamp = tranches[0].timestamp;
                 for (uint256 j = 1; j < tranches.length; ++j) {
                     assertGt(
-                        tranches[j].timestamp, previousTimestamp, "Invariant violated: tranche timestamps not ordered"
+                        tranches[j].timestamp, previousTimestamp, "Invariant violation: tranche timestamps not ordered"
                     );
                     previousTimestamp = tranches[j].timestamp;
                 }

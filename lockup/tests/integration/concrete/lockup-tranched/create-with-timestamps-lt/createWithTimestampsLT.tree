@@ -3,17 +3,17 @@ CreateWithTimestampsLT_Integration_Concrete_Test
    ├── when tranche count zero
    │  └── it should revert
    └── when tranche count not zero
-      ├── when tranche count exceeds max value
+      ├── when tranche amounts sum overflows
       │  └── it should revert
-      └── when tranche count not exceed max value
-         ├── when tranche amounts sum overflows
+      └── when tranche amounts sum not overflow
+         ├── when start time greater than first timestamp
          │  └── it should revert
-         └── when tranche amounts sum not overflow
-            ├── when start time greater than first timestamp
+         ├── when start time equals first timestamp
+         │  └── it should revert
+         └── when start time less than first timestamp
+            ├── when end time not equal last timestamp
             │  └── it should revert
-            ├── when start time equals first timestamp
-            │  └── it should revert
-            └── when start time less than first timestamp
+            └── when end time equals last timestamp
                ├── when timestamps not strictly increasing
                │  └── it should revert
                └── when timestamps strictly increasing
@@ -23,12 +23,14 @@ CreateWithTimestampsLT_Integration_Concrete_Test
                      ├── when token misses ERC20 return value
                      │  ├── it should create the stream
                      │  ├── it should bump the next stream ID
+                     │  ├── it should increase the aggregate amount
                      │  ├── it should mint the NFT
                      │  ├── it should emit {CreateLockupTranchedStream} and {MetadataUpdate} events
                      │  └── it should perform the ERC-20 transfers
                      └── when token not miss ERC20 return value
                         ├── it should create the stream
                         ├── it should bump the next stream ID
+                        ├── it should increase the aggregate amount
                         ├── it should mint the NFT
                         ├── it should emit {CreateLockupTranchedStream} and {MetadataUpdate} events
                         └── it should perform the ERC-20 transfers

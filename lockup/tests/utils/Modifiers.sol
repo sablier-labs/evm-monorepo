@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
+import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
+import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
 import { Defaults } from "./Defaults.sol";
 import { Fuzzers } from "./Fuzzers.sol";
 import { Users } from "./Types.sol";
 
-abstract contract Modifiers is Fuzzers {
+abstract contract Modifiers is EvmUtilsBase, Fuzzers {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -81,23 +82,22 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
-    modifier whenCallerAdmin() {
-        // Make the Admin the caller in the rest of this test suite.
-        resetPrank({ msgSender: users.admin });
-        _;
-    }
-
     modifier whenCallerAuthorizedForAllStreams() virtual {
         _;
     }
 
+    modifier whenCallerComptroller() {
+        setMsgSender(address(comptroller));
+        _;
+    }
+
     modifier whenCallerRecipient() {
-        resetPrank({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
         _;
     }
 
     modifier whenCallerSender() {
-        resetPrank({ msgSender: users.sender });
+        setMsgSender(users.sender);
         _;
     }
 
@@ -147,7 +147,7 @@ abstract contract Modifiers is Fuzzers {
 
     modifier givenDepletedStream(ISablierLockup lockup, uint256 streamId) {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: streamId, to: users.recipient });
+        lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: streamId, to: users.recipient });
         _;
     }
 
@@ -195,15 +195,7 @@ abstract contract Modifiers is Fuzzers {
                                    CREATE-COMMON
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenBrokerFeeNotExceedMaxValue() {
-        _;
-    }
-
-    modifier whenSegmentCountNotExceedMaxValue() {
-        _;
-    }
-
-    modifier whenTrancheCountNotExceedMaxValue() {
+    modifier whenEndTimeEqualsLastTimestamp() {
         _;
     }
 
@@ -275,6 +267,10 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
+    modifier whenTokenNotNativeToken() {
+        _;
+    }
+
     modifier whenTrancheAmountsSumNotOverflow() {
         _;
     }
@@ -312,6 +308,14 @@ abstract contract Modifiers is Fuzzers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                     MAP-SYMBOL
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenKnownNFTContract() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                  SAFE-TOKEN-SYMBOL
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -328,14 +332,6 @@ abstract contract Modifiers is Fuzzers {
     }
 
     modifier whenNotEmptyString() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     MAP-SYMBOL
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenKnownNFTContract() {
         _;
     }
 
@@ -384,19 +380,15 @@ abstract contract Modifiers is Fuzzers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   TRANSFER-ADMIN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenNewAdminNotSameAsCurrentAdmin() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                       WITHDRAW
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier givenNotDEPLETEDStatus() {
         vm.warp({ newTimestamp: defaults.START_TIME() });
+        _;
+    }
+
+    modifier whenFeeNotLessThanMinFee() {
         _;
     }
 
@@ -417,14 +409,6 @@ abstract contract Modifiers is Fuzzers {
     }
 
     modifier whenWithdrawAmountNotOverdraw() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   COLLECT-FEES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenAdminIsContract() {
         _;
     }
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupDynamic } from "src/types/DataTypes.sol";
-import { StreamedAmountOf_Integration_Concrete_Test } from "../../lockup-base/streamed-amount-of/streamedAmountOf.t.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
+import { StreamedAmountOf_Integration_Concrete_Test } from "../../lockup/streamed-amount-of/streamedAmountOf.t.sol";
 import { Lockup_Dynamic_Integration_Concrete_Test, Integration_Test } from "../LockupDynamic.t.sol";
 
 contract StreamedAmountOf_Lockup_Dynamic_Integration_Concrete_Test is
@@ -39,7 +39,7 @@ contract StreamedAmountOf_Lockup_Dynamic_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 740 seconds });
 
         // It should return the correct streamed amount.
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
         uint128 expectedStreamedAmount = defaults.segments()[0].amount + 2340.0854685246007116e18; // ~7,400*0.1^{0.5}
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }

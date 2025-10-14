@@ -5,11 +5,10 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 
-import { Constants } from "../../utils/Constants.sol";
 import { Fuzzers } from "../../utils/Fuzzers.sol";
 
 /// @notice Base contract with common logic needed by {LockupHandler} and {LockupCreateHandler} contracts.
-abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
+abstract contract BaseHandler is Fuzzers, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                     STATE-VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -49,17 +48,17 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
     /// @param timeJumpSeed A fuzzed value needed for generating random time warps.
     modifier adjustTimestamp(uint256 timeJumpSeed) {
         uint256 timeJump = _bound(timeJumpSeed, 2 minutes, 40 days);
-        vm.warp(getBlockTimestamp() + timeJump);
+        skip(timeJump);
         _;
     }
 
     /// @dev Checks user assumptions.
-    modifier checkUsers(address sender, address recipient, address broker) {
-        // Prevent the sender, recipient and broker to be the zero address.
-        vm.assume(sender != address(0) && recipient != address(0) && broker != address(0));
+    modifier checkUsers(address sender, address recipient) {
+        // Prevent the sender and recipient to be the zero address.
+        vm.assume(sender != address(0) && recipient != address(0));
 
         // Prevent the contract itself from playing the role of any user.
-        vm.assume(sender != address(this) && recipient != address(this) && broker != address(this));
+        vm.assume(sender != address(this) && recipient != address(this));
         _;
     }
 
@@ -72,7 +71,7 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
 
     /// @dev Makes the provided sender the caller.
     modifier useNewSender(address sender) {
-        resetPrank(sender);
+        setMsgSender(sender);
         _;
     }
 }

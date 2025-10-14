@@ -1,28 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
-import { CommonBase } from "forge-std/src/Base.sol";
+import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 
-import { LockupDynamic, LockupTranched } from "../../src/types/DataTypes.sol";
+import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
+import { LockupTranched } from "../../src/types/LockupTranched.sol";
 
-abstract contract Utils is CommonBase, PRBMathUtils {
-    /// @dev Bounds a `uint128` number.
-    function boundUint128(uint128 x, uint128 min, uint128 max) internal pure returns (uint128) {
-        return uint128(_bound(uint256(x), uint256(min), uint256(max)));
-    }
-
-    /// @dev Bounds a `uint40` number.
-    function boundUint40(uint40 x, uint40 min, uint40 max) internal pure returns (uint40) {
-        return uint40(_bound(uint256(x), uint256(min), uint256(max)));
-    }
-
-    /// @dev Retrieves the current block timestamp as an `uint40`.
-    function getBlockTimestamp() internal view returns (uint40) {
-        return uint40(block.timestamp);
-    }
-
+abstract contract Utils is BaseUtils, PRBMathUtils {
     /// @dev Turns the segments with durations into canonical segments, which have timestamps.
     function getSegmentsWithTimestamps(LockupDynamic.SegmentWithDuration[] memory segments)
         internal
@@ -67,18 +52,6 @@ abstract contract Utils is CommonBase, PRBMathUtils {
         }
     }
 
-    /// @dev Checks if the Foundry profile is "benchmark".
-    function isBenchmarkProfile() internal view returns (bool) {
-        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
-        return Strings.equal(profile, "benchmark");
-    }
-
-    /// @dev Checks if the Foundry profile is "test-optimized".
-    function isTestOptimizedProfile() internal view returns (bool) {
-        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
-        return Strings.equal(profile, "test-optimized");
-    }
-
     /// @dev Returns the largest of the provided `uint40` numbers.
     function maxOfTwo(uint40 a, uint40 b) internal pure returns (uint40) {
         uint40 max = a;
@@ -86,11 +59,5 @@ abstract contract Utils is CommonBase, PRBMathUtils {
             max = b;
         }
         return max;
-    }
-
-    /// @dev Stops the active prank and sets a new one.
-    function resetPrank(address msgSender) internal {
-        vm.stopPrank();
-        vm.startPrank(msgSender);
     }
 }

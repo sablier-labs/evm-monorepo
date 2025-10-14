@@ -35,36 +35,20 @@ Install Lockup using your favorite package manager, e.g., with Bun:
 bun add @sablier/lockup
 ```
 
-Then, if you are using Foundry, you need to add these to your `remappings.txt` file:
-
-```text
-@sablier/lockup/=node_modules/@sablier/lockup/
-@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
-@prb/math/=node_modules/@prb/math/
-```
-
 ### Git Submodules
 
 This installation method is not recommended, but it is available for those who prefer it.
 
-First, install the submodule using Forge:
+Install the submodule using Forge:
 
 ```shell
-forge install --no-commit sablier-labs/lockup
+forge install sablier-labs/lockup
 ```
 
-Second, install the project's dependencies:
+Then, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.1.0
-```
-
-Finally, add these to your `remappings.txt` file:
-
-```text
-@sablier/lockup/=lib/lockup/
-@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-@prb/math/=lib/prb-math/
+forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
 ```
 
 ### Branching Tree Technique
@@ -101,7 +85,8 @@ these [diagrams](https://docs.sablier.com/reference/lockup/diagrams).
 ## Deployments
 
 The list of all deployment addresses can be found [here](https://docs.sablier.com/guides/lockup/deployments). For
-guidance on the deployment scripts, see the [Deployments wiki](https://github.com/sablier-labs/lockup/wiki/Deployments).
+guidance on the deployment scripts, see the [Deployments Guide](https://docs.sablier.com/guides/custom-deployments) in
+our docs.
 
 ## Security
 
@@ -121,11 +106,4 @@ For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) gui
 
 ## License
 
-The primary license for Sablier Lockup is the Business Source License 1.1 (`BUSL-1.1`), see
-[`LICENSE.md`](./LICENSE.md). However, there are exceptions:
-
-- All files in `src/interfaces/` and `src/types` are licensed under `GPL-3.0-or-later`, see
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Several files in `src`, `script`, and `tests` are licensed under `GPL-3.0-or-later`, see
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Many files in `tests/` remain unlicensed (as indicated in their SPDX headers).
+See [LICENSE.md](./LICENSE.md).

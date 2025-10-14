@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
+
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
+import { LockupLinear } from "src/types/LockupLinear.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { Base_Test } from "../Base.t.sol";
 import {
@@ -20,26 +25,6 @@ abstract contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     Lockup.Model internal lockupModel;
-
-    // Common stream IDs to be used across the tests.
-    // Default stream ID.
-    uint256 internal defaultStreamId;
-    // A stream with a recipient contract that is not allowed to hook.
-    uint256 internal notAllowedtoHookStreamId;
-    // A non-cancelable stream ID.
-    uint256 internal notCancelableStreamId;
-    // A non-transferable stream ID.
-    uint256 internal notTransferableStreamId;
-    // A stream ID that does not exist.
-    uint256 internal nullStreamId = 1729;
-    // A stream with a recipient contract that implements {ISablierLockupRecipient}.
-    uint256 internal recipientGoodStreamId;
-    // A stream with a recipient contract that returns invalid selector bytes on the hook call.
-    uint256 internal recipientInvalidSelectorStreamId;
-    // A stream with a reentrant contract as the recipient.
-    uint256 internal recipientReentrantStreamId;
-    // A stream with a reverting contract as the stream's recipient.
-    uint256 internal recipientRevertStreamId;
 
     struct CreateParams {
         Lockup.CreateWithTimestamps createWithTimestamps;
@@ -110,14 +95,15 @@ abstract contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function initializeDefaultStreams() internal {
-        defaultStreamId = createDefaultStream();
-        notAllowedtoHookStreamId = createDefaultStreamWithRecipient(address(recipientInterfaceIDIncorrect));
-        notCancelableStreamId = createDefaultStreamNonCancelable();
-        notTransferableStreamId = createDefaultStreamNonTransferable();
-        recipientGoodStreamId = createDefaultStreamWithRecipient(address(recipientGood));
-        recipientInvalidSelectorStreamId = createDefaultStreamWithRecipient(address(recipientInvalidSelector));
-        recipientReentrantStreamId = createDefaultStreamWithRecipient(address(recipientReentrant));
-        recipientRevertStreamId = createDefaultStreamWithRecipient(address(recipientReverting));
+        ids.defaultStream = createDefaultStream();
+        ids.notAllowedToHookStream = createDefaultStreamWithRecipient(address(recipientInterfaceIDIncorrect));
+        ids.notCancelableStream = createDefaultStreamNonCancelable();
+        ids.notTransferableStream = createDefaultStreamNonTransferable();
+        ids.nullStream = 1729;
+        ids.recipientGoodStream = createDefaultStreamWithRecipient(address(recipientGood));
+        ids.recipientInvalidSelectorStream = createDefaultStreamWithRecipient(address(recipientInvalidSelector));
+        ids.recipientReentrantStream = createDefaultStreamWithRecipient(address(recipientReentrant));
+        ids.recipientRevertStream = createDefaultStreamWithRecipient(address(recipientReverting));
     }
 
     function initializeRecipientsWithHooks() internal {
@@ -132,13 +118,16 @@ abstract contract Integration_Test is Base_Test {
         vm.label({ account: address(recipientReentrant), newLabel: "Recipient Reentrant" });
         vm.label({ account: address(recipientReverting), newLabel: "Recipient Reverting" });
 
+        // Deal some ETH to the `recipientReentrant` because its used in reentrant tests.
+        vm.deal({ account: address(recipientReentrant), newBalance: 100 ether });
+
         // Allow the selected recipients to hook.
-        resetPrank({ msgSender: users.admin });
+        setMsgSender(address(comptroller));
         lockup.allowToHook(address(recipientGood));
         lockup.allowToHook(address(recipientInvalidSelector));
         lockup.allowToHook(address(recipientReentrant));
         lockup.allowToHook(address(recipientReverting));
-        resetPrank({ msgSender: users.sender });
+        setMsgSender(users.sender);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -217,25 +206,25 @@ abstract contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function expectRevert_CallerMaliciousThirdParty(bytes memory callData) internal {
-        resetPrank({ msgSender: users.eve });
+        setMsgSender(users.eve);
         (bool success, bytes memory returnData) = address(lockup).call(callData);
         assertFalse(success, "malicious call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, defaultStreamId, users.eve),
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, ids.defaultStream, users.eve),
             "malicious call return data"
         );
     }
 
     function expectRevert_CANCELEDStatus(bytes memory callData) internal {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
-        lockup.cancel(defaultStreamId);
+        lockup.cancel(ids.defaultStream);
 
         (bool success, bytes memory returnData) = address(lockup).call(callData);
         assertFalse(success, "canceled status call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierLockupBase_StreamCanceled.selector, defaultStreamId),
+            abi.encodeWithSelector(Errors.SablierLockup_StreamCanceled.selector, ids.defaultStream),
             "canceled status call return data"
         );
     }
@@ -243,18 +232,18 @@ abstract contract Integration_Test is Base_Test {
     function expectRevert_DelegateCall(bytes memory callData) internal {
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         assertFalse(success, "delegatecall success");
-        assertEq(returnData, abi.encodeWithSelector(Errors.DelegateCall.selector), "delegatecall return data");
+        assertEq(returnData, abi.encodeWithSelector(EvmUtilsErrors.DelegateCall.selector), "delegatecall return data");
     }
 
     function expectRevert_DEPLETEDStatus(bytes memory callData) internal {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: ids.defaultStream, to: users.recipient });
 
         (bool success, bytes memory returnData) = address(lockup).call(callData);
         assertFalse(success, "depleted status call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierLockupBase_StreamDepleted.selector, defaultStreamId),
+            abi.encodeWithSelector(Errors.SablierLockup_StreamDepleted.selector, ids.defaultStream),
             "depleted status call return data"
         );
     }
@@ -264,7 +253,7 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "null call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierLockupBase_Null.selector, nullStreamId),
+            abi.encodeWithSelector(Errors.SablierLockupState_Null.selector, ids.nullStream),
             "null call return data"
         );
     }
@@ -276,7 +265,7 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "settled status call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierLockupBase_StreamSettled.selector, defaultStreamId),
+            abi.encodeWithSelector(Errors.SablierLockup_StreamSettled.selector, ids.defaultStream),
             "settled status call return data"
         );
     }

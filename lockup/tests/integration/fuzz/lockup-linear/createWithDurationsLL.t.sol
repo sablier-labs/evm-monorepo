@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
+import { ISablierLockupLinear } from "src/interfaces/ISablierLockupLinear.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupLinear } from "src/types/LockupLinear.sol";
 
 import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
@@ -11,15 +12,10 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         durations.total = boundUint40(durations.total, 1 seconds, MAX_UNIX_TIMESTAMP);
         vm.assume(durations.cliff < durations.total);
 
-        // Make the Sender the stream's funder (recall that the Sender is the default caller).
-        address funder = users.sender;
         uint256 expectedStreamId = lockup.nextStreamId();
 
-        // Expect the tokens to be transferred from the funder to {SablierLockup}.
-        expectCallToTransferFrom({ from: funder, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
-
-        // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({ from: funder, to: users.broker, value: defaults.BROKER_FEE_AMOUNT() });
+        // Expect the tokens to be transferred from the sender to {SablierLockup}.
+        expectCallToTransferFrom({ from: users.sender, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
 
         // Create the timestamps struct by calculating the start time, cliff time and the end time.
         Lockup.Timestamps memory timestamps =
@@ -30,7 +26,7 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupLinearStream({
+        emit ISablierLockupLinear.CreateLockupLinearStream({
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(timestamps),
             cliffTime: cliffTime,
@@ -56,8 +52,7 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         assertEq(lockup.getStartTime(streamId), timestamps.start, "startTime");
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
-        assertEq(lockup.getUnlockAmounts(streamId).start, unlockAmounts.start, "unlockAmounts.start");
-        assertEq(lockup.getUnlockAmounts(streamId).cliff, unlockAmounts.cliff, "unlockAmounts.cliff");
+        assertEq(lockup.getUnlockAmounts(streamId), unlockAmounts);
 
         // Assert that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);

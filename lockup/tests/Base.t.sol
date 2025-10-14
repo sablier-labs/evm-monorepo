@@ -1,28 +1,31 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { BaseTest as EvmBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
 import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
 import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupDynamic } from "src/interfaces/ISablierLockupDynamic.sol";
+import { ISablierLockupLinear } from "src/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockupTranched } from "src/interfaces/ISablierLockupTranched.sol";
 import { LockupNFTDescriptor } from "src/LockupNFTDescriptor.sol";
 import { SablierBatchLockup } from "src/SablierBatchLockup.sol";
 import { SablierLockup } from "src/SablierLockup.sol";
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
+import { LockupDynamic } from "src/types/LockupDynamic.sol";
+import { LockupLinear } from "src/types/LockupLinear.sol";
+import { LockupTranched } from "src/types/LockupTranched.sol";
 
-import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
-import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { RecipientGood } from "./mocks/Hooks.sol";
 import { NFTDescriptorMock } from "./mocks/NFTDescriptorMock.sol";
 import { Noop } from "./mocks/Noop.sol";
-import { ContractWithoutReceive, ContractWithReceive } from "./mocks/Receive.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Calculations } from "./utils/Calculations.sol";
 import { Defaults } from "./utils/Defaults.sol";
 import { DeployOptimized } from "./utils/DeployOptimized.t.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
-import { Users } from "./utils/Types.sol";
+import { StreamIds, Users } from "./utils/Types.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
 abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifiers {
@@ -30,6 +33,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
+    StreamIds internal ids;
     Users internal users;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -37,42 +41,27 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     //////////////////////////////////////////////////////////////////////////*/
 
     ISablierBatchLockup internal batchLockup;
-    ContractWithoutReceive internal contractWithoutReceive;
-    ContractWithReceive internal contractWithReceive;
-    ERC20Mock internal dai;
     Defaults internal defaults;
     ISablierLockup internal lockup;
     ILockupNFTDescriptor internal nftDescriptor;
     NFTDescriptorMock internal nftDescriptorMock;
     Noop internal noop;
     RecipientGood internal recipientGood;
-    ERC20MissingReturn internal usdt;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public virtual {
+    function setUp() public virtual override {
+        EvmBase.setUp();
+
         // Deploy the base test contracts.
-        contractWithoutReceive = new ContractWithoutReceive();
-        contractWithReceive = new ContractWithReceive();
-        dai = new ERC20Mock("Dai Stablecoin", "DAI");
         noop = new Noop();
         recipientGood = new RecipientGood();
-        usdt = new ERC20MissingReturn("Tether USD", "USDT", 6);
 
         // Label the base test contracts.
-        vm.label({ account: address(contractWithoutReceive), newLabel: "Contract without Receive" });
-        vm.label({ account: address(contractWithReceive), newLabel: "Contract with Receive" });
-        vm.label({ account: address(dai), newLabel: "DAI" });
         vm.label({ account: address(recipientGood), newLabel: "Good Recipient" });
         vm.label({ account: address(noop), newLabel: "Noop" });
-        vm.label({ account: address(usdt), newLabel: "USDT" });
-
-        // Create the protocol admin.
-        users.admin = payable(makeAddr({ name: "Admin" }));
-        vm.deal({ account: users.admin, newBalance: 100 ether });
-        vm.startPrank({ msgSender: users.admin });
 
         // Deploy the defaults contract.
         defaults = new Defaults();
@@ -84,13 +73,8 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         // Deploy the NFT descriptor mock.
         nftDescriptorMock = new NFTDescriptorMock();
 
-        // Create users for testing. Note that due to ERC-20 approvals, this has to go after the protocol deployment.
-        users.alice = createUser("Alice");
-        users.broker = createUser("Broker");
-        users.eve = createUser("Eve");
-        users.operator = createUser("Operator");
-        users.recipient = createUser("Recipient");
-        users.sender = createUser("Sender");
+        // Create users for testing.
+        createTestUsers();
 
         defaults.setUsers(users);
 
@@ -98,44 +82,33 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         setVariables(defaults, users);
 
         // Approve `users.operator` to operate over lockup on behalf of the `users.recipient`.
-        resetPrank({ msgSender: users.recipient });
+        setMsgSender(users.recipient);
         lockup.setApprovalForAll(users.operator, true);
 
         // Set sender as the default caller for the tests.
-        resetPrank({ msgSender: users.sender });
+        setMsgSender(users.sender);
 
-        // Warp to July 1, 2024 at 00:00 UTC to provide a more realistic testing environment.
-        vm.warp({ newTimestamp: JULY_1_2024 });
+        // Warp to Feb 1, 2025 at 00:00 UTC to provide a more realistic testing environment.
+        vm.warp({ newTimestamp: defaults.FEB_1_2025() });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Approve `spender` to spend tokens from `from`.
-    function approveContract(IERC20 token_, address from, address spender) internal {
-        resetPrank({ msgSender: from });
-        (bool success,) = address(token_).call(abi.encodeCall(IERC20.approve, (spender, MAX_UINT256)));
-        success;
-    }
+    /// @dev Create users for testing and assign roles if applicable.
+    function createTestUsers() internal {
+        // Create users for testing. Note that due to ERC-20 approvals, this has to go after the protocol deployment.
+        address[] memory spenders = new address[](2);
+        spenders[0] = address(batchLockup);
+        spenders[1] = address(lockup);
 
-    /// @dev Approves all contracts to spend tokens from the address passed.
-    function approveProtocol(address from) internal {
-        resetPrank({ msgSender: from });
-        dai.approve({ spender: address(batchLockup), value: MAX_UINT256 });
-        dai.approve({ spender: address(lockup), value: MAX_UINT256 });
-        usdt.approve({ spender: address(batchLockup), value: MAX_UINT256 });
-        usdt.approve({ spender: address(lockup), value: MAX_UINT256 });
-    }
-
-    /// @dev Generates a user, labels its address, funds it with test tokens, and approves the protocol contracts.
-    function createUser(string memory name) internal returns (address payable) {
-        address payable user = payable(makeAddr(name));
-        vm.deal({ account: user, newBalance: 100 ether });
-        deal({ token: address(dai), to: user, give: 1_000_000e18 });
-        deal({ token: address(usdt), to: user, give: 1_000_000e18 });
-        approveProtocol({ from: user });
-        return user;
+        // Create test users.
+        users.alice = createUser("Alice", spenders);
+        users.eve = createUser("Eve", spenders);
+        users.operator = createUser("Operator", spenders);
+        users.recipient = createUser("Recipient", spenders);
+        users.sender = createUser("Sender", spenders);
     }
 
     /// @dev Conditionally deploys the protocol normally or from an optimized source compiled with `--via-ir`.
@@ -144,12 +117,12 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     /// deployer's nonce, which would in turn lead to different addresses (recall that the addresses
     /// for contracts deployed via `CREATE` are based on the caller-and-nonce-hash).
     function deployProtocolConditionally() internal {
-        if (!isBenchmarkProfile() && !isTestOptimizedProfile()) {
+        if (!isTestOptimizedProfile()) {
             batchLockup = new SablierBatchLockup();
             nftDescriptor = new LockupNFTDescriptor();
-            lockup = new SablierLockup(users.admin, nftDescriptor, defaults.MAX_COUNT());
+            lockup = new SablierLockup(address(comptroller), address(nftDescriptor));
         } else {
-            (nftDescriptor, lockup, batchLockup) = deployOptimizedProtocol(users.admin, defaults.MAX_COUNT());
+            (nftDescriptor, lockup, batchLockup) = deployOptimizedProtocol(address(comptroller));
         }
         vm.label({ account: address(batchLockup), newLabel: "BatchLockup" });
         vm.label({ account: address(lockup), newLabel: "Lockup" });
@@ -157,61 +130,10 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                CALL EXPECTS - IERC20
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Expects a call to {IERC20.transfer}.
-    function expectCallToTransfer(address to, uint256 value) internal {
-        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transfer, (to, value)) });
-    }
-
-    /// @dev Expects a call to {IERC20.transfer}.
-    function expectCallToTransfer(IERC20 token, address to, uint256 value) internal {
-        vm.expectCall({ callee: address(token), data: abi.encodeCall(IERC20.transfer, (to, value)) });
-    }
-
-    /// @dev Expects a call to {IERC20.transferFrom}.
-    function expectCallToTransferFrom(address from, address to, uint256 value) internal {
-        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transferFrom, (from, to, value)) });
-    }
-
-    /// @dev Expects a call to {IERC20.transferFrom}.
-    function expectCallToTransferFrom(IERC20 token, address from, address to, uint256 value) internal {
-        vm.expectCall({ callee: address(token), data: abi.encodeCall(IERC20.transferFrom, (from, to, value)) });
-    }
-
-    /// @dev Expects multiple calls to {IERC20.transfer}.
-    function expectMultipleCallsToTransfer(uint64 count, address to, uint256 value) internal {
-        vm.expectCall({ callee: address(dai), count: count, data: abi.encodeCall(IERC20.transfer, (to, value)) });
-    }
-
-    /// @dev Expects multiple calls to {IERC20.transferFrom}.
-    function expectMultipleCallsToTransferFrom(uint64 count, address from, address to, uint256 value) internal {
-        expectMultipleCallsToTransferFrom(dai, count, from, to, value);
-    }
-
-    /// @dev Expects multiple calls to {IERC20.transferFrom}.
-    function expectMultipleCallsToTransferFrom(
-        IERC20 token,
-        uint64 count,
-        address from,
-        address to,
-        uint256 value
-    )
-        internal
-    {
-        vm.expectCall({
-            callee: address(token),
-            count: count,
-            data: abi.encodeCall(IERC20.transferFrom, (from, to, value))
-        });
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                 CALL EXPECTS - LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLD}.
+    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithDurationsLD}.
     function expectMultipleCallsToCreateWithDurationsLD(
         uint64 count,
         Lockup.CreateWithDurations memory params,
@@ -222,11 +144,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithDurationsLD, (params, segmentsWithDuration))
+            data: abi.encodeCall(ISablierLockupDynamic.createWithDurationsLD, (params, segmentsWithDuration))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLL}.
+    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithDurationsLL}.
     function expectMultipleCallsToCreateWithDurationsLL(
         uint64 count,
         Lockup.CreateWithDurations memory params,
@@ -238,11 +160,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithDurationsLL, (params, unlockAmounts, durations))
+            data: abi.encodeCall(ISablierLockupLinear.createWithDurationsLL, (params, unlockAmounts, durations))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithDurationsLT}.
+    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithDurationsLT}.
     function expectMultipleCallsToCreateWithDurationsLT(
         uint64 count,
         Lockup.CreateWithDurations memory params,
@@ -253,11 +175,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithDurationsLT, (params, tranches))
+            data: abi.encodeCall(ISablierLockupTranched.createWithDurationsLT, (params, tranches))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLD}.
+    /// @dev Expects multiple calls to {ISablierLockupDynamic.createWithTimestampsLD}.
     function expectMultipleCallsToCreateWithTimestampsLD(
         uint64 count,
         Lockup.CreateWithTimestamps memory params,
@@ -268,11 +190,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithTimestampsLD, (params, segments))
+            data: abi.encodeCall(ISablierLockupDynamic.createWithTimestampsLD, (params, segments))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLL}.
+    /// @dev Expects multiple calls to {ISablierLockupLinear.createWithTimestampsLL}.
     function expectMultipleCallsToCreateWithTimestampsLL(
         uint64 count,
         Lockup.CreateWithTimestamps memory params,
@@ -284,11 +206,11 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithTimestampsLL, (params, unlockAmounts, cliffTime))
+            data: abi.encodeCall(ISablierLockupLinear.createWithTimestampsLL, (params, unlockAmounts, cliffTime))
         });
     }
 
-    /// @dev Expects multiple calls to {ISablierLockup.createWithTimestampsLT}.
+    /// @dev Expects multiple calls to {ISablierLockupTranched.createWithTimestampsLT}.
     function expectMultipleCallsToCreateWithTimestampsLT(
         uint64 count,
         Lockup.CreateWithTimestamps memory params,
@@ -299,7 +221,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockup.createWithTimestampsLT, (params, tranches))
+            data: abi.encodeCall(ISablierLockupTranched.createWithTimestampsLT, (params, tranches))
         });
     }
 }

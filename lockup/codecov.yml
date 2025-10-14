@@ -5,7 +5,7 @@ coverage:
   status:
     patch: off
 ignore:
-  - "script"
+  - "scripts/solidity"
   - "src/libraries/NFTSVG.sol"
   - "src/libraries/SVGElements.sol"
   - "tests"

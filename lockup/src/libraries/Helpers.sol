@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
+import { Lockup } from "../types/Lockup.sol";
+import { LockupDynamic } from "../types/LockupDynamic.sol";
+import { LockupLinear } from "../types/LockupLinear.sol";
+import { LockupTranched } from "../types/LockupTranched.sol";
 import { Errors } from "./Errors.sol";
 
 /// @title Helpers
-/// @notice Library with functions needed to validate input parameters across lockup streams.
+/// @notice Library with functions needed to validate input parameters across Lockup streams.
 library Helpers {
     /*//////////////////////////////////////////////////////////////////////////
-                                CONSTANT FUNCTIONS
+                          USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Calculate the timestamps and return the segments.
@@ -77,121 +79,71 @@ library Helpers {
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLD} function.
-    function checkCreateLockupDynamic(
+    function checkCreateLD(
         address sender,
         Lockup.Timestamps memory timestamps,
-        uint128 totalAmount,
+        uint128 depositAmount,
         LockupDynamic.Segment[] memory segments,
-        uint256 maxCount,
-        UD60x18 brokerFee,
-        string memory shape,
-        UD60x18 maxBrokerFee
+        address token,
+        address nativeToken,
+        string memory shape
     )
         public
         pure
-        returns (Lockup.CreateAmounts memory createAmounts)
     {
-        // Check: verify the broker fee and calculate the amounts.
-        createAmounts = _checkAndCalculateBrokerFee(totalAmount, brokerFee, maxBrokerFee);
-
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, createAmounts.deposit, timestamps.start, shape);
+        _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
         // Check: validate the user-provided segments.
-        _checkSegments(segments, createAmounts.deposit, timestamps, maxCount);
+        _checkSegments(segments, depositAmount, timestamps);
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLL} function.
-    function checkCreateLockupLinear(
+    function checkCreateLL(
         address sender,
         Lockup.Timestamps memory timestamps,
         uint40 cliffTime,
-        uint128 totalAmount,
+        uint128 depositAmount,
         LockupLinear.UnlockAmounts memory unlockAmounts,
-        UD60x18 brokerFee,
-        string memory shape,
-        UD60x18 maxBrokerFee
+        address token,
+        address nativeToken,
+        string memory shape
     )
         public
         pure
-        returns (Lockup.CreateAmounts memory createAmounts)
     {
-        // Check: verify the broker fee and calculate the amounts.
-        createAmounts = _checkAndCalculateBrokerFee(totalAmount, brokerFee, maxBrokerFee);
-
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, createAmounts.deposit, timestamps.start, shape);
+        _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
         // Check: validate the user-provided cliff and end times.
-        _checkTimestampsAndUnlockAmounts(createAmounts.deposit, timestamps, cliffTime, unlockAmounts);
+        _checkTimestampsAndUnlockAmounts(depositAmount, timestamps, cliffTime, unlockAmounts);
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLT} function.
-    function checkCreateLockupTranched(
+    function checkCreateLT(
         address sender,
         Lockup.Timestamps memory timestamps,
-        uint128 totalAmount,
+        uint128 depositAmount,
         LockupTranched.Tranche[] memory tranches,
-        uint256 maxCount,
-        UD60x18 brokerFee,
-        string memory shape,
-        UD60x18 maxBrokerFee
+        address token,
+        address nativeToken,
+        string memory shape
     )
         public
         pure
-        returns (Lockup.CreateAmounts memory createAmounts)
     {
-        // Check: verify the broker fee and calculate the amounts.
-        createAmounts = _checkAndCalculateBrokerFee(totalAmount, brokerFee, maxBrokerFee);
-
         // Check: validate the user-provided common parameters.
-        _checkCreateStream(sender, createAmounts.deposit, timestamps.start, shape);
+        _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
         // Check: validate the user-provided segments.
-        _checkTranches(tranches, createAmounts.deposit, timestamps, maxCount);
+        _checkTranches(tranches, depositAmount, timestamps);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            PRIVATE CONSTANT FUNCTIONS
+                            PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks the broker fee is not greater than `maxBrokerFee`, and then calculates the broker fee amount and
-    /// the deposit amount from the total amount.
-    function _checkAndCalculateBrokerFee(
-        uint128 totalAmount,
-        UD60x18 brokerFee,
-        UD60x18 maxBrokerFee
-    )
-        private
-        pure
-        returns (Lockup.CreateAmounts memory amounts)
-    {
-        // When the total amount is zero, the broker fee is also zero.
-        if (totalAmount == 0) {
-            return Lockup.CreateAmounts(0, 0);
-        }
-
-        // If the broker fee is zero, the deposit amount is the total amount.
-        if (brokerFee.isZero()) {
-            return Lockup.CreateAmounts(totalAmount, 0);
-        }
-
-        // Check: the broker fee is not greater than `maxBrokerFee`.
-        if (brokerFee.gt(maxBrokerFee)) {
-            revert Errors.SablierHelpers_BrokerFeeTooHigh(brokerFee, maxBrokerFee);
-        }
-
-        // Calculate the broker fee amount.
-        amounts.brokerFee = ud(totalAmount).mul(brokerFee).intoUint128();
-
-        // Assert that the total amount is strictly greater than the broker fee amount.
-        assert(totalAmount > amounts.brokerFee);
-
-        // Calculate the deposit amount (the amount to stream, net of the broker fee).
-        amounts.deposit = totalAmount - amounts.brokerFee;
-    }
-
-    /// @dev Checks the user-provided cliff, end times and unlock amounts of a lockup linear stream.
+    /// @dev Checks the user-provided cliff, end times, and unlock amounts of an LL stream.
     function _checkTimestampsAndUnlockAmounts(
         uint128 depositAmount,
         Lockup.Timestamps memory timestamps,
@@ -231,11 +183,13 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the user-provided common parameters across lockup streams.
+    /// @dev Checks the user-provided common parameters across Lockup streams.
     function _checkCreateStream(
         address sender,
         uint128 depositAmount,
         uint40 startTime,
+        address token,
+        address nativeToken,
         string memory shape
     )
         private
@@ -256,6 +210,11 @@ library Helpers {
             revert Errors.SablierHelpers_StartTimeZero();
         }
 
+        // Check: the token is not the native token.
+        if (token == nativeToken) {
+            revert Errors.SablierHelpers_CreateNativeToken(nativeToken);
+        }
+
         // Check: the shape is not greater than 32 bytes.
         if (bytes(shape).length > 32) {
             revert Errors.SablierHelpers_ShapeExceeds32Bytes(bytes(shape).length);
@@ -272,8 +231,7 @@ library Helpers {
     function _checkSegments(
         LockupDynamic.Segment[] memory segments,
         uint128 depositAmount,
-        Lockup.Timestamps memory timestamps,
-        uint256 maxSegmentCount
+        Lockup.Timestamps memory timestamps
     )
         private
         pure
@@ -282,11 +240,6 @@ library Helpers {
         uint256 segmentCount = segments.length;
         if (segmentCount == 0) {
             revert Errors.SablierHelpers_SegmentCountZero();
-        }
-
-        // Check: the segment count is not greater than the maximum allowed.
-        if (segmentCount > maxSegmentCount) {
-            revert Errors.SablierHelpers_SegmentCountTooHigh(segmentCount);
         }
 
         // Check: the start time is strictly less than the first segment timestamp.
@@ -344,8 +297,7 @@ library Helpers {
     function _checkTranches(
         LockupTranched.Tranche[] memory tranches,
         uint128 depositAmount,
-        Lockup.Timestamps memory timestamps,
-        uint256 maxTrancheCount
+        Lockup.Timestamps memory timestamps
     )
         private
         pure
@@ -354,11 +306,6 @@ library Helpers {
         uint256 trancheCount = tranches.length;
         if (trancheCount == 0) {
             revert Errors.SablierHelpers_TrancheCountZero();
-        }
-
-        // Check: the tranche count is not greater than the maximum allowed.
-        if (trancheCount > maxTrancheCount) {
-            revert Errors.SablierHelpers_TrancheCountTooHigh(trancheCount);
         }
 
         // Check: the start time is strictly less than the first tranche timestamp.

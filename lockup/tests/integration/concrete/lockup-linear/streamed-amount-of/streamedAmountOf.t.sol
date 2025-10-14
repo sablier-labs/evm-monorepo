@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { StreamedAmountOf_Integration_Concrete_Test } from "../../lockup-base/streamed-amount-of/streamedAmountOf.t.sol";
+import { StreamedAmountOf_Integration_Concrete_Test } from "../../lockup/streamed-amount-of/streamedAmountOf.t.sol";
 import { Lockup_Linear_Integration_Concrete_Test, Integration_Test } from "./../LockupLinear.t.sol";
 
 contract StreamedAmountOf_Lockup_Linear_Integration_Concrete_Test is
@@ -33,14 +33,14 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Concrete_Test is
 
     function test_GivenCliffTimeInFuture_Zero() external givenSTREAMINGStatus givenCliffTimeNotZero {
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() - 1 });
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     function test_GivenCliffTimeInPresent() external givenSTREAMINGStatus givenCliffTimeNotZero {
         vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
         uint128 expectedStreamedAmount = defaults.CLIFF_AMOUNT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -66,7 +66,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Concrete_Test is
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateLockupLinearStreamedAmount(
+        uint128 expectedStreamedAmount = calculateStreamedAmountLL(
             _defaultParams.createWithTimestamps.timestamps.start,
             _defaultParams.cliffTime,
             _defaultParams.createWithTimestamps.timestamps.end,
@@ -85,7 +85,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Concrete_Test is
         givenNoStartAmount
     {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
-        uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
         uint128 expectedStreamedAmount = defaults.STREAMED_AMOUNT_26_PERCENT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }

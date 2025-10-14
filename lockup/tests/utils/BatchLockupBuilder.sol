@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { BatchLockup, Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
+import { BatchLockup } from "../../src/types/BatchLockup.sol";
+import { Lockup } from "../../src/types/Lockup.sol";
+import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
+import { LockupLinear } from "../../src/types/LockupLinear.sol";
+import { LockupTranched } from "../../src/types/LockupTranched.sol";
 
 library BatchLockupBuilder {
     /// @notice Generates an array containing `batchSize` copies of `batchSingle`.
@@ -33,12 +37,11 @@ library BatchLockupBuilder {
         BatchLockup.CreateWithDurationsLD memory batchSingle = BatchLockup.CreateWithDurationsLD({
             sender: params.sender,
             recipient: params.recipient,
-            totalAmount: params.totalAmount,
+            depositAmount: params.depositAmount,
             cancelable: params.cancelable,
             transferable: params.transferable,
             segmentsWithDuration: segmentsWithDurations,
-            shape: params.shape,
-            broker: params.broker
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }
@@ -73,13 +76,12 @@ library BatchLockupBuilder {
         BatchLockup.CreateWithDurationsLL memory batchSingle = BatchLockup.CreateWithDurationsLL({
             sender: params.sender,
             recipient: params.recipient,
-            totalAmount: params.totalAmount,
+            depositAmount: params.depositAmount,
             cancelable: params.cancelable,
             transferable: params.transferable,
             durations: durations,
             unlockAmounts: unlockAmounts,
-            shape: params.shape,
-            broker: params.broker
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }
@@ -113,12 +115,11 @@ library BatchLockupBuilder {
         BatchLockup.CreateWithDurationsLT memory batchSingle = BatchLockup.CreateWithDurationsLT({
             sender: params.sender,
             recipient: params.recipient,
-            totalAmount: params.totalAmount,
+            depositAmount: params.depositAmount,
             cancelable: params.cancelable,
             transferable: params.transferable,
             tranchesWithDuration: tranchesWithDuration,
-            shape: params.shape,
-            broker: params.broker
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }
@@ -152,13 +153,12 @@ library BatchLockupBuilder {
         BatchLockup.CreateWithTimestampsLD memory batchSingle = BatchLockup.CreateWithTimestampsLD({
             sender: params.sender,
             recipient: params.recipient,
-            totalAmount: params.totalAmount,
+            depositAmount: params.depositAmount,
             cancelable: params.cancelable,
             transferable: params.transferable,
             startTime: params.timestamps.start,
             segments: segments,
-            shape: params.shape,
-            broker: params.broker
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }
@@ -193,14 +193,13 @@ library BatchLockupBuilder {
         BatchLockup.CreateWithTimestampsLL memory batchSingle = BatchLockup.CreateWithTimestampsLL({
             sender: params.sender,
             recipient: params.recipient,
-            totalAmount: params.totalAmount,
+            depositAmount: params.depositAmount,
             cancelable: params.cancelable,
             transferable: params.transferable,
             timestamps: params.timestamps,
             cliffTime: cliffTime,
             unlockAmounts: unlockAmounts,
-            shape: params.shape,
-            broker: params.broker
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }
@@ -234,13 +233,12 @@ library BatchLockupBuilder {
         BatchLockup.CreateWithTimestampsLT memory batchSingle = BatchLockup.CreateWithTimestampsLT({
             sender: params.sender,
             recipient: params.recipient,
-            totalAmount: params.totalAmount,
+            depositAmount: params.depositAmount,
             cancelable: params.cancelable,
             transferable: params.transferable,
             startTime: params.timestamps.start,
             tranches: tranches,
-            shape: params.shape,
-            broker: params.broker
+            shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
     }

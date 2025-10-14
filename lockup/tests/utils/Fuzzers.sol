@@ -1,112 +1,77 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
-import { UD60x18, ud, uUNIT } from "@prb/math/src/UD60x18.sol";
-
-import { Lockup, LockupDynamic, LockupTranched } from "../../src/types/DataTypes.sol";
-
-import { Constants } from "./Constants.sol";
+import { BaseConstants } from "@sablier/evm-utils/src/tests/BaseConstants.sol";
+import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
+import { LockupTranched } from "../../src/types/LockupTranched.sol";
 import { Utils } from "./Utils.sol";
 
-abstract contract Fuzzers is Constants, Utils {
-    using CastingUint128 for uint128;
-
+abstract contract Fuzzers is BaseConstants, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                    LOCKUP-DYNAMIC
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Just like {fuzzDynamicStreamAmounts} but with defaults.
-    function fuzzDynamicStreamAmounts(
-        LockupDynamic.Segment[] memory segments,
-        UD60x18 brokerFee
-    )
+    function fuzzDynamicStreamAmounts(LockupDynamic.Segment[] memory segments)
         internal
         pure
-        returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
+        returns (uint128 depositAmount)
     {
-        (totalAmount, createAmounts) =
-            fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments, brokerFee: brokerFee });
+        depositAmount = fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments });
     }
 
     /// @dev Just like {fuzzDynamicStreamAmounts} but with defaults.
-    function fuzzDynamicStreamAmounts(
-        LockupDynamic.SegmentWithDuration[] memory segments,
-        UD60x18 brokerFee
-    )
+    function fuzzDynamicStreamAmounts(LockupDynamic.SegmentWithDuration[] memory segments)
         internal
         view
-        returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
+        returns (uint128 depositAmount)
     {
         LockupDynamic.Segment[] memory segmentsWithTimestamps = getSegmentsWithTimestamps(segments);
-        (totalAmount, createAmounts) = fuzzDynamicStreamAmounts({
-            upperBound: MAX_UINT128,
-            segments: segmentsWithTimestamps,
-            brokerFee: brokerFee
-        });
+        depositAmount = fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segmentsWithTimestamps });
         for (uint256 i = 0; i < segmentsWithTimestamps.length; ++i) {
             segments[i].amount = segmentsWithTimestamps[i].amount;
         }
     }
 
-    /// @dev Fuzzes the segment amounts and calculate the total and create amounts (deposit and broker fee).
+    /// @dev Fuzzes the segment amounts and calculate the deposit amount.
     function fuzzDynamicStreamAmounts(
         uint128 upperBound,
-        LockupDynamic.SegmentWithDuration[] memory segments,
-        UD60x18 brokerFee
+        LockupDynamic.SegmentWithDuration[] memory segments
     )
         internal
         view
-        returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
+        returns (uint128 depositAmount)
     {
         LockupDynamic.Segment[] memory segmentsWithTimestamps = getSegmentsWithTimestamps(segments);
-        (totalAmount, createAmounts) = fuzzDynamicStreamAmounts(upperBound, segmentsWithTimestamps, brokerFee);
+        depositAmount = fuzzDynamicStreamAmounts(upperBound, segmentsWithTimestamps);
         for (uint256 i = 0; i < segmentsWithTimestamps.length; ++i) {
             segments[i].amount = segmentsWithTimestamps[i].amount;
         }
     }
 
-    /// @dev Fuzzes the segment amounts and calculate the total and create amounts (deposit and broker fee).
+    /// @dev Fuzzes the segment amounts and calculate the deposit amount.
     function fuzzDynamicStreamAmounts(
         uint128 upperBound,
-        LockupDynamic.Segment[] memory segments,
-        UD60x18 brokerFee
+        LockupDynamic.Segment[] memory segments
     )
         internal
         pure
-        returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
+        returns (uint128 depositAmount)
     {
         uint256 segmentCount = segments.length;
         uint128 maxSegmentAmount = upperBound / uint128(segmentCount * 2);
 
         // Precompute the first segment amount to prevent zero deposit amounts.
         segments[0].amount = boundUint128(segments[0].amount, 100, maxSegmentAmount);
-        uint128 estimatedDepositAmount = segments[0].amount;
+        depositAmount = segments[0].amount;
 
         // Fuzz the other segment amounts by bounding from 0.
         unchecked {
             for (uint256 i = 1; i < segmentCount; ++i) {
                 segments[i].amount = boundUint128(segments[i].amount, 0, maxSegmentAmount);
-                estimatedDepositAmount += segments[i].amount;
+                depositAmount += segments[i].amount;
             }
         }
-
-        // Calculate the total amount from the approximated deposit amount (recall that the sum of all segment amounts
-        // must equal the deposit amount) using this formula:
-        //
-        // $$
-        // total = \frac{deposit}{1e18 - brokerFee}
-        // $$
-        totalAmount = ud(estimatedDepositAmount).div(ud(uUNIT - brokerFee.intoUint256())).intoUint128();
-
-        // Calculate the broker fee amount.
-        createAmounts.brokerFee = ud(totalAmount).mul(brokerFee).intoUint128();
-
-        // Here, we account for rounding errors and adjust the estimated deposit amount and the segments. We know
-        // that the estimated deposit amount is not greater than the adjusted deposit amount below, because the inverse
-        // of {Helpers.checkAndCalculateBrokerFee} over-expresses the weight of the broker fee.
-        createAmounts.deposit = totalAmount - createAmounts.brokerFee;
-        segments[segments.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
     }
 
     /// @dev Fuzzes the segment durations.
@@ -198,95 +163,65 @@ abstract contract Fuzzers is Constants, Utils {
     }
 
     /// @dev Just like {fuzzTranchedStreamAmounts} but with defaults.
-    function fuzzTranchedStreamAmounts(
-        LockupTranched.Tranche[] memory tranches,
-        UD60x18 brokerFee
-    )
+    function fuzzTranchedStreamAmounts(LockupTranched.Tranche[] memory tranches)
         internal
         pure
-        returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
+        returns (uint128 depositAmount)
     {
-        (totalAmount, createAmounts) =
-            fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches, brokerFee: brokerFee });
+        depositAmount = fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches });
     }
 
     /// @dev Just like {fuzzTranchedStreamAmounts} but with defaults.
-    function fuzzTranchedStreamAmounts(
-        LockupTranched.TrancheWithDuration[] memory tranches,
-        UD60x18 brokerFee
-    )
+    function fuzzTranchedStreamAmounts(LockupTranched.TrancheWithDuration[] memory tranches)
         internal
         view
-        returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
+        returns (uint128 depositAmount)
     {
         LockupTranched.Tranche[] memory tranchesWithTimestamps = getTranchesWithTimestamps(tranches);
-        (totalAmount, createAmounts) = fuzzTranchedStreamAmounts({
-            upperBound: MAX_UINT128,
-            tranches: tranchesWithTimestamps,
-            brokerFee: brokerFee
-        });
+        depositAmount = fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranchesWithTimestamps });
         for (uint256 i = 0; i < tranchesWithTimestamps.length; ++i) {
             tranches[i].amount = tranchesWithTimestamps[i].amount;
         }
     }
 
-    /// @dev Fuzzes the tranche amounts and calculates the total and create amounts (deposit and broker fee).
+    /// @dev Fuzzes the tranche amounts and calculates the deposit amount.
     function fuzzTranchedStreamAmounts(
         uint128 upperBound,
-        LockupTranched.TrancheWithDuration[] memory tranches,
-        UD60x18 brokerFee
+        LockupTranched.TrancheWithDuration[] memory tranches
     )
         internal
         view
-        returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
+        returns (uint128 depositAmount)
     {
         LockupTranched.Tranche[] memory tranchesWithTimestamps = getTranchesWithTimestamps(tranches);
-        (totalAmount, createAmounts) = fuzzTranchedStreamAmounts(upperBound, tranchesWithTimestamps, brokerFee);
+        depositAmount = fuzzTranchedStreamAmounts(upperBound, tranchesWithTimestamps);
         for (uint256 i = 0; i < tranchesWithTimestamps.length; ++i) {
             tranches[i].amount = tranchesWithTimestamps[i].amount;
         }
     }
 
-    /// @dev Fuzzes the tranche amounts and calculates the total and create amounts (deposit and broker fee).
+    /// @dev Fuzzes the tranche amounts and calculates the deposit amount.
     function fuzzTranchedStreamAmounts(
         uint128 upperBound,
-        LockupTranched.Tranche[] memory tranches,
-        UD60x18 brokerFee
+        LockupTranched.Tranche[] memory tranches
     )
         internal
         pure
-        returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
+        returns (uint128 depositAmount)
     {
         uint256 trancheCount = tranches.length;
         uint128 maxTrancheAmount = upperBound / uint128(trancheCount * 2);
 
         // Precompute the first tranche amount to prevent zero deposit amounts.
         tranches[0].amount = boundUint128(tranches[0].amount, 100, maxTrancheAmount);
-        uint128 estimatedDepositAmount = tranches[0].amount;
+        depositAmount = tranches[0].amount;
 
         // Fuzz the other tranche amounts by bounding from 0.
         unchecked {
             for (uint256 i = 1; i < trancheCount; ++i) {
                 tranches[i].amount = boundUint128(tranches[i].amount, 0, maxTrancheAmount);
-                estimatedDepositAmount += tranches[i].amount;
+                depositAmount += tranches[i].amount;
             }
         }
-
-        // Calculate the total amount from the approximated deposit amount (recall that the sum of all tranche amounts
-        // must equal the deposit amount) using this formula:
-        //
-        // $$
-        // total = \frac{deposit}{1e18 - brokerFee}
-        // $$
-        totalAmount = ud(estimatedDepositAmount).div(ud(uUNIT - brokerFee.intoUint256())).intoUint128();
-
-        // Calculate the broker fee amount.
-        createAmounts.brokerFee = ud(totalAmount).mul(brokerFee).intoUint128();
-
-        // Here, we account for rounding errors and adjust the estimated deposit amount and the tranches. We know
-        // that the estimated deposit amount is not greater than the adjusted deposit amount below, because the inverse
-        // of {Helpers.checkAndCalculateBrokerFee} over-expresses the weight of the broker fee.
-        createAmounts.deposit = totalAmount - createAmounts.brokerFee;
-        tranches[tranches.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
     }
 }

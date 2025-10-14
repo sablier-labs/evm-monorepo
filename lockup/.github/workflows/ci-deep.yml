@@ -27,14 +27,14 @@ on:
         required: false
 
 jobs:
-  lint:
-    uses: "sablier-labs/gha-utils/.github/workflows/evm-lint.yml@main"
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
 
   build:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
 
   test-unit:
-    needs: ["lint", "build"]
+    needs: ["check", "build"]
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: ${{ fromJSON(inputs.unitFuzzRuns || '50000') }}
@@ -43,7 +43,7 @@ jobs:
       name: "Unit tests"
 
   test-integration:
-    needs: ["lint", "build"]
+    needs: ["check", "build"]
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: ${{ fromJSON(inputs.integrationFuzzRuns || '50000') }}
@@ -52,7 +52,7 @@ jobs:
       name: "Integration tests"
 
   test-invariant:
-    needs: ["lint", "build"]
+    needs: ["check", "build"]
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-invariant-depth: ${{ fromJSON(inputs.invariantDepth || '100') }}
@@ -62,7 +62,7 @@ jobs:
       name: "Invariant tests"
 
   test-fork:
-    needs: ["lint", "build"]
+    needs: ["check", "build"]
     secrets:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
       ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
@@ -76,7 +76,7 @@ jobs:
 
   notify-on-failure:
     if: failure()
-    needs: ["lint", "build", "test-unit", "test-integration", "test-invariant", "test-fork"]
+    needs: ["check", "build", "test-unit", "test-integration", "test-invariant", "test-fork"]
     runs-on: "ubuntu-latest"
     steps:
       - name: "Send Slack notification"

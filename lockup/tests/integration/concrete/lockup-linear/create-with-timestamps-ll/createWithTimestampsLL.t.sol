@@ -4,14 +4,14 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+import { ISablierLockupLinear } from "src/interfaces/ISablierLockupLinear.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/Lockup.sol";
 
 import {
     CreateWithTimestamps_Integration_Concrete_Test,
     Integration_Test
-} from "../../lockup-base/create-with-timestamps/createWithTimestamps.t.sol";
+} from "../../lockup/create-with-timestamps/createWithTimestamps.t.sol";
 
 contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamps_Integration_Concrete_Test {
     function setUp() public override {
@@ -23,11 +23,11 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeZero
     {
@@ -44,11 +44,11 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeZero
     {
@@ -69,27 +69,27 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeZero
     {
         uint40 cliffTime = 0;
-        _testCreateWithTimestampsLL(address(dai), cliffTime);
+        _testCreateWithTimestampsLL(cliffTime);
     }
 
     function test_RevertWhen_StartTimeNotLessThanCliffTime()
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeNotZero
     {
@@ -111,11 +111,11 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
@@ -136,11 +136,11 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
@@ -162,73 +162,101 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
         whenSenderNotZeroAddress
         whenRecipientNotZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotZero
+        whenTokenNotNativeToken
         whenTokenContract
         whenCliffTimeNotZero
         whenStartTimeLessThanCliffTime
         whenCliffTimeLessThanEndTime
         whenUnlockAmountsSumNotExceedDepositAmount
     {
-        _testCreateWithTimestampsLL(address(usdt), _defaultParams.cliffTime);
-    }
+        IERC20 _usdt = IERC20(address(usdt));
 
-    function test_WhenTokenNotMissERC20ReturnValue()
-        external
-        whenNoDelegateCall
-        whenShapeNotExceed32Bytes
-        whenBrokerFeeNotExceedMaxValue
-        whenSenderNotZeroAddress
-        whenRecipientNotZeroAddress
-        whenDepositAmountNotZero
-        whenStartTimeNotZero
-        whenTokenContract
-        whenCliffTimeNotZero
-        whenStartTimeLessThanCliffTime
-        whenCliffTimeLessThanEndTime
-        whenUnlockAmountsSumNotExceedDepositAmount
-    {
-        _testCreateWithTimestampsLL(address(dai), _defaultParams.cliffTime);
-    }
+        // Update the default parameters.
+        _defaultParams.createWithTimestamps.token = _usdt;
+        _defaultParams.createWithTimestamps.depositAmount = defaults.DEPOSIT_AMOUNT_6D();
+        _defaultParams.unlockAmounts.cliff = defaults.CLIFF_AMOUNT_6D();
 
-    /// @dev Shared logic between {test_WhenStartTimeLessThanEndTime}, {test_WhenTokenMissesERC20ReturnValue} and
-    /// {test_WhenTokenNotMissERC20ReturnValue}.
-    function _testCreateWithTimestampsLL(address token, uint40 cliffTime) private {
-        // Make the Sender the stream's funder.
-        address funder = users.sender;
+        uint256 previousAggregateAmount = lockup.aggregateAmount(_usdt);
         uint256 expectedStreamId = lockup.nextStreamId();
-
-        // Set the default parameters.
-        _defaultParams.createWithTimestamps.token = IERC20(token);
-        _defaultParams.unlockAmounts.cliff = cliffTime == 0 ? 0 : _defaultParams.unlockAmounts.cliff;
-        _defaultParams.cliffTime = cliffTime;
 
         // It should perform the ERC-20 transfers.
         expectCallToTransferFrom({
-            token: IERC20(token),
-            from: funder,
+            token: _usdt,
+            from: users.sender,
             to: address(lockup),
-            value: defaults.DEPOSIT_AMOUNT()
-        });
-
-        // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({
-            token: IERC20(token),
-            from: funder,
-            to: users.broker,
-            value: defaults.BROKER_FEE_AMOUNT()
+            value: defaults.DEPOSIT_AMOUNT_6D()
         });
 
         // It should emit {MetadataUpdate} and {CreateLockupLinearStream} events.
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.CreateLockupLinearStream({
+        emit ISablierLockupLinear.CreateLockupLinearStream({
             streamId: expectedStreamId,
-            commonParams: defaults.lockupCreateEvent(IERC20(token)),
+            commonParams: defaults.lockupCreateEvent(_usdt, defaults.DEPOSIT_AMOUNT_6D()),
+            cliffTime: _defaultParams.cliffTime,
+            unlockAmounts: _defaultParams.unlockAmounts
+        });
+
+        // Create the stream.
+        uint256 streamId = createDefaultStream();
+
+        // It should create the stream.
+        assertEqStream(streamId, _usdt);
+        assertEq(lockup.getCliffTime(streamId), _defaultParams.cliffTime, "cliffTime");
+        assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
+        assertEq(lockup.getUnlockAmounts(streamId), _defaultParams.unlockAmounts);
+        assertEq(
+            lockup.aggregateAmount(_usdt), previousAggregateAmount + defaults.DEPOSIT_AMOUNT_6D(), "aggregateAmount"
+        );
+    }
+
+    function test_WhenTokenNotMissERC20ReturnValue()
+        external
+        whenNoDelegateCall
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
+        whenCliffTimeNotZero
+        whenStartTimeLessThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenUnlockAmountsSumNotExceedDepositAmount
+    {
+        _testCreateWithTimestampsLL(_defaultParams.cliffTime);
+    }
+
+    /// @dev Shared logic between {test_WhenStartTimeLessThanEndTime} and {test_WhenTokenMissesERC20ReturnValue}.
+    function _testCreateWithTimestampsLL(uint40 cliffTime) private {
+        // Update the default parameters.
+        _defaultParams.unlockAmounts.cliff = cliffTime == 0 ? 0 : _defaultParams.unlockAmounts.cliff;
+        _defaultParams.cliffTime = cliffTime;
+
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
+        uint256 expectedStreamId = lockup.nextStreamId();
+
+        // It should perform the ERC-20 transfers.
+        expectCallToTransferFrom({
+            token: dai,
+            from: users.sender,
+            to: address(lockup),
+            value: defaults.DEPOSIT_AMOUNT()
+        });
+
+        // It should emit {MetadataUpdate} and {CreateLockupLinearStream} events.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit IERC4906.MetadataUpdate({ _tokenId: expectedStreamId });
+        vm.expectEmit({ emitter: address(lockup) });
+        emit ISablierLockupLinear.CreateLockupLinearStream({
+            streamId: expectedStreamId,
+            commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
             cliffTime: cliffTime,
             unlockAmounts: _defaultParams.unlockAmounts
         });
@@ -237,11 +265,10 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         uint256 streamId = createDefaultStream();
 
         // It should create the stream.
-        assertEqStream(streamId);
+        assertEqStream(streamId, dai);
         assertEq(lockup.getCliffTime(streamId), cliffTime, "cliffTime");
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_LINEAR);
-        assertEq(lockup.getUnderlyingToken(streamId), IERC20(token), "underlyingToken");
-        assertEq(lockup.getUnlockAmounts(streamId).start, _defaultParams.unlockAmounts.start, "unlockAmounts.start");
-        assertEq(lockup.getUnlockAmounts(streamId).cliff, _defaultParams.unlockAmounts.cliff, "unlockAmounts.cliff");
+        assertEq(lockup.getUnlockAmounts(streamId), _defaultParams.unlockAmounts);
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount + defaults.DEPOSIT_AMOUNT(), "aggregateAmount");
     }
 }

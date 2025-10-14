@@ -5,12 +5,16 @@ import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol
 
 /// @title ISablierLockupRecipient
 /// @notice Interface for recipient contracts capable of reacting to cancellations and withdrawals. For this to be able
-/// to hook into Sablier, it must fully implement this interface and it must have been allowlisted by the Lockup
-/// contract's admin.
+/// to hook into Sablier, it must fully implement this interface and it must have been allowlisted in the Lockup
+/// contract.
 /// @dev See {IERC165-supportsInterface}.
 /// The implementation MUST implement the {IERC165-supportsInterface} method, which MUST return `true` when called with
 /// `0xf8ee98d3`, i.e. `type(ISablierLockupRecipient).interfaceId`.
 interface ISablierLockupRecipient is IERC165 {
+    /*//////////////////////////////////////////////////////////////////////////
+                        USER-FACING STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @notice Responds to cancellations.
     ///
     /// @dev Notes:
