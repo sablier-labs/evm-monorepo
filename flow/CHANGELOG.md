@@ -30,8 +30,6 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Function to calculate minimum fee in wei ([#454](https://github.com/sablier-labs/flow/pull/454))
 - Emit creator address in stream creation events ([#456](https://github.com/sablier-labs/flow/pull/456))
 - Return refunded amount on `refundMax` function ([#445](https://github.com/sablier-labs/flow/pull/445))
-- ERC20 recovery functionality ([#446](https://github.com/sablier-labs/flow/pull/446))
-- `getRecipient` function to retrieve stream recipient ([#446](https://github.com/sablier-labs/flow/pull/446))
 - Add `@sablier/evm-utils` dependency
 
 ### Removed
