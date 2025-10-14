@@ -9,7 +9,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [1.1.0]: https://github.com/sablier-labs/flow/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/sablier-labs/flow/releases/tag/v1.0.0
 
-## [2.0.0] - 2025-10-09
+## [2.0.0] - 2025-10-14
 
 ### Changed
 
