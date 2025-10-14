@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+[3.0.1]: https://github.com/sablier-labs/lockup/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/sablier-labs/lockup/compare/v2.0.1...v3.0.0
 [2.0.1]: https://github.com/sablier-labs/lockup/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/sablier-labs/lockup/compare/v1.2.0...v2.0.0
@@ -14,6 +15,12 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [1.0.2]: https://github.com/sablier-labs/lockup/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/sablier-labs/lockup/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/sablier-labs/lockup/releases/tag/v1.0.0
+
+## [3.0.1] - 2025-10-14
+
+### Changed
+
+- Bump package version for NPM release ([#1297](https://github.com/sablier-labs/lockup/pull/1297))
 
 ## [3.0.0] - 2025-10-07
 
