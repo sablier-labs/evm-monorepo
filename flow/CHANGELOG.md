@@ -15,7 +15,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 - **Breaking:** Replace admin with comptroller ([#451](https://github.com/sablier-labs/flow/pull/451),
   [#454](https://github.com/sablier-labs/flow/pull/454))
-- **Breaking**: Adjusting rate per second is no longer allowed with 0 value
+- **Breaking**: Adjusting rate per second is no longer allowed with zero value
   ([#392](https://github.com/sablier-labs/flow/pull/392))
 - Rename `aggregateBalance` to `aggregateAmount` ([#418](https://github.com/sablier-labs/flow/pull/418))
 - Rename `SablierFlowBase` to `SablierFlowState` ([#446](https://github.com/sablier-labs/flow/pull/446))
