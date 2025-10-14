@@ -1,5 +1,0 @@
-GetFirstClaimTime_Integration_Test
-├── when first claim not made
-│  └── it should return 0
-└── when first claim made
-   └── it should return the time of the first claim

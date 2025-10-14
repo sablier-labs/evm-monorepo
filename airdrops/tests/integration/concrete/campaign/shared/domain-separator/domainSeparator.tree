@@ -1,0 +1,5 @@
+DomainSeparator_Integration_Test
+├── when chain ID matches cached chain ID
+│  └── it should return the cached domain separator
+└── when chain ID not match cached chain ID
+   └── it should return the computed domain separator

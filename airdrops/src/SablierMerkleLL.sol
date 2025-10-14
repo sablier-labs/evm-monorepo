@@ -1,15 +1,14 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { ud60x18, ZERO } from "@prb/math/src/UD60x18.sol";
-import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
-import { Broker, Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
+import { ud60x18, UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
 
-import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
+import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
 import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
-import { MerkleBase, MerkleLL } from "./types/DataTypes.sol";
+import { MerkleLL } from "./types/DataTypes.sol";
 
 /*
 
@@ -32,8 +31,8 @@ import { MerkleBase, MerkleLL } from "./types/DataTypes.sol";
 /// @title SablierMerkleLL
 /// @notice See the documentation in {ISablierMerkleLL}.
 contract SablierMerkleLL is
-    ISablierMerkleLL, // 2 inherited components
-    SablierMerkleBase // 4 inherited components
+    ISablierMerkleLL, // 3 inherited components
+    SablierMerkleLockup // 5 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -42,16 +41,19 @@ contract SablierMerkleLL is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLL
-    ISablierLockup public immutable override LOCKUP;
+    uint40 public immutable override VESTING_CLIFF_DURATION;
 
     /// @inheritdoc ISablierMerkleLL
-    bool public immutable override STREAM_CANCELABLE;
+    UD60x18 public immutable override VESTING_CLIFF_UNLOCK_PERCENTAGE;
 
     /// @inheritdoc ISablierMerkleLL
-    bool public immutable override STREAM_TRANSFERABLE;
+    uint40 public immutable override VESTING_START_TIME;
 
-    /// @dev See the documentation in {ISablierMerkleLL.getSchedule}.
-    MerkleLL.Schedule private _schedule;
+    /// @inheritdoc ISablierMerkleLL
+    UD60x18 public immutable override VESTING_START_UNLOCK_PERCENTAGE;
+
+    /// @inheritdoc ISablierMerkleLL
+    uint40 public immutable override VESTING_TOTAL_DURATION;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -60,77 +62,159 @@ contract SablierMerkleLL is
     /// @dev Constructs the contract by initializing the immutable state variables, and max approving the Lockup
     /// contract.
     constructor(
-        MerkleBase.ConstructorParams memory baseParams,
+        MerkleLL.ConstructorParams memory params,
         address campaignCreator,
-        ISablierLockup lockup,
-        bool cancelable,
-        bool transferable,
-        MerkleLL.Schedule memory schedule
+        address comptroller
     )
-        SablierMerkleBase(baseParams, campaignCreator)
+        SablierMerkleLockup(
+            campaignCreator,
+            params.campaignName,
+            params.campaignStartTime,
+            params.cancelable,
+            comptroller,
+            params.lockup,
+            params.expiration,
+            params.initialAdmin,
+            params.ipfsCID,
+            params.merkleRoot,
+            params.shape,
+            params.token,
+            params.transferable
+        )
     {
-        LOCKUP = lockup;
-        STREAM_CANCELABLE = cancelable;
-        STREAM_TRANSFERABLE = transferable;
-        _schedule = schedule;
-
-        // Max approve the Lockup contract to spend funds from the MerkleLL contract.
-        TOKEN.forceApprove(address(LOCKUP), type(uint256).max);
+        // Effect: set the immutable variables.
+        VESTING_CLIFF_DURATION = params.cliffDuration;
+        VESTING_CLIFF_UNLOCK_PERCENTAGE = params.cliffUnlockPercentage;
+        VESTING_START_TIME = params.vestingStartTime;
+        VESTING_START_UNLOCK_PERCENTAGE = params.startUnlockPercentage;
+        VESTING_TOTAL_DURATION = params.totalDuration;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING CONSTANT FUNCTIONS
+                        USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleLL
-    function getSchedule() external view override returns (MerkleLL.Schedule memory) {
-        return _schedule;
+    function claim(
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] calldata merkleProof
+    )
+        external
+        payable
+        override
+    {
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
+        _preProcessClaim(index, recipient, amount, merkleProof);
+
+        // Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
+        _postProcessClaim({ index: index, recipient: recipient, to: recipient, amount: amount, viaSig: false });
+    }
+
+    /// @inheritdoc ISablierMerkleLL
+    function claimTo(
+        uint256 index,
+        address to,
+        uint128 amount,
+        bytes32[] calldata merkleProof
+    )
+        external
+        payable
+        override
+        notZeroAddress(to)
+    {
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
+        _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
+
+        // Effect and Interaction: Post-process the claim parameters on behalf of `msg.sender`.
+        _postProcessClaim({ index: index, recipient: msg.sender, to: to, amount: amount, viaSig: false });
+    }
+
+    /// @inheritdoc ISablierMerkleLL
+    function claimViaSig(
+        uint256 index,
+        address recipient,
+        address to,
+        uint128 amount,
+        uint40 validFrom,
+        bytes32[] calldata merkleProof,
+        bytes calldata signature
+    )
+        external
+        payable
+        override
+        notZeroAddress(to)
+    {
+        // Check: the signature is valid and the recovered signer matches the recipient.
+        _checkSignature(index, recipient, to, amount, validFrom, signature);
+
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
+        _preProcessClaim(index, recipient, amount, merkleProof);
+
+        // Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
+        _postProcessClaim({ index: index, recipient: recipient, to: to, amount: amount, viaSig: true });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL NON-CONSTANT FUNCTIONS
+                          PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc SablierMerkleBase
-    function _claim(uint256 index, address recipient, uint128 amount) internal override {
-        // Calculate the timestamps for the stream.
+    /// @dev Post-processes the claim execution by creating the stream or transferring the tokens directly and emitting
+    /// an event.
+    function _postProcessClaim(uint256 index, address recipient, address to, uint128 amount, bool viaSig) private {
+        // Calculate the timestamps.
         Lockup.Timestamps memory timestamps;
-        if (_schedule.startTime == 0) {
+        // Zero is a sentinel value for `block.timestamp`.
+        if (VESTING_START_TIME == 0) {
             timestamps.start = uint40(block.timestamp);
         } else {
-            timestamps.start = _schedule.startTime;
+            timestamps.start = VESTING_START_TIME;
         }
+        timestamps.end = timestamps.start + VESTING_TOTAL_DURATION;
 
-        uint40 cliffTime;
+        // If the end time is not in the future, transfer the amount directly to the `to` address..
+        if (timestamps.end <= block.timestamp) {
+            // Interaction: transfer the tokens to the `to` address.
+            TOKEN.safeTransfer(to, amount);
 
-        if (_schedule.cliffDuration > 0) {
-            cliffTime = timestamps.start + _schedule.cliffDuration;
+            // Emit claim event.
+            emit ClaimLLWithTransfer(index, recipient, amount, to, viaSig);
         }
-        timestamps.end = timestamps.start + _schedule.totalDuration;
+        // Otherwise, create the Lockup stream to start the vesting.
+        else {
+            // Calculate cliff time.
+            uint40 cliffTime;
+            if (VESTING_CLIFF_DURATION > 0) {
+                cliffTime = timestamps.start + VESTING_CLIFF_DURATION;
+            }
 
-        // Calculate the unlock amounts based on the percentages.
-        LockupLinear.UnlockAmounts memory unlockAmounts;
-        unlockAmounts.start = ud60x18(amount).mul(_schedule.startPercentage.intoUD60x18()).intoUint128();
-        unlockAmounts.cliff = ud60x18(amount).mul(_schedule.cliffPercentage.intoUD60x18()).intoUint128();
+            // Calculate the unlock amounts based on the percentages.
+            LockupLinear.UnlockAmounts memory unlockAmounts;
+            unlockAmounts.start = ud60x18(amount).mul(VESTING_START_UNLOCK_PERCENTAGE).intoUint128();
+            unlockAmounts.cliff = ud60x18(amount).mul(VESTING_CLIFF_UNLOCK_PERCENTAGE).intoUint128();
 
-        // Interaction: create the stream via {SablierLockup}.
-        uint256 streamId = LOCKUP.createWithTimestampsLL(
-            Lockup.CreateWithTimestamps({
-                sender: admin,
-                recipient: recipient,
-                totalAmount: amount,
-                token: TOKEN,
-                cancelable: STREAM_CANCELABLE,
-                transferable: STREAM_TRANSFERABLE,
-                timestamps: timestamps,
-                shape: string(abi.encodePacked(SHAPE)),
-                broker: Broker({ account: address(0), fee: ZERO })
-            }),
-            unlockAmounts,
-            cliffTime
-        );
+            // Safe Interaction: create the stream with `to` as the stream recipient.
+            uint256 streamId = SABLIER_LOCKUP.createWithTimestampsLL(
+                Lockup.CreateWithTimestamps({
+                    sender: admin,
+                    recipient: to,
+                    depositAmount: amount,
+                    token: TOKEN,
+                    cancelable: STREAM_CANCELABLE,
+                    transferable: STREAM_TRANSFERABLE,
+                    timestamps: timestamps,
+                    shape: streamShape
+                }),
+                unlockAmounts,
+                cliffTime
+            );
 
-        // Log the claim.
-        emit Claim(index, recipient, amount, streamId);
+            // Effect: push the stream ID into the claimed streams array.
+            _claimedStreams[recipient].push(streamId);
+
+            // Emit claim event.
+            emit ClaimLLWithVesting(index, recipient, amount, streamId, to, viaSig);
+        }
     }
 }

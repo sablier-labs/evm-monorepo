@@ -1,14 +1,49 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented in this file. The format is based on
+[Common Changelog](https://common-changelog.org/).
 
-The format is based on [Common Changelog](https://common-changelog.org/).
+[2.0.0]: https://github.com/sablier-labs/airdrops/compare/v1.3.0...v2.0.0
+[1.3.0]: https://github.com/sablier-labs/airdrops/releases/tag/v1.3.0
+
+## [2.0.0] - 2025-10-08
+
+### Changed
+
+- **BREAKING**: Replace single factory with separate factories for each campaign type
+  ([#70](https://github.com/sablier-labs/airdrops/pull/70))
+- **BREAKING**: Store fee as USD value instead of native token value
+  ([#68](https://github.com/sablier-labs/airdrops/pull/68))
+- Refactor existing `Claim` events ([#163](https://github.com/sablier-labs/airdrops/pull/163))
+- Refactor schedule struct into `immutable` variables in `SablierMerkleLL`
+  ([#125](https://github.com/sablier-labs/airdrops/pull/125))
+- Rename `STREAM_START_TIME` to `VESTING_START_TIME` in `SablierMerkleLT`
+  ([#125](https://github.com/sablier-labs/airdrops/pull/125))
+- Rename `getTranchesWithPercentages` to `tranchesWithPercentages`
+- Rename `getFirstClaimTime()` to `firstClaimTime()`
+
+### Added
+
+- Add comptroller via `@sablier/evm-utils` dependency ([#162](https://github.com/sablier-labs/airdrops/pull/162))
+- Add `SablierMerkleVCA` contract ([#58](https://github.com/sablier-labs/airdrops/pull/58))
+- Add `EIP-712` and `EIP-1271` signature support for claiming airdrops
+  ([#160](https://github.com/sablier-labs/airdrops/pull/160))
+- Claim airdrops to a third-party address ([#152](https://github.com/sablier-labs/airdrops/pull/152))
+- Add campaign start time parameter ([#157](https://github.com/sablier-labs/airdrops/pull/157))
+- Add new `Claim` events ([#163](https://github.com/sablier-labs/airdrops/pull/163))
+- Add function to get stream IDs associated with airdrop claims
+  ([#72](https://github.com/sablier-labs/airdrops/pull/72))
+- Transfer tokens directly if claimed after vesting end time ([#77](https://github.com/sablier-labs/airdrops/pull/77))
+
+### Removed
+
+- Remove `collectFees()` from campaign contracts (moved to factory)
+
+## [1.3.0] - 2025-01-29
 
 <!-- prettier-ignore -->
 > [!NOTE]
 > Versioning begins at 1.3.0 as this repository is the successor of [V2 Periphery](https://github.com/sablier-labs/v2-periphery). For previous changes, please refer to the [V2 Periphery Changelog](https://github.com/sablier-labs/v2-periphery/blob/main/CHANGELOG.md).
-
-## 1.3.0 - 2025-01-29
 
 ### Changed
 

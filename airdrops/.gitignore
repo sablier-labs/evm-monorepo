@@ -1,16 +1,17 @@
 # directories
 artifacts
-artifacts-zk
+artifacts-*
 broadcast
 cache
 cache_hardhat-zk
 coverage
 deployments
-deployments-zk
+deployments-*
 docs
 node_modules
 out
-out-optimized
+out-*
+repomix
 typechain-types
 
 # files
@@ -19,8 +20,9 @@ typechain-types
 *.log
 .DS_Store
 .pnp.*
+bun.lockb
+deployments.md
 lcov.info
 package-lock.json
 pnpm-lock.yaml
-script/protocol/*.md
 yarn.lock

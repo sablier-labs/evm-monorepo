@@ -1,25 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
+import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
+import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "../Base.t.sol";
-import { ContractWithoutReceiveEth, ContractWithReceiveEth } from "../mocks/ReceiveEth.sol";
+import { Utilities } from "../utils/Utilities.sol";
 
-contract Integration_Test is Base_Test {
+abstract contract Integration_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ContractWithoutReceiveEth internal contractWithoutReceiveEth;
-    ContractWithReceiveEth internal contractWithReceiveEth;
-
-    /// @dev A test contract meant to be overridden by the implementing contract, which will be either
-    /// {SablierMerkleLL}, {SablierMerkleLT} or {SablierMerkleInstant}.
-    ISablierMerkleBase internal merkleBase;
+    /// @dev Type of the campaign, e.g., "instant", "ll", "lt", or "vca".
+    string internal campaignType;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -28,35 +25,122 @@ contract Integration_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        contractWithoutReceiveEth = new ContractWithoutReceiveEth();
-        contractWithReceiveEth = new ContractWithReceiveEth();
-        vm.label({ account: address(contractWithoutReceiveEth), newLabel: "Contract Without Receive Eth" });
-        vm.label({ account: address(contractWithReceiveEth), newLabel: "Contract With Receive Eth" });
+        // Make campaign creator the caller.
+        setMsgSender(users.campaignCreator);
 
-        // Make campaign owner the caller.
-        resetPrank(users.campaignOwner);
-
-        // Create the default Merkle contracts.
+        // Create the default Merkle contracts and fund them.
         merkleInstant = createMerkleInstant();
         merkleLL = createMerkleLL();
         merkleLT = createMerkleLT();
-
-        // Fund the contracts.
-        deal({ token: address(dai), to: address(merkleInstant), give: defaults.AGGREGATE_AMOUNT() });
-        deal({ token: address(dai), to: address(merkleLL), give: defaults.AGGREGATE_AMOUNT() });
-        deal({ token: address(dai), to: address(merkleLT), give: defaults.AGGREGATE_AMOUNT() });
+        merkleVCA = createMerkleVCA();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   MERKLE-BASE
+                                   MERKLE-CLAIMS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function claim() internal {
-        merkleBase.claim{ value: defaults.FEE() }({
-            index: defaults.INDEX1(),
-            recipient: users.recipient1,
-            amount: defaults.CLAIM_AMOUNT(),
-            merkleProof: defaults.index1Proof()
+    /// @dev Claim to `users.recipient` address using {claim} function.
+    function claim() internal virtual {
+        claim({
+            msgValue: AIRDROP_MIN_FEE_WEI,
+            index: getIndexInMerkleTree(),
+            recipient: users.recipient,
+            amount: CLAIM_AMOUNT,
+            merkleProof: getMerkleProof()
+        });
+    }
+
+    function claim(
+        uint256 msgValue,
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] memory merkleProof
+    )
+        internal
+        virtual
+    {
+        // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
+        // claim function signature.
+        address campaignAddr = address(merkleBase);
+        ISablierMerkleInstant(campaignAddr).claim{ value: msgValue }(index, recipient, amount, merkleProof);
+    }
+
+    /// @dev Claim to Eve address on behalf of `users.recipient` using {claimTo} function.
+    function claimTo() internal {
+        claimTo({
+            msgValue: AIRDROP_MIN_FEE_WEI,
+            index: getIndexInMerkleTree(),
+            to: users.eve,
+            amount: CLAIM_AMOUNT,
+            merkleProof: getMerkleProof()
+        });
+    }
+
+    function claimTo(
+        uint256 msgValue,
+        uint256 index,
+        address to,
+        uint128 amount,
+        bytes32[] memory merkleProof
+    )
+        internal
+    {
+        // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
+        // claimTo function signature.
+        address campaignAddr = address(merkleBase);
+        ISablierMerkleInstant(campaignAddr).claimTo{ value: msgValue }(index, to, amount, merkleProof);
+    }
+
+    /// @dev Claim using default values for {claimViaSig} function.
+    function claimViaSig() internal {
+        claimViaSig(users.recipient, CLAIM_AMOUNT);
+    }
+
+    /// @dev Claim using recipient and amount parameters for {claimViaSig} function.
+    function claimViaSig(address recipient, uint128 amount) internal {
+        claimViaSig({
+            msgValue: AIRDROP_MIN_FEE_WEI,
+            index: getIndexInMerkleTree(recipient),
+            recipient: recipient,
+            to: users.eve,
+            amount: amount,
+            validFrom: VALID_FROM,
+            merkleProof: getMerkleProof(recipient),
+            signature: generateSignature(recipient, address(merkleBase))
+        });
+    }
+
+    function claimViaSig(
+        uint256 msgValue,
+        uint256 index,
+        address recipient,
+        address to,
+        uint128 amount,
+        uint40 validFrom,
+        bytes32[] memory merkleProof,
+        bytes memory signature
+    )
+        internal
+    {
+        // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
+        // claimViaSig function signature.
+        address campaignAddr = address(merkleBase);
+        ISablierMerkleInstant(campaignAddr).claimViaSig{ value: msgValue }(
+            index, recipient, to, amount, validFrom, merkleProof, signature
+        );
+    }
+
+    /// @dev Generate the EIP-712 signature to claim with default parameters.
+    function generateSignature(address user, address merkleContract) internal view returns (bytes memory) {
+        return Utilities.generateEIP712Signature({
+            signerPrivateKey: recipientPrivateKey,
+            merkleContract: merkleContract,
+            index: getIndexInMerkleTree(user),
+            recipient: user,
+            to: users.eve,
+            amount: CLAIM_AMOUNT,
+            validFrom: VALID_FROM
         });
     }
 
@@ -64,110 +148,71 @@ contract Integration_Test is Base_Test {
                                     MERKLE-INSTANT
     //////////////////////////////////////////////////////////////////////////*/
 
-    function computeMerkleInstantAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleInstantAddress({
-            campaignCreator: users.campaignOwner,
-            campaignOwner: campaignOwner,
-            token_: dai,
-            merkleRoot: defaults.MERKLE_ROOT(),
-            expiration: expiration
-        });
-    }
-
     function createMerkleInstant() internal returns (ISablierMerkleInstant) {
-        return createMerkleInstant(users.campaignOwner, defaults.EXPIRATION());
+        return createMerkleInstant(merkleInstantConstructorParams());
     }
 
-    function createMerkleInstant(address campaignOwner) internal returns (ISablierMerkleInstant) {
-        return createMerkleInstant(campaignOwner, defaults.EXPIRATION());
-    }
+    function createMerkleInstant(MerkleInstant.ConstructorParams memory params)
+        internal
+        returns (ISablierMerkleInstant campaignAddress)
+    {
+        campaignAddress = factoryMerkleInstant.createMerkleInstant(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
-    function createMerkleInstant(uint40 expiration) internal returns (ISablierMerkleInstant) {
-        return createMerkleInstant(users.campaignOwner, expiration);
-    }
-
-    function createMerkleInstant(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleInstant) {
-        return merkleFactory.createMerkleInstant({
-            baseParams: defaults.baseParams(campaignOwner, dai, expiration, defaults.MERKLE_ROOT()),
-            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT()
-        });
+        // Fund the campaign.
+        fundCampaignWithDai(address(campaignAddress));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-LL
     //////////////////////////////////////////////////////////////////////////*/
 
-    function computeMerkleLLAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleLLAddress({
-            campaignCreator: users.campaignOwner,
-            campaignOwner: campaignOwner,
-            token_: dai,
-            merkleRoot: defaults.MERKLE_ROOT(),
-            expiration: expiration
-        });
-    }
-
     function createMerkleLL() internal returns (ISablierMerkleLL) {
-        return createMerkleLL(users.campaignOwner, defaults.EXPIRATION());
+        return createMerkleLL(merkleLLConstructorParams());
     }
 
-    function createMerkleLL(address campaignOwner) internal returns (ISablierMerkleLL) {
-        return createMerkleLL(campaignOwner, defaults.EXPIRATION());
-    }
+    function createMerkleLL(MerkleLL.ConstructorParams memory params)
+        internal
+        returns (ISablierMerkleLL campaignAddress)
+    {
+        campaignAddress = factoryMerkleLL.createMerkleLL(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
 
-    function createMerkleLL(uint40 expiration) internal returns (ISablierMerkleLL) {
-        return createMerkleLL(users.campaignOwner, expiration);
-    }
-
-    function createMerkleLL(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLL) {
-        return merkleFactory.createMerkleLL({
-            baseParams: defaults.baseParams(campaignOwner, dai, expiration, defaults.MERKLE_ROOT()),
-            lockup: lockup,
-            cancelable: defaults.CANCELABLE(),
-            transferable: defaults.TRANSFERABLE(),
-            schedule: defaults.schedule(),
-            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT()
-        });
+        // Fund the campaign.
+        fundCampaignWithDai(address(campaignAddress));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-LT
     //////////////////////////////////////////////////////////////////////////*/
 
-    function computeMerkleLTAddress(address campaignOwner, uint40 expiration) internal view returns (address) {
-        return computeMerkleLTAddress({
-            campaignCreator: users.campaignOwner,
-            campaignOwner: campaignOwner,
-            token_: dai,
-            merkleRoot: defaults.MERKLE_ROOT(),
-            expiration: expiration
-        });
-    }
-
     function createMerkleLT() internal returns (ISablierMerkleLT) {
-        return createMerkleLT(users.campaignOwner, defaults.EXPIRATION());
+        return createMerkleLT(merkleLTConstructorParams());
     }
 
-    function createMerkleLT(address campaignOwner) internal returns (ISablierMerkleLT) {
-        return createMerkleLT(campaignOwner, defaults.EXPIRATION());
+    function createMerkleLT(MerkleLT.ConstructorParams memory params)
+        internal
+        returns (ISablierMerkleLT campaignAddress)
+    {
+        campaignAddress = factoryMerkleLT.createMerkleLT(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+
+        // Fund the campaign.
+        fundCampaignWithDai(address(campaignAddress));
     }
 
-    function createMerkleLT(uint40 expiration) internal returns (ISablierMerkleLT) {
-        return createMerkleLT(users.campaignOwner, expiration);
+    /*//////////////////////////////////////////////////////////////////////////
+                                    MERKLE-VCA
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function createMerkleVCA() internal returns (ISablierMerkleVCA) {
+        return createMerkleVCA(merkleVCAConstructorParams());
     }
 
-    function createMerkleLT(address campaignOwner, uint40 expiration) internal returns (ISablierMerkleLT) {
-        return merkleFactory.createMerkleLT({
-            baseParams: defaults.baseParams(campaignOwner, dai, expiration, defaults.MERKLE_ROOT()),
-            lockup: lockup,
-            cancelable: defaults.CANCELABLE(),
-            transferable: defaults.TRANSFERABLE(),
-            streamStartTime: defaults.STREAM_START_TIME_ZERO(),
-            tranchesWithPercentages: defaults.tranchesWithPercentages(),
-            aggregateAmount: defaults.AGGREGATE_AMOUNT(),
-            recipientCount: defaults.RECIPIENT_COUNT()
-        });
+    function createMerkleVCA(MerkleVCA.ConstructorParams memory params)
+        internal
+        returns (ISablierMerkleVCA campaignAddress)
+    {
+        campaignAddress = factoryMerkleVCA.createMerkleVCA(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+
+        // Fund the campaign.
+        fundCampaignWithDai(address(campaignAddress));
     }
 }

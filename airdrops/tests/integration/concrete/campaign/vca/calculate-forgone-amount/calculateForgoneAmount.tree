@@ -1,0 +1,13 @@
+CalculateForgoneAmount_MerkleVCA_Integration_Test
+├── when claim time zero
+│  └── it should use block time
+└── when claim time not zero
+   ├── when claim time less than vesting start time
+   │  └── it should revert
+   ├── when claim time equal vesting start time
+   │  └── it should return full vesting amount
+   └── when claim time greater than vesting start time
+      ├── when claim time not less than vesting end time
+      │  └── it should return 0
+      └── when claim time less than vesting end time
+         └── it should return the forgone amount

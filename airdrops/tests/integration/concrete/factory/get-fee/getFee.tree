@@ -1,5 +1,0 @@
-GetFee_Integration_Test
-├── given custom fee not set
-│  └── it should return default fee
-└── given custom fee set
-   └── it should return custom fee

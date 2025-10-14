@@ -5,5 +5,5 @@ coverage:
   status:
     patch: off
 ignore:
-  - "script"
+  - "scripts/solidity"
   - "tests"

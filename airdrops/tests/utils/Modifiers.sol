@@ -1,27 +1,27 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { Defaults } from "./Defaults.sol";
+import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { Users } from "./Types.sol";
 
-import { Utils } from "./Utils.sol";
-
-abstract contract Modifiers is Utils {
+abstract contract Modifiers is EvmUtilsBase {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    Defaults private defaults;
     Users private users;
 
-    function setVariables(Defaults _defaults, Users memory _users) public {
-        defaults = _defaults;
+    function setVariables(Users memory _users) public {
         users = _users;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenCallerNotClaimed() {
+        _;
+    }
 
     modifier givenCampaignNotExists() {
         _;
@@ -31,7 +31,19 @@ abstract contract Modifiers is Utils {
         _;
     }
 
+    modifier givenCampaignStartTimeNotInFuture() {
+        _;
+    }
+
     modifier givenMsgValueNotLessThanFee() {
+        _;
+    }
+
+    modifier givenRecipientIsContract() {
+        _;
+    }
+
+    modifier givenRecipientIsEOA() {
         _;
     }
 
@@ -40,7 +52,8 @@ abstract contract Modifiers is Utils {
     }
 
     modifier givenSevenDaysPassed() {
-        vm.warp({ newTimestamp: getBlockTimestamp() + 8 days });
+        // Skip forward by 8 days.
+        skip(8 days);
         _;
     }
 
@@ -52,18 +65,26 @@ abstract contract Modifiers is Utils {
         _;
     }
 
-    modifier whenCallerAdmin() {
-        // Make the Admin the caller in the rest of this test suite.
-        resetPrank({ msgSender: users.admin });
+    modifier whenCallerComptroller() {
+        setMsgSender(address(comptroller));
         _;
     }
 
-    modifier whenCallerCampaignOwner() {
-        resetPrank({ msgSender: users.campaignOwner });
+    modifier whenCallerCampaignCreator() {
+        setMsgSender(users.campaignCreator);
         _;
     }
 
-    modifier whenCampaignNameNotExceed32Bytes() {
+    modifier whenCallerEligible() {
+        setMsgSender(users.recipient);
+        _;
+    }
+
+    modifier whenClaimTimeGreaterThanVestingStartTime() {
+        _;
+    }
+
+    modifier whenClaimTimeNotZero() {
         _;
     }
 
@@ -71,7 +92,11 @@ abstract contract Modifiers is Utils {
         _;
     }
 
-    modifier whenFactoryAdminIsContract() {
+    modifier whenExpirationZero() {
+        _;
+    }
+
+    modifier whenExpirationExceedsOneWeekFromVestingEndTime() {
         _;
     }
 
@@ -87,23 +112,39 @@ abstract contract Modifiers is Utils {
         _;
     }
 
+    modifier whenNativeTokenNotFound() {
+        _;
+    }
+
+    modifier whenNewFeeLower() {
+        _;
+    }
+
+    modifier whenNotZeroExpiration() {
+        _;
+    }
+
     modifier whenPercentagesSumNot100Pct() {
         _;
     }
 
-    modifier whenProvidedMerkleLockupValid() {
+    modifier whenProvidedAddressNotZero() {
         _;
     }
 
-    modifier whenRecipientValid() {
+    modifier whenRecipientEligible() {
         _;
     }
 
-    modifier whenScheduledStartTimeZero() {
+    modifier whenSignatureCompatible() {
         _;
     }
 
-    modifier whenShapeNotExceed32Bytes() {
+    modifier whenSignerSameAsRecipient() {
+        _;
+    }
+
+    modifier whenToAddressNotZero() {
         _;
     }
 
@@ -119,7 +160,23 @@ abstract contract Modifiers is Utils {
         _;
     }
 
-    modifier whenWithdrawalAddressNotZero() {
+    modifier whenUnlockPercentageNotGreaterThan100() {
+        _;
+    }
+
+    modifier whenVestingEndTimeExceedsClaimTime() {
+        _;
+    }
+
+    modifier whenVestingEndTimeGreaterThanVestingStartTime() {
+        _;
+    }
+
+    modifier whenVestingStartTimeNotInFuture() {
+        _;
+    }
+
+    modifier whenVestingStartTimeNotZero() {
         _;
     }
 }

@@ -1,6 +1,0 @@
-SetDefaultFee_Integration_Test
-├── when caller not admin
-│   └── it should revert
-└── when caller admin
-    ├── it should set the default fee
-    └── it should emit a {setDefaultFee} event

@@ -1,0 +1,12 @@
+ComputeMerkleLT_Integration_Test
+├── when native token found
+│  └── it should revert
+└── when native token not found
+   ├── when total percentage not 100
+   │  ├── when total percentage less than 100
+   │  │  └── it should revert
+   │  └── when total percentage greater than 100
+   │     └── it should revert
+   └── when total percentage 100
+      └── it should return the address
+

@@ -2,10 +2,10 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IAdminable } from "@sablier/lockup/src/interfaces/IAdminable.sol";
+import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
 
 /// @title ISablierMerkleBase
-/// @dev Common interface between Merkle Lockups and Merkle Instant.
+/// @dev Common interface between campaign contracts.
 interface ISablierMerkleBase is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
@@ -14,71 +14,70 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice Emitted when the admin claws back the unclaimed tokens.
     event Clawback(address indexed admin, address indexed to, uint128 amount);
 
+    /// @notice Emitted when the min USD fee is lowered by the comptroller.
+    event LowerMinFeeUSD(address indexed comptroller, uint256 newMinFeeUSD, uint256 previousMinFeeUSD);
+
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                                READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice The timestamp at which campaign starts and claim begins.
+    /// @dev This is an immutable state variable.
+    function CAMPAIGN_START_TIME() external view returns (uint40);
+
+    /// @notice Retrieves the address of the comptroller contract.
+    function COMPTROLLER() external view returns (address);
 
     /// @notice The cut-off point for the campaign, as a Unix timestamp. A value of zero means there is no expiration.
     /// @dev This is an immutable state variable.
-    function EXPIRATION() external returns (uint40);
+    function EXPIRATION() external view returns (uint40);
 
-    /// @notice Retrieves the address of the factory contract.
-    function FACTORY() external view returns (address);
-
-    /// @notice Retrieves the minimum fee required to claim the airdrop, which is paid in the native token of the chain,
-    /// e.g. ETH for Ethereum Mainnet.
-    function FEE() external view returns (uint256);
+    /// @notice Returns `true` indicating that this campaign contract is deployed using the Sablier Factory.
+    /// @dev This is a constant state variable.
+    function IS_SABLIER_MERKLE() external view returns (bool);
 
     /// @notice The root of the Merkle tree used to validate the proofs of inclusion.
     /// @dev This is an immutable state variable.
-    function MERKLE_ROOT() external returns (bytes32);
+    function MERKLE_ROOT() external view returns (bytes32);
 
     /// @notice The ERC-20 token to distribute.
     /// @dev This is an immutable state variable.
-    function TOKEN() external returns (IERC20);
+    function TOKEN() external view returns (IERC20);
+
+    /// @notice Calculates the minimum fee in wei required to claim the airdrop.
+    function calculateMinFeeWei() external view returns (uint256);
 
     /// @notice Retrieves the name of the campaign.
     function campaignName() external view returns (string memory);
 
-    /// @notice Returns the timestamp when the first claim is made.
-    function getFirstClaimTime() external view returns (uint40);
+    /// @notice The domain separator, as required by EIP-712 and EIP-1271, used for signing claim to prevent replay
+    /// attacks across different campaigns.
+    function domainSeparator() external view returns (bytes32);
+
+    /// @notice Retrieves the timestamp when the first claim is made, and zero if no claim was made yet.
+    function firstClaimTime() external view returns (uint40);
 
     /// @notice Returns a flag indicating whether a claim has been made for a given index.
     /// @dev Uses a bitmap to save gas.
     /// @param index The index of the recipient to check.
-    function hasClaimed(uint256 index) external returns (bool);
+    function hasClaimed(uint256 index) external view returns (bool);
 
     /// @notice Returns a flag indicating whether the campaign has expired.
     function hasExpired() external view returns (bool);
 
     /// @notice The content identifier for indexing the campaign on IPFS.
+    /// @dev An empty value may break certain UI features that depend upon the IPFS CID.
     function ipfsCID() external view returns (string memory);
 
-    /// @notice Retrieves the shape of the lockup stream that the campaign produces upon claiming.
-    function shape() external view returns (string memory);
+    /// @notice Retrieves the min USD fee required to claim the airdrop, denominated in 8 decimals.
+    /// @dev The denomination is based on Chainlink's 8-decimal format for USD prices, where 1e8 is $1.
+    function minFeeUSD() external view returns (uint256);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Makes the claim.
-    ///
-    /// @dev Depending on the Merkle campaign, it either transfers tokens to the recipient or creates a Lockup stream
-    /// with an NFT minted to the recipient.
-    ///
-    /// Requirements:
-    /// - The campaign must not have expired.
-    /// - The stream must not have been claimed already.
-    /// - The Merkle proof must be valid.
-    /// - The `msg.value` must not be less than `FEE`.
-    ///
-    /// @param index The index of the recipient in the Merkle tree.
-    /// @param recipient The address of the airdrop recipient.
-    /// @param amount The amount of ERC-20 tokens to be transferred to the recipient.
-    /// @param merkleProof The proof of inclusion in the Merkle tree.
-    function claim(uint256 index, address recipient, uint128 amount, bytes32[] calldata merkleProof) external payable;
-
-    /// @notice Claws back the unclaimed tokens from the campaign.
+    /// @notice Claws back the unclaimed tokens.
     ///
     /// @dev Emits a {Clawback} event.
     ///
@@ -92,12 +91,13 @@ interface ISablierMerkleBase is IAdminable {
     /// @param amount The amount of tokens to claw back.
     function clawback(address to, uint128 amount) external;
 
-    /// @notice Collects the accrued fees by transferring them to `FACTORY` admin.
+    /// @notice Lowers the min USD fee.
+    ///
+    /// @dev Emits a {LowerMinFeeUSD} event.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the `FACTORY` contract.
-    ///
-    /// @param factoryAdmin The address of the `FACTORY` admin.
-    /// @return feeAmount The amount of native tokens (e.g., ETH) collected as fees.
-    function collectFees(address factoryAdmin) external returns (uint256 feeAmount);
+    /// - `msg.sender` must be the comptroller.
+    /// - The new fee must be less than the current {minFeeUSD}.
+    /// @param newMinFeeUSD The new min USD fee to set, denominated in 8 decimals.
+    function lowerMinFeeUSD(uint256 newMinFeeUSD) external;
 }

@@ -22,11 +22,14 @@ multiple distributions options, including:
    their allocation instantly via a single claim transaction.
 2. Vesting airdrops: This is the way to go if you want your users to receive tokens over time through vesting. Upon
    claiming, eligible users will have their tokens streamed through Sablier over a period specified by the campaign
-   owner. This distribution option has been referred to as Airstreams in the past.
+   creator (aka the campaign owner). This distribution option has been referred to as Airstreams in the past.
+3. Variable Claim Amount (VCA) airdrops: This distribution method allows the campaign creator to set up an airdrop with
+   linear unlock. However, when a user claims their airdrop, any unvested tokens are forfeited and returned to the
+   campaign creator. This approach is useful for airdrops aimed at rewarding loyal users who wait until the end of the
+   unlock period to claim their tokens.
 
 Sablier Airdrops also offer flexibility in configuring the Airdrop campaigns. For example, you can choose between
-whether you want to have vesting to begin at the same time for all user (absolute) or at the time of each claim
-(relative).
+whether you want vesting to begin at the same time for all users (absolute) or at the time of each claim (relative).
 
 ## Documentation
 
@@ -48,14 +51,6 @@ Install this repo using your favorite package manager, e.g., with Bun:
 bun add @sablier/airdrops
 ```
 
-Then, if you are using Foundry, you need to add these to your `remappings.txt` file:
-
-```text
-@sablier/airdrops/=node_modules/@sablier/airdrops/
-@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
-@prb/math/=node_modules/@prb/math/
-```
-
 #### Git Submodules
 
 This installation method is not recommended, but it is available for those who prefer it.
@@ -63,22 +58,13 @@ This installation method is not recommended, but it is available for those who p
 First, install the submodule using Forge:
 
 ```shell
-forge install --no-commit sablier-labs/airdrops
+forge install sablier-labs/airdrops
 ```
 
 Second, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.1.0 sablier-labs/lockup@v2.0.0
-```
-
-Finally, add these to your `remappings.txt` file:
-
-```text
-@sablier/airdrops/=lib/airdrops/
-@sablier/lockup/=lib/lockup/src/
-@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-@prb/math/=lib/prb-math/
+forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0 sablier-labs/lockup@v3.0.0
 ```
 
 ### Branching Tree Technique
@@ -108,11 +94,4 @@ For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) gui
 
 ## License
 
-The primary license for Sablier Airdrops is the Business Source License 1.1 (`BUSL-1.1`), see
-[`LICENSE.md`](./LICENSE.md). However, there are exceptions:
-
-- All files in `src/interfaces/` and `src/types` are licensed under `GPL-3.0-or-later`, see
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Several files in `src`, `script`, and `tests` are licensed under `GPL-3.0-or-later`, see
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Many files in `tests/` remain unlicensed (as indicated in their SPDX headers).
+See [LICENSE.md](./LICENSE.md).
