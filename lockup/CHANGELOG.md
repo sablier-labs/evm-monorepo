@@ -28,8 +28,8 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 - **Breaking:** Refactor `SablierLockup` contract into model-specific abstract contracts
   ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
-- **Breaking:** Refactor `DataTypes` into separate type files
-  ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
+- Refactor `DataTypes` into separate type files ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
+  - `DataTypes` is kept for backward compatibility and will be deprecated in the future versions.
 - Replace admin with comptroller ([#1260](https://github.com/sablier-labs/lockup/pull/1260),
   [#1268](https://github.com/sablier-labs/lockup/pull/1268))
 - Rename `VestingMath` library to `LockupMath`
