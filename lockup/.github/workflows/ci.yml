@@ -15,13 +15,9 @@ on:
 jobs:
   check:
     uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
-    with:
-      foundry-version: "v1.3.6"
 
   build:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
-    with:
-      foundry-version: "v1.3.6"
 
   test-bulloak:
     needs: ["check", "build"]
@@ -38,7 +34,6 @@ jobs:
     with:
       foundry-fuzz-runs: 2000
       foundry-profile: "test-optimized"
-      foundry-version: "v1.3.6"
       match-path: "tests/unit/**/*.sol"
       name: "Unit tests"
 
@@ -49,7 +44,6 @@ jobs:
     with:
       foundry-fuzz-runs: 2000
       foundry-profile: "test-optimized"
-      foundry-version: "v1.3.6"
       match-path: "tests/integration/**/*.sol"
       name: "Integration tests"
 
@@ -59,7 +53,6 @@ jobs:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-profile: "test-optimized"
-      foundry-version: "v1.3.6"
       match-path: "tests/invariant/**/*.sol"
       name: "Invariant tests"
 
@@ -73,7 +66,6 @@ jobs:
     with:
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
-      foundry-version: "v1.3.6"
       match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
 
@@ -85,5 +77,4 @@ jobs:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
     uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
     with:
-      foundry-version: "v1.3.6"
       match-path: "tests/{integration,unit}/**/*.sol"
