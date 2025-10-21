@@ -27,7 +27,7 @@ jobs:
     uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
     with:
       skip-modifiers: true
-      tree-path: "tests"
+      test-dir: "tests"
 
   test-integration:
     needs: ["check", "build"]
