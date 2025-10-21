@@ -4,12 +4,9 @@ pragma solidity >=0.8.22;
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
-import { SafeCastLib } from "solady/src/utils/SafeCastLib.sol";
 import { Constants } from "./Constants.sol";
 
 abstract contract Utils is Constants, BaseUtils, PRBMathUtils {
-    using SafeCastLib for uint256;
-
     /// @dev Bound deposit amount to avoid overflow.
     function boundDepositAmount(
         uint128 amount,

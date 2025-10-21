@@ -2,7 +2,7 @@
   "name": "@sablier/flow",
   "description": "EVM smart contracts of the Sablier Flow token distribution protocol",
   "license": "SEE LICENSE IN LICENSE",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
@@ -21,7 +21,6 @@
     "husky": "^9.1",
     "lint-staged": "^16.1",
     "prettier": "^3.5",
-    "solady": "0.0.208",
     "solhint": "^6.0"
   },
   "files": [
