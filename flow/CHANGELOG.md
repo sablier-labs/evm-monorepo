@@ -4,10 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+[2.0.1]: https://github.com/sablier-labs/flow/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/sablier-labs/flow/compare/v1.1.1...v2.0.0
 [1.1.1]: https://github.com/sablier-labs/flow/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/sablier-labs/flow/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/sablier-labs/flow/releases/tag/v1.0.0
+
+## [2.0.1] - 2025-10-21
+
+### Removed
+
+- Remove `solady` dependency ([#474](https://github.com/sablier-labs/flow/pull/474/))
 
 ## [2.0.0] - 2025-10-14
 
