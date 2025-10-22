@@ -10,7 +10,11 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [1.1.0]: https://github.com/sablier-labs/flow/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/sablier-labs/flow/releases/tag/v1.0.0
 
-## [2.0.1] - 2025-10-21
+## [2.0.1] - 2025-10-22
+
+### Changed
+
+- Bump `@sablier/evm-utils` to v1.0.1 ([#475](https://github.com/sablier-labs/flow/pull/475/))
 
 ### Removed
 
@@ -45,7 +49,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - **Breaking:** Remove broker fee functionality ([#384](https://github.com/sablier-labs/flow/pull/384))
 - **Breaking:** Remove return value from `withdraw` function ([#385](https://github.com/sablier-labs/flow/pull/385))
 - Remove `isPaused` getter function ([#440](https://github.com/sablier-labs/flow/pull/440))
-- Remove `Adminable` and `Batch` contracts (moved to` @sablier/evm-utils`)
+- Remove `Adminable` and `Batch` contracts (moved to `@sablier/evm-utils`)
 
 ## [1.1.1] - 2025-02-05
 
