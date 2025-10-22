@@ -3,46 +3,20 @@
 All notable changes to this project will be documented in this file. The format is based on
 [Common Changelog](https://common-changelog.org/).
 
-[v1.0.0-beta.1]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0-beta.1
-[v1.0.0-beta.2]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0-beta.2
-[v1.0.0-beta.3]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0-beta.3
+[v1.0.1]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.1
 [v1.0.0]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0
 
+## [v1.0.1] - 2025-10-22
+
+### Added
+
+- Add more functions in `ChainId` library ([#67](https://github.com/sablier-labs/evm-utils/pull/67))
+
+### Changed
+
+- Fix the test fork ethereum helper function ([#68](https://github.com/sablier-labs/evm-utils/pull/68))
+
 ## [v1.0.0] - 2025-09-25
-
-### Changed
-
-### Added
-
-- Support for HyperEVM and Sonic
-- Chainlink oracles for Sonic, Base Sepolia, Optimism Sepolia and Ethereum Sepolia
-- Comptroller addresses for all chains
-
-### Removed
-
-- Support for Form, Iotex, Ultra
-
-## [v1.0.0-beta.3] - 2025-09-10
-
-### Changed
-
-- Return `vm.getBlockTimestamp()` in `getBlockTimestamp()`
-
-## [v1.0.0-beta.2] - 2025-09-02
-
-### Changed
-
-- Bump forge-std to v1.10.0
-
-### Added
-
-- Add Comptroller address on Sepolia
-
-### Removed
-
-- Support for Taiko.
-
-## [v1.0.0-beta.1] - 2025-07-28
 
 ### Added
 
