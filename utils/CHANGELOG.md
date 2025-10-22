@@ -8,13 +8,13 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [v1.0.1] - 2025-10-22
 
-### Added
-
-- Add more functions in `ChainId` library ([#67](https://github.com/sablier-labs/evm-utils/pull/67))
-
 ### Changed
 
 - Fix the test fork ethereum helper function ([#68](https://github.com/sablier-labs/evm-utils/pull/68))
+
+### Added
+
+- Add more functions in `ChainId` library ([#67](https://github.com/sablier-labs/evm-utils/pull/67))
 
 ## [v1.0.0] - 2025-09-25
 
