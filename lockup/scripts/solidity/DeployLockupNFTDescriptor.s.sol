@@ -6,7 +6,7 @@ import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
 import { LockupNFTDescriptor } from "../../src/LockupNFTDescriptor.sol";
 
 /// @notice Deploys {LockupNFTDescriptor} contract.
-contract DeployNFTDescriptor is BaseScript {
+contract DeployLockupNFTDescriptor is BaseScript {
     function run() public broadcast returns (LockupNFTDescriptor nftDescriptor) {
         nftDescriptor = new LockupNFTDescriptor();
     }

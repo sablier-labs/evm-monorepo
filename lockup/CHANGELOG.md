@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+[3.0.1]: https://github.com/sablier-labs/lockup/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/sablier-labs/lockup/compare/v2.0.1...v3.0.0
 [2.0.1]: https://github.com/sablier-labs/lockup/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/sablier-labs/lockup/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/sablier-labs/lockup/compare/v1.1.2...v1.2.0
@@ -13,6 +15,43 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [1.0.2]: https://github.com/sablier-labs/lockup/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/sablier-labs/lockup/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/sablier-labs/lockup/releases/tag/v1.0.0
+
+## [3.0.1] - 2025-10-14
+
+### Changed
+
+- Bump package version for NPM release ([#1297](https://github.com/sablier-labs/lockup/pull/1297))
+
+## [3.0.0] - 2025-10-07
+
+### Changed
+
+- **Breaking:** Refactor `SablierLockup` contract into model-specific abstract contracts
+  ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
+- Refactor `DataTypes` into separate type files ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
+  - `DataTypes` is kept for backward compatibility and will be deprecated in the future versions.
+- Replace admin with comptroller ([#1260](https://github.com/sablier-labs/lockup/pull/1260),
+  [#1268](https://github.com/sablier-labs/lockup/pull/1268))
+- Rename `VestingMath` library to `LockupMath`
+- Rename `SablierLockupBase` to `SablierLockupState` ([#1247](https://github.com/sablier-labs/lockup/pull/1247))
+- Make `cancelMultiple` non-reverting ([#1173](https://github.com/sablier-labs/lockup/pull/1173))
+- Rename `aggregateBalance` to `aggregateAmount` ([#1228](https://github.com/sablier-labs/lockup/pull/1228))
+- Bump Solidity compiler to 0.8.29 ([#1207](https://github.com/sablier-labs/lockup/pull/1207))
+- Bump `@openzeppelin/contracts` from 5.0.2 to 5.3.0
+
+### Added
+
+- ERC20 recovery functionality ([#1182](https://github.com/sablier-labs/lockup/pull/1182))
+- Function to calculate minimum fee in wei ([#1270](https://github.com/sablier-labs/lockup/pull/1270))
+- `CreateBatchLockup` event in `BatchLockup` ([#1274](https://github.com/sablier-labs/lockup/pull/1274))
+- Return refunded amount in `cancel` ([#1173](https://github.com/sablier-labs/lockup/pull/1173))
+- Add `@sablier/evm-utils` dependency
+
+### Removed
+
+- **Breaking:** Remove `MAX_COUNT` constant ([#1243](https://github.com/sablier-labs/lockup/pull/1243))
+- **Breaking**: Remove broker functionality ([#1166](https://github.com/sablier-labs/lockup/pull/1166))
+- Remove `Adminable` and `Batch` contracts (moved to `@sablier/evm-utils`)
 
 ## [2.0.1] - 2025-02-05
 
@@ -86,6 +125,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
   [#852](https://github.com/sablier-labs/lockup/pull/852))
 - Rename create functions `createWithTimestamps` and `createWithDurations` across all lockup contracts
   ([#798](https://github.com/sablier-labs/lockup/pull/798))
+- Rename `milestone` to `timestamp` in the `LockupDynamic.Segment` data type
 - Switch to Bun ([#775](https://github.com/sablier-labs/lockup/pull/775))
 - Use Solidity v0.8.26 ([#944](https://github.com/sablier-labs/lockup/pull/944))
 
