@@ -13,7 +13,7 @@ Licensed Work: The Licensed Work is (C) 2025 Sablier Labs Ltd
 
 Additional Use Grant: Any uses listed and defined at license-grants.sablier.eth
 
-Change Date: The earlier of 2029-07-01 or a date specified at license-date.sablier.eth
+Change Date: The earlier of 2029-09-23 or a date specified at license-date.sablier.eth
 
 Change License: GNU General Public License v3.0 or later
 

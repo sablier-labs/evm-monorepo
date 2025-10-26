@@ -1,0 +1,7 @@
+{
+  "rules": {
+    "code-complexity": "off",
+    "contract-name-capwords": "off",
+    "gas-increment-by-one": "off"
+  }
+}

@@ -22,6 +22,7 @@ mkdir $artifacts \
 # Copy the comptroller artifact
 comptroller=./artifacts/
 cp out-optimized/SablierComptroller.sol/SablierComptroller.json $comptroller
+cp out-optimized/ERC1967Proxy.sol/ERC1967Proxy.json $comptroller
 
 # Copy the interfaces
 interfaces=./artifacts/interfaces

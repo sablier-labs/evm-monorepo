@@ -181,8 +181,8 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
 
     /// @dev Forks the Ethereum Mainnet at the latest block and reverts if the environment variable is not set or the
     /// rpc endpoint is not valid.
-    function setUpForkMainnet() internal {
-        setUpFork("mainnet", 1);
+    function setUpForkEthereum() internal {
+        setUpFork("ethereum", 1);
     }
 
     /// @dev Forks the `chainName` at the latest block and reverts if the environment variable is not set or the
