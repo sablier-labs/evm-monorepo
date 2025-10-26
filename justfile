@@ -21,11 +21,14 @@ default:
 # Build a specific workspace
 @build workspace:
     forge build --root {{ workspace }}
-alias b := build
 
 # Build all workspaces
 @build-all:
     just for-each "forge build --root"
+
+# Clean build artifacts in all workspaces
+@clean-all:
+    just for-each "forge clean --root"
 
 # Check code with Forge formatter
 @fmt-check:
