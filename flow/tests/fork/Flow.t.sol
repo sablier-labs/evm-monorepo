@@ -291,7 +291,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.CreateFlowStream({
             streamId: vars.expectedStreamId,
-            creator: users.sender,
+            creator: sender,
             token: FORK_TOKEN,
             sender: sender,
             recipient: recipient,
@@ -300,6 +300,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
             snapshotTime: getBlockTimestamp()
         });
 
+        setMsgSender(sender);
         vars.actualStreamId = flow.create{ value: FLOW_MIN_FEE_WEI }({
             recipient: recipient,
             sender: sender,

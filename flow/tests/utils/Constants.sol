@@ -2,8 +2,9 @@
 pragma solidity >=0.8.22;
 
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
+import { BaseConstants } from "@sablier/evm-utils/src/tests/BaseConstants.sol";
 
-abstract contract Constants {
+abstract contract Constants is BaseConstants {
     // Amounts
     uint128 internal constant DEPOSIT_AMOUNT_18D = 50_000e18;
     uint128 internal constant DEPOSIT_AMOUNT_6D = 50_000e6;

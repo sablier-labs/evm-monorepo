@@ -7,9 +7,6 @@
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
   },
-  "bugs": {
-    "url": "https://github.com/sablier-labs/flow/issues"
-  },
   "dependencies": {
     "@openzeppelin/contracts": "catalog:",
     "@prb/math": "catalog:",
@@ -50,10 +47,6 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/sablier-labs/flow.git"
   },
   "scripts": {
     "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh"

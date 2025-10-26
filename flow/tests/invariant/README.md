@@ -21,7 +21,7 @@
 1. For any non-voided stream,
    - if rps = 0 $\implies$ Flow.Status $\in$ {PAUSED_SOLVENT, PAUSED_INSOLVENT}
    - the snapshot time should never decrease
-   - total streams = total debt + total withdrawals.
+   - total streamed = total debt + total withdrawn
 
 1. For any pending stream, rps > 0 and td = 0
 

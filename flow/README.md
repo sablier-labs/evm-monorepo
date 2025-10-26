@@ -1,4 +1,4 @@
-# Sablier Flow [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
+# Sablier Flow [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
 
 [gha]: https://github.com/sablier-labs/flow/actions
 [gha-badge]: https://github.com/sablier-labs/flow/actions/workflows/ci.yml/badge.svg
@@ -8,6 +8,8 @@
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
+[twitter-badge]: https://img.shields.io/twitter/follow/Sablier
+[twitter]: https://x.com/Sablier
 
 In-depth documentation is available at [docs.sablier.com](https://docs.sablier.com).
 
@@ -57,14 +59,19 @@ This installation method is not recommended, but it is available for those who p
 Install the submodule using Forge:
 
 ```shell
-forge install --no-commit sablier-labs/flow
+forge install sablier-labs/flow
 ```
 
 Then, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math#95f00b2
+forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
 ```
+
+### Branching Tree Technique
+
+You may notice that some test files are accompanied by `.tree` files. This is because we are using Branching Tree
+Technique and [Bulloak](https://bulloak.dev/).
 
 ## Usage
 
@@ -82,6 +89,18 @@ contract MyContract {
   }
 }
 ```
+
+## Deployments
+
+The list of all deployment addresses can be found [here](https://docs.sablier.com/guides/flow/deployments).
+
+## Security
+
+The codebase has undergone rigorous audits by leading security experts from Cantina, as well as independent auditors.
+For a comprehensive list of all audits conducted, please click [here](https://github.com/sablier-labs/audits).
+
+For any security-related concerns, please refer to the [SECURITY](./SECURITY.md) policy. This repository is subject to a
+bug bounty program per the terms outlined in the aforementioned policy.
 
 ## Contributing
 
