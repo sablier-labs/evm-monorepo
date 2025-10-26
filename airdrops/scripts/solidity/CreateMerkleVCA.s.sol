@@ -11,10 +11,7 @@ import { MerkleVCA } from "../../src/types/DataTypes.sol";
 /// @dev Creates a dummy MerkleVCA campaign.
 contract CreateMerkleVCA is EvmUtilsBaseScript {
     /// @dev Deploy via Forge.
-    function run() public broadcast returns (ISablierMerkleVCA merkleVCA) {
-        // TODO: Load deployed addresses from Ethereum Mainnet.
-        SablierFactoryMerkleVCA factory = new SablierFactoryMerkleVCA({ initialComptroller: getComptroller() });
-
+    function run(SablierFactoryMerkleVCA factory) public broadcast returns (ISablierMerkleVCA merkleVCA) {
         // Prepare the constructor parameters.
         MerkleVCA.ConstructorParams memory params;
         params.campaignName = "The Boys VCA";
@@ -25,7 +22,7 @@ contract CreateMerkleVCA is EvmUtilsBaseScript {
         params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
         params.vestingStartTime = uint40(block.timestamp);
         params.vestingEndTime = uint40(block.timestamp + 365 days);
-        params.token = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+        params.token = IERC20(0xf983A617DA60e88c112D52F00f9Fab17851D2feF);
 
         // The total amount to airdrop through the campaign.
         uint256 campaignTotalAmount = 10_000e18;

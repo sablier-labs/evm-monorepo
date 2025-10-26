@@ -11,10 +11,7 @@ import { MerkleInstant } from "../../src/types/DataTypes.sol";
 /// @dev Creates a dummy MerkleInstant campaign.
 contract CreateMerkleInstant is EvmUtilsBaseScript {
     /// @dev Deploy via Forge.
-    function run() public broadcast returns (ISablierMerkleInstant merkleInstant) {
-        // TODO: Load deployed addresses from Ethereum Mainnet.
-        SablierFactoryMerkleInstant factory = new SablierFactoryMerkleInstant({ initialComptroller: getComptroller() });
-
+    function run(SablierFactoryMerkleInstant factory) public broadcast returns (ISablierMerkleInstant merkleInstant) {
         // Prepare the constructor parameters.
         MerkleInstant.ConstructorParams memory params;
         params.campaignName = "The Boys Instant";
@@ -23,7 +20,7 @@ contract CreateMerkleInstant is EvmUtilsBaseScript {
         params.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
         params.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
         params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        params.token = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+        params.token = IERC20(0xf983A617DA60e88c112D52F00f9Fab17851D2feF);
 
         // The total amount to airdrop through the campaign.
         uint256 aggregateAmount = 10_000e18;

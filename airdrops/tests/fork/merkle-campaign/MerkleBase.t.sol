@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { LeafData, MerkleBuilder } from "./../../utils/MerkleBuilder.sol";
@@ -84,7 +85,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         setMsgSender(params.campaignCreator);
 
         // Load the min fee in USD.
-        vars.minFeeUSD = AIRDROP_MIN_FEE_USD;
+        vars.minFeeUSD = comptroller.getMinFeeUSD({ protocol: ISablierComptroller.Protocol.Airdrops });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -103,7 +104,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         assertFalse(merkleBase.hasClaimed(vars.leafToClaim.index));
 
         vars.merkleProof = computeMerkleProof(vars.leafToClaim, vars.leaves);
-        vars.minFeeWei = AIRDROP_MIN_FEE_WEI;
+        vars.minFeeWei = comptroller.calculateMinFeeWei({ protocol: ISablierComptroller.Protocol.Airdrops });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

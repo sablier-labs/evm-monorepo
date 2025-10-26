@@ -3,9 +3,9 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { SignatureHash } from "src/libraries/SignatureHash.sol";
 
-import { Unit_Test } from "../Unit.t.sol";
+import { Base_Test } from "../Base.t.sol";
 
-contract SignatureHash_Integration_Test is Unit_Test {
+contract SignatureHash_Integration_Test is Base_Test {
     function test_Constants() external pure {
         assertEq(SignatureHash.PROTOCOL_NAME, keccak256("Sablier Airdrops Protocol"));
         assertEq(

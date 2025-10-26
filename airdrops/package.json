@@ -7,14 +7,11 @@
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
   },
-  "bugs": {
-    "url": "https://github.com/sablier-labs/airdrops/issues"
-  },
   "dependencies": {
     "@openzeppelin/contracts": "catalog:",
     "@prb/math": "catalog:",
     "@sablier/evm-utils": "catalog:",
-    "@sablier/lockup": "3.0.0-beta.0"
+    "@sablier/lockup": "3.0.1"
   },
   "devDependencies": {
     "forge-std": "catalog:testing",
@@ -30,7 +27,6 @@
     "LICENSE-BUSL.md",
     "LICENSE-GPL.md"
   ],
-  "homepage": "https://github.com/sablier-labs/airdrops#readme",
   "keywords": [
     "airdrops",
     "airstream",
@@ -60,7 +56,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": "sablier-labs/airdrops",
   "scripts": {
     "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh"
   }
