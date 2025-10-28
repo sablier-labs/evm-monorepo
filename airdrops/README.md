@@ -1,4 +1,4 @@
-# Sablier Airdrops [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
+# Sablier Airdrops [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
 
 [gha]: https://github.com/sablier-labs/airdrops/actions
 [gha-badge]: https://github.com/sablier-labs/airdrops/actions/workflows/ci.yml/badge.svg
@@ -8,6 +8,8 @@
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
+[twitter-badge]: https://img.shields.io/twitter/follow/Sablier
+[twitter]: https://x.com/Sablier
 
 In-depth documentation is available at [docs.sablier.com](https://docs.sablier.com).
 
@@ -56,23 +58,23 @@ This installation method is not recommended, but it is available for those who p
 First, install the submodule using Forge:
 
 ```shell
-forge install --no-commit sablier-labs/airdrops
+forge install sablier-labs/airdrops
 ```
 
 Second, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.2 PaulRBerg/prb-math@v4.1.0 sablier-labs/lockup@v2.0.0
+forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0 sablier-labs/lockup@v3.0.0
 ```
 
 ### Branching Tree Technique
 
-You may notice that some test files are accompanied by `.tree` files. This is called the Branching Tree Technique, and
-it is explained in depth [here](https://bulloak.dev/).
+You may notice that some test files are accompanied by `.tree` files. This is because we are using Branching Tree
+Technique and [Bulloak](https://bulloak.dev/).
 
 ### Deployments
 
-The list of all deployment addresses can be found [here](https://docs.sablier.com).
+The list of all deployment addresses can be found [here](https://docs.sablier.com/guides/airdrops/deployments).
 
 ## Security
 
@@ -84,15 +86,12 @@ bug bounty program per the terms outlined in the aforementioned policy.
 
 ## Contributing
 
-See the [CONTRIBUTING](./CONTRIBUTING.md) guide.
+Feel free to dive in! [Open](https://github.com/sablier-labs/airdrops/issues/new) an issue,
+[start](https://github.com/sablier-labs/airdrops/discussions/new) a discussion or submit a PR. For any informal concerns
+or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
+
+For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) guide.
 
 ## License
 
-The primary license for Sablier Airdrops is the Business Source License 1.1 (`BUSL-1.1`), see
-[`LICENSE.md`](./LICENSE.md). However, there are exceptions:
-
-- All files in `src/interfaces/` and `src/types` are licensed under `GPL-3.0-or-later`, see
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Several files in `src`, `scripts/solidity`, and `tests` are licensed under `GPL-3.0-or-later`, see
-  [`LICENSE-GPL.md`](./LICENSE-GPL.md).
-- Many files in `tests/` remain unlicensed (as indicated in their SPDX headers).
+See [LICENSE.md](./LICENSE.md).
