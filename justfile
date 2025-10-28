@@ -21,11 +21,22 @@ default:
 # Build a specific workspace
 @build workspace:
     forge build --root {{ workspace }}
-alias b := build
 
 # Build all workspaces
 @build-all:
     just for-each "forge build --root"
+
+# Clean build artifacts in all workspaces
+@clean-all:
+    just for-each "forge clean --root"
+
+# Run full check on all packages
+@full-check-all:
+    just for-each-package full-check
+
+# Run full check on all packages
+@full-write-all:
+    just for-each-package full-write
 
 # Check code with Forge formatter
 @fmt-check:
@@ -82,3 +93,11 @@ for-each script:
     {{ script }} flow
     {{ script }} lockup
     {{ script }} utils
+
+# Helper to run recipe in each package
+[private]
+for-each-package recipe:
+    just airdrops/{{ recipe }}
+    just flow/{{ recipe }}
+    just lockup/{{ recipe }}
+    just utils/{{ recipe }}
