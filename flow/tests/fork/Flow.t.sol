@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { ud21x18, UD21x18 } from "@prb/math/src/UD21x18.sol";
@@ -13,6 +14,8 @@ import { Flow } from "src/types/DataTypes.sol";
 import { Fork_Test } from "./Fork.t.sol";
 
 abstract contract Flow_Fork_Test is Fork_Test {
+    using SafeERC20 for IERC20;
+
     /// @dev Total number of streams to create for each token.
     uint256 internal constant TOTAL_STREAMS = 20;
 
@@ -356,7 +359,9 @@ abstract contract Flow_Fork_Test is Fork_Test {
         address sender = flow.getSender(streamId);
         setMsgSender(sender);
         deal({ token: address(FORK_TOKEN), to: sender, give: depositAmount });
-        safeApprove(depositAmount);
+
+        // Use `forceApprove` for USDT compatibility.
+        FORK_TOKEN.forceApprove(address(flow), depositAmount);
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(FORK_TOKEN) });

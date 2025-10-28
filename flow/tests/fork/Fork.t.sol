@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
@@ -9,6 +10,8 @@ import { Base_Test } from "../Base.t.sol";
 
 /// @notice Common logic needed by all fork tests.
 abstract contract Fork_Test is Base_Test {
+    using SafeERC20 for IERC20;
+
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -65,18 +68,13 @@ abstract contract Fork_Test is Base_Test {
         address sender = flow.getSender(streamId);
         setMsgSender(sender);
         deal({ token: address(FORK_TOKEN), to: sender, give: depositAmount });
-        safeApprove(depositAmount);
+        // Use `forceApprove` for USDT compatibility.
+        FORK_TOKEN.forceApprove(address(flow), depositAmount);
         flow.deposit({
             streamId: streamId,
             amount: depositAmount,
             sender: sender,
             recipient: flow.getRecipient(streamId)
         });
-    }
-
-    /// @dev Use a low-level call to ignore reverts in case of USDT.
-    function safeApprove(uint256 amount) internal {
-        (bool success,) = address(FORK_TOKEN).call(abi.encodeCall(IERC20.approve, (address(flow), amount)));
-        success;
     }
 }
