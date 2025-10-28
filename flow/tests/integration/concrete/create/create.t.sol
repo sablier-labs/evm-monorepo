@@ -95,7 +95,7 @@ contract Create_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         whenTokenNotNativeToken
     {
         address invalidToken = address(8128);
-        vm.expectRevert(bytes(""));
+        vm.expectRevert();
         flow.create({
             sender: users.sender,
             recipient: users.recipient,
