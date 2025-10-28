@@ -10,6 +10,7 @@ import { ISablierLockup } from "../../src/interfaces/ISablierLockup.sol";
 import { Lockup } from "../../src/types/Lockup.sol";
 import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
 import { LockupLinear } from "../../src/types/LockupLinear.sol";
+import { LockupTranched } from "../../src/types/LockupTranched.sol";
 
 interface IERC20Mint {
     function mint(address beneficiary, uint256 value) external;
@@ -69,7 +70,7 @@ contract Init is BaseScript {
                                        LOCKUP-DYNAMIC
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Create the default lockupDynamic stream.
+        // Create the default Lockup Dynamic stream.
         LockupDynamic.SegmentWithDuration[] memory segments = new LockupDynamic.SegmentWithDuration[](2);
         segments[0] =
             LockupDynamic.SegmentWithDuration({ amount: 2500e18, exponent: ud2x18(3.14e18), duration: 1 hours });
@@ -86,6 +87,27 @@ contract Init is BaseScript {
                 shape: "Exponential Dynamic"
             }),
             segments
+        );
+
+        /*//////////////////////////////////////////////////////////////////////////
+                                       LOCKUP-TRANCHED
+        //////////////////////////////////////////////////////////////////////////*/
+
+        // Create the default Lockup Tranched stream.
+        LockupTranched.TrancheWithDuration[] memory tranches = new LockupTranched.TrancheWithDuration[](2);
+        tranches[0] = LockupTranched.TrancheWithDuration({ amount: 1e18, duration: 1 hours });
+        tranches[1] = LockupTranched.TrancheWithDuration({ amount: 1.5e18, duration: 1 weeks });
+        lockup.createWithDurationsLT(
+            Lockup.CreateWithDurations({
+                sender: sender,
+                recipient: recipient,
+                depositAmount: 2.5e18,
+                token: token,
+                cancelable: true,
+                transferable: true,
+                shape: "Two Tranches"
+            }),
+            tranches
         );
     }
 }
