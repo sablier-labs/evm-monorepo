@@ -3,11 +3,11 @@
 # ---------------------------------------------------------------------------- #
 
 [profile.default]
-  ast = true
-  build_info = true
+  ast = true # Needed for upgrade safety validations by foundry-upgrades
+  build_info = true # Needed for upgrade safety validations by foundry-upgrades
   extends = "../foundry.base.toml"
-  extra_output = ["storageLayout"]
-  ffi = true
+  extra_output = ["storageLayout"] # Needed for upgrade safety validations by foundry-upgrades
+  ffi = true # Needed for upgrade safety validations by foundry-upgrades
   gas_reports = ["*"]
   optimizer_runs = 10_000
   script = "scripts"
