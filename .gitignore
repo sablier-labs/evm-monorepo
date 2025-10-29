@@ -15,8 +15,7 @@ repomix/
 typechain-types/
 
 # files
-*.env
-*.env.deployment
+.env
 *.log
 .DS_Store
 .pnp.*
@@ -26,3 +25,6 @@ lcov.info
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+
+# Ignore .env.example
+!.env.example
