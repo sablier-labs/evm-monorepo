@@ -17,14 +17,6 @@
   gas_reports = ["*"]
   optimizer = true
   out = "out"
-  remappings = [
-    "@chainlink/=../node_modules/@chainlink/",
-    "@openzeppelin/=../node_modules/@openzeppelin/",
-    "@prb/=../node_modules/@prb/",
-    "@sablier/=../node_modules/@sablier/",
-    "forge-std/=../node_modules/forge-std/",
-    "solady/=../node_modules/solady/",
-  ]
   script = "scripts/solidity"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
   solc = "0.8.29"

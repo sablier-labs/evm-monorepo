@@ -6,6 +6,13 @@
   extends = "../foundry.base.toml"
   gas_reports = ["SablierFlow"]
   optimizer_runs = 1000
+  remappings = [
+    "@chainlink/=node_modules/@chainlink/",
+    "@openzeppelin/=node_modules/@openzeppelin/",
+    "@prb/=node_modules/@prb/",
+    "@sablier/=node_modules/@sablier/",
+    "forge-std/=node_modules/forge-std/",
+  ]
 
 [profile.default.fuzz]
   runs = 10_000
@@ -32,9 +39,3 @@
 
 [profile.test-optimized]
   extends = "../foundry.base.toml"
-
-[doc]
-  path = "flow"
-
-[lint]
-  lint_on_build = false

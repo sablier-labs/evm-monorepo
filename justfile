@@ -18,17 +18,13 @@ GLOBS_SOLIDITY := "**/*.sol"
 default:
   @just --list
 
-# Build a specific workspace
-@build workspace:
-    forge build --root {{ workspace }}
-
-# Build all workspaces
-@build-all:
-    just for-each "forge build --root"
-
 # Clean build artifacts in all workspaces
 @clean-all:
     just for-each "forge clean --root"
+
+# ---------------------------------------------------------------------------- #
+#                                    LINTING                                   #
+# ---------------------------------------------------------------------------- #
 
 # Run full check on all packages
 @full-check-all:
@@ -45,6 +41,18 @@ default:
 # Fix code with Forge formatter
 @fmt-write:
     just for-each "forge fmt --root"
+
+# ---------------------------------------------------------------------------- #
+#                                     BUILD                                    #
+# ---------------------------------------------------------------------------- #
+
+# Build a specific workspace
+@build workspace:
+    forge build --root {{ workspace }}
+
+# Build all workspaces
+@build-all:
+    just for-each "forge build --root"
 
 # ---------------------------------------------------------------------------- #
 #                                    TESTS                                     #
@@ -81,6 +89,10 @@ test-coverage workspace:
 [group("test")]
 test-all:
     just for-each "forge test --root"
+
+[group("test")]
+test-bulloak-all:
+    just for-each-package test-bulloak
 
 # ---------------------------------------------------------------------------- #
 #                                PRIVATE SCRIPTS                               #
