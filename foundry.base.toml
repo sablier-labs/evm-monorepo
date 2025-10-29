@@ -4,7 +4,6 @@
 
 [profile.default]
   allow_paths = ["../"]
-  auto_detect_remappings = false
   auto_detect_solc = false
   bytecode_hash = "ipfs"
   evm_version = "shanghai" # needed for greater coverage of EVM chains

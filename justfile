@@ -18,28 +18,50 @@ GLOBS_SOLIDITY := "**/*.sol"
 default:
   @just --list
 
+# Clean build artifacts in a specific package
+@clean package:
+    just {{ package }}/clean
+
 # Clean build artifacts in all packages
 @clean-all:
-    just for-each "forge clean --root"
+    just for-each clean
+    rm -rf cache
+
+# Clear node_modules in each package
+@clean-modules package:
+    just {{ package }}/clean-modules
+
+# Clear node_modules in all packages
+@clean-modules-all:
+    just for-each clean-modules
+    rm -rf node_modules
+
+# Install dependencies in a specific package
+install package:
+    cd {{ package }} && ni
+
+# Install dependencies in all packages
+install-all:
+    for dir in airdrops flow lockup utils; do (cd $dir && ni); done
 
 # ---------------------------------------------------------------------------- #
 #                                    LINTING                                   #
 # ---------------------------------------------------------------------------- #
 
 # Run full check on a specific package
-@full-check package:
+full-check package:
     just {{ package }}/full-check
 
 # Run full check on all packages
-@full-check-all:
+full-check-all:
     just for-each full-check
 
 # Run full write on a specific package
-@full-write package:
+full-write package:
     just {{ package }}/full-write
 
 # Run full write on all packages
-@full-write-all:
+full-write-all:
     just for-each full-write
 
 # ---------------------------------------------------------------------------- #
@@ -48,22 +70,22 @@ default:
 
 # Build a specific package
 [group("foundry")]
-@build package:
+build package:
     just {{ package }}/build
 
 # Build all packages
 [group("foundry")]
-@build-all:
+build-all:
     just for-each build
 
 # Build a specific package with optimized profile
 [group("foundry")]
-@build-optimized package:
+build-optimized package:
     just {{ package }}/build-optimized
 
 # Build all packages with optimized profile
 [group("foundry")]
-@build-optimized-all:
+build-optimized-all:
     just for-each build-optimized
 
 # Run tests for a specific package

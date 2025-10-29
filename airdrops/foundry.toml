@@ -5,15 +5,6 @@
 [profile.default]
   extends = "../foundry.base.toml"
   optimizer_runs = 100_000_000
-  remappings = [
-    "@chainlink/=node_modules/@chainlink/",
-    "@openzeppelin/=node_modules/@openzeppelin/",
-    "@prb/=node_modules/@prb/",
-    "@sablier/=node_modules/@sablier/",
-    "forge-std/=node_modules/forge-std/",
-    "murky/=node_modules/murky/",
-    "solady/=node_modules/solady/",
-  ]
 
 [profile.default.fuzz]
   runs = 1000

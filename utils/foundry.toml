@@ -10,14 +10,6 @@
   ffi = true # Needed for upgrade safety validations by foundry-upgrades
   gas_reports = ["*"]
   optimizer_runs = 10_000
-  remappings = [
-    "@chainlink/=node_modules/@chainlink/",
-    "@openzeppelin/=node_modules/@openzeppelin/",
-    "@prb/=node_modules/@prb/",
-    "@sablier/=node_modules/@sablier/",
-    "forge-std/=node_modules/forge-std/",
-    "solady/=node_modules/solady/",
-  ]
   script = "scripts"
 
 [profile.default.fuzz]
