@@ -3,62 +3,86 @@ run-name: "CI Flow :: ${{ github.event.head_commit.message || github.event.pull_
 
 concurrency:
   cancel-in-progress: true
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{github.workflow}}-${{github.ref}}
 
 on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/ci-flow.yml"
+      - "flow/**"
+      - "foundry.base.toml"
+      - "package.json"
   push:
     branches:
       - "main"
       - "staging"
-    paths: &on_paths
+    paths:
       - ".github/workflows/ci-flow.yml"
-      - ".github/workflows/shared-*.yml"
       - "flow/**"
-      - "foundry.toml"
-      - "justfile"
+      - "foundry.base.toml"
       - "package.json"
-  # pull_request:
-  #   paths: *on_paths
 
 jobs:
-  build:
-    secrets: inherit
-    uses: ./.github/workflows/shared-build.yml
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
     with:
-      workspace: flow
+      foundry-version: "stable"
 
-  test-integration:
-    needs: build
-    if: needs.build.outputs.cache-status != 'primary'
-    secrets: inherit
-    uses: ./.github/workflows/shared-test.yml
+  build:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
     with:
-      workspace: flow
-      test-type: integration
+      foundry-version: "stable"
+  test-bulloak:
+    needs: ["check", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
+    with:
+      skip-modifiers: true
+      test-dir: "tests/integration"
+  test-integration:
+    needs: ["check", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: 10000
+      foundry-profile: "test-optimized"
+      foundry-version: "stable"
+      match-path: "flow/tests/integration/**/*.sol"
+      name: "Integration tests"
 
   test-invariant:
-    needs: build
+    needs: ["check", "build"]
     if: needs.build.outputs.cache-status != 'primary'
-    secrets: inherit
-    uses: ./.github/workflows/shared-test.yml
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
-      workspace: flow
-      test-type: invariant
+      foundry-invariant-depth: 100
+      foundry-invariant-runs: 1000
+      foundry-profile: "test-optimized"
+      foundry-version: "stable"
+      match-path: "flow/tests/invariant/**/*.sol"
+      name: "Invariant tests"
 
   test-fork:
-    needs: build
+    needs: ["check", "build"]
     if: needs.build.outputs.cache-status != 'primary'
-    secrets: inherit
-    uses: ./.github/workflows/shared-test.yml
+    secrets:
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+      ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
-      workspace: flow
-      test-type: fork
+      foundry-fuzz-runs: 20
+      foundry-profile: "test-optimized"
+      foundry-version: "stable"
+      match-path: "flow/tests/fork/**/*.sol"
+      name: "Fork tests"
 
-  test-coverage:
-    needs: build
+  coverage:
+    needs: ["check", "build"]
     if: needs.build.outputs.cache-status != 'primary'
-    secrets: inherit
-    uses: ./.github/workflows/shared-test.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
     with:
-      workspace: flow
-      test-type: coverage
+      foundry-version: "stable"
+      match-path: "flow/tests/{integration}/**/*.sol"
