@@ -18,85 +18,101 @@ GLOBS_SOLIDITY := "**/*.sol"
 default:
   @just --list
 
-# Build a specific workspace
-@build workspace:
-    forge build --root {{ workspace }}
-
-# Build all workspaces
-@build-all:
-    just for-each "forge build --root"
-
-# Clean build artifacts in all workspaces
+# Clean build artifacts in all packages
 @clean-all:
     just for-each "forge clean --root"
 
+# ---------------------------------------------------------------------------- #
+#                                    LINTING                                   #
+# ---------------------------------------------------------------------------- #
+
+# Run full check on a specific package
+@full-check package:
+    just {{ package }}/full-check
+
 # Run full check on all packages
 @full-check-all:
-    just for-each-package full-check
+    just for-each full-check
 
-# Run full check on all packages
+# Run full write on a specific package
+@full-write package:
+    just {{ package }}/full-write
+
+# Run full write on all packages
 @full-write-all:
-    just for-each-package full-write
-
-# Check code with Forge formatter
-@fmt-check:
-    just for-each "forge fmt --check --root"
-
-# Fix code with Forge formatter
-@fmt-write:
-    just for-each "forge fmt --root"
+    just for-each full-write
 
 # ---------------------------------------------------------------------------- #
-#                                    TESTS                                     #
+#                                    FOUNDRY                                   #
 # ---------------------------------------------------------------------------- #
 
-[group("test")]
-test workspace path="tests/**/*.sol":
-    forge test --root {{ workspace }} \
-        --match-path "{{ path }}"
+# Build a specific package
+[group("foundry")]
+@build package:
+    just {{ package }}/build
 
-[group("test")]
-test-fork workspace: (test workspace "tests/fork/**/*.sol")
+# Build all packages
+[group("foundry")]
+@build-all:
+    just for-each build
 
-[group("test")]
-test-integration workspace: (test workspace "tests/integration/**/*.sol")
+# Build a specific package with optimized profile
+[group("foundry")]
+@build-optimized package:
+    just {{ package }}/build-optimized
 
-[group("test")]
-test-invariant workspace: (test workspace "tests/invariant/**/*.sol")
+# Build all packages with optimized profile
+[group("foundry")]
+@build-optimized-all:
+    just for-each build-optimized
 
-[group("test")]
-test-unit workspace: (test workspace "tests/unit/**/*.sol")
+# Run tests for a specific package
+[group("foundry")]
+test package:
+    just {{ package }}/test
 
-[group("test")]
-test-bulloak workspace:
-    bulloak check --tree-path "{{ workspace }}/tests/**/*.tree"
-
-[group("test")]
-test-coverage workspace:
-    forge coverage --root {{ workspace }} \
-        --ir-minimum \
-        --match-path "tests/{fork,integration,unit}/**/*.sol" \
-        --report lcov
-
-[group("test")]
+# Run all tests
+[group("foundry")]
 test-all:
-    just for-each "forge test --root"
+    just for-each test
+
+# Run bulloak tests for a specific package
+[group("foundry")]
+test-bulloak package:
+    just {{ package }}/test-bulloak
+
+# Run bulloak tests for all packages
+[group("foundry")]
+test-bulloak-all:
+    just for-each test-bulloak
+
+# Run coverage for a specific package
+[group("foundry")]
+coverage package:
+    just {{ package }}/coverage
+
+# Run coverage for all packages
+[group("foundry")]
+coverage-all:
+    just for-each coverage
+
+# Run tests with optimized profile for a specific package
+[group("foundry")]
+test-optimized package:
+    just {{ package }}/test-optimized
+
+# Run tests with optimized profile for all packages
+[group("foundry")]
+test-optimized-all:
+    just for-each test-optimized
 
 # ---------------------------------------------------------------------------- #
 #                                PRIVATE SCRIPTS                               #
 # ---------------------------------------------------------------------------- #
 
-# Helper to run script for all packages
-[private]
-for-each script:
-    {{ script }} airdrops
-    {{ script }} flow
-    {{ script }} lockup
-    {{ script }} utils
-
 # Helper to run recipe in each package
 [private]
-for-each-package recipe:
+for-each recipe:
     just airdrops/{{ recipe }}
     just flow/{{ recipe }}
     just lockup/{{ recipe }}

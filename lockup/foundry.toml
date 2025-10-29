@@ -6,7 +6,13 @@
   extends = "../foundry.base.toml"
   optimizer_runs = 500
   remappings = [
-    "solarray/=../node_modules/solarray/",
+    "@chainlink/=node_modules/@chainlink/",
+    "@openzeppelin/=node_modules/@openzeppelin/",
+    "@prb/=node_modules/@prb/",
+    "@sablier/=node_modules/@sablier/",
+    "forge-std/=node_modules/forge-std/",
+    "solarray/=node_modules/solarray/",
+    "solady/=node_modules/solady/",
   ]
 
 [profile.default.fuzz]

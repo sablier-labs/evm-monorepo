@@ -35,26 +35,6 @@
     "url": "git+https://github.com/sablier-labs/evm-monorepo.git"
   },
   "scripts": {
-    "postinstall": "cd node_modules/forge-std && ln -sf src/* .",
     "setup": "husky"
-  },
-  "workspaces": {
-    "catalog": {
-      "@openzeppelin/contracts": "5.3.0",
-      "@prb/math": "4.1.0",
-      "@sablier/evm-utils": "1.0.1"
-    },
-    "catalogs": {
-      "testing": {
-        "forge-std": "github:foundry-rs/forge-std#v1.10.0",
-        "solady": "0.0.208"
-      }
-    },
-    "packages": [
-      "airdrops",
-      "flow",
-      "lockup",
-      "utils"
-    ]
   }
 }
