@@ -80,18 +80,28 @@ build-all:
 
 # Build a specific package with optimized profile
 [group("foundry")]
-build-optimized package:
-    just {{ package }}/build-optimized
+build-optimized package *args:
+    just {{ package }}/build-optimized {{ args }}
 
 # Build all packages with optimized profile
 [group("foundry")]
 build-optimized-all:
     just for-each build-optimized
 
+# Run coverage for a specific package
+[group("foundry")]
+coverage package:
+    just {{ package }}/coverage
+
+# Run coverage for all packages
+[group("foundry")]
+coverage-all:
+    just for-each coverage
+
 # Run tests for a specific package
 [group("foundry")]
-test package:
-    just {{ package }}/test
+test package *args:
+    just {{ package }}/test {{ args }}
 
 # Run all tests
 [group("foundry")]
@@ -108,15 +118,15 @@ test-bulloak package:
 test-bulloak-all:
     just for-each test-bulloak
 
-# Run coverage for a specific package
+# Run tests with lite profile for a specific package
 [group("foundry")]
-coverage package:
-    just {{ package }}/coverage
+test-lite package *args:
+    just {{ package }}/test-lite {{ args }}
 
-# Run coverage for all packages
+# Run tests with lite profile for all packages
 [group("foundry")]
-coverage-all:
-    just for-each coverage
+test-lite-all:
+    just for-each test-lite
 
 # Run tests with optimized profile for a specific package
 [group("foundry")]
