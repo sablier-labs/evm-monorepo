@@ -19,7 +19,6 @@
   "devDependencies": {
     "@openzeppelin/foundry-upgrades": "0.4.0",
     "@sablier/devkit": "github:sablier-labs/devkit",
-    "husky": "^9.1",
     "lint-staged": "^16.1",
     "prettier": "^3.5",
     "solhint": "^6.0"
@@ -52,7 +51,6 @@
   },
   "scripts": {
     "postinstall": "cd node_modules/forge-std && ln -sf src/* .",
-    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh",
-    "setup": "husky"
+    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh"
   }
 }

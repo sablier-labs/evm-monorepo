@@ -18,7 +18,6 @@
   "devDependencies": {
     "@sablier/devkit": "github:sablier-labs/devkit",
     "forge-std": "github:foundry-rs/forge-std#v1.10.0",
-    "husky": "^9.1",
     "lint-staged": "^16.1",
     "prettier": "^3.5",
     "solhint": "^6.0"
@@ -61,7 +60,6 @@
     "url": "git+https://github.com/sablier-labs/flow.git"
   },
   "scripts": {
-    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh",
-    "setup": "husky"
+    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh"
   }
 }
