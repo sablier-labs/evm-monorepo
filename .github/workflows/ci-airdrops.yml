@@ -57,7 +57,6 @@ jobs:
     needs: ["check", "build"]
     if: needs.build.outputs.cache-status != 'primary'
     secrets:
-      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
       ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
@@ -75,5 +74,4 @@ jobs:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
     with:
       foundry-version: "stable"
-      match-path: "airdrops/tests/integration/**/*.sol"
-      via-ir-minimum: true
+      match-path: "airdrops/tests/{integration,unit}/**/*.sol"
