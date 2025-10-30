@@ -1,4 +1,4 @@
-# See https://github.com/sablier-labs/devkit/blob/main/just/evm.just
+# See https://github.com/sablier-labs/devkit/just/evm.just
 # Run just --list to see all available commands
 import "./node_modules/@sablier/devkit/just/evm.just"
 
