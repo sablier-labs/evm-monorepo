@@ -1,5 +1,3 @@
-<!-- If you modify this file, remember to update it in the other EVM repos, too! -->
-
 # Contributing
 
 Feel free to dive in! [Open](../../issues/new) an issue, [start](../../discussions/new) a discussion or submit a PR. For
@@ -25,10 +23,10 @@ In addition, familiarity with [Solidity](https://soliditylang.org) is requisite.
 Clone this repository:
 
 ```shell
-git clone git@github.com:sablier-labs/lockup.git sablier-lockup && cd sablier-lockup
+git clone git@github.com:sablier-labs/evm-monorepo.git && cd evm-monorepo
 ```
 
-To install Node.js dependencies:
+To install the dependencies:
 
 ```shell
 bun install
@@ -40,10 +38,18 @@ Then, execute the one-time setup script:
 just setup
 ```
 
-To build the contracts:
+To build all contracts:
 
 ```shell
-just build
+just build-all
+```
+
+To build a specific protocol:
+
+```shell
+just build airdrops
+just build flow
+just build lockup
 ```
 
 Switch to the `staging` branch, where all development work should be done:

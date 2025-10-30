@@ -9,7 +9,7 @@ Parameters
 
 Licensor: Sablier Labs Ltd
 
-Licensed Work: Sablier Airdrops The Licensed Work is (C) 2025 Sablier Labs Ltd
+Licensed Work: Sablier The Licensed Work is (C) 2025 Sablier Labs Ltd
 
 Additional Use Grant: Any uses listed and defined at
 [`license-grants.sablier.eth`](https://app.ens.domains/license-grants.sablier.eth)
@@ -52,14 +52,14 @@ TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON AN "
 ALL WARRANTIES AND CONDITIONS, EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF MERCHANTABILITY, FITNESS
 FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND TITLE.
 
-MariaDB hereby grants you permission to use this License’s text to license your works, and to refer to it using the
+MariaDB hereby grants you permission to use this License's text to license your works, and to refer to it using the
 trademark "Business Source License", as long as you comply with the Covenants of Licensor below.
 
 ---
 
 Covenants of Licensor
 
-In consideration of the right to use this License’s text and the "Business Source License" name and trademark, Licensor
+In consideration of the right to use this License's text and the "Business Source License" name and trademark, Licensor
 covenants to MariaDB, and to all other recipients of the licensed work to be provided by Licensor:
 
 1. To specify as the Change License the GPL Version 3.0 or any later version, or a license that is compatible with GPL

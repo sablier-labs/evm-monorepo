@@ -66,6 +66,7 @@
   },
   "repository": "sablier-labs/airdrops",
   "scripts": {
-    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh"
+    "prepack": "cp ../LICENSE.md ../LICENSE-BUSL.md ../LICENSE-GPL.md . && bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh",
+    "postpack": "rm -f LICENSE.md LICENSE-BUSL.md LICENSE-GPL.md"
   }
 }
