@@ -1,3 +1,5 @@
+<!-- TODO: update the file if it needs more work for each protocol -->
+
 # Contributing
 
 Feel free to dive in! [Open](../../issues/new) an issue, [start](../../discussions/new) a discussion or submit a PR. For

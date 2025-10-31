@@ -65,7 +65,7 @@
     "url": "git+https://github.com/sablier-labs/lockup.git"
   },
   "scripts": {
-    "prepack": "cp ../LICENSE.md ../LICENSE-BUSL.md ../LICENSE-GPL.md . && bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh",
-    "postpack": "rm -f LICENSE.md LICENSE-BUSL.md LICENSE-GPL.md"
+    "prepack": "bash ../scripts/bash/publish_prepack.sh",
+    "postpack": "bash ../scripts/bash/publish_postpack.sh"
   }
 }
