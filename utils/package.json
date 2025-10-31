@@ -51,7 +51,7 @@
   },
   "scripts": {
     "postinstall": "cd node_modules/forge-std && ln -sf src/* .",
-    "prepack": "bash ../scripts/bash/publish_prepack.sh",
-    "postpack": "bash ../scripts/bash/publish_postpack.sh"
+    "prepack": "../scripts/bash/publish_prepack.sh",
+    "postpack": "../scripts/bash/publish_postpack.sh"
   }
 }

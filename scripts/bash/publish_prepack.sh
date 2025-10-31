@@ -26,6 +26,6 @@ echo "✓ Installed dependencies"
 # Run package-specific artifact preparation if it exists
 if [ -f "./scripts/bash/prepare-artifacts.sh" ]; then
   echo "Preparing artifacts..."
-  bash ./scripts/bash/prepare-artifacts.sh
+  ./scripts/bash/prepare-artifacts.sh
   echo "✓ Prepared artifacts"
 fi

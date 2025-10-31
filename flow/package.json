@@ -60,7 +60,7 @@
     "url": "git+https://github.com/sablier-labs/flow.git"
   },
   "scripts": {
-    "prepack": "bash ../scripts/bash/publish_prepack.sh",
-    "postpack": "bash ../scripts/bash/publish_postpack.sh"
+    "prepack": "../scripts/bash/publish_prepack.sh",
+    "postpack": "../scripts/bash/publish_postpack.sh"
   }
 }
