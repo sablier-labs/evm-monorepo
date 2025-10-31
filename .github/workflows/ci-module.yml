@@ -1,0 +1,143 @@
+name: "CI: Module (Reusable)"
+
+on:
+  workflow_call:
+    inputs:
+      module:
+        description: "Module name (e.g., airdrops, flow, lockup, utils)"
+        required: true
+        type: string
+      foundry-version:
+        description: "Foundry version"
+        default: "stable"
+        type: string
+      foundry-profiles:
+        description: "Foundry profiles for build"
+        default: ""
+        type: string
+      bulloak-test-dir:
+        description: "Test directory for bulloak"
+        default: "tests"
+        type: string
+      run-unit:
+        description: "Run unit tests"
+        default: false
+        type: boolean
+      run-integration:
+        description: "Run integration tests"
+        default: true
+        type: boolean
+      run-invariant:
+        description: "Run invariant tests"
+        default: false
+        type: boolean
+      run-fork:
+        description: "Run fork tests"
+        default: false
+        type: boolean
+      integration-fuzz-runs:
+        description: "Fuzz runs for integration tests"
+        default: 2000
+        type: number
+      unit-fuzz-runs:
+        description: "Fuzz runs for unit tests"
+        default: 2000
+        type: number
+      invariant-depth:
+        description: "Invariant depth"
+        default: 100
+        type: number
+      invariant-runs:
+        description: "Invariant runs"
+        default: 1000
+        type: number
+      fork-fuzz-runs:
+        description: "Fuzz runs for fork tests"
+        default: 20
+        type: number
+      coverage-match-path:
+        description: "Match path for coverage"
+        required: true
+        type: string
+    secrets:
+      ROUTEMESH_API_KEY:
+        required: false
+      CODECOV_TOKEN:
+        required: false
+
+jobs:
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+    with:
+      foundry-version: ${{ inputs.foundry-version }}
+
+  build:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+    with:
+      foundry-version: ${{ inputs.foundry-version }}
+      foundry-profiles: ${{ inputs.foundry-profiles }}
+
+  test-bulloak:
+    needs: ["check", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
+    with:
+      skip-modifiers: true
+      test-dir: ${{ inputs.bulloak-test-dir }}
+
+  test-unit:
+    needs: ["check", "build"]
+    if: inputs.run-unit && needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: ${{ inputs.unit-fuzz-runs }}
+      foundry-profile: "test-optimized"
+      foundry-version: ${{ inputs.foundry-version }}
+      match-path: "${{ inputs.module }}/tests/unit/**/*.sol"
+      name: "Unit tests"
+
+  test-integration:
+    needs: ["check", "build"]
+    if: inputs.run-integration && needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: ${{ inputs.integration-fuzz-runs }}
+      foundry-profile: "test-optimized"
+      foundry-version: ${{ inputs.foundry-version }}
+      match-path: "${{ inputs.module }}/tests/integration/**/*.sol"
+      name: "Integration tests"
+
+  test-invariant:
+    needs: ["check", "build"]
+    if: inputs.run-invariant && needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-invariant-depth: ${{ inputs.invariant-depth }}
+      foundry-invariant-runs: ${{ inputs.invariant-runs }}
+      foundry-profile: "test-optimized"
+      foundry-version: ${{ inputs.foundry-version }}
+      match-path: "${{ inputs.module }}/tests/invariant/**/*.sol"
+      name: "Invariant tests"
+
+  test-fork:
+    needs: ["check", "build"]
+    if: inputs.run-fork && needs.build.outputs.cache-status != 'primary'
+    secrets:
+      ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: ${{ inputs.fork-fuzz-runs }}
+      foundry-profile: "test-optimized"
+      foundry-version: ${{ inputs.foundry-version }}
+      match-path: "${{ inputs.module }}/tests/fork/**/*.sol"
+      name: "Fork tests"
+
+  coverage:
+    needs: ["check", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
+    with:
+      foundry-version: ${{ inputs.foundry-version }}
+      match-path: ${{ inputs.coverage-match-path }}

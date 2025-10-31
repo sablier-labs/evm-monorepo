@@ -10,6 +10,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/ci-utils.yml"
+      - ".github/workflows/ci-module.yml"
       - "utils/**"
       - "foundry.base.toml"
       - "package.json"
@@ -19,57 +20,20 @@ on:
       - "staging"
     paths:
       - ".github/workflows/ci-utils.yml"
+      - ".github/workflows/ci-module.yml"
       - "utils/**"
       - "foundry.base.toml"
       - "package.json"
 
 jobs:
-  check:
-    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+  ci:
+    uses: "./.github/workflows/ci-module.yml"
     with:
-      foundry-version: "stable"
-
-  build:
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
-    with:
-      foundry-version: "stable"
+      module: "utils"
       foundry-profiles: "default"
-
-  test-bulloak:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
-    uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
-    with:
-      skip-modifiers: true
-      test-dir: "tests"
-
-  test-integration:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
-    with:
-      foundry-fuzz-runs: 2000
-      foundry-version: "stable"
-      match-path: "utils/tests/integration/**/*.sol"
-      name: "Integration tests"
-
-  test-invariant:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
-    with:
-      foundry-invariant-depth: 100
-      foundry-invariant-runs: 300
-      foundry-version: "stable"
-      match-path: "utils/tests/invariant/**/*.sol"
-      name: "Invariant tests"
-
-  coverage:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
+      run-integration: true
+      run-invariant: true
+      invariant-runs: 300
+      coverage-match-path: "utils/tests/integration/**/*.sol"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
-    with:
-      foundry-version: "stable"
-      match-path: "utils/tests/integration/**/*.sol"

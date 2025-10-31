@@ -10,6 +10,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/ci-lockup.yml"
+      - ".github/workflows/ci-module.yml"
       - "lockup/**"
       - "foundry.base.toml"
       - "package.json"
@@ -19,80 +20,21 @@ on:
       - "staging"
     paths:
       - ".github/workflows/ci-lockup.yml"
+      - ".github/workflows/ci-module.yml"
       - "lockup/**"
       - "foundry.base.toml"
       - "package.json"
 
 jobs:
-  check:
-    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+  ci:
+    uses: "./.github/workflows/ci-module.yml"
     with:
-      foundry-version: "stable"
-
-  build:
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
-    with:
-      foundry-version: "stable"
-
-  test-bulloak:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
-    uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
-    with:
-      skip-modifiers: true
-      test-dir: "tests"
-
-  test-unit:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
-    with:
-      foundry-fuzz-runs: 2000
-      foundry-profile: "test-optimized"
-      foundry-version: "stable"
-      match-path: "lockup/tests/unit/**/*.sol"
-      name: "Unit tests"
-
-  test-integration:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
-    with:
-      foundry-fuzz-runs: 2000
-      foundry-profile: "test-optimized"
-      foundry-version: "stable"
-      match-path: "lockup/tests/integration/**/*.sol"
-      name: "Integration tests"
-
-  test-invariant:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
-    with:
-      foundry-profile: "test-optimized"
-      foundry-version: "stable"
-      match-path: "lockup/tests/invariant/**/*.sol"
-      name: "Invariant tests"
-
-  test-fork:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
+      module: "lockup"
+      run-unit: true
+      run-integration: true
+      run-invariant: true
+      run-fork: true
+      coverage-match-path: "lockup/tests/{integration,unit}/**/*.sol"
     secrets:
       ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
-    with:
-      foundry-fuzz-runs: 20
-      foundry-profile: "test-optimized"
-      foundry-version: "stable"
-      match-path: "lockup/tests/fork/**/*.sol"
-      name: "Fork tests"
-
-  coverage:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
-    secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
-    with:
-      foundry-version: "stable"
-      match-path: "lockup/tests/{integration,unit}/**/*.sol"
