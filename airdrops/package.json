@@ -66,6 +66,7 @@
   },
   "repository": "sablier-labs/airdrops",
   "scripts": {
-    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh"
+    "prepack": "../scripts/bash/publish_prepack.sh",
+    "postpack": "../scripts/bash/publish_postpack.sh"
   }
 }

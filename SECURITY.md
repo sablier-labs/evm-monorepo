@@ -5,12 +5,12 @@ design and testing of the protocol to guarantee its safety and reliability. Howe
 continuous process. If you believe you have found a security vulnerability, please read the
 [Bug Bounty Program](https://sablier.notion.site/bug-bounty) and share a report privately with us.
 
-## Protocol Assumptions
+## Common Protocol Assumptions
 
-Flow has been developed with a number of technical assumptions in mind. For a disclosure to qualify as a vulnerability,
-it must adhere to the following assumptions:
+All Sablier protocols have been developed with a number of common technical assumptions in mind. For a disclosure to
+qualify as a vulnerability, it must adhere to these assumptions:
 
-- The total supply of any ERC-20 token remains below $(2^{128} - 1)$, i.e., `type(uint128).max`.
+- The total supply of any ERC-20 token remains below 2<sup>128</sup> - 1, i.e., `type(uint128).max`.
 - The `transfer` and `transferFrom` methods of any ERC-20 token strictly reduce the sender's balance by the transfer
   amount and increase the recipient's balance by the same amount. In other words, tokens that charge fees on transfers
   are not supported.
@@ -21,6 +21,17 @@ it must adhere to the following assumptions:
   [$POL token](https://polygonscan.com/address/0x0000000000000000000000000000000000001010) on Polygon is not supported.
 - The token contract has only one entry point.
 - The token contract does not allow callbacks (e.g., ERC-777 is not supported).
+
+## Airdrops
+
+Sablier Airdrops has been developed with the following additional assumptions:
+
+- Campaign creator does not fund an Airdrop campaign contract before deploying it through the Sablier Merkle Factory.
+
+## Flow
+
+Flow has been developed with the following additional assumptions:
+
 - A trust relationship is formed between the sender, recipient, and depositors participating in a stream. The recipient
   depends on the sender to fulfill their obligation to repay any debts incurred by the Flow stream. Likewise, depositors
   trust that the sender will not abuse the refund function to reclaim tokens.
@@ -31,3 +42,13 @@ it must adhere to the following assumptions:
 - There could be a minor discrepancy between the actual streamed amount and the expected amount. This is due to `rps`
   being an 18-decimal number, while users provide the amount per interval in the UI. If `rps` had infinite decimals,
   this discrepancy would not occur.
+
+## Lockup
+
+Sablier Lockup has been developed with the following additional assumptions:
+
+- The number of segments/tranches should be such that creating a stream should not lead to an overflow of the block gas
+  limit.
+- There is no need for exponents greater than ~18.44 in `LockupDynamic` segments.
+- Recipient contracts on the hook allowlist have gone through due diligence and are assumed to expose no risk to the
+  Sablier protocol.

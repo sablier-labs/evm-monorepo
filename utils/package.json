@@ -51,6 +51,7 @@
   },
   "scripts": {
     "postinstall": "cd node_modules/forge-std && ln -sf src/* .",
-    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh"
+    "prepack": "../scripts/bash/publish_prepack.sh",
+    "postpack": "../scripts/bash/publish_postpack.sh"
   }
 }
