@@ -66,10 +66,11 @@ on:
         required: false
 
 jobs:
-  check:
-    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
-    with:
-      foundry-version: ${{ inputs.foundry-version }}
+  # TODO: Re-enable this check job once the foundry version is fixes the formatter
+  # check:
+  #   uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+  #   with:
+  #     foundry-version: ${{ inputs.foundry-version }}
 
   build:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
@@ -78,7 +79,7 @@ jobs:
       foundry-profiles: ${{ inputs.foundry-profiles }}
 
   test-bulloak:
-    needs: ["check", "build"]
+    needs: ["build"]
     if: needs.build.outputs.cache-status != 'primary'
     uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
     with:
@@ -86,7 +87,7 @@ jobs:
       test-dir: ${{ inputs.bulloak-test-dir }}
 
   test-unit:
-    needs: ["check", "build"]
+    needs: ["build"]
     if: inputs.run-unit && needs.build.outputs.cache-status != 'primary'
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
@@ -97,7 +98,7 @@ jobs:
       name: "Unit tests"
 
   test-integration:
-    needs: ["check", "build"]
+    needs: ["build"]
     if: inputs.run-integration && needs.build.outputs.cache-status != 'primary'
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
@@ -108,7 +109,7 @@ jobs:
       name: "Integration tests"
 
   test-invariant:
-    needs: ["check", "build"]
+    needs: ["build"]
     if: inputs.run-invariant && needs.build.outputs.cache-status != 'primary'
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
@@ -120,7 +121,7 @@ jobs:
       name: "Invariant tests"
 
   test-fork:
-    needs: ["check", "build"]
+    needs: ["build"]
     if: inputs.run-fork && needs.build.outputs.cache-status != 'primary'
     secrets:
       ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
@@ -133,7 +134,7 @@ jobs:
       name: "Fork tests"
 
   coverage:
-    needs: ["check", "build"]
+    needs: ["build"]
     if: needs.build.outputs.cache-status != 'primary'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
