@@ -8,7 +8,7 @@
     "url": "https://sablier.com"
   },
   "bugs": {
-    "url": "https://github.com/sablier-labs/airdrops/issues"
+    "url": "https://github.com/sablier-labs/evm-monorepo/issues"
   },
   "dependencies": {
     "@openzeppelin/contracts": "5.3.0",
@@ -34,7 +34,7 @@
     "LICENSE-BUSL.md",
     "LICENSE-GPL.md"
   ],
-  "homepage": "https://github.com/sablier-labs/airdrops#readme",
+  "homepage": "https://github.com/sablier-labs/evm-monorepo#readme",
   "keywords": [
     "airdrops",
     "airstream",
@@ -64,7 +64,11 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": "sablier-labs/airdrops",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sablier-labs/evm-monorepo.git",
+    "directory": "airdrops"
+  },
   "scripts": {
     "prepack": "../scripts/bash/publish_prepack.sh",
     "postpack": "../scripts/bash/publish_postpack.sh"
