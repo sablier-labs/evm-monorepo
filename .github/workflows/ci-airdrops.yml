@@ -10,6 +10,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/ci-airdrops.yml"
+      - ".github/workflows/ci-module.yml"
       - "airdrops/**"
       - "foundry.base.toml"
       - "package.json"
@@ -19,59 +20,20 @@ on:
       - "staging"
     paths:
       - ".github/workflows/ci-airdrops.yml"
+      - ".github/workflows/ci-module.yml"
       - "airdrops/**"
       - "foundry.base.toml"
       - "package.json"
 
 jobs:
-  check:
-    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+  ci:
+    uses: "./.github/workflows/ci-module.yml"
     with:
-      foundry-version: "stable"
-
-  build:
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
-    with:
-      foundry-version: "stable"
-
-  test-bulloak:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
-    uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
-    with:
-      skip-modifiers: true
-      test-dir: "tests"
-
-  test-integration:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
-    with:
-      foundry-fuzz-runs: 2000
-      foundry-profile: "test-optimized"
-      foundry-version: "stable"
-      match-path: "airdrops/tests/integration/**/*.sol"
-      name: "Integration tests"
-
-  test-fork:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
+      module: "airdrops"
+      run-integration: true
+      run-fork: true
+      integration-fuzz-runs: 2000
+      coverage-match-path: "airdrops/tests/{integration,unit}/**/*.sol"
     secrets:
       ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
-    with:
-      foundry-fuzz-runs: 20
-      foundry-profile: "test-optimized"
-      foundry-version: "stable"
-      match-path: "airdrops/tests/fork/**/*.sol"
-      name: "Fork tests"
-
-  coverage:
-    needs: ["check", "build"]
-    if: needs.build.outputs.cache-status != 'primary'
-    secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
-    with:
-      foundry-version: "stable"
-      match-path: "airdrops/tests/{integration,unit}/**/*.sol"
