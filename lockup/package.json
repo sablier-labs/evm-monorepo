@@ -8,7 +8,7 @@
     "url": "https://sablier.com"
   },
   "bugs": {
-    "url": "https://github.com/sablier-labs/lockup/issues"
+    "url": "https://github.com/sablier-labs/evm-monorepo/issues"
   },
   "dependencies": {
     "@openzeppelin/contracts": "5.3.0",
@@ -33,7 +33,7 @@
     "LICENSE-BUSL.md",
     "LICENSE-GPL.md"
   ],
-  "homepage": "https://github.com/sablier-labs/lockup#readme",
+  "homepage": "https://github.com/sablier-labs/evm-monorepo#readme",
   "keywords": [
     "blockchain",
     "cryptoasset-streaming",
@@ -62,7 +62,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sablier-labs/lockup.git"
+    "url": "https://github.com/sablier-labs/evm-monorepo.git",
+    "directory": "lockup"
   },
   "scripts": {
     "prepack": "../scripts/bash/publish_prepack.sh",
