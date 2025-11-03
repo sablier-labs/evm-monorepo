@@ -1,0 +1,16 @@
+# directories
+broadcast
+cache
+cache_hardhat-zk
+coverage
+docs
+node_modules
+out
+out-*
+repomix
+
+# files
+*.sol
+.pnp.*
+package-lock.json
+pnpm-lock.yaml

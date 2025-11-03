@@ -1,0 +1,13 @@
+name: "CI Slither"
+
+on:
+  schedule:
+    - cron: "0 3 * * 0" # at 3:00am UTC every Sunday
+
+jobs:
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+
+  slither-analyze:
+    needs: "check"
+    uses: "sablier-labs/gha-utils/.github/workflows/slither-analyze.yml@main"
