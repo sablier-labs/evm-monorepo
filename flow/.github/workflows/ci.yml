@@ -1,0 +1,71 @@
+name: "CI"
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{github.workflow}}-${{github.ref}}
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - "main"
+      - "staging"
+
+jobs:
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+
+  build:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+
+  test-bulloak:
+    needs: ["check", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
+    with:
+      skip-modifiers: true
+      test-dir: "tests/integration"
+
+  test-integration:
+    needs: ["check", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: 10000
+      foundry-profile: "test-optimized"
+      match-path: "tests/integration/**/*.sol"
+      name: "Integration tests"
+
+  test-invariant:
+    needs: ["check", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-invariant-depth: 100
+      foundry-invariant-runs: 1000
+      foundry-profile: "test-optimized"
+      match-path: "tests/invariant/**/*.sol"
+      name: "Invariant tests"
+
+  test-fork:
+    needs: ["check", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    secrets:
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+      ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: 20
+      foundry-profile: "test-optimized"
+      match-path: "tests/fork/**/*.sol"
+      name: "Fork tests"
+
+  coverage:
+    needs: ["check", "build"]
+    if: needs.build.outputs.cache-status != 'primary'
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
+    with:
+      match-path: "tests/{integration}/**/*.sol"
