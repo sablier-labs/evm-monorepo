@@ -1,0 +1,11 @@
+codecov:
+  require_ci_to_pass: false
+comment: false
+coverage:
+  status:
+    patch: off
+ignore:
+  - "scripts"
+  - "src/mocks"
+  - "src/tests"
+  - "tests"
