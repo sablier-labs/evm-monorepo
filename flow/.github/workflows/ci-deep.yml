@@ -1,0 +1,75 @@
+name: "CI Deep"
+
+on:
+  schedule:
+    - cron: "0 3 * * 3,6" # at 3:00am UTC on Wednesday and Saturday
+  workflow_dispatch:
+    inputs:
+      integrationFuzzRuns:
+        default: "100000"
+        description: "Integration: number of fuzz runs."
+        required: false
+      invariantRuns:
+        default: "20000"
+        description: "Invariant runs: number of sequences of function calls generated and run."
+        required: false
+      invariantDepth:
+        default: "200"
+        description: "Invariant depth: number of function calls made in a given run."
+        required: false
+      forkFuzzRuns:
+        default: "20"
+        description: "Fork: number of fuzz runs."
+        required: false
+
+jobs:
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+
+  build:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+
+  test-integration:
+    needs: ["check", "build"]
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: ${{ fromJSON(inputs.integrationFuzzRuns || '100000') }}
+      foundry-profile: "test-optimized"
+      match-path: "tests/integration/**/*.sol"
+      name: "Integration tests"
+
+  test-invariant:
+    needs: ["check", "build"]
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-invariant-depth: ${{ fromJSON(inputs.invariantDepth || '200') }}
+      foundry-invariant-runs: ${{ fromJSON(inputs.invariantRuns || '20000') }}
+      foundry-profile: "test-optimized"
+      match-path: "tests/invariant/**/*.sol"
+      name: "Invariant tests"
+
+  test-fork:
+    needs: ["check", "build"]
+    secrets:
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+      ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: ${{ fromJSON(inputs.forkFuzzRuns || '20') }}
+      foundry-profile: "test-optimized"
+      match-path: "tests/fork/**/*.sol"
+      name: "Fork tests"
+      retry-attempts: 2
+
+  notify-on-failure:
+    if: failure()
+    needs: ["check", "build", "test-integration", "test-invariant", "test-fork"]
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Send Slack notification"
+        uses: "rtCamp/action-slack-notify@v2"
+        env:
+          SLACK_CHANNEL: "#ci-notifications"
+          SLACK_MESSAGE: "CI Workflow failed for ${{ github.repository }} on branch ${{ github.ref }} at job ${{ github.job }}."
+          SLACK_USERNAME: "GitHub CI"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
