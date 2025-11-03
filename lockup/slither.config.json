@@ -4,6 +4,8 @@
   "solc_remaps": [
     "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
     "@prb/math/=node_modules/@prb-math/",
-    "forge-std/=node_modules/forge-std/"
+    "forge-std/=node_modules/forge-std/",
+    "solady/=node_modules/solady/",
+    "solarray/=node_modules/solarray/"
   ]
 }
