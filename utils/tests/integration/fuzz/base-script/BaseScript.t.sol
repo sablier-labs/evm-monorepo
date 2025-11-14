@@ -4,10 +4,8 @@ pragma solidity >=0.8.22;
 import { StdAssertions } from "forge-std/src/StdAssertions.sol";
 import { StdConstants, Vm } from "forge-std/src/StdConstants.sol";
 
-import { BaseScript } from "src/tests/BaseScript.sol";
 import { ChainId } from "src/tests/ChainId.sol";
-
-contract BaseScriptMock is BaseScript { }
+import { BaseScriptMock } from "tests/mocks/BaseScriptMock.sol";
 
 contract BaseScript_Fuzz_Test is StdAssertions {
     BaseScriptMock internal baseScript;
