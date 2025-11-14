@@ -125,6 +125,9 @@ contract Comptroller_Fork_Test is Base_Test {
 
     /// @dev It should transfer fees from Comptroller, Lockup and Flow to the provided fee recipient.
     function testForkFuzz_TransferFees(address feeRecipient) external whenFeeRecipientNotZero {
+        // Skip if fee recipient is zero address.
+        vm.assume(feeRecipient != address(0));
+
         uint256 initialFeeRecipientBalance = feeRecipient.balance;
 
         // Calculate expected fee amount as the sum of balances of comptroller and protocol addresses.
