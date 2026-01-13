@@ -1,0 +1,133 @@
+name: "BB CI: Module (Reusable)"
+
+on:
+  workflow_call:
+    inputs:
+      exclude-invariant-tests:
+        default: false
+        required: false
+        type: boolean
+      exclude-unit-tests:
+        default: false
+        required: false
+        type: boolean
+      module:
+        description: "Module name (e.g., airdrops, flow, lockup, utils)"
+        required: true
+        type: string
+    secrets:
+      CODECOV_TOKEN:
+        required: false
+      ROUTEMESH_API_KEY:
+        required: false
+
+jobs:
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+    with:
+      foundry-version: "v1.4.4"
+      name: "Full check"
+      working-directory: ${{ inputs.module }}
+
+  build:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-version: "v1.4.4"
+      name: "Build"
+      working-directory: ${{ inputs.module }}
+
+  test-bulloak:
+    needs: ["build", "check"]
+    uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
+    with:
+      name: "Bulloak check"
+      skip-modifiers: true
+      test-dir: "${{ inputs.module }}/tests"
+      working-directory: ${{ inputs.module }}
+
+  test-fork:
+    needs: ["build", "check"]
+    uses: "sablier-labs/gha-utils/.github/workflows/bb-fork-forge-test.yml@main"
+    secrets: inherit
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-fuzz-runs: 20
+      foundry-profile: "test-optimized"
+      foundry-version: "v1.4.4"
+      match-path: "tests/fork/**/*.sol"
+      name: "Fork tests"
+      working-directory: ${{ inputs.module }}
+
+  test-integration:
+    needs: ["build", "check"]
+    uses: "sablier-labs/gha-utils/.github/workflows/bb-forge-test.yml@main"
+    secrets: inherit
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-profile: "test-optimized"
+      foundry-version: "v1.4.4"
+      match-path: "tests/{integration,utils}/**/*.sol"
+      name: "Integration tests"
+      working-directory: ${{ inputs.module }}
+
+  test-invariant:
+    needs: ["build", "check"]
+    uses: "sablier-labs/gha-utils/.github/workflows/bb-forge-test.yml@main"
+    secrets: inherit
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-profile: "test-optimized"
+      foundry-version: "v1.4.4"
+      match-path: "tests/invariant/**/*.sol"
+      name: "Invariant tests"
+      working-directory: ${{ inputs.module }}
+
+  test-unit:
+    needs: ["build", "check"]
+    uses: "sablier-labs/gha-utils/.github/workflows/bb-forge-test.yml@main"
+    secrets: inherit
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-profile: "test-optimized"
+      foundry-version: "v1.4.4"
+      match-path: "tests/unit/**/*.sol"
+      name: "Unit tests"
+      working-directory: ${{ inputs.module }}
+
+  coverage:
+    needs: ["build", "check", "test-integration"]
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-version: "v1.4.4"
+      match-path: "tests/{integration,unit}/**/*.sol"
+      name: "Coverage"
+      via-ir-minimum: true
+      working-directory: ${{ inputs.module }}
