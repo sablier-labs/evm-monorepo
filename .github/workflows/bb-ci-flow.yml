@@ -17,7 +17,7 @@ on:
   push:
     branches:
       - "main"
-      - "bb-staging-demo-new"
+      - "staging"
     paths:
       - ".github/workflows/bb-ci-flow.yml"
       - ".github/workflows/bb-ci-module.yml"
