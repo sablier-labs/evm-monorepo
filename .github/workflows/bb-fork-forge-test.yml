@@ -1,0 +1,176 @@
+name: "Test a Forge project"
+
+on:
+  workflow_call:
+    inputs:
+      cache-path:
+        default: |
+          cache
+          node_modules
+          out
+          out-optimized
+        required: false
+        type: "string"
+
+      foundry-fuzz-runs:
+        default: 1000
+        required: false
+        type: "number"
+
+      foundry-invariant-depth:
+        default: 20
+        required: false
+        type: "number"
+
+      foundry-invariant-runs:
+        default: 20
+        required: false
+        type: "number"
+
+      foundry-profile:
+        default: "default"
+        required: false
+        type: "string"
+
+      fuzz-seed:
+        default: false
+        required: false
+        type: "boolean"
+
+      match-path:
+        required: true
+        type: "string"
+
+      name:
+        default: "Forge tests"
+        required: false
+        type: "string"
+
+      working-directory:
+        default: "."
+        required: false
+        type: "string"
+
+      foundry-version:
+        default: "latest"
+        required: false
+        type: "string"
+
+    secrets:
+      BUILDBEAR_API_KEY:
+        required: false
+      API_KEY_INFURA:
+        required: false
+      MAINNET_RPC_URL:
+        required: false
+      ETHERSCAN_API_KEY:
+        required: false
+      BUILDBEAR_BASE_URL:
+        required: false
+
+jobs:
+  forge-test:
+    env:
+      API_KEY_INFURA: "${{ secrets.API_KEY_INFURA }}"
+      FOUNDRY_INVARIANT_DEPTH: ${{ inputs.foundry-invariant-depth }}
+      FOUNDRY_INVARIANT_RUNS: ${{ inputs.foundry-invariant-runs }}
+      FOUNDRY_FUZZ_RUNS: ${{ inputs.foundry-fuzz-runs }}
+      FOUNDRY_PROFILE: ${{ inputs.foundry-profile }}
+      MAINNET_RPC_URL: "${{ secrets.MAINNET_RPC_URL }}"
+      ETHERSCAN_API_KEY: "${{ secrets.ETHERSCAN_API_KEY }}"
+      BUILDBEAR_BASE_URL: "${{ secrets.BUILDBEAR_BASE_URL }}"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Clone Foundry repository
+        working-directory: .
+        run: |
+          if [ ! -d "foundry" ]; then
+            git clone https://github.com/BuildBearLabs/foundry.git -b feat/better-json-file
+          fi
+        shell: bash
+
+      - name: Set Foundry commit hash
+        working-directory: .
+        id: foundry_hash
+        run: echo "hash=$(git -C foundry rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Restore Foundry build cache
+        uses: actions/cache@v3
+        id: cache-foundry
+        with:
+          path: |
+            foundry/target
+            $HOME/.config/.foundry/bin
+          key: ${{ runner.os }}-foundry-build-${{ steps.foundry_hash.outputs.hash }}
+
+      - name: Build Foundry from source or copy from target
+        working-directory: .
+        run: |
+          FOUNDRY_BIN="$HOME/.config/.foundry/bin/forge"
+          TARGET_FORGE="foundry/target/debug/forge"
+
+          mkdir -p "$(dirname "$FOUNDRY_BIN")"
+
+          if [ -f "$FOUNDRY_BIN" ]; then
+            echo "✅ Forge binary found in bin path, skipping build."
+          elif [ -f "$TARGET_FORGE" ]; then
+            echo "✅ Forge binary found in target/debug, copying to bin."
+            cp "$TARGET_FORGE" "$FOUNDRY_BIN"
+          else
+            echo "❌ Forge binary not found, building from source..."
+            cd foundry
+            cargo build
+            cp target/debug/forge "$FOUNDRY_BIN"
+          fi
+
+          echo "$(dirname "$FOUNDRY_BIN")" >> $GITHUB_PATH
+
+      - name: Save Foundry build cache
+        if: steps.cache-foundry.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            foundry/target
+            $HOME/.config/.foundry/bin
+          key: ${{ runner.os }}-foundry-build-${{ steps.foundry_hash.outputs.hash }}
+
+      - name: Show Forge version
+        run: forge --version
+
+      - name: "Restore the cached build"
+        uses: "sablier-labs/gha-utils/.github/actions/evm-cache@main"
+        with:
+          cache-path: ${{ inputs.cache-path }}
+          fail-on-cache-miss: true
+
+      - name: "Generate fuzz seed that changes weekly"
+        if: ${{ inputs.fuzz-seed }}
+        run: |
+          seed=$(echo $(($EPOCHSECONDS / 604800)))
+          echo "FOUNDRY_FUZZ_SEED=$seed" >> $GITHUB_ENV
+
+      - name: "Run the tests"
+        working-directory: ${{ inputs.working-directory }}
+        run: forge test --fork-url "$MAINNET_RPC_URL" --match-path "${{ inputs.match-path }}"
+        continue-on-error: true
+
+      - name: "Run BB Action CI"
+        uses: BuildBearLabs/buildbear_x_action@v1.7.3
+        with:
+          buildbear-api-key: ${{ secrets.BUILDBEAR_API_KEY }}
+          working-directory: ${{ inputs.working-directory }}
+
+      - name: "Add summary"
+        run: |
+          echo "## Result for ${{ inputs.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY

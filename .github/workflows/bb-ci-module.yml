@@ -52,7 +52,7 @@ jobs:
 
   test-fork:
     needs: ["build", "check"]
-    uses: "sablier-labs/gha-utils/.github/workflows/bb-fork-forge-test.yml@main"
+    uses: "./.github/workflows/bb-fork-forge-test.yml"
     secrets: inherit
     with:
       cache-path: |
@@ -69,7 +69,7 @@ jobs:
 
   test-integration:
     needs: ["build", "check"]
-    uses: "sablier-labs/gha-utils/.github/workflows/bb-forge-test.yml@main"
+    uses: "./.github/workflows/bb-forge-test.yml"
     secrets: inherit
     with:
       cache-path: |
@@ -85,7 +85,7 @@ jobs:
 
   test-invariant:
     needs: ["build", "check"]
-    uses: "sablier-labs/gha-utils/.github/workflows/bb-forge-test.yml@main"
+    uses: "./.github/workflows/bb-forge-test.yml"
     secrets: inherit
     with:
       cache-path: |
@@ -101,7 +101,7 @@ jobs:
 
   test-unit:
     needs: ["build", "check"]
-    uses: "sablier-labs/gha-utils/.github/workflows/bb-forge-test.yml@main"
+    uses: "./.github/workflows/bb-forge-test.yml"
     secrets: inherit
     with:
       cache-path: |
