@@ -28,10 +28,6 @@ abstract contract Base_Test is Assertions, Modifiers {
     function setUp() public virtual override {
         super.setUp();
 
-        // Use DAI as sell token and USDC as buy token.
-        sellToken = IERC20(address(dai));
-        buyToken = IERC20(address(usdc));
-
         // Deploy the Escrow protocol.
         escrow = new SablierEscrow(address(comptroller), DEFAULT_TRADE_FEE);
         vm.label({ account: address(escrow), newLabel: "SablierEscrow" });
@@ -46,31 +42,7 @@ abstract contract Base_Test is Assertions, Modifiers {
         // Set modifier variables.
         setVariables(users);
 
-        // Set seller as the default caller for the tests.
-        setMsgSender(users.seller);
-
         // Warp to Feb 1, 2026 at 00:00 UTC to provide a more realistic testing environment.
         vm.warp({ newTimestamp: FEB_1_2026 });
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                      HELPERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Creates an order with default values.
-    function createDefaultOrder() internal returns (uint256 orderId) {
-        orderId = createDefaultOrder(users.buyer);
-    }
-
-    /// @dev Creates an order with a specified buyer.
-    function createDefaultOrder(address buyer) internal returns (uint256 orderId) {
-        orderId = escrow.createOrder({
-            sellToken: sellToken,
-            sellAmount: SELL_AMOUNT,
-            buyToken: buyToken,
-            minBuyAmount: MIN_BUY_AMOUNT,
-            buyer: buyer,
-            expiryTime: ORDER_EXPIRY_TIME
-        });
     }
 }

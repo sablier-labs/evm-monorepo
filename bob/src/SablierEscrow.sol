@@ -69,17 +69,14 @@ contract SablierEscrow is
             revert Errors.SablierEscrow_OrderCancelled(orderId);
         }
 
-        // Load values from storage into memory.
-        uint128 sellAmount = order.sellAmount;
-
         // Effect: mark the order as canceled.
         _orders[orderId].wasCanceled = true;
 
         // Interaction: transfer sell tokens to caller.
-        order.sellToken.safeTransfer(msg.sender, sellAmount);
+        order.sellToken.safeTransfer(msg.sender, order.sellAmount);
 
         // Log the event.
-        emit CancelOrder(orderId, msg.sender, sellAmount);
+        emit CancelOrder(orderId, msg.sender, order.sellAmount);
     }
 
     /// @inheritdoc ISablierEscrow
