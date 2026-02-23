@@ -40,4 +40,4 @@ Redeem_Integration_Concrete_Test
                ├── it should burn all shares
                ├── it should transfer yield fee to the comptroller
                ├── it should transfer tokens to depositor
-               └── it should emit a {Redeem} events
+               └── it should emit a {Redeem} event

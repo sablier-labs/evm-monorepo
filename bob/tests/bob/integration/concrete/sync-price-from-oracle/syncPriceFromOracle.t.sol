@@ -39,7 +39,7 @@ contract SyncPriceFromOracle_Integration_Concrete_Test is Integration_Test {
         uint128 actualLastSyncedPrice = bob.getLastSyncedPrice(vaultIds.defaultVault);
         assertEq(actualLastSyncedPrice, expectedLastSyncedPrice, "lastSyncedPrice");
 
-        // It should update the last synced at timestamp.
+        // It should not update the last synced at timestamp.
         uint40 actualLastSyncedAt = bob.getLastSyncedAt(vaultIds.defaultVault);
         assertEq(actualLastSyncedAt, expectedLastSyncedAt, "lastSyncedAt");
     }

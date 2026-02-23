@@ -17,7 +17,7 @@ struct VaultIds {
 struct Users {
     // Impartial user.
     address payable alice;
-    // A user who is interested into depositing tokens into a vault.
+    // A user who is interested in depositing tokens into a vault.
     address payable bob;
     // Malicious user.
     address payable eve;

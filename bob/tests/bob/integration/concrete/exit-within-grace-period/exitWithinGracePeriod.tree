@@ -28,4 +28,4 @@ ExitWithinGracePeriod_Integration_Concrete_Test
                   ├── it should set user wstETH balance to 0
                   ├── it should reduce adapter wstETH balance
                   ├── it should return the deposit amount
-                  └── it should emit an {ExitWithinGracePeriod} and {UnstakeForUserWithinGracePeriod} events
+                  └── it should emit {ExitWithinGracePeriod} and {UnstakeForUserWithinGracePeriod} events
