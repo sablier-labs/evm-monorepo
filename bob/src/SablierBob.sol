@@ -245,10 +245,10 @@ contract SablierBob is
         Bob.Vault storage vault = _vaults[vaultId];
 
         // Get the caller's share balance.
-        uint128 amount = vault.shareToken.balanceOf(msg.sender).toUint128();
+        uint256 shares = vault.shareToken.balanceOf(msg.sender);
 
         // Check: the share balance is not zero.
-        if (amount == 0) {
+        if (shares == 0) {
             revert Errors.SablierBob_NoSharesToRedeem(vaultId, msg.sender);
         }
 
@@ -272,18 +272,28 @@ contract SablierBob is
         delete _firstDepositTimes[vaultId][msg.sender];
 
         // Interaction: burn share tokens from the caller.
-        vault.shareToken.burn(vaultId, msg.sender, amount);
+        vault.shareToken.burn(vaultId, msg.sender, shares);
+
+        uint256 amountTransferred;
 
         // Interaction: return tokens to the caller.
         if (address(vault.adapter) != address(0)) {
             // Unstake the tokens for the user via the adapter.
-            vault.adapter.unstakeForUserWithinGracePeriod(vaultId, msg.sender);
-        } else {
-            vault.token.safeTransfer(msg.sender, amount);
+            amountTransferred = vault.adapter.unstakeForUserWithinGracePeriod(vaultId, msg.sender);
+        }
+        // Otherwise, transfer the amount equal to the shares burned.
+        else {
+            amountTransferred = shares;
+            vault.token.safeTransfer(msg.sender, amountTransferred);
         }
 
         // Log the event.
-        emit ExitWithinGracePeriod(vaultId, msg.sender, amount, amount);
+        emit ExitWithinGracePeriod({
+            vaultId: vaultId,
+            user: msg.sender,
+            amountReceived: amountTransferred,
+            sharesBurned: shares
+        });
     }
 
     /// @inheritdoc ISablierBob

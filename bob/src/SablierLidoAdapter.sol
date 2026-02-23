@@ -287,7 +287,15 @@ contract SablierLidoAdapter is
     }
 
     /// @inheritdoc ISablierBobAdapter
-    function unstakeForUserWithinGracePeriod(uint256 vaultId, address user) external override onlySablierBob {
+    function unstakeForUserWithinGracePeriod(
+        uint256 vaultId,
+        address user
+    )
+        external
+        override
+        onlySablierBob
+        returns (uint256 wethReceived)
+    {
         // Get user's wstETH balance.
         uint128 userWstETH = _userWstETH[vaultId][user];
 
@@ -296,7 +304,7 @@ contract SablierLidoAdapter is
         _vaultTotalWstETH[vaultId] -= userWstETH;
 
         // Swap wstETH for WETH.
-        uint128 wethReceived = _wstETHToWeth(userWstETH);
+        wethReceived = _wstETHToWeth(userWstETH);
 
         // Interaction: Transfer WETH to the user.
         IERC20(WETH).safeTransfer(user, wethReceived);

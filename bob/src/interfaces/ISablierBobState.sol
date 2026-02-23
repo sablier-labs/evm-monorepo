@@ -59,7 +59,7 @@ interface ISablierBobState {
 
     /// @notice Returns whether the vault tokens are staked in an adapter.
     /// @dev Reverts if `vaultId` references a null vault.
-    function isStakedInAdapter(uint256 vaultId) external view returns (bool);
+    function isStakedInAdapter(uint256 vaultId) external view returns (bool stakedInAdapter);
 
     /// @notice Retrieves the address of the ERC-20 interface of the native token, if it exists.
     /// @dev The native tokens on some chains have a dual interface as ERC-20. For example, on Polygon the $POL token

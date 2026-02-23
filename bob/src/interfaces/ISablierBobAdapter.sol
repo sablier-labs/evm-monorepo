@@ -145,7 +145,8 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     ///
     /// @param vaultId The ID of the vault.
     /// @param user The address of the user.
-    function unstakeForUserWithinGracePeriod(uint256 vaultId, address user) external;
+    /// @return amountTransferred The amount of tokens transferred to the user.
+    function unstakeForUserWithinGracePeriod(uint256 vaultId, address user) external returns (uint256 amountTransferred);
 
     /// @notice Updates staked token balance of a user when vault shares are transferred.
     ///

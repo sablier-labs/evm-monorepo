@@ -128,8 +128,8 @@ abstract contract SablierBobState is ISablierBobState {
     }
 
     /// @inheritdoc ISablierBobState
-    function isStakedInAdapter(uint256 vaultId) external view override notNull(vaultId) returns (bool) {
-        return _vaults[vaultId].isStakedInAdapter;
+    function isStakedInAdapter(uint256 vaultId) external view override notNull(vaultId) returns (bool stakedInAdapter) {
+        stakedInAdapter = _vaults[vaultId].isStakedInAdapter;
     }
 
     /// @inheritdoc ISablierBobState

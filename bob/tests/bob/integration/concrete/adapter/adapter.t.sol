@@ -7,17 +7,17 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
-contract Adapter_Integration_Concrete_Test is Integration_Test {
+contract LidoAdapter_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
         setMsgSender(users.bob);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            ONLY_SABLIER_BOB MODIFIER
+                                        STAKE
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_RevertWhen_StakeCalledDirectly() external {
+    function test_Stake_RevertWhen_CallerNotSablierBob() external {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.bob, address(bob))
@@ -25,7 +25,11 @@ contract Adapter_Integration_Concrete_Test is Integration_Test {
         adapter.stake(1, users.bob, 1 ether);
     }
 
-    function test_RevertWhen_UnstakeForUserWithinGracePeriodCalledDirectly() external {
+    /*//////////////////////////////////////////////////////////////////////////
+                          UNSTAKE-FOR-USER-WITHIN-GRACE-PERIOD
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_UnstakeForUserWithinGracePeriod_RevertWhen_CallerNotSablierBob() external {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.bob, address(bob))
@@ -33,7 +37,11 @@ contract Adapter_Integration_Concrete_Test is Integration_Test {
         adapter.unstakeForUserWithinGracePeriod(1, users.bob);
     }
 
-    function test_RevertWhen_UnstakeAllCalledDirectly() external {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  UNSTAKE-FULL-AMOUNT
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_UnstakeFullAmount_RevertWhen_CallerNotSablierBob() external {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.bob, address(bob))
@@ -42,18 +50,20 @@ contract Adapter_Integration_Concrete_Test is Integration_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                CALCULATE REDEMPTION
+                       CALCULATE-AMOUNT-TO-TRANSFER-WITH-YIELD
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_CalculateRedemption_NoWstETH() external view {
-        uint256 vaultId = vaultIds.defaultVault;
-        (uint256 wethAmount, uint256 feeAmount) = adapter.calculateAmountToTransferWithYield(vaultId, users.bob, 100e18);
+    function test_CalculateAmountToTransferWithYield_GivenNoYieldBearingTokenBalance() external view {
+        // It should return zero.
+        (uint256 wethAmount, uint256 feeAmount) =
+            adapter.calculateAmountToTransferWithYield(vaultIds.defaultVault, users.bob, 100e18);
 
         assertEq(wethAmount, 0, "wethAmount");
         assertEq(feeAmount, 0, "feeAmount");
     }
 
-    function test_CalculateRedemption_BeforeUnstake() external view {
+    function test_CalculateAmountToTransferWithYield_GivenNotUnstaked() external view givenYieldTokenBalanceNotZero {
+        // It should return zero.
         (uint256 wethAmount, uint256 feeAmount) =
             adapter.calculateAmountToTransferWithYield(vaultIds.vaultWithAdapter, users.depositor, DEPOSIT_AMOUNT);
 
@@ -62,40 +72,47 @@ contract Adapter_Integration_Concrete_Test is Integration_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                ERC165 INTERFACE
+                                  SUPPORTS-INTERFACE
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_SupportsInterface_ISablierBobAdapter() external view {
+    function test_SupportsInterface_WhenQueryingISablierBobAdapterInterface() external view {
+        // It should return true.
         assertTrue(adapter.supportsInterface(type(ISablierBobAdapter).interfaceId), "ISablierBobAdapter");
     }
 
-    function test_SupportsInterface_ISablierLidoAdapter() external view {
+    function test_SupportsInterface_WhenQueryingISablierLidoAdapterInterface() external view {
+        // It should return true.
         assertTrue(adapter.supportsInterface(type(ISablierLidoAdapter).interfaceId), "ISablierLidoAdapter");
     }
 
-    function test_SupportsInterface_IERC165() external view {
+    function test_SupportsInterface_WhenQueryingIERC165Interface() external view {
+        // It should return true.
         assertTrue(adapter.supportsInterface(0x01ffc9a7), "IERC165");
     }
 
-    function test_SupportsInterface_InvalidInterface() external view {
+    function test_SupportsInterface_WhenQueryingInvalidInterface() external view {
+        // It should return false.
         assertFalse(adapter.supportsInterface(0xdeadbeef), "random");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   GET VAULT YIELD FEE
+                                  GET-VAULT-YIELD-FEE
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_GetVaultYieldFee_ReturnsSnapshotedFee() external view {
+    function test_GetVaultYieldFee_GivenNoFeeChangesAfterCreation() external view {
+        // It should return the snapshotted fee.
         assertEq(adapter.getVaultYieldFee(vaultIds.vaultWithAdapter).unwrap(), YIELD_FEE.unwrap(), "vaultYieldFee");
     }
 
-    function test_GetVaultYieldFee_ImmutableAfterCreation() external {
+    function test_GetVaultYieldFee_GivenGlobalFeeChangedAfterCreation() external {
         uint256 initialVaultFee = adapter.getVaultYieldFee(vaultIds.vaultWithAdapter).unwrap();
 
+        // Change the global yield fee.
         setMsgSender(address(comptroller));
         adapter.setYieldFee(MAX_YIELD_FEE);
         setMsgSender(users.bob);
 
+        // It should return the original snapshotted fee.
         assertEq(adapter.getVaultYieldFee(vaultIds.vaultWithAdapter).unwrap(), initialVaultFee, "vaultFee.unchanged");
         assertEq(adapter.feeOnYield().unwrap(), MAX_YIELD_FEE.unwrap(), "globalFee.changed");
     }

@@ -23,8 +23,6 @@ abstract contract Utils is BaseUtils {
         pure
         returns (string memory)
     {
-        return string.concat(
-            tokenSymbol, "-", targetPrice.toString(), "-", uint256(expiry).toString(), "-", vaultId.toString()
-        );
+        return string.concat(tokenSymbol, "-", targetPrice.toString(), "-", expiry.toString(), "-", vaultId.toString());
     }
 }

@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 /// @title IBobVaultShare
 /// @notice Interface for the ERC-20 token representing shares in a Bob vault.
-interface IBobVaultShare is IERC20, IERC20Metadata {
+interface IBobVaultShare is IERC20Metadata {
     /*//////////////////////////////////////////////////////////////////////////
                                USER-FACING CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
