@@ -8,5 +8,5 @@ SetNativeToken_Integration_Concrete_Test
       ├── given native token already set
       │  └── it should revert
       └── given native token not set
-         ├── it should set the native token
+         ├── it should set native token
          └── it should emit a {SetNativeToken} event

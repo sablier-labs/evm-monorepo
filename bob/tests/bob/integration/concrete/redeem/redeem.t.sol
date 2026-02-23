@@ -1,257 +1,257 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
+import { ud } from "@prb/math/src/UD60x18.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Integration_Test } from "./../../Integration.t.sol";
+
+import { Integration_Test } from "../../Integration.t.sol";
 
 contract Redeem_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_Null() external {
-        // It should revert.
-        expectRevert_Null(abi.encodeCall(bob.redeem, (vaultIds.nullVault)), vaultIds.nullVault);
+        expectRevert_Null(abi.encodeCall(bob.redeem, (vaultIds.nullVault)));
     }
 
-    function test_RevertGiven_NotSettled() external givenNotNull {
-        // It should revert.
+    function test_RevertWhen_SyncNotChangeStatus() external givenNotNull givenActive {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultStillActive.selector, vaultIds.defaultVault));
-        bob.redeem(vaultIds.defaultVault);
+        bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.defaultVault);
     }
 
-    function test_RevertWhen_NoSharesToRedeem() external givenNotNull givenSettled {
-        // It should revert.
-        // Use the settled vault but with a user who has no shares.
-        setMsgSender(users.eve);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierBob_NoSharesToRedeem.selector, vaultIds.settledVault, users.eve)
-        );
-        bob.redeem(vaultIds.settledVault);
-    }
+    function test_WhenSyncChangesStatus() external givenNotNull givenActive {
+        // Set oracle price to target price so that the sync settles the vault.
+        mockOracle.setPrice(TARGET_PRICE);
 
-    function test_RevertWhen_FeePaymentInsufficient()
-        external
-        givenNotNull
-        givenSettled
-        whenCallerHasShares
-        givenNoAdapter
-    {
-        // It should revert.
-        // Set a non-zero minimum fee for Bob protocol (1 USD = 1e8 in comptroller's 8-decimal format).
-        // Use the admin account which has FEE_MANAGEMENT_ROLE.
-        setMsgSender(admin);
-        comptroller.setMinFeeUSD(ISablierComptroller.Protocol.Bob, 1e8);
-        setMsgSender(users.depositor);
+        // It should emit {SyncPriceFromOracle} event.
+        vm.expectEmit({ emitter: address(bob) });
+        emit ISablierBob.SyncPriceFromOracle({
+            vaultId: vaultIds.defaultVault,
+            oracle: chainlinkOracle,
+            latestPrice: TARGET_PRICE,
+            syncedAt: getBlockTimestamp()
+        });
 
-        // Create a fresh vault and deposit.
-        uint256 vaultId = createDefaultVault();
-        bob.enter(vaultId, DEPOSIT_AMOUNT);
-
-        // Warp past expiry to settle the vault.
-        vm.warp(EXPIRY + 1);
-
-        // Get the minimum fee required.
-        uint256 minFee =
-            comptroller.calculateMinFeeWeiFor({ protocol: ISablierComptroller.Protocol.Bob, user: users.depositor });
-
-        // Ensure minFee is greater than 0 for this test.
-        assertGt(minFee, 0, "minFee should be greater than 0");
-
-        // Attempt to redeem with insufficient fee.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_InsufficientFeePayment.selector, minFee - 1, minFee));
-        bob.redeem{ value: minFee - 1 }(vaultId);
-    }
-
-    function test_WhenNativeFeeTransferredToComptroller()
-        external
-        givenNotNull
-        givenSettled
-        whenCallerHasShares
-        givenNoAdapter
-    {
-        // It should transfer the native fee to the comptroller address.
-        // Create a fresh vault and deposit.
-        uint256 vaultId = createDefaultVault();
-        bob.enter(vaultId, DEPOSIT_AMOUNT);
-
-        // Warp past expiry to settle the vault.
-        vm.warp(EXPIRY + 1);
-
-        // Get comptroller balance before.
-        uint256 comptrollerBalanceBefore = address(comptroller).balance;
-
-        // Redeem with a non-zero msg.value.
-        bob.redeem{ value: 1 ether }(vaultId);
-
-        // Assert native fee was transferred to comptroller.
-        uint256 comptrollerBalanceAfter = address(comptroller).balance;
-        assertEq(comptrollerBalanceAfter - comptrollerBalanceBefore, 1 ether, "fee should be sent to comptroller");
-    }
-
-    function test_WhenFeePaymentSufficient() external givenNotNull givenSettled whenCallerHasShares givenNoAdapter {
-        // It should redeem with native fee.
-        // Create a fresh vault and deposit.
-        uint256 vaultId = createDefaultVault();
-        uint128 amount = DEPOSIT_AMOUNT;
-        bob.enter(vaultId, amount);
-
-        // Get state before.
-        address shareToken = address(bob.getShareToken(vaultId));
-        uint256 daiBalanceBefore = dai.balanceOf(users.depositor);
-        uint256 adminEthBefore = comptroller.admin().balance;
-
-        // Warp past expiry to settle the vault.
-        vm.warp(EXPIRY + 1);
-
-        // Get the minimum fee required.
-        uint256 minFee =
-            comptroller.calculateMinFeeWeiFor({ protocol: ISablierComptroller.Protocol.Bob, user: users.depositor });
-
-        // Expect the Redeem event (feeAmount is 0 for non-adapter vaults).
+        // It should emit a {Redeem} event.
         vm.expectEmit({ emitter: address(bob) });
         emit ISablierBob.Redeem({
-            vaultId: vaultId,
+            vaultId: vaultIds.defaultVault,
             user: users.depositor,
-            amountReceived: amount,
-            sharesBurned: amount,
+            amountReceived: DEPOSIT_AMOUNT,
+            sharesBurned: DEPOSIT_AMOUNT,
             fee: 0
         });
 
-        // Redeem with sufficient fee.
-        (uint256 transferredAmount, uint256 feeAmount) = bob.redeem{ value: minFee }(vaultId);
+        // It should transfer tokens to depositor.
+        expectCallToTransfer(weth, users.depositor, DEPOSIT_AMOUNT);
 
-        // Assert return values: for non-adapter vaults, transferredAmount equals deposit and feeAmount is 0.
-        assertEq(transferredAmount, amount, "transferredAmount should equal deposit amount");
-        assertEq(feeAmount, 0, "feeAmount should be 0 for non-adapter vaults");
+        // Redeem shares from the vault.
+        bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.defaultVault);
 
-        // Assert shares were burned.
-        uint256 shareBalanceAfter = IERC20(shareToken).balanceOf(users.depositor);
-        assertEq(shareBalanceAfter, 0, "share balance should be zero after redeem");
+        // It should burn all shares.
+        uint256 actualShareBalance = bob.getShareToken(vaultIds.defaultVault).balanceOf(users.depositor);
+        assertEq(actualShareBalance, 0, "shareBalance");
 
-        // Assert tokens were returned.
-        uint256 daiBalanceAfter = dai.balanceOf(users.depositor);
-        assertEq(daiBalanceAfter - daiBalanceBefore, amount, "tokens returned");
-
-        // Assert native fee was forwarded to comptroller admin.
-        uint256 adminEthAfter = comptroller.admin().balance;
-        assertEq(adminEthAfter - adminEthBefore, minFee, "fee forwarded to admin");
+        // It should update the synced price.
+        uint256 actualSyncedPrice = bob.getLastSyncedPrice(vaultIds.defaultVault);
+        assertEq(actualSyncedPrice, TARGET_PRICE, "syncedPrice");
     }
 
-    function test_GivenNotUnstaked() external givenNotNull givenSettled whenCallerHasShares givenAdapter {
-        // It should unstake all and redeem.
-        // Create a vault with adapter and deposit.
-        uint256 vaultId = createVaultWithAdapter();
-        uint128 amount = WETH_DEPOSIT_AMOUNT;
-        bob.enter(vaultId, amount);
+    function test_GivenExpired() external givenNotNull {
+        uint256 expectedSyncedPrice = bob.getLastSyncedPrice(vaultIds.defaultVault);
+        uint256 expectedSyncedAt = bob.getLastSyncedAt(vaultIds.defaultVault);
 
-        // Warp past expiry to settle the vault.
+        // Warp past expiry.
         vm.warp(EXPIRY + 1);
 
-        // Verify vault has not been unstaked yet.
-        assertEq(adapter.getWethReceivedAfterUnstaking(vaultId), 0, "vault should not be unstaked before redeem");
+        // It should emit a {Redeem} event.
+        vm.expectEmit({ emitter: address(bob) });
+        emit ISablierBob.Redeem({
+            vaultId: vaultIds.defaultVault,
+            user: users.depositor,
+            amountReceived: DEPOSIT_AMOUNT,
+            sharesBurned: DEPOSIT_AMOUNT,
+            fee: 0
+        });
 
-        // Redeem (should trigger unstakeFullAmount first).
-        (uint256 transferredAmount,) = bob.redeem(vaultId);
+        // It should transfer tokens to depositor.
+        expectCallToTransfer(weth, users.depositor, DEPOSIT_AMOUNT);
 
-        // Assert return values: transferredAmount should be non-zero.
-        assertGt(transferredAmount, 0, "transferredAmount should be non-zero");
+        // Redeem shares from the vault.
+        bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.defaultVault);
 
-        // Verify vault is now unstaked (wethReceived > 0).
-        assertGt(adapter.getWethReceivedAfterUnstaking(vaultId), 0, "vault should be unstaked after redeem");
+        // It should not update the synced price.
+        uint256 actualSyncedAt = bob.getLastSyncedAt(vaultIds.defaultVault);
+        assertEq(actualSyncedAt, expectedSyncedAt, "syncedAt unchanged");
+
+        uint256 actualSyncedPrice = bob.getLastSyncedPrice(vaultIds.defaultVault);
+        assertEq(actualSyncedPrice, expectedSyncedPrice, "syncedPrice unchanged");
+
+        // It should burn all shares.
+        uint256 actualShareBalance = bob.getShareToken(vaultIds.defaultVault).balanceOf(users.depositor);
+        assertEq(actualShareBalance, 0, "shareBalance");
     }
 
-    function test_GivenNoPositiveYield()
-        external
-        givenNotNull
-        givenSettled
-        whenCallerHasShares
-        givenAdapter
-        givenAlreadyUnstaked
-    {
-        // It should redeem without fee.
-        // Create a vault with adapter and deposit.
-        uint256 vaultId = createVaultWithAdapter();
-        uint128 amount = WETH_DEPOSIT_AMOUNT;
-        bob.enter(vaultId, amount);
+    function test_RevertWhen_SharesZero() external givenNotNull givenSettled {
+        setMsgSender(users.eve);
 
-        // Warp past expiry to settle the vault.
-        vm.warp(bob.getExpiry(vaultId) + 1);
-
-        // Manually unstake all first.
-        bob.unstakeTokensViaAdapter(vaultId);
-
-        // Get state before.
-        uint256 wethBalanceBefore = IERC20(address(weth)).balanceOf(users.depositor);
-
-        // Redeem.
-        (uint256 transferredAmount, uint256 feeAmount) = bob.redeem(vaultId);
-
-        // Assert return values: no positive yield means feeAmount is 0.
-        assertEq(feeAmount, 0, "feeAmount should be 0 when no positive yield");
-
-        // Assert WETH returned is close to deposited amount (minus Curve slippage).
-        // No yield fee since there's no positive yield.
-        uint256 wethBalanceAfter = IERC20(address(weth)).balanceOf(users.depositor);
-        uint256 wethReturned = wethBalanceAfter - wethBalanceBefore;
-        uint256 minExpected = (amount * 9980) / 10_000; // 99.8% minimum (accounts for slippage)
-        assertGe(wethReturned, minExpected, "WETH returned should be close to deposited amount");
-
-        // Assert transferredAmount matches actual WETH received.
-        assertEq(transferredAmount, wethReturned, "transferredAmount should match actual WETH received");
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierBob_NoSharesToRedeem.selector, vaultIds.settledVault, users.eve)
+        );
+        bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.settledVault);
     }
 
-    function test_GivenPositiveYield()
-        external
-        givenNotNull
-        givenSettled
-        whenCallerHasShares
-        givenAdapter
-        givenAlreadyUnstaked
-    {
-        // It should redeem with yield fee.
-        // Create a vault with adapter and deposit.
-        uint256 vaultId = createVaultWithAdapter();
-        uint128 amount = WETH_DEPOSIT_AMOUNT;
-        bob.enter(vaultId, amount);
+    function test_RevertWhen_FeeNotExceedMinFee() external givenNotNull givenSettled whenSharesNotZero givenNoAdapter {
+        uint256 minFeeWei = BOB_MIN_FEE_WEI - 1;
 
-        // Simulate yield by changing the wstETH exchange rate.
-        // Lower rate = more stETH per wstETH when unwrapping = yield.
-        // To get 10% yield: new_rate = old_rate / 1.1 = 0.9e18 / 1.1 = 0.818e18
-        wsteth.setExchangeRate(0.818e18);
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierBob_InsufficientFeePayment.selector, minFeeWei, BOB_MIN_FEE_WEI)
+        );
+        bob.redeem{ value: minFeeWei }(vaultIds.settledVault);
+    }
 
-        // Warp past expiry to settle the vault.
-        vm.warp(EXPIRY + 1);
+    function test_WhenFeeExceedsMinFee() external givenNotNull givenSettled whenSharesNotZero givenNoAdapter {
+        uint256 expectedComptrollerBalance = address(comptroller).balance + BOB_MIN_FEE_WEI;
+        uint256 expectedSyncedPrice = bob.getLastSyncedPrice(vaultIds.settledVault);
+        uint256 expectedSyncedAt = bob.getLastSyncedAt(vaultIds.settledVault);
 
-        // Manually unstake all first.
-        bob.unstakeTokensViaAdapter(vaultId);
+        // It should emit a {Redeem} event.
+        vm.expectEmit({ emitter: address(bob) });
+        emit ISablierBob.Redeem({
+            vaultId: vaultIds.settledVault,
+            user: users.depositor,
+            amountReceived: DEPOSIT_AMOUNT,
+            sharesBurned: DEPOSIT_AMOUNT,
+            fee: 0
+        });
 
-        // Get state before.
-        uint256 wethBalanceBefore = IERC20(address(weth)).balanceOf(users.depositor);
-        uint256 comptrollerBalanceBefore = IERC20(address(weth)).balanceOf(address(comptroller));
+        // It should transfer tokens to depositor.
+        expectCallToTransfer(weth, users.depositor, DEPOSIT_AMOUNT);
 
-        // Redeem.
-        (uint256 transferredAmount, uint256 feeAmount) = bob.redeem(vaultId);
+        // Redeem shares from the vault.
+        (uint256 transferredAmount, uint256 feeAmount) = bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.settledVault);
 
-        // Assert return values: positive yield means non-zero feeAmount.
-        assertGt(feeAmount, 0, "feeAmount should be non-zero with positive yield");
-        assertGt(transferredAmount, 0, "transferredAmount should be non-zero");
+        // It should return the correct amounts.
+        assertEq(transferredAmount, DEPOSIT_AMOUNT, "returnValue.transferredAmount");
+        assertEq(feeAmount, 0, "returnValue.feeAmount");
 
-        // Assert user received WETH (with some yield minus fee).
-        uint256 wethBalanceAfter = IERC20(address(weth)).balanceOf(users.depositor);
-        uint256 wethReturned = wethBalanceAfter - wethBalanceBefore;
+        // It should not update the synced price.
+        uint256 actualSyncedAt = bob.getLastSyncedAt(vaultIds.settledVault);
+        assertEq(actualSyncedAt, expectedSyncedAt, "syncedAt unchanged");
 
-        // Assert transferredAmount matches actual WETH received.
-        assertEq(transferredAmount, wethReturned, "transferredAmount should match actual WETH received");
+        uint256 actualSyncedPrice = bob.getLastSyncedPrice(vaultIds.settledVault);
+        assertEq(actualSyncedPrice, expectedSyncedPrice, "syncedPrice unchanged");
 
-        // User should receive more than deposited amount due to yield.
-        assertGt(wethReturned, 0, "WETH returned should be non-zero");
+        // It should transfer fee to comptroller.
+        uint256 actualComptrollerBalance = address(comptroller).balance;
+        assertEq(actualComptrollerBalance, expectedComptrollerBalance, "comptrollerBalance");
 
-        // Assert fee was sent to comptroller (if there was positive yield).
-        uint256 comptrollerBalanceAfter = IERC20(address(weth)).balanceOf(address(comptroller));
-        uint256 feeReceived = comptrollerBalanceAfter - comptrollerBalanceBefore;
-        assertGt(feeReceived, 0, "fee should be sent to comptroller");
+        // It should burn all shares.
+        uint256 actualShareBalance = bob.getShareToken(vaultIds.settledVault).balanceOf(users.depositor);
+        assertEq(actualShareBalance, 0, "shareBalance");
+    }
 
-        // Assert feeAmount return value matches actual fee sent to comptroller.
-        assertEq(feeAmount, feeReceived, "feeAmount should match actual fee sent to comptroller");
+    function test_GivenStakedInAdapter() external givenNotNull givenSettled whenSharesNotZero givenAdapter {
+        uint128 newExchangeRate = 0.8e18;
+
+        // Simulate yield generation at settlement by lowering the exchange rate.
+        wstEth.setExchangeRate(newExchangeRate);
+
+        // Set oracle price to target price so that the sync settles the vault.
+        mockOracle.setPrice(TARGET_PRICE);
+
+        uint128 expectedWethRedeemed = (WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT * 1e18) / newExchangeRate;
+        uint128 expectedYield = expectedWethRedeemed - DEPOSIT_AMOUNT;
+        uint128 expectedComptrollerFee = ud(expectedYield).mul(YIELD_FEE).intoUint128();
+        uint128 expectedUserWeth = expectedWethRedeemed - expectedComptrollerFee;
+
+        // It should emit a {Redeem} event.
+        vm.expectEmit({ emitter: address(bob) });
+        emit ISablierBob.Redeem({
+            vaultId: vaultIds.vaultWithAdapter,
+            user: users.depositor,
+            amountReceived: expectedUserWeth,
+            sharesBurned: DEPOSIT_AMOUNT,
+            fee: expectedComptrollerFee
+        });
+
+        // It should transfer tokens to depositor.
+        expectCallToTransfer(weth, users.depositor, expectedUserWeth);
+
+        // It should transfer fee to comptroller.
+        expectCallToTransfer(weth, address(comptroller), expectedComptrollerFee);
+
+        // Redeem shares from the vault.
+        (uint256 transferredAmount, uint256 feeAmount) = bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.vaultWithAdapter);
+
+        assertEq(transferredAmount, expectedUserWeth, "transferredAmount");
+        assertEq(feeAmount, expectedComptrollerFee, "feeAmount");
+
+        // It should trigger unstake via adapter.
+        assertEq(
+            adapter.getWethReceivedAfterUnstaking(vaultIds.vaultWithAdapter),
+            expectedWethRedeemed,
+            "wethReceivedAfterUnstaking"
+        );
+
+        // It should set isStakedInAdapter to false.
+        assertFalse(bob.isStakedInAdapter(vaultIds.vaultWithAdapter), "isStakedInAdapter after");
+
+        // It should burn all shares.
+        uint256 actualShareBalance = bob.getShareToken(vaultIds.vaultWithAdapter).balanceOf(users.depositor);
+        assertEq(actualShareBalance, 0, "shareBalance");
+
+        // It should yield fee to the comptroller.
+        uint256 actualComptrollerWethBalance = weth.balanceOf(address(comptroller));
+        uint256 expectedComptrollerWethBalance = expectedComptrollerFee;
+        assertEq(actualComptrollerWethBalance, expectedComptrollerWethBalance, "comptrollerWethBalance");
+    }
+
+    function test_GivenNotStakedInAdapter() external givenNotNull givenSettled whenSharesNotZero givenAdapter {
+        uint128 newExchangeRate = 0.8e18;
+
+        // Simulate yield generation at settlement by lowering the exchange rate.
+        wstEth.setExchangeRate(newExchangeRate);
+
+        // Settle the vault via price so status is SETTLED.
+        mockOracle.setPrice(TARGET_PRICE);
+
+        // Unstake first so the vault is no longer staked in the adapter.
+        bob.unstakeTokensViaAdapter(vaultIds.vaultWithAdapter);
+
+        uint128 expectedWethRedeemed = (WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT * 1e18) / newExchangeRate;
+        uint128 expectedYield = expectedWethRedeemed - DEPOSIT_AMOUNT;
+        uint128 expectedComptrollerFee = ud(expectedYield).mul(YIELD_FEE).intoUint128();
+        uint128 expectedUserWeth = expectedWethRedeemed - expectedComptrollerFee;
+
+        // It should emit a {Redeem} event.
+        vm.expectEmit({ emitter: address(bob) });
+        emit ISablierBob.Redeem({
+            vaultId: vaultIds.vaultWithAdapter,
+            user: users.depositor,
+            amountReceived: expectedUserWeth,
+            sharesBurned: DEPOSIT_AMOUNT,
+            fee: expectedComptrollerFee
+        });
+
+        // It should transfer tokens to depositor.
+        expectCallToTransfer(weth, users.depositor, expectedUserWeth);
+
+        // It should transfer yield fee to comptroller.
+        expectCallToTransfer(weth, address(comptroller), expectedComptrollerFee);
+
+        // Redeem shares from the vault.
+        (uint256 transferredAmount, uint256 feeAmount) = bob.redeem(vaultIds.vaultWithAdapter);
+
+        assertEq(transferredAmount, expectedUserWeth, "transferredAmount");
+        assertEq(feeAmount, expectedComptrollerFee, "feeAmount");
+
+        // It should burn all shares.
+        uint256 actualShareBalance = bob.getShareToken(vaultIds.vaultWithAdapter).balanceOf(users.depositor);
+        assertEq(actualShareBalance, 0, "shareBalance");
+
+        // It should transfer yield fee to the comptroller.
+        uint256 actualComptrollerWethBalance = weth.balanceOf(address(comptroller));
+        assertEq(actualComptrollerWethBalance, expectedComptrollerFee, "comptrollerWethBalance");
     }
 }

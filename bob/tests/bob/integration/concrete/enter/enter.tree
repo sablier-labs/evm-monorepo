@@ -4,14 +4,25 @@ Enter_Integration_Concrete_Test
 └── given not null
    ├── given settled
    │  └── it should revert
-   └── given not settled
+   ├── given expired
+   │  └── it should revert
+   └── given active
       ├── when amount zero
       │  └── it should revert
       └── when amount not zero
          ├── given no adapter
-         │  ├── given first deposit
-         │  │  └── it should enter and set deposited at
-         │  └── given subsequent deposit
-         │     └── it should enter without updating deposited at
+         │  ├── when first deposit
+         │  │  ├── it should set the first deposit time
+         │  │  ├── it should transfer tokens to the contract
+         │  │  ├── it should mint share tokens to the caller
+         │  │  └── it should emit an {Enter} event
+         │  └── when not first deposit
+         │     ├── it should not update the first deposit time
+         │     ├── it should transfer tokens to the contract
+         │     ├── it should mint share tokens to the caller
+         │     └── it should emit an {Enter} event
          └── given adapter
-            └── it should enter via adapter
+            ├── it should transfer tokens to the adapter
+            ├── it should stake via the adapter
+            ├── it should mint share tokens to the caller
+            └── it should emit an {Enter} and {Stake} events

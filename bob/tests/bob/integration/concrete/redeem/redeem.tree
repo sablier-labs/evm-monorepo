@@ -2,24 +2,42 @@ Redeem_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
-   ├── given not settled
-   │  └── it should revert
+   ├── given active
+   │  ├── when sync not change status
+   │  │  └── it should revert
+   │  └── when sync changes status
+   │     ├── it should sync price from oracle
+   │     ├── it should burn all shares
+   │     ├── it should transfer tokens to depositor
+   │     └── it should emit {SyncPriceFromOracle} and {Redeem} events
+   ├── given expired
+   │  ├── it should not sync price from oracle
+   │  ├── it should burn all shares
+   │  ├── it should transfer tokens to depositor
+   │  └── it should emit a {Redeem} event
    └── given settled
-      ├── when no shares to redeem
+      ├── when shares zero
       │  └── it should revert
-      └── when caller has shares
+      └── when shares not zero
          ├── given no adapter
-         │  ├── when fee payment insufficient
+         │  ├── when fee not exceed min fee
          │  │  └── it should revert
-         │  ├── when native fee transferred to comptroller
-         │  │  └── it should transfer the native fee to the comptroller address
-         │  └── when fee payment sufficient
-         │     └── it should redeem with native fee
+         │  └── when fee exceeds min fee
+         │     ├── it should not sync price from oracle
+         │     ├── it should transfer fee to comptroller
+         │     ├── it should burn all shares
+         │     ├── it should transfer tokens to depositor
+         │     └── it should emit a {Redeem} event
          └── given adapter
-            ├── given not unstaked
-            │  └── it should unstake all and redeem
-            └── given already unstaked
-               ├── given no positive yield
-               │  └── it should redeem without fee
-               └── given positive yield
-                  └── it should redeem with yield fee
+            ├── given staked in adapter
+            │  ├── it should trigger unstake via adapter
+            │  ├── it should set isStakedInAdapter to false
+            │  ├── it should burn all shares
+            │  ├── it should yield fee to the comptroller
+            │  ├── it should transfer tokens to depositor
+            │  └── it should emit a {Redeem} event
+            └── given not staked in adapter
+               ├── it should burn all shares
+               ├── it should transfer yield fee to the comptroller
+               ├── it should transfer tokens to depositor
+               └── it should emit a {Redeem} events

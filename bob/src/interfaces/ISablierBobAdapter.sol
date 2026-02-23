@@ -16,20 +16,20 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     event SetYieldFee(UD60x18 oldFee, UD60x18 newFee);
 
     /// @notice Emitted when tokens are staked for a user in a vault.
-    event Stake(uint256 indexed vaultId, address indexed user, uint256 depositAmount, uint256 stakedAmount);
+    event Stake(uint256 indexed vaultId, address indexed user, uint256 depositAmount, uint256 wrappedStakedAmount);
 
     /// @notice Emitted when staked token attribution is transferred between users.
     event TransferStakedTokens(uint256 indexed vaultId, address indexed from, address indexed to, uint256 amount);
 
     /// @notice Emitted when all staked tokens in a vault are converted back to the deposit token.
-    event UnstakeFullAmount(uint256 indexed vaultId, uint128 stakedAmount, uint128 depositAmount);
+    event UnstakeFullAmount(uint256 indexed vaultId, uint128 wrappedStakedAmount, uint128 withdrawnAmount);
 
     /// @notice Emitted when tokens are unstaked for a user exiting within the grace period.
     event UnstakeForUserWithinGracePeriod(
         uint256 indexed vaultId,
         address indexed user,
-        uint256 stakedAmount,
-        uint256 depositAmount
+        uint256 wrappedStakedAmount,
+        uint256 withdrawnAmount
     );
 
     /*//////////////////////////////////////////////////////////////////////////

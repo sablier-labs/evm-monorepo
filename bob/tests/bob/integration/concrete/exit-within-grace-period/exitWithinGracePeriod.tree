@@ -7,16 +7,25 @@ ExitWithinGracePeriod_Integration_Concrete_Test
    ├── given expired
    │  └── it should revert
    └── given active
-      ├── when no shares to redeem
+      ├── when shares zero
       │  └── it should revert
-      └── when caller has shares
-         ├── when caller not original depositor
+      └── when shares not zero
+         ├── given first deposit time zero
          │  └── it should revert
-         └── when caller is original depositor
-            ├── when grace period expired
+         └── given first deposit time not zero
+            ├── when grace end time not in future
             │  └── it should revert
-            └── when within grace period
+            └── when grace end time in future
                ├── given no adapter
-               │  └── it should exit and return tokens
+               │  ├── it should burn all shares
+               │  ├── it should clear the first deposit time
+               │  ├── it should return the deposit amount
+               │  └── it should emit an {ExitWithinGracePeriod} event
                └── given adapter
-                  └── it should exit via adapter unstake
+                  ├── it should burn all shares
+                  ├── it should clear the first deposit time
+                  ├── it should unstake via the adapter
+                  ├── it should set user wstETH balance to 0
+                  ├── it should reduce adapter wstETH balance
+                  ├── it should return the deposit amount
+                  └── it should emit an {ExitWithinGracePeriod} and {UnstakeForUserWithinGracePeriod} events

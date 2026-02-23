@@ -25,7 +25,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertGiven_Null() external {
         // It should revert.
-        expectRevert_Null(abi.encodeCall(escrow.fillOrder, (nullOrderId, MIN_BUY_AMOUNT)), nullOrderId);
+        expectRevert_Null(abi.encodeCall(escrow.fillOrder, (nullOrderId, MIN_BUY_AMOUNT)));
     }
 
     function test_RevertGiven_Canceled() external givenNotNull {

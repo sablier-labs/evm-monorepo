@@ -10,7 +10,7 @@ import { Integration_Test } from "../../Integration.t.sol";
 contract CancelOrder_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_Null() external {
         // It should revert.
-        expectRevert_Null(abi.encodeCall(escrow.cancelOrder, (nullOrderId)), nullOrderId);
+        expectRevert_Null(abi.encodeCall(escrow.cancelOrder, (nullOrderId)));
     }
 
     function test_RevertWhen_CallerNotSeller() external givenNotNull {

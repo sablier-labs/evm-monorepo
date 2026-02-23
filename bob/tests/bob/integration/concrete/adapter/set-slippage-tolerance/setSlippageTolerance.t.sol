@@ -7,24 +7,29 @@ import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Error
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "../../../Integration.t.sol";
 
 contract SetSlippageTolerance_Integration_Concrete_Test is Integration_Test {
+    function setUp() public override {
+        Integration_Test.setUp();
+        setMsgSender(users.bob);
+    }
+
     function test_RevertWhen_CallerNotComptroller() external {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.depositor
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.bob
             )
         );
         adapter.setSlippageTolerance(ud(0.01e18));
     }
 
     function test_RevertWhen_ToleranceExceedsMax() external whenCallerComptroller {
-        // It should revert.
         UD60x18 maxTolerance = adapter.MAX_SLIPPAGE_TOLERANCE();
         UD60x18 invalidTolerance = maxTolerance.add(ud(1));
 
+        // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierLidoAdapter_SlippageToleranceTooHigh.selector,
@@ -36,59 +41,46 @@ contract SetSlippageTolerance_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenToleranceWithinLimit() external whenCallerComptroller {
-        // It should set the slippage tolerance and emit event.
         UD60x18 oldTolerance = adapter.slippageTolerance();
-        UD60x18 newTolerance = ud(0.01e18); // 1%
+        UD60x18 newTolerance = ud(0.01e18);
 
-        // Expect the SetSlippageTolerance event.
+        // It should emit a {SetSlippageTolerance} event.
         vm.expectEmit({ emitter: address(adapter) });
         emit ISablierLidoAdapter.SetSlippageTolerance({
             oldSlippageTolerance: oldTolerance,
             newSlippageTolerance: newTolerance
         });
 
-        // Set the slippage tolerance.
         adapter.setSlippageTolerance(newTolerance);
 
-        // Assert the slippage tolerance was updated.
-        assertEq(adapter.slippageTolerance().unwrap(), newTolerance.unwrap(), "slippageTolerance should be updated");
+        // It should update the slippage tolerance.
+        assertEq(adapter.slippageTolerance().unwrap(), newTolerance.unwrap(), "slippageTolerance");
     }
 
     function test_WhenToleranceAtMaximum() external whenCallerComptroller {
-        // It should set to max.
         UD60x18 oldTolerance = adapter.slippageTolerance();
         UD60x18 maxTolerance = adapter.MAX_SLIPPAGE_TOLERANCE();
 
-        // Expect the SetSlippageTolerance event.
         vm.expectEmit({ emitter: address(adapter) });
         emit ISablierLidoAdapter.SetSlippageTolerance({
             oldSlippageTolerance: oldTolerance,
             newSlippageTolerance: maxTolerance
         });
 
-        // Set the slippage tolerance to max.
         adapter.setSlippageTolerance(maxTolerance);
-
-        // Assert the slippage tolerance was updated.
-        assertEq(adapter.slippageTolerance().unwrap(), maxTolerance.unwrap(), "slippageTolerance should be max");
+        assertEq(adapter.slippageTolerance().unwrap(), maxTolerance.unwrap(), "slippageTolerance");
     }
 
     function test_WhenToleranceZero() external whenCallerComptroller {
-        // It should set to zero.
         UD60x18 oldTolerance = adapter.slippageTolerance();
-        UD60x18 zeroTolerance = ud(0);
 
-        // Expect the SetSlippageTolerance event.
         vm.expectEmit({ emitter: address(adapter) });
         emit ISablierLidoAdapter.SetSlippageTolerance({
             oldSlippageTolerance: oldTolerance,
-            newSlippageTolerance: zeroTolerance
+            newSlippageTolerance: ud(0)
         });
 
-        // Set the slippage tolerance to zero.
-        adapter.setSlippageTolerance(zeroTolerance);
-
-        // Assert the slippage tolerance was updated.
-        assertEq(adapter.slippageTolerance().unwrap(), 0, "slippageTolerance should be zero");
+        adapter.setSlippageTolerance(ud(0));
+        assertEq(adapter.slippageTolerance().unwrap(), 0, "slippageTolerance");
     }
 }

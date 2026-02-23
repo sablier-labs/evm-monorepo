@@ -2,205 +2,160 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
+import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
+    /// @dev The share token for the default vault.
+    IERC20 internal shareToken;
+
+    function setUp() public override {
+        Integration_Test.setUp();
+
+        shareToken = bob.getShareToken(vaultIds.defaultVault);
+    }
+
     function test_RevertGiven_Null() external {
-        // It should revert.
-        expectRevert_Null(abi.encodeCall(bob.exitWithinGracePeriod, (vaultIds.nullVault)), vaultIds.nullVault);
+        expectRevert_Null(abi.encodeCall(bob.exitWithinGracePeriod, (vaultIds.nullVault)));
     }
 
     function test_RevertGiven_Settled() external givenNotNull {
         // It should revert.
-        // Create a vault and deposit.
-        uint256 vaultId = createDefaultVault();
-        uint128 amount = DEPOSIT_AMOUNT;
-        bob.enter(vaultId, amount);
-
-        // Settle the vault by setting price to target.
-        mockOracle.setPrice(SETTLED_PRICE);
-        bob.syncPriceFromOracle(vaultId);
-
-        // Verify we're still within the grace period.
-        uint40 depositedAt = bob.getFirstDepositTime(vaultId, users.depositor);
-        uint40 gracePeriodEnd = depositedAt + 4 hours;
-        assertTrue(block.timestamp < gracePeriodEnd, "should still be in grace period");
-
-        // Attempt to exit should revert because vault is settled.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultId));
-        bob.exitWithinGracePeriod(vaultId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.settledVault));
+        bob.exitWithinGracePeriod(vaultIds.settledVault);
     }
 
     function test_RevertGiven_Expired() external givenNotNull {
-        // It should revert.
-        // Create a vault and deposit.
-        uint256 vaultId = createDefaultVault();
-        uint128 amount = DEPOSIT_AMOUNT;
-        bob.enter(vaultId, amount);
-
-        // Warp past expiry (vault expires but price never hit target).
         vm.warp(EXPIRY + 1);
 
-        // Attempt to exit should revert because vault is expired.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultId));
-        bob.exitWithinGracePeriod(vaultId);
+        // It should revert.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.defaultVault));
+        bob.exitWithinGracePeriod(vaultIds.defaultVault);
     }
 
-    function test_RevertWhen_NoSharesToRedeem() external givenNotNull givenActive {
-        // It should revert.
-        uint256 vaultId = vaultIds.defaultVault;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_NoSharesToRedeem.selector, vaultId, users.depositor));
-        bob.exitWithinGracePeriod(vaultId);
-    }
-
-    function test_RevertWhen_CallerNotOriginalDepositor() external givenNotNull givenActive whenCallerHasShares {
-        // It should revert.
-        // User A deposits and transfers shares to User B.
-        uint256 vaultId = vaultIds.defaultVault;
-        uint128 amount = DEPOSIT_AMOUNT;
-
-        // User A makes a deposit.
-        bob.enter(vaultId, amount);
-
-        // User A transfers shares to User B.
-        IERC20(address(bob.getShareToken(vaultId))).transfer(users.depositor2, amount);
-
-        // User B tries to exit within grace period but has no depositedAt.
-        vm.stopPrank();
-        vm.startPrank(users.depositor2);
+    function test_RevertWhen_SharesZero() external givenNotNull givenActive {
+        // Transfer shares to bob so that depositor does not have shares.
+        shareToken.transfer(users.bob, DEPOSIT_AMOUNT);
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierBob_CallerNotDepositor.selector, vaultId, users.depositor2)
+            abi.encodeWithSelector(Errors.SablierBob_NoSharesToRedeem.selector, vaultIds.defaultVault, users.depositor)
         );
-        bob.exitWithinGracePeriod(vaultId);
+        bob.exitWithinGracePeriod(vaultIds.defaultVault);
     }
 
-    function test_RevertWhen_GracePeriodExpired()
+    function test_RevertGiven_FirstDepositTimeZero() external givenNotNull givenActive whenSharesNotZero {
+        // Transfer shares to bob.
+        shareToken.transfer(users.bob, DEPOSIT_AMOUNT);
+
+        setMsgSender(users.bob);
+
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierBob_CallerNotDepositor.selector, vaultIds.defaultVault, users.bob)
+        );
+        bob.exitWithinGracePeriod(vaultIds.defaultVault);
+    }
+
+    function test_RevertWhen_GraceEndTimeNotInFuture()
         external
         givenNotNull
         givenActive
-        whenCallerHasShares
-        whenCallerIsOriginalDepositor
+        whenSharesNotZero
+        givenFirstDepositTimeNotZero
     {
-        uint256 vaultId = vaultIds.defaultVault;
-        uint128 amount = DEPOSIT_AMOUNT;
+        uint40 gracePeriodEndAt = FEB_1_2026 + GRACE_PERIOD;
 
-        // Make a deposit.
-        bob.enter(vaultId, amount);
-        uint40 depositedAt = uint40(block.timestamp);
-        uint40 gracePeriodEnd = depositedAt + 4 hours;
-
-        // Warp past the grace period.
-        vm.warp(gracePeriodEnd + 1);
+        vm.warp(gracePeriodEndAt + 1);
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierBob_GracePeriodExpired.selector, vaultId, users.depositor, depositedAt, gracePeriodEnd
+                Errors.SablierBob_GracePeriodExpired.selector,
+                vaultIds.defaultVault,
+                users.depositor,
+                FEB_1_2026,
+                gracePeriodEndAt
             )
         );
-        bob.exitWithinGracePeriod(vaultId);
+        bob.exitWithinGracePeriod(vaultIds.defaultVault);
     }
 
     function test_GivenNoAdapter()
         external
         givenNotNull
         givenActive
-        whenCallerHasShares
-        whenCallerIsOriginalDepositor
-        whenWithinGracePeriod
+        whenSharesNotZero
+        givenFirstDepositTimeNotZero
+        whenGraceEndTimeInFuture
     {
-        // It should exit and return tokens.
-        uint256 vaultId = vaultIds.defaultVault;
-        uint128 amount = DEPOSIT_AMOUNT;
+        vm.warp(FEB_1_2026 + GRACE_PERIOD);
 
-        // Make a deposit.
-        bob.enter(vaultId, amount);
-
-        // Get state before exit.
-        address shareToken = address(bob.getShareToken(vaultId));
-        uint256 daiBalanceBefore = dai.balanceOf(users.depositor);
-
-        // Warp forward but stay within grace period.
-        vm.warp(block.timestamp + 2 hours);
-
-        // Expect the ExitWithinGracePeriod event.
-        vm.expectEmit({ emitter: address(bob) });
-        emit ISablierBob.ExitWithinGracePeriod({
-            vaultId: vaultId,
-            user: users.depositor,
-            amountReceived: amount,
-            sharesBurned: amount
-        });
-
-        // Exit within grace period.
-        bob.exitWithinGracePeriod(vaultId);
-
-        // Assert shares were burned.
-        uint256 shareBalanceAfter = IERC20(shareToken).balanceOf(users.depositor);
-        assertEq(shareBalanceAfter, 0, "share balance should be zero after exit");
-
-        // Assert the deposit record was cleared.
-        uint40 depositedAt = bob.getFirstDepositTime(vaultId, users.depositor);
-        assertEq(depositedAt, 0, "depositedAt should be cleared");
-
-        // Assert tokens were returned.
-        uint256 daiBalanceAfter = dai.balanceOf(users.depositor);
-        assertEq(daiBalanceAfter - daiBalanceBefore, amount, "tokens returned");
+        _testExitWithinGracePeriod({ vaultId: vaultIds.defaultVault });
     }
 
     function test_GivenAdapter()
         external
         givenNotNull
         givenActive
-        whenCallerHasShares
-        whenCallerIsOriginalDepositor
-        whenWithinGracePeriod
+        whenSharesNotZero
+        givenFirstDepositTimeNotZero
+        whenGraceEndTimeInFuture
     {
-        // It should exit via adapter unstake.
-        uint256 vaultId = vaultIds.adapterVault;
-        uint128 amount = WETH_DEPOSIT_AMOUNT;
+        uint256 adapterWstETHBefore = wstEth.balanceOf(address(adapter));
 
-        // Make a deposit.
-        bob.enter(vaultId, amount);
+        vm.warp(FEB_1_2026 + GRACE_PERIOD);
 
-        // Get state before exit.
-        address shareToken = address(bob.getShareToken(vaultId));
-        uint256 wethBalanceBefore = weth.balanceOf(users.depositor);
-        uint256 shareBalanceBefore = IERC20(shareToken).balanceOf(users.depositor);
+        // It should emit an {UnstakeForUserWithinGracePeriod} event.
+        vm.expectEmit({ emitter: address(adapter) });
+        emit ISablierBobAdapter.UnstakeForUserWithinGracePeriod({
+            vaultId: vaultIds.vaultWithAdapter,
+            user: users.depositor,
+            wrappedStakedAmount: WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT,
+            withdrawnAmount: DEPOSIT_AMOUNT
+        });
 
-        // Warp forward but stay within grace period.
-        vm.warp(block.timestamp + 2 hours);
+        _testExitWithinGracePeriod({ vaultId: vaultIds.vaultWithAdapter });
 
-        // Expect the ExitWithinGracePeriod event.
+        // It should set user wstETH balance to 0.
+        uint256 actualUserWstETHBalance =
+            adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.depositor);
+        assertEq(actualUserWstETHBalance, 0, "userWstETH");
+
+        // It should reduce adapter wstETH balance.
+        uint256 actualAdapterWstETHBalance = wstEth.balanceOf(address(adapter));
+        uint256 expectedAdapterWstETHBalance = adapterWstETHBefore - WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT;
+        assertEq(actualAdapterWstETHBalance, expectedAdapterWstETHBalance, "adapterWstETHBalance");
+
+        // It should update wstETH balance of the vault.
+        uint256 actualWstETHBalanceForVault = adapter.getTotalYieldBearingTokenBalance(vaultIds.vaultWithAdapter);
+        uint256 expectedWstETHBalanceForVault = adapterWstETHBefore - WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT;
+        assertEq(actualWstETHBalanceForVault, expectedWstETHBalanceForVault, "wstETHBalanceForVault");
+    }
+
+    /// @dev Shared logic for testing exitWithinGracePeriod.
+    function _testExitWithinGracePeriod(uint256 vaultId) private {
+        // It should emit an {ExitWithinGracePeriod} event.
         vm.expectEmit({ emitter: address(bob) });
         emit ISablierBob.ExitWithinGracePeriod({
             vaultId: vaultId,
             user: users.depositor,
-            amountReceived: amount,
-            sharesBurned: amount
+            amountReceived: DEPOSIT_AMOUNT,
+            sharesBurned: DEPOSIT_AMOUNT
         });
 
-        // Exit within grace period.
+        // It should return the deposit amount.
+        expectCallToTransfer(weth, users.depositor, DEPOSIT_AMOUNT);
+
         bob.exitWithinGracePeriod(vaultId);
 
-        // Assert shares were burned.
-        uint256 shareBalanceAfter = IERC20(shareToken).balanceOf(users.depositor);
-        assertEq(shareBalanceBefore - shareBalanceAfter, amount, "shares burned");
+        // It should burn all shares.
+        uint256 actualShareBalance = bob.getShareToken(vaultId).balanceOf(users.depositor);
+        assertEq(actualShareBalance, 0, "shareBalance");
 
-        // Assert WETH was returned to the user (minus Curve slippage).
-        // Curve slippage is 10 bps (0.1%), so user gets back ~99.9% of deposited amount.
-        uint256 wethBalanceAfter = weth.balanceOf(users.depositor);
-        uint256 wethReturned = wethBalanceAfter - wethBalanceBefore;
-        uint256 minExpected = (amount * 9980) / 10_000; // 99.8% minimum (accounts for slippage)
-        assertGe(wethReturned, minExpected, "WETH returned should be close to deposited amount");
-        assertLe(wethReturned, amount, "WETH returned should not exceed deposited amount");
-
-        // Assert adapter tracking was cleared.
-        assertEq(adapter.getYieldBearingTokenBalanceFor(vaultId, users.depositor), 0, "adapter wstETH cleared");
+        // It should clear the first deposit time.
+        assertEq(bob.getFirstDepositTime(vaultId, users.depositor), 0, "firstDepositTime");
     }
 }

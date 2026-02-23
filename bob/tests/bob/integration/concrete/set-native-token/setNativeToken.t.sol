@@ -11,13 +11,12 @@ import { Integration_Test } from "../../Integration.t.sol";
 contract SetNativeToken_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CallerNotComptroller() external {
         // It should revert.
-        setMsgSender(users.eve);
         vm.expectRevert(
             abi.encodeWithSelector(
-                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.eve
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.depositor
             )
         );
-        bob.setNativeToken(address(dai));
+        bob.setNativeToken(address(weth));
     }
 
     function test_RevertWhen_ProvidedAddressZero() external whenCallerComptroller {
@@ -27,26 +26,21 @@ contract SetNativeToken_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertGiven_NativeTokenAlreadySet() external whenCallerComptroller whenProvidedAddressNotZero {
-        // Set the native token first.
-        address firstNativeToken = address(dai);
-        bob.setNativeToken(firstNativeToken);
+        bob.setNativeToken(address(weth));
 
         // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_NativeTokenAlreadySet.selector, firstNativeToken));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_NativeTokenAlreadySet.selector, address(weth)));
         bob.setNativeToken(address(weth));
     }
 
     function test_GivenNativeTokenNotSet() external whenCallerComptroller whenProvidedAddressNotZero {
-        address newNativeToken = address(dai);
-
         // It should emit a {SetNativeToken} event.
         vm.expectEmit({ emitter: address(bob) });
-        emit ISablierBob.SetNativeToken({ comptroller: address(comptroller), nativeToken: newNativeToken });
+        emit ISablierBob.SetNativeToken({ comptroller: address(comptroller), nativeToken: address(weth) });
 
-        // Set the native token.
-        bob.setNativeToken(newNativeToken);
+        bob.setNativeToken(address(weth));
 
         // It should set the native token.
-        assertEq(bob.nativeToken(), newNativeToken, "nativeToken");
+        assertEq(bob.nativeToken(), address(weth), "nativeToken");
     }
 }

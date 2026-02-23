@@ -6,21 +6,11 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "../../../Integration.t.sol";
 
 /// @title Constructor_LidoAdapter_Integration_Concrete_Test
 /// @notice Integration tests for the SablierLidoAdapter constructor.
 contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
-    /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Maximum slippage tolerance (5%) - matches the contract constant.
-    UD60x18 internal constant MAX_SLIPPAGE_TOLERANCE = UD60x18.wrap(0.05e18);
-
-    /// @dev Maximum yield fee (20%) - matches the contract constant.
-    UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.2e18);
-
     /*//////////////////////////////////////////////////////////////////////////
                                        TESTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -29,7 +19,7 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
         // Prepare slippage tolerance that exceeds maximum (5% + 1 wei).
         UD60x18 excessiveSlippage = UD60x18.wrap(MAX_SLIPPAGE_TOLERANCE.unwrap() + 1);
 
-        // Expect revert with the correct error.
+        // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierLidoAdapter_SlippageToleranceTooHigh.selector,
@@ -45,20 +35,20 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
             curvePool: address(curvePool),
             stETH: address(steth),
             wETH: address(weth),
-            wstETH: address(wsteth),
+            wstETH: address(wstEth),
             initialSlippageTolerance: excessiveSlippage,
-            initialYieldFee: DEFAULT_YIELD_FEE
+            initialYieldFee: YIELD_FEE
         });
     }
 
     function test_RevertWhen_YieldFeeExceedsMaximum() external {
         // Prepare yield fee that exceeds maximum (20% + 1 wei).
-        UD60x18 excessiveFee = UD60x18.wrap(MAX_FEE.unwrap() + 1);
+        UD60x18 excessiveFee = UD60x18.wrap(MAX_YIELD_FEE.unwrap() + 1);
 
-        // Expect revert with the correct error.
+        // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLidoAdapter_YieldFeeTooHigh.selector, excessiveFee.unwrap(), MAX_FEE.unwrap()
+                Errors.SablierLidoAdapter_YieldFeeTooHigh.selector, excessiveFee.unwrap(), MAX_YIELD_FEE.unwrap()
             )
         );
 
@@ -69,8 +59,8 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
             curvePool: address(curvePool),
             stETH: address(steth),
             wETH: address(weth),
-            wstETH: address(wsteth),
-            initialSlippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
+            wstETH: address(wstEth),
+            initialSlippageTolerance: SLIPPAGE_TOLERANCE,
             initialYieldFee: excessiveFee
         });
     }
@@ -83,9 +73,9 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
             curvePool: address(curvePool),
             stETH: address(steth),
             wETH: address(weth),
-            wstETH: address(wsteth),
-            initialSlippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
-            initialYieldFee: DEFAULT_YIELD_FEE
+            wstETH: address(wstEth),
+            initialSlippageTolerance: SLIPPAGE_TOLERANCE,
+            initialYieldFee: YIELD_FEE
         });
 
         // Verify comptroller is set correctly.
@@ -95,9 +85,9 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
         assertEq(newAdapter.SABLIER_BOB(), address(bob), "SABLIER_BOB");
 
         // Verify slippage tolerance is set correctly.
-        assertEq(newAdapter.slippageTolerance().unwrap(), DEFAULT_SLIPPAGE_TOLERANCE.unwrap(), "slippageTolerance");
+        assertEq(newAdapter.slippageTolerance().unwrap(), SLIPPAGE_TOLERANCE.unwrap(), "slippageTolerance");
 
         // Verify yield fee is set correctly.
-        assertEq(newAdapter.feeOnYield().unwrap(), DEFAULT_YIELD_FEE.unwrap(), "feeOnYield");
+        assertEq(newAdapter.feeOnYield().unwrap(), YIELD_FEE.unwrap(), "feeOnYield");
     }
 }

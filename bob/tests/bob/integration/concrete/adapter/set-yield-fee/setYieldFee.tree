@@ -5,4 +5,5 @@ SetYieldFee_Integration_Concrete_Test
    ├── when fee exceeds max
    │  └── it should revert
    └── when fee within limit
-      └── it should set yield fee
+      ├── it should set the yield fee
+      └── it should emit a {SetYieldFee} event

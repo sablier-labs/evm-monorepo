@@ -114,7 +114,7 @@ contract SablierBob is
 
         // Check: expiry is in the future.
         if (expiry <= currentTimestamp) {
-            revert Errors.SablierBob_ExpiryInPast(expiry, currentTimestamp);
+            revert Errors.SablierBob_ExpiryNotInFuture(expiry, currentTimestamp);
         }
 
         // Check: target price is not zero.
@@ -264,14 +264,14 @@ contract SablierBob is
         uint40 gracePeriodEndsAt = firstDepositTime + GRACE_PERIOD;
 
         // Check: the current timestamp is within the grace period.
-        if (block.timestamp >= gracePeriodEndsAt) {
+        if (block.timestamp > gracePeriodEndsAt) {
             revert Errors.SablierBob_GracePeriodExpired(vaultId, msg.sender, firstDepositTime, gracePeriodEndsAt);
         }
 
         // Effect: clear the deposit record.
         delete _firstDepositTimes[vaultId][msg.sender];
 
-        // Effect: burn share tokens from the caller.
+        // Interaction: burn share tokens from the caller.
         vault.shareToken.burn(vaultId, msg.sender, amount);
 
         // Interaction: return tokens to the caller.
@@ -319,9 +319,6 @@ contract SablierBob is
             revert Errors.SablierBob_NoSharesToRedeem(vaultId, msg.sender);
         }
 
-        // Effect: burn share tokens from the caller.
-        vault.shareToken.burn(vaultId, msg.sender, shareBalance);
-
         // Check if the vault has an adapter.
         if (address(vault.adapter) != address(0)) {
             // Check: the deposit token is staked with the adapter.
@@ -364,6 +361,9 @@ contract SablierBob is
             // Return the transferred amount.
             amountToTransfer = shareBalance;
         }
+
+        // Interaction: burn share tokens from the caller.
+        vault.shareToken.burn(vaultId, msg.sender, shareBalance);
 
         // Interaction: transfer tokens to the caller.
         vault.token.safeTransfer(msg.sender, amountToTransfer);
@@ -555,11 +555,14 @@ contract SablierBob is
         // Get the latest price from the oracle with safety checks.
         (latestPrice,) = SafeOracle.safeOraclePrice(oracleAddress);
 
-        // Effect: update the last synced price and timestamp if the latest price is greater than zero.
-        if (latestPrice > 0) {
-            _vaults[vaultId].lastSyncedPrice = latestPrice;
-            _vaults[vaultId].lastSyncedAt = uint40(block.timestamp);
+        // Return if the latest price is zero.
+        if (latestPrice == 0) {
+            return 0;
         }
+
+        // Effect: update the last synced price and timestamp.
+        _vaults[vaultId].lastSyncedPrice = latestPrice;
+        _vaults[vaultId].lastSyncedAt = uint40(block.timestamp);
 
         // Log the event.
         emit SyncPriceFromOracle(vaultId, oracleAddress, latestPrice, uint40(block.timestamp));
@@ -572,12 +575,12 @@ contract SablierBob is
         Bob.Vault storage vault = _vaults[vaultId];
 
         // Get the total amount staked via the adapter.
-        uint128 amountStakedViaAdapter = vault.adapter.getTotalYieldBearingTokenBalance(vaultId);
+        uint128 wrappedTokenUnstakedAmount = vault.adapter.getTotalYieldBearingTokenBalance(vaultId);
 
         // Interaction: unstake all tokens via the adapter.
         amountReceivedFromAdapter = vault.adapter.unstakeFullAmount(vaultId);
 
         // Log the event.
-        emit UnstakeFromAdapter(vaultId, vault.adapter, amountStakedViaAdapter, amountReceivedFromAdapter);
+        emit UnstakeFromAdapter(vaultId, vault.adapter, wrappedTokenUnstakedAmount, amountReceivedFromAdapter);
     }
 }

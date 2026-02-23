@@ -20,7 +20,6 @@ contract Constructor_BobVaultShare_Integration_Concrete_Test is Integration_Test
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_Constructor() external {
-        // Construct the contract.
         BobVaultShare shareToken = new BobVaultShare({
             name_: TEST_NAME,
             symbol_: TEST_SYMBOL,
@@ -29,40 +28,15 @@ contract Constructor_BobVaultShare_Integration_Concrete_Test is Integration_Test
             vaultId: TEST_VAULT_ID
         });
 
-        // Check SABLIER_BOB is set correctly.
-        address actualSablierBob = shareToken.SABLIER_BOB();
-        address expectedSablierBob = address(bob);
-        assertEq(actualSablierBob, expectedSablierBob, "SABLIER_BOB");
-
-        // Check VAULT_ID is set correctly.
-        uint256 actualVaultId = shareToken.VAULT_ID();
-        uint256 expectedVaultId = TEST_VAULT_ID;
-        assertEq(actualVaultId, expectedVaultId, "VAULT_ID");
-
-        // Check decimals is set correctly.
-        uint8 actualDecimals = shareToken.decimals();
-        uint8 expectedDecimals = TEST_DECIMALS;
-        assertEq(actualDecimals, expectedDecimals, "decimals");
-
-        // Check name is set correctly (inherited from ERC20).
-        string memory actualName = shareToken.name();
-        string memory expectedName = TEST_NAME;
-        assertEq(actualName, expectedName, "name");
-
-        // Check symbol is set correctly (inherited from ERC20).
-        string memory actualSymbol = shareToken.symbol();
-        string memory expectedSymbol = TEST_SYMBOL;
-        assertEq(actualSymbol, expectedSymbol, "symbol");
-
-        // Check initial total supply is zero.
-        uint256 actualTotalSupply = shareToken.totalSupply();
-        uint256 expectedTotalSupply = 0;
-        assertEq(actualTotalSupply, expectedTotalSupply, "totalSupply");
+        assertEq(shareToken.SABLIER_BOB(), address(bob), "SABLIER_BOB");
+        assertEq(shareToken.VAULT_ID(), TEST_VAULT_ID, "VAULT_ID");
+        assertEq(shareToken.decimals(), TEST_DECIMALS, "decimals");
+        assertEq(shareToken.name(), TEST_NAME, "name");
+        assertEq(shareToken.symbol(), TEST_SYMBOL, "symbol");
+        assertEq(shareToken.totalSupply(), 0, "totalSupply");
     }
 
-    /// @dev Test constructor with different decimals values.
     function test_Constructor_DifferentDecimals() external {
-        // Test with 6 decimals (like USDC).
         BobVaultShare shareToken6 = new BobVaultShare({
             name_: TEST_NAME,
             symbol_: TEST_SYMBOL,
@@ -70,9 +44,8 @@ contract Constructor_BobVaultShare_Integration_Concrete_Test is Integration_Test
             sablierBob: address(bob),
             vaultId: TEST_VAULT_ID
         });
-        assertEq(shareToken6.decimals(), 6, "decimals should be 6");
+        assertEq(shareToken6.decimals(), 6, "decimals");
 
-        // Test with 8 decimals (like WBTC).
         BobVaultShare shareToken8 = new BobVaultShare({
             name_: TEST_NAME,
             symbol_: TEST_SYMBOL,
@@ -80,10 +53,9 @@ contract Constructor_BobVaultShare_Integration_Concrete_Test is Integration_Test
             sablierBob: address(bob),
             vaultId: TEST_VAULT_ID
         });
-        assertEq(shareToken8.decimals(), 8, "decimals should be 8");
+        assertEq(shareToken8.decimals(), 8, "decimals");
     }
 
-    /// @dev Test constructor with vault ID of 1 (first vault).
     function test_Constructor_VaultIdOne() external {
         BobVaultShare shareToken = new BobVaultShare({
             name_: TEST_NAME,
@@ -92,13 +64,11 @@ contract Constructor_BobVaultShare_Integration_Concrete_Test is Integration_Test
             sablierBob: address(bob),
             vaultId: 1
         });
-        assertEq(shareToken.VAULT_ID(), 1, "VAULT_ID should be 1");
+        assertEq(shareToken.VAULT_ID(), 1, "VAULT_ID");
     }
 
-    /// @dev Test constructor with large vault ID.
     function test_Constructor_LargeVaultId() external {
         uint256 largeVaultId = type(uint256).max;
-
         BobVaultShare shareToken = new BobVaultShare({
             name_: TEST_NAME,
             symbol_: TEST_SYMBOL,
@@ -106,6 +76,6 @@ contract Constructor_BobVaultShare_Integration_Concrete_Test is Integration_Test
             sablierBob: address(bob),
             vaultId: largeVaultId
         });
-        assertEq(shareToken.VAULT_ID(), largeVaultId, "VAULT_ID should be max uint256");
+        assertEq(shareToken.VAULT_ID(), largeVaultId, "VAULT_ID");
     }
 }

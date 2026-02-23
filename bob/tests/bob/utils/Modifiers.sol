@@ -7,38 +7,18 @@ import { Constants } from "./Constants.sol";
 
 abstract contract Modifiers is Constants, EvmUtilsBase {
     /*//////////////////////////////////////////////////////////////////////////
-                                   VAULT EXISTENCE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenNotNull() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   VAULT STATUS
+                                       GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier givenActive() {
         _;
     }
 
-    modifier givenNotSettled() {
-        _;
-    }
-
-    modifier givenSettled() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   VAULT ADAPTER
-    //////////////////////////////////////////////////////////////////////////*/
-
     modifier givenAdapter() {
         _;
     }
 
-    modifier givenAlreadyUnstaked() {
+    modifier givenFirstDepositTimeNotZero() {
         _;
     }
 
@@ -46,7 +26,11 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenNothingToUnstake() {
+    modifier givenNotActive() {
+        _;
+    }
+
+    modifier givenNotNull() {
         _;
     }
 
@@ -54,203 +38,19 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenSomethingToUnstake() {
+    modifier givenSettled() {
         _;
     }
 
-    modifier whenSlippageExceeded() {
-        _;
-    }
-
-    modifier whenSlippageWithinTolerance() {
+    modifier givenYieldTokenBalanceNotZero() {
         _;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    CREATE VAULT
+                                        WHEN
     //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenExpiryInFuture() {
-        _;
-    }
-
-    modifier whenExpiryInPast() {
-        _;
-    }
-
-    modifier whenOracleDoesNotRevert() {
-        _;
-    }
-
-    modifier whenOracleDoesNotRevertOnDecimals() {
-        _;
-    }
-
-    modifier whenOracleNotZeroAddress() {
-        _;
-    }
-
-    modifier whenOracleReturnsEightDecimals() {
-        _;
-    }
-
-    modifier whenOracleReturnsInvalidDecimals() {
-        _;
-    }
-
-    modifier whenOracleReturnsInvalidPrice() {
-        _;
-    }
-
-    modifier whenOracleReturnsValidPrice() {
-        _;
-    }
-
-    modifier whenOracleRevertsOnLatestRoundData() {
-        _;
-    }
-
-    modifier whenOracleZeroAddress() {
-        _;
-    }
-
-    modifier whenTargetPriceAboveCurrentPrice() {
-        _;
-    }
-
-    modifier whenTargetPriceAtOrBelowCurrentPrice() {
-        _;
-    }
-
-    modifier whenTargetPriceNotZero() {
-        _;
-    }
-
-    modifier whenTargetPriceZero() {
-        _;
-    }
-
-    modifier whenTokenAddressNotZero() {
-        _;
-    }
-
-    modifier whenTokenAddressZero() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                       ENTER
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenFirstDeposit() {
-        _;
-    }
-
-    modifier givenSubsequentDeposit() {
-        _;
-    }
 
     modifier whenAmountNotZero() {
-        _;
-    }
-
-    modifier whenAmountZero() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                               EXIT WITHIN GRACE PERIOD
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenCallerHasShares() {
-        _;
-    }
-
-    modifier whenCallerIsOriginalDepositor() {
-        _;
-    }
-
-    modifier whenGracePeriodExpired() {
-        _;
-    }
-
-    modifier whenNoSharesToRedeem() {
-        _;
-    }
-
-    modifier whenWithinGracePeriod() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                       REDEEM
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenNoPositiveYield() {
-        _;
-    }
-
-    modifier givenPositiveYield() {
-        _;
-    }
-
-    modifier whenFeePaymentInsufficient() {
-        _;
-    }
-
-    modifier whenFeePaymentSufficient() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                        SYNC
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenSyncedPriceAtOrAboveTarget() {
-        _;
-    }
-
-    modifier whenSyncedPriceBelowTarget() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    SET NATIVE TOKEN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenNativeTokenAlreadySet() {
-        _;
-    }
-
-    modifier givenNativeTokenNotSet() {
-        _;
-    }
-
-    modifier whenProvidedAddressNotZero() {
-        _;
-    }
-
-    modifier whenTokenNotNativeToken() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  SET DEFAULT ADAPTER
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenAdapterDoesNotSupportInterface() {
-        _;
-    }
-
-    modifier whenAdapterNotZeroAddress() {
-        _;
-    }
-
-    modifier whenAdapterSupportsInterface() {
-        _;
-    }
-
-    modifier whenAdapterZeroAddress() {
         _;
     }
 
@@ -259,15 +59,43 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                   SET YIELD FEE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenFeeExceedsMax() {
+    modifier whenCallerVaultShareToken() {
         _;
     }
 
-    modifier whenFeeWithinLimit() {
+    modifier whenExpiryInFuture() {
+        _;
+    }
+
+    modifier whenGraceEndTimeInFuture() {
+        _;
+    }
+
+    modifier whenNewAdapterNotZeroAddress() {
+        _;
+    }
+
+    modifier whenNotNativeToken() {
+        _;
+    }
+
+    modifier whenProvidedAddressNotZero() {
+        _;
+    }
+
+    modifier whenSharesNotZero() {
+        _;
+    }
+
+    modifier whenTargetPriceExceedsOraclePrice() {
+        _;
+    }
+
+    modifier whenTargetPriceNotZero() {
+        _;
+    }
+
+    modifier whenTokenNotZero() {
         _;
     }
 }

@@ -14,8 +14,8 @@ contract BobVaultShare is Integration_Test {
 
     function setUp() public override {
         Integration_Test.setUp();
+        setMsgSender(users.bob);
 
-        // Deploy a BobVaultShare directly for testing.
         shareToken = new BobVaultShareContract({
             name_: "Test Share Token",
             symbol_: "TST-100-12345-1",
@@ -29,8 +29,7 @@ contract BobVaultShare is Integration_Test {
                                       DECIMALS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_Decimals_ShouldReturnTheDecimalsSetInConstructor() external view {
-        // It should return the decimals set in constructor.
+    function test_Decimals() external view {
         assertEq(shareToken.decimals(), TEST_DECIMALS, "decimals");
     }
 
@@ -38,34 +37,27 @@ contract BobVaultShare is Integration_Test {
                                         MINT
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_Mint_RevertWhen_CallerIsNotSablierBob() external {
+    function test_Mint_RevertWhen_CallerNotSablierBob() external {
         // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.BobVaultShare_OnlySablierBob.selector, users.depositor, address(bob))
-        );
-        shareToken.mint(TEST_VAULT_ID, users.depositor, 100e18);
+        vm.expectRevert(abi.encodeWithSelector(Errors.BobVaultShare_OnlySablierBob.selector, users.bob, address(bob)));
+        shareToken.mint(TEST_VAULT_ID, users.bob, 100e18);
     }
 
-    function test_Mint_WhenCallerIsSablierBob() external {
-        // It should mint tokens.
-        uint256 amount = 100e18;
+    function test_Mint_WhenCallerSablierBob() external {
         uint256 balanceBefore = shareToken.balanceOf(users.depositor);
 
-        // Stop existing prank and prank as SablierBob to mint.
         vm.stopPrank();
         vm.prank(address(bob));
-        shareToken.mint(TEST_VAULT_ID, users.depositor, amount);
+        shareToken.mint(TEST_VAULT_ID, users.depositor, 100e18);
 
-        uint256 balanceAfter = shareToken.balanceOf(users.depositor);
-        assertEq(balanceAfter - balanceBefore, amount, "mint amount");
+        assertEq(shareToken.balanceOf(users.depositor) - balanceBefore, 100e18, "mintAmount");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                         BURN
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_Burn_RevertWhen_CallerIsNotSablierBob() external {
-        // First mint some tokens.
+    function test_Burn_RevertWhen_CallerNotSablierBob() external {
         vm.stopPrank();
         vm.prank(address(bob));
         shareToken.mint(TEST_VAULT_ID, users.depositor, 100e18);
@@ -78,20 +70,16 @@ contract BobVaultShare is Integration_Test {
         shareToken.burn(TEST_VAULT_ID, users.depositor, 100e18);
     }
 
-    function test_Burn_WhenCallerIsSablierBob() external {
-        // First mint some tokens.
-        uint256 amount = 100e18;
+    function test_Burn_WhenCallerSablierBob() external {
         vm.stopPrank();
         vm.prank(address(bob));
-        shareToken.mint(TEST_VAULT_ID, users.depositor, amount);
+        shareToken.mint(TEST_VAULT_ID, users.depositor, 100e18);
 
         uint256 balanceBefore = shareToken.balanceOf(users.depositor);
 
-        // It should burn tokens.
         vm.prank(address(bob));
-        shareToken.burn(TEST_VAULT_ID, users.depositor, amount);
+        shareToken.burn(TEST_VAULT_ID, users.depositor, 100e18);
 
-        uint256 balanceAfter = shareToken.balanceOf(users.depositor);
-        assertEq(balanceBefore - balanceAfter, amount, "burn amount");
+        assertEq(balanceBefore - shareToken.balanceOf(users.depositor), 100e18, "burnAmount");
     }
 }

@@ -7,28 +7,33 @@ import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Error
 import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "../../../Integration.t.sol";
 
 contract SetYieldFee_Integration_Concrete_Test is Integration_Test {
-    function test_RevertWhen_CallerNotComptroller() external {
-        // It should revert.
-        // Cache the yield fee before expectRevert, since DEFAULT_YIELD_FEE is a view call
-        // that would be interpreted as the "next call" by expectRevert.
-        UD60x18 newFee = DEFAULT_YIELD_FEE;
+    function setUp() public override {
+        Integration_Test.setUp();
+        setMsgSender(users.bob);
+    }
 
+    function test_RevertWhen_CallerNotComptroller() external {
+        // Cache the yield fee before expectRevert, since YIELD_FEE is a view call
+        // that would be interpreted as the "next call" by expectRevert.
+        UD60x18 newFee = YIELD_FEE;
+
+        // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.depositor
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.bob
             )
         );
         adapter.setYieldFee(newFee);
     }
 
     function test_RevertWhen_FeeExceedsMax() external whenCallerComptroller {
-        // It should revert.
         UD60x18 maxFee = adapter.MAX_FEE();
         UD60x18 excessiveFee = maxFee.add(ud(1));
 
+        // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierLidoAdapter_YieldFeeTooHigh.selector, excessiveFee.unwrap(), maxFee.unwrap()
@@ -38,18 +43,15 @@ contract SetYieldFee_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenFeeWithinLimit() external whenCallerComptroller {
-        // It should set yield fee.
         UD60x18 oldFee = adapter.feeOnYield();
-        UD60x18 newFee = DEFAULT_YIELD_FEE;
 
-        // Expect the SetYieldFee event.
+        // It should emit a {SetYieldFee} event.
         vm.expectEmit({ emitter: address(adapter) });
-        emit ISablierBobAdapter.SetYieldFee({ oldFee: oldFee, newFee: newFee });
+        emit ISablierBobAdapter.SetYieldFee({ oldFee: oldFee, newFee: YIELD_FEE });
 
-        // Set the yield fee.
-        adapter.setYieldFee(newFee);
+        adapter.setYieldFee(YIELD_FEE);
 
-        // Assert the yield fee was set.
-        assertEq(adapter.feeOnYield().unwrap(), newFee.unwrap(), "yieldFee");
+        // It should update the yield fee.
+        assertEq(adapter.feeOnYield().unwrap(), YIELD_FEE.unwrap(), "yieldFee");
     }
 }
