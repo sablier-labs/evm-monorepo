@@ -26,7 +26,9 @@ contract Initialize_Comptroller_Concrete_Test is Base_Test {
 
         // It should revert.
         vm.expectRevert(Initializable.InvalidInitialization.selector);
-        implementation.initialize(admin, AIRDROP_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle));
+        implementation.initialize(
+            admin, AIRDROP_MIN_FEE_USD, BOB_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle)
+        );
     }
 
     function test_RevertGiven_Initialized() external whenCalledOnProxy {
@@ -34,7 +36,9 @@ contract Initialize_Comptroller_Concrete_Test is Base_Test {
 
         // It should revert.
         vm.expectRevert(Initializable.InvalidInitialization.selector);
-        initializedProxy.initialize(admin, AIRDROP_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle));
+        initializedProxy.initialize(
+            admin, AIRDROP_MIN_FEE_USD, BOB_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle)
+        );
     }
 
     function test_RevertWhen_InitialAirdropFeeExceedsMaxFee() external whenCalledOnProxy givenNotInitialized {
@@ -46,7 +50,25 @@ contract Initialize_Comptroller_Concrete_Test is Base_Test {
             )
         );
         uninitializedProxy.initialize(
-            admin, initialAirdropMinFeeUSD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle)
+            admin, initialAirdropMinFeeUSD, BOB_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle)
+        );
+    }
+
+    function test_RevertWhen_InitialBobFeeExceedsMaxFee()
+        external
+        whenCalledOnProxy
+        givenNotInitialized
+        whenInitialAirdropFeeNotExceedMaxFee
+    {
+        uint256 initialBobMinFeeUSD = MAX_FEE_USD + 1;
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierComptroller_MaxFeeUSDExceeded.selector, initialBobMinFeeUSD, MAX_FEE_USD
+            )
+        );
+        uninitializedProxy.initialize(
+            admin, AIRDROP_MIN_FEE_USD, initialBobMinFeeUSD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle)
         );
     }
 
@@ -55,6 +77,7 @@ contract Initialize_Comptroller_Concrete_Test is Base_Test {
         whenCalledOnProxy
         givenNotInitialized
         whenInitialAirdropFeeNotExceedMaxFee
+        whenInitialBobFeeNotExceedMaxFee
     {
         uint256 initialFlowMinFeeUSD = MAX_FEE_USD + 1;
 
@@ -64,7 +87,7 @@ contract Initialize_Comptroller_Concrete_Test is Base_Test {
             )
         );
         uninitializedProxy.initialize(
-            admin, AIRDROP_MIN_FEE_USD, initialFlowMinFeeUSD, LOCKUP_MIN_FEE_USD, address(oracle)
+            admin, AIRDROP_MIN_FEE_USD, BOB_MIN_FEE_USD, initialFlowMinFeeUSD, LOCKUP_MIN_FEE_USD, address(oracle)
         );
     }
 
@@ -73,6 +96,7 @@ contract Initialize_Comptroller_Concrete_Test is Base_Test {
         whenCalledOnProxy
         givenNotInitialized
         whenInitialAirdropFeeNotExceedMaxFee
+        whenInitialBobFeeNotExceedMaxFee
         whenInitialFlowFeeNotExceedMaxFee
     {
         uint256 initialLockupMinFeeUSD = MAX_FEE_USD + 1;
@@ -83,7 +107,7 @@ contract Initialize_Comptroller_Concrete_Test is Base_Test {
             )
         );
         uninitializedProxy.initialize(
-            admin, AIRDROP_MIN_FEE_USD, FLOW_MIN_FEE_USD, initialLockupMinFeeUSD, address(oracle)
+            admin, AIRDROP_MIN_FEE_USD, BOB_MIN_FEE_USD, FLOW_MIN_FEE_USD, initialLockupMinFeeUSD, address(oracle)
         );
     }
 
@@ -92,9 +116,12 @@ contract Initialize_Comptroller_Concrete_Test is Base_Test {
         whenCalledOnProxy
         givenNotInitialized
         whenInitialAirdropFeeNotExceedMaxFee
+        whenInitialBobFeeNotExceedMaxFee
         whenInitialFlowFeeNotExceedMaxFee
     {
-        uninitializedProxy.initialize(admin, AIRDROP_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle));
+        uninitializedProxy.initialize(
+            admin, AIRDROP_MIN_FEE_USD, BOB_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle)
+        );
 
         // It should initialize the proxy states.
         assertEq(uninitializedProxy.admin(), admin, "admin");
@@ -104,6 +131,9 @@ contract Initialize_Comptroller_Concrete_Test is Base_Test {
             uninitializedProxy.getMinFeeUSD(ISablierComptroller.Protocol.Airdrops),
             AIRDROP_MIN_FEE_USD,
             "get min fee USD Airdrops"
+        );
+        assertEq(
+            uninitializedProxy.getMinFeeUSD(ISablierComptroller.Protocol.Bob), BOB_MIN_FEE_USD, "get min fee USD Bob"
         );
         assertEq(
             uninitializedProxy.getMinFeeUSD(ISablierComptroller.Protocol.Flow), FLOW_MIN_FEE_USD, "get min fee USD Flow"

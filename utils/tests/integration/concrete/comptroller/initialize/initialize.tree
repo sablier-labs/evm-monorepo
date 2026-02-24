@@ -8,10 +8,13 @@ Initialize_Comptroller_Concrete_Test
       ├── when initial airdrop fee exceeds max fee
       │  └── it should revert
       └── when initial airdrop fee not exceed max fee
-         ├── when initial flow fee exceeds max fee
+         ├── when initial bob fee exceeds max fee
          │  └── it should revert
-         └── when initial flow fee not exceed max fee
-            ├── when initial lockup fee exceeds max fee
+         └── when initial bob fee not exceed max fee
+            ├── when initial flow fee exceeds max fee
             │  └── it should revert
-            └── when initial lockup fee not exceed max fee
-               └── it should initialize the proxy states
+            └── when initial flow fee not exceed max fee
+               ├── when initial lockup fee exceeds max fee
+               │  └── it should revert
+               └── when initial lockup fee not exceed max fee
+                  └── it should initialize the proxy states

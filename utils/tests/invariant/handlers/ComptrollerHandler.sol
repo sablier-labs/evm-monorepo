@@ -35,7 +35,7 @@ contract ComptrollerHandler is CommonBase {
         vm.assume(newAdmin != initialAdmin);
 
         (bool success,) =
-            comptroller.call(abi.encodeCall(SablierComptroller.initialize, (newAdmin, 0, 0, 0, address(0))));
+            comptroller.call(abi.encodeCall(SablierComptroller.initialize, (newAdmin, 0, 0, 0, 0, address(0))));
 
         if (success) calls["initialize"]++;
     }
