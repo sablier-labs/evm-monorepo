@@ -106,6 +106,10 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenInitialBobFeeNotExceedMaxFee() {
+        _;
+    }
+
     modifier whenInitialFlowFeeNotExceedMaxFee() {
         _;
     }

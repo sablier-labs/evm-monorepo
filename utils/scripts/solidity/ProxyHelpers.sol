@@ -21,6 +21,7 @@ abstract contract ProxyHelpers is BaseScript {
         comptrollerProxy.initialize({
             initialAdmin: getAdmin(),
             initialAirdropMinFeeUSD: getInitialMinFeeUSD(),
+            initialBobMinFeeUSD: getInitialMinFeeUSD(),
             initialLockupMinFeeUSD: getInitialMinFeeUSD(),
             initialFlowMinFeeUSD: getInitialMinFeeUSD(),
             initialOracle: getChainlinkOracle()
@@ -55,6 +56,11 @@ abstract contract ProxyHelpers is BaseScript {
             comptrollerProxy.getMinFeeUSD(ISablierComptroller.Protocol.Airdrops),
             getInitialMinFeeUSD(),
             "proxy: minFeeUSD Airdrops"
+        );
+        vm.assertEq(
+            comptrollerProxy.getMinFeeUSD(ISablierComptroller.Protocol.Bob),
+            getInitialMinFeeUSD(),
+            "proxy: minFeeUSD Bob"
         );
         vm.assertEq(
             comptrollerProxy.getMinFeeUSD(ISablierComptroller.Protocol.Lockup),

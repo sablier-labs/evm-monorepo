@@ -146,9 +146,9 @@ abstract contract BaseScript is Script {
     /// @notice Returns the initial value of the min fee in USD.
     /// @dev If the chain does not have Chainlink, no fee is set.
     function getInitialMinFeeUSD() public view returns (uint256) {
-        // If the chain has a Chainlink oracle, set the min fee to $1.
+        // If the chain has a Chainlink oracle, set the min fee to $0.99.
         if (getChainlinkOracle() != address(0)) {
-            return 1e8;
+            return 0.99e8;
         }
 
         // Otherwise, set the min fee to 0.

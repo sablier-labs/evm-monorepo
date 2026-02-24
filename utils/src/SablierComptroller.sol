@@ -103,12 +103,14 @@ contract SablierComptroller is
     /// ERC-1967 compliant implementation pointing to self.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialAirdropMinFeeUSD The initial airdrops min USD fee charged.
+    /// @param initialBobMinFeeUSD The initial bob min USD fee charged.
     /// @param initialFlowMinFeeUSD The initial flow min USD fee charged.
     /// @param initialLockupMinFeeUSD The initial lockup min USD fee charged.
     /// @param initialOracle The initial oracle contract address.
     function initialize(
         address initialAdmin,
         uint256 initialAirdropMinFeeUSD,
+        uint256 initialBobMinFeeUSD,
         uint256 initialFlowMinFeeUSD,
         uint256 initialLockupMinFeeUSD,
         address initialOracle
@@ -124,7 +126,9 @@ contract SablierComptroller is
         _transferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
 
         // Check and Effect: initialize the initial parameters of the contract.
-        _initialize(initialAirdropMinFeeUSD, initialFlowMinFeeUSD, initialLockupMinFeeUSD, initialOracle);
+        _initialize(
+            initialAirdropMinFeeUSD, initialBobMinFeeUSD, initialFlowMinFeeUSD, initialLockupMinFeeUSD, initialOracle
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -521,6 +525,7 @@ contract SablierComptroller is
     /// @dev See the documentation for the user-facing functions that call this private function.
     function _initialize(
         uint256 initialAirdropMinFeeUSD,
+        uint256 initialBobMinFeeUSD,
         uint256 initialFlowMinFeeUSD,
         uint256 initialLockupMinFeeUSD,
         address initialOracle
@@ -529,11 +534,13 @@ contract SablierComptroller is
     {
         // Check: the initial minimum fees do not exceed the maximum allowed fee.
         _notExceedMaxFeeUSD(initialAirdropMinFeeUSD);
+        _notExceedMaxFeeUSD(initialBobMinFeeUSD);
         _notExceedMaxFeeUSD(initialFlowMinFeeUSD);
         _notExceedMaxFeeUSD(initialLockupMinFeeUSD);
 
         // Effect: set the initial fees.
         _protocolFees[Protocol.Airdrops].minFeeUSD = initialAirdropMinFeeUSD;
+        _protocolFees[Protocol.Bob].minFeeUSD = initialBobMinFeeUSD;
         _protocolFees[Protocol.Flow].minFeeUSD = initialFlowMinFeeUSD;
         _protocolFees[Protocol.Lockup].minFeeUSD = initialLockupMinFeeUSD;
 

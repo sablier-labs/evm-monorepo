@@ -49,7 +49,7 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
         oracle = new ChainlinkOracleMock();
         comptroller = ISablierComptroller(
             deployComptrollerWithProxy(
-                admin, AIRDROP_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle)
+                admin, AIRDROP_MIN_FEE_USD, BOB_MIN_FEE_USD, FLOW_MIN_FEE_USD, LOCKUP_MIN_FEE_USD, address(oracle)
             )
         );
 
@@ -152,6 +152,7 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
     function deployComptrollerWithProxy(
         address admin_,
         uint256 airdropMinFeeUSD_,
+        uint256 bobMinFeeUSD_,
         uint256 flowMinFeeUSD_,
         uint256 lockupMinFeeUSD_,
         address oracle_
@@ -168,7 +169,7 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
                 implementation,
                 abi.encodeCall(
                     SablierComptroller.initialize,
-                    (admin_, airdropMinFeeUSD_, flowMinFeeUSD_, lockupMinFeeUSD_, oracle_)
+                    (admin_, airdropMinFeeUSD_, bobMinFeeUSD_, flowMinFeeUSD_, lockupMinFeeUSD_, oracle_)
                 )
             )
         );
