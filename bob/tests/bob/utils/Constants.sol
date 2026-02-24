@@ -6,9 +6,9 @@ import { BaseConstants } from "@sablier/evm-utils/src/tests/BaseConstants.sol";
 
 abstract contract Constants is BaseConstants {
     // Amounts
-    uint128 public constant CURRENT_PRICE = 2000e18;
+    uint128 public constant CURRENT_PRICE = 3000e8;
     uint128 public constant DEPOSIT_AMOUNT = 10e18;
-    uint128 public constant TARGET_PRICE = 3000e18;
+    uint128 public constant TARGET_PRICE = 4000e8;
     uint128 public constant WSTETH_WETH_EXCHANGE_RATE = 0.9e18;
     uint128 public constant WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT = DEPOSIT_AMOUNT * WSTETH_WETH_EXCHANGE_RATE / 1e18;
 

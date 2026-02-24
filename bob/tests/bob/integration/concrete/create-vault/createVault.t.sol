@@ -16,12 +16,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_TokenZero() external {
         // It should revert.
         vm.expectRevert(Errors.SablierBob_TokenAddressZero.selector);
-        bob.createVault({
-            token: IERC20(address(0)),
-            oracle: chainlinkOracle,
-            expiry: EXPIRY,
-            targetPrice: TARGET_PRICE
-        });
+        bob.createVault({ token: IERC20(address(0)), oracle: oracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
     }
 
     function test_RevertWhen_NativeToken() external whenTokenNotZero {
@@ -31,7 +26,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_ForbidNativeToken.selector, address(weth)));
-        bob.createVault({ token: weth, oracle: chainlinkOracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
+        bob.createVault({ token: weth, oracle: oracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
     }
 
     function test_RevertWhen_ExpiryNotInFuture() external whenTokenNotZero whenNotNativeToken {
@@ -41,7 +36,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierBob_ExpiryNotInFuture.selector, expiry, getBlockTimestamp())
         );
-        bob.createVault({ token: weth, oracle: chainlinkOracle, expiry: expiry, targetPrice: TARGET_PRICE });
+        bob.createVault({ token: weth, oracle: oracle, expiry: expiry, targetPrice: TARGET_PRICE });
     }
 
     function test_RevertWhen_ExpiryInPresent() external whenTokenNotZero whenNotNativeToken {
@@ -51,18 +46,13 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
                 Errors.SablierBob_ExpiryNotInFuture.selector, getBlockTimestamp(), getBlockTimestamp()
             )
         );
-        bob.createVault({
-            token: weth,
-            oracle: chainlinkOracle,
-            expiry: getBlockTimestamp(),
-            targetPrice: TARGET_PRICE
-        });
+        bob.createVault({ token: weth, oracle: oracle, expiry: getBlockTimestamp(), targetPrice: TARGET_PRICE });
     }
 
     function test_RevertWhen_TargetPriceZero() external whenTokenNotZero whenNotNativeToken whenExpiryInFuture {
         // It should revert.
         vm.expectRevert(Errors.SablierBob_TargetPriceZero.selector);
-        bob.createVault({ token: weth, oracle: chainlinkOracle, expiry: EXPIRY, targetPrice: 0 });
+        bob.createVault({ token: weth, oracle: oracle, expiry: EXPIRY, targetPrice: 0 });
     }
 
     function test_RevertWhen_TargetPriceNotExceedOraclePrice()
@@ -76,7 +66,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierBob_TargetPriceTooLow.selector, CURRENT_PRICE, CURRENT_PRICE)
         );
-        bob.createVault({ token: weth, oracle: chainlinkOracle, expiry: EXPIRY, targetPrice: CURRENT_PRICE });
+        bob.createVault({ token: weth, oracle: oracle, expiry: EXPIRY, targetPrice: CURRENT_PRICE });
     }
 
     function test_GivenNoAdapter()
@@ -121,7 +111,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         emit ISablierBob.CreateVault({
             vaultId: expectedVaultId,
             token: weth,
-            oracle: chainlinkOracle,
+            oracle: oracle,
             adapter: expectedAdapter,
             shareToken: expectedShareToken,
             targetPrice: TARGET_PRICE,
@@ -129,8 +119,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         });
 
         // Create the vault.
-        uint256 vaultId =
-            bob.createVault({ token: weth, oracle: chainlinkOracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
+        uint256 vaultId = bob.createVault({ token: weth, oracle: oracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
 
         // It should create the vault.
         assertEq(vaultId, expectedVaultId, "vaultId");
@@ -138,7 +127,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         assertEq(bob.getFirstDepositTime(vaultId, users.depositor), 0, "firstDepositTime");
         assertEq(bob.getLastSyncedAt(vaultId), getBlockTimestamp(), "lastSyncedAt");
         assertEq(bob.getLastSyncedPrice(vaultId), CURRENT_PRICE, "lastSyncedPrice");
-        assertEq(address(bob.getOracle(vaultId)), address(chainlinkOracle), "oracle");
+        assertEq(address(bob.getOracle(vaultId)), address(oracle), "oracle");
         assertEq(bob.getTargetPrice(vaultId), TARGET_PRICE, "targetPrice");
         assertEq(address(bob.getUnderlyingToken(vaultId)), address(weth), "token");
         assertEq(address(bob.getAdapter(vaultId)), address(expectedAdapter), "adapter");

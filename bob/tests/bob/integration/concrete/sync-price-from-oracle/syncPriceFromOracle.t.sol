@@ -30,7 +30,7 @@ contract SyncPriceFromOracle_Integration_Concrete_Test is Integration_Test {
         uint40 expectedLastSyncedAt = bob.getLastSyncedAt(vaultIds.defaultVault);
 
         // Set the latest price to zero on oracle.
-        mockOracle.setPrice(0);
+        oracle.setPrice(0);
 
         uint128 latestPrice = bob.syncPriceFromOracle(vaultIds.defaultVault);
         assertEq(latestPrice, 0, "returnValue.latestPrice");
@@ -45,13 +45,13 @@ contract SyncPriceFromOracle_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenLatestPriceNotZero() external givenNotNull givenActive {
-        mockOracle.setPrice(TARGET_PRICE);
+        oracle.setPrice(TARGET_PRICE);
 
         // It should emit a {SyncPriceFromOracle} event.
         vm.expectEmit({ emitter: address(bob) });
         emit ISablierBob.SyncPriceFromOracle({
             vaultId: vaultIds.defaultVault,
-            oracle: chainlinkOracle,
+            oracle: oracle,
             latestPrice: TARGET_PRICE,
             syncedAt: getBlockTimestamp()
         });

@@ -13,6 +13,10 @@ abstract contract Integration_Test is Base_Test {
 
     function setUp() public virtual override {
         Base_Test.setUp();
+
+        // Set depositor as the caller for vault creation and deposits.
+        setMsgSender(users.depositor);
+
         initializeDefaultVaults();
 
         // Set depositor as the default caller.
@@ -26,9 +30,6 @@ abstract contract Integration_Test is Base_Test {
     /// @dev Initializes the default vaults used in tests. The depositor enters each vault so that tests
     /// start with pre-existing shares.
     function initializeDefaultVaults() internal {
-        // Set depositor as the caller for vault creation and deposits.
-        setMsgSender(users.depositor);
-
         // Create a default vault (WETH, no adapter) and have depositor enter.
         vaultIds.defaultVault = createDefaultVault();
         bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
@@ -36,9 +37,9 @@ abstract contract Integration_Test is Base_Test {
         // Create a settled vault (WETH, no adapter) — depositor must enter BEFORE settlement.
         vaultIds.settledVault = createDefaultVault();
         bob.enter(vaultIds.settledVault, DEPOSIT_AMOUNT);
-        mockOracle.setPrice(TARGET_PRICE);
+        oracle.setPrice(TARGET_PRICE);
         bob.syncPriceFromOracle(vaultIds.settledVault);
-        mockOracle.setPrice(CURRENT_PRICE); // Reset for other tests.
+        oracle.setPrice(CURRENT_PRICE); // Reset for other tests.
 
         // Create a vault with adapter (must come after non-adapter vaults to avoid adapter auto-assignment).
         vaultIds.vaultWithAdapter = createVaultWithAdapter();

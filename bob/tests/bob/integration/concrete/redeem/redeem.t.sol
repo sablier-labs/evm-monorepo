@@ -19,13 +19,13 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
 
     function test_WhenSyncChangesStatus() external givenNotNull givenActive {
         // Set oracle price to target price so that the sync settles the vault.
-        mockOracle.setPrice(TARGET_PRICE);
+        oracle.setPrice(TARGET_PRICE);
 
         // It should emit {SyncPriceFromOracle} event.
         vm.expectEmit({ emitter: address(bob) });
         emit ISablierBob.SyncPriceFromOracle({
             vaultId: vaultIds.defaultVault,
-            oracle: chainlinkOracle,
+            oracle: oracle,
             latestPrice: TARGET_PRICE,
             syncedAt: getBlockTimestamp()
         });
@@ -158,7 +158,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         wstEth.setExchangeRate(newExchangeRate);
 
         // Set oracle price to target price so that the sync settles the vault.
-        mockOracle.setPrice(TARGET_PRICE);
+        oracle.setPrice(TARGET_PRICE);
 
         uint128 expectedWethRedeemed = (WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT * 1e18) / newExchangeRate;
         uint128 expectedYield = expectedWethRedeemed - DEPOSIT_AMOUNT;
@@ -214,7 +214,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         wstEth.setExchangeRate(newExchangeRate);
 
         // Settle the vault via price so status is SETTLED.
-        mockOracle.setPrice(TARGET_PRICE);
+        oracle.setPrice(TARGET_PRICE);
 
         // Unstake first so the vault is no longer staked in the adapter.
         bob.unstakeTokensViaAdapter(vaultIds.vaultWithAdapter);

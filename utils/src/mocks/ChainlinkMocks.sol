@@ -24,11 +24,26 @@ contract SafeOracleMock {
 //////////////////////////////////////////////////////////////////////////*/
 
 /// @notice A mock Chainlink oracle that returns a $3000 price with 8 decimals.
-contract ChainlinkOracleMock {
+contract ChainlinkOracleMock is AggregatorV3Interface {
     int256 internal _price = 3000e8;
 
     function decimals() external pure returns (uint8) {
         return DEFAULT_DECIMALS;
+    }
+
+    function description() external pure returns (string memory) {
+        return "Mock Oracle";
+    }
+
+    function getRoundData(
+        uint80 /* _roundId */
+    )
+        external
+        view
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
+    {
+        uint256 updatedAt_ = block.timestamp;
+        return (0, _price, 0, updatedAt_, 0);
     }
 
     function latestRoundData()
@@ -46,6 +61,10 @@ contract ChainlinkOracleMock {
 
     function setPrice(uint256 newPrice) external {
         _price = int256(newPrice);
+    }
+
+    function version() external pure returns (uint256) {
+        return 420;
     }
 }
 

@@ -68,7 +68,7 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         wstEth.setExchangeRate(newExchangeRate);
 
         // Set oracle price to target price so that the sync settles the vault.
-        mockOracle.setPrice(TARGET_PRICE);
+        oracle.setPrice(TARGET_PRICE);
 
         uint128 expectedWethRedeemed = (WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT * 1e18) / newExchangeRate;
 
@@ -76,7 +76,7 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(bob) });
         emit ISablierBob.SyncPriceFromOracle({
             vaultId: vaultIds.vaultWithAdapter,
-            oracle: chainlinkOracle,
+            oracle: oracle,
             latestPrice: TARGET_PRICE,
             syncedAt: getBlockTimestamp()
         });
