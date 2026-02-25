@@ -51,11 +51,6 @@ on:
         required: false
         type: "string"
 
-      foundry-version:
-        default: "latest"
-        required: false
-        type: "string"
-
     secrets:
       BUILDBEAR_API_KEY:
         required: false
