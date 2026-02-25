@@ -62,7 +62,6 @@ jobs:
         ${{ inputs.module }}/out-optimized
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
-      foundry-version: "v1.4.4"
       match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
       working-directory: ${{ inputs.module }}
@@ -78,7 +77,6 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      foundry-version: "v1.4.4"
       match-path: "tests/{integration,utils}/**/*.sol"
       name: "Integration tests"
       working-directory: ${{ inputs.module }}
@@ -95,7 +93,6 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      foundry-version: "v1.4.4"
       match-path: "tests/invariant/**/*.sol"
       name: "Invariant tests"
       working-directory: ${{ inputs.module }}
@@ -112,7 +109,6 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      foundry-version: "v1.4.4"
       match-path: "tests/unit/**/*.sol"
       name: "Unit tests"
       working-directory: ${{ inputs.module }}
