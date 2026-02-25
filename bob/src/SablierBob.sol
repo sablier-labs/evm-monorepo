@@ -59,7 +59,9 @@ contract SablierBob is
 
     /// @dev Modifier to check that the vault is active.
     modifier onlyActive(uint256 vaultId) {
-        _revertIfSettledOrExpired(vaultId);
+        if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
+            revert Errors.SablierBob_VaultNotActive(vaultId);
+        }
         _;
     }
 
@@ -197,9 +199,6 @@ contract SablierBob is
     {
         // Effect: sync the price from oracle.
         _syncPriceFromOracle(vaultId);
-
-        // Check: the vault is still active after the price sync.
-        _revertIfSettledOrExpired(vaultId);
 
         // Check: the deposit amount is not zero.
         if (amount == 0) {
@@ -513,13 +512,6 @@ contract SablierBob is
             }
         }
         return true;
-    }
-
-    /// @notice Private function that reverts if the vault is settled or expired.
-    function _revertIfSettledOrExpired(uint256 vaultId) private view {
-        if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
-            revert Errors.SablierBob_VaultNotActive(vaultId);
-        }
     }
 
     /// @notice Retrieves the token's symbol safely, defaulting to a hard-coded value if an error occurs.
