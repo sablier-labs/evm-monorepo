@@ -84,6 +84,7 @@ jobs:
       working-directory: ${{ inputs.module }}
 
   test-invariant:
+    if: ${{ !inputs.exclude-invariant-tests }}
     needs: ["build", "check"]
     uses: "./.github/workflows/bb-forge-test.yml"
     secrets: inherit
@@ -100,6 +101,7 @@ jobs:
       working-directory: ${{ inputs.module }}
 
   test-unit:
+    if: ${{ !inputs.exclude-unit-tests }}
     needs: ["build", "check"]
     uses: "./.github/workflows/bb-forge-test.yml"
     secrets: inherit
@@ -127,7 +129,7 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-version: "v1.4.4"
-      match-path: "tests/{integration,unit}/**/*.sol"
+      match-path: ${{ inputs.exclude-unit-tests && 'tests/integration/**/*.sol' || 'tests/{integration,unit}/**/*.sol' }}
       name: "Coverage"
       via-ir-minimum: true
       working-directory: ${{ inputs.module }}

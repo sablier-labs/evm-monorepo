@@ -57,6 +57,8 @@ on:
         type: "string"
 
     secrets:
+      BUILDBEAR_API_KEY:
+        required: false
       API_KEY_INFURA:
         required: false
       MAINNET_RPC_URL:
@@ -77,10 +79,7 @@ jobs:
         uses: "actions/checkout@v4"
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Clone Foundry repository
         working-directory: .
@@ -96,7 +95,7 @@ jobs:
         run: echo "hash=$(git -C foundry rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Restore Foundry build cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-foundry
         with:
           path: |
@@ -145,6 +144,7 @@ jobs:
           fail-on-cache-miss: true
 
       - name: "Run the tests"
+        id: run-tests
         working-directory: ${{ inputs.working-directory }}
         run: 'forge test --match-path "${{ inputs.match-path }}"'
         continue-on-error: true
@@ -158,4 +158,12 @@ jobs:
       - name: "Add summary"
         run: | # shell
           echo "## Result for ${{ inputs.name }}" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.run-tests.outcome }}" == "success" ]; then
+            echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: "Fail if tests failed"
+        if: steps.run-tests.outcome == 'failure'
+        run: exit 1
