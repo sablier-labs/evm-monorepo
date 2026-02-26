@@ -21,16 +21,15 @@ contract OnShareTransfer_Integration_Concrete_Test is Integration_Test {
                 Errors.SablierBob_CallerNotShareToken.selector, vaultIds.defaultVault, invalidShareToken
             )
         );
-        bob.onShareTransfer(vaultIds.defaultVault, users.depositor, users.bob, DEPOSIT_AMOUNT, DEPOSIT_AMOUNT);
+        bob.onShareTransfer(vaultIds.defaultVault, users.depositor, users.newDepositor, DEPOSIT_AMOUNT, DEPOSIT_AMOUNT);
     }
 
     function test_GivenNoAdapter() external whenCallerVaultShareToken {
-        address shareToken = address(bob.getShareToken(vaultIds.defaultVault));
-        setMsgSender(shareToken);
+        setMsgSender(address(defaultShareToken));
 
         vm.recordLogs();
 
-        bob.onShareTransfer(vaultIds.defaultVault, users.depositor, users.bob, DEPOSIT_AMOUNT, DEPOSIT_AMOUNT);
+        bob.onShareTransfer(vaultIds.defaultVault, users.depositor, users.newDepositor, DEPOSIT_AMOUNT, DEPOSIT_AMOUNT);
 
         // It should do nothing.
         Vm.Log[] memory logs = vm.getRecordedLogs();
@@ -38,7 +37,7 @@ contract OnShareTransfer_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertGiven_SenderBalanceZero() external whenCallerVaultShareToken givenAdapter {
-        IBobVaultShare shareToken = bob.getShareToken(vaultIds.vaultWithAdapter);
+        IBobVaultShare shareTokenForVaultWithAdapter = bob.getShareToken(vaultIds.vaultWithAdapter);
 
         // It should revert.
         vm.expectRevert(
@@ -47,12 +46,12 @@ contract OnShareTransfer_Integration_Concrete_Test is Integration_Test {
             )
         );
 
-        setMsgSender(address(shareToken));
-        bob.onShareTransfer(vaultIds.vaultWithAdapter, users.depositor, users.bob, DEPOSIT_AMOUNT, 0);
+        setMsgSender(address(shareTokenForVaultWithAdapter));
+        bob.onShareTransfer(vaultIds.vaultWithAdapter, users.depositor, users.newDepositor, DEPOSIT_AMOUNT, 0);
     }
 
     function test_GivenSenderBalanceNotZero() external whenCallerVaultShareToken givenAdapter {
-        IBobVaultShare shareToken = bob.getShareToken(vaultIds.vaultWithAdapter);
+        IBobVaultShare shareTokenForVaultWithAdapter = bob.getShareToken(vaultIds.vaultWithAdapter);
         uint256 transferAmount = 1e18;
 
         uint256 expectedWstETHTransferred = WSTETH_WETH_EXCHANGE_RATE * transferAmount / 1e18;
@@ -62,16 +61,16 @@ contract OnShareTransfer_Integration_Concrete_Test is Integration_Test {
         emit ISablierBobAdapter.TransferStakedTokens(
             vaultIds.vaultWithAdapter,
             users.depositor,
-            users.bob,
+            users.newDepositor,
             expectedWstETHTransferred
         );
 
         // Call transfer on vault share which will call `onShareTransfer` on Bob.
         setMsgSender(users.depositor);
-        shareToken.transfer(users.bob, transferAmount);
+        shareTokenForVaultWithAdapter.transfer(users.newDepositor, transferAmount);
 
         // It should decrease the sender share token balance.
-        uint256 actualSenderBalance = shareToken.balanceOf(users.depositor);
+        uint256 actualSenderBalance = shareTokenForVaultWithAdapter.balanceOf(users.depositor);
         uint256 expectedSenderBalance = DEPOSIT_AMOUNT - transferAmount;
         assertEq(actualSenderBalance, expectedSenderBalance, "sender share token balance");
 
@@ -82,13 +81,13 @@ contract OnShareTransfer_Integration_Concrete_Test is Integration_Test {
         assertEq(actualSenderWstETHBalance, expectedSenderWstETHBalance, "sender wstETH balance in adapter");
 
         // It should increase the recipient share token balance.
-        uint256 actualRecipientBalance = shareToken.balanceOf(users.bob);
+        uint256 actualRecipientBalance = shareTokenForVaultWithAdapter.balanceOf(users.newDepositor);
         uint256 expectedRecipientBalance = transferAmount;
         assertEq(actualRecipientBalance, expectedRecipientBalance, "recipient share token balance");
 
         // It should increase the recipient wstETH balance in adapter.
         uint256 actualRecipientWstETHBalance =
-            adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.bob);
+            adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.newDepositor);
         uint256 expectedRecipientWstETHBalance = expectedWstETHTransferred;
         assertEq(actualRecipientWstETHBalance, expectedRecipientWstETHBalance, "recipient wstETH balance in adapter");
     }

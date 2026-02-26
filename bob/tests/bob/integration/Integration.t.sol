@@ -19,8 +19,8 @@ abstract contract Integration_Test is Base_Test {
 
         initializeDefaultVaults();
 
-        // Set depositor as the default caller.
-        setMsgSender(users.depositor);
+        // Load the share token for the default vault into the default share token variable.
+        defaultShareToken = bob.getShareToken(vaultIds.defaultVault);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

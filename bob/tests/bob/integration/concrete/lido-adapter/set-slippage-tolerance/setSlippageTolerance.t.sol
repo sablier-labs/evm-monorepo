@@ -12,14 +12,14 @@ import { Integration_Test } from "../../../Integration.t.sol";
 contract SetSlippageTolerance_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
-        setMsgSender(users.bob);
+        setMsgSender(users.newDepositor);
     }
 
     function test_RevertWhen_CallerNotComptroller() external {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.bob
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.newDepositor
             )
         );
         adapter.setSlippageTolerance(ud(0.01e18));

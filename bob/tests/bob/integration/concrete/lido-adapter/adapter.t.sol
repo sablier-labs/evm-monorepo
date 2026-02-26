@@ -10,7 +10,7 @@ import { Integration_Test } from "../../Integration.t.sol";
 contract LidoAdapter_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
-        setMsgSender(users.bob);
+        setMsgSender(users.newDepositor);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -20,9 +20,9 @@ contract LidoAdapter_Integration_Concrete_Test is Integration_Test {
     function test_Stake_RevertWhen_CallerNotSablierBob() external {
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.bob, address(bob))
+            abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.newDepositor, address(bob))
         );
-        adapter.stake(1, users.bob, 1 ether);
+        adapter.stake(1, users.newDepositor, 1 ether);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -32,9 +32,9 @@ contract LidoAdapter_Integration_Concrete_Test is Integration_Test {
     function test_UnstakeForUserWithinGracePeriod_RevertWhen_CallerNotSablierBob() external {
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.bob, address(bob))
+            abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.newDepositor, address(bob))
         );
-        adapter.unstakeForUserWithinGracePeriod(1, users.bob);
+        adapter.unstakeForUserWithinGracePeriod(1, users.newDepositor);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ contract LidoAdapter_Integration_Concrete_Test is Integration_Test {
     function test_UnstakeFullAmount_RevertWhen_CallerNotSablierBob() external {
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.bob, address(bob))
+            abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.newDepositor, address(bob))
         );
         adapter.unstakeFullAmount(1);
     }
@@ -56,7 +56,7 @@ contract LidoAdapter_Integration_Concrete_Test is Integration_Test {
     function test_CalculateAmountToTransferWithYield_GivenNoYieldBearingTokenBalance() external view {
         // It should return zero.
         (uint256 wethAmount, uint256 feeAmount) =
-            adapter.calculateAmountToTransferWithYield(vaultIds.defaultVault, users.bob, 100e18);
+            adapter.calculateAmountToTransferWithYield(vaultIds.defaultVault, users.newDepositor, 100e18);
 
         assertEq(wethAmount, 0, "wethAmount");
         assertEq(feeAmount, 0, "feeAmount");
@@ -110,7 +110,7 @@ contract LidoAdapter_Integration_Concrete_Test is Integration_Test {
         // Change the global yield fee.
         setMsgSender(address(comptroller));
         adapter.setYieldFee(MAX_YIELD_FEE);
-        setMsgSender(users.bob);
+        setMsgSender(users.newDepositor);
 
         // It should return the original snapshotted fee.
         assertEq(adapter.getVaultYieldFee(vaultIds.vaultWithAdapter).unwrap(), initialVaultFee, "vaultFee.unchanged");

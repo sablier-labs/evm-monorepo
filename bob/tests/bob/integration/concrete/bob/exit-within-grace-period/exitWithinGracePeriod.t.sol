@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -9,15 +8,6 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
-    /// @dev The share token for the default vault.
-    IERC20 internal shareToken;
-
-    function setUp() public override {
-        Integration_Test.setUp();
-
-        shareToken = bob.getShareToken(vaultIds.defaultVault);
-    }
-
     function test_RevertGiven_Null() external {
         expectRevert_Null(abi.encodeCall(bob.exitWithinGracePeriod, (vaultIds.nullVault)));
     }
@@ -31,8 +21,8 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertWhen_SharesZero() external givenNotNull givenACTIVE {
-        // Transfer shares to bob so that depositor does not have shares.
-        shareToken.transfer(users.bob, DEPOSIT_AMOUNT);
+        // Transfer shares to new depositor so that depositor does not have shares.
+        defaultShareToken.transfer(users.newDepositor, DEPOSIT_AMOUNT);
 
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierBob_NoSharesToRedeem.selector, vaultIds.defaultVault, users.depositor)
@@ -42,13 +32,15 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertGiven_FirstDepositTimeZero() external givenNotNull givenACTIVE whenSharesNotZero {
         // Transfer shares to bob.
-        shareToken.transfer(users.bob, DEPOSIT_AMOUNT);
+        defaultShareToken.transfer(users.newDepositor, DEPOSIT_AMOUNT);
 
-        setMsgSender(users.bob);
+        setMsgSender(users.newDepositor);
 
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierBob_CallerNotDepositor.selector, vaultIds.defaultVault, users.bob)
+            abi.encodeWithSelector(
+                Errors.SablierBob_CallerNotDepositor.selector, vaultIds.defaultVault, users.newDepositor
+            )
         );
         bob.exitWithinGracePeriod(vaultIds.defaultVault);
     }

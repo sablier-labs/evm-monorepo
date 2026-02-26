@@ -31,14 +31,15 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierBob internal bob;
     ISablierLidoAdapter internal adapter;
+    ISablierBob internal bob;
+    IBobVaultShare internal defaultShareToken;
 
     // External protocol mocks (Lido ecosystem).
-    MockWETH9 internal weth;
-    MockStETH internal steth;
-    MockWstETH internal wstEth;
     MockCurvePool internal curvePool;
+    MockStETH internal steth;
+    MockWETH9 internal weth;
+    MockWstETH internal wstEth;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -55,6 +56,9 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
 
         // Deploy the protocol.
         deployProtocol();
+
+        // Set modifier variables.
+        setBob(address(bob));
 
         // Create test users.
         createTestUsers();
@@ -81,7 +85,7 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
         users.alice = createUser("Alice", spenders);
         users.eve = createUser("Eve", spenders);
         users.depositor = createUser("Depositor", spenders);
-        users.bob = createUser("Bob", spenders);
+        users.newDepositor = createUser("New Depositor", spenders);
 
         // Fund the depositor with WETH.
         setMsgSender(users.depositor);

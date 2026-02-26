@@ -12,7 +12,7 @@ import { Integration_Test } from "../../../Integration.t.sol";
 contract SetYieldFee_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
-        setMsgSender(users.bob);
+        setMsgSender(users.newDepositor);
     }
 
     function test_RevertWhen_CallerNotComptroller() external {
@@ -23,7 +23,7 @@ contract SetYieldFee_Integration_Concrete_Test is Integration_Test {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.bob
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.newDepositor
             )
         );
         adapter.setYieldFee(newFee);

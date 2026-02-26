@@ -7,6 +7,16 @@ import { Constants } from "./Constants.sol";
 
 abstract contract Modifiers is Constants, EvmUtilsBase {
     /*//////////////////////////////////////////////////////////////////////////
+                                     VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
+    address internal bob_;
+
+    function setBob(address _bob) internal {
+        bob_ = _bob;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -51,6 +61,11 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier whenAmountNotZero() {
+        _;
+    }
+
+    modifier whenCallerBob() {
+        setMsgSender(bob_);
         _;
     }
 

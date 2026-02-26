@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
+import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -10,17 +9,11 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract Enter_Integration_Concrete_Test is Integration_Test {
-    /// @dev The share token for the default vault.
-    IERC20 internal shareToken;
-
     function setUp() public override {
         Integration_Test.setUp();
 
-        // Change caller to bob for this test.
-        setMsgSender(users.bob);
-
-        // Get the share token for the default vault.
-        shareToken = bob.getShareToken(vaultIds.defaultVault);
+        // Change caller to new depositor for this test.
+        setMsgSender(users.newDepositor);
     }
 
     function test_RevertGiven_Null() external {
@@ -52,7 +45,9 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_AmountZero() external givenNotNull givenACTIVE whenSyncNotChangeStatus {
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierBob_DepositAmountZero.selector, vaultIds.defaultVault, users.bob)
+            abi.encodeWithSelector(
+                Errors.SablierBob_DepositAmountZero.selector, vaultIds.defaultVault, users.newDepositor
+            )
         );
         bob.enter(vaultIds.defaultVault, 0);
     }
@@ -65,29 +60,29 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         whenAmountNotZero
         givenNoAdapter
     {
-        uint256 shareBalanceBefore = shareToken.balanceOf(users.bob);
+        uint256 shareBalanceBefore = defaultShareToken.balanceOf(users.newDepositor);
 
         // It should emit an {Enter} event.
         vm.expectEmit({ emitter: address(bob) });
         emit ISablierBob.Enter({
             vaultId: vaultIds.defaultVault,
-            user: users.bob,
+            user: users.newDepositor,
             amountReceived: DEPOSIT_AMOUNT,
             sharesMinted: DEPOSIT_AMOUNT
         });
 
         // It should transfer tokens to the contract.
-        expectCallToTransferFrom({ token: weth, from: users.bob, to: address(bob), value: DEPOSIT_AMOUNT });
+        expectCallToTransferFrom({ token: weth, from: users.newDepositor, to: address(bob), value: DEPOSIT_AMOUNT });
 
         bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
 
         // It should mint share tokens to the caller.
-        uint256 actualSharesMinted = shareToken.balanceOf(users.bob) - shareBalanceBefore;
+        uint256 actualSharesMinted = defaultShareToken.balanceOf(users.newDepositor) - shareBalanceBefore;
         uint256 expectedSharesMinted = DEPOSIT_AMOUNT;
         assertEq(actualSharesMinted, expectedSharesMinted, "sharesMinted");
 
         // It should set the first deposit time.
-        uint40 actualFirstDepositTime = bob.getFirstDepositTime(vaultIds.defaultVault, users.bob);
+        uint40 actualFirstDepositTime = bob.getFirstDepositTime(vaultIds.defaultVault, users.newDepositor);
         uint40 expectedFirstDepositTime = getBlockTimestamp();
         assertEq(actualFirstDepositTime, expectedFirstDepositTime, "firstDepositTime");
     }
@@ -107,44 +102,44 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         // Warp to 1 hour later.
         vm.warp(getBlockTimestamp() + 1 hours);
 
-        uint256 shareBalanceBefore = shareToken.balanceOf(users.bob);
+        uint256 shareBalanceBefore = defaultShareToken.balanceOf(users.newDepositor);
 
         // It should emit an {Enter} event.
         vm.expectEmit({ emitter: address(bob) });
         emit ISablierBob.Enter({
             vaultId: vaultIds.defaultVault,
-            user: users.bob,
+            user: users.newDepositor,
             amountReceived: DEPOSIT_AMOUNT,
             sharesMinted: DEPOSIT_AMOUNT
         });
 
         // It should transfer tokens to the contract.
-        expectCallToTransferFrom({ token: weth, from: users.bob, to: address(bob), value: DEPOSIT_AMOUNT });
+        expectCallToTransferFrom({ token: weth, from: users.newDepositor, to: address(bob), value: DEPOSIT_AMOUNT });
 
         bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
 
         // It should mint share tokens to the caller.
-        uint256 actualSharesMinted = shareToken.balanceOf(users.bob) - shareBalanceBefore;
+        uint256 actualSharesMinted = defaultShareToken.balanceOf(users.newDepositor) - shareBalanceBefore;
         uint256 expectedSharesMinted = DEPOSIT_AMOUNT;
         assertEq(actualSharesMinted, expectedSharesMinted, "sharesMinted");
 
         // It should not update the first deposit time.
-        uint40 actualFirstDepositTime = bob.getFirstDepositTime(vaultIds.defaultVault, users.bob);
+        uint40 actualFirstDepositTime = bob.getFirstDepositTime(vaultIds.defaultVault, users.newDepositor);
         uint40 expectedFirstDepositTime = firstDepositedAt;
         assertEq(actualFirstDepositTime, expectedFirstDepositTime, "firstDepositTime");
     }
 
     function test_GivenAdapter() external givenNotNull givenACTIVE whenSyncNotChangeStatus whenAmountNotZero {
         // Get address of the share token for the vault with adapter.
-        shareToken = bob.getShareToken(vaultIds.vaultWithAdapter);
-        uint256 shareBalanceBefore = shareToken.balanceOf(users.bob);
+        IBobVaultShare shareTokenForVaultWithAdapter = bob.getShareToken(vaultIds.vaultWithAdapter);
+        uint256 shareBalanceBefore = shareTokenForVaultWithAdapter.balanceOf(users.newDepositor);
         uint256 wstETHBalanceBefore = wstEth.balanceOf(address(adapter));
 
         // It should emit {Enter} and {Stake} events.
         vm.expectEmit({ emitter: address(adapter) });
         emit ISablierBobAdapter.Stake({
             vaultId: vaultIds.vaultWithAdapter,
-            user: users.bob,
+            user: users.newDepositor,
             depositAmount: DEPOSIT_AMOUNT,
             wrappedStakedAmount: WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT
         });
@@ -152,28 +147,28 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(bob) });
         emit ISablierBob.Enter({
             vaultId: vaultIds.vaultWithAdapter,
-            user: users.bob,
+            user: users.newDepositor,
             amountReceived: DEPOSIT_AMOUNT,
             sharesMinted: DEPOSIT_AMOUNT
         });
 
         // It should transfer tokens to the adapter.
-        expectCallToTransferFrom({ token: weth, from: users.bob, to: address(adapter), value: DEPOSIT_AMOUNT });
+        expectCallToTransferFrom({ token: weth, from: users.newDepositor, to: address(adapter), value: DEPOSIT_AMOUNT });
 
         bob.enter(vaultIds.vaultWithAdapter, DEPOSIT_AMOUNT);
 
         // It should mint share tokens to the caller.
-        uint256 actualSharesMinted = shareToken.balanceOf(users.bob) - shareBalanceBefore;
+        uint256 actualSharesMinted = shareTokenForVaultWithAdapter.balanceOf(users.newDepositor) - shareBalanceBefore;
         uint256 expectedSharesMinted = DEPOSIT_AMOUNT;
         assertEq(actualSharesMinted, expectedSharesMinted, "sharesMinted");
 
         // It should set the first deposit time.
-        uint40 actualFirstDepositTime = bob.getFirstDepositTime(vaultIds.vaultWithAdapter, users.bob);
+        uint40 actualFirstDepositTime = bob.getFirstDepositTime(vaultIds.vaultWithAdapter, users.newDepositor);
         uint40 expectedFirstDepositTime = getBlockTimestamp();
         assertEq(actualFirstDepositTime, expectedFirstDepositTime, "firstDepositTime");
 
         // It should stake via the adapter.
-        uint256 actualWstETH = adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.bob);
+        uint256 actualWstETH = adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.newDepositor);
         uint256 expectedWstETH = WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT;
         assertEq(actualWstETH, expectedWstETH, "userWstETH");
 

@@ -5,7 +5,7 @@ import { SablierBob } from "src/SablierBob.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
-contract Constructor_Integration_Concrete_Test is Integration_Test {
+contract Constructor_Bob_Integration_Concrete_Test is Integration_Test {
     function test_Constructor() external {
         SablierBob constructedBob = new SablierBob(address(comptroller));
 
