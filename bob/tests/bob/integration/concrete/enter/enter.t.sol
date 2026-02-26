@@ -36,7 +36,20 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         expectRevert_EXPIRED(abi.encodeCall(bob.enter, (vaultIds.defaultVault, DEPOSIT_AMOUNT)));
     }
 
-    function test_RevertWhen_AmountZero() external givenNotNull givenACTIVE {
+    function test_RevertWhen_NewStatusEXPIRED() external givenNotNull givenACTIVE whenSyncChangesStatus {
+        expectRevert_EXPIRED(abi.encodeCall(bob.enter, (vaultIds.defaultVault, DEPOSIT_AMOUNT)));
+    }
+
+    function test_RevertWhen_NewStatusSETTLED() external givenNotNull givenACTIVE whenSyncChangesStatus {
+        // Set oracle price to target price so that the sync settles the vault.
+        oracle.setPrice(TARGET_PRICE);
+
+        // It should revert.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.defaultVault));
+        bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
+    }
+
+    function test_RevertWhen_AmountZero() external givenNotNull givenACTIVE whenSyncNotChangeStatus {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierBob_DepositAmountZero.selector, vaultIds.defaultVault, users.bob)
@@ -44,7 +57,14 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         bob.enter(vaultIds.defaultVault, 0);
     }
 
-    function test_WhenFirstDeposit() external givenNotNull givenACTIVE whenAmountNotZero givenNoAdapter {
+    function test_WhenFirstDeposit()
+        external
+        givenNotNull
+        givenACTIVE
+        whenSyncNotChangeStatus
+        whenAmountNotZero
+        givenNoAdapter
+    {
         uint256 shareBalanceBefore = shareToken.balanceOf(users.bob);
 
         // It should emit an {Enter} event.
@@ -72,7 +92,14 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         assertEq(actualFirstDepositTime, expectedFirstDepositTime, "firstDepositTime");
     }
 
-    function test_WhenNotFirstDeposit() external givenNotNull givenACTIVE whenAmountNotZero givenNoAdapter {
+    function test_WhenNotFirstDeposit()
+        external
+        givenNotNull
+        givenACTIVE
+        whenSyncNotChangeStatus
+        whenAmountNotZero
+        givenNoAdapter
+    {
         // Deposit into vault so that the first deposit time is set.
         bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
         uint40 firstDepositedAt = getBlockTimestamp();
@@ -107,7 +134,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         assertEq(actualFirstDepositTime, expectedFirstDepositTime, "firstDepositTime");
     }
 
-    function test_GivenAdapter() external givenNotNull givenACTIVE whenAmountNotZero {
+    function test_GivenAdapter() external givenNotNull givenACTIVE whenSyncNotChangeStatus whenAmountNotZero {
         // Get address of the share token for the vault with adapter.
         shareToken = bob.getShareToken(vaultIds.vaultWithAdapter);
         uint256 shareBalanceBefore = shareToken.balanceOf(users.bob);

@@ -87,6 +87,14 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenSyncChangesStatus() {
+        _;
+    }
+
+    modifier whenSyncNotChangeStatus() {
+        _;
+    }
+
     modifier whenTargetPriceExceedsOraclePrice() {
         _;
     }
