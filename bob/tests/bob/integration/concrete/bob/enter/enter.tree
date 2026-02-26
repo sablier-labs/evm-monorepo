@@ -31,4 +31,4 @@ Enter_Integration_Concrete_Test
                ├── it should transfer tokens to the adapter
                ├── it should stake via the adapter
                ├── it should mint share tokens to the caller
-               └── it should emit an {Enter} and {Stake} events
+               └── it should emit {Enter} and {Stake} events

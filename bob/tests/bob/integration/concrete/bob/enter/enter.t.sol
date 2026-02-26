@@ -140,7 +140,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         uint256 shareBalanceBefore = shareToken.balanceOf(users.bob);
         uint256 wstETHBalanceBefore = wstEth.balanceOf(address(adapter));
 
-        // It should emit an {Enter} and {Stake} events.
+        // It should emit {Enter} and {Stake} events.
         vm.expectEmit({ emitter: address(adapter) });
         emit ISablierBobAdapter.Stake({
             vaultId: vaultIds.vaultWithAdapter,
