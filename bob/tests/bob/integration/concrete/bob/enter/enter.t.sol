@@ -16,7 +16,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
 
-        // Change called to bob for this test.
+        // Change caller to bob for this test.
         setMsgSender(users.bob);
 
         // Get the share token for the default vault.
