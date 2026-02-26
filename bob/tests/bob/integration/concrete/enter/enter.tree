@@ -2,11 +2,11 @@ Enter_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
-   ├── given settled
+   ├── given SETTLED
    │  └── it should revert
-   ├── given expired
+   ├── given EXPIRED
    │  └── it should revert
-   └── given active
+   └── given ACTIVE
       ├── when amount zero
       │  └── it should revert
       └── when amount not zero

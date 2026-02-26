@@ -84,10 +84,10 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
         users.bob = createUser("Bob", spenders);
 
         // Fund the depositor with WETH.
-        vm.startPrank(users.depositor);
+        setMsgSender(users.depositor);
+        vm.deal(users.depositor, 1000 ether);
         IWETH9(address(weth)).deposit{ value: 1000 ether }();
         weth.approve(address(bob), type(uint256).max);
-        vm.stopPrank();
     }
 
     /// @dev Deploys the Bob protocol.

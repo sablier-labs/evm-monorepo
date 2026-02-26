@@ -334,7 +334,6 @@ contract SablierBob is
             // Check: the deposit token is staked with the adapter.
             if (vault.isStakedInAdapter) {
                 // Interaction: unstake all tokens via the adapter.
-                // TODO: transfer entire fee to comptroller admin instead of transferring when user redeems.
                 _unstakeFullAmountViaAdapter(vaultId);
 
                 // Effect: set isStakedInAdapter to false.

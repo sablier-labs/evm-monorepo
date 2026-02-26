@@ -2,13 +2,13 @@ FillOrder_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
-   ├── given canceled
+   ├── given CANCELED
    │  └── it should revert
-   ├── given filled
+   ├── given FILLED
    │  └── it should revert
-   ├── given expired
+   ├── given EXPIRED
    │  └── it should revert
-   └── given open
+   └── given OPEN
       ├── given order with designated buyer
       │  ├── when caller not designated buyer
       │  │  └── it should revert

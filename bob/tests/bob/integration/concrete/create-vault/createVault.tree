@@ -5,7 +5,7 @@ CreateVault_Integration_Concrete_Test
    ├── when native token
    │  └── it should revert
    └── when not native token
-      ├── when expiry not in future
+      ├── when expiry in past
       │  └── it should revert
       ├── when expiry in present
       │  └── it should revert

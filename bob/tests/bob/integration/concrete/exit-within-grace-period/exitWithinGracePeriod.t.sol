@@ -22,21 +22,15 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(abi.encodeCall(bob.exitWithinGracePeriod, (vaultIds.nullVault)));
     }
 
-    function test_RevertGiven_Settled() external givenNotNull {
-        // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.settledVault));
-        bob.exitWithinGracePeriod(vaultIds.settledVault);
+    function test_RevertGiven_SETTLED() external givenNotNull {
+        expectRevert_SETTLED(abi.encodeCall(bob.exitWithinGracePeriod, (vaultIds.settledVault)));
     }
 
-    function test_RevertGiven_Expired() external givenNotNull {
-        vm.warp(EXPIRY + 1);
-
-        // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.defaultVault));
-        bob.exitWithinGracePeriod(vaultIds.defaultVault);
+    function test_RevertGiven_EXPIRED() external givenNotNull {
+        expectRevert_EXPIRED(abi.encodeCall(bob.exitWithinGracePeriod, (vaultIds.defaultVault)));
     }
 
-    function test_RevertWhen_SharesZero() external givenNotNull givenActive {
+    function test_RevertWhen_SharesZero() external givenNotNull givenACTIVE {
         // Transfer shares to bob so that depositor does not have shares.
         shareToken.transfer(users.bob, DEPOSIT_AMOUNT);
 
@@ -46,7 +40,7 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
         bob.exitWithinGracePeriod(vaultIds.defaultVault);
     }
 
-    function test_RevertGiven_FirstDepositTimeZero() external givenNotNull givenActive whenSharesNotZero {
+    function test_RevertGiven_FirstDepositTimeZero() external givenNotNull givenACTIVE whenSharesNotZero {
         // Transfer shares to bob.
         shareToken.transfer(users.bob, DEPOSIT_AMOUNT);
 
@@ -62,7 +56,7 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_GraceEndTimeNotInFuture()
         external
         givenNotNull
-        givenActive
+        givenACTIVE
         whenSharesNotZero
         givenFirstDepositTimeNotZero
     {
@@ -86,7 +80,7 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
     function test_GivenNoAdapter()
         external
         givenNotNull
-        givenActive
+        givenACTIVE
         whenSharesNotZero
         givenFirstDepositTimeNotZero
         whenGraceEndTimeInFuture
@@ -99,7 +93,7 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
     function test_GivenAdapter()
         external
         givenNotNull
-        givenActive
+        givenACTIVE
         whenSharesNotZero
         givenFirstDepositTimeNotZero
         whenGraceEndTimeInFuture

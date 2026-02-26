@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
-import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -11,21 +10,15 @@ contract SyncPriceFromOracle_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(abi.encodeCall(bob.syncPriceFromOracle, (vaultIds.nullVault)));
     }
 
-    function test_RevertGiven_Settled() external givenNotNull {
-        // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.settledVault));
-        bob.syncPriceFromOracle(vaultIds.settledVault);
+    function test_RevertGiven_SETTLED() external givenNotNull {
+        expectRevert_SETTLED(abi.encodeCall(bob.syncPriceFromOracle, (vaultIds.settledVault)));
     }
 
-    function test_RevertGiven_Expired() external givenNotNull {
-        vm.warp(EXPIRY + 1);
-
-        // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.defaultVault));
-        bob.syncPriceFromOracle(vaultIds.defaultVault);
+    function test_RevertGiven_EXPIRED() external givenNotNull {
+        expectRevert_EXPIRED(abi.encodeCall(bob.syncPriceFromOracle, (vaultIds.defaultVault)));
     }
 
-    function test_WhenLatestPriceZero() external givenNotNull givenActive {
+    function test_WhenLatestPriceZero() external givenNotNull givenACTIVE {
         uint128 expectedLastSyncedPrice = bob.getLastSyncedPrice(vaultIds.defaultVault);
         uint40 expectedLastSyncedAt = bob.getLastSyncedAt(vaultIds.defaultVault);
 
@@ -44,7 +37,7 @@ contract SyncPriceFromOracle_Integration_Concrete_Test is Integration_Test {
         assertEq(actualLastSyncedAt, expectedLastSyncedAt, "lastSyncedAt");
     }
 
-    function test_WhenLatestPriceNotZero() external givenNotNull givenActive {
+    function test_WhenLatestPriceNotZero() external givenNotNull givenACTIVE {
         oracle.setPrice(TARGET_PRICE);
 
         // It should emit a {SyncPriceFromOracle} event.

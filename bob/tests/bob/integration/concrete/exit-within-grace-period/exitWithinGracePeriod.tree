@@ -2,11 +2,11 @@ ExitWithinGracePeriod_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
-   ├── given settled
+   ├── given SETTLED
    │  └── it should revert
-   ├── given expired
+   ├── given EXPIRED
    │  └── it should revert
-   └── given active
+   └── given ACTIVE
       ├── when shares zero
       │  └── it should revert
       └── when shares not zero

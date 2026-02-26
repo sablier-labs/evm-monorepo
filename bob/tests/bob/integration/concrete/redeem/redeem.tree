@@ -2,7 +2,7 @@ Redeem_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
-   ├── given active
+   ├── given ACTIVE
    │  ├── when sync not change status
    │  │  └── it should revert
    │  └── when sync changes status
@@ -10,12 +10,12 @@ Redeem_Integration_Concrete_Test
    │     ├── it should burn all shares
    │     ├── it should transfer tokens to depositor
    │     └── it should emit {SyncPriceFromOracle} and {Redeem} events
-   ├── given expired
+   ├── given EXPIRED
    │  ├── it should not sync price from oracle
    │  ├── it should burn all shares
    │  ├── it should transfer tokens to depositor
    │  └── it should emit a {Redeem} event
-   └── given settled
+   └── given SETTLED
       ├── when shares zero
       │  └── it should revert
       └── when shares not zero

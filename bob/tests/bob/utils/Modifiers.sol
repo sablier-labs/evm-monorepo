@@ -10,7 +10,7 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenActive() {
+    modifier givenACTIVE() {
         _;
     }
 
@@ -26,7 +26,7 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenNotActive() {
+    modifier givenNotACTIVE() {
         _;
     }
 
@@ -38,7 +38,7 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenSettled() {
+    modifier givenSETTLED() {
         _;
     }
 

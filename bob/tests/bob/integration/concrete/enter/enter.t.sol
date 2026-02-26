@@ -28,21 +28,15 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(abi.encodeCall(bob.enter, (vaultIds.nullVault, DEPOSIT_AMOUNT)));
     }
 
-    function test_RevertGiven_Settled() external givenNotNull {
-        // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.settledVault));
-        bob.enter(vaultIds.settledVault, DEPOSIT_AMOUNT);
+    function test_RevertGiven_SETTLED() external givenNotNull {
+        expectRevert_SETTLED(abi.encodeCall(bob.enter, (vaultIds.settledVault, DEPOSIT_AMOUNT)));
     }
 
-    function test_RevertGiven_Expired() external givenNotNull {
-        vm.warp(EXPIRY + 1);
-
-        // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.defaultVault));
-        bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
+    function test_RevertGiven_EXPIRED() external givenNotNull {
+        expectRevert_EXPIRED(abi.encodeCall(bob.enter, (vaultIds.defaultVault, DEPOSIT_AMOUNT)));
     }
 
-    function test_RevertWhen_AmountZero() external givenNotNull givenActive {
+    function test_RevertWhen_AmountZero() external givenNotNull givenACTIVE {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierBob_DepositAmountZero.selector, vaultIds.defaultVault, users.bob)
@@ -50,7 +44,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         bob.enter(vaultIds.defaultVault, 0);
     }
 
-    function test_WhenFirstDeposit() external givenNotNull givenActive whenAmountNotZero givenNoAdapter {
+    function test_WhenFirstDeposit() external givenNotNull givenACTIVE whenAmountNotZero givenNoAdapter {
         uint256 shareBalanceBefore = shareToken.balanceOf(users.bob);
 
         // It should emit an {Enter} event.
@@ -78,7 +72,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         assertEq(actualFirstDepositTime, expectedFirstDepositTime, "firstDepositTime");
     }
 
-    function test_WhenNotFirstDeposit() external givenNotNull givenActive whenAmountNotZero givenNoAdapter {
+    function test_WhenNotFirstDeposit() external givenNotNull givenACTIVE whenAmountNotZero givenNoAdapter {
         // Deposit into vault so that the first deposit time is set.
         bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
         uint40 firstDepositedAt = getBlockTimestamp();
@@ -113,7 +107,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         assertEq(actualFirstDepositTime, expectedFirstDepositTime, "firstDepositTime");
     }
 
-    function test_GivenAdapter() external givenNotNull givenActive whenAmountNotZero {
+    function test_GivenAdapter() external givenNotNull givenACTIVE whenAmountNotZero {
         // Get address of the share token for the vault with adapter.
         shareToken = bob.getShareToken(vaultIds.vaultWithAdapter);
         uint256 shareBalanceBefore = shareToken.balanceOf(users.bob);

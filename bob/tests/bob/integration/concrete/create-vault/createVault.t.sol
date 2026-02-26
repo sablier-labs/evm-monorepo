@@ -29,7 +29,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         bob.createVault({ token: weth, oracle: oracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
     }
 
-    function test_RevertWhen_ExpiryNotInFuture() external whenTokenNotZero whenNotNativeToken {
+    function test_RevertWhen_ExpiryInPast() external whenTokenNotZero whenNotNativeToken {
         uint40 expiry = getBlockTimestamp() - 1;
 
         // It should revert.

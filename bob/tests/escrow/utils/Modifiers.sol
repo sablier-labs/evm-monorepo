@@ -33,7 +33,7 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenOpen() {
+    modifier givenOPEN() {
         _;
     }
 

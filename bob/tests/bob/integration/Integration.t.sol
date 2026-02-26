@@ -53,6 +53,20 @@ abstract contract Integration_Test is Base_Test {
                                 COMMON-REVERT-TESTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Expects a revert when the vault is expired.
+    function expectRevert_EXPIRED(bytes memory callData) internal {
+        // Expire the vault by moving block time past expiry.
+        vm.warp(EXPIRY + 1);
+
+        (bool success, bytes memory returnData) = address(bob).call(callData);
+        assertFalse(success, "expired vault call success");
+        assertEq(
+            returnData,
+            abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.defaultVault),
+            "expired vault call return data"
+        );
+    }
+
     /// @dev Expects a revert when the vault is null.
     function expectRevert_Null(bytes memory callData) internal {
         (bool success, bytes memory returnData) = address(bob).call(callData);
@@ -61,6 +75,17 @@ abstract contract Integration_Test is Base_Test {
             returnData,
             abi.encodeWithSelector(Errors.SablierBobState_Null.selector, vaultIds.nullVault),
             "null vault call return data"
+        );
+    }
+
+    /// @dev Expects a revert when the vault is settled.
+    function expectRevert_SETTLED(bytes memory callData) internal {
+        (bool success, bytes memory returnData) = address(bob).call(callData);
+        assertFalse(success, "settled vault call success");
+        assertEq(
+            returnData,
+            abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.settledVault),
+            "settled vault call return data"
         );
     }
 }
