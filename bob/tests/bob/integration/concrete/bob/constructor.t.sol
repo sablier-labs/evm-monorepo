@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierBob } from "src/SablierBob.sol";
 
-import { Integration_Test } from "../Integration.t.sol";
+import { Integration_Test } from "../../Integration.t.sol";
 
 contract Constructor_Integration_Concrete_Test is Integration_Test {
     function test_Constructor() external {

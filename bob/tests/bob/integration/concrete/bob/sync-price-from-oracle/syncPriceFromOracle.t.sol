@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "../../../Integration.t.sol";
 
 contract SyncPriceFromOracle_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_Null() external {

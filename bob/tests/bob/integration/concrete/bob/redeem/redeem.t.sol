@@ -5,7 +5,7 @@ import { ud } from "@prb/math/src/UD60x18.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "../../../Integration.t.sol";
 
 contract Redeem_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_Null() external {

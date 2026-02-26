@@ -6,7 +6,7 @@ import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Error
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "../../../Integration.t.sol";
 
 contract SetNativeToken_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CallerNotComptroller() external {

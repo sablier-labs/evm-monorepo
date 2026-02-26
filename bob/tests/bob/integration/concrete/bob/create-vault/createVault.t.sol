@@ -10,7 +10,7 @@ import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Bob } from "src/types/Bob.sol";
 
-import { Integration_Test } from "../../Integration.t.sol";
+import { Integration_Test } from "../../../Integration.t.sol";
 
 contract CreateVault_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_TokenZero() external {
