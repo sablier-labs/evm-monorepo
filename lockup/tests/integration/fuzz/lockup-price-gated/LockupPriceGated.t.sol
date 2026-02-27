@@ -13,9 +13,6 @@ abstract contract Lockup_PriceGated_Integration_Fuzz_Test is Integration_Test {
 
         lockupModel = Lockup.Model.LOCKUP_PRICE_GATED;
 
-        // Warp to START_TIME because price-gated streams only support `createWithDurations` function, so we need to
-        // warp to the stream start time instead of typical Feb 1, 2025.
-        vm.warp({ newTimestamp: defaults.START_TIME() });
         initializeDefaultStreams();
     }
 }

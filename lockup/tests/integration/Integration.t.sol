@@ -7,6 +7,7 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/Lockup.sol";
 import { LockupDynamic } from "src/types/LockupDynamic.sol";
 import { LockupLinear } from "src/types/LockupLinear.sol";
+import { LockupPriceGated } from "src/types/LockupPriceGated.sol";
 import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { Base_Test } from "../Base.t.sol";
@@ -33,6 +34,7 @@ abstract contract Integration_Test is Base_Test {
         LockupLinear.UnlockAmounts unlockAmounts;
         uint40 granularity;
         LockupLinear.Durations durations;
+        LockupPriceGated.UnlockParams unlockParams;
         LockupDynamic.Segment[] segments;
         LockupDynamic.SegmentWithDuration[] segmentsWithDurations;
         LockupTranched.Tranche[] tranches;
@@ -70,6 +72,9 @@ abstract contract Integration_Test is Base_Test {
         _defaultParams.durations = defaults.durations();
         _defaultParams.unlockAmounts = defaults.unlockAmounts();
         _defaultParams.granularity = defaults.GRANULARITY();
+
+        // LPG model
+        _defaultParams.unlockParams = defaults.unlockParams();
 
         // See https://github.com/ethereum/solidity/issues/12783
         LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations = defaults.segmentsWithDurations();
@@ -143,19 +148,10 @@ abstract contract Integration_Test is Base_Test {
             streamId = lockup.createWithTimestampsLL(
                 params, _defaultParams.unlockAmounts, _defaultParams.granularity, _defaultParams.cliffTime
             );
+        } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
+            streamId = lockup.createWithTimestampsLPG(params, _defaultParams.unlockParams);
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             streamId = lockup.createWithTimestampsLT(params, _defaultParams.tranches);
-        } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
-            Lockup.CreateWithDurations memory params_ = Lockup.CreateWithDurations({
-                sender: params.sender,
-                recipient: params.recipient,
-                depositAmount: params.depositAmount,
-                token: params.token,
-                cancelable: params.cancelable,
-                transferable: params.transferable,
-                shape: params.shape
-            });
-            streamId = lockup.createWithDurationsLPG(params_, defaults.unlockParams(), defaults.TOTAL_DURATION());
         }
     }
 
@@ -189,8 +185,6 @@ abstract contract Integration_Test is Base_Test {
             streamId = lockup.createWithDurationsLL(
                 params, _defaultParams.unlockAmounts, _defaultParams.granularity, _defaultParams.durations
             );
-        } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
-            streamId = lockup.createWithDurationsLPG(params, defaults.unlockParams(), defaults.TOTAL_DURATION());
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             streamId = lockup.createWithDurationsLT(params, _defaultParams.tranchesWithDurations);
         }

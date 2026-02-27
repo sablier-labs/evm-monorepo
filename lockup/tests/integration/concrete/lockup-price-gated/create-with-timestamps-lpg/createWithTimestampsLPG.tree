@@ -1,0 +1,10 @@
+CreateWithTimestampsLPG_Integration_Concrete_Test
+├── when target price not exceed current price
+│  └── it should revert
+└── when target price exceeds current price
+   ├── it should create the stream
+   ├── it should bump the next stream ID
+   ├── it should store the unlock params
+   ├── it should mint the NFT
+   ├── it should perform the ERC-20 transfer
+   └── it should emit {CreateLockupPriceGatedStream} and {MetadataUpdate} events

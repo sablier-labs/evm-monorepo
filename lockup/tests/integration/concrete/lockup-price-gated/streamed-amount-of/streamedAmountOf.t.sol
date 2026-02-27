@@ -6,7 +6,7 @@ import { Lockup_PriceGated_Integration_Concrete_Test } from "../LockupPriceGated
 contract StreamedAmountOf_Lockup_PriceGated_Integration_Concrete_Test is Lockup_PriceGated_Integration_Concrete_Test {
     function test_GivenDepletedStream() external {
         // Forward time to the end time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + defaults.TOTAL_DURATION() });
+        vm.warp({ newTimestamp: defaults.END_TIME() + 1 });
 
         // Withdraw all tokens so that the stream is depleted.
         setMsgSender(users.recipient);
@@ -35,7 +35,7 @@ contract StreamedAmountOf_Lockup_PriceGated_Integration_Concrete_Test is Lockup_
         whenLatestPriceBelowTarget
     {
         // Forward time to the end time.
-        vm.warp({ newTimestamp: getBlockTimestamp() + defaults.TOTAL_DURATION() + 1 });
+        vm.warp({ newTimestamp: defaults.END_TIME() + 1 });
 
         // It should return the deposited.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);

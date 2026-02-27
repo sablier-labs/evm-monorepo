@@ -126,14 +126,14 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         store.pushStreamId(streamId, params.sender, params.recipient);
     }
 
-    function createWithDurationsLPG(
+    function createWithTimestampsLPG(
         uint256 timeJumpSeed,
-        Lockup.CreateWithDurations memory params,
+        Lockup.CreateWithTimestamps memory params,
         uint40 duration,
         uint128 targetPrice
     )
         public
-        instrument("createWithDurationsLPG")
+        instrument("createWithTimestampsLPG")
         adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient)
         useNewSender(params.sender)
@@ -146,6 +146,9 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         duration = boundUint40(duration, 2 seconds, 52 weeks);
         targetPrice = _boundTargetPrice(targetPrice);
 
+        // Set the timestamps.
+        params.timestamps = Lockup.Timestamps({ start: getBlockTimestamp(), end: getBlockTimestamp() + duration });
+
         // Mint enough tokens to the Sender.
         deal({ token: address(token), to: params.sender, give: params.depositAmount });
 
@@ -157,8 +160,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         params.shape = "Price-gated Stream";
 
         uint256 gasBefore = gasleft();
-        uint256 streamId = lockup.createWithDurationsLPG(
-            params, LockupPriceGated.UnlockParams({ oracle: oracle, targetPrice: targetPrice }), duration
+        uint256 streamId = lockup.createWithTimestampsLPG(
+            params, LockupPriceGated.UnlockParams({ oracle: oracle, targetPrice: targetPrice })
         );
         store.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 

@@ -67,6 +67,10 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
                     _defaultParams.cliffTime
                 )
             );
+        } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
+            callData = abi.encodeCall(
+                lockup.createWithTimestampsLPG, (_defaultParams.createWithTimestamps, _defaultParams.unlockParams)
+            );
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             callData = abi.encodeCall(
                 lockup.createWithTimestampsLT, (_defaultParams.createWithTimestamps, _defaultParams.tranches)
