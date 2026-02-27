@@ -7,7 +7,18 @@ import { Escrow } from "src/types/Escrow.sol";
 import { Integration_Test } from "./../Integration.t.sol";
 
 contract CreateOrder_Integration_Fuzz_Test is Integration_Test {
-    function testFuzz_CreateOrder(uint128 sellAmount, uint128 minBuyAmount, uint40 expiryTime) external {
+    function testFuzz_CreateOrder(
+        uint128 sellAmount,
+        uint128 minBuyAmount,
+        uint40 expiryTime
+    )
+        external
+        whenSellTokenNotZero
+        whenBuyTokenNotZero
+        whenTokensNotSame
+        whenSellAmountNotZero
+        whenMinBuyAmountNotZero
+    {
         sellAmount = boundUint128(sellAmount, 1, MAX_UINT128);
         minBuyAmount = boundUint128(minBuyAmount, 1, MAX_UINT128);
 
@@ -58,9 +69,14 @@ contract CreateOrder_Integration_Fuzz_Test is Integration_Test {
         assertEq(escrow.getSellAmount(orderId), sellAmount, "order.sellAmount");
         assertEq(escrow.getMinBuyAmount(orderId), minBuyAmount, "order.minBuyAmount");
         assertEq(escrow.getExpiryTime(orderId), expiryTime, "order.expiryTime");
+        assertEq(escrow.tradeFee(), DEFAULT_TRADE_FEE, "escrow.tradeFee");
         assertFalse(escrow.wasCanceled(orderId), "order.wasCanceled");
         assertFalse(escrow.wasFilled(orderId), "order.wasFilled");
+
+        // It should update the status.
         assertEq(escrow.statusOf(orderId), Escrow.Status.OPEN, "order.status");
+
+        // It should bump the next order ID.
         assertEq(escrow.nextOrderId(), orderId + 1, "nextOrderId");
     }
 }

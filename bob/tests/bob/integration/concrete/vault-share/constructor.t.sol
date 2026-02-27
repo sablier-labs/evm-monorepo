@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract Constructor_VaultShare_Integration_Concrete_Test is Integration_Test {
-    function test_Constructor() external {
+    function test_Constructor() external view {
         // It should set the bob address.
         assertEq(defaultShareToken.SABLIER_BOB(), address(bob), "bob");
 

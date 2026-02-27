@@ -8,7 +8,8 @@ import { Escrow } from "src/types/Escrow.sol";
 import { Integration_Test } from "./../Integration.t.sol";
 
 contract CancelOrder_Integration_Fuzz_Test is Integration_Test {
-    function testFuzz_RevertGiven_FilledOrCancelled(bool toFillOrCancel) external {
+    /// @dev It should revert if the order has been filled or cancelled.
+    function testFuzz_RevertGiven_FilledOrCancelled(bool toFillOrCancel) external givenNotNull whenCallerSeller {
         if (toFillOrCancel) {
             // Fill the default order.
             setMsgSender(users.buyer);
@@ -35,6 +36,8 @@ contract CancelOrder_Integration_Fuzz_Test is Integration_Test {
         uint40 timeJump
     )
         external
+        givenNotNull
+        whenCallerSeller
     {
         sellAmount = boundUint128(sellAmount, 1, MAX_UINT128);
         minBuyAmount = boundUint128(minBuyAmount, 1, MAX_UINT128);
