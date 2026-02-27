@@ -137,6 +137,13 @@ library Errors {
     /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
     error SablierLockup_Overdraw(uint256 streamId, uint128 amount, uint128 withdrawableAmount);
 
+    /// @notice Thrown when trying to withdraw a partial amount from a LPG stream.
+    error SablierLockup_WithdrawAmountNotEqualWithdrawableAmount(
+        uint256 streamId,
+        uint128 amount,
+        uint128 withdrawableAmount
+    );
+
     /// @notice Thrown when trying to cancel or renounce a canceled stream.
     error SablierLockup_StreamCanceled(uint256 streamId);
 

@@ -183,7 +183,10 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(varsLPG.streamId);
-        params.withdrawAmount = boundUint128(params.withdrawAmount, 1, withdrawableAmount);
+
+        // Set the withdraw amount equal to the withdrawable amount for LPG streams since partial withdrawals are not
+        // allowed.
+        params.withdrawAmount = withdrawableAmount;
 
         varsLPG.isDepleted = params.withdrawAmount == params.create.depositAmount;
 
