@@ -38,7 +38,9 @@ interface ISablierLockupPriceGated is ISablierLockupState {
     ///   1. The oracle price reaches or exceeds the target price, OR
     ///   2. Current time is greater than or equal to the stream's end time.
     /// - The sender can cancel the stream when price is less than target price AND end time is in the future.
-    /// - The function does not check if the provided oracle reports the price for the deposited token.
+    /// - The function does not check if the provided oracle reports the price for the deposited token. It may be
+    /// possible that stream creator has used a different token for the oracle. In such cases, integrators and
+    /// recipients are requested to verify the oracle correctness on their own.
     /// - The LPG model does not support a "createWithDuration" function because the {SablierLockup} contract is at the
     /// size limit. If the EVM contract size limit is increased in the future, this function will be added.
     ///
