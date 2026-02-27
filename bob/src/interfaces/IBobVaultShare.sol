@@ -7,17 +7,19 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 /// @notice Interface for the ERC-20 token representing shares in a Bob vault.
 interface IBobVaultShare is IERC20Metadata {
     /*//////////////////////////////////////////////////////////////////////////
-                               USER-FACING CONSTANTS
+                                READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Returns the address of the Bob contract with the authority to mint and burn tokens.
+    /// @dev This is an immutable state variable.
     function SABLIER_BOB() external view returns (address);
 
     /// @notice Returns the vault ID this share token represents.
+    /// @dev This is an immutable state variable.
     function VAULT_ID() external view returns (uint256);
 
     /*//////////////////////////////////////////////////////////////////////////
-                        USER-FACING STATE-CHANGING FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Mints `amount` tokens to `to`.

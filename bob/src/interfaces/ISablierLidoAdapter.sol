@@ -17,38 +17,38 @@ interface ISablierLidoAdapter is ISablierBobAdapter {
     event SetSlippageTolerance(UD60x18 oldSlippageTolerance, UD60x18 newSlippageTolerance);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               USER-FACING CONSTANTS
+                                READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Returns the address of the Curve stETH/ETH pool.
+    /// @dev This is an immutable state variable.
     function CURVE_POOL() external view returns (address);
 
     /// @notice Returns the maximum slippage tolerance that can be set, denominated in UD60x18, where 1e18 = 100%.
+    /// @dev This is a constant state variable.
     function MAX_SLIPPAGE_TOLERANCE() external view returns (UD60x18);
 
     /// @notice Returns the address of the stETH contract.
+    /// @dev This is an immutable state variable.
     function STETH() external view returns (address);
 
     /// @notice Returns the address of the WETH contract.
+    /// @dev This is an immutable state variable.
     function WETH() external view returns (address);
 
     /// @notice Returns the address of the wstETH contract.
+    /// @dev This is an immutable state variable.
     function WSTETH() external view returns (address);
+
+    /// @notice Returns the total WETH received after unstaking for a vault.
+    /// @param vaultId The ID of the vault.
+    function getWethReceivedAfterUnstaking(uint256 vaultId) external view returns (uint256);
 
     /// @notice Returns the current slippage tolerance for Curve swaps, denominated in UD60x18, where 1e18 = 100%.
     function slippageTolerance() external view returns (UD60x18);
 
     /*//////////////////////////////////////////////////////////////////////////
-                          USER-FACING READ-ONLY FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Returns the total WETH received after unstaking for a vault.
-    /// @param vaultId The ID of the vault.
-    /// @return The total WETH received after unstaking.
-    function getWethReceivedAfterUnstaking(uint256 vaultId) external view returns (uint256);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                        USER-FACING STATE-CHANGING FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Sets the slippage tolerance for Curve swaps.

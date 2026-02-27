@@ -11,15 +11,12 @@ import { Escrow } from "../types/Escrow.sol";
 /// their respective getters.
 interface ISablierEscrowState {
     /*//////////////////////////////////////////////////////////////////////////
-                               USER-FACING CONSTANTS
+                                READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Returns the maximum trade fee that can be applied, denominated in UD60x18, where 1e18 = 100%.
+    /// @dev This is a constant state variable.
     function MAX_TRADE_FEE() external view returns (UD60x18);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                          USER-FACING READ-ONLY FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Retrieves the buyer address for the given order. If its zero address, the order can be filled by any
     /// address.

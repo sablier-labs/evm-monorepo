@@ -47,7 +47,7 @@ interface ISablierEscrow is IComptrollerable, ISablierEscrowState {
     event SetTradeFee(address indexed caller, UD60x18 previousTradeFee, UD60x18 newTradeFee);
 
     /*//////////////////////////////////////////////////////////////////////////
-                        USER-FACING STATE-CHANGING FUNCTIONS
+                              STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Cancels an order and returns the escrowed tokens to the caller.

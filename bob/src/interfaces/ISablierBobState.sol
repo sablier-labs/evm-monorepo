@@ -12,7 +12,7 @@ import { ISablierBobAdapter } from "./ISablierBobAdapter.sol";
 /// @notice Contract with state variables for the {SablierBob} contract, their respective getters and modifiers.
 interface ISablierBobState {
     /*//////////////////////////////////////////////////////////////////////////
-                          USER-FACING READ-ONLY FUNCTIONS
+                                READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Returns the adapter configured for a specific vault.
