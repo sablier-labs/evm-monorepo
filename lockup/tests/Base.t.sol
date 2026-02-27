@@ -8,6 +8,7 @@ import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { ISablierLockupDynamic } from "src/interfaces/ISablierLockupDynamic.sol";
 import { ISablierLockupLinear } from "src/interfaces/ISablierLockupLinear.sol";
+import { ISablierLockupPriceGated } from "src/interfaces/ISablierLockupPriceGated.sol";
 import { ISablierLockupTranched } from "src/interfaces/ISablierLockupTranched.sol";
 import { LockupNFTDescriptor } from "src/LockupNFTDescriptor.sol";
 import { SablierBatchLockup } from "src/SablierBatchLockup.sol";
@@ -15,6 +16,7 @@ import { SablierLockup } from "src/SablierLockup.sol";
 import { Lockup } from "src/types/Lockup.sol";
 import { LockupDynamic } from "src/types/LockupDynamic.sol";
 import { LockupLinear } from "src/types/LockupLinear.sol";
+import { LockupPriceGated } from "src/types/LockupPriceGated.sol";
 import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { RecipientGood } from "./mocks/Hooks.sol";
@@ -146,6 +148,21 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
             callee: address(lockup),
             count: count,
             data: abi.encodeCall(ISablierLockupDynamic.createWithDurationsLD, (params, segmentsWithDuration))
+        });
+    }
+
+    /// @dev Expects multiple calls to {ISablierLockupPriceGated.createWithTimestampsLPG}.
+    function expectMultipleCallsToCreateWithTimestampsLPG(
+        uint64 count,
+        Lockup.CreateWithTimestamps memory params,
+        LockupPriceGated.UnlockParams memory unlockParams
+    )
+        internal
+    {
+        vm.expectCall({
+            callee: address(lockup),
+            count: count,
+            data: abi.encodeCall(ISablierLockupPriceGated.createWithTimestampsLPG, (params, unlockParams))
         });
     }
 

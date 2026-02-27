@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 import { Lockup } from "./Lockup.sol";
 import { LockupDynamic } from "./LockupDynamic.sol";
 import { LockupLinear } from "./LockupLinear.sol";
+import { LockupPriceGated } from "./LockupPriceGated.sol";
 import { LockupTranched } from "./LockupTranched.sol";
 
 /// @dev Namespace for the structs used in `SablierBatchLockup` contract.
@@ -71,6 +72,19 @@ library BatchLockup {
         uint40 cliffTime;
         LockupLinear.UnlockAmounts unlockAmounts;
         uint40 granularity;
+        string shape;
+    }
+
+    /// @notice A struct encapsulating all parameters of {SablierLockupPriceGated.createWithTimestampsLPG} except for
+    /// the token.
+    struct CreateWithTimestampsLPG {
+        address sender;
+        address recipient;
+        uint128 depositAmount;
+        bool cancelable;
+        bool transferable;
+        Lockup.Timestamps timestamps;
+        LockupPriceGated.UnlockParams unlockParams;
         string shape;
     }
 
