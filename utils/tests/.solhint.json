@@ -2,6 +2,7 @@
   "extends": "solhint:recommended",
   "rules": {
     "code-complexity": "off",
+    "const-name-snakecase": "off",
     "contract-name-capwords": "off",
     "gas-increment-by-one": "off",
     "imports-order": "warn"

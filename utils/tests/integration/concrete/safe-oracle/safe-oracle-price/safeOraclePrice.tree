@@ -1,4 +1,4 @@
-SafeOraclePrice_Concrete_Test
+SafeOraclePrice_SafeOracle_Concrete_Test
 ├── when oracle address zero
 │  └── it should return zero for both price and updatedAt
 └── when oracle address not zero

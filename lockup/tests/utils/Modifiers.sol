@@ -321,26 +321,6 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SAFE-TOKEN-SYMBOL
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenSymbolImplemented() {
-        _;
-    }
-
-    modifier givenSymbolAsString() {
-        _;
-    }
-
-    modifier givenSymbolNotLongerThan30Chars() {
-        _;
-    }
-
-    modifier whenNotEmptyString() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                      STATUS-OF
     //////////////////////////////////////////////////////////////////////////*/
 

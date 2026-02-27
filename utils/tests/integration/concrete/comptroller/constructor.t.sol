@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 
-import { Base_Test } from "tests/Base.t.sol";
+import { Base_Test } from "../../../Base.t.sol";
 
 contract Constructor_Comptroller_Concrete_Test is Base_Test {
     function test_Constructor() public view {

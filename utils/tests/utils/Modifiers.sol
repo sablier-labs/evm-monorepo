@@ -16,6 +16,18 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier givenSymbolAsString() {
+        _;
+    }
+
+    modifier givenSymbolImplemented() {
+        _;
+    }
+
+    modifier givenSymbolNotLongerThan30Chars() {
+        _;
+    }
+
     modifier givenTokenBalanceNotZero() {
         _;
     }
@@ -134,6 +146,10 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenNotEmptyString() {
+        _;
+    }
+
     modifier whenNotPayable() {
         _;
     }
@@ -187,6 +203,10 @@ abstract contract Modifiers is BaseTest {
     }
 
     modifier whenTargetContract() {
+        _;
+    }
+
+    modifier whenTokenContract() {
         _;
     }
 }

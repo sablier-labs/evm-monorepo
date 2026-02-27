@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Base_Test } from "tests/Base.t.sol";
+import { Base_Test } from "../../../../Base.t.sol";
 
 contract SetCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
     function test_RevertWhen_CallerWithoutFeeManagementRole(

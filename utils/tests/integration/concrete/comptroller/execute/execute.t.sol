@@ -5,10 +5,10 @@ import { stdError } from "forge-std/src/StdError.sol";
 
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { ComptrollerableMock } from "src/mocks/ComptrollerableMock.sol";
 import { SablierComptroller } from "src/SablierComptroller.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
+import { ComptrollerableMock } from "../../../../mocks/ComptrollerableMock.sol";
 import { PanicContractMock } from "../../../../mocks/PanicContractMock.sol";
 import { RevertingContractMock } from "../../../../mocks/RevertingContractMock.sol";
 

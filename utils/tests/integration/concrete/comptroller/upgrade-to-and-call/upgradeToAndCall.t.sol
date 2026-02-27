@@ -4,7 +4,8 @@ pragma solidity >=0.8.22;
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { SablierComptroller } from "src/SablierComptroller.sol";
-import { Base_Test } from "tests/Base.t.sol";
+
+import { Base_Test } from "../../../../Base.t.sol";
 
 contract UpgradeToAndCall_Comptroller_Concrete_Test is Base_Test {
     UUPSUpgradeable internal comptrollerCastedToUUPS;

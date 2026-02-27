@@ -3,10 +3,10 @@ pragma solidity >=0.8.22;
 
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { ComptrollerableMock } from "src/mocks/ComptrollerableMock.sol";
 import { ContractWithoutReceive, ContractWithReceive } from "src/mocks/Receive.sol";
 
-import { Base_Test } from "tests/Base.t.sol";
+import { Base_Test } from "../../../../Base.t.sol";
+import { ComptrollerableMock } from "../../../../mocks/ComptrollerableMock.sol";
 
 contract TransferFees_Comptroller_Concrete_Test is Base_Test {
     uint256 internal expectedFeeAmount;

@@ -15,7 +15,7 @@ import {
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract ValidateOracle_Concrete_Test is Base_Test {
+contract ValidateOracle_SafeOracle_Concrete_Test is Base_Test {
     function test_RevertWhen_OracleAddressZero() external {
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_MissesInterface.selector, address(0)));

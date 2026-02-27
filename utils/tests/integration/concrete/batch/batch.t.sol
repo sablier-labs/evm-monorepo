@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { BatchMock } from "src/mocks/BatchMock.sol";
 import { Base_Test } from "../../../Base.t.sol";
+import { BatchMock } from "../../../mocks/BatchMock.sol";
 
 contract Batch_Concrete_Test is Base_Test {
     bytes[] internal calls;
