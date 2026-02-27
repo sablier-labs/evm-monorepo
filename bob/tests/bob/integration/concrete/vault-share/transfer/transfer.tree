@@ -1,0 +1,9 @@
+Transfer_Integration_Concrete_Test
+├── given no adapter
+│  ├── it should call onShareTransfer on Bob
+│  ├── it should not call updateStakedTokenBalance on adapter
+│  └── it should transfer tokens
+└── given adapter
+   ├── it should call onShareTransfer on Bob
+   ├── it should call updateStakedTokenBalance on adapter
+   └── it should transfer tokens

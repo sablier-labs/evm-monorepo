@@ -1,0 +1,13 @@
+SetDefaultAdapter_Integration_Concrete_Test
+├── when caller not comptroller
+│  └── it should revert
+└── when caller comptroller
+   ├── when new adapter not zero address
+   │  ├── when new adapter does not support interface
+   │  │  └── it should revert
+   │  └── when new adapter supports interface
+   │     ├── it should set new adapter
+   │     └── it should emit a {SetDefaultAdapter} event
+   └── when new adapter zero address
+      ├── it should set new adapter to zero address
+      └── it should emit a {SetDefaultAdapter} event

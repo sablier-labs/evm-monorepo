@@ -1,8 +1,0 @@
-SetYieldFee_Integration_Concrete_Test
-├── when caller not comptroller
-│  └── it should revert
-└── when caller comptroller
-   ├── when fee exceeds max
-   │  └── it should revert
-   └── when fee within limit
-      └── it should set yield fee

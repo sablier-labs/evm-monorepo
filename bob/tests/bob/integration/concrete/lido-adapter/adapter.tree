@@ -1,0 +1,34 @@
+LidoAdapter_Integration_Concrete_Test::stake
+└── when caller not SablierBob
+   └── it should revert
+
+LidoAdapter_Integration_Concrete_Test::unstakeForUserWithinGracePeriod
+└── when caller not SablierBob
+   └── it should revert
+
+LidoAdapter_Integration_Concrete_Test::unstakeFullAmount
+└── when caller not SablierBob
+   └── it should revert
+
+LidoAdapter_Integration_Concrete_Test::calculateAmountToTransferWithYield
+├── given no yield bearing token balance
+│  └── it should return zero
+└── given yield token balance not zero
+   └── given not unstaked
+      └── it should return zero
+
+LidoAdapter_Integration_Concrete_Test::supportsInterface
+├── when querying ISablierBobAdapter interface
+│  └── it should return true
+├── when querying ISablierLidoAdapter interface
+│  └── it should return true
+├── when querying IERC165 interface
+│  └── it should return true
+└── when querying invalid interface
+   └── it should return false
+
+LidoAdapter_Integration_Concrete_Test::getVaultYieldFee
+├── given no fee changes after creation
+│  └── it should return the snapshotted fee
+└── given global fee changed after creation
+   └── it should return the original snapshotted fee

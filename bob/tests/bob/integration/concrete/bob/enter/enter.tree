@@ -1,0 +1,34 @@
+Enter_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given SETTLED
+   │  └── it should revert
+   ├── given EXPIRED
+   │  └── it should revert
+   └── given ACTIVE
+      ├── when sync changes status
+      │  ├── when new status EXPIRED
+      │  │  └── it should revert
+      │  └── when new status SETTLED
+      │     └── it should revert
+      └── when sync not change status
+         ├── when amount zero
+         │  └── it should revert
+         └── when amount not zero
+            ├── given no adapter
+            │  ├── when first deposit
+            │  │  ├── it should set the first deposit time
+            │  │  ├── it should transfer tokens to the contract
+            │  │  ├── it should mint share tokens to the caller
+            │  │  └── it should emit an {Enter} event
+            │  └── when not first deposit
+            │     ├── it should not update the first deposit time
+            │     ├── it should transfer tokens to the contract
+            │     ├── it should mint share tokens to the caller
+            │     └── it should emit an {Enter} event
+            └── given adapter
+               ├── it should transfer tokens to the adapter
+               ├── it should stake via the adapter
+               ├── it should mint share tokens to the caller
+               └── it should emit {Enter} and {Stake} events

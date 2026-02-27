@@ -1,0 +1,32 @@
+CreateVault_Integration_Concrete_Test
+├── when token zero
+│  └── it should revert
+└── when token not zero
+   ├── when native token
+   │  └── it should revert
+   └── when not native token
+      ├── when expiry in past
+      │  └── it should revert
+      ├── when expiry in present
+      │  └── it should revert
+      └── when expiry in future
+         ├── when target price zero
+         │  └── it should revert
+         └── when target price not zero
+            ├── when target price not exceed oracle price
+            │  └── it should revert
+            └── when target price exceeds oracle price
+               ├── given no adapter
+               │  ├── it should create the vault
+               │  ├── it should deploy a share token with correct symbol
+               │  ├── it should return ACTIVE status
+               │  ├── it should bump the next vault ID
+               │  └── it should emit a {CreateVault} event
+               └── given adapter
+                  ├── it should create the vault with adapter
+                  ├── it should deploy a share token with correct symbol
+                  ├── it should register the vault into adapter
+                  ├── it should mark the vault as staked in adapter
+                  ├── it should return ACTIVE status
+                  ├── it should bump the next vault ID
+                  └── it should emit a {CreateVault} event

@@ -110,7 +110,7 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
     function createUser(string memory name, address[] memory spenders) internal returns (address payable user) {
         user = payable(makeAddr(name));
         vm.label(user, name);
-        vm.deal({ account: user, newBalance: 100 ether });
+        vm.deal({ account: user, newBalance: 1000 ether });
 
         dealAndApproveSpenders(user, spenders);
     }

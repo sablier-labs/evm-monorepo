@@ -31,8 +31,8 @@ library Errors {
     /// @notice Thrown when depositing zero amount in a vault.
     error SablierBob_DepositAmountZero(uint256 vaultId, address user);
 
-    /// @notice Thrown when trying to create a vault with an expiry timestamp in the past.
-    error SablierBob_ExpiryInPast(uint40 expiry, uint40 currentTime);
+    /// @notice Thrown when trying to create a vault with an expiry timestamp not in the future.
+    error SablierBob_ExpiryNotInFuture(uint40 expiry, uint40 currentTime);
 
     /// @notice Thrown when trying to create a vault with the native token.
     error SablierBob_ForbidNativeToken(address nativeToken);

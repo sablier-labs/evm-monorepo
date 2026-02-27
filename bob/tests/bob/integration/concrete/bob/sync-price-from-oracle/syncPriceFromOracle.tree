@@ -1,0 +1,16 @@
+SyncPriceFromOracle_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given SETTLED
+   │  └── it should revert
+   ├── given EXPIRED
+   │  └── it should revert
+   └── given ACTIVE
+      ├── when latest price zero
+      │  └── it should do nothing
+      └── when latest price not zero
+         ├── it should return the latest price
+         ├── it should update the last synced price
+         ├── it should update the last synced timestamp
+         └── it should emit a {SyncPriceFromOracle} event

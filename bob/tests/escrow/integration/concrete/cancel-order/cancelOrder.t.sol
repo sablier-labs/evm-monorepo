@@ -10,7 +10,7 @@ import { Integration_Test } from "../../Integration.t.sol";
 contract CancelOrder_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_Null() external {
         // It should revert.
-        expectRevert_Null(abi.encodeCall(escrow.cancelOrder, (nullOrderId)), nullOrderId);
+        expectRevert_Null(abi.encodeCall(escrow.cancelOrder, (nullOrderId)));
     }
 
     function test_RevertWhen_CallerNotSeller() external givenNotNull {
@@ -26,7 +26,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
         escrow.cancelOrder(defaultOrderId);
     }
 
-    function test_RevertGiven_Filled() external givenNotNull whenCallerSeller {
+    function test_RevertGiven_FILLED() external givenNotNull whenCallerSeller {
         // Fill the default order.
         setMsgSender(users.buyer);
         escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
@@ -38,7 +38,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
         escrow.cancelOrder(defaultOrderId);
     }
 
-    function test_RevertGiven_Canceled() external givenNotNull whenCallerSeller {
+    function test_RevertGiven_CANCELED() external givenNotNull whenCallerSeller {
         // Cancel the default order.
         escrow.cancelOrder(defaultOrderId);
 
@@ -47,7 +47,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
         escrow.cancelOrder(defaultOrderId);
     }
 
-    function test_GivenExpired() external givenNotNull whenCallerSeller {
+    function test_GivenEXPIRED() external givenNotNull whenCallerSeller {
         // Warp past expiry.
         vm.warp(ORDER_EXPIRY_TIME + 1);
 
@@ -66,7 +66,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
         assertTrue(escrow.wasCanceled(defaultOrderId), "order.wasCanceled");
     }
 
-    function test_GivenOpen() external givenNotNull whenCallerSeller {
+    function test_GivenOPEN() external givenNotNull whenCallerSeller {
         // It should perform the ERC-20 transfers.
         expectCallToTransfer({ token: sellToken, to: users.seller, value: SELL_AMOUNT });
 

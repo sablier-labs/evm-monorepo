@@ -45,8 +45,8 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     event ExitWithinGracePeriod(
         uint256 indexed vaultId,
         address indexed user,
-        uint128 amountReceived,
-        uint128 sharesBurned
+        uint256 amountReceived,
+        uint256 sharesBurned
     );
 
     /// @notice Emitted when a user redeems their shares from a settled vault.
@@ -76,7 +76,7 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     event UnstakeFromAdapter(
         uint256 indexed vaultId,
         ISablierBobAdapter indexed adapter,
-        uint128 amountStakedInAdapter,
+        uint128 wrappedTokenUnstakedAmount,
         uint128 amountReceivedFromAdapter
     );
 
@@ -143,7 +143,6 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// - The vault must have ACTIVE status.
     /// - `amount` must be greater than zero.
     /// - The caller must have approved this contract to transfer `amount` tokens.
-    /// - Since it also updates the oracle price, oracle must return a valid price for the token.
     ///
     /// @param vaultId The ID of the vault to deposit into.
     /// @param amount The amount of tokens to deposit.

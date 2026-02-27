@@ -1,28 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {
-    ChainlinkOracleMock,
-    ChainlinkOracleWith18Decimals,
-    ChainlinkOracleWithRevertingDecimals,
-    ChainlinkOracleWithRevertingPrice,
-    ChainlinkOracleZeroPrice
-} from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
 import { BaseTest as EvmBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
+
+import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
+import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
+import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
 import { SablierBob } from "src/SablierBob.sol";
 import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
-import { MockAdapterInvalidInterface } from "./mocks/MockAdapter.sol";
-import { MockCurvePool, MockStETH, MockWETH9, MockWstETH } from "./mocks/MockLido.sol";
+
+import { MockWETH9, MockCurvePool, MockStETH, MockWstETH } from "./mocks/MocksAdapter.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
 import { Users, VaultIds } from "./utils/Types.sol";
+import { Utils } from "./utils/Utils.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
-abstract contract Base_Test is Assertions, Modifiers {
+abstract contract Base_Test is Assertions, Modifiers, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -34,20 +31,15 @@ abstract contract Base_Test is Assertions, Modifiers {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    ISablierLidoAdapter internal adapter;
     ISablierBob internal bob;
-    SablierLidoAdapter internal adapter;
-    MockAdapterInvalidInterface internal mockAdapterInvalid;
-    ChainlinkOracleMock internal mockOracle;
-    ChainlinkOracleWith18Decimals internal mockOracleInvalidDecimals;
-    ChainlinkOracleZeroPrice internal mockOracleInvalidPrice;
-    ChainlinkOracleWithRevertingDecimals internal mockOracleReverting;
-    ChainlinkOracleWithRevertingPrice internal mockOracleRevertingOnLatestRoundData;
+    IBobVaultShare internal defaultShareToken;
 
     // External protocol mocks (Lido ecosystem).
-    MockWETH9 internal weth;
-    MockStETH internal steth;
-    MockWstETH internal wsteth;
     MockCurvePool internal curvePool;
+    MockStETH internal steth;
+    MockWETH9 internal weth;
+    MockWstETH internal wstEth;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -56,50 +48,33 @@ abstract contract Base_Test is Assertions, Modifiers {
     function setUp() public virtual override {
         EvmBase.setUp();
 
-        // Deploy mock oracles.
-        mockOracle = new ChainlinkOracleMock();
-        mockOracle.setPrice(uint256(INITIAL_PRICE));
-        mockOracleInvalidDecimals = new ChainlinkOracleWith18Decimals();
-        mockOracleInvalidPrice = new ChainlinkOracleZeroPrice();
-        mockOracleReverting = new ChainlinkOracleWithRevertingDecimals();
-        mockOracleRevertingOnLatestRoundData = new ChainlinkOracleWithRevertingPrice();
+        // Deploy external Lido/Curve mocks.
+        deployExternalMocks();
 
-        // Label the mock oracles.
-        vm.label({ account: address(mockOracle), newLabel: "ChainlinkOracleMock" });
-        vm.label({ account: address(mockOracleInvalidDecimals), newLabel: "ChainlinkOracleWith18Decimals" });
-        vm.label({ account: address(mockOracleInvalidPrice), newLabel: "ChainlinkOracleZeroPrice" });
-        vm.label({ account: address(mockOracleReverting), newLabel: "ChainlinkOracleWithRevertingDecimals" });
-        vm.label({
-            account: address(mockOracleRevertingOnLatestRoundData),
-            newLabel: "ChainlinkOracleWithRevertingPrice"
-        });
+        // Push the WETH to the list of tokens.
+        tokens.push(weth);
 
         // Deploy the protocol.
         deployProtocol();
 
-        // Deploy external Lido/Curve mocks.
-        deployExternalMocks();
-
-        // Deploy the real adapter with external mocks.
-        deployAdapter();
-
-        // Deploy invalid adapter for error testing.
-        mockAdapterInvalid = new MockAdapterInvalidInterface();
-        vm.label({ account: address(mockAdapterInvalid), newLabel: "MockAdapterInvalid" });
+        // Set modifier variables.
+        setBob(address(bob));
 
         // Create test users.
         createTestUsers();
 
-        // Set depositor as the default caller for the tests.
-        setMsgSender(users.depositor);
-
-        // Warp to Feb 1, 2025 at 00:00 UTC to provide a more realistic testing environment.
-        vm.warp({ newTimestamp: FEB_1_2025 });
+        // Warp to Feb 1, 2026 at 00:00 UTC to provide a more realistic testing environment.
+        vm.warp({ newTimestamp: FEB_1_2026 });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Computes the address of the next share token that will be deployed by Bob.
+    function computeNextShareTokenAddress() internal view returns (IBobVaultShare) {
+        return IBobVaultShare(vm.computeCreateAddress(address(bob), vm.getNonce(address(bob))));
+    }
 
     /// @dev Create users for testing.
     function createTestUsers() internal {
@@ -110,131 +85,76 @@ abstract contract Base_Test is Assertions, Modifiers {
         users.alice = createUser("Alice", spenders);
         users.eve = createUser("Eve", spenders);
         users.depositor = createUser("Depositor", spenders);
-        users.depositor2 = createUser("Depositor2", spenders);
+        users.newDepositor = createUser("New Depositor", spenders);
 
-        // Give ETH to users and deposit into WETH (so WETH contract has ETH backing).
+        // Fund the depositor with WETH.
+        setMsgSender(users.depositor);
         vm.deal(users.depositor, 1000 ether);
-        vm.deal(users.depositor2, 1000 ether);
-        vm.deal(users.alice, 1000 ether);
-
-        // Deposit ETH to get WETH (this ensures WETH contract has ETH to return on withdraw).
-        vm.startPrank(users.depositor);
-        weth.deposit{ value: 1000 ether }();
-        IERC20(address(weth)).approve(address(bob), type(uint256).max);
-        vm.stopPrank();
-
-        vm.startPrank(users.depositor2);
-        weth.deposit{ value: 1000 ether }();
-        IERC20(address(weth)).approve(address(bob), type(uint256).max);
-        vm.stopPrank();
-
-        vm.startPrank(users.alice);
-        weth.deposit{ value: 1000 ether }();
-        IERC20(address(weth)).approve(address(bob), type(uint256).max);
-        vm.stopPrank();
+        IWETH9(address(weth)).deposit{ value: 1000 ether }();
+        weth.approve(address(bob), type(uint256).max);
     }
 
-    /// @dev Deploys the SablierBob protocol.
+    /// @dev Deploys the Bob protocol.
     function deployProtocol() internal {
         bob = new SablierBob(address(comptroller));
         vm.label({ account: address(bob), newLabel: "SablierBob" });
-    }
 
-    /// @dev Deploys external Lido/Curve protocol mocks at the mainnet constant addresses.
-    function deployExternalMocks() internal {
-        // Mainnet addresses used as constants in SablierLidoAdapter.
-        address payable wethMainnet = payable(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-        address payable stethMainnet = payable(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84);
-        address payable wstethMainnet = payable(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0);
-        address payable curvePoolMainnet = payable(0xDC24316b9AE028F1497c275EB9192a3Ea0f67022);
-
-        // Deploy WETH mock at mainnet address using deployCodeTo.
-        deployCodeTo("MockLido.sol:MockWETH9", wethMainnet);
-        weth = MockWETH9(wethMainnet);
-        vm.label({ account: wethMainnet, newLabel: "WETH" });
-
-        // Deploy stETH mock at mainnet address.
-        deployCodeTo("MockLido.sol:MockStETH", stethMainnet);
-        steth = MockStETH(stethMainnet);
-        vm.label({ account: stethMainnet, newLabel: "stETH" });
-
-        // Deploy wstETH mock at mainnet address with mainnet stETH constructor arg.
-        deployCodeTo("MockLido.sol:MockWstETH", abi.encode(stethMainnet), wstethMainnet);
-        wsteth = MockWstETH(wstethMainnet);
-        vm.label({ account: wstethMainnet, newLabel: "wstETH" });
-
-        // Deploy Curve pool mock at mainnet address with mainnet stETH constructor arg.
-        deployCodeTo("MockLido.sol:MockCurvePool", abi.encode(stethMainnet), curvePoolMainnet);
-        curvePool = MockCurvePool(curvePoolMainnet);
-        vm.label({ account: curvePoolMainnet, newLabel: "CurvePool" });
-
-        // Fund Curve pool with ETH for swaps.
-        vm.deal(curvePoolMainnet, 10_000 ether);
-    }
-
-    /// @dev Deploys the real SablierLidoAdapter.
-    function deployAdapter() internal {
         adapter = new SablierLidoAdapter({
             initialComptroller: address(comptroller),
             sablierBob: address(bob),
             curvePool: address(curvePool),
             stETH: address(steth),
             wETH: address(weth),
-            wstETH: address(wsteth),
-            initialSlippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
-            initialYieldFee: DEFAULT_YIELD_FEE
+            wstETH: address(wstEth),
+            initialSlippageTolerance: SLIPPAGE_TOLERANCE,
+            initialYieldFee: YIELD_FEE
         });
         vm.label({ account: address(adapter), newLabel: "SablierLidoAdapter" });
+    }
+
+    /// @dev Deploys external Lido/Curve protocol mocks at the mainnet constant addresses.
+    function deployExternalMocks() internal {
+        weth = new MockWETH9();
+        steth = new MockStETH();
+        wstEth = new MockWstETH(address(steth));
+        curvePool = new MockCurvePool(address(steth));
+
+        // Fund Curve pool with ETH for swaps.
+        vm.deal(address(curvePool), 10_000 ether);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                   VAULT CREATION
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Creates a default vault with DAI and returns the vault ID.
+    /// @dev Creates a default vault.
     function createDefaultVault() internal returns (uint256 vaultId) {
-        vaultId = bob.createVault({
-            token: IERC20(address(dai)),
-            oracle: AggregatorV3Interface(address(mockOracle)),
-            expiry: EXPIRY,
-            targetPrice: TARGET_PRICE
-        });
+        vaultId = bob.createVault({ token: weth, oracle: oracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
     }
 
     /// @dev Creates a vault with the specified token.
     function createVaultWithToken(IERC20 token) internal returns (uint256 vaultId) {
-        vaultId = bob.createVault({
-            token: token,
-            oracle: AggregatorV3Interface(address(mockOracle)),
-            expiry: EXPIRY,
-            targetPrice: TARGET_PRICE
-        });
+        vaultId = bob.createVault({ token: token, oracle: oracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
     }
 
     /// @dev Creates a vault with an adapter configured.
     function createVaultWithAdapter() internal returns (uint256 vaultId) {
-        // Set the default adapter for WETH.
         setMsgSender(address(comptroller));
-        bob.setDefaultAdapter(IERC20(address(weth)), ISablierLidoAdapter(address(adapter)));
+        bob.setDefaultAdapter(weth, adapter);
 
         setMsgSender(users.depositor);
-        vaultId = bob.createVault({
-            token: IERC20(address(weth)),
-            oracle: AggregatorV3Interface(address(mockOracle)),
-            expiry: EXPIRY,
-            targetPrice: TARGET_PRICE
-        });
+        vaultId = bob.createVault({ token: weth, oracle: oracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
+
+        setMsgSender(address(comptroller));
+        bob.setDefaultAdapter(weth, ISablierBobAdapter(address(0)));
+
+        setMsgSender(users.depositor);
     }
 
     /// @dev Creates a vault that will be expired at the current block timestamp.
     function createExpiredVault() internal returns (uint256 vaultId) {
         // Create vault with expiry in the future.
-        vaultId = bob.createVault({
-            token: IERC20(address(dai)),
-            oracle: AggregatorV3Interface(address(mockOracle)),
-            expiry: EXPIRY,
-            targetPrice: TARGET_PRICE
-        });
+        vaultId = bob.createVault({ token: weth, oracle: oracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
 
         // Warp past expiry to make it settled.
         vm.warp({ newTimestamp: EXPIRY + 1 });
@@ -245,7 +165,7 @@ abstract contract Base_Test is Assertions, Modifiers {
         vaultId = createDefaultVault();
 
         // Set oracle price to target.
-        mockOracle.setPrice(SETTLED_PRICE);
+        oracle.setPrice(TARGET_PRICE);
 
         // Sync the vault to update the price.
         bob.syncPriceFromOracle(vaultId);

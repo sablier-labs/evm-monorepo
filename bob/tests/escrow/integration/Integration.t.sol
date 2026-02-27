@@ -29,12 +29,12 @@ abstract contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Expects a revert when the order is null.
-    function expectRevert_Null(bytes memory callData, uint256 orderId) internal {
+    function expectRevert_Null(bytes memory callData) internal {
         (bool success, bytes memory returnData) = address(escrow).call(callData);
         assertFalse(success, "null order call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierEscrowState_Null.selector, orderId),
+            abi.encodeWithSelector(Errors.SablierEscrowState_Null.selector, nullOrderId),
             "null order call return data"
         );
     }

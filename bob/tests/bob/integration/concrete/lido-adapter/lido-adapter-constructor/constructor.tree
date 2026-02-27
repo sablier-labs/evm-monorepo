@@ -1,0 +1,10 @@
+Constructor_LidoAdapter_Integration_Concrete_Test
+├── when slippage tolerance exceeds maximum
+│  └── it should revert
+├── when yield fee exceeds maximum
+│  └── it should revert
+└── when parameters are valid
+   ├── it should set the comptroller
+   ├── it should set the sablier bob address
+   ├── it should set the slippage tolerance
+   └── it should set the yield fee

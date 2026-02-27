@@ -25,10 +25,10 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertGiven_Null() external {
         // It should revert.
-        expectRevert_Null(abi.encodeCall(escrow.fillOrder, (nullOrderId, MIN_BUY_AMOUNT)), nullOrderId);
+        expectRevert_Null(abi.encodeCall(escrow.fillOrder, (nullOrderId, MIN_BUY_AMOUNT)));
     }
 
-    function test_RevertGiven_Canceled() external givenNotNull {
+    function test_RevertGiven_CANCELED() external givenNotNull {
         // Cancel the order.
         setMsgSender(users.seller);
         escrow.cancelOrder(defaultOrderId);
@@ -41,7 +41,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
         escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
     }
 
-    function test_RevertGiven_Filled() external givenNotNull {
+    function test_RevertGiven_FILLED() external givenNotNull {
         // Fill the order.
         escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
 
@@ -52,7 +52,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
         escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
     }
 
-    function test_RevertGiven_Expired() external givenNotNull {
+    function test_RevertGiven_EXPIRED() external givenNotNull {
         // Warp past expiry.
         vm.warp(ORDER_EXPIRY_TIME + 1);
 
@@ -64,7 +64,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
         escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
     }
 
-    function test_RevertWhen_CallerNotDesignatedBuyer() external givenNotNull givenOpen givenOrderWithDesignatedBuyer {
+    function test_RevertWhen_CallerNotDesignatedBuyer() external givenNotNull givenOPEN givenOrderWithDesignatedBuyer {
         setMsgSender(users.alice);
 
         // It should revert.
@@ -76,7 +76,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
         escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
     }
 
-    function test_WhenCallerDesignatedBuyer() external givenNotNull givenOpen givenOrderWithDesignatedBuyer {
+    function test_WhenCallerDesignatedBuyer() external givenNotNull givenOPEN givenOrderWithDesignatedBuyer {
         // It should fill the order.
         _testFillOrder({ orderId: defaultOrderId, tradeFee: DEFAULT_TRADE_FEE });
     }
@@ -84,7 +84,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_BuyAmountLessThanMinBuyAmount()
         external
         givenNotNull
-        givenOpen
+        givenOPEN
         givenOrderWithoutDesignatedBuyer
     {
         uint128 buyAmount = MIN_BUY_AMOUNT - 1;
@@ -99,7 +99,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
     function test_GivenTradeFeeZero()
         external
         givenNotNull
-        givenOpen
+        givenOPEN
         givenOrderWithoutDesignatedBuyer
         whenBuyAmountNotLessThanMinBuyAmount
     {
@@ -115,7 +115,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
     function test_GivenTradeFeeNotZero()
         external
         givenNotNull
-        givenOpen
+        givenOPEN
         givenOrderWithoutDesignatedBuyer
         whenBuyAmountNotLessThanMinBuyAmount
     {
