@@ -26,18 +26,6 @@ contract LidoAdapter_Integration_Concrete_Test is Integration_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                          UNSTAKE-FOR-USER-WITHIN-GRACE-PERIOD
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function test_UnstakeForUserWithinGracePeriod_RevertWhen_CallerNotSablierBob() external {
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.newDepositor, address(bob))
-        );
-        adapter.unstakeForUserWithinGracePeriod(1, users.newDepositor);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                   UNSTAKE-FULL-AMOUNT
     //////////////////////////////////////////////////////////////////////////*/
 

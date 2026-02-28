@@ -22,9 +22,6 @@ library Errors {
                                      SABLIER BOB
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when trying to exit during the grace period but the caller is not an original depositor.
-    error SablierBob_CallerNotDepositor(uint256 vaultId, address user);
-
     /// @notice Thrown when `onShareTransfer` is called by an address other than the share token.
     error SablierBob_CallerNotShareToken(uint256 vaultId, address caller);
 
@@ -36,9 +33,6 @@ library Errors {
 
     /// @notice Thrown when trying to create a vault with the native token.
     error SablierBob_ForbidNativeToken(address nativeToken);
-
-    /// @notice Thrown when trying to exit during the grace period but it has already expired.
-    error SablierBob_GracePeriodExpired(uint256 vaultId, address user, uint40 depositedAt, uint40 gracePeriodEnd);
 
     /// @notice Thrown when trying to redeem with `msg.value` less than the minimum fee required.
     error SablierBob_InsufficientFeePayment(uint256 feePaid, uint256 feeRequired);

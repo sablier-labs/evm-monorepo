@@ -14,8 +14,5 @@ contract Constructor_Bob_Integration_Concrete_Test is Integration_Test {
 
         // {SablierBobState.constructor}
         assertEq(constructedBob.nextVaultId(), 1, "nextVaultId");
-
-        // {SablierBob.GRACE_PERIOD}
-        assertEq(constructedBob.GRACE_PERIOD(), GRACE_PERIOD, "GRACE_PERIOD");
     }
 }

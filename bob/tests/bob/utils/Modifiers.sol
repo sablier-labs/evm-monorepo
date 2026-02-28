@@ -28,10 +28,6 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenFirstDepositTimeNotZero() {
-        _;
-    }
-
     modifier givenNoAdapter() {
         _;
     }
@@ -79,10 +75,6 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     }
 
     modifier whenExpiryInFuture() {
-        _;
-    }
-
-    modifier whenGraceEndTimeInFuture() {
         _;
     }
 

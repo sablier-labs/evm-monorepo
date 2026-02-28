@@ -2,10 +2,6 @@ LidoAdapter_Integration_Concrete_Test::stake
 └── when caller not SablierBob
    └── it should revert
 
-LidoAdapter_Integration_Concrete_Test::unstakeForUserWithinGracePeriod
-└── when caller not SablierBob
-   └── it should revert
-
 LidoAdapter_Integration_Concrete_Test::unstakeFullAmount
 └── when caller not SablierBob
    └── it should revert

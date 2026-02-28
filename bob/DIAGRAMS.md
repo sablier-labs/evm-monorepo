@@ -45,7 +45,6 @@
 │                                ACTIVE                                        │
 │                                                                              │
 │  • Users can deposit tokens and receive shares                               │
-│  • Users can exit within grace period (refund)                               │
 │  • Price can be synced from oracle                                           │
 │                                                                              │
 │  Transitions when:                                                           │
@@ -64,12 +63,10 @@
 │                      │                             │                      │
 │ • Deposits blocked   │                             │ • Deposits blocked   │
 │ • Users can redeem   │                             │ • Users can redeem   │
-│ • Permanent: stays   │                             │ • Grace period exits │
-│   SETTLED even if    │                             │   still allowed (if  │
-│   live price drops   │                             │   within window)     │
-│ • Grace period exits │                             └──────────────────────┘
-│   still allowed (if  │
-│   within window)     │
+│ • Permanent: stays   │                             │                      │
+│   SETTLED even if    │                             └──────────────────────┘
+│   live price drops   │
+│                      │
 └──────────────────────┘
 ```
 
@@ -101,23 +98,6 @@
          │            │ minted to    │                                  │
          │            │ user         │                                  │
          │            └──────────────┘                                  │
-         │                                                              │
-         ├─────────── GRACE PERIOD EXIT ────────────────────────────────┤
-         │                                                              │
-         │            ┌────────────────┐                                │
-         │            │  SablierBob    │                                │
-         │            │                │                                │
-         │            │  Within 4 hrs  │──── With Adapter ────┐         │
-         │            │  of deposit    │                      │         │
-         │            │                │                      ▼         │
-         │            │  Burns shares, │              ┌──────────────┐  │
-         │            │  returns       │              │   Adapter    │  │
-         │            │  tokens        │              │              │  │
-         │            │                │              │ Unstakes     │  │
-         │            │  NO FEE        │              │ user portion,│  │
-         │            └────────────────┘              │ sends direct │  │
-         │                                            │ to user      │  │
-         │                                            └──────────────┘  │
          │                                                              │
          ├─────────── REDEEM (after settlement or expiry) ──────────────┤
          │                                                              │
@@ -222,12 +202,6 @@
     │                                                                         │
     └─────────────────────────────────────────────────────────────────────────┘
 
-    ┌─────────────────────────────────────────────────────────────────────────┐
-    │                      GRACE PERIOD EXIT                                  │
-    │                                                                         │
-    │    No fee charged (full refund within 4 hours of deposit)               │
-    │                                                                         │
-    └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ______________________________________________________________________
