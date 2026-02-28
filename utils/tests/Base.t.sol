@@ -67,7 +67,6 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions, Utils {
         comptrollerableMock = new ComptrollerableMock(address(comptroller));
         merkleMock = new MerkleMock();
         noDelegateCallMock = new NoDelegateCallMock();
-        noop = new Noop();
         roleAdminableMock = new RoleAdminableMock(admin);
         safeOracleMock = new SafeOracleMock();
         safeTokenSymbolMock = new SafeTokenSymbolMock();
