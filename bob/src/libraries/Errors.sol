@@ -19,7 +19,7 @@ library Errors {
     error BobVaultShare_VaultIdMismatch(uint256 providedVaultId, uint256 expectedVaultId);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     SABLIER BOB
+                                    SABLIER BOB
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when `onShareTransfer` is called by an address other than the share token.
@@ -85,25 +85,6 @@ library Errors {
     error SablierBobState_Null(uint256 vaultId);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                SABLIER LIDO ADAPTER
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when a function is called by an address other than SablierBob.
-    error SablierLidoAdapter_OnlySablierBob(address caller, address expectedCaller);
-
-    /// @notice Thrown when the Curve swap output is below the minimum acceptable amount.
-    error SablierLidoAdapter_SlippageExceeded(uint256 expected, uint256 actual);
-
-    /// @notice Thrown when trying to set a slippage that exceeds the maximum allowed.
-    error SablierLidoAdapter_SlippageToleranceTooHigh(UD60x18 tolerance, UD60x18 maxTolerance);
-
-    /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
-    error SablierLidoAdapter_UserBalanceZero(uint256 vaultId, address user);
-
-    /// @notice Thrown when trying to set a yield fee that exceeds the maximum allowed.
-    error SablierLidoAdapter_YieldFeeTooHigh(UD60x18 fee, UD60x18 maxFee);
-
-    /*//////////////////////////////////////////////////////////////////////////
                                    SABLIER ESCROW
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -158,4 +139,23 @@ library Errors {
 
     /// @notice Thrown when trying to interact with a non-existent order.
     error SablierEscrowState_Null(uint256 orderId);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                SABLIER LIDO ADAPTER
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when a function is called by an address other than SablierBob.
+    error SablierLidoAdapter_OnlySablierBob(address caller, address expectedCaller);
+
+    /// @notice Thrown when the Curve swap output is below the minimum acceptable amount.
+    error SablierLidoAdapter_SlippageExceeded(uint256 expected, uint256 actual);
+
+    /// @notice Thrown when trying to set a slippage that exceeds the maximum allowed.
+    error SablierLidoAdapter_SlippageToleranceTooHigh(UD60x18 tolerance, UD60x18 maxTolerance);
+
+    /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
+    error SablierLidoAdapter_UserBalanceZero(uint256 vaultId, address user);
+
+    /// @notice Thrown when trying to set a yield fee that exceeds the maximum allowed.
+    error SablierLidoAdapter_YieldFeeTooHigh(UD60x18 fee, UD60x18 maxFee);
 }
