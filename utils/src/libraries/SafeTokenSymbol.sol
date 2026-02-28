@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 /// @title SafeTokenSymbol
-/// @notice Library with helper functions for safely retrieving and validating ERC-20 token symbols.
+/// @notice Library with helper functions for safely retrieving an ERC-20 token symbols, preventing JS injection.
 library SafeTokenSymbol {
     /// @notice Checks whether the provided string contains only alphanumeric characters, spaces, and dashes.
     /// @dev Note that this returns true for empty strings.
