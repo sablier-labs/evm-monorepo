@@ -1,4 +1,4 @@
-ValidateOracle_Concrete_Test
+ValidateOracle_SafeOracle_Concrete_Test
 ├── when oracle address zero
 │  └── it should revert
 └── when oracle address not zero

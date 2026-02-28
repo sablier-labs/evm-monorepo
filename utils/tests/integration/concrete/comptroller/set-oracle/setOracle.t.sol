@@ -4,9 +4,8 @@ pragma solidity >=0.8.22;
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { ChainlinkOracleMock } from "src/mocks/ChainlinkMocks.sol";
-import { Noop } from "src/mocks/Noop.sol";
 
-import { Base_Test } from "tests/Base.t.sol";
+import { Base_Test } from "../../../../Base.t.sol";
 
 contract SetOracle_Comptroller_Concrete_Test is Base_Test {
     function test_RevertWhen_CallerNotAdmin() external {
@@ -32,8 +31,6 @@ contract SetOracle_Comptroller_Concrete_Test is Base_Test {
     }
 
     function test_RevertWhen_NewOracleWithoutImplementation() external whenCallerAdmin whenNewOracleNotZero {
-        Noop noop = new Noop();
-
         // It should revert.
         vm.expectRevert();
         comptroller.setOracle(address(noop));

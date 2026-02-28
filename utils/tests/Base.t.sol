@@ -5,15 +5,16 @@ import { Upgrades } from "@openzeppelin/foundry-upgrades/src/Upgrades.sol";
 import { StdAssertions } from "forge-std/src/StdAssertions.sol";
 
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
-import { AdminableMock } from "src/mocks/AdminableMock.sol";
-import { BatchMock } from "src/mocks/BatchMock.sol";
 import { SafeOracleMock } from "src/mocks/ChainlinkMocks.sol";
-import { ComptrollerableMock } from "src/mocks/ComptrollerableMock.sol";
-import { NoDelegateCallMock } from "src/mocks/NoDelegateCallMock.sol";
-import { RoleAdminableMock } from "src/mocks/RoleAdminableMock.sol";
 import { BaseTest } from "src/tests/BaseTest.sol";
 
+import { AdminableMock } from "./mocks/AdminableMock.sol";
+import { BatchMock } from "./mocks/BatchMock.sol";
+import { ComptrollerableMock } from "./mocks/ComptrollerableMock.sol";
 import { MerkleMock } from "./mocks/MerkleMock.sol";
+import { NoDelegateCallMock } from "./mocks/NoDelegateCallMock.sol";
+import { RoleAdminableMock } from "./mocks/RoleAdminableMock.sol";
+import { SafeTokenSymbolMock } from "./mocks/SafeTokenSymbolMock.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
 import { Users } from "./utils/Types.sol";
 import { Utils } from "./utils/Utils.sol";
@@ -43,6 +44,7 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions, Utils {
     NoDelegateCallMock internal noDelegateCallMock;
     RoleAdminableMock internal roleAdminableMock;
     SafeOracleMock internal safeOracleMock;
+    SafeTokenSymbolMock internal safeTokenSymbolMock;
 
     /*//////////////////////////////////////////////////////////////////////////
                                        SET-UP
@@ -67,6 +69,7 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions, Utils {
         noDelegateCallMock = new NoDelegateCallMock();
         roleAdminableMock = new RoleAdminableMock(admin);
         safeOracleMock = new SafeOracleMock();
+        safeTokenSymbolMock = new SafeTokenSymbolMock();
 
         // Set the admin as the msg.sender.
         setMsgSender(admin);

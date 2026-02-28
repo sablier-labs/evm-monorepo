@@ -9,7 +9,7 @@ import {
     ChainlinkOracleZeroPrice
 } from "src/mocks/ChainlinkMocks.sol";
 
-import { Base_Test } from "tests/Base.t.sol";
+import { Base_Test } from "../../../../Base.t.sol";
 
 contract ConvertUSDFeeToWei_Comptroller_Concrete_Test is Base_Test {
     function test_GivenOracleZero(uint128 feeUSD) external {

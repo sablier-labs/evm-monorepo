@@ -71,16 +71,8 @@ contract NFTDescriptorMock is LockupNFTDescriptor {
         return SVGElements.hourglass(status);
     }
 
-    function isAllowedCharacter_(string memory symbol) external pure returns (bool) {
-        return isAllowedCharacter(symbol);
-    }
-
     function safeTokenDecimals_(address token) external view returns (uint8) {
         return safeTokenDecimals(token);
-    }
-
-    function safeTokenSymbol_(address token) external view returns (string memory) {
-        return safeTokenSymbol(token);
     }
 
     function stringifyCardType_(SVGElements.CardType cardType) external pure returns (string memory) {

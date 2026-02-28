@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
+
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Base_Test } from "tests/Base.t.sol";
+import { Base_Test } from "../../../Base.t.sol";
 
-contract IsAllowedCharacter_Integration_Fuzz_Test is Base_Test {
+contract IsAllowedCharacter_SafeTokenSymbol_Fuzz_Test is Base_Test {
     bytes1 internal constant SPACE = 0x20; // ASCII 32
     bytes1 internal constant DASH = 0x2D; // ASCII 45
     bytes1 internal constant ZERO = 0x30; // ASCII 48
@@ -18,7 +19,7 @@ contract IsAllowedCharacter_Integration_Fuzz_Test is Base_Test {
     /// - String with only alphanumerical characters
     /// - String with only non-alphanumerical characters
     /// - String with both alphanumerical and non-alphanumerical characters
-    function testFuzz_IsAllowedCharacter(string memory symbol) external view whenNotEmptyString {
+    function testFuzz_IsAllowedCharacter(string calldata symbol) external view whenNotEmptyString {
         bytes memory b = bytes(symbol);
         uint256 length = b.length;
         bool expectedResult = true;
@@ -29,7 +30,7 @@ contract IsAllowedCharacter_Integration_Fuzz_Test is Base_Test {
                 break;
             }
         }
-        bool actualResult = nftDescriptorMock.isAllowedCharacter_(symbol);
+        bool actualResult = safeTokenSymbolMock.isAllowedCharacter_(symbol);
         assertEq(actualResult, expectedResult, "isAllowedCharacter");
     }
 

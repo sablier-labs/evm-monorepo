@@ -1,0 +1,17 @@
+SafeTokenSymbol_SafeTokenSymbol_Concrete_Test
+├── when token not contract
+│  └── it should return ERC20
+└── when token contract
+   ├── given symbol not implemented
+   │  └── it should return ERC20
+   └── given symbol implemented
+      ├── given symbol as bytes32
+      │  └── it should return ERC20
+      └── given symbol as string
+         ├── given symbol longer than 30 chars
+         │  └── it should return Long Symbol
+         └── given symbol not longer than 30 chars
+            ├── given symbol contains non-alphanumeric chars
+            │  └── it should return Unsupported Symbol
+            └── given symbol contains alphanumeric chars
+               └── it should return the symbol

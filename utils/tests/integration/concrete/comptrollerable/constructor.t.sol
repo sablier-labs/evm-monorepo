@@ -2,10 +2,10 @@
 pragma solidity >=0.8.22;
 
 import { Errors } from "src/libraries/Errors.sol";
-import { ComptrollerableMock } from "src/mocks/ComptrollerableMock.sol";
 import { ComptrollerWithoutMinimalInterfaceId } from "src/mocks/ComptrollerMock.sol";
 
 import { Base_Test } from "../../../Base.t.sol";
+import { ComptrollerableMock } from "../../../mocks/ComptrollerableMock.sol";
 
 contract Constructor_Comptrollerable_Concrete_Test is Base_Test {
     function test_RevertWhen_ComptrollerWithoutMinimalInterfaceId() external {

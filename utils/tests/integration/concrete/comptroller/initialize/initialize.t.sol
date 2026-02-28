@@ -8,7 +8,7 @@ import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { SablierComptroller } from "src/SablierComptroller.sol";
 
-import { Base_Test } from "tests/Base.t.sol";
+import { Base_Test } from "../../../../Base.t.sol";
 
 contract Initialize_Comptroller_Concrete_Test is Base_Test {
     SablierComptroller internal uninitializedProxy;

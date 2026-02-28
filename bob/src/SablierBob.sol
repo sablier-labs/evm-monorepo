@@ -11,6 +11,7 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
 import { SafeOracle } from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
+import { SafeTokenSymbol } from "@sablier/evm-utils/src/libraries/SafeTokenSymbol.sol";
 import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
@@ -44,6 +45,7 @@ contract SablierBob is
 {
     using SafeCast for uint256;
     using SafeERC20 for IERC20;
+    using SafeTokenSymbol for address;
     using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -139,7 +141,7 @@ contract SablierBob is
         }
 
         // Retrieve token symbol and token decimal.
-        string memory tokenSymbol = _safeTokenSymbol(address(token));
+        string memory tokenSymbol = address(token).safeTokenSymbol();
         uint8 tokenDecimals = IERC20Metadata(address(token)).decimals();
 
         // Effect: deploy the share token for this vault.
@@ -501,58 +503,11 @@ contract SablierBob is
                           PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Checks whether the provided string contains only alphanumeric characters, spaces, and dashes.
-    /// @dev Note that this returns true for empty strings.
-    function _isAllowedCharacter(string memory str) private pure returns (bool) {
-        // Convert the string to bytes to iterate over its characters.
-        bytes memory b = bytes(str);
-
-        uint256 length = b.length;
-        for (uint256 i = 0; i < length; ++i) {
-            bytes1 char = b[i];
-
-            // Check if it's a space, dash, or an alphanumeric character.
-            bool isSpace = char == 0x20; // space
-            bool isDash = char == 0x2D; // dash
-            bool isDigit = char >= 0x30 && char <= 0x39; // 0-9
-            bool isUppercaseLetter = char >= 0x41 && char <= 0x5A; // A-Z
-            bool isLowercaseLetter = char >= 0x61 && char <= 0x7A; // a-z
-            if (!(isSpace || isDash || isDigit || isUppercaseLetter || isLowercaseLetter)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /// @notice Private function that reverts if the vault is settled or expired.
     function _revertIfSettledOrExpired(uint256 vaultId) private view {
         if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
             revert Errors.SablierBob_VaultNotActive(vaultId);
         }
-    }
-
-    /// @notice Retrieves the token's symbol safely, defaulting to a hard-coded value if an error occurs.
-    /// @dev Performs a low-level call to handle tokens in which the symbol is not implemented or it is a bytes32
-    /// instead of a string.
-    function _safeTokenSymbol(address token) private view returns (string memory) {
-        (bool success, bytes memory returnData) = token.staticcall(abi.encodeCall(IERC20Metadata.symbol, ()));
-
-        // Non-empty strings have a length greater than 64, and bytes32 has length 32.
-        if (!success || returnData.length <= 64) {
-            return "ERC20";
-        }
-
-        string memory symbol = abi.decode(returnData, (string));
-
-        // Check if the symbol is too long or contains disallowed characters. This measure helps mitigate potential
-        // security threats from malicious tokens injecting scripts in the symbol string.
-        if (bytes(symbol).length > 30) {
-            return "Long Symbol";
-        }
-        if (!_isAllowedCharacter(symbol)) {
-            return "Unsupported Symbol";
-        }
-        return symbol;
     }
 
     /// @dev Private function to fetch the latest oracle price and update it in the vault storage.
