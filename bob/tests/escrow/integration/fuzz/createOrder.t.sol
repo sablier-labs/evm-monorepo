@@ -27,7 +27,7 @@ contract CreateOrder_Integration_Fuzz_Test is Integration_Test {
             expiryTime = boundUint40(expiryTime, getBlockTimestamp() + 1, getBlockTimestamp() + 5 * 365 days);
         }
 
-        // Deal sell tokens to seller so any uint128 amount works.
+        // Deal sell tokens to seller.
         deal({ token: address(sellToken), to: users.seller, give: sellAmount });
 
         // Set seller as caller.

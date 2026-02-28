@@ -21,19 +21,19 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(abi.encodeCall(bob.enter, (vaultIds.nullVault, DEPOSIT_AMOUNT)));
     }
 
-    function test_RevertGiven_SETTLED() external givenNotNull {
+    function test_RevertGiven_SETTLEDStatus() external givenNotNull {
         expectRevert_SETTLED(abi.encodeCall(bob.enter, (vaultIds.settledVault, DEPOSIT_AMOUNT)));
     }
 
-    function test_RevertGiven_EXPIRED() external givenNotNull {
+    function test_RevertGiven_EXPIREDStatus() external givenNotNull {
         expectRevert_EXPIRED(abi.encodeCall(bob.enter, (vaultIds.defaultVault, DEPOSIT_AMOUNT)));
     }
 
-    function test_RevertWhen_NewStatusEXPIRED() external givenNotNull givenACTIVE whenSyncChangesStatus {
+    function test_RevertWhen_NewStatusEXPIRED() external givenNotNull givenACTIVEStatus whenSyncChangesStatus {
         expectRevert_EXPIRED(abi.encodeCall(bob.enter, (vaultIds.defaultVault, DEPOSIT_AMOUNT)));
     }
 
-    function test_RevertWhen_NewStatusSETTLED() external givenNotNull givenACTIVE whenSyncChangesStatus {
+    function test_RevertWhen_NewStatusSETTLED() external givenNotNull givenACTIVEStatus whenSyncChangesStatus {
         // Set oracle price to target price so that the sync settles the vault.
         oracle.setPrice(TARGET_PRICE);
 
@@ -42,7 +42,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
     }
 
-    function test_RevertWhen_AmountZero() external givenNotNull givenACTIVE whenSyncNotChangeStatus {
+    function test_RevertWhen_AmountZero() external givenNotNull givenACTIVEStatus whenSyncNotChangeStatus {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -75,7 +75,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         assertEq(actualSharesMinted, expectedSharesMinted, "sharesMinted");
     }
 
-    function test_GivenAdapter() external givenNotNull givenACTIVE whenSyncNotChangeStatus whenAmountNotZero {
+    function test_GivenAdapter() external givenNotNull givenACTIVEStatus whenSyncNotChangeStatus whenAmountNotZero {
         // Get address of the share token for the vault with adapter.
         IBobVaultShare shareTokenForVaultWithAdapter = bob.getShareToken(vaultIds.vaultWithAdapter);
         uint256 shareBalanceBefore = shareTokenForVaultWithAdapter.balanceOf(users.newDepositor);

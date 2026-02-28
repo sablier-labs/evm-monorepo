@@ -8,72 +8,42 @@ import { Escrow } from "src/types/Escrow.sol";
 import { Integration_Test } from "./../Integration.t.sol";
 
 contract CancelOrder_Integration_Fuzz_Test is Integration_Test {
-    /// @dev It should revert if the order has been filled or cancelled.
-    function testFuzz_RevertGiven_FilledOrCancelled(bool toFillOrCancel) external givenNotNull whenCallerSeller {
-        if (toFillOrCancel) {
-            // Fill the default order.
-            setMsgSender(users.buyer);
-            escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
+    /// @dev It should revert when the caller is not the seller.
+    function testFuzz_RevertWhen_CallerNotSeller(address caller) external givenNotNull givenOPENStatus {
+        vm.assume(caller != users.seller);
 
-            // It should revert.
-            setMsgSender(users.seller);
-            vm.expectRevert(abi.encodeWithSelector(Errors.SablierEscrow_OrderFilled.selector, defaultOrderId));
-        } else {
-            // Cancel the default order.
-            escrow.cancelOrder(defaultOrderId);
+        // Set the fuzzed address as the caller.
+        setMsgSender(caller);
 
-            // It should revert.
-            vm.expectRevert(abi.encodeWithSelector(Errors.SablierEscrow_OrderCancelled.selector, defaultOrderId));
-        }
-
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierEscrow_CallerNotAuthorized.selector, defaultOrderId, caller, users.seller
+            )
+        );
         escrow.cancelOrder(defaultOrderId);
     }
 
-    function testFuzz_CancelOrder(
-        uint128 sellAmount,
-        uint128 minBuyAmount,
-        uint40 expiryTime,
-        uint40 timeJump
-    )
-        external
-        givenNotNull
-        whenCallerSeller
-    {
-        sellAmount = boundUint128(sellAmount, 1, MAX_UINT128);
-        minBuyAmount = boundUint128(minBuyAmount, 1, MAX_UINT128);
-        expiryTime = boundUint40(expiryTime, getBlockTimestamp() + 1, getBlockTimestamp() + 5 * 365 days);
-        timeJump = boundUint40(timeJump, 0, uint40(10 * 365 days));
+    /// @dev Given enough fuzz runs, it should test cancelling an order at all possible times.
+    function testFuzz_CancelOrder(uint64 warpTime) external givenNotNull givenOPENStatus whenCallerSeller {
+        // Bound timestamp between now and 30 days after expiry.
+        warpTime = boundUint64(warpTime, FEB_1_2026, ORDER_EXPIRY_TIME + 30 days);
 
-        // Deal sell tokens to seller.
-        deal({ token: address(sellToken), to: users.seller, give: sellAmount });
-
-        // Create the order as seller.
-        setMsgSender(users.seller);
-        uint256 orderId = escrow.createOrder({
-            sellToken: sellToken,
-            sellAmount: sellAmount,
-            buyToken: buyToken,
-            minBuyAmount: minBuyAmount,
-            buyer: users.buyer,
-            expiryTime: expiryTime
-        });
-
-        // Warp forward — may land before or after expiry.
-        vm.warp(getBlockTimestamp() + timeJump);
+        vm.warp(warpTime);
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransfer({ token: sellToken, to: users.seller, value: sellAmount });
+        expectCallToTransfer({ token: sellToken, to: users.seller, value: SELL_AMOUNT });
 
         // It should emit a {CancelOrder} event.
         vm.expectEmit({ emitter: address(escrow) });
-        emit ISablierEscrow.CancelOrder({ orderId: orderId, seller: users.seller, sellAmount: sellAmount });
+        emit ISablierEscrow.CancelOrder({ orderId: defaultOrderId, seller: users.seller, sellAmount: SELL_AMOUNT });
 
         // Cancel the order.
-        escrow.cancelOrder(orderId);
+        escrow.cancelOrder(defaultOrderId);
 
         // It should mark the order as cancelled.
-        assertEq(escrow.statusOf(orderId), Escrow.Status.CANCELLED, "order.status");
-        assertTrue(escrow.wasCanceled(orderId), "order.wasCanceled");
-        assertFalse(escrow.wasFilled(orderId), "order.wasFilled");
+        assertEq(escrow.statusOf(defaultOrderId), Escrow.Status.CANCELLED, "order.status");
+        assertTrue(escrow.wasCanceled(defaultOrderId), "order.wasCanceled");
+        assertFalse(escrow.wasFilled(defaultOrderId), "order.wasFilled");
     }
 }
