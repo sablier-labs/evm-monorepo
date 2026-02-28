@@ -1,0 +1,5 @@
+GetYieldBearingTokenBalanceFor_Integration_Concrete_Test
+├── given user has no deposits
+│  └── it should return zero
+└── given user has deposits via adapter
+   └── it should return the user wstETH balance

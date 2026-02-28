@@ -1,0 +1,5 @@
+RegisterVault_Integration_Concrete_Test
+├── when caller not SablierBob
+│  └── it should revert
+└── when caller SablierBob
+   └── it should snapshot the current global yield fee

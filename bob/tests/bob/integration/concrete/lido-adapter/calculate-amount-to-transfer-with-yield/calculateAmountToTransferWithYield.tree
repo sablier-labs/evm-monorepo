@@ -1,0 +1,13 @@
+CalculateAmountToTransferWithYield_Integration_Concrete_Test
+├── given total wstETH zero
+│  └── it should return zero
+└── given total wstETH not zero
+   ├── given total WETH zero
+   │  └── it should return zero
+   └── given total WETH not zero
+      ├── when user WETH exceeds share balance
+      │  ├── it should return the correct fee amount
+      │  └── it should return the correct amount to transfer to user
+      └── when user WETH not exceed share balance
+         ├── it should return correct amount to transfer to user
+         └── it should return zero fee amount

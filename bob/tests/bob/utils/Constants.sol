@@ -9,8 +9,9 @@ abstract contract Constants is BaseConstants {
     uint128 public constant CURRENT_PRICE = 3000e8;
     uint128 public constant DEPOSIT_AMOUNT = 10e18;
     uint128 public constant TARGET_PRICE = 4000e8;
-    uint128 public constant WSTETH_WETH_EXCHANGE_RATE = 0.9e18;
-    uint128 public constant WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT = DEPOSIT_AMOUNT * WSTETH_WETH_EXCHANGE_RATE / 1e18;
+    UD60x18 public constant WSTETH_WETH_EXCHANGE_RATE = UD60x18.wrap(0.9e18);
+    uint128 public immutable WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT =
+        UD60x18.wrap(DEPOSIT_AMOUNT).mul(WSTETH_WETH_EXCHANGE_RATE).intoUint128();
 
     // Fees and Tolerances
     UD60x18 public constant MAX_SLIPPAGE_TOLERANCE = UD60x18.wrap(0.05e18); // 5%

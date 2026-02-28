@@ -1,0 +1,9 @@
+SupportsInterface_Integration_Concrete_Test
+├── when querying ISablierBobAdapter interface
+│  └── it should return true
+├── when querying ISablierLidoAdapter interface
+│  └── it should return true
+├── when querying IERC165 interface
+│  └── it should return true
+└── when querying invalid interface
+   └── it should return false

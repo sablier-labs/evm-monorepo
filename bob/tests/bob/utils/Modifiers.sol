@@ -48,6 +48,14 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier givenTotalWETHNotZero() {
+        _;
+    }
+
+    modifier givenTotalWstETHNotZero() {
+        _;
+    }
+
     modifier givenYieldTokenBalanceNotZero() {
         _;
     }
@@ -107,6 +115,10 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     }
 
     modifier whenTargetPriceNotZero() {
+        _;
+    }
+
+    modifier whenSlippageToleranceNotExceedMax() {
         _;
     }
 

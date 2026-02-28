@@ -49,9 +49,6 @@ library Errors {
     /// @notice Thrown when the new adapter does not implement the required interface.
     error SablierBob_NewAdapterMissesInterface(address adapter);
 
-    /// @notice Thrown when trying to perform an unauthorized action on a non-active vault.
-    error SablierBob_VaultNotActive(uint256 vaultId);
-
     /// @notice Thrown when trying to exit or redeem with zero share balance.
     error SablierBob_NoSharesToRedeem(uint256 vaultId, address user);
 
@@ -74,6 +71,9 @@ library Errors {
     /// @notice Thrown when trying to unstake from a vault that has no adapter configured.
     error SablierBob_VaultHasNoAdapter(uint256 vaultId);
 
+    /// @notice Thrown when trying to perform an unauthorized action on a non-active vault.
+    error SablierBob_VaultNotActive(uint256 vaultId);
+
     /// @notice Thrown when trying to perform an unauthorized action on an active vault.
     error SablierBob_VaultStillActive(uint256 vaultId);
 
@@ -94,14 +94,14 @@ library Errors {
     /// @notice Thrown when the Curve swap output is below the minimum acceptable amount.
     error SablierLidoAdapter_SlippageExceeded(uint256 expected, uint256 actual);
 
+    /// @notice Thrown when trying to set a slippage that exceeds the maximum allowed.
+    error SablierLidoAdapter_SlippageToleranceTooHigh(UD60x18 tolerance, UD60x18 maxTolerance);
+
     /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
     error SablierLidoAdapter_UserBalanceZero(uint256 vaultId, address user);
 
-    /// @notice Thrown when trying to set a slippage that exceeds the maximum allowed.
-    error SablierLidoAdapter_SlippageToleranceTooHigh(uint256 tolerance, uint256 maxTolerance);
-
     /// @notice Thrown when trying to set a yield fee that exceeds the maximum allowed.
-    error SablierLidoAdapter_YieldFeeTooHigh(uint256 fee, uint256 maxFee);
+    error SablierLidoAdapter_YieldFeeTooHigh(UD60x18 fee, UD60x18 maxFee);
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SABLIER ESCROW

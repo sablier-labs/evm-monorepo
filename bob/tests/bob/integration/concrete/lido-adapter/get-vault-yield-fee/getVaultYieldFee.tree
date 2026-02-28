@@ -1,0 +1,5 @@
+GetVaultYieldFee_Integration_Concrete_Test
+├── given no fee changes after creation
+│  └── it should return the snapshotted fee
+└── given global fee changed after creation
+   └── it should return the original snapshotted fee

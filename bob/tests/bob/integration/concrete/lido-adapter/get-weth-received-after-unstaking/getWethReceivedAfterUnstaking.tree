@@ -1,0 +1,5 @@
+GetWethReceivedAfterUnstaking_Integration_Concrete_Test
+├── given vault not unstaked
+│  └── it should return zero
+└── given vault unstaked
+   └── it should return the WETH received

@@ -102,19 +102,15 @@ contract SablierLidoAdapter is
     {
         // Check: the slippage tolerance is not too high.
         if (initialSlippageTolerance.gt(MAX_SLIPPAGE_TOLERANCE)) {
-            revert Errors.SablierLidoAdapter_SlippageToleranceTooHigh(
-                initialSlippageTolerance.unwrap(),
-                MAX_SLIPPAGE_TOLERANCE.unwrap()
-            );
+            revert Errors.SablierLidoAdapter_SlippageToleranceTooHigh(initialSlippageTolerance, MAX_SLIPPAGE_TOLERANCE);
         }
 
         // Check: the yield fee is not too high.
         if (initialYieldFee.gt(MAX_FEE)) {
-            revert Errors.SablierLidoAdapter_YieldFeeTooHigh(initialYieldFee.unwrap(), MAX_FEE.unwrap());
+            revert Errors.SablierLidoAdapter_YieldFeeTooHigh(initialYieldFee, MAX_FEE);
         }
 
         SABLIER_BOB = sablierBob;
-
         CURVE_POOL = curvePool;
         STETH = stETH;
         WETH = wETH;
@@ -127,10 +123,10 @@ contract SablierLidoAdapter is
         feeOnYield = initialYieldFee;
 
         // Approve wstETH contract to spend stETH, required for wrapping.
-        IStETH(STETH).approve(WSTETH, type(uint256).max);
+        IStETH(STETH).approve(WSTETH, type(uint128).max);
 
         // Approve Curve pool to spend stETH, required for unwrapping.
-        IStETH(STETH).approve(CURVE_POOL, type(uint256).max);
+        IStETH(STETH).approve(CURVE_POOL, type(uint128).max);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -160,9 +156,6 @@ contract SablierLidoAdapter is
         override
         returns (uint128 amountToTransfer, uint128 feeAmount)
     {
-        // Get wstETH allocated to the user before unstaking.
-        uint256 userWstETH = _userWstETH[vaultId][user];
-
         // Get total amount of wstETH in the vault before unstaking.
         uint256 totalWstETH = _vaultTotalWstETH[vaultId];
 
@@ -173,6 +166,9 @@ contract SablierLidoAdapter is
         if (totalWstETH == 0 || totalWeth == 0) {
             return (0, 0);
         }
+
+        // Get wstETH allocated to the user before unstaking.
+        uint256 userWstETH = _userWstETH[vaultId][user];
 
         // Calculate user's proportional share of WETH.
         uint128 userWethShare = (userWstETH * totalWeth / totalWstETH).toUint128();
@@ -232,10 +228,7 @@ contract SablierLidoAdapter is
     function setSlippageTolerance(UD60x18 newTolerance) external override onlyComptroller {
         // Check: the slippage tolerance does not exceed MAX_SLIPPAGE_TOLERANCE.
         if (newTolerance.gt(MAX_SLIPPAGE_TOLERANCE)) {
-            revert Errors.SablierLidoAdapter_SlippageToleranceTooHigh(
-                newTolerance.unwrap(),
-                MAX_SLIPPAGE_TOLERANCE.unwrap()
-            );
+            revert Errors.SablierLidoAdapter_SlippageToleranceTooHigh(newTolerance, MAX_SLIPPAGE_TOLERANCE);
         }
 
         // Cache the current slippage tolerance.
@@ -252,7 +245,7 @@ contract SablierLidoAdapter is
     function setYieldFee(UD60x18 newFee) external override onlyComptroller {
         // Check: the new fee does not exceed MAX_FEE.
         if (newFee.gt(MAX_FEE)) {
-            revert Errors.SablierLidoAdapter_YieldFeeTooHigh(newFee.unwrap(), MAX_FEE.unwrap());
+            revert Errors.SablierLidoAdapter_YieldFeeTooHigh(newFee, MAX_FEE);
         }
 
         UD60x18 previousFee = feeOnYield;

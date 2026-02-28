@@ -1,0 +1,5 @@
+GetTotalYieldBearingTokenBalance_Integration_Concrete_Test
+├── given vault with no adapter deposits
+│  └── it should return zero
+└── given vault with adapter deposits
+   └── it should return the total wstETH balance
