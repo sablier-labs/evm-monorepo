@@ -24,14 +24,6 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// @notice Emitted when all staked tokens in a vault are converted back to the deposit token.
     event UnstakeFullAmount(uint256 indexed vaultId, uint128 wrappedStakedAmount, uint128 withdrawnAmount);
 
-    /// @notice Emitted when tokens are unstaked for a user exiting within the grace period.
-    event UnstakeForUserWithinGracePeriod(
-        uint256 indexed vaultId,
-        address indexed user,
-        uint256 wrappedStakedAmount,
-        uint256 withdrawnAmount
-    );
-
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -116,21 +108,6 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// @param user The address of the user depositing the tokens.
     /// @param amount The amount of tokens to stake.
     function stake(uint256 vaultId, address user, uint256 amount) external;
-
-    /// @notice Unstakes tokens for a user within the grace period.
-    ///
-    /// @dev Emits an {UnstakeForUserWithinGracePeriod} event.
-    ///
-    /// Notes:
-    /// - No yield fee is charged during grace period unstaking.
-    ///
-    /// Requirements:
-    /// - The caller must be the SablierBob contract.
-    ///
-    /// @param vaultId The ID of the vault.
-    /// @param user The address of the user.
-    /// @return amountTransferred The amount of tokens transferred to the user.
-    function unstakeForUserWithinGracePeriod(uint256 vaultId, address user) external returns (uint256 amountTransferred);
 
     /// @notice Converts all yield-bearing tokens in a vault back to deposit tokens after settlement.
     ///

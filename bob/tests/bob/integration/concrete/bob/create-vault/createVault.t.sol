@@ -124,7 +124,6 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         // It should create the vault.
         assertEq(vaultId, expectedVaultId, "vaultId");
         assertEq(bob.getExpiry(vaultId), EXPIRY, "expiry");
-        assertEq(bob.getFirstDepositTime(vaultId, users.depositor), 0, "firstDepositTime");
         assertEq(bob.getLastSyncedAt(vaultId), getBlockTimestamp(), "lastSyncedAt");
         assertEq(bob.getLastSyncedPrice(vaultId), CURRENT_PRICE, "lastSyncedPrice");
         assertEq(address(bob.getOracle(vaultId)), address(oracle), "oracle");

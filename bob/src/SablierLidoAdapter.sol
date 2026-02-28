@@ -286,34 +286,6 @@ contract SablierLidoAdapter is
         emit Stake(vaultId, user, amount, wstETHAmount);
     }
 
-    /// @inheritdoc ISablierBobAdapter
-    function unstakeForUserWithinGracePeriod(
-        uint256 vaultId,
-        address user
-    )
-        external
-        override
-        onlySablierBob
-        returns (uint256 wethReceived)
-    {
-        // Get user's wstETH balance.
-        uint128 userWstETH = _userWstETH[vaultId][user];
-
-        // Effect: set user's wstETH balance to 0.
-        _userWstETH[vaultId][user] = 0;
-        _vaultTotalWstETH[vaultId] -= userWstETH;
-
-        // Swap wstETH for WETH.
-        wethReceived = _wstETHToWeth(userWstETH);
-
-        // Interaction: Transfer WETH to the user.
-        IERC20(WETH).safeTransfer(user, wethReceived);
-
-        // Log the event.
-        emit UnstakeForUserWithinGracePeriod(vaultId, user, userWstETH, wethReceived);
-    }
-
-    /// @inheritdoc ISablierBobAdapter
     function unstakeFullAmount(uint256 vaultId)
         external
         override
