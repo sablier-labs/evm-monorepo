@@ -6,7 +6,6 @@ import { StdAssertions } from "forge-std/src/StdAssertions.sol";
 
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 import { SafeOracleMock } from "src/mocks/ChainlinkMocks.sol";
-import { Noop } from "src/mocks/Noop.sol";
 import { BaseTest } from "src/tests/BaseTest.sol";
 
 import { AdminableMock } from "./mocks/AdminableMock.sol";
@@ -43,7 +42,6 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions, Utils {
     ComptrollerableMock internal comptrollerableMock;
     MerkleMock internal merkleMock;
     NoDelegateCallMock internal noDelegateCallMock;
-    Noop internal noop;
     RoleAdminableMock internal roleAdminableMock;
     SafeOracleMock internal safeOracleMock;
     SafeTokenSymbolMock internal safeTokenSymbolMock;

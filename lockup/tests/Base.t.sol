@@ -19,7 +19,6 @@ import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { RecipientGood } from "./mocks/Hooks.sol";
 import { NFTDescriptorMock } from "./mocks/NFTDescriptorMock.sol";
-import { Noop } from "./mocks/Noop.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Calculations } from "./utils/Calculations.sol";
 import { Defaults } from "./utils/Defaults.sol";
@@ -45,7 +44,6 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     ISablierLockup internal lockup;
     ILockupNFTDescriptor internal nftDescriptor;
     NFTDescriptorMock internal nftDescriptorMock;
-    Noop internal noop;
     RecipientGood internal recipientGood;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -56,12 +54,10 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         EvmBase.setUp();
 
         // Deploy the base test contracts.
-        noop = new Noop();
         recipientGood = new RecipientGood();
 
         // Label the base test contracts.
         vm.label({ account: address(recipientGood), newLabel: "Good Recipient" });
-        vm.label({ account: address(noop), newLabel: "Noop" });
 
         // Deploy the defaults contract.
         defaults = new Defaults();

@@ -11,6 +11,7 @@ import { ISablierComptroller } from "../interfaces/ISablierComptroller.sol";
 import { ChainlinkOracleMock } from "../mocks/ChainlinkMocks.sol";
 import { ERC20MissingReturn } from "../mocks/erc20/ERC20MissingReturn.sol";
 import { ERC20Mock } from "../mocks/erc20/ERC20Mock.sol";
+import { Noop } from "../mocks/Noop.sol";
 import { ContractWithoutReceive, ContractWithReceive } from "../mocks/Receive.sol";
 import { SablierComptroller } from "../SablierComptroller.sol";
 import { BaseConstants } from "./BaseConstants.sol";
@@ -28,6 +29,7 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
     ContractWithoutReceive internal contractWithoutReceive;
     ContractWithReceive internal contractWithReceive;
     ERC20Mock internal dai;
+    Noop internal noop;
     ChainlinkOracleMock internal oracle;
     IERC20[] internal tokens;
     ERC20Mock internal usdc;
@@ -40,6 +42,7 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
     function setUp() public virtual {
         contractWithoutReceive = new ContractWithoutReceive();
         contractWithReceive = new ContractWithReceive();
+        noop = new Noop();
 
         // Create the admin user.
         admin = payable(makeAddr({ name: "Admin" }));
