@@ -1,10 +1,10 @@
 UpdateStakedTokenBalance_Integration_Concrete_Test
-├── when caller not SablierBob
+├── when caller not Bob
 │  └── it should revert
-└── when caller SablierBob
-   ├── when user share balance before transfer zero
+└── when caller Bob
+   ├── when user share balance zero
    │  └── it should revert
-   └── when user share balance before transfer not zero
+   └── when user share balance not zero
       ├── it should decrease sender wstETH balance
       ├── it should increase recipient wstETH balance
       └── it should emit a {TransferStakedTokens} event

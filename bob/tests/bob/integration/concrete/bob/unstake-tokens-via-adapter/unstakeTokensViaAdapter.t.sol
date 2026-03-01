@@ -10,6 +10,16 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
+    UD60x18 internal newExchangeRate;
+
+    function setUp() public override {
+        Integration_Test.setUp();
+
+        // Simulate yield generation at settlement by lowering the exchange rate.
+        newExchangeRate = UD60x18.wrap(0.8e18);
+        wstEth.setExchangeRate(newExchangeRate);
+    }
+
     function test_RevertGiven_Null() external {
         expectRevert_Null(abi.encodeCall(bob.unstakeTokensViaAdapter, (vaultIds.nullVault)));
     }
@@ -63,14 +73,10 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         givenYieldTokenBalanceNotZero
         givenACTIVEStatus
     {
-        // Simulate yield generation at settlement by lowering the exchange rate.
-        uint128 newExchangeRate = 0.8e18;
-        wstEth.setExchangeRate(newExchangeRate);
-
         // Set oracle price to target price so that the sync settles the vault.
         oracle.setPrice(TARGET_PRICE);
 
-        uint128 expectedWethRedeemed = (WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT * 1e18) / newExchangeRate;
+        uint128 expectedWethRedeemed = ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(newExchangeRate).intoUint128();
 
         // It should emit a {SyncPriceFromOracle} event.
         vm.expectEmit({ emitter: address(bob) });
@@ -92,17 +98,15 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         givenYieldTokenBalanceNotZero
         givenNotACTIVEStatus
     {
-        // Set slippage in Curve mock to 10% so it exceeds adapter's slippage tolerance.
-        // The mock expects basis points (1000 = 10%).
-        UD60x18 newSlippage = UD60x18.wrap(0.1e18);
-        curvePool.setActualSlippage(1000);
-
         // Warp past expiry.
         vm.warp(EXPIRY + 1);
 
-        // Calculate expected minimum output with new slippage tolerance.
-        uint256 minEthOut = ud(DEPOSIT_AMOUNT).mul(UNIT.sub(SLIPPAGE_TOLERANCE)).unwrap();
-        uint256 actualOutput = ud(DEPOSIT_AMOUNT).mul(UNIT.sub(newSlippage)).unwrap();
+        // Update Curve mock such that amount exchanged is less than the output received by the `get_dy` function.
+        curvePool.setDiff(1e18);
+
+        uint256 stETHAmount = ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(newExchangeRate).intoUint256();
+        uint256 minEthOut = ud(stETHAmount).mul(UNIT.sub(SLIPPAGE_TOLERANCE)).intoUint256();
+        uint256 actualOutput = stETHAmount - 1e18;
 
         // It should revert.
         vm.expectRevert(
@@ -119,13 +123,9 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         givenYieldTokenBalanceNotZero
         givenNotACTIVEStatus
     {
-        // Simulate yield generation at settlement by lowering the exchange rate.
-        uint128 newExchangeRate = 0.8e18;
-        wstEth.setExchangeRate(newExchangeRate);
-
         vm.warp(EXPIRY + 1);
 
-        uint128 expectedWethRedeemed = (WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT * 1e18) / newExchangeRate;
+        uint128 expectedWethRedeemed = ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(newExchangeRate).intoUint128();
 
         _testUnstakeTokensViaAdapter({ expectedWethRedeemed: expectedWethRedeemed });
     }

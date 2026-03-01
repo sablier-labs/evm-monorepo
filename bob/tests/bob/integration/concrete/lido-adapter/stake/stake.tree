@@ -1,3 +1,10 @@
 Stake_Integration_Concrete_Test
-└── when caller not SablierBob
-   └── it should revert
+├── when caller not Bob
+│  └── it should revert
+└── when caller Bob
+   ├── it should unwrap WETH into ETH
+   ├── it should stake ETH to get stETH
+   ├── it should wrap stETH into wstETH
+   ├── it should update vault total wstETH balance
+   ├── it should update user wstETH balance
+   └── it should emit a {Stake} event

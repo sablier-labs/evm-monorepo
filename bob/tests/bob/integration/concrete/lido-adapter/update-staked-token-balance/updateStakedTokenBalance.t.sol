@@ -7,22 +7,17 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract UpdateStakedTokenBalance_Integration_Concrete_Test is Integration_Test {
-    function setUp() public override {
-        Integration_Test.setUp();
-        setMsgSender(users.newDepositor);
-    }
-
-    function test_RevertWhen_CallerNotSablierBob() external {
+    function test_RevertWhen_CallerNotBob() external {
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.newDepositor, address(bob))
+            abi.encodeWithSelector(Errors.SablierLidoAdapter_OnlySablierBob.selector, users.depositor, address(bob))
         );
         adapter.updateStakedTokenBalance(
             vaultIds.vaultWithAdapter, users.depositor, users.newDepositor, DEPOSIT_AMOUNT, DEPOSIT_AMOUNT
         );
     }
 
-    function test_RevertWhen_UserShareBalanceBeforeTransferZero() external whenCallerBob {
+    function test_RevertWhen_UserShareBalanceZero() external whenCallerBob {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -30,48 +25,37 @@ contract UpdateStakedTokenBalance_Integration_Concrete_Test is Integration_Test 
             )
         );
         adapter.updateStakedTokenBalance(
-            vaultIds.vaultWithAdapter,
-            users.depositor,
-            users.newDepositor,
-            DEPOSIT_AMOUNT,
-            0 // userShareBalanceBeforeTransfer = 0
+            vaultIds.vaultWithAdapter, users.depositor, users.newDepositor, DEPOSIT_AMOUNT, 0
         );
     }
 
-    function test_WhenUserShareBalanceBeforeTransferNotZero() external whenCallerBob {
-        uint256 transferAmount = DEPOSIT_AMOUNT / 2;
-        uint128 senderBalanceBefore = adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.depositor);
-        uint128 recipientBalanceBefore =
-            adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.newDepositor);
-
-        // Calculate expected wstETH transfer amount.
-        uint128 expectedWstETHTransfer = uint128(uint256(senderBalanceBefore) * transferAmount / DEPOSIT_AMOUNT);
+    function test_WhenUserShareBalanceNotZero() external whenCallerBob {
+        uint256 transferAmount = DEPOSIT_AMOUNT / 4;
+        uint128 expectedWstETHTransfer = WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT / 4;
 
         // It should emit a {TransferStakedTokens} event.
         vm.expectEmit({ emitter: address(adapter) });
-        emit ISablierBobAdapter.TransferStakedTokens(
-            vaultIds.vaultWithAdapter,
-            users.depositor,
-            users.newDepositor,
-            expectedWstETHTransfer
-        );
+        emit ISablierBobAdapter.TransferStakedTokens({
+            vaultId: vaultIds.vaultWithAdapter,
+            from: users.depositor,
+            to: users.newDepositor,
+            amount: expectedWstETHTransfer
+        });
 
         adapter.updateStakedTokenBalance(
             vaultIds.vaultWithAdapter, users.depositor, users.newDepositor, transferAmount, DEPOSIT_AMOUNT
         );
 
         // It should decrease sender wstETH balance.
-        assertEq(
-            adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.depositor),
-            senderBalanceBefore - expectedWstETHTransfer,
-            "sender.wstETHBalance"
-        );
+        uint128 actualSenderWstETHBalance =
+            adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.depositor);
+        uint128 expectedSenderWstETHBalance = WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT - expectedWstETHTransfer;
+        assertEq(actualSenderWstETHBalance, expectedSenderWstETHBalance, "sender.wstETHBalance");
 
         // It should increase recipient wstETH balance.
-        assertEq(
-            adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.newDepositor),
-            recipientBalanceBefore + expectedWstETHTransfer,
-            "recipient.wstETHBalance"
-        );
+        uint128 actualRecipientWstETHBalance =
+            adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.newDepositor);
+        uint128 expectedRecipientWstETHBalance = expectedWstETHTransfer;
+        assertEq(actualRecipientWstETHBalance, expectedRecipientWstETHBalance, "recipient.wstETHBalance");
     }
 }

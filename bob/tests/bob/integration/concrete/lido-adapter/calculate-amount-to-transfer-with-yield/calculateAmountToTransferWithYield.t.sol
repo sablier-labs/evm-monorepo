@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ud } from "@prb/math/src/UD60x18.sol";
+import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract CalculateAmountToTransferWithYield_Integration_Concrete_Test is Integration_Test {
@@ -36,14 +36,15 @@ contract CalculateAmountToTransferWithYield_Integration_Concrete_Test is Integra
 
     function test_WhenUserWETHExceedsShareBalance() external givenTotalWstETHNotZero givenTotalWETHNotZero {
         // Set a lower exchange rate to simulate positive yield.
-        wstEth.setExchangeRate(0.8e18);
+        wstEth.setExchangeRate(UD60x18.wrap(0.8e18));
 
         // Deposit into vault so that we have two users in the vault.
         setMsgSender(users.newDepositor);
         bob.enter(vaultIds.vaultWithAdapter, DEPOSIT_AMOUNT);
 
         // Set a new exchange rate so both users have some yield.
-        wstEth.setExchangeRate(0.5e18);
+        UD60x18 newExchangeRate = UD60x18.wrap(0.5e18);
+        wstEth.setExchangeRate(newExchangeRate);
 
         // Warp past expiry.
         vm.warp(EXPIRY + 1);
@@ -53,7 +54,7 @@ contract CalculateAmountToTransferWithYield_Integration_Concrete_Test is Integra
 
         // Calculate expected values.
         uint128 expectedAmountUnstakedForDepositor =
-            ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(ud(0.5e18)).intoUint128();
+            ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(newExchangeRate).intoUint128();
         uint128 expectedYieldForDepositor = expectedAmountUnstakedForDepositor - DEPOSIT_AMOUNT;
         uint128 expectedFeeOnYield = ud(expectedYieldForDepositor).mul(YIELD_FEE).intoUint128();
         uint128 expectedAmountToTransfer = expectedAmountUnstakedForDepositor - expectedFeeOnYield;

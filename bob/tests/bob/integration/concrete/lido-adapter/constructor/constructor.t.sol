@@ -80,6 +80,9 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
         // It should set the fee on yield.
         assertEq(adapter.feeOnYield(), YIELD_FEE, "feeOnYield");
 
+        // It should be able to receive ETH.
+        payable(address(adapter)).transfer(1 ether);
+
         // It should approve wstETH contract to spend stETH.
         assertEq(steth.allowance(address(adapter), address(wstEth)), MAX_UINT128, "wstETH allowance");
 
