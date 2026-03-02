@@ -212,6 +212,11 @@ library LockupHelpers {
                 revert Errors.SablierLockupHelpers_CliffTimeZeroUnlockAmountNotZero(unlockAmounts.cliff);
             }
 
+            // Check: the start time is strictly less than the end time.
+            if (timestamps.start >= timestamps.end) {
+                revert Errors.SablierLockupHelpers_StartTimeNotLessThanEndTime(timestamps.start, timestamps.end);
+            }
+
             // Calculate the streamable range when cliff time is zero.
             unchecked {
                 streamableRange = timestamps.end - timestamps.start;
@@ -221,11 +226,6 @@ library LockupHelpers {
         // Check: `granularity` does not exceed the streamable range.
         if (granularity > streamableRange) {
             revert Errors.SablierLockupHelpers_GranularityTooHigh(granularity, streamableRange);
-        }
-
-        // Check: the start time is strictly less than the end time.
-        if (timestamps.start >= timestamps.end) {
-            revert Errors.SablierLockupHelpers_StartTimeNotLessThanEndTime(timestamps.start, timestamps.end);
         }
 
         // Check: the sum of the start and cliff unlock amounts is not greater than the deposit amount.
