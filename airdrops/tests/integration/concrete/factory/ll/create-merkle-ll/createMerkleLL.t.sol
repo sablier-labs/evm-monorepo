@@ -33,7 +33,20 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         createMerkleLL(params);
     }
 
-    function test_GivenCustomFeeUSDSet() external whenNativeTokenNotFound givenCampaignNotExists {
+    function test_GivenGranularityZero() external whenNativeTokenNotFound givenCampaignNotExists {
+        MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
+        params.campaignName = "Merkle LL campaign with zero granularity";
+        params.granularity = 0;
+
+        _test_CreateMerkleLL(params, AIRDROP_MIN_FEE_USD);
+    }
+
+    function test_GivenCustomFeeUSDSet()
+        external
+        whenNativeTokenNotFound
+        givenCampaignNotExists
+        givenGranularityNotZero
+    {
         // Set the custom fee for this test.
         setMsgSender(admin);
         uint256 customFeeUSD = 0;
@@ -43,52 +56,49 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
         params.campaignName = "Merkle LL campaign with custom fee USD";
 
-        address expectedLL = computeMerkleLLAddress(params, users.campaignCreator);
-
-        // It should emit a {CreateMerkleLL} event.
-        vm.expectEmit({ emitter: address(factoryMerkleLL) });
-        emit ISablierFactoryMerkleLL.CreateMerkleLL({
-            merkleLL: ISablierMerkleLL(expectedLL),
-            campaignParams: params,
-            aggregateAmount: AGGREGATE_AMOUNT,
-            recipientCount: RECIPIENT_COUNT,
-            comptroller: address(comptroller),
-            minFeeUSD: customFeeUSD
-        });
-
-        ISablierMerkleLL actualLL = createMerkleLL(params);
-        assertLt(0, address(actualLL).code.length, "MerkleLL contract not created");
-        assertEq(address(actualLL), expectedLL, "MerkleLL contract does not match computed address");
-
-        // It should set the min fee.
-        assertEq(actualLL.minFeeUSD(), customFeeUSD, "min fee USD");
+        _test_CreateMerkleLL(params, customFeeUSD);
     }
 
-    function test_GivenCustomFeeUSDNotSet() external whenNativeTokenNotFound givenCampaignNotExists {
+    function test_GivenCustomFeeUSDNotSet()
+        external
+        whenNativeTokenNotFound
+        givenCampaignNotExists
+        givenGranularityNotZero
+    {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
         params.campaignName = "Merkle LL campaign with no custom fee USD";
 
-        address expectedLL = computeMerkleLLAddress(params, users.campaignCreator);
+        _test_CreateMerkleLL(params, AIRDROP_MIN_FEE_USD);
+    }
+
+    /// @dev Shared helper function.
+    function _test_CreateMerkleLL(MerkleLL.ConstructorParams memory params, uint256 expectedMinFeeUSD) private {
+        // Declare the expected params with updated granularity value.
+        MerkleLL.ConstructorParams memory expectedParams = params;
+        expectedParams.granularity = params.granularity == 0 ? 1 seconds : params.granularity;
+
+        // Compute the expected MerkleLL address.
+        address expectedLL = computeMerkleLLAddress(expectedParams, users.campaignCreator);
 
         // It should emit a {CreateMerkleLL} event.
         vm.expectEmit({ emitter: address(factoryMerkleLL) });
         emit ISablierFactoryMerkleLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
-            campaignParams: params,
+            campaignParams: expectedParams,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             comptroller: address(comptroller),
-            minFeeUSD: AIRDROP_MIN_FEE_USD
+            minFeeUSD: expectedMinFeeUSD
         });
 
         ISablierMerkleLL actualLL = createMerkleLL(params);
         assertLt(0, address(actualLL).code.length, "MerkleLL contract not created");
         assertEq(address(actualLL), expectedLL, "MerkleLL contract does not match computed address");
 
-        // It should set the correct stream shape.
-        assertEq(actualLL.streamShape(), STREAM_SHAPE, "stream shape");
+        // It should set the correct granularity.
+        assertEq(actualLL.VESTING_GRANULARITY(), expectedParams.granularity, "vesting granularity");
 
         // It should set the min fee.
-        assertEq(actualLL.minFeeUSD(), AIRDROP_MIN_FEE_USD, "min fee USD");
+        assertEq(actualLL.minFeeUSD(), expectedMinFeeUSD, "min fee USD");
     }
 }

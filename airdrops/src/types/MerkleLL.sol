@@ -19,8 +19,8 @@ library MerkleLL {
     /// a fixed-point number where 1e18 is 100%.
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
     /// not expire.
-    /// @param granularity The smallest step in time between two consecutive token unlocks. Zero is a sentinel
-    /// value for 1 second.
+    /// @param granularity The smallest step in time between two consecutive token unlocks. Zero is a sentinel value for
+    /// 1 second.
     /// @param initialAdmin The initial admin of the campaign.
     /// @param ipfsCID The content identifier for indexing the contract on IPFS. An empty value may break certain UI
     /// features that depend upon the IPFS CID.

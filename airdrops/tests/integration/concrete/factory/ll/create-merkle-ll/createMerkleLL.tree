@@ -5,9 +5,13 @@ CreateMerkleLL_Integration_Test
    ├── given campaign already exists
    │  └── it should revert
    └── given campaign not exists
-      ├── given custom fee USD set
-      │  ├── it should create the campaign with custom fee USD
+      ├── given granularity zero
+      │  ├── it should create the campaign with granularity as 1 second
       │  └── it should emit a {CreateMerkleLL} event
-      └── given custom fee USD not set
-         ├── it should create the campaign with min fee USD
-         └── it should emit a {CreateMerkleLL} event
+      └── given granularity not zero
+         ├── given custom fee USD set
+         │  ├── it should create the campaign with custom fee USD
+         │  └── it should emit a {CreateMerkleLL} event
+         └── given custom fee USD not set
+            ├── it should create the campaign with min fee USD
+            └── it should emit a {CreateMerkleLL} event

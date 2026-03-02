@@ -74,7 +74,7 @@ contract SablierFactoryMerkleLL is ISablierFactoryMerkleLL, SablierFactoryMerkle
 
     /// @inheritdoc ISablierFactoryMerkleLL
     function createMerkleLL(
-        MerkleLL.ConstructorParams calldata campaignParams,
+        MerkleLL.ConstructorParams memory campaignParams,
         uint256 aggregateAmount,
         uint256 recipientCount
     )
@@ -84,6 +84,9 @@ contract SablierFactoryMerkleLL is ISablierFactoryMerkleLL, SablierFactoryMerkle
     {
         // Check: user-provided token is not the native token.
         _forbidNativeToken(address(campaignParams.token));
+
+        // Set the granularity to 1 second if it is provided as a zero.
+        campaignParams.granularity = campaignParams.granularity == 0 ? 1 seconds : campaignParams.granularity;
 
         // Hash the parameters to generate a salt.
         bytes32 salt = keccak256(abi.encodePacked(msg.sender, comptroller, abi.encode(campaignParams)));
