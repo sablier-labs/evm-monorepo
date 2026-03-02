@@ -9,8 +9,8 @@ import { LockupPriceGated } from "src/types/LockupPriceGated.sol";
 
 import { Lockup_PriceGated_Integration_Fuzz_Test } from "./LockupPriceGated.t.sol";
 
-contract CreateWithDurationsLPG_Integration_Fuzz_Test is Lockup_PriceGated_Integration_Fuzz_Test {
-    function testFuzz_CreateWithDurationsLPG(uint128 targetPrice, uint40 duration) external whenNoDelegateCall {
+contract CreateWithTimestampsLPG_Integration_Fuzz_Test is Lockup_PriceGated_Integration_Fuzz_Test {
+    function testFuzz_CreateWithTimestampsLPG(uint128 targetPrice, uint40 duration) external whenNoDelegateCall {
         // Bound duration to be at least 1 second.
         duration = boundUint40(duration, 1 seconds, MAX_UNIX_TIMESTAMP);
 
@@ -35,10 +35,20 @@ contract CreateWithDurationsLPG_Integration_Fuzz_Test is Lockup_PriceGated_Integ
             targetPrice: targetPrice
         });
 
+        // Build the create params.
+        Lockup.CreateWithTimestamps memory createParams = Lockup.CreateWithTimestamps({
+            sender: _defaultParams.createWithTimestamps.sender,
+            recipient: _defaultParams.createWithTimestamps.recipient,
+            depositAmount: _defaultParams.createWithTimestamps.depositAmount,
+            token: _defaultParams.createWithTimestamps.token,
+            cancelable: _defaultParams.createWithTimestamps.cancelable,
+            transferable: _defaultParams.createWithTimestamps.transferable,
+            timestamps: timestamps,
+            shape: _defaultParams.createWithTimestamps.shape
+        });
+
         // Create the stream.
-        uint256 streamId = lockup.createWithDurationsLPG(
-            _defaultParams.createWithDurations, defaults.unlockParams(targetPrice), duration
-        );
+        uint256 streamId = lockup.createWithTimestampsLPG(createParams, defaults.unlockParams(targetPrice));
 
         // It should create the stream.
         assertEq(lockup.getDepositedAmount(streamId), defaults.DEPOSIT_AMOUNT(), "depositedAmount");

@@ -22,10 +22,9 @@ abstract contract SablierLockupPriceGated is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierLockupPriceGated
-    function createWithDurationsLPG(
-        Lockup.CreateWithDurations calldata params,
-        LockupPriceGated.UnlockParams calldata unlockParams,
-        uint40 duration
+    function createWithTimestampsLPG(
+        Lockup.CreateWithTimestamps calldata params,
+        LockupPriceGated.UnlockParams calldata unlockParams
     )
         external
         payable
@@ -34,7 +33,7 @@ abstract contract SablierLockupPriceGated is
         returns (uint256 streamId)
     {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createLPG(params, unlockParams, duration);
+        streamId = _createLPG(params, unlockParams);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -43,21 +42,16 @@ abstract contract SablierLockupPriceGated is
 
     /// @dev See the documentation for the user-facing functions that call this private function.
     function _createLPG(
-        Lockup.CreateWithDurations calldata params,
-        LockupPriceGated.UnlockParams calldata unlockParams,
-        uint40 duration
+        Lockup.CreateWithTimestamps calldata params,
+        LockupPriceGated.UnlockParams calldata unlockParams
     )
         private
         returns (uint256 streamId)
     {
-        // Set timestamps.
-        Lockup.Timestamps memory timestamps =
-            Lockup.Timestamps({ start: uint40(block.timestamp), end: uint40(block.timestamp) + duration });
-
         // Check: validate the user-provided parameters.
         LockupHelpers.checkCreateLPG(
             params.sender,
-            timestamps,
+            params.timestamps,
             params.depositAmount,
             address(params.token),
             nativeToken,
@@ -79,7 +73,7 @@ abstract contract SablierLockupPriceGated is
             recipient: params.recipient,
             sender: params.sender,
             streamId: streamId,
-            timestamps: timestamps,
+            timestamps: params.timestamps,
             token: params.token,
             transferable: params.transferable
         });

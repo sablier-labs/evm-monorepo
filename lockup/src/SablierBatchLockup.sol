@@ -255,6 +255,58 @@ contract SablierBatchLockup is ISablierBatchLockup {
     }
 
     /// @inheritdoc ISablierBatchLockup
+    function createWithTimestampsLPG(
+        ISablierLockup lockup,
+        IERC20 token,
+        BatchLockup.CreateWithTimestampsLPG[] calldata batch
+    )
+        external
+        override
+        returns (uint256[] memory streamIds)
+    {
+        // Check that the batch size is not zero.
+        uint256 batchSize = batch.length;
+        if (batchSize == 0) {
+            revert Errors.SablierBatchLockup_BatchSizeZero();
+        }
+
+        // Calculate the sum of all of stream amounts. It is safe to use unchecked addition because one of the create
+        // transactions will revert if there is overflow.
+        uint256 i;
+        uint256 transferAmount;
+        for (i = 0; i < batchSize; ++i) {
+            unchecked {
+                transferAmount += batch[i].depositAmount;
+            }
+        }
+
+        // Perform the ERC-20 transfer and approve {SablierLockup} to spend the amount of tokens.
+        _handleTransfer(address(lockup), token, transferAmount);
+
+        // Create a stream for each element in the parameter array.
+        streamIds = new uint256[](batchSize);
+        for (i = 0; i < batchSize; ++i) {
+            // Create the stream.
+            streamIds[i] = lockup.createWithTimestampsLPG(
+                Lockup.CreateWithTimestamps({
+                    sender: batch[i].sender,
+                    recipient: batch[i].recipient,
+                    depositAmount: batch[i].depositAmount,
+                    token: token,
+                    cancelable: batch[i].cancelable,
+                    transferable: batch[i].transferable,
+                    timestamps: batch[i].timestamps,
+                    shape: batch[i].shape
+                }),
+                batch[i].unlockParams
+            );
+        }
+
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
+    }
+
+    /// @inheritdoc ISablierBatchLockup
     function createWithDurationsLT(
         ISablierLockup lockup,
         IERC20 token,

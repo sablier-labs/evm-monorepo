@@ -29,10 +29,8 @@ interface ISablierLockupPriceGated is ISablierLockupState {
                         USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a price-gated stream by setting the start time to `block.timestamp`, and the end time to
-    /// the sum of `block.timestamp` and `duration`. The stream is funded by `msg.sender` and is wrapped in an
-    /// ERC-721 NFT.
-    ///
+    /// @notice Creates a stream with the provided start time and end time. The stream is funded by `msg.sender` and is
+    /// wrapped in an ERC-721 NFT.
     /// @dev Emits a {Transfer}, {CreateLockupPriceGatedStream} and {MetadataUpdate} event.
     ///
     /// Notes:
@@ -41,13 +39,16 @@ interface ISablierLockupPriceGated is ISablierLockupState {
     ///   2. Current time is greater than the stream's end time.
     /// - The sender can cancel the stream when price is less than target price AND end time is in the future.
     /// - The function does not check if the provided oracle reports the price for the deposited token.
+    /// - The LPG model does not support a "createWithDuration" function because the {SablierLockup} contract is at the
+    /// size limit. If the EVM contract size limit is increased in the future, this function will be added.
     ///
     /// Requirements:
     /// - Must not be delegate called.
     /// - `params.depositAmount` must be greater than zero.
     /// - `params.sender` must not be the zero address.
     /// - `params.recipient` must not be the zero address.
-    /// - `duration` must be greater than zero.
+    /// - `params.timestamps.start` must not be zero.
+    /// - `params.timestamps.start` must be less than `params.timestamps.end`.
     /// - `unlockParams.oracle` must implement Chainlink's {AggregatorV3Interface} interface.
     /// - `unlockParams.oracle` must return 8 decimals when the `decimals()` function is called.
     /// - `unlockParams.oracle` must return a positive price when the `latestRoundData()` function is called.
@@ -58,12 +59,10 @@ interface ISablierLockupPriceGated is ISablierLockupState {
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {Lockup} type.
     /// @param unlockParams Struct encapsulating the unlock parameters, documented in {LockupPriceGated}.
-    /// @param duration The total duration of the stream in seconds.
     /// @return streamId The ID of the newly created stream.
-    function createWithDurationsLPG(
-        Lockup.CreateWithDurations calldata params,
-        LockupPriceGated.UnlockParams calldata unlockParams,
-        uint40 duration
+    function createWithTimestampsLPG(
+        Lockup.CreateWithTimestamps calldata params,
+        LockupPriceGated.UnlockParams calldata unlockParams
     )
         external
         payable

@@ -20,8 +20,7 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
 
     // Struct with parameters to be fuzzed during the fork tests.
     struct ParamsLPG {
-        Lockup.CreateWithDurations create;
-        uint40 duration;
+        Lockup.CreateWithTimestamps create;
         uint128 mockPrice;
         uint128 targetPrice;
         uint40 warpTimestamp;
@@ -113,18 +112,17 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         });
 
         // Create the stream.
-        lockup.createWithDurationsLPG({
+        lockup.createWithTimestampsLPG({
             params: params.create,
-            unlockParams: LockupPriceGated.UnlockParams(ORACLE, params.targetPrice),
-            duration: params.duration
+            unlockParams: LockupPriceGated.UnlockParams(ORACLE, params.targetPrice)
         });
 
         // Assert that the stream is created with the correct parameters.
         assertEq(lockup.getDepositedAmount(varsLPG.streamId), params.create.depositAmount, "depositedAmount");
-        assertEq(lockup.getEndTime(varsLPG.streamId), varsLPG.timestamps.end, "endTime");
+        assertEq(lockup.getEndTime(varsLPG.streamId), params.create.timestamps.end, "endTime");
         assertEq(lockup.getRecipient(varsLPG.streamId), params.create.recipient, "recipient");
         assertEq(lockup.getSender(varsLPG.streamId), params.create.sender, "sender");
-        assertEq(lockup.getStartTime(varsLPG.streamId), varsLPG.timestamps.start, "startTime");
+        assertEq(lockup.getStartTime(varsLPG.streamId), params.create.timestamps.start, "startTime");
         assertEq(lockup.getUnderlyingToken(varsLPG.streamId), params.create.token, "underlyingToken");
         assertEq(lockup.getWithdrawnAmount(varsLPG.streamId), 0, "withdrawnAmount");
         assertFalse(lockup.isDepleted(varsLPG.streamId), "isDepleted");
@@ -271,10 +269,9 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         _preCreateStream(params);
 
         // Create the stream.
-        lockup.createWithDurationsLPG({
+        lockup.createWithTimestampsLPG({
             params: params.create,
-            unlockParams: LockupPriceGated.UnlockParams(ORACLE, params.targetPrice),
-            duration: params.duration
+            unlockParams: LockupPriceGated.UnlockParams(ORACLE, params.targetPrice)
         });
 
         /*//////////////////////////////////////////////////////////////////////////
@@ -385,12 +382,11 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         // Bound the deposit amount.
         params.create.depositAmount = boundUint128(params.create.depositAmount, 1, initialHolderBalance);
 
-        // Bound the duration.
-        params.duration = boundUint40(params.duration, 2 seconds, 52 weeks);
-
-        // Calculate timestamps based on duration.
+        // Calculate timestamps.
+        uint40 duration = boundUint40(uint40(uint256(keccak256(abi.encode(params.targetPrice)))), 2 seconds, 52 weeks);
         varsLPG.timestamps =
-            Lockup.Timestamps({ start: uint40(block.timestamp), end: uint40(block.timestamp) + params.duration });
+            Lockup.Timestamps({ start: uint40(block.timestamp), end: uint40(block.timestamp) + duration });
+        params.create.timestamps = varsLPG.timestamps;
 
         // Get the current oracle price and bound the target price above it.
         (, int256 currentPrice,,,) = ORACLE.latestRoundData();

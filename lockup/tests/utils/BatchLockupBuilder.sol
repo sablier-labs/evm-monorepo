@@ -5,6 +5,7 @@ import { BatchLockup } from "../../src/types/BatchLockup.sol";
 import { Lockup } from "../../src/types/Lockup.sol";
 import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
 import { LockupLinear } from "../../src/types/LockupLinear.sol";
+import { LockupPriceGated } from "../../src/types/LockupPriceGated.sol";
 import { LockupTranched } from "../../src/types/LockupTranched.sol";
 
 library BatchLockupBuilder {
@@ -203,6 +204,45 @@ library BatchLockupBuilder {
             cliffTime: cliffTime,
             unlockAmounts: unlockAmounts,
             granularity: granularity,
+            shape: params.shape
+        });
+        batch = fillBatch(batchSingle, batchSize);
+    }
+
+    /// @notice Generates an array containing `batchSize` copies of `batchSingle`.
+    function fillBatch(
+        BatchLockup.CreateWithTimestampsLPG memory batchSingle,
+        uint256 batchSize
+    )
+        internal
+        pure
+        returns (BatchLockup.CreateWithTimestampsLPG[] memory batch)
+    {
+        batch = new BatchLockup.CreateWithTimestampsLPG[](batchSize);
+        for (uint256 i = 0; i < batchSize; ++i) {
+            batch[i] = batchSingle;
+        }
+    }
+
+    /// @notice Turns the inputs into an array of {BatchLockup.CreateWithTimestampsLPG} structs.
+    function fillBatch(
+        Lockup.CreateWithTimestamps memory params,
+        LockupPriceGated.UnlockParams memory unlockParams,
+        uint256 batchSize
+    )
+        internal
+        pure
+        returns (BatchLockup.CreateWithTimestampsLPG[] memory batch)
+    {
+        batch = new BatchLockup.CreateWithTimestampsLPG[](batchSize);
+        BatchLockup.CreateWithTimestampsLPG memory batchSingle = BatchLockup.CreateWithTimestampsLPG({
+            sender: params.sender,
+            recipient: params.recipient,
+            depositAmount: params.depositAmount,
+            cancelable: params.cancelable,
+            transferable: params.transferable,
+            timestamps: params.timestamps,
+            unlockParams: unlockParams,
             shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
