@@ -97,7 +97,7 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
         weth.approve(address(bob), MAX_UINT128);
     }
 
-    /// @dev Deploys external Lido/Curve protocol mocks at the mainnet constant addresses.
+    /// @dev Deploys mocks for external protocols.
     function deployExternalMocks() internal {
         weth = new MockWETH();
         steth = new MockStETH();

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract CalculateAmountToTransferWithYield_Integration_Concrete_Test is Integration_Test {
@@ -54,10 +54,9 @@ contract CalculateAmountToTransferWithYield_Integration_Concrete_Test is Integra
 
         // Calculate expected values.
         uint128 expectedAmountUnstakedForDepositor =
-            ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(newExchangeRate).intoUint128();
-        uint128 expectedYieldForDepositor = expectedAmountUnstakedForDepositor - DEPOSIT_AMOUNT;
-        uint128 expectedFeeOnYield = ud(expectedYieldForDepositor).mul(YIELD_FEE).intoUint128();
-        uint128 expectedAmountToTransfer = expectedAmountUnstakedForDepositor - expectedFeeOnYield;
+            expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
+        (uint128 expectedFeeOnYield, uint128 expectedAmountToTransfer) =
+            calculateYieldBreakdown(expectedAmountUnstakedForDepositor, DEPOSIT_AMOUNT, YIELD_FEE);
 
         (uint128 amountToTransfer, uint128 feeAmount) =
             adapter.calculateAmountToTransferWithYield(vaultIds.vaultWithAdapter, users.depositor, DEPOSIT_AMOUNT);

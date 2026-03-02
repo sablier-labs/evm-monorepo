@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ud, UD60x18, UNIT } from "@prb/math/src/UD60x18.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
@@ -76,7 +76,7 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         // Set oracle price to target price so that the sync settles the vault.
         oracle.setPrice(TARGET_PRICE);
 
-        uint128 expectedWethRedeemed = ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(newExchangeRate).intoUint128();
+        uint128 expectedWethRedeemed = expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
 
         // It should emit a {SyncPriceFromOracle} event.
         vm.expectEmit({ emitter: address(bob) });
@@ -104,8 +104,8 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         // Update Curve mock such that amount exchanged is less than the output received by the `get_dy` function.
         curvePool.setDiff(1e18);
 
-        uint256 stETHAmount = ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(newExchangeRate).intoUint256();
-        uint256 minEthOut = ud(stETHAmount).mul(UNIT.sub(SLIPPAGE_TOLERANCE)).intoUint256();
+        uint256 stETHAmount = expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
+        uint256 minEthOut = calculateMinEthOut(stETHAmount, SLIPPAGE_TOLERANCE);
         uint256 actualOutput = stETHAmount - 1e18;
 
         // It should revert.
@@ -125,7 +125,7 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
     {
         vm.warp(EXPIRY + 1);
 
-        uint128 expectedWethRedeemed = ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(newExchangeRate).intoUint128();
+        uint128 expectedWethRedeemed = expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
 
         _testUnstakeTokensViaAdapter({ expectedWethRedeemed: expectedWethRedeemed });
     }

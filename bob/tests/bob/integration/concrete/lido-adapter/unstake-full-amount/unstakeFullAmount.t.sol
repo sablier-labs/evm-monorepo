@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ud, UD60x18, UNIT } from "@prb/math/src/UD60x18.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { ICurveStETHPool } from "src/interfaces/external/ICurveStETHPool.sol";
 import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
@@ -24,7 +24,7 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         // Update Curve mock such that amount exchanged is less than the output received by the `get_dy` function.
         curvePool.setDiff(1e18);
 
-        uint256 expectedMinEthOut = ud(DEPOSIT_AMOUNT).mul(UNIT.sub(SLIPPAGE_TOLERANCE)).unwrap();
+        uint256 expectedMinEthOut = calculateMinEthOut(DEPOSIT_AMOUNT, SLIPPAGE_TOLERANCE);
         uint256 expectedEthOutFromExchange = DEPOSIT_AMOUNT - 1e18;
 
         // It should revert.
@@ -41,8 +41,8 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         UD60x18 newExchangeRate = UD60x18.wrap(0.8e18);
         wstEth.setExchangeRate(newExchangeRate);
 
-        uint128 expectedEthReceived = ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(newExchangeRate).intoUint128();
-        uint128 expectedMinEthOut = ud(expectedEthReceived).mul(UNIT.sub(SLIPPAGE_TOLERANCE)).intoUint128();
+        uint128 expectedEthReceived = expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
+        uint128 expectedMinEthOut = calculateMinEthOut(expectedEthReceived, SLIPPAGE_TOLERANCE);
 
         // It should unwrap wstETH to stETH.
         vm.expectCall({

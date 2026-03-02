@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
@@ -171,10 +171,9 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         // Set oracle price to target price so that the sync settles the vault.
         oracle.setPrice(TARGET_PRICE);
 
-        uint128 expectedWethRedeemed = ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(newExchangeRate).intoUint128();
-        uint128 expectedYield = expectedWethRedeemed - DEPOSIT_AMOUNT;
-        uint128 expectedComptrollerFee = ud(expectedYield).mul(YIELD_FEE).intoUint128();
-        uint128 expectedUserWeth = expectedWethRedeemed - expectedComptrollerFee;
+        uint128 expectedWethRedeemed = expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
+        (uint128 expectedComptrollerFee, uint128 expectedUserWeth) =
+            calculateYieldBreakdown(expectedWethRedeemed, DEPOSIT_AMOUNT, YIELD_FEE);
 
         // It should emit a {Redeem} event.
         vm.expectEmit({ emitter: address(bob) });
@@ -225,10 +224,9 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         // Unstake first so the vault is no longer staked in the adapter.
         bob.unstakeTokensViaAdapter(vaultIds.vaultWithAdapter);
 
-        uint128 expectedWethRedeemed = ud(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT).div(newExchangeRate).intoUint128();
-        uint128 expectedYield = expectedWethRedeemed - DEPOSIT_AMOUNT;
-        uint128 expectedComptrollerFee = ud(expectedYield).mul(YIELD_FEE).intoUint128();
-        uint128 expectedUserWeth = expectedWethRedeemed - expectedComptrollerFee;
+        uint128 expectedWethRedeemed = expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
+        (uint128 expectedComptrollerFee, uint128 expectedUserWeth) =
+            calculateYieldBreakdown(expectedWethRedeemed, DEPOSIT_AMOUNT, YIELD_FEE);
 
         // It should emit a {Redeem} event.
         vm.expectEmit({ emitter: address(bob) });
