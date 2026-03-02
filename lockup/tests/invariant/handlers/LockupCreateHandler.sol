@@ -129,7 +129,6 @@ contract LockupCreateHandler is BaseHandler, Calculations {
     function createWithTimestampsLPG(
         uint256 timeJumpSeed,
         Lockup.CreateWithTimestamps memory params,
-        uint40 duration,
         uint128 targetPrice
     )
         public
@@ -143,11 +142,10 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         // Bound the input parameters.
         params.depositAmount = boundUint128(params.depositAmount, 1, ONE_BILLION_DAI);
-        duration = boundUint40(duration, 2 seconds, 52 weeks);
+        params.timestamps.start = boundUint40(params.timestamps.start, 1 seconds, getBlockTimestamp());
+        params.timestamps.end =
+            boundUint40(params.timestamps.end, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks);
         targetPrice = _boundTargetPrice(targetPrice);
-
-        // Set the timestamps.
-        params.timestamps = Lockup.Timestamps({ start: getBlockTimestamp(), end: getBlockTimestamp() + duration });
 
         // Mint enough tokens to the Sender.
         deal({ token: address(token), to: params.sender, give: params.depositAmount });

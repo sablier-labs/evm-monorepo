@@ -101,7 +101,11 @@ interface ISablierBatchLockup {
 
     /// @notice Creates a batch of LPG streams using `createWithTimestampsLPG`.
     ///
-    /// @dev Requirements:
+    /// @dev Notes:
+    /// - The LPG model does not support a "createWithDuration" function because the {SablierLockup} contract is at the
+    /// size limit. If the EVM contract size limit is increased in the future, this function will be added.
+    ///
+    /// Requirements:
     /// - There must be at least one element in `batch`.
     /// - All requirements from {ISablierLockupPriceGated.createWithTimestampsLPG} must be met for each stream.
     ///
