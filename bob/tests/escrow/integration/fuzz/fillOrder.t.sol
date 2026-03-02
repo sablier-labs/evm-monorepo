@@ -56,8 +56,8 @@ contract FillOrder_Integration_Fuzz_Test is Integration_Test {
         });
     }
 
-    /// @dev Open order (buyer = address(0)), default trade fee — exercises the open-order access path.
-    function testFuzz_FillOrder_GivenOpenOrder(
+    /// @dev No designated buyer, anyone can fill the order.
+    function testFuzz_FillOrder_GivenNoDesignatedBuyer(
         uint128 sellAmount,
         uint128 minBuyAmount,
         uint128 buyAmount,
