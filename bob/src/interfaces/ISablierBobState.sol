@@ -29,10 +29,6 @@ interface ISablierBobState {
     /// @dev Reverts if `vaultId` references a null vault.
     function getExpiry(uint256 vaultId) external view returns (uint40 expiry);
 
-    /// @notice Returns the timestamp when a user first deposited into a vault.
-    /// @dev Reverts if `vaultId` references a null vault.
-    function getFirstDepositTime(uint256 vaultId, address user) external view returns (uint40 depositedAt);
-
     /// @notice Returns the timestamp when the oracle price was last synced for a vault.
     /// @dev Reverts if `vaultId` references a null vault.
     function getLastSyncedAt(uint256 vaultId) external view returns (uint40 lastSyncedAt);

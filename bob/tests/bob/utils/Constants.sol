@@ -21,7 +21,6 @@ abstract contract Constants is BaseConstants {
     // Timestamps
     uint40 public constant FEB_1_2026 = 1_769_904_000;
     uint40 public constant EXPIRY = FEB_1_2026 + 30 days;
-    uint40 public constant GRACE_PERIOD = 4 hours;
 
     // Vault Share
     string public constant SHARE_TOKEN_NAME = "Sablier Bob WETH Vault #1";

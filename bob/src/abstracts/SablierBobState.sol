@@ -26,9 +26,6 @@ abstract contract SablierBobState is ISablierBobState {
     /// @inheritdoc ISablierBobState
     uint256 public override nextVaultId;
 
-    /// @dev Timestamp of first deposit for each user in each vault, used for grace period calculation.
-    mapping(uint256 vaultId => mapping(address user => uint40 depositedAt)) internal _firstDepositTimes;
-
     /// @dev Vaults mapped by unsigned integers.
     mapping(uint256 vaultId => Bob.Vault vault) internal _vaults;
 
@@ -69,20 +66,6 @@ abstract contract SablierBobState is ISablierBobState {
     /// @inheritdoc ISablierBobState
     function getExpiry(uint256 vaultId) external view override notNull(vaultId) returns (uint40 expiry) {
         expiry = _vaults[vaultId].expiry;
-    }
-
-    /// @inheritdoc ISablierBobState
-    function getFirstDepositTime(
-        uint256 vaultId,
-        address user
-    )
-        external
-        view
-        override
-        notNull(vaultId)
-        returns (uint40 depositedAt)
-    {
-        depositedAt = _firstDepositTimes[vaultId][user];
     }
 
     /// @inheritdoc ISablierBobState

@@ -52,14 +52,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         bob.enter(vaultIds.defaultVault, 0);
     }
 
-    function test_WhenFirstDeposit()
-        external
-        givenNotNull
-        givenACTIVE
-        whenSyncNotChangeStatus
-        whenAmountNotZero
-        givenNoAdapter
-    {
+    function test_GivenNoAdapter() external givenNotNull givenACTIVE whenSyncNotChangeStatus whenAmountNotZero {
         uint256 shareBalanceBefore = defaultShareToken.balanceOf(users.newDepositor);
 
         // It should emit an {Enter} event.
@@ -80,53 +73,6 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         uint256 actualSharesMinted = defaultShareToken.balanceOf(users.newDepositor) - shareBalanceBefore;
         uint256 expectedSharesMinted = DEPOSIT_AMOUNT;
         assertEq(actualSharesMinted, expectedSharesMinted, "sharesMinted");
-
-        // It should set the first deposit time.
-        uint40 actualFirstDepositTime = bob.getFirstDepositTime(vaultIds.defaultVault, users.newDepositor);
-        uint40 expectedFirstDepositTime = getBlockTimestamp();
-        assertEq(actualFirstDepositTime, expectedFirstDepositTime, "firstDepositTime");
-    }
-
-    function test_WhenNotFirstDeposit()
-        external
-        givenNotNull
-        givenACTIVE
-        whenSyncNotChangeStatus
-        whenAmountNotZero
-        givenNoAdapter
-    {
-        // Deposit into vault so that the first deposit time is set.
-        bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
-        uint40 firstDepositedAt = getBlockTimestamp();
-
-        // Warp to 1 hour later.
-        vm.warp(getBlockTimestamp() + 1 hours);
-
-        uint256 shareBalanceBefore = defaultShareToken.balanceOf(users.newDepositor);
-
-        // It should emit an {Enter} event.
-        vm.expectEmit({ emitter: address(bob) });
-        emit ISablierBob.Enter({
-            vaultId: vaultIds.defaultVault,
-            user: users.newDepositor,
-            amountReceived: DEPOSIT_AMOUNT,
-            sharesMinted: DEPOSIT_AMOUNT
-        });
-
-        // It should transfer tokens to the contract.
-        expectCallToTransferFrom({ token: weth, from: users.newDepositor, to: address(bob), value: DEPOSIT_AMOUNT });
-
-        bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
-
-        // It should mint share tokens to the caller.
-        uint256 actualSharesMinted = defaultShareToken.balanceOf(users.newDepositor) - shareBalanceBefore;
-        uint256 expectedSharesMinted = DEPOSIT_AMOUNT;
-        assertEq(actualSharesMinted, expectedSharesMinted, "sharesMinted");
-
-        // It should not update the first deposit time.
-        uint40 actualFirstDepositTime = bob.getFirstDepositTime(vaultIds.defaultVault, users.newDepositor);
-        uint40 expectedFirstDepositTime = firstDepositedAt;
-        assertEq(actualFirstDepositTime, expectedFirstDepositTime, "firstDepositTime");
     }
 
     function test_GivenAdapter() external givenNotNull givenACTIVE whenSyncNotChangeStatus whenAmountNotZero {
@@ -161,11 +107,6 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         uint256 actualSharesMinted = shareTokenForVaultWithAdapter.balanceOf(users.newDepositor) - shareBalanceBefore;
         uint256 expectedSharesMinted = DEPOSIT_AMOUNT;
         assertEq(actualSharesMinted, expectedSharesMinted, "sharesMinted");
-
-        // It should set the first deposit time.
-        uint40 actualFirstDepositTime = bob.getFirstDepositTime(vaultIds.vaultWithAdapter, users.newDepositor);
-        uint40 expectedFirstDepositTime = getBlockTimestamp();
-        assertEq(actualFirstDepositTime, expectedFirstDepositTime, "firstDepositTime");
 
         // It should stake via the adapter.
         uint256 actualWstETH = adapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAdapter, users.newDepositor);

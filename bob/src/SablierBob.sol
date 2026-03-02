@@ -49,13 +49,6 @@ contract SablierBob is
     using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierBob
-    uint40 public constant override GRACE_PERIOD = 4 hours;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -211,11 +204,6 @@ contract SablierBob is
         // Load the vault from storage.
         Bob.Vault memory vault = _vaults[vaultId];
 
-        // Effect: set `_firstDepositTimes` on the first deposit for grace period tracking.
-        if (_firstDepositTimes[vaultId][msg.sender] == 0) {
-            _firstDepositTimes[vaultId][msg.sender] = uint40(block.timestamp);
-        }
-
         // Interaction: transfer tokens from caller to this contract or the adapter.
         if (address(vault.adapter) != address(0)) {
             // Interaction: Transfer token from caller to the adapter.
@@ -233,69 +221,6 @@ contract SablierBob is
 
         // Log the deposit.
         emit Enter(vaultId, msg.sender, amount, amount);
-    }
-
-    /// @inheritdoc ISablierBob
-    function exitWithinGracePeriod(uint256 vaultId)
-        external
-        override
-        nonReentrant
-        notNull(vaultId)
-        onlyActive(vaultId)
-    {
-        // Load the vault from storage.
-        Bob.Vault storage vault = _vaults[vaultId];
-
-        // Get the caller's share balance.
-        uint256 shares = vault.shareToken.balanceOf(msg.sender);
-
-        // Check: the share balance is not zero.
-        if (shares == 0) {
-            revert Errors.SablierBob_NoSharesToRedeem(vaultId, msg.sender);
-        }
-
-        // Retrieve the timestamp when the caller made the first deposit in this vault.
-        uint40 firstDepositTime = _firstDepositTimes[vaultId][msg.sender];
-
-        // Check: the caller is a depositor and does not hold shares because of a transfer.
-        if (firstDepositTime == 0) {
-            revert Errors.SablierBob_CallerNotDepositor(vaultId, msg.sender);
-        }
-
-        // Calculate the grace period end time.
-        uint40 gracePeriodEndsAt = firstDepositTime + GRACE_PERIOD;
-
-        // Check: the current timestamp is within the grace period.
-        if (block.timestamp > gracePeriodEndsAt) {
-            revert Errors.SablierBob_GracePeriodExpired(vaultId, msg.sender, firstDepositTime, gracePeriodEndsAt);
-        }
-
-        // Effect: clear the deposit record.
-        delete _firstDepositTimes[vaultId][msg.sender];
-
-        // Interaction: burn share tokens from the caller.
-        vault.shareToken.burn(vaultId, msg.sender, shares);
-
-        uint256 amountTransferred;
-
-        // Interaction: return tokens to the caller.
-        if (address(vault.adapter) != address(0)) {
-            // Unstake the tokens for the user via the adapter.
-            amountTransferred = vault.adapter.unstakeForUserWithinGracePeriod(vaultId, msg.sender);
-        }
-        // Otherwise, transfer the amount equal to the shares burned.
-        else {
-            amountTransferred = shares;
-            vault.token.safeTransfer(msg.sender, amountTransferred);
-        }
-
-        // Log the event.
-        emit ExitWithinGracePeriod({
-            vaultId: vaultId,
-            user: msg.sender,
-            amountReceived: amountTransferred,
-            sharesBurned: shares
-        });
     }
 
     /// @inheritdoc ISablierBob

@@ -18,9 +18,6 @@ and its reliability before depositing into any vault.
 
 The Lido adapter relies on the Curve stETH/ETH pool for converting stETH back to ETH. This has important implications:
 
-- **Grace period exits may receive less than deposited**: When exiting during the grace period from a
-  vault with an adapter, the wstETH→stETH→ETH→WETH conversion involves Curve swap slippage. Users may receive slightly
-  less than their original deposit.
 - **Extreme market conditions**: In extreme market conditions, unstaking may fail due to excessive slippage or
   insufficient liquidity.
 

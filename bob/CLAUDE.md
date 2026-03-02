@@ -24,14 +24,12 @@ Uses singleton architecture - all vaults managed in `SablierBob` contract.
 - **Vault ID**: Unique identifier for each vault
 - **Vault Status**: Three states — `ACTIVE` (accepting deposits), `SETTLED` (synced price >= target), `EXPIRED` (expiry time passed). Both SETTLED and EXPIRED allow redemption.
 - **Share Token**: `BobVaultShare` ERC-20 minted per vault on `enter()` (1:1 with deposited tokens). Transfers trigger `onShareTransfer()` to sync adapter attribution.
-- **Grace Period**: 4-hour window from first deposit. Only the original depositor can exit and reclaim tokens (non-transferable). Protection against misconfigured oracles. For adapter vaults, Curve slippage may reduce the refund.
 - **Manual Settlement**: Vaults do NOT auto-settle. Someone must call `syncPriceFromOracle()`, `enter()`, or `redeem()` to update `lastSyncedPrice`. Once synced at/above target, the vault stays SETTLED permanently even if the live price drops.
 - **Adapter**: Optional yield strategy (currently Lido). Yield fee is snapshotted at vault creation and immune to later changes.
 
 ### Key Functions
 
 - **`enter()`**: Deposit tokens into a vault, receive share tokens
-- **`exitWithinGracePeriod()`**: Exit within grace period (no fee, original depositor only)
 - **`syncPriceFromOracle()`**: Anyone can call to update vault price from oracle
 - **`redeem()`**: Burn shares for tokens after settlement/expiry. Non-adapter vaults require ETH fee via `msg.value` (minimum threshold). Adapter vaults deduct yield fee from staking rewards.
 - **`unstakeTokensViaAdapter()`**: Anyone can call on a non-active adapter vault to unstake all tokens before individual redemptions
