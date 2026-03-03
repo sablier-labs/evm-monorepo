@@ -114,11 +114,8 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         // redistribution balance (VCA_CLAIM_AMOUNT).
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.aggregateAmount = VCA_FULL_AMOUNT + VCA_CLAIM_AMOUNT;
+        params.enableRedistribution = true;
         merkleVCA = createMerkleVCA(params);
-        merkleBase = merkleVCA;
-
-        // Enable redistribution on the new campaign.
-        merkleVCA.enableRedistribution();
 
         // Have an early claim..
         setMsgSender(users.unknownRecipient);
