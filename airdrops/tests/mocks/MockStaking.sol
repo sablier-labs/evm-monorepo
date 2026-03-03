@@ -8,7 +8,6 @@ import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol"
 
 /// @notice A mock staking contract for testing MerkleExecute campaigns.
 contract MockStaking {
-    /// @dev We need SafeERC20 for the USDT fork tests.
     using SafeERC20 for IERC20;
     IERC20 public token;
 
@@ -22,6 +21,20 @@ contract MockStaking {
 
     function revertingFunction(uint128) external pure {
         revert("Shall not pass!");
+    }
+}
+
+/// @notice A mock staking contract that transfers less than the amount requested.
+contract MockStakingPartialTransfer {
+    using SafeERC20 for IERC20;
+    IERC20 public token;
+
+    constructor(IERC20 token_) {
+        token = token_;
+    }
+
+    function stake(uint128 amount) external {
+        token.safeTransferFrom(msg.sender, address(this), amount / 2);
     }
 }
 
@@ -53,3 +66,4 @@ contract MockStakingRevert {
         revert("Shall not pass!");
     }
 }
+

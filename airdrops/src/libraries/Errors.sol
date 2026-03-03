@@ -99,6 +99,13 @@ library Errors {
     error SablierMerkleBase_UnsupportedClaimType(ClaimType claimTypeRequired, ClaimType claimTypeSupported);
 
     /*//////////////////////////////////////////////////////////////////////////
+                               SABLIER-MERKLE-EXECUTE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when the transferred amount is not equal to the claim amount during `claimAndExecute`.
+    error SablierMerkleExecute_NotFullAmountTransferred(uint256 amountTransferred, uint256 claimAmount);
+
+    /*//////////////////////////////////////////////////////////////////////////
                               SABLIER-MERKLE-SIGNATURE
     //////////////////////////////////////////////////////////////////////////*/
 

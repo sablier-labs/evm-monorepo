@@ -7,6 +7,7 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleExecute } from "./interfaces/ISablierMerkleExecute.sol";
+import { Errors } from "./libraries/Errors.sol";
 import { ClaimType, MerkleBase } from "./types/MerkleBase.sol";
 import { MerkleExecute } from "./types/MerkleExecute.sol";
 
@@ -94,6 +95,9 @@ contract SablierMerkleExecute is
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
         _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
 
+        // Cache the token balance before the external call.
+        uint256 balanceBefore = TOKEN.balanceOf(address(this));
+
         // Interaction: Give allowance to the target contract.
         // The {SafeERC20.forceApprove} function is used to handle special ERC-20 tokens (e.g. USDT) that require the
         // current allowance to be zero before setting it to a non-zero value.
@@ -114,6 +118,12 @@ contract SablierMerkleExecute is
                 // Forward the pointer by 32 bytes to skip the length argument, and revert with the result.
                 revert(add(32, returnData), returnDataSize)
             }
+        }
+
+        // Check: the transferred amount is equal to the claim amount.
+        uint256 amountTransferred = balanceBefore - TOKEN.balanceOf(address(this));
+        if (amountTransferred != amount) {
+            revert Errors.SablierMerkleExecute_NotFullAmountTransferred(amountTransferred, amount);
         }
 
         // Interaction: Revoke the allowance.

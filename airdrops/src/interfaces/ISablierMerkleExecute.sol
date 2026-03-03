@@ -38,8 +38,6 @@ interface ISablierMerkleExecute is ISablierMerkleBase {
     ///
     /// Notes:
     /// - The function approves the exact claim amount to the {TARGET}, executes the call, then revokes the approval.
-    /// - It is expected that the target contract would transfer the entire user allocation. If it transfers less, the
-    /// remaining tokens will be left in the campaign contract which can be claimed later by the campaign creator.
     ///
     /// Requirements:
     /// - The current time must be greater than or equal to the campaign start time.
@@ -49,6 +47,7 @@ interface ISablierMerkleExecute is ISablierMerkleBase {
     /// - The Merkle proof must be valid.
     /// - `msg.sender` must be the airdrop recipient.
     /// - The external call to the target contract must succeed.
+    /// - The target contract must transfer the entire claim amount from the campaign.
     ///
     /// @param index The index of `msg.sender` in the Merkle tree.
     /// @param amount The amount of ERC-20 tokens allocated to `msg.sender`.

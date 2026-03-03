@@ -9,8 +9,11 @@ ClaimAndExecute_MerkleExecute_Integration_Test
          ├── when reentrancy
          │  └── it should revert
          └── when no reentrancy
-            ├── it should mark the index as claimed
-            ├── it should transfer the ETH to the comptroller
-            ├── it should transfer the tokens to the target
-            ├── it should execute the target call
-            └── it should emit a {ClaimExecute} event
+            ├── when transfer amount not equal claim amount
+            │  └── it should revert
+            └── when transfer amount equals claim amount
+               ├── it should mark the index as claimed
+               ├── it should transfer the ETH to the comptroller
+               ├── it should transfer the tokens to the target
+               ├── it should execute the target call
+               └── it should emit a {ClaimExecute} event
