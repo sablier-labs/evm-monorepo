@@ -39,7 +39,13 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         });
     }
 
-    function test_RevertWhen_FirstIndexHasZeroDuration() external whenNoDelegateCall {
+    function test_RevertWhen_TrancheCountZero() external whenNoDelegateCall {
+        LockupTranched.TrancheWithDuration[] memory tranchesWithDurations;
+        vm.expectRevert(Errors.SablierLockupHelpers_TrancheCountZero.selector);
+        createDefaultStreamWithDurations(tranchesWithDurations);
+    }
+
+    function test_RevertWhen_FirstIndexHasZeroDuration() external whenNoDelegateCall whenTrancheCountNotZero {
         uint40 startTime = getBlockTimestamp();
         LockupTranched.TrancheWithDuration[] memory tranches = defaults.tranchesWithDurations();
         uint256 index = 1;
@@ -58,6 +64,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
     function test_RevertWhen_StartTimeExceedsFirstTimestamp()
         external
         whenNoDelegateCall
+        whenTrancheCountNotZero
         whenFirstIndexHasNonZeroDuration
         whenTimestampsCalculationOverflows
     {
@@ -79,6 +86,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
     function test_RevertWhen_TimestampsNotStrictlyIncreasing()
         external
         whenNoDelegateCall
+        whenTrancheCountNotZero
         whenFirstIndexHasNonZeroDuration
         whenTimestampsCalculationOverflows
         whenStartTimeNotExceedsFirstTimestamp
@@ -107,7 +115,12 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         }
     }
 
-    function test_WhenTimestampsCalculationNotOverflow() external whenNoDelegateCall whenFirstIndexHasNonZeroDuration {
+    function test_WhenTimestampsCalculationNotOverflow()
+        external
+        whenNoDelegateCall
+        whenTrancheCountNotZero
+        whenFirstIndexHasNonZeroDuration
+    {
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Declare the timestamps.
