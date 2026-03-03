@@ -99,17 +99,60 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         _test_ClaimTo({ expectedTransferAmount: VCA_FULL_AMOUNT, forgoneAmount: 0, isRedistributionEnabled: false });
     }
 
-    function test_GivenRedistributionEnabled()
+    function test_WhenRewardExceedsRemainingBalance()
         external
         givenDefaultClaimType
         whenMerkleProofValid
         whenVestingStartTimeInPast
         whenVestingEndTimeNotInFuture
+        givenRedistributionEnabled(merkleVCA)
     {
-        // Enable the redistribution.
-        setMsgSender(users.campaignCreator);
+        // Deploy a new campaign with undervalued aggregate amount. We choose the value such that after one early claim
+        // (which sets `_fullAmountAllocatedToEarlyClaimers` = VCA_FULL_AMOUNT),
+        // `fullAmountAllocatedToRemainingClaimers` becomes VCA_CLAIM_AMOUNT. This sets the uncapped reward to
+        // (VCA_FULL_AMOUNT * (VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT)) / VCA_CLAIM_AMOUNT, which far exceeds the
+        // redistribution balance (VCA_CLAIM_AMOUNT).
+        MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
+        params.aggregateAmount = VCA_FULL_AMOUNT + VCA_CLAIM_AMOUNT;
+        merkleVCA = createMerkleVCA(params);
+        merkleBase = merkleVCA;
+
+        // Enable redistribution on the new campaign.
         merkleVCA.enableRedistribution();
 
+        // Have an early claim..
+        setMsgSender(users.unknownRecipient);
+        merkleVCA.claimTo{ value: AIRDROP_MIN_FEE_WEI }({
+            index: getIndexInMerkleTree(users.unknownRecipient),
+            to: users.unknownRecipient,
+            fullAmount: VCA_FULL_AMOUNT,
+            merkleProof: getMerkleProof(users.unknownRecipient)
+        });
+
+        // Forward in time so that the vesting end time is not in the future.
+        vm.warp({ newTimestamp: VESTING_END_TIME });
+
+        // The capped reward equals the total forgone amount since the uncapped reward exceeds
+        // the remaining redistribution balance.
+        uint128 expectedReward = VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT;
+
+        // Change the caller to the recipient and test the claim.
+        setMsgSender(users.recipient);
+        _test_ClaimTo({
+            expectedTransferAmount: VCA_FULL_AMOUNT + expectedReward,
+            forgoneAmount: 0,
+            isRedistributionEnabled: true
+        });
+    }
+
+    function test_WhenRewardNotExceedRemainingBalance()
+        external
+        givenDefaultClaimType
+        whenMerkleProofValid
+        whenVestingStartTimeInPast
+        whenVestingEndTimeNotInFuture
+        givenRedistributionEnabled(merkleVCA)
+    {
         // Forward in time so that the vesting end time is not in the future.
         vm.warp({ newTimestamp: VESTING_END_TIME });
 
@@ -137,6 +180,11 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         uint256 expectedTotalForgoneAmount = merkleVCA.totalForgoneAmount() + forgoneAmount;
         uint256 previousFeeAccrued = address(comptroller).balance;
 
+        // Calculate the reward amount from the expected transfer amount and claim amount.
+        uint128 claimAmount = VCA_FULL_AMOUNT - forgoneAmount;
+        uint128 rewardAmount = expectedTransferAmount - claimAmount;
+        uint128 previousRedistributionPaid = merkleVCA.totalRedistributionAmountPaid();
+
         // It should emit a {RedistributionReward} event for claims made after the vesting end time only if
         // redistribution is enabled.
         if (isRedistributionEnabled) {
@@ -144,7 +192,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
             emit ISablierMerkleVCA.RedistributionReward({
                 index: index,
                 recipient: users.recipient,
-                amount: VCA_REWARD_AMOUNT_PER_USER,
+                amount: rewardAmount,
                 to: users.eve
             });
         }
@@ -154,7 +202,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         emit ISablierMerkleVCA.ClaimVCA({
             index: index,
             recipient: users.recipient,
-            claimAmount: VCA_FULL_AMOUNT - forgoneAmount,
+            claimAmount: claimAmount,
             forgoneAmount: forgoneAmount,
             to: users.eve,
             viaSig: false
@@ -171,6 +219,15 @@ contract ClaimTo_MerkleVCA_Integration_Test is
 
         // It should update the total forgone amount.
         assertEq(merkleVCA.totalForgoneAmount(), expectedTotalForgoneAmount, "total forgone amount");
+
+        // It should update the total redistribution amount paid.
+        if (isRedistributionEnabled) {
+            assertEq(
+                merkleVCA.totalRedistributionAmountPaid(),
+                previousRedistributionPaid + rewardAmount,
+                "totalRedistributionAmountPaid"
+            );
+        }
 
         assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }

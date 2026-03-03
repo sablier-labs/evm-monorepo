@@ -2,8 +2,11 @@ EnableRedistribution_MerkleVCA_Integration_Test
 ├── when caller not campaign creator
 │  └── it should revert
 └── when caller campaign creator
-   ├── given redistribution enabled
+   ├── given vesting end time not in future
    │  └── it should revert
-   └── given redistribution not enabled
-      ├── it should enable redistribution
-      └── it should emit {RedistributionEnabled} event
+   └── given vesting end time in future
+      ├── given redistribution enabled
+      │  └── it should revert
+      └── given redistribution not enabled
+         ├── it should enable redistribution
+         └── it should emit {RedistributionEnabled} event

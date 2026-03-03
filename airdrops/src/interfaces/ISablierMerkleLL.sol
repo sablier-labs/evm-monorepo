@@ -109,18 +109,21 @@ interface ISablierMerkleLL is ISablierMerkleSignature, ISablierMerkleLockup {
     /// - `CLAIM_TYPE` must be `ATTEST`.
     /// - The `to` must not be the zero address.
     /// - The attestor must not be the zero address.
+    /// - The `expireAt` timestamp must not be in the past.
     /// - The attestation signature must be valid.
     /// - Refer to the requirements in {claim}.
     ///
     /// @param index The index of the `msg.sender` in the Merkle tree.
     /// @param to The address to which Lockup stream or ERC-20 tokens will be sent on behalf of `msg.sender`.
     /// @param amount The amount of ERC-20 tokens allocated to the `msg.sender`.
+    /// @param expireAt The timestamp after which the attestation signature is no longer valid.
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     /// @param attestation The EIP-712 signature from the attestor.
     function claimViaAttestation(
         uint256 index,
         address to,
         uint128 amount,
+        uint40 expireAt,
         bytes32[] calldata merkleProof,
         bytes calldata attestation
     )

@@ -47,7 +47,8 @@ abstract contract Utils is BaseUtils, Constants {
     function generateAttestationSignature(
         uint256 signerPrivateKey,
         address merkleContract,
-        address recipient
+        address recipient,
+        uint40 expireAt
     )
         internal
         view
@@ -56,10 +57,10 @@ abstract contract Utils is BaseUtils, Constants {
         return _generateEIP712Signature({
             signerPrivateKey: signerPrivateKey,
             merkleContract: merkleContract,
-            messageTypeJson: '"Identity":[{"name":"recipient","type":"address"}]',
+            messageTypeJson: '"Identity":[{"name":"recipient","type":"address"},{"name":"expireAt","type":"uint40"}]',
             primaryType: '"Identity"',
             messageSchema: SCHEMA_IDENTITY,
-            messageData: abi.encode(Identity(recipient))
+            messageData: abi.encode(Identity(recipient, expireAt))
         });
     }
 

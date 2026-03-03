@@ -22,6 +22,9 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
     /// @dev Track the total forgone amount.
     uint128 internal totalForgoneAmount;
 
+    /// @dev Track the total redistribution amount paid.
+    uint128 internal totalRedistributionAmountPaid;
+
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
@@ -261,6 +264,15 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
             uint128 amountExpectedToClaimAfterVestingEndTime = merkleVCA.AGGREGATE_AMOUNT() - amountClaimedEarly;
             expectedRewardAmount =
                 uint128((uint256(leafData.amount) * totalForgoneAmount) / amountExpectedToClaimAfterVestingEndTime);
+
+            // Cap the reward to the remaining redistribution balance.
+            uint128 remainingRedistributionBalance = totalForgoneAmount - totalRedistributionAmountPaid;
+            if (expectedRewardAmount > remainingRedistributionBalance) {
+                expectedRewardAmount = remainingRedistributionBalance;
+            }
+
+            // Update the total redistribution amount paid.
+            totalRedistributionAmountPaid += expectedRewardAmount;
 
             // It should emit a {RedistributionReward} event if there are rewards to distribute.
             if (expectedRewardAmount > 0) {

@@ -13,7 +13,7 @@ library SignatureHash {
         keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
 
     /// @notice The struct type hash for the attestation signature.
-    bytes32 public constant IDENTITY_TYPEHASH = keccak256("Identity(address recipient)");
+    bytes32 public constant IDENTITY_TYPEHASH = keccak256("Identity(address recipient,uint40 expireAt)");
 
     /// @notice The protocol name for the EIP-712 and EIP-1271 signatures.
     bytes32 public constant PROTOCOL_NAME = keccak256("Sablier Airdrops Protocol");

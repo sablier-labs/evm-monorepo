@@ -20,8 +20,14 @@ ClaimTo_MerkleVCA_Integration_Test
          │  ├── it should not update total forgone amount
          │  └── it should emit a {ClaimVCA} event
          └── given redistribution enabled
-            ├── it should transfer the full amount to Eve
-            ├── it should transfer the reward amount to Eve
-            ├── it should mark the index as Claimed
-            ├── it should not update total forgone amount
-            └── it should emit a {ClaimVCA} event
+            ├── when reward exceeds remaining balance
+            │  ├── it should cap the reward to remaining redistribution balance
+            │  ├── it should transfer the full amount and capped reward
+            │  ├── it should mark the index as Claimed
+            │  ├── it should not update total forgone amount
+            │  └── it should emit a {ClaimVCA} event
+            └── when reward not exceed remaining balance
+               ├── it should transfer the full amount and reward
+               ├── it should mark the index as Claimed
+               ├── it should not update total forgone amount
+               └── it should emit a {ClaimVCA} event

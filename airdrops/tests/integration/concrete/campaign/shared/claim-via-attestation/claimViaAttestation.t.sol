@@ -37,6 +37,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
             index: getIndexInMerkleTree(),
             to: address(0),
             amount: CLAIM_AMOUNT,
+            expireAt: EXPIRATION,
             merkleProof: getMerkleProof(),
             attestation: generateAttestation()
         });
@@ -57,9 +58,27 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
             index: getIndexInMerkleTree(),
             to: users.eve,
             amount: CLAIM_AMOUNT,
+            expireAt: EXPIRATION,
             merkleProof: getMerkleProof(),
             attestation: generateAttestation()
         });
+    }
+
+    function test_RevertWhen_AttestationExpired()
+        external
+        givenAttestClaimType
+        whenToAddressNotZero
+        givenAttestorNotZero
+    {
+        vm.warp(EXPIRATION + 1);
+
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleSignature_AttestationExpired.selector, EXPIRATION, EXPIRATION + 1
+            )
+        );
+        claimViaAttestation();
     }
 
     function test_RevertWhen_AttestationInvalid()
@@ -67,6 +86,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
         givenAttestClaimType
         whenToAddressNotZero
         givenAttestorNotZero
+        whenAttestationNotExpired
         givenAttestorIsEOA
     {
         // Change caller to eve and use the default attestation generated for the recipient.
@@ -79,6 +99,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
             index: getIndexInMerkleTree(),
             to: users.eve,
             amount: CLAIM_AMOUNT,
+            expireAt: EXPIRATION,
             merkleProof: getMerkleProof(),
             attestation: generateAttestation()
         });
@@ -92,6 +113,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
         givenAttestClaimType
         whenToAddressNotZero
         givenAttestorNotZero
+        whenAttestationNotExpired
         givenAttestorIsEOA
     {
         // The child contract must check that the claim event is emitted.
@@ -104,6 +126,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
         givenAttestClaimType
         whenToAddressNotZero
         givenAttestorNotZero
+        whenAttestationNotExpired
         givenAttestorIsContract
     {
         // Deploy a contract that does not implement IERC1271.
@@ -122,6 +145,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
             index: getIndexInMerkleTree(),
             to: users.eve,
             amount: CLAIM_AMOUNT,
+            expireAt: EXPIRATION,
             merkleProof: getMerkleProof(),
             attestation: generateAttestation()
         });
@@ -135,6 +159,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
         givenAttestClaimType
         whenToAddressNotZero
         givenAttestorNotZero
+        whenAttestationNotExpired
         givenAttestorIsContract
     {
         // The child contract must check that the claim event is emitted.

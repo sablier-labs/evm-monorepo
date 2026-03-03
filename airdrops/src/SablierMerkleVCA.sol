@@ -62,6 +62,9 @@ contract SablierMerkleVCA is
     /// @inheritdoc ISablierMerkleVCA
     uint128 public override totalForgoneAmount;
 
+    /// @inheritdoc ISablierMerkleVCA
+    uint128 public override totalRedistributionAmountPaid;
+
     /// @dev Tracks the full amount allocated to the recipients who claimed before the vesting end time.
     uint128 private _fullAmountAllocatedToEarlyClaimers;
 
@@ -171,6 +174,7 @@ contract SablierMerkleVCA is
         uint256 index,
         address to,
         uint128 fullAmount,
+        uint40 expireAt,
         bytes32[] calldata merkleProof,
         bytes calldata attestation
     )
@@ -181,7 +185,7 @@ contract SablierMerkleVCA is
         notZeroAddress(to)
     {
         // Check: the attestation signature is valid and the recovered signer matches the attestor.
-        _verifyAttestationSignature(msg.sender, attestation);
+        _verifyAttestationSignature(msg.sender, expireAt, attestation);
 
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
         _preProcessClaim({ index: index, recipient: msg.sender, amount: fullAmount, merkleProof: merkleProof });
@@ -218,6 +222,11 @@ contract SablierMerkleVCA is
 
     /// @inheritdoc ISablierMerkleVCA
     function enableRedistribution() external override onlyAdmin {
+        // Check: `VESTING_END_TIME` is in the future.
+        if (VESTING_END_TIME <= block.timestamp) {
+            revert Errors.SablierMerkleVCA_VestingEndTimeNotInFuture(VESTING_END_TIME, block.timestamp);
+        }
+
         // Check: the redistribution is not already enabled.
         if (isRedistributionEnabled) {
             revert Errors.SablierMerkleVCA_RedistributionAlreadyEnabled();
@@ -324,8 +333,19 @@ contract SablierMerkleVCA is
                 // Calculate the reward amount.
                 rewardAmount = _calculateRedistributionRewards(fullAmount);
 
+                // Calculate the remaining redistribution balance.
+                uint128 remainingRedistributionBalance = totalForgoneAmount - totalRedistributionAmountPaid;
+
+                // If reward amount exceeds the remaining redistribution balance, cap it to the remaining balance. In a
+                // very unlikely scenario, the reward amount can exceed the remaining redistribution balance if
+                // `AGGREGATE_AMOUNT` is set lower than the actual total allocations in the Merkle tree.
+                if (rewardAmount > remainingRedistributionBalance) {
+                    rewardAmount = remainingRedistributionBalance;
+                }
+
                 // Update the transfer amount if there are rewards to distribute.
                 if (rewardAmount > 0) {
+                    totalRedistributionAmountPaid += rewardAmount;
                     transferAmount += rewardAmount;
 
                     // Log the event.
