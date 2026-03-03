@@ -48,7 +48,7 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         givenAdapter
         givenNotUnstaked
         givenYieldTokenBalanceNotZero
-        givenACTIVE
+        givenACTIVEStatus
     {
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultStillActive.selector, vaultIds.vaultWithAdapter));
@@ -61,7 +61,7 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         givenAdapter
         givenNotUnstaked
         givenYieldTokenBalanceNotZero
-        givenACTIVE
+        givenACTIVEStatus
     {
         // Simulate yield generation at settlement by lowering the exchange rate.
         uint128 newExchangeRate = 0.8e18;
@@ -90,7 +90,7 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         givenAdapter
         givenNotUnstaked
         givenYieldTokenBalanceNotZero
-        givenNotACTIVE
+        givenNotACTIVEStatus
     {
         // Set slippage in Curve mock to 10% so it exceeds adapter's slippage tolerance.
         // The mock expects basis points (1000 = 10%).
@@ -117,7 +117,7 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         givenAdapter
         givenNotUnstaked
         givenYieldTokenBalanceNotZero
-        givenNotACTIVE
+        givenNotACTIVEStatus
     {
         // Simulate yield generation at settlement by lowering the exchange rate.
         uint128 newExchangeRate = 0.8e18;

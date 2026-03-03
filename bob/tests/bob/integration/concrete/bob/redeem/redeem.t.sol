@@ -12,12 +12,12 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         expectRevert_Null(abi.encodeCall(bob.redeem, (vaultIds.nullVault)));
     }
 
-    function test_RevertWhen_SyncNotChangeStatus() external givenNotNull givenACTIVE {
+    function test_RevertWhen_SyncNotChangeStatus() external givenNotNull givenACTIVEStatus {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultStillActive.selector, vaultIds.defaultVault));
         bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.defaultVault);
     }
 
-    function test_WhenSyncChangesStatus() external givenNotNull givenACTIVE {
+    function test_WhenSyncChangesStatus() external givenNotNull givenACTIVEStatus {
         // Set oracle price to target price so that the sync settles the vault.
         oracle.setPrice(TARGET_PRICE);
 
@@ -55,7 +55,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         assertEq(actualSyncedPrice, TARGET_PRICE, "syncedPrice");
     }
 
-    function test_GivenEXPIRED() external givenNotNull {
+    function test_GivenEXPIREDStatus() external givenNotNull {
         uint256 expectedSyncedPrice = bob.getLastSyncedPrice(vaultIds.defaultVault);
         uint256 expectedSyncedAt = bob.getLastSyncedAt(vaultIds.defaultVault);
 
@@ -90,7 +90,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         assertEq(actualShareBalance, 0, "shareBalance");
     }
 
-    function test_RevertWhen_SharesZero() external givenNotNull givenSETTLED {
+    function test_RevertWhen_SharesZero() external givenNotNull givenSETTLEDStatus {
         setMsgSender(users.eve);
 
         // It should revert.
@@ -100,7 +100,13 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.settledVault);
     }
 
-    function test_RevertWhen_FeeNotExceedMinFee() external givenNotNull givenSETTLED whenSharesNotZero givenNoAdapter {
+    function test_RevertWhen_FeeNotExceedMinFee()
+        external
+        givenNotNull
+        givenSETTLEDStatus
+        whenSharesNotZero
+        givenNoAdapter
+    {
         uint256 minFeeWei = BOB_MIN_FEE_WEI - 1;
 
         // It should revert.
@@ -110,7 +116,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         bob.redeem{ value: minFeeWei }(vaultIds.settledVault);
     }
 
-    function test_WhenFeeExceedsMinFee() external givenNotNull givenSETTLED whenSharesNotZero givenNoAdapter {
+    function test_WhenFeeExceedsMinFee() external givenNotNull givenSETTLEDStatus whenSharesNotZero givenNoAdapter {
         uint256 expectedComptrollerBalance = address(comptroller).balance + BOB_MIN_FEE_WEI;
         uint256 expectedSyncedPrice = bob.getLastSyncedPrice(vaultIds.settledVault);
         uint256 expectedSyncedAt = bob.getLastSyncedAt(vaultIds.settledVault);
@@ -151,7 +157,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         assertEq(actualShareBalance, 0, "shareBalance");
     }
 
-    function test_GivenStakedInAdapter() external givenNotNull givenSETTLED whenSharesNotZero givenAdapter {
+    function test_GivenStakedInAdapter() external givenNotNull givenSETTLEDStatus whenSharesNotZero givenAdapter {
         uint128 newExchangeRate = 0.8e18;
 
         // Simulate yield generation at settlement by lowering the exchange rate.
@@ -207,7 +213,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         assertEq(actualComptrollerWethBalance, expectedComptrollerWethBalance, "comptrollerWethBalance");
     }
 
-    function test_GivenNotStakedInAdapter() external givenNotNull givenSETTLED whenSharesNotZero givenAdapter {
+    function test_GivenNotStakedInAdapter() external givenNotNull givenSETTLEDStatus whenSharesNotZero givenAdapter {
         uint128 newExchangeRate = 0.8e18;
 
         // Simulate yield generation at settlement by lowering the exchange rate.

@@ -26,7 +26,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
         escrow.cancelOrder(defaultOrderId);
     }
 
-    function test_RevertGiven_FILLED() external givenNotNull whenCallerSeller {
+    function test_RevertGiven_FILLEDStatus() external givenNotNull whenCallerSeller {
         // Fill the default order.
         setMsgSender(users.buyer);
         escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
@@ -38,7 +38,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
         escrow.cancelOrder(defaultOrderId);
     }
 
-    function test_RevertGiven_CANCELED() external givenNotNull whenCallerSeller {
+    function test_RevertGiven_CANCELEDStatus() external givenNotNull whenCallerSeller {
         // Cancel the default order.
         escrow.cancelOrder(defaultOrderId);
 
@@ -47,7 +47,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
         escrow.cancelOrder(defaultOrderId);
     }
 
-    function test_GivenEXPIRED() external givenNotNull whenCallerSeller {
+    function test_GivenEXPIREDStatus() external givenNotNull whenCallerSeller {
         // Warp past expiry.
         vm.warp(ORDER_EXPIRY_TIME + 1);
 
@@ -66,7 +66,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
         assertTrue(escrow.wasCanceled(defaultOrderId), "order.wasCanceled");
     }
 
-    function test_GivenOPEN() external givenNotNull whenCallerSeller {
+    function test_GivenOPENStatus() external givenNotNull whenCallerSeller {
         // It should perform the ERC-20 transfers.
         expectCallToTransfer({ token: sellToken, to: users.seller, value: SELL_AMOUNT });
 

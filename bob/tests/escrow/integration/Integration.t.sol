@@ -20,6 +20,13 @@ abstract contract Integration_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
+        // Use DAI as sell token and USDC as buy token.
+        sellToken = dai;
+        buyToken = usdc;
+
+        // Set seller as the default caller for the tests.
+        setMsgSender(users.seller);
+
         // Create the default order.
         defaultOrderId = createDefaultOrder();
     }
@@ -37,5 +44,26 @@ abstract contract Integration_Test is Base_Test {
             abi.encodeWithSelector(Errors.SablierEscrowState_Null.selector, nullOrderId),
             "null order call return data"
         );
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                      HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Creates an order with default values.
+    function createDefaultOrder() internal returns (uint256 orderId) {
+        orderId = createDefaultOrder(users.buyer);
+    }
+
+    /// @dev Creates an order with a specified buyer.
+    function createDefaultOrder(address buyer) internal returns (uint256 orderId) {
+        orderId = escrow.createOrder({
+            sellToken: sellToken,
+            sellAmount: SELL_AMOUNT,
+            buyToken: buyToken,
+            minBuyAmount: MIN_BUY_AMOUNT,
+            buyer: buyer,
+            expiryTime: ORDER_EXPIRY_TIME
+        });
     }
 }

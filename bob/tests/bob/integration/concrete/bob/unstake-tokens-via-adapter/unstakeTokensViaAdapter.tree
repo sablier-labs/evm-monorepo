@@ -11,7 +11,7 @@ UnstakeTokensViaAdapter_Integration_Concrete_Test
          ├── given yield token balance zero
          │  └── it should revert
          └── given yield token balance not zero
-            ├── given ACTIVE
+            ├── given ACTIVE status
             │  ├── when sync does not change status
             │  │  └── it should revert
             │  └── when sync changes status
@@ -20,7 +20,7 @@ UnstakeTokensViaAdapter_Integration_Concrete_Test
             │     ├── it should transfer tokens back to Bob
             │     ├── it should mark the vault as unstaked
             │     └── it should emit {SyncPriceFromOracle}, {UnstakeFromAdapter} and {UnstakeFullAmount} events
-            └── given not ACTIVE
+            └── given not ACTIVE status
                ├── when slippage exceeds tolerance
                │  └── it should revert
                └── when slippage not exceed tolerance

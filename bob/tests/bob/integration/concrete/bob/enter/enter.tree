@@ -2,11 +2,11 @@ Enter_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
-   ├── given SETTLED
+   ├── given SETTLED status
    │  └── it should revert
-   ├── given EXPIRED
+   ├── given EXPIRED status
    │  └── it should revert
-   └── given ACTIVE
+   └── given ACTIVE status
       ├── when sync changes status
       │  ├── when new status EXPIRED
       │  │  └── it should revert
