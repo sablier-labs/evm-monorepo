@@ -74,8 +74,11 @@ library Errors {
                                    SAFE-ORACLE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when an oracle does not return 8 decimals.
-    error SafeOracle_DecimalsNotEight(address oracle, uint8 decimals);
+    /// @notice Thrown when an oracle returns too many decimals (greater than 36).
+    error SafeOracle_DecimalsTooHigh(address oracle, uint8 decimals);
+
+    /// @notice Thrown when an oracle returns 0 decimals.
+    error SafeOracle_DecimalsZero(address oracle);
 
     /// @notice Thrown when an oracle does not implement the expected
     /// interface.

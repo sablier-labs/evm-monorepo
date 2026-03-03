@@ -5,15 +5,18 @@ ValidateOracle_SafeOracle_Concrete_Test
    ├── when oracle misses decimals
    │  └── it should revert
    └── when oracle not miss decimals
-      ├── when oracle decimals not 8
+      ├── when oracle decimals zero
       │  └── it should revert
-      └── when oracle decimals 8
-         ├── when oracle misses latestRoundData
+      └── when oracle decimals not zero
+         ├── when oracle decimals too high
          │  └── it should revert
-         └── when oracle not miss latestRoundData
-            ├── when oracle price negative
+         └── when oracle decimals not too high
+            ├── when oracle misses latestRoundData
             │  └── it should revert
-            ├── when oracle price zero
-            │  └── it should revert
-            └── when oracle price positive
-               └── it should return the latest price
+            └── when oracle not miss latestRoundData
+               ├── when oracle price negative
+               │  └── it should revert
+               ├── when oracle price zero
+               │  └── it should revert
+               └── when oracle price positive
+                  └── it should return the latest price normalized to eight decimals

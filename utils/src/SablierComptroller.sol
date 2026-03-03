@@ -460,7 +460,7 @@ contract SablierComptroller is
             return 0;
         }
 
-        // Get the latest price and feed updated timestamp from the oracle.
+        // Get the latest price (normalized to 8 decimals) and feed updated timestamp from the oracle.
         (uint256 price, uint256 updatedAt) = SafeOracle.safeOraclePrice(AggregatorV3Interface(oracle));
 
         // Skip the calculations if any of the following conditions are met:
@@ -470,25 +470,8 @@ contract SablierComptroller is
             return 0;
         }
 
-        uint8 oracleDecimals;
-
-        // Interactions: query the oracle decimals.
-        try AggregatorV3Interface(oracle).decimals() returns (uint8 _decimals) {
-            oracleDecimals = _decimals;
-        } catch {
-            // If the oracle call fails, return 0.
-            return 0;
-        }
-
-        // If the oracle decimals are 8, calculate the minimum fee in wei.
-        if (oracleDecimals == 8) {
-            return minFeeUSD * 1e18 / uint256(price);
-        }
-        // Otherwise, adjust the calculation to account for the oracle decimals.
-        else {
-            // The USD fee is assumed to be much less than the maximum value of `uint256` so it is safe to multiply.
-            return minFeeUSD * 10 ** (10 + oracleDecimals) / uint256(price);
-        }
+        // Calculate the minimum fee in wei.
+        return minFeeUSD * 1e18 / price;
     }
 
     /// @dev See the documentation for the user-facing functions that call this private function.

@@ -10,10 +10,27 @@ SafeOraclePrice_SafeOracle_Concrete_Test
       ├── when oracle price zero
       │  └── it should return zero for price
       └── when oracle price positive
-         ├── when oracle price exceeds uint128 max
+         ├── when oracle updated time in future
          │  └── it should return zero for price
-         └── when oracle price not exceed uint128 max
-            ├── when oracle updated time in future
+         └── when oracle updated time not in future
+            ├── when oracle price exceeds uint128 max
             │  └── it should return zero for price
-            └── when oracle updated time not in future
-               └── it should return the latest price and updatedAt
+            └── when oracle price not exceed uint128 max
+               ├── when decimals call fails
+               │  └── it should return zero for both price and updatedAt
+               └── when decimals call not fail
+                  ├── when oracle decimals zero
+                  │  └── it should return zero for both price and updatedAt
+                  └── when oracle decimals not zero
+                     ├── when oracle decimals too high
+                     │  └── it should return zero for both price and updatedAt
+                     └── when oracle decimals not too high
+                        ├── when normalized price exceeds uint128 max
+                        │  └── it should return zero for price
+                        └── when normalized price not exceed uint128 max
+                           ├── when oracle returns eight decimals
+                           │  └── it should return the price as-is
+                           ├── when oracle returns more than eight decimals
+                           │  └── it should return the price truncated to eight decimals
+                           └── when oracle returns less than eight decimals
+                              └── it should return the price scaled up to eight decimals

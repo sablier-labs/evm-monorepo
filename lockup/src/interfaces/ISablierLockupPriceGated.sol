@@ -52,7 +52,8 @@ interface ISablierLockupPriceGated is ISablierLockupState {
     /// - `params.timestamps.start` must not be zero.
     /// - `params.timestamps.start` must be less than `params.timestamps.end`.
     /// - `unlockParams.oracle` must implement Chainlink's {AggregatorV3Interface} interface.
-    /// - `unlockParams.oracle` must return 8 decimals when the `decimals()` function is called.
+    /// - `unlockParams.oracle` must return a non-zero value no greater than 36 when the `decimals()` function is
+    /// called.
     /// - `unlockParams.oracle` must return a positive price when the `latestRoundData()` function is called.
     /// - `unlockParams.targetPrice` must be greater than the current oracle price.
     /// - `msg.sender` must have allowed this contract to spend at least `params.depositAmount` tokens.
