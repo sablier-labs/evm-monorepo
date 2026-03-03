@@ -184,6 +184,7 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
 
     /// @dev Authorize `account` to take admin actions on `target` contract.
     function grantAllRoles(address account, address target) internal {
+        IRoleAdminable(target).grantRole(ATTESTOR_MANAGER_ROLE, account);
         IRoleAdminable(target).grantRole(FEE_COLLECTOR_ROLE, account);
         IRoleAdminable(target).grantRole(FEE_MANAGEMENT_ROLE, account);
     }

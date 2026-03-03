@@ -272,7 +272,7 @@ contract SablierComptroller is
     }
 
     /// @inheritdoc ISablierComptroller
-    function setAttestor(address newAttestor) external override onlyRole(FEE_MANAGEMENT_ROLE) {
+    function setAttestor(address newAttestor) external override onlyRole(ATTESTOR_MANAGER_ROLE) {
         address previousAttestor = attestor;
 
         // Effect: set the new attestor.
@@ -293,7 +293,7 @@ contract SablierComptroller is
     )
         external
         override
-        onlyRole(FEE_MANAGEMENT_ROLE)
+        onlyRole(ATTESTOR_MANAGER_ROLE)
     {
         // Interaction: call the `setAttestor` function on the campaign.
         (bool success, bytes memory returnData) =

@@ -17,6 +17,9 @@ abstract contract RoleAdminable is IRoleAdminable, Adminable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IRoleAdminable
+    bytes32 public constant override ATTESTOR_MANAGER_ROLE = keccak256("ATTESTOR_MANAGER_ROLE");
+
+    /// @inheritdoc IRoleAdminable
     bytes32 public constant override FEE_COLLECTOR_ROLE = keccak256("FEE_COLLECTOR_ROLE");
 
     /// @inheritdoc IRoleAdminable

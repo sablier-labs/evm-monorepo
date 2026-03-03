@@ -6,6 +6,7 @@ abstract contract BaseConstants {
                                       GENERICS
     //////////////////////////////////////////////////////////////////////////*/
 
+    bytes32 public constant ATTESTOR_MANAGER_ROLE = keccak256("ATTESTOR_MANAGER_ROLE");
     uint256 public constant ETH_PRICE_USD = 3000e8; // $3000 per ETH
     bytes32 public constant FEE_COLLECTOR_ROLE = keccak256("FEE_COLLECTOR_ROLE");
     bytes32 public constant FEE_MANAGEMENT_ROLE = keccak256("FEE_MANAGEMENT_ROLE");

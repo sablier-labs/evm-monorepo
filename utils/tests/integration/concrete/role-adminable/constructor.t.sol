@@ -7,6 +7,7 @@ contract Constructor_RoleAdminable_Concrete_Test is Base_Test {
     function test_Constructor() public view {
         // Assert the state variables.
         assertEq(roleAdminableMock.admin(), admin, "admin");
+        assertEq(roleAdminableMock.ATTESTOR_MANAGER_ROLE(), ATTESTOR_MANAGER_ROLE, "attestor manager role");
         assertEq(roleAdminableMock.FEE_COLLECTOR_ROLE(), FEE_COLLECTOR_ROLE, "fee collector role");
         assertEq(roleAdminableMock.FEE_MANAGEMENT_ROLE(), FEE_MANAGEMENT_ROLE, "fee management role");
 

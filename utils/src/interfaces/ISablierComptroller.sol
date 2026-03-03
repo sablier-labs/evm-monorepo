@@ -188,7 +188,7 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// - Setting it to zero address would disable attestation-based claims globally.
     ///
     /// Requirements:
-    /// - `msg.sender` must be either the admin or have the {IRoleAdminable.FEE_MANAGEMENT_ROLE} role.
+    /// - `msg.sender` must be either the admin or have the {IRoleAdminable.ATTESTOR_MANAGER_ROLE} role.
     ///
     /// @param newAttestor The new attestor address. It can be the zero address.
     function setAttestor(address newAttestor) external;
@@ -200,7 +200,7 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// - All validations are expected to be performed in the campaign's `setAttestor` function.
     ///
     /// Requirements:
-    /// - `msg.sender` must be either the admin or have the {IRoleAdminable.FEE_MANAGEMENT_ROLE} role.
+    /// - `msg.sender` must be either the admin or have the {IRoleAdminable.ATTESTOR_MANAGER_ROLE} role.
     /// - Setting it to zero address would allow merkle campaigns to use the default attestor.
     ///
     /// @param campaign The address of an existing campaign contract.
