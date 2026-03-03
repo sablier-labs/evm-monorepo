@@ -52,7 +52,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         bob.enter(vaultIds.defaultVault, 0);
     }
 
-    function test_GivenNoAdapter() external givenNotNull givenACTIVE whenSyncNotChangeStatus whenAmountNotZero {
+    function test_GivenNoAdapter() external givenNotNull givenACTIVEStatus whenSyncNotChangeStatus whenAmountNotZero {
         uint256 shareBalanceBefore = defaultShareToken.balanceOf(users.newDepositor);
 
         // It should emit an {Enter} event.
