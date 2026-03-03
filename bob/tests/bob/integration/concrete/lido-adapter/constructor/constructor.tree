@@ -1,0 +1,15 @@
+Constructor_LidoAdapter_Integration_Concrete_Test
+├── when slippage tolerance exceeds max
+│  └── it should revert
+└── when slippage tolerance not exceed max
+   ├── when yield fee exceeds max
+   │  └── it should revert
+   └── when yield fee not exceed max
+      ├── it should deploy the adapter
+      ├── it should set the comptroller
+      ├── it should set immutable state variables
+      ├── it should set the slippage tolerance
+      ├── it should set the fee on yield
+      ├── it should be able to receive ETH
+      ├── it should approve wstETH contract to spend stETH
+      └── it should approve Curve pool to spend stETH

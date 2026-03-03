@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { ud, UD60x18, UNIT } from "@prb/math/src/UD60x18.sol";
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
 import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
@@ -10,48 +10,36 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract SetYieldFee_Integration_Concrete_Test is Integration_Test {
-    function setUp() public override {
-        Integration_Test.setUp();
-        setMsgSender(users.newDepositor);
-    }
+    UD60x18 internal newYieldFee = ud(0.15e18);
 
     function test_RevertWhen_CallerNotComptroller() external {
-        // Cache the yield fee before expectRevert, since YIELD_FEE is a view call
-        // that would be interpreted as the "next call" by expectRevert.
-        UD60x18 newFee = YIELD_FEE;
-
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.newDepositor
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.depositor
             )
         );
-        adapter.setYieldFee(newFee);
+        adapter.setYieldFee(newYieldFee);
     }
 
-    function test_RevertWhen_FeeExceedsMax() external whenCallerComptroller {
-        UD60x18 maxFee = adapter.MAX_FEE();
-        UD60x18 excessiveFee = maxFee.add(ud(1));
+    function test_RevertWhen_YieldFeeExceedsMax() external whenCallerComptroller {
+        newYieldFee = MAX_YIELD_FEE.add(UNIT);
 
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierLidoAdapter_YieldFeeTooHigh.selector, excessiveFee.unwrap(), maxFee.unwrap()
-            )
+            abi.encodeWithSelector(Errors.SablierLidoAdapter_YieldFeeTooHigh.selector, newYieldFee, MAX_YIELD_FEE)
         );
-        adapter.setYieldFee(excessiveFee);
+        adapter.setYieldFee(newYieldFee);
     }
 
-    function test_WhenFeeWithinLimit() external whenCallerComptroller {
-        UD60x18 oldFee = adapter.feeOnYield();
-
+    function test_WhenYieldFeeNotExceedMax() external whenCallerComptroller {
         // It should emit a {SetYieldFee} event.
         vm.expectEmit({ emitter: address(adapter) });
-        emit ISablierBobAdapter.SetYieldFee({ oldFee: oldFee, newFee: YIELD_FEE });
+        emit ISablierBobAdapter.SetYieldFee({ oldFee: YIELD_FEE, newFee: newYieldFee });
 
-        adapter.setYieldFee(YIELD_FEE);
+        adapter.setYieldFee(newYieldFee);
 
-        // It should update the yield fee.
-        assertEq(adapter.feeOnYield().unwrap(), YIELD_FEE.unwrap(), "yieldFee");
+        // It should set the new yield fee.
+        assertEq(adapter.feeOnYield(), newYieldFee, "yieldFee");
     }
 }

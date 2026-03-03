@@ -14,9 +14,6 @@ abstract contract Integration_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Set depositor as the caller for vault creation and deposits.
-        setMsgSender(users.depositor);
-
         initializeDefaultVaults();
 
         // Load the share token for the default vault into the default share token variable.
@@ -27,25 +24,26 @@ abstract contract Integration_Test is Base_Test {
                                 INITIALIZE-FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Initializes the default vaults used in tests. The depositor enters each vault so that tests
-    /// start with pre-existing shares.
+    /// @dev Initializes the default vaults used in tests. The depositor enters each vault so that tests start with
+    /// pre-existing shares.
     function initializeDefaultVaults() internal {
-        // Create a default vault (WETH, no adapter) and have depositor enter.
+        // Create a default vault.
         vaultIds.defaultVault = createDefaultVault();
         bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
 
-        // Create a settled vault (WETH, no adapter) — depositor must enter BEFORE settlement.
+        // Create a settled vault.
         vaultIds.settledVault = createDefaultVault();
         bob.enter(vaultIds.settledVault, DEPOSIT_AMOUNT);
         oracle.setPrice(TARGET_PRICE);
         bob.syncPriceFromOracle(vaultIds.settledVault);
         oracle.setPrice(CURRENT_PRICE); // Reset for other tests.
 
-        // Create a vault with adapter (must come after non-adapter vaults to avoid adapter auto-assignment).
+        // Create a vault with adapter.
         vaultIds.vaultWithAdapter = createVaultWithAdapter();
+        setMsgSender(users.depositor);
         bob.enter(vaultIds.vaultWithAdapter, DEPOSIT_AMOUNT);
 
-        // Set a null vault ID (one that doesn't exist).
+        // Set a null vault ID.
         vaultIds.nullVault = 1729;
     }
 

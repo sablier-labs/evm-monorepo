@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Vm } from "forge-std/src/Vm.sol";
+import { ud } from "@prb/math/src/UD60x18.sol";
 
+import { Vm } from "forge-std/src/Vm.sol";
 import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
 import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -54,7 +55,7 @@ contract OnShareTransfer_Integration_Concrete_Test is Integration_Test {
         IBobVaultShare shareTokenForVaultWithAdapter = bob.getShareToken(vaultIds.vaultWithAdapter);
         uint256 transferAmount = 1e18;
 
-        uint256 expectedWstETHTransferred = WSTETH_WETH_EXCHANGE_RATE * transferAmount / 1e18;
+        uint256 expectedWstETHTransferred = ud(transferAmount).mul(WSTETH_WETH_EXCHANGE_RATE).intoUint128();
 
         // It should emit a {TransferStakedTokens} event.
         vm.expectEmit({ emitter: address(adapter) });

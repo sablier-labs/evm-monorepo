@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
 import { ISablierEscrow } from "src/interfaces/ISablierEscrow.sol";
 import { SablierEscrow } from "src/SablierEscrow.sol";
@@ -26,7 +27,7 @@ abstract contract Base_Test is Assertions, Modifiers {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        super.setUp();
+        EvmUtilsBase.setUp();
 
         // Deploy the Escrow protocol.
         escrow = new SablierEscrow(address(comptroller), DEFAULT_TRADE_FEE);

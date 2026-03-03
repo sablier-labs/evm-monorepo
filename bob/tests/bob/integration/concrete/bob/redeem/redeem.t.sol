@@ -1,13 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ud } from "@prb/math/src/UD60x18.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract Redeem_Integration_Concrete_Test is Integration_Test {
+    UD60x18 internal newExchangeRate;
+
+    function setUp() public override {
+        Integration_Test.setUp();
+
+        // Simulate yield generation at settlement by lowering the exchange rate.
+        newExchangeRate = UD60x18.wrap(0.8e18);
+        wstEth.setExchangeRate(newExchangeRate);
+    }
+
     function test_RevertGiven_Null() external {
         expectRevert_Null(abi.encodeCall(bob.redeem, (vaultIds.nullVault)));
     }
@@ -158,18 +168,12 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GivenStakedInAdapter() external givenNotNull givenSETTLEDStatus whenSharesNotZero givenAdapter {
-        uint128 newExchangeRate = 0.8e18;
-
-        // Simulate yield generation at settlement by lowering the exchange rate.
-        wstEth.setExchangeRate(newExchangeRate);
-
         // Set oracle price to target price so that the sync settles the vault.
         oracle.setPrice(TARGET_PRICE);
 
-        uint128 expectedWethRedeemed = (WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT * 1e18) / newExchangeRate;
-        uint128 expectedYield = expectedWethRedeemed - DEPOSIT_AMOUNT;
-        uint128 expectedComptrollerFee = ud(expectedYield).mul(YIELD_FEE).intoUint128();
-        uint128 expectedUserWeth = expectedWethRedeemed - expectedComptrollerFee;
+        uint128 expectedWethRedeemed = expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
+        (uint128 expectedComptrollerFee, uint128 expectedUserWeth) =
+            calculateYieldBreakdown(expectedWethRedeemed, DEPOSIT_AMOUNT, YIELD_FEE);
 
         // It should emit a {Redeem} event.
         vm.expectEmit({ emitter: address(bob) });
@@ -214,21 +218,15 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GivenNotStakedInAdapter() external givenNotNull givenSETTLEDStatus whenSharesNotZero givenAdapter {
-        uint128 newExchangeRate = 0.8e18;
-
-        // Simulate yield generation at settlement by lowering the exchange rate.
-        wstEth.setExchangeRate(newExchangeRate);
-
         // Settle the vault via price so status is SETTLED.
         oracle.setPrice(TARGET_PRICE);
 
         // Unstake first so the vault is no longer staked in the adapter.
         bob.unstakeTokensViaAdapter(vaultIds.vaultWithAdapter);
 
-        uint128 expectedWethRedeemed = (WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT * 1e18) / newExchangeRate;
-        uint128 expectedYield = expectedWethRedeemed - DEPOSIT_AMOUNT;
-        uint128 expectedComptrollerFee = ud(expectedYield).mul(YIELD_FEE).intoUint128();
-        uint128 expectedUserWeth = expectedWethRedeemed - expectedComptrollerFee;
+        uint128 expectedWethRedeemed = expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
+        (uint128 expectedComptrollerFee, uint128 expectedUserWeth) =
+            calculateYieldBreakdown(expectedWethRedeemed, DEPOSIT_AMOUNT, YIELD_FEE);
 
         // It should emit a {Redeem} event.
         vm.expectEmit({ emitter: address(bob) });
