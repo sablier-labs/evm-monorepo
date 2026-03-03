@@ -10,74 +10,6 @@ import { Escrow } from "src/types/Escrow.sol";
 import { Integration_Test } from "./../Integration.t.sol";
 
 contract FillOrder_Integration_Fuzz_Test is Integration_Test {
-    /// @dev Designated buyer, default trade fee (1%).
-    function testFuzz_FillOrder(
-        uint128 sellAmount,
-        uint128 minBuyAmount,
-        uint128 buyAmount,
-        uint40 expiryTime,
-        uint40 timeJump
-    )
-        external
-    {
-        _testFillOrder({
-            sellAmount: sellAmount,
-            minBuyAmount: minBuyAmount,
-            buyAmount: buyAmount,
-            expiryTime: expiryTime,
-            timeJump: timeJump,
-            buyer: users.buyer,
-            fee: DEFAULT_TRADE_FEE
-        });
-    }
-
-    /// @dev Designated buyer, zero trade fee — exercises the `if (currentTradeFee > 0)` skip branch.
-    function testFuzz_FillOrder_GivenTradeFeeZero(
-        uint128 sellAmount,
-        uint128 minBuyAmount,
-        uint128 buyAmount,
-        uint40 expiryTime,
-        uint40 timeJump
-    )
-        external
-    {
-        // Set the trade fee to zero before creating the order.
-        setMsgSender(address(comptroller));
-        escrow.setTradeFee(ZERO);
-
-        _testFillOrder({
-            sellAmount: sellAmount,
-            minBuyAmount: minBuyAmount,
-            buyAmount: buyAmount,
-            expiryTime: expiryTime,
-            timeJump: timeJump,
-            buyer: users.buyer,
-            fee: ZERO
-        });
-    }
-
-    /// @dev No designated buyer, anyone can fill the order.
-    function testFuzz_FillOrder_GivenNoDesignatedBuyer(
-        uint128 sellAmount,
-        uint128 minBuyAmount,
-        uint128 buyAmount,
-        uint40 expiryTime,
-        uint40 timeJump
-    )
-        external
-    {
-        _testFillOrder({
-            sellAmount: sellAmount,
-            minBuyAmount: minBuyAmount,
-            buyAmount: buyAmount,
-            expiryTime: expiryTime,
-            timeJump: timeJump,
-            buyer: address(0),
-            fee: DEFAULT_TRADE_FEE
-        });
-    }
-
-    /// @dev Exercises the revert when filling an expired order.
     function testFuzz_RevertGiven_Expired(uint40 timeJump) external {
         // Bound timeJump so it lands at or past expiry.
         timeJump = boundUint40(timeJump, ORDER_EXPIRY_TIME, MAX_UINT40 - 1);
@@ -93,63 +25,85 @@ contract FillOrder_Integration_Fuzz_Test is Integration_Test {
         escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
     }
 
+    function testFuzz_FillOrder_GivenTradeFeeZero(uint128 buyAmount, uint40 timeJump) external {
+        // Set the trade fee to zero before creating the order.
+        setMsgSender(address(comptroller));
+        escrow.setTradeFee(ZERO);
+
+        _testFillOrder({
+            orderId: defaultOrderId,
+            buyAmount: buyAmount,
+            timeJump: timeJump,
+            buyer: users.buyer,
+            fee: ZERO
+        });
+    }
+
+    function testFuzz_FillOrder_GivenNoDesignatedBuyer(uint128 buyAmount, uint40 timeJump, address buyer) external {
+        vm.assume(buyer != address(0) && buyer != users.seller);
+        vm.assume(buyer != address(escrow) && buyer != address(comptroller));
+
+        uint256 orderId = escrow.createOrder({
+            sellToken: sellToken,
+            sellAmount: SELL_AMOUNT,
+            buyToken: buyToken,
+            minBuyAmount: MIN_BUY_AMOUNT,
+            buyer: address(0),
+            expiryTime: ORDER_EXPIRY_TIME
+        });
+
+        _testFillOrder({
+            orderId: orderId,
+            buyAmount: buyAmount,
+            timeJump: timeJump,
+            buyer: buyer,
+            fee: DEFAULT_TRADE_FEE
+        });
+    }
+
+    function testFuzz_FillOrder(uint128 buyAmount, uint40 timeJump) external {
+        _testFillOrder({
+            orderId: defaultOrderId,
+            buyAmount: buyAmount,
+            timeJump: timeJump,
+            buyer: users.buyer,
+            fee: DEFAULT_TRADE_FEE
+        });
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                     PRIVATE HELPER
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _testFillOrder(
-        uint128 sellAmount,
-        uint128 minBuyAmount,
-        uint128 buyAmount,
-        uint40 expiryTime,
-        uint40 timeJump,
-        address buyer,
-        UD60x18 fee
-    )
-        private
-    {
+    function _testFillOrder(uint256 orderId, uint128 buyAmount, uint40 timeJump, address buyer, UD60x18 fee) private {
         // Bound amounts.
-        sellAmount = boundUint128(sellAmount, 1, MAX_UINT128);
-        minBuyAmount = boundUint128(minBuyAmount, 1, MAX_UINT128);
-        buyAmount = boundUint128(buyAmount, minBuyAmount, MAX_UINT128);
+        buyAmount = boundUint128(buyAmount, MIN_BUY_AMOUNT, MAX_UINT128);
 
         // Bound timing: expiryTime in future, timeJump stays before expiry so order remains OPEN.
-        expiryTime = boundUint40(expiryTime, getBlockTimestamp() + 1, getBlockTimestamp() + 5 * 365 days);
-        uint40 maxJump = expiryTime - getBlockTimestamp() - 1;
+        uint40 maxJump = ORDER_EXPIRY_TIME - getBlockTimestamp() - 1;
         timeJump = boundUint40(timeJump, 0, maxJump);
 
         // Deal tokens.
-        deal({ token: address(sellToken), to: users.seller, give: sellAmount });
-        deal({ token: address(buyToken), to: users.buyer, give: buyAmount });
-
-        // Create the order as seller.
-        setMsgSender(users.seller);
-        uint256 orderId = escrow.createOrder({
-            sellToken: sellToken,
-            sellAmount: sellAmount,
-            buyToken: buyToken,
-            minBuyAmount: minBuyAmount,
-            buyer: buyer,
-            expiryTime: expiryTime
-        });
+        deal({ token: address(buyToken), to: buyer, give: buyAmount });
 
         // Warp forward (stays before expiry).
         vm.warp(getBlockTimestamp() + timeJump);
 
         // Compute fees.
-        uint128 feeFromSellAmount = ud(sellAmount).mul(fee).intoUint128();
+        uint128 feeFromSellAmount = ud(SELL_AMOUNT).mul(fee).intoUint128();
         uint128 feeFromBuyAmount = ud(buyAmount).mul(fee).intoUint128();
-        uint128 sellAmountAfterFee = sellAmount - feeFromSellAmount;
+        uint128 sellAmountAfterFee = SELL_AMOUNT - feeFromSellAmount;
         uint128 buyAmountAfterFee = buyAmount - feeFromBuyAmount;
 
         // Switch to buyer.
-        setMsgSender(users.buyer);
+        setMsgSender(buyer);
+        buyToken.approve(address(escrow), buyAmount);
 
         // Expect ERC-20 transfer calls.
         if (feeFromBuyAmount > 0) {
             expectCallToTransferFrom({
                 token: buyToken,
-                from: users.buyer,
+                from: buyer,
                 to: address(comptroller),
                 value: feeFromBuyAmount
             });
@@ -157,14 +111,14 @@ contract FillOrder_Integration_Fuzz_Test is Integration_Test {
         if (feeFromSellAmount > 0) {
             expectCallToTransfer({ token: sellToken, to: address(comptroller), value: feeFromSellAmount });
         }
-        expectCallToTransferFrom({ token: buyToken, from: users.buyer, to: users.seller, value: buyAmountAfterFee });
-        expectCallToTransfer({ token: sellToken, to: users.buyer, value: sellAmountAfterFee });
+        expectCallToTransferFrom({ token: buyToken, from: buyer, to: users.seller, value: buyAmountAfterFee });
+        expectCallToTransfer({ token: sellToken, to: buyer, value: sellAmountAfterFee });
 
         // It should emit a {FillOrder} event.
         vm.expectEmit({ emitter: address(escrow) });
         emit ISablierEscrow.FillOrder({
             orderId: orderId,
-            buyer: users.buyer,
+            buyer: buyer,
             seller: users.seller,
             sellAmount: sellAmountAfterFee,
             buyAmount: buyAmountAfterFee,
