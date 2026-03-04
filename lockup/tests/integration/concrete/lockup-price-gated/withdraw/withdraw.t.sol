@@ -28,12 +28,7 @@ contract Withdraw_Lockup_PriceGated_Integration_Concrete_Test is Lockup_PriceGat
         });
     }
 
-    function test_RevertWhen_AmountLessThanDeposit()
-        external
-        givenEndTimeInFuture
-        whenLatestPriceNotBelowTarget
-        whenAmountLessThanDeposit
-    {
+    function test_RevertWhen_AmountLessThanDeposit() external givenEndTimeInFuture whenLatestPriceNotBelowTarget {
         // Update oracle to return target price so the stream unlocks.
         oracle.setPrice(defaults.LPG_TARGET_PRICE());
 
@@ -55,12 +50,7 @@ contract Withdraw_Lockup_PriceGated_Integration_Concrete_Test is Lockup_PriceGat
         });
     }
 
-    function test_WhenAmountEqualsDeposit()
-        external
-        givenEndTimeInFuture
-        whenLatestPriceNotBelowTarget
-        whenAmountEqualsDeposit
-    {
+    function test_WhenAmountEqualsDeposit() external givenEndTimeInFuture whenLatestPriceNotBelowTarget {
         // Update oracle to return target price.
         oracle.setPrice(defaults.LPG_TARGET_PRICE());
 
@@ -90,7 +80,8 @@ contract Withdraw_Lockup_PriceGated_Integration_Concrete_Test is Lockup_PriceGat
         assertEq(actualStatus, expectedStatus);
     }
 
-    function test_GivenEndTimeNotInFuture() external givenEndTimeNotInFuture {
+    function test_GivenEndTimeNotInFuture() external {
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         uint128 withdrawAmount = defaults.DEPOSIT_AMOUNT();
 
         // It should emit {WithdrawFromLockupStream} and {MetadataUpdate} events.

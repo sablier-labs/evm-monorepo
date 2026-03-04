@@ -154,7 +154,7 @@ contract LockupHandler is BaseHandler {
         vm.assume(withdrawableAmount != 0);
 
         // If the model is LPG, the withdraw amount must equal the withdrawable amount.
-        if (uint8(lockup.getLockupModel(currentStreamId)) == uint8(Lockup.Model.LOCKUP_PRICE_GATED)) {
+        if (lockup.getLockupModel(currentStreamId) == Lockup.Model.LOCKUP_PRICE_GATED) {
             withdrawAmount = withdrawableAmount;
         }
         // Otherwise, bound the withdraw amount so that it is not zero.

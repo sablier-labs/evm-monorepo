@@ -300,14 +300,6 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
         _;
     }
 
-    modifier whenAmountEqualsDeposit() {
-        _;
-    }
-
-    modifier whenAmountLessThanDeposit() {
-        _;
-    }
-
     modifier whenTargetPriceExceedsCurrentPrice() {
         _;
     }
