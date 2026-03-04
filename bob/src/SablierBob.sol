@@ -201,8 +201,7 @@ contract SablierBob is
             revert Errors.SablierBob_DepositAmountZero(vaultId, msg.sender);
         }
 
-        // Load the vault from storage.
-        Bob.Vault memory vault = _vaults[vaultId];
+        Bob.Vault storage vault = _vaults[vaultId];
 
         // Interaction: transfer tokens from caller to this contract or the adapter.
         if (address(vault.adapter) != address(0)) {
