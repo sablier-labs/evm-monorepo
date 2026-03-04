@@ -11,10 +11,9 @@ abstract contract Batch is IBatch {
     /// @dev Since `msg.value` can be reused across calls, be VERY CAREFUL when using it. Refer to
     /// https://paradigm.xyz/2021/08/two-rights-might-make-a-wrong for more information.
     function batch(bytes[] calldata calls) external payable virtual override returns (bytes[] memory results) {
-        uint256 count = calls.length;
-        results = new bytes[](count);
+        results = new bytes[](calls.length);
 
-        for (uint256 i = 0; i < count; ++i) {
+        for (uint256 i = 0; i < calls.length; ++i) {
             (bool success, bytes memory result) = address(this).delegatecall(calls[i]);
 
             // Check: If the delegatecall failed, load and bubble up the revert data.
