@@ -128,7 +128,7 @@ abstract contract SablierEscrowState is ISablierEscrowState {
 
     /// @dev Return the order status without performing a null check.
     function _statusOf(uint256 orderId) internal view returns (Escrow.Status) {
-        Escrow.Order memory order = _orders[orderId];
+        Escrow.Order storage order = _orders[orderId];
 
         if (order.wasFilled) {
             return Escrow.Status.FILLED;

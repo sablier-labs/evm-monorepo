@@ -51,8 +51,7 @@ contract SablierEscrow is
 
     /// @inheritdoc ISablierEscrow
     function cancelOrder(uint256 orderId) external override notNull(orderId) {
-        // Load the order from storage into memory.
-        Escrow.Order memory order = _orders[orderId];
+        Escrow.Order storage order = _orders[orderId];
 
         // Check: the caller is the seller.
         if (msg.sender != order.seller) {
@@ -181,8 +180,7 @@ contract SablierEscrow is
             revert Errors.SablierEscrow_OrderNotOpen(orderId, status);
         }
 
-        // Load the order from storage.
-        Escrow.Order memory order = _orders[orderId];
+        Escrow.Order storage order = _orders[orderId];
 
         // Check: if the order has buyer specified, the caller must be the buyer.
         if (order.buyer != address(0) && msg.sender != order.buyer) {
