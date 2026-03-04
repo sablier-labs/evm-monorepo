@@ -154,7 +154,7 @@ contract SablierLidoAdapter is
         external
         view
         override
-        returns (uint128 amountToTransfer, uint128 feeAmount)
+        returns (uint128 transferAmount, uint128 feeAmountDeductedFromYield)
     {
         // Get total amount of wstETH in the vault before unstaking.
         uint256 totalWstETH = _vaultTotalWstETH[vaultId];
@@ -179,12 +179,12 @@ contract SablierLidoAdapter is
             uint128 yieldAmount = userWethShare - shareBalance;
 
             // Calculate the fee.
-            feeAmount = ud(yieldAmount).mul(_vaultYieldFee[vaultId]).intoUint128();
-            amountToTransfer = userWethShare - feeAmount;
+            feeAmountDeductedFromYield = ud(yieldAmount).mul(_vaultYieldFee[vaultId]).intoUint128();
+            transferAmount = userWethShare - feeAmountDeductedFromYield;
         }
         // Otherwise, the yield is negative or zero, so no fee is applicable.
         else {
-            amountToTransfer = userWethShare;
+            transferAmount = userWethShare;
         }
     }
 

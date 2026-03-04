@@ -167,10 +167,13 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// in the native token.
     ///
     /// @param vaultId The ID of the vault to redeem from.
-    /// @return transferredAmount The amount of tokens transferred to the caller, after fees are deducted (only
-    /// applicable if adapter is set).
-    /// @return feeAmount The fee amount deducted from the yield.
-    function redeem(uint256 vaultId) external payable returns (uint128 transferredAmount, uint128 feeAmount);
+    /// @return transferAmount The amount of tokens transferred to the caller, after fees are deducted (only applicable
+    /// if adapter is set).
+    /// @return feeAmountDeductedFromYield The fee amount deducted from the yield. Zero if no adapter is set.
+    function redeem(uint256 vaultId)
+        external
+        payable
+        returns (uint128 transferAmount, uint128 feeAmountDeductedFromYield);
 
     /// @notice Sets the default adapter for a specific token.
     ///

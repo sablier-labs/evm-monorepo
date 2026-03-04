@@ -231,7 +231,7 @@ contract SablierBob is
         override
         nonReentrant
         notNull(vaultId)
-        returns (uint128 amountToTransfer, uint128 feeAmount)
+        returns (uint128 transferAmount, uint128 feeAmountDeductedFromYield)
     {
         // If the vault is active, sync the price from the oracle to update the status.
         if (_statusOf(vaultId) == Bob.Status.ACTIVE) {
@@ -270,13 +270,13 @@ contract SablierBob is
                 _vaults[vaultId].isStakedInAdapter = false;
             }
 
-            // Calculate the amount to transfer and the fee.
-            (amountToTransfer, feeAmount) =
+            // Get the transfer amount and the fee deducted from yield.
+            (transferAmount, feeAmountDeductedFromYield) =
                 adapter.calculateAmountToTransferWithYield(vaultId, msg.sender, shareBalance);
 
             // Interaction: transfer the fee to the comptroller address.
-            if (feeAmount > 0) {
-                token.safeTransfer(address(comptroller), feeAmount);
+            if (feeAmountDeductedFromYield > 0) {
+                token.safeTransfer(address(comptroller), feeAmountDeductedFromYield);
             }
         }
         // Otherwise, check that `msg.value` is greater than or equal to the minimum fee required.
@@ -298,18 +298,18 @@ contract SablierBob is
                 }
             }
 
-            // Return the transferred amount.
-            amountToTransfer = shareBalance;
+            // Return the transfer amount.
+            transferAmount = shareBalance;
         }
 
         // Interaction: burn share tokens from the caller.
         shareToken.burn(vaultId, msg.sender, shareBalance);
 
         // Interaction: transfer tokens to the caller.
-        token.safeTransfer(msg.sender, amountToTransfer);
+        token.safeTransfer(msg.sender, transferAmount);
 
         // Log the event.
-        emit Redeem(vaultId, msg.sender, amountToTransfer, shareBalance, feeAmount);
+        emit Redeem(vaultId, msg.sender, transferAmount, shareBalance, feeAmountDeductedFromYield);
     }
 
     /// @inheritdoc ISablierBob
