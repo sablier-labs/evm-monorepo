@@ -296,23 +296,7 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
         _;
     }
 
-    modifier whenOracleAddressNotZero() {
-        _;
-    }
-
-    modifier whenOracleDecimals8() {
-        _;
-    }
-
-    modifier whenOracleNotMissDecimals() {
-        _;
-    }
-
-    modifier whenOracleNotMissLatestRoundData() {
-        _;
-    }
-
-    modifier whenOraclePricePositive() {
+    modifier whenLatestPriceNotBelowTarget() {
         _;
     }
 

@@ -87,10 +87,10 @@ library Lockup {
     /// @notice Enum representing the different distribution models used to create Lockup streams.
     /// @dev This determines the streaming function used in the calculations of the unlocked tokens.
     enum Model {
-        LOCKUP_DYNAMIC,
         LOCKUP_LINEAR,
-        LOCKUP_PRICE_GATED,
-        LOCKUP_TRANCHED
+        LOCKUP_DYNAMIC,
+        LOCKUP_TRANCHED,
+        LOCKUP_PRICE_GATED
     }
 
     /// @notice Enum representing the different statuses of a stream.

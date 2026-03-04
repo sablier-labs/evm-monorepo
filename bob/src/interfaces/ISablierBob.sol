@@ -96,7 +96,7 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// - `expiry` must be in the future.
     /// - `oracle` must implement the Chainlink's {AggregatorV3Interface} interface.
     /// - `oracle` must return a positive price when `latestRoundData()` is called.
-    /// - `oracle` must return 8 when `decimals()` is called.
+    /// - `oracle` must return a non-zero value no greater than 36 when `decimals()` is called.
     /// - `targetPrice` must not be zero or greater than the current price returned by the provided oracle.
     ///
     /// @param token The address of the ERC-20 token that will be accepted for deposits.

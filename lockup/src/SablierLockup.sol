@@ -345,9 +345,20 @@ contract SablierLockup is
             revert Errors.SablierLockup_WithdrawAmountZero(streamId);
         }
 
-        // Check: the withdraw amount is not greater than the withdrawable amount.
+        // Check: the withdraw amount is valid.
         uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
-        if (amount > withdrawableAmount) {
+        if (_streams[streamId].lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
+            // For price-gated streams, partial withdrawals are not allowed.
+            if (amount != withdrawableAmount) {
+                revert Errors.SablierLockup_WithdrawAmountNotEqualWithdrawableAmount(
+                    streamId,
+                    amount,
+                    withdrawableAmount
+                );
+            }
+        }
+        // For other the other lockup models, allow partial withdrawals, but prevent overdraws.
+        else if (amount > withdrawableAmount) {
             revert Errors.SablierLockup_Overdraw(streamId, amount, withdrawableAmount);
         }
 

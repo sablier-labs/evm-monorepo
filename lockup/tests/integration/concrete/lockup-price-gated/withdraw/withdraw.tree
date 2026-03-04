@@ -3,15 +3,13 @@ Withdraw_Lockup_PriceGated_Integration_Concrete_Test
 │  ├── when latest price below target
 │  │  └── it should revert
 │  └── when latest price not below target
-│     ├── it should make the withdrawal
-│     ├── it should mark the stream as depleted
-│     └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events
+│     ├── when amount less than deposit
+│     │  └── it should revert
+│     └── when amount equals deposit
+│        ├── it should make the withdrawal
+│        ├── it should mark the stream as depleted
+│        └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events
 └── given end time not in future
-   ├── when latest price below target
-   │  ├── it should make the withdrawal
-   │  ├── it should mark the stream as depleted
-   │  └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events
-   └── when latest price not below target
-      ├── it should make the withdrawal
-      ├── it should mark the stream as depleted
-      └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events
+   ├── it should make the withdrawal
+   ├── it should mark the stream as depleted
+   └── it should emit {WithdrawFromLockupStream} and {MetadataUpdate} events

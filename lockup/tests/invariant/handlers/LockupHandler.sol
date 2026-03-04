@@ -153,8 +153,14 @@ contract LockupHandler is BaseHandler {
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(currentStreamId);
         vm.assume(withdrawableAmount != 0);
 
-        // Bound the withdraw amount so that it is not zero.
-        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
+        // If the model is LPG, the withdraw amount must equal the withdrawable amount.
+        if (lockup.getLockupModel(currentStreamId) == Lockup.Model.LOCKUP_PRICE_GATED) {
+            withdrawAmount = withdrawableAmount;
+        }
+        // Otherwise, bound the withdraw amount so that it is not zero.
+        else {
+            withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
+        }
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
         // address must be set to the recipient.

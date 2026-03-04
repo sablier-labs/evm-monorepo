@@ -138,11 +138,11 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
-    modifier whenNewOracleNotZero() {
+    modifier whenNonStateChangingFunction() {
         _;
     }
 
-    modifier whenNonStateChangingFunction() {
+    modifier whenNormalizedPriceNotExceedUint128Max() {
         _;
     }
 
@@ -158,7 +158,11 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
-    modifier whenOracleDecimals8() {
+    modifier whenOracleDecimalsNotTooHigh() {
+        _;
+    }
+
+    modifier whenOracleDecimalsNotZero() {
         _;
     }
 
@@ -167,6 +171,10 @@ abstract contract Modifiers is BaseTest {
     }
 
     modifier whenOracleNotMissLatestRoundData() {
+        _;
+    }
+
+    modifier whenNewOracleNotZero() {
         _;
     }
 

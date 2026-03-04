@@ -8,8 +8,10 @@ import {
     ChainlinkOracleMock,
     ChainlinkOracleNegativePrice,
     ChainlinkOracleWith18Decimals,
+    ChainlinkOracleWith37Decimals,
     ChainlinkOracleWithRevertingDecimals,
     ChainlinkOracleWithRevertingPrice,
+    ChainlinkOracleWithZeroDecimals,
     ChainlinkOracleZeroPrice
 } from "src/mocks/ChainlinkMocks.sol";
 
@@ -30,11 +32,24 @@ contract ValidateOracle_SafeOracle_Concrete_Test is Base_Test {
         safeOracleMock.validateOracle(AggregatorV3Interface(address(oracle)));
     }
 
-    function test_RevertWhen_OracleDecimalsNot8() external whenOracleAddressNotZero whenOracleNotMissDecimals {
-        ChainlinkOracleWith18Decimals oracle = new ChainlinkOracleWith18Decimals();
+    function test_RevertWhen_OracleDecimalsZero() external whenOracleAddressNotZero whenOracleNotMissDecimals {
+        ChainlinkOracleWithZeroDecimals oracle = new ChainlinkOracleWithZeroDecimals();
 
         // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_DecimalsNotEight.selector, address(oracle), 18));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_DecimalsZero.selector, address(oracle)));
+        safeOracleMock.validateOracle(AggregatorV3Interface(address(oracle)));
+    }
+
+    function test_RevertWhen_OracleDecimalsTooHigh()
+        external
+        whenOracleAddressNotZero
+        whenOracleNotMissDecimals
+        whenOracleDecimalsNotZero
+    {
+        ChainlinkOracleWith37Decimals oracle = new ChainlinkOracleWith37Decimals();
+
+        // It should revert.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_DecimalsTooHigh.selector, address(oracle), 37));
         safeOracleMock.validateOracle(AggregatorV3Interface(address(oracle)));
     }
 
@@ -42,7 +57,8 @@ contract ValidateOracle_SafeOracle_Concrete_Test is Base_Test {
         external
         whenOracleAddressNotZero
         whenOracleNotMissDecimals
-        whenOracleDecimals8
+        whenOracleDecimalsNotZero
+        whenOracleDecimalsNotTooHigh
     {
         ChainlinkOracleWithRevertingPrice oracle = new ChainlinkOracleWithRevertingPrice();
 
@@ -55,7 +71,8 @@ contract ValidateOracle_SafeOracle_Concrete_Test is Base_Test {
         external
         whenOracleAddressNotZero
         whenOracleNotMissDecimals
-        whenOracleDecimals8
+        whenOracleDecimalsNotZero
+        whenOracleDecimalsNotTooHigh
         whenOracleNotMissLatestRoundData
     {
         ChainlinkOracleNegativePrice oracle = new ChainlinkOracleNegativePrice();
@@ -69,7 +86,8 @@ contract ValidateOracle_SafeOracle_Concrete_Test is Base_Test {
         external
         whenOracleAddressNotZero
         whenOracleNotMissDecimals
-        whenOracleDecimals8
+        whenOracleDecimalsNotZero
+        whenOracleDecimalsNotTooHigh
         whenOracleNotMissLatestRoundData
     {
         ChainlinkOracleZeroPrice oracle = new ChainlinkOracleZeroPrice();
@@ -83,12 +101,28 @@ contract ValidateOracle_SafeOracle_Concrete_Test is Base_Test {
         external
         whenOracleAddressNotZero
         whenOracleNotMissDecimals
-        whenOracleDecimals8
+        whenOracleDecimalsNotZero
+        whenOracleDecimalsNotTooHigh
         whenOracleNotMissLatestRoundData
     {
         ChainlinkOracleMock oracle = new ChainlinkOracleMock();
 
-        // It should return the latest price.
+        // It should return the latest price normalized to eight decimals.
+        uint128 latestPrice = safeOracleMock.validateOracle(AggregatorV3Interface(address(oracle)));
+        assertEq(latestPrice, 3000e8, "latestPrice");
+    }
+
+    function test_WhenOraclePricePositive_With18Decimals()
+        external
+        whenOracleAddressNotZero
+        whenOracleNotMissDecimals
+        whenOracleDecimalsNotZero
+        whenOracleDecimalsNotTooHigh
+        whenOracleNotMissLatestRoundData
+    {
+        ChainlinkOracleWith18Decimals oracle = new ChainlinkOracleWith18Decimals();
+
+        // It should return the latest price normalized to eight decimals.
         uint128 latestPrice = safeOracleMock.validateOracle(AggregatorV3Interface(address(oracle)));
         assertEq(latestPrice, 3000e8, "latestPrice");
     }

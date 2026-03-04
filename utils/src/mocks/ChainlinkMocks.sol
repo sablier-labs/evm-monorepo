@@ -170,6 +170,57 @@ contract ChainlinkOracleWith6Decimals {
     }
 }
 
+/// @notice A mock Chainlink oracle that returns 0 decimals.
+contract ChainlinkOracleWithZeroDecimals {
+    function decimals() external pure returns (uint8) {
+        return 0;
+    }
+
+    function latestRoundData()
+        external
+        view
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
+    {
+        int256 answer_ = 3000;
+        uint256 updatedAt_ = block.timestamp;
+        return (0, answer_, 0, updatedAt_, 0);
+    }
+}
+
+/// @notice A mock Chainlink oracle where the price fits in `uint128` but overflows after normalization to 8 decimals.
+contract ChainlinkOracleNormalizedOverflowPrice {
+    function decimals() external pure returns (uint8) {
+        return 6;
+    }
+
+    function latestRoundData()
+        external
+        view
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
+    {
+        int256 answer_ = int256(uint256(type(uint128).max));
+        uint256 updatedAt_ = block.timestamp;
+        return (0, answer_, 0, updatedAt_, 0);
+    }
+}
+
+/// @notice A mock Chainlink oracle that returns 37 decimals (exceeds the 36 maximum).
+contract ChainlinkOracleWith37Decimals {
+    function decimals() external pure returns (uint8) {
+        return 37;
+    }
+
+    function latestRoundData()
+        external
+        view
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
+    {
+        int256 answer_ = 3000;
+        uint256 updatedAt_ = block.timestamp;
+        return (0, answer_, 0, updatedAt_, 0);
+    }
+}
+
 /// @notice A mock Chainlink oracle that returns 0 as a price.
 contract ChainlinkOracleZeroPrice {
     function decimals() external pure returns (uint8) {
