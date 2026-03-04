@@ -201,22 +201,24 @@ contract SablierBob is
             revert Errors.SablierBob_DepositAmountZero(vaultId, msg.sender);
         }
 
-        Bob.Vault storage vault = _vaults[vaultId];
+        // Cache storage variables.
+        ISablierBobAdapter adapter = _vaults[vaultId].adapter;
+        IERC20 token = _vaults[vaultId].token;
 
         // Interaction: transfer tokens from caller to this contract or the adapter.
-        if (address(vault.adapter) != address(0)) {
+        if (address(adapter) != address(0)) {
             // Interaction: Transfer token from caller to the adapter.
-            vault.token.safeTransferFrom(msg.sender, address(vault.adapter), amount);
+            token.safeTransferFrom(msg.sender, address(adapter), amount);
 
             // Interaction: stake the tokens via the adapter.
-            vault.adapter.stake(vaultId, msg.sender, amount);
+            adapter.stake(vaultId, msg.sender, amount);
         } else {
             // Interaction: Transfer tokens from caller to this contract.
-            vault.token.safeTransferFrom(msg.sender, address(this), amount);
+            token.safeTransferFrom(msg.sender, address(this), amount);
         }
 
         // Interaction: mint share tokens to the caller.
-        vault.shareToken.mint(vaultId, msg.sender, amount);
+        _vaults[vaultId].shareToken.mint(vaultId, msg.sender, amount);
 
         // Log the deposit.
         emit Enter(vaultId, msg.sender, amount, amount);
@@ -244,11 +246,13 @@ contract SablierBob is
             // Otherwise, the vault has been settled.
         }
 
-        // Load the vault from storage.
-        Bob.Vault storage vault = _vaults[vaultId];
+        // Cache storage variables.
+        ISablierBobAdapter adapter = _vaults[vaultId].adapter;
+        IBobVaultShare shareToken = _vaults[vaultId].shareToken;
+        IERC20 token = _vaults[vaultId].token;
 
         // Get the caller's share balance.
-        uint128 shareBalance = vault.shareToken.balanceOf(msg.sender).toUint128();
+        uint128 shareBalance = shareToken.balanceOf(msg.sender).toUint128();
 
         // Check: the share balance is not zero.
         if (shareBalance == 0) {
@@ -256,29 +260,30 @@ contract SablierBob is
         }
 
         // Check if the vault has an adapter.
-        if (address(vault.adapter) != address(0)) {
+        if (address(adapter) != address(0)) {
             // Check: the deposit token is staked with the adapter.
-            if (vault.isStakedInAdapter) {
+            if (_vaults[vaultId].isStakedInAdapter) {
                 // Interaction: unstake all tokens via the adapter.
-                _unstakeFullAmountViaAdapter(vaultId);
+                _unstakeFullAmountViaAdapter(vaultId, adapter);
 
                 // Effect: set isStakedInAdapter to false.
-                vault.isStakedInAdapter = false;
+                _vaults[vaultId].isStakedInAdapter = false;
             }
 
             // Calculate the amount to transfer and the fee.
             (amountToTransfer, feeAmount) =
-                vault.adapter.calculateAmountToTransferWithYield(vaultId, msg.sender, shareBalance);
+                adapter.calculateAmountToTransferWithYield(vaultId, msg.sender, shareBalance);
 
             // Interaction: transfer the fee to the comptroller address.
             if (feeAmount > 0) {
-                vault.token.safeTransfer(address(comptroller), feeAmount);
+                token.safeTransfer(address(comptroller), feeAmount);
             }
         }
         // Otherwise, check that `msg.value` is greater than or equal to the minimum fee required.
         else {
             // Get the minimum fee from the comptroller.
-            uint256 minFeeWei = comptroller.calculateMinFeeWei({ protocol: ISablierComptroller.Protocol.Bob });
+            ISablierComptroller comptroller_ = comptroller;
+            uint256 minFeeWei = comptroller_.calculateMinFeeWei({ protocol: ISablierComptroller.Protocol.Bob });
 
             // Check: `msg.value` is greater than or equal to the minimum fee.
             if (msg.value < minFeeWei) {
@@ -287,7 +292,7 @@ contract SablierBob is
 
             // Interaction: forward native token fee to comptroller.
             if (msg.value > 0) {
-                (bool success,) = address(comptroller).call{ value: msg.value }("");
+                (bool success,) = address(comptroller_).call{ value: msg.value }("");
                 if (!success) {
                     revert Errors.SablierBob_NativeFeeTransferFailed();
                 }
@@ -298,10 +303,10 @@ contract SablierBob is
         }
 
         // Interaction: burn share tokens from the caller.
-        vault.shareToken.burn(vaultId, msg.sender, shareBalance);
+        shareToken.burn(vaultId, msg.sender, shareBalance);
 
         // Interaction: transfer tokens to the caller.
-        vault.token.safeTransfer(msg.sender, amountToTransfer);
+        token.safeTransfer(msg.sender, amountToTransfer);
 
         // Log the event.
         emit Redeem(vaultId, msg.sender, amountToTransfer, shareBalance, feeAmount);
@@ -364,20 +369,21 @@ contract SablierBob is
         notNull(vaultId)
         returns (uint128 amountReceivedFromAdapter)
     {
-        Bob.Vault storage vault = _vaults[vaultId];
+        // Cache storage variable.
+        ISablierBobAdapter adapter = _vaults[vaultId].adapter;
 
         // Check: the vault has an adapter.
-        if (address(vault.adapter) == address(0)) {
+        if (address(adapter) == address(0)) {
             revert Errors.SablierBob_VaultHasNoAdapter(vaultId);
         }
 
         // Check: the vault has not already been unstaked.
-        if (!vault.isStakedInAdapter) {
+        if (!_vaults[vaultId].isStakedInAdapter) {
             revert Errors.SablierBob_VaultAlreadyUnstaked(vaultId);
         }
 
         // Check: there is something to unstake.
-        if (vault.adapter.getTotalYieldBearingTokenBalance(vaultId) == 0) {
+        if (adapter.getTotalYieldBearingTokenBalance(vaultId) == 0) {
             revert Errors.SablierBob_UnstakeAmountZero(vaultId);
         }
 
@@ -398,7 +404,7 @@ contract SablierBob is
         _vaults[vaultId].isStakedInAdapter = false;
 
         // Interaction: unstake all tokens via the adapter.
-        amountReceivedFromAdapter = _unstakeFullAmountViaAdapter(vaultId);
+        amountReceivedFromAdapter = _unstakeFullAmountViaAdapter(vaultId, adapter);
     }
 
     /// @inheritdoc ISablierBob
@@ -417,9 +423,11 @@ contract SablierBob is
             revert Errors.SablierBob_CallerNotShareToken(vaultId, msg.sender);
         }
 
-        if (address(_vaults[vaultId].adapter) != address(0)) {
+        // Cache storage variable.
+        ISablierBobAdapter adapter = _vaults[vaultId].adapter;
+        if (address(adapter) != address(0)) {
             // Interaction: update staked token holding of the user in the adapter.
-            _vaults[vaultId].adapter.updateStakedTokenBalance(vaultId, from, to, amount, fromBalanceBefore);
+            adapter.updateStakedTokenBalance(vaultId, from, to, amount, fromBalanceBefore);
         }
     }
 
@@ -458,17 +466,22 @@ contract SablierBob is
 
     /// @dev Private function to unstake all tokens using the adapter.
     /// @param vaultId The ID of the vault.
+    /// @param adapter The adapter to use for unstaking.
     /// @return amountReceivedFromAdapter The amount of tokens received from the adapter after unstaking.
-    function _unstakeFullAmountViaAdapter(uint256 vaultId) private returns (uint128 amountReceivedFromAdapter) {
-        Bob.Vault storage vault = _vaults[vaultId];
-
+    function _unstakeFullAmountViaAdapter(
+        uint256 vaultId,
+        ISablierBobAdapter adapter
+    )
+        private
+        returns (uint128 amountReceivedFromAdapter)
+    {
         // Get the total amount staked via the adapter.
-        uint128 wrappedTokenUnstakedAmount = vault.adapter.getTotalYieldBearingTokenBalance(vaultId);
+        uint128 wrappedTokenUnstakedAmount = adapter.getTotalYieldBearingTokenBalance(vaultId);
 
         // Interaction: unstake all tokens via the adapter.
-        amountReceivedFromAdapter = vault.adapter.unstakeFullAmount(vaultId);
+        amountReceivedFromAdapter = adapter.unstakeFullAmount(vaultId);
 
         // Log the event.
-        emit UnstakeFromAdapter(vaultId, vault.adapter, wrappedTokenUnstakedAmount, amountReceivedFromAdapter);
+        emit UnstakeFromAdapter(vaultId, adapter, wrappedTokenUnstakedAmount, amountReceivedFromAdapter);
     }
 }
