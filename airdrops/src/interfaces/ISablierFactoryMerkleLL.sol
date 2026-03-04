@@ -49,6 +49,7 @@ interface ISablierFactoryMerkleLL is ISablierFactoryMerkleBase {
     /// - The contract is created with CREATE2.
     /// - The campaign's fee will be set to the min USD fee unless a custom fee is set for `msg.sender`.
     /// - A value of zero for `campaignParams.expiration` means the campaign does not expire.
+    /// - A value of zero for `campaignParams.granularity` would store the granularity as 1 second.
     ///
     /// Requirements:
     /// - `campaignParams.token` must not be the forbidden native token.
@@ -58,7 +59,7 @@ interface ISablierFactoryMerkleLL is ISablierFactoryMerkleBase {
     /// @param recipientCount The total number of recipient addresses eligible for the airdrop.
     /// @return merkleLL The address of the newly created Merkle Lockup contract.
     function createMerkleLL(
-        MerkleLL.ConstructorParams calldata campaignParams,
+        MerkleLL.ConstructorParams memory campaignParams,
         uint256 aggregateAmount,
         uint256 recipientCount
     )

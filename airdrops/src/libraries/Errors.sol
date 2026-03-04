@@ -109,6 +109,9 @@ library Errors {
                               SABLIER-MERKLE-SIGNATURE
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when the attestation signature has expired.
+    error SablierMerkleSignature_AttestationExpired(uint256 expireAt, uint256 blockTimestamp);
+
     /// @notice Thrown when the attestor returns the zero address.
     error SablierMerkleSignature_AttestorNotSet();
 
@@ -133,6 +136,9 @@ library Errors {
 
     /// @notice Thrown when trying to calculate the rewards amount without redistribution enabled.
     error SablierMerkleVCA_RedistributionNotEnabled();
+
+    /// @notice Thrown when trying to enable redistribution after the vesting end time.
+    error SablierMerkleVCA_VestingEndTimeNotInFuture(uint256 vestingEndTime, uint256 blockTimestamp);
 
     /// @notice Thrown when calculating the forgone amount with claim time less than the vesting start time.
     error SablierMerkleVCA_VestingNotStarted(uint40 claimTime, uint40 vestingStartTime);

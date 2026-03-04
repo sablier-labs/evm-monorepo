@@ -22,6 +22,7 @@ struct EIP712Domain {
 /// @dev Struct to hold the Identity message parameters during ERC-712 attestation tests.
 struct Identity {
     address recipient;
+    uint40 expireAt;
 }
 
 /// @dev Struct to hold the common parameters needed for fuzz tests.

@@ -56,6 +56,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier givenGranularityNotZero() {
+        _;
+    }
+
     modifier givenMsgValueNotLessThanFee() {
         _;
     }
@@ -73,7 +77,7 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier givenRedistributionEnabled(ISablierMerkleVCA merkleVCA) {
-        // Enable the redistribution.
+        setMsgSender(users.campaignCreator);
         merkleVCA.enableRedistribution();
         _;
     }
@@ -88,6 +92,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier givenVestingEndTimeInFuture() {
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                         WHEN
     //////////////////////////////////////////////////////////////////////////*/
@@ -97,6 +105,10 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenAmountValid() {
+        _;
+    }
+
+    modifier whenAttestationNotExpired() {
         _;
     }
 

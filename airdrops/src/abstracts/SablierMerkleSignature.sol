@@ -92,7 +92,7 @@ abstract contract SablierMerkleSignature is
 
     /// @dev Verifies that the attestation signature created for the recipient is signed by the attestor. It supports
     /// both EIP-712 and EIP-1271 signatures.
-    function _verifyAttestationSignature(address recipient, bytes calldata signature) internal view {
+    function _verifyAttestationSignature(address recipient, uint40 expireAt, bytes calldata signature) internal view {
         // Get the attestor address.
         address attestor_ = _getAttestor();
 
@@ -101,8 +101,13 @@ abstract contract SablierMerkleSignature is
             revert Errors.SablierMerkleSignature_AttestorNotSet();
         }
 
+        // Check: the `expireAt` timestamp is not in the past.
+        if (expireAt < block.timestamp) {
+            revert Errors.SablierMerkleSignature_AttestationExpired(expireAt, block.timestamp);
+        }
+
         // Create the struct hash for the identity.
-        bytes32 identityHash = keccak256(abi.encode(SignatureHash.IDENTITY_TYPEHASH, recipient));
+        bytes32 identityHash = keccak256(abi.encode(SignatureHash.IDENTITY_TYPEHASH, recipient, expireAt));
 
         // Verify that the signature is signed by the attestor.
         _verifySignature({ signer: attestor_, structHash: identityHash, signature: signature });

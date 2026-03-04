@@ -125,6 +125,7 @@ abstract contract Integration_Test is Base_Test {
             index: getIndexInMerkleTree(),
             to: users.eve,
             amount: CLAIM_AMOUNT,
+            expireAt: EXPIRATION,
             merkleProof: getMerkleProof(),
             attestation: generateAttestation()
         });
@@ -135,6 +136,7 @@ abstract contract Integration_Test is Base_Test {
         uint256 index,
         address to,
         uint128 amount,
+        uint40 expireAt,
         bytes32[] memory merkleProof,
         bytes memory attestation
     )
@@ -144,7 +146,7 @@ abstract contract Integration_Test is Base_Test {
         // Call the function using the `ISablierMerkleInstant` interface which is compatible with all other Merkle
         // contracts.
         ISablierMerkleInstant(campaignAddr).claimViaAttestation{ value: msgValue }(
-            index, to, amount, merkleProof, attestation
+            index, to, amount, expireAt, merkleProof, attestation
         );
     }
 
@@ -192,7 +194,8 @@ abstract contract Integration_Test is Base_Test {
         return generateAttestationSignature({
             signerPrivateKey: attestorPrivateKey,
             merkleContract: address(merkleBaseAttest),
-            recipient: users.recipient
+            recipient: users.recipient,
+            expireAt: EXPIRATION
         });
     }
 

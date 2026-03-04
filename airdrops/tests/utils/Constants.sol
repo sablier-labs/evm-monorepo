@@ -53,7 +53,7 @@ abstract contract Constants {
     string public constant SCHEMA_CLAIM =
         "Claim(uint256 index,address recipient,address to,uint128 amount,uint40 validFrom)";
     string public constant SCHEMA_EIP712_DOMAIN = "EIP712Domain(string name,uint256 chainId,address verifyingContract)";
-    string public constant SCHEMA_IDENTITY = "Identity(address recipient)";
+    string public constant SCHEMA_IDENTITY = "Identity(address recipient,uint40 expireAt)";
 
     /*//////////////////////////////////////////////////////////////////////////
                                      IMMUTABLES

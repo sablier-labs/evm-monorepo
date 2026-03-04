@@ -22,6 +22,7 @@ contract ClaimViaAttestation_MerkleLL_Integration_Test is
         givenAttestClaimType
         whenToAddressNotZero
         givenAttestorNotZero
+        whenAttestationNotExpired
         givenAttestorIsEOA
     {
         _test_ClaimViaAttestation();
@@ -33,6 +34,7 @@ contract ClaimViaAttestation_MerkleLL_Integration_Test is
         givenAttestClaimType
         whenToAddressNotZero
         givenAttestorNotZero
+        whenAttestationNotExpired
         givenAttestorIsContract
     {
         // Deploy an ERC1271 wallet with the EOA attestor as the admin.

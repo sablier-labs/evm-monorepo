@@ -140,7 +140,7 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams(expiration);
         params.cliffDuration = cliffDuration;
         params.cliffUnlockPercentage = cliffUnlockPercentage;
-        params.granularity = granularity;
+        params.granularity = granularity == 0 ? 1 seconds : granularity;
         params.merkleRoot = merkleRoot;
         params.startUnlockPercentage = startUnlockPercentage;
         params.totalDuration = totalDuration;
@@ -173,7 +173,7 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         // It should return the correct contract state.
         assertEq(merkleLL.VESTING_CLIFF_DURATION(), cliffDuration, "vesting cliff duration");
         assertEq(merkleLL.VESTING_CLIFF_UNLOCK_PERCENTAGE(), cliffUnlockPercentage, "vesting cliff unlock percentage");
-        assertEq(merkleLL.VESTING_GRANULARITY(), granularity, "vesting granularity");
+        assertEq(merkleLL.VESTING_GRANULARITY(), params.granularity, "vesting granularity");
         assertEq(merkleLL.VESTING_START_TIME(), vestingStartTime, "vesting start time");
         assertEq(merkleLL.VESTING_START_UNLOCK_PERCENTAGE(), startUnlockPercentage, "vesting start unlock percentage");
         assertEq(merkleLL.VESTING_TOTAL_DURATION(), totalDuration, "vesting total duration");

@@ -148,6 +148,7 @@ contract SablierMerkleLT is
         uint256 index,
         address to,
         uint128 amount,
+        uint40 expireAt,
         bytes32[] calldata merkleProof,
         bytes calldata attestation
     )
@@ -158,7 +159,7 @@ contract SablierMerkleLT is
         notZeroAddress(to)
     {
         // Check: the attestation signature is valid and the recovered signer matches the attestor.
-        _verifyAttestationSignature(msg.sender, attestation);
+        _verifyAttestationSignature(msg.sender, expireAt, attestation);
 
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
         _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });

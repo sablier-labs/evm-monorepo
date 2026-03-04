@@ -20,7 +20,19 @@ contract EnableRedistribution_MerkleVCA_Integration_Test is MerkleVCA_Integratio
         merkleVCA.enableRedistribution();
     }
 
-    function test_RevertGiven_RedistributionEnabled() external whenCallerCampaignCreator {
+    function test_RevertGiven_VestingEndTimeNotInFuture() external whenCallerCampaignCreator {
+        vm.warp({ newTimestamp: VESTING_END_TIME });
+
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleVCA_VestingEndTimeNotInFuture.selector, VESTING_END_TIME, VESTING_END_TIME
+            )
+        );
+        merkleVCA.enableRedistribution();
+    }
+
+    function test_RevertGiven_RedistributionEnabled() external whenCallerCampaignCreator givenVestingEndTimeInFuture {
         // Enable redistribution so that its enabled already.
         merkleVCA.enableRedistribution();
 
@@ -29,7 +41,7 @@ contract EnableRedistribution_MerkleVCA_Integration_Test is MerkleVCA_Integratio
         merkleVCA.enableRedistribution();
     }
 
-    function test_GivenRedistributionNotEnabled() external whenCallerCampaignCreator {
+    function test_GivenRedistributionNotEnabled() external whenCallerCampaignCreator givenVestingEndTimeInFuture {
         // It should emit {RedistributionEnabled} event.
         vm.expectEmit({ emitter: address(merkleVCA) });
         emit ISablierMerkleVCA.RedistributionEnabled();

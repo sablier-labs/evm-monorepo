@@ -76,6 +76,9 @@ interface ISablierMerkleVCA is ISablierMerkleSignature {
     /// @notice Retrieves the total amount of tokens forgone by early claimers.
     function totalForgoneAmount() external view returns (uint128);
 
+    /// @notice Retrieves the total amount of redistribution rewards paid out.
+    function totalRedistributionAmountPaid() external view returns (uint128);
+
     /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -128,18 +131,21 @@ interface ISablierMerkleVCA is ISablierMerkleSignature {
     /// - `CLAIM_TYPE` must be `ATTEST`.
     /// - The `to` must not be the zero address.
     /// - The attestor must not be the zero address.
+    /// - The `expireAt` timestamp must not be in the past.
     /// - The attestation signature must be valid.
     /// - Refer to the requirements in {claimTo}.
     ///
     /// @param index The index of the `msg.sender` in the Merkle tree.
     /// @param to The address receiving the ERC-20 tokens on behalf of `msg.sender`.
     /// @param fullAmount The total amount of ERC-20 tokens allocated to the `msg.sender`.
+    /// @param expireAt The timestamp after which the attestation signature is no longer valid.
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     /// @param attestation The EIP-712 signature from the attestor.
     function claimViaAttestation(
         uint256 index,
         address to,
         uint128 fullAmount,
+        uint40 expireAt,
         bytes32[] calldata merkleProof,
         bytes calldata attestation
     )
@@ -215,14 +221,13 @@ interface ISablierMerkleVCA is ISablierMerkleSignature {
     /// @notice Enable the redistribution of forgone tokens among recipients claiming after the vesting end time,
     /// proportional to their allocation amount. Once enabled, it cannot be disabled.
     ///
-    /// @dev Notes while calling this function:
-    /// - If the function is called after the vesting end time, the recipients who have already claimed the full amount
-    /// would miss on the rewards while subsequent recipients would get them.
-    /// - It is also recommended to fund the campaign with the actual total allocation in the Merkle tree (ideally
-    /// equivalent to `AGGREGATE_AMOUNT`) to avoid race conditions among the recipients.
+    /// @dev Notes:
+    /// - It is recommended to fund the campaign with the actual total allocation in the Merkle tree (ideally equivalent
+    /// to `AGGREGATE_AMOUNT`) to avoid race conditions among the recipients.
     ///
     /// Requirements:
     /// - `msg.sender` must be the admin.
+    /// - `VESTING_END_TIME` must be in the future.
     /// - Redistribution must not be already enabled.
     function enableRedistribution() external;
 }
