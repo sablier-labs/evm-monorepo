@@ -69,8 +69,8 @@ abstract contract RoleAdminable is IRoleAdminable, Adminable {
         // Effect: grant the `role` to `account`.
         _roles[role][account] = true;
 
-        // Emit the {RoleGranted} event.
-        emit RoleGranted({ admin: msg.sender, account: account, role: role });
+        // Emit the {GrantRole} event.
+        emit GrantRole({ admin: msg.sender, account: account, role: role });
     }
 
     /// @inheritdoc IRoleAdminable

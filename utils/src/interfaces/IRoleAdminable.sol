@@ -15,7 +15,7 @@ interface IRoleAdminable is IAdminable {
     /// @param admin The address of the admin that granted the role.
     /// @param account The address of the account to which the role is granted.
     /// @param role The identifier of the role.
-    event RoleGranted(address indexed admin, address indexed account, bytes32 indexed role);
+    event GrantRole(address indexed admin, address indexed account, bytes32 indexed role);
 
     /// @notice Emitted when `account` is revoked `role`.
     /// @param admin The address of the admin that revoked the role.
@@ -45,7 +45,7 @@ interface IRoleAdminable is IAdminable {
 
     /// @notice Grants `role` to `account`. Reverts if `account` already has the role.
     ///
-    /// @dev Emits {RoleGranted} event.
+    /// @dev Emits {GrantRole} event.
     ///
     /// Requirements:
     /// - `msg.sender` must be the admin.

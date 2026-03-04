@@ -236,7 +236,7 @@ contract SablierMerkleVCA is
         isRedistributionEnabled = true;
 
         // Log the event.
-        emit RedistributionEnabled();
+        emit EnableRedistribution();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -349,7 +349,7 @@ contract SablierMerkleVCA is
                     transferAmount += rewardAmount;
 
                     // Log the event.
-                    emit RedistributionReward(index, recipient, rewardAmount, to);
+                    emit RedistributeReward(index, recipient, rewardAmount, to);
                 }
             }
         }

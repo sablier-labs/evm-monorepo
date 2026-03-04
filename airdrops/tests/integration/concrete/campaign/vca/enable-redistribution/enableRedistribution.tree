@@ -9,4 +9,4 @@ EnableRedistribution_MerkleVCA_Integration_Test
       │  └── it should revert
       └── given redistribution not enabled
          ├── it should enable redistribution
-         └── it should emit {RedistributionEnabled} event
+         └── it should emit {EnableRedistribution} event

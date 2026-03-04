@@ -34,7 +34,7 @@ contract GrantRole_RoleAdminable_Fuzz_Test is Base_Test {
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(roleAdminableMock) });
-        emit IRoleAdminable.RoleGranted({ admin: admin, account: account, role: role });
+        emit IRoleAdminable.GrantRole({ admin: admin, account: account, role: role });
 
         // Grant the role to account.
         roleAdminableMock.grantRole(role, account);

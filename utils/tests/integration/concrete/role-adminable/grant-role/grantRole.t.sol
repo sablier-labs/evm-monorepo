@@ -22,9 +22,9 @@ contract GrantRole_RoleAdminable_Concrete_Test is Base_Test {
     }
 
     function test_GivenAccountNotHaveRole() external whenCallerAdmin {
-        // It should emit {RoleGranted} event.
+        // It should emit {GrantRole} event.
         vm.expectEmit({ emitter: address(roleAdminableMock) });
-        emit IRoleAdminable.RoleGranted({ admin: admin, account: users.eve, role: FEE_COLLECTOR_ROLE });
+        emit IRoleAdminable.GrantRole({ admin: admin, account: users.eve, role: FEE_COLLECTOR_ROLE });
 
         // Grant the role to Eve.
         roleAdminableMock.grantRole(FEE_COLLECTOR_ROLE, users.eve);

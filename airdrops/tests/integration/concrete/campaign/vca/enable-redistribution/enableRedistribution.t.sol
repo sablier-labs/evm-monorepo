@@ -42,9 +42,9 @@ contract EnableRedistribution_MerkleVCA_Integration_Test is MerkleVCA_Integratio
     }
 
     function test_GivenRedistributionNotEnabled() external whenCallerCampaignCreator givenVestingEndTimeInFuture {
-        // It should emit {RedistributionEnabled} event.
+        // It should emit {EnableRedistribution} event.
         vm.expectEmit({ emitter: address(merkleVCA) });
-        emit ISablierMerkleVCA.RedistributionEnabled();
+        emit ISablierMerkleVCA.EnableRedistribution();
 
         merkleVCA.enableRedistribution();
 

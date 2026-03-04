@@ -25,10 +25,10 @@ interface ISablierMerkleVCA is ISablierMerkleSignature {
     );
 
     /// @notice Emitted when the redistribution is enabled.
-    event RedistributionEnabled();
+    event EnableRedistribution();
 
     /// @notice Emitted when a recipient receives rewards from the forgone tokens pool.
-    event RedistributionReward(uint256 index, address indexed recipient, uint128 amount, address to);
+    event RedistributeReward(uint256 index, address indexed recipient, uint128 amount, address to);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
@@ -88,7 +88,7 @@ interface ISablierMerkleVCA is ISablierMerkleSignature {
     /// reward amount based on the total amount of tokens forgone by early claimers and transfers it to the recipients
     /// claiming after the vesting end time.
     ///
-    /// @dev It emits a {ClaimVCA} event, and a {RedistributionReward} event if the redistribution is enabled.
+    /// @dev It emits a {ClaimVCA} event, and a {RedistributeReward} event if the redistribution is enabled.
     ///
     /// Notes:
     /// - There can be a race condition among recipients if:
