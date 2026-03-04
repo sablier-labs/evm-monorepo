@@ -9,15 +9,15 @@ import { Base_Test } from "../../../../Base.t.sol";
 contract SetAttestor_Comptroller_Concrete_Test is Base_Test {
     address internal newAttestor = makeAddr("newAttestor");
 
-    function test_RevertWhen_CallerWithoutFeeManagementRole() external whenCallerNotAdmin {
+    function test_RevertWhen_CallerWithoutAttestorManagerRole() external whenCallerNotAdmin {
         setMsgSender(users.eve);
 
         // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.UnauthorizedAccess.selector, users.eve, FEE_MANAGEMENT_ROLE));
+        vm.expectRevert(abi.encodeWithSelector(Errors.UnauthorizedAccess.selector, users.eve, ATTESTOR_MANAGER_ROLE));
         comptroller.setAttestor(newAttestor);
     }
 
-    function test_WhenCallerWithFeeManagementRole() external whenCallerNotAdmin {
+    function test_WhenCallerWithAttestorManagerRole() external whenCallerNotAdmin {
         setMsgSender(users.accountant);
 
         address currentAttestor = comptroller.attestor();
@@ -33,7 +33,7 @@ contract SetAttestor_Comptroller_Concrete_Test is Base_Test {
         assertEq(comptroller.attestor(), newAttestor, "attestor");
     }
 
-    function test_WhenCallerAdmin() external whenCallerAdmin {
+    function test_WhenCallerAdmin() external {
         address currentAttestor = comptroller.attestor();
 
         // It should emit a {SetAttestor} event.

@@ -1,8 +1,8 @@
 SetAttestor_Comptroller_Concrete_Test
 ├── when caller not admin
-│  ├── when caller without fee management role
+│  ├── when caller without attestor manager role
 │  │  └── it should revert
-│  └── when caller with fee management role
+│  └── when caller with attestor manager role
 │     ├── it should set the attestor
 │     └── it should emit a {SetAttestor} event
 └── when caller admin

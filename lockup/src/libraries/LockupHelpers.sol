@@ -27,6 +27,12 @@ library LockupHelpers {
         returns (LockupDynamic.Segment[] memory segmentsWithTimestamps)
     {
         uint256 segmentCount = segmentsWithDuration.length;
+
+        // Check: the segment count is not zero.
+        if (segmentCount == 0) {
+            revert Errors.SablierLockupHelpers_SegmentCountZero();
+        }
+
         segmentsWithTimestamps = new LockupDynamic.Segment[](segmentCount);
 
         // It is safe to use unchecked arithmetic because {SablierLockup._createLD} will nonetheless
@@ -60,6 +66,12 @@ library LockupHelpers {
         returns (LockupTranched.Tranche[] memory tranchesWithTimestamps)
     {
         uint256 trancheCount = tranchesWithDuration.length;
+
+        // Check: the tranche count is not zero.
+        if (trancheCount == 0) {
+            revert Errors.SablierLockupHelpers_TrancheCountZero();
+        }
+
         tranchesWithTimestamps = new LockupTranched.Tranche[](trancheCount);
 
         // It is safe to use unchecked arithmetic because {SablierLockup-_createLT} will nonetheless check the

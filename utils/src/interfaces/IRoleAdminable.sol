@@ -27,6 +27,9 @@ interface IRoleAdminable is IAdminable {
                                  READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice A role with the authority to manage attestors across the Sablier contracts.
+    function ATTESTOR_MANAGER_ROLE() external view returns (bytes32);
+
     /// @notice A role with the authority to collect fees from the Sablier contracts.
     function FEE_COLLECTOR_ROLE() external view returns (bytes32);
 

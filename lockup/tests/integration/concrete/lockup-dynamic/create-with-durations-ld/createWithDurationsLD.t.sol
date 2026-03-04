@@ -36,7 +36,13 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         });
     }
 
-    function test_RevertWhen_FirstIndexHasZeroDuration() external whenNoDelegateCall {
+    function test_RevertWhen_SegmentCountZero() external whenNoDelegateCall {
+        LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations;
+        vm.expectRevert(Errors.SablierLockupHelpers_SegmentCountZero.selector);
+        createDefaultStreamWithDurations(segmentsWithDurations);
+    }
+
+    function test_RevertWhen_FirstIndexHasZeroDuration() external whenNoDelegateCall whenSegmentCountNotZero {
         uint40 startTime = getBlockTimestamp();
         LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations = _defaultParams.segmentsWithDurations;
         segmentsWithDurations[1].duration = 0;
@@ -57,6 +63,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
     function test_RevertWhen_StartTimeExceedsFirstTimestamp()
         external
         whenNoDelegateCall
+        whenSegmentCountNotZero
         whenFirstIndexHasNonZeroDuration
         whenTimestampsCalculationOverflows
     {
@@ -80,6 +87,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
     function test_RevertWhen_TimestampsNotStrictlyIncreasing()
         external
         whenNoDelegateCall
+        whenSegmentCountNotZero
         whenFirstIndexHasNonZeroDuration
         whenTimestampsCalculationOverflows
         whenStartTimeNotExceedsFirstTimestamp
@@ -112,7 +120,12 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         }
     }
 
-    function test_WhenTimestampsCalculationNotOverflow() external whenNoDelegateCall whenFirstIndexHasNonZeroDuration {
+    function test_WhenTimestampsCalculationNotOverflow()
+        external
+        whenNoDelegateCall
+        whenSegmentCountNotZero
+        whenFirstIndexHasNonZeroDuration
+    {
         uint256 expectedStreamId = lockup.nextStreamId();
 
         // Declare the timestamps.

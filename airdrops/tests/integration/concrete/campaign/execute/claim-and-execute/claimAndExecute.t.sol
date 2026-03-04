@@ -3,9 +3,14 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
+import { Errors } from "src/libraries/Errors.sol";
 import { MerkleExecute } from "src/types/MerkleExecute.sol";
 
-import { MockStakingReentrant, MockStakingRevert } from "./../../../../../mocks/MockStaking.sol";
+import {
+    MockStakingReentrant,
+    MockStakingRevert,
+    MockStakingPartialTransfer
+} from "./../../../../../mocks/MockStaking.sol";
 import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
 import { Integration_Test, MerkleExecute_Integration_Shared_Test } from "./../MerkleExecute.t.sol";
 
@@ -90,11 +95,41 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         );
     }
 
-    function test_WhenNoReentrancy()
+    function test_RevertWhen_TransferAmountNotEqualClaimAmount()
         external
         whenMerkleProofValid
         whenTargetTransferAmountNotOverdraw
         whenTargetCallSucceeds
+        whenNoReentrancy
+    {
+        MockStakingPartialTransfer mockStakingPartialTransfer = new MockStakingPartialTransfer(dai);
+
+        // Create a custom campaign using the noop contract.
+        MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams();
+        params.target = address(mockStakingPartialTransfer);
+
+        setMsgSender(users.campaignCreator);
+        ISablierMerkleExecute campaignWithInvalidTarget = createMerkleExecute(params);
+
+        setMsgSender(users.recipient);
+
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleExecute_NotFullAmountTransferred.selector, CLAIM_AMOUNT / 2, CLAIM_AMOUNT
+            )
+        );
+        campaignWithInvalidTarget.claimAndExecute{ value: AIRDROP_MIN_FEE_WEI }(
+            getIndexInMerkleTree(), CLAIM_AMOUNT, getMerkleProof(), abi.encode(CLAIM_AMOUNT)
+        );
+    }
+
+    function test_WhenTransferAmountEqualsClaimAmount()
+        external
+        whenMerkleProofValid
+        whenTargetTransferAmountNotOverdraw
+        whenTargetCallSucceeds
+        whenNoReentrancy
     {
         uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();
