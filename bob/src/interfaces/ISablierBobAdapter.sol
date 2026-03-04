@@ -40,8 +40,8 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// @param vaultId The ID of the vault.
     /// @param user The address of the user.
     /// @param shareBalance The user's share balance in the vault.
-    /// @return amountToTransfer The amount to transfer to the user.
-    /// @return feeAmount The fee amount taken from the yield.
+    /// @return transferAmount The amount to transfer to the user.
+    /// @return feeAmountDeductedFromYield The fee amount taken from the yield.
     function calculateAmountToTransferWithYield(
         uint256 vaultId,
         address user,
@@ -49,7 +49,7 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     )
         external
         view
-        returns (uint128 amountToTransfer, uint128 feeAmount);
+        returns (uint128 transferAmount, uint128 feeAmountDeductedFromYield);
 
     /// @notice Returns the current global fee on yield for new vaults, denominated in UD60x18, where 1e18 = 100%.
     function feeOnYield() external view returns (UD60x18);

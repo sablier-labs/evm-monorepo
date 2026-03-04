@@ -145,11 +145,12 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         expectCallToTransfer(weth, users.depositor, DEPOSIT_AMOUNT);
 
         // Redeem shares from the vault.
-        (uint256 transferredAmount, uint256 feeAmount) = bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.settledVault);
+        (uint256 transferAmount, uint256 feeAmountDeductedFromYield) =
+            bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.settledVault);
 
         // It should return the correct amounts.
-        assertEq(transferredAmount, DEPOSIT_AMOUNT, "returnValue.transferredAmount");
-        assertEq(feeAmount, 0, "returnValue.feeAmount");
+        assertEq(transferAmount, DEPOSIT_AMOUNT, "returnValue.transferAmount");
+        assertEq(feeAmountDeductedFromYield, 0, "returnValue.feeAmountDeductedFromYield");
 
         // It should not update the synced price.
         uint256 actualSyncedAt = bob.getLastSyncedAt(vaultIds.settledVault);
@@ -192,10 +193,11 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         expectCallToTransfer(weth, address(comptroller), expectedComptrollerFee);
 
         // Redeem shares from the vault.
-        (uint256 transferredAmount, uint256 feeAmount) = bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.vaultWithAdapter);
+        (uint256 transferAmount, uint256 feeAmountDeductedFromYield) =
+            bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.vaultWithAdapter);
 
-        assertEq(transferredAmount, expectedUserWeth, "transferredAmount");
-        assertEq(feeAmount, expectedComptrollerFee, "feeAmount");
+        assertEq(transferAmount, expectedUserWeth, "transferAmount");
+        assertEq(feeAmountDeductedFromYield, expectedComptrollerFee, "feeAmountDeductedFromYield");
 
         // It should trigger unstake via adapter.
         assertEq(
@@ -245,10 +247,10 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         expectCallToTransfer(weth, address(comptroller), expectedComptrollerFee);
 
         // Redeem shares from the vault.
-        (uint256 transferredAmount, uint256 feeAmount) = bob.redeem(vaultIds.vaultWithAdapter);
+        (uint256 transferAmount, uint256 feeAmountDeductedFromYield) = bob.redeem(vaultIds.vaultWithAdapter);
 
-        assertEq(transferredAmount, expectedUserWeth, "transferredAmount");
-        assertEq(feeAmount, expectedComptrollerFee, "feeAmount");
+        assertEq(transferAmount, expectedUserWeth, "transferAmount");
+        assertEq(feeAmountDeductedFromYield, expectedComptrollerFee, "feeAmountDeductedFromYield");
 
         // It should burn all shares.
         uint256 actualShareBalance = bob.getShareToken(vaultIds.vaultWithAdapter).balanceOf(users.depositor);

@@ -10,11 +10,11 @@ contract CalculateAmountToTransferWithYield_Integration_Concrete_Test is Integra
         assertEq(adapter.getTotalYieldBearingTokenBalance(vaultIds.defaultVault), 0, "totalYieldBearingTokenBalance");
 
         // It should return zero.
-        (uint128 amountToTransfer, uint128 feeAmount) =
+        (uint128 transferAmount, uint128 feeAmountDeductedFromYield) =
             adapter.calculateAmountToTransferWithYield(vaultIds.defaultVault, users.depositor, DEPOSIT_AMOUNT);
 
-        assertEq(amountToTransfer, 0, "amountToTransfer");
-        assertEq(feeAmount, 0, "feeAmount");
+        assertEq(transferAmount, 0, "transferAmount");
+        assertEq(feeAmountDeductedFromYield, 0, "feeAmountDeductedFromYield");
     }
 
     function test_GivenTotalWETHZero() external view givenTotalWstETHNotZero {
@@ -27,11 +27,11 @@ contract CalculateAmountToTransferWithYield_Integration_Concrete_Test is Integra
         );
 
         // It should return zero.
-        (uint128 amountToTransfer, uint128 feeAmount) =
+        (uint128 transferAmount, uint128 feeAmountDeductedFromYield) =
             adapter.calculateAmountToTransferWithYield(vaultIds.vaultWithAdapter, users.depositor, DEPOSIT_AMOUNT);
 
-        assertEq(amountToTransfer, 0, "amountToTransfer");
-        assertEq(feeAmount, 0, "feeAmount");
+        assertEq(transferAmount, 0, "transferAmount");
+        assertEq(feeAmountDeductedFromYield, 0, "feeAmountDeductedFromYield");
     }
 
     function test_WhenUserWETHExceedsShareBalance() external givenTotalWstETHNotZero givenTotalWETHNotZero {
@@ -58,14 +58,14 @@ contract CalculateAmountToTransferWithYield_Integration_Concrete_Test is Integra
         (uint128 expectedFeeOnYield, uint128 expectedAmountToTransfer) =
             calculateYieldBreakdown(expectedAmountUnstakedForDepositor, DEPOSIT_AMOUNT, YIELD_FEE);
 
-        (uint128 amountToTransfer, uint128 feeAmount) =
+        (uint128 transferAmount, uint128 feeAmountDeductedFromYield) =
             adapter.calculateAmountToTransferWithYield(vaultIds.vaultWithAdapter, users.depositor, DEPOSIT_AMOUNT);
 
         // It should return the correct fee amount.
-        assertEq(feeAmount, expectedFeeOnYield, "feeAmount");
+        assertEq(feeAmountDeductedFromYield, expectedFeeOnYield, "feeAmountDeductedFromYield");
 
         // It should return the correct amount to transfer to user.
-        assertEq(amountToTransfer, expectedAmountToTransfer, "amountToTransfer");
+        assertEq(transferAmount, expectedAmountToTransfer, "transferAmount");
     }
 
     function test_WhenUserWETHNotExceedShareBalance() external givenTotalWstETHNotZero givenTotalWETHNotZero {
@@ -79,13 +79,13 @@ contract CalculateAmountToTransferWithYield_Integration_Concrete_Test is Integra
         // Unstake tokens in adapter.
         bob.unstakeTokensViaAdapter(vaultIds.vaultWithAdapter);
 
-        (uint128 amountToTransfer, uint128 feeAmount) =
+        (uint128 transferAmount, uint128 feeAmountDeductedFromYield) =
             adapter.calculateAmountToTransferWithYield(vaultIds.vaultWithAdapter, users.depositor, DEPOSIT_AMOUNT);
 
         // It should return correct amount to transfer to user.
-        assertEq(amountToTransfer, DEPOSIT_AMOUNT, "amountToTransfer");
+        assertEq(transferAmount, DEPOSIT_AMOUNT, "transferAmount");
 
         // It should return zero fee amount.
-        assertEq(feeAmount, 0, "feeAmount");
+        assertEq(feeAmountDeductedFromYield, 0, "feeAmountDeductedFromYield");
     }
 }
