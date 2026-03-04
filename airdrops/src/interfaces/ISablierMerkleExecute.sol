@@ -38,6 +38,8 @@ interface ISablierMerkleExecute is ISablierMerkleBase {
     ///
     /// Notes:
     /// - The function approves the exact claim amount to the {TARGET}, executes the call, then revokes the approval.
+    /// - The function does not forward native tokens to the target contract, so calls to targets that require a native
+    /// token payment will revert.
     ///
     /// Requirements:
     /// - The current time must be greater than or equal to the campaign start time.
