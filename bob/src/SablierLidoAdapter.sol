@@ -302,7 +302,11 @@ contract SablierLidoAdapter is
         IERC20(WETH).safeTransfer(SABLIER_BOB, amountReceivedFromUnstaking);
 
         // Log the event.
-        emit UnstakeFullAmount(vaultId, totalWstETH, amountReceivedFromUnstaking);
+        emit UnstakeFullAmount({
+            vaultId: vaultId,
+            totalStakedAmount: totalWstETH,
+            amountReceivedFromUnstaking: amountReceivedFromUnstaking
+        });
     }
 
     /// @inheritdoc ISablierBobAdapter

@@ -35,7 +35,7 @@ contract SetYieldFee_Integration_Concrete_Test is Integration_Test {
     function test_WhenYieldFeeNotExceedMax() external whenCallerComptroller {
         // It should emit a {SetYieldFee} event.
         vm.expectEmit({ emitter: address(adapter) });
-        emit ISablierBobAdapter.SetYieldFee({ oldFee: YIELD_FEE, newFee: newYieldFee });
+        emit ISablierBobAdapter.SetYieldFee({ previousFee: YIELD_FEE, newFee: newYieldFee });
 
         adapter.setYieldFee(newYieldFee);
 

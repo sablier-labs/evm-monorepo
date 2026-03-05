@@ -134,11 +134,11 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
     function _testUnstakeTokensViaAdapter(uint128 expectedWethRedeemed) private {
         // It should emit an {UnstakeFullAmount} event.
         vm.expectEmit({ emitter: address(adapter) });
-        emit ISablierBobAdapter.UnstakeFullAmount(
-            vaultIds.vaultWithAdapter,
-            WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT,
-            expectedWethRedeemed
-        );
+        emit ISablierBobAdapter.UnstakeFullAmount({
+            vaultId: vaultIds.vaultWithAdapter,
+            totalStakedAmount: WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT,
+            amountReceivedFromUnstaking: expectedWethRedeemed
+        });
 
         // It should emit an {UnstakeFromAdapter} event.
         vm.expectEmit({ emitter: address(bob) });

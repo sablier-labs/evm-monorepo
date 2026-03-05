@@ -13,7 +13,7 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when the comptroller sets a new yield fee.
-    event SetYieldFee(UD60x18 oldFee, UD60x18 newFee);
+    event SetYieldFee(UD60x18 previousFee, UD60x18 newFee);
 
     /// @notice Emitted when tokens are staked for a user in a vault.
     event Stake(uint256 indexed vaultId, address indexed user, uint256 depositAmount, uint256 wrappedStakedAmount);
@@ -22,7 +22,7 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     event TransferStakedTokens(uint256 indexed vaultId, address indexed from, address indexed to, uint256 amount);
 
     /// @notice Emitted when all staked tokens in a vault are converted back to the deposit token.
-    event UnstakeFullAmount(uint256 indexed vaultId, uint128 wrappedStakedAmount, uint128 withdrawnAmount);
+    event UnstakeFullAmount(uint256 indexed vaultId, uint128 totalStakedAmount, uint128 amountReceivedFromUnstaking);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS

@@ -40,8 +40,8 @@ contract SetSlippageTolerance_Integration_Concrete_Test is Integration_Test {
         // It should emit a {SetSlippageTolerance} event.
         vm.expectEmit({ emitter: address(adapter) });
         emit ISablierLidoAdapter.SetSlippageTolerance({
-            oldSlippageTolerance: SLIPPAGE_TOLERANCE,
-            newSlippageTolerance: newSlippageTolerance
+            previousTolerance: SLIPPAGE_TOLERANCE,
+            newTolerance: newSlippageTolerance
         });
 
         adapter.setSlippageTolerance(newSlippageTolerance);

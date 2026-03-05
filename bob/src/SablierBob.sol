@@ -221,7 +221,7 @@ contract SablierBob is
         _vaults[vaultId].shareToken.mint(vaultId, msg.sender, amount);
 
         // Log the deposit.
-        emit Enter(vaultId, msg.sender, amount, amount);
+        emit Enter({ vaultId: vaultId, user: msg.sender, amountReceived: amount, sharesMinted: amount });
     }
 
     /// @inheritdoc ISablierBob
@@ -308,7 +308,13 @@ contract SablierBob is
         token.safeTransfer(msg.sender, transferAmount);
 
         // Log the event.
-        emit Redeem(vaultId, msg.sender, transferAmount, shareBalance, feeAmountDeductedFromYield);
+        emit Redeem({
+            vaultId: vaultId,
+            user: msg.sender,
+            amountReceived: transferAmount,
+            sharesBurned: shareBalance,
+            fee: feeAmountDeductedFromYield
+        });
     }
 
     /// @inheritdoc ISablierBob
@@ -455,12 +461,19 @@ contract SablierBob is
             return 0;
         }
 
+        uint40 currentTimestamp = uint40(block.timestamp);
+
         // Effect: update the last synced price and timestamp.
         _vaults[vaultId].lastSyncedPrice = latestPrice;
-        _vaults[vaultId].lastSyncedAt = uint40(block.timestamp);
+        _vaults[vaultId].lastSyncedAt = currentTimestamp;
 
         // Log the event.
-        emit SyncPriceFromOracle(vaultId, oracleAddress, latestPrice, uint40(block.timestamp));
+        emit SyncPriceFromOracle({
+            vaultId: vaultId,
+            oracle: oracleAddress,
+            latestPrice: latestPrice,
+            syncedAt: currentTimestamp
+        });
     }
 
     /// @dev Private function to unstake all tokens using the adapter.
