@@ -33,5 +33,6 @@ jobs:
       exclude-invariant-tests: true
       exclude-unit-tests: true
       match-path-coverage: "tests/*/integration/**/*.sol"
+      match-path-fork: "tests/*/fork/**/*.sol"
       match-path-integration: "tests/*/integration/**/*.sol"
       module: "bob"
