@@ -332,6 +332,11 @@ contract SablierLidoAdapter is
         // Calculate the portion of wstETH to transfer.
         uint128 wstETHToTransfer = (fromWstETH * shareAmountTransferred / userShareBalanceBeforeTransfer).toUint128();
 
+        // Check: the wstETH transfer amount is not zero.
+        if (wstETHToTransfer == 0) {
+            revert Errors.SablierLidoAdapter_WstETHTransferAmountZero(vaultId, from, to);
+        }
+
         // Effect: move wstETH from sender to recipient.
         _userWstETH[vaultId][from] -= wstETHToTransfer;
         _userWstETH[vaultId][to] += wstETHToTransfer;

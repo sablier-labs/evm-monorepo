@@ -136,6 +136,7 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     ///
     /// Requirements:
     /// - The caller must be the share token contract stored in the given vault.
+    /// - The calculated wstETH transfer amount must not be zero.
     ///
     /// @param vaultId The ID of the vault.
     /// @param from The address transferring share tokens.

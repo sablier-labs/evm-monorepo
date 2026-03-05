@@ -125,4 +125,8 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     modifier whenTokenNotZero() {
         _;
     }
+
+    modifier whenUserShareBalanceNotZero() {
+        _;
+    }
 }

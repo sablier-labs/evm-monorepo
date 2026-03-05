@@ -156,6 +156,9 @@ library Errors {
     /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
     error SablierLidoAdapter_UserBalanceZero(uint256 vaultId, address user);
 
+    /// @notice Thrown when the calculated wstETH transfer amount rounds down to zero due to floor division.
+    error SablierLidoAdapter_WstETHTransferAmountZero(uint256 vaultId, address from, address to);
+
     /// @notice Thrown when trying to set a yield fee that exceeds the maximum allowed.
     error SablierLidoAdapter_YieldFeeTooHigh(UD60x18 fee, UD60x18 maxFee);
 }
