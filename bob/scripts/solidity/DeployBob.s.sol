@@ -24,6 +24,7 @@ contract DeployBob is BaseScript, LidoAdapterUtils {
             initialComptroller: getComptroller(),
             sablierBob: address(bob),
             curvePool: getCurvePool(),
+            lidoWithdrawalQueue: getLidoWithdrawalQueue(),
             stETH: getStETH(),
             wETH: getWETH(),
             wstETH: getWSTETH(),

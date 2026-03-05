@@ -144,6 +144,12 @@ library Errors {
                                 SABLIER LIDO ADAPTER
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when trying to request a Lido withdrawal for a vault that has already requested one.
+    error SablierLidoAdapter_LidoWithdrawalAlreadyRequested(uint256 vaultId);
+
+    /// @notice Thrown when trying to request a Lido withdrawal for a vault with no wstETH.
+    error SablierLidoAdapter_NoWstETHToWithdraw(uint256 vaultId);
+
     /// @notice Thrown when a function is called by an address other than SablierBob.
     error SablierLidoAdapter_OnlySablierBob(address caller, address expectedCaller);
 

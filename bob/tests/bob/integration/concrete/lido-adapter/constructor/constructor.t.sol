@@ -23,6 +23,7 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
             initialComptroller: address(comptroller),
             sablierBob: address(bob),
             curvePool: address(curvePool),
+            lidoWithdrawalQueue: address(lidoWithdrawalQueue),
             stETH: address(steth),
             wETH: address(weth),
             wstETH: address(wstEth),
@@ -43,6 +44,7 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
             initialComptroller: address(comptroller),
             sablierBob: address(bob),
             curvePool: address(curvePool),
+            lidoWithdrawalQueue: address(lidoWithdrawalQueue),
             stETH: address(steth),
             wETH: address(weth),
             wstETH: address(wstEth),
@@ -57,6 +59,7 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
             initialComptroller: address(comptroller),
             sablierBob: address(bob),
             curvePool: address(curvePool),
+            lidoWithdrawalQueue: address(lidoWithdrawalQueue),
             stETH: address(steth),
             wETH: address(weth),
             wstETH: address(wstEth),
@@ -70,6 +73,7 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
         // It should set immutable state variables.
         assertEq(adapter.SABLIER_BOB(), address(bob), "SABLIER_BOB");
         assertEq(adapter.CURVE_POOL(), address(curvePool), "CURVE_POOL");
+        assertEq(adapter.LIDO_WITHDRAWAL_QUEUE(), address(lidoWithdrawalQueue), "LIDO_WITHDRAWAL_QUEUE");
         assertEq(adapter.STETH(), address(steth), "STETH");
         assertEq(adapter.WETH(), address(weth), "WETH");
         assertEq(adapter.WSTETH(), address(wstEth), "WSTETH");
@@ -88,5 +92,8 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
 
         // It should approve Curve pool to spend stETH.
         assertEq(steth.allowance(address(adapter), address(curvePool)), MAX_UINT128, "curve pool allowance");
+
+        // It should not approve Lido withdrawal queue address.
+        assertEq(steth.allowance(address(adapter), address(lidoWithdrawalQueue)), 0, "lido withdrawal queue allowance");
     }
 }

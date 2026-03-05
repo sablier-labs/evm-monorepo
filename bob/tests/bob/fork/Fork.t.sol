@@ -1,0 +1,76 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity >=0.8.22 <0.9.0;
+
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+import { ISablierBob } from "src/interfaces/ISablierBob.sol";
+import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
+import { SablierBob } from "src/SablierBob.sol";
+import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
+
+import { Base_Test } from "./../Base.t.sol";
+
+/// @notice Base logic needed by the Bob fork tests.
+abstract contract Fork_Test is Base_Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                               MAINNET ADDRESSES
+    //////////////////////////////////////////////////////////////////////////*/
+
+    IERC20 internal constant FORK_WETH = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    address internal constant FORK_STETH = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84;
+    address internal constant FORK_WSTETH = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0;
+    address internal constant FORK_CURVE_POOL = 0xDC24316b9AE028F1497c275EB9192a3Ea0f67022;
+    address internal constant FORK_LIDO_WITHDRAWAL_QUEUE = 0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1;
+
+    /// @dev Chainlink ETH/USD price feed on Ethereum mainnet.
+    AggregatorV3Interface internal constant FORK_ETH_USD_ORACLE =
+        AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  TEST CONTRACTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    ISablierBob internal forkBob;
+    ISablierLidoAdapter internal forkAdapter;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  SET-UP FUNCTION
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function setUp() public virtual override {
+        // Fork Ethereum Mainnet at the latest block number.
+        vm.createSelectFork({ urlOrAlias: "ethereum" });
+
+        Base_Test.setUp();
+
+        // Label the mainnet addresses.
+        vm.label(address(FORK_WETH), "WETH");
+        vm.label(FORK_STETH, "stETH");
+        vm.label(FORK_WSTETH, "wstETH");
+        vm.label(FORK_CURVE_POOL, "CurvePool");
+        vm.label(FORK_LIDO_WITHDRAWAL_QUEUE, "LidoWithdrawalQueue");
+        vm.label(address(FORK_ETH_USD_ORACLE), "ETH/USD Oracle");
+
+        // Deploy fresh Bob and adapter on the fork using real mainnet Lido/Curve addresses.
+        forkBob = new SablierBob(address(comptroller));
+        vm.label(address(forkBob), "ForkSablierBob");
+
+        forkAdapter = new SablierLidoAdapter({
+            initialComptroller: address(comptroller),
+            sablierBob: address(forkBob),
+            curvePool: FORK_CURVE_POOL,
+            lidoWithdrawalQueue: FORK_LIDO_WITHDRAWAL_QUEUE,
+            stETH: FORK_STETH,
+            wETH: address(FORK_WETH),
+            wstETH: FORK_WSTETH,
+            initialSlippageTolerance: SLIPPAGE_TOLERANCE,
+            initialYieldFee: YIELD_FEE
+        });
+        vm.label(address(forkAdapter), "ForkSablierLidoAdapter");
+
+        // Set the default adapter for WETH via comptroller.
+        setMsgSender(address(comptroller));
+        forkBob.setDefaultAdapter(FORK_WETH, forkAdapter);
+    }
+}

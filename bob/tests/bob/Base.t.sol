@@ -11,6 +11,7 @@ import { SablierBob } from "src/SablierBob.sol";
 import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
 
 import { MockCurvePool } from "./mocks/MockCurvePool.sol";
+import { MockLidoWithdrawalQueue } from "./mocks/MockLidoWithdrawalQueue.sol";
 import { MockStETH } from "./mocks/MockStETH.sol";
 import { MockWETH } from "./mocks/MockWETH.sol";
 import { MockWstETH } from "./mocks/MockWstETH.sol";
@@ -38,6 +39,7 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
 
     // External protocol mocks (Lido ecosystem).
     MockCurvePool internal curvePool;
+    MockLidoWithdrawalQueue internal lidoWithdrawalQueue;
     MockStETH internal steth;
     MockWETH internal weth;
     MockWstETH internal wstEth;
@@ -103,9 +105,13 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
         steth = new MockStETH();
         wstEth = new MockWstETH(address(steth));
         curvePool = new MockCurvePool(address(steth));
+        lidoWithdrawalQueue = new MockLidoWithdrawalQueue();
 
         // Fund Curve pool with ETH for swaps.
         vm.deal(address(curvePool), 10_000 ether);
+
+        // Fund Lido withdrawal queue with ETH for claims.
+        vm.deal(address(lidoWithdrawalQueue), 10_000 ether);
     }
 
     /// @dev Deploys the Bob protocol.
@@ -117,6 +123,7 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
             initialComptroller: address(comptroller),
             sablierBob: address(bob),
             curvePool: address(curvePool),
+            lidoWithdrawalQueue: address(lidoWithdrawalQueue),
             stETH: address(steth),
             wETH: address(weth),
             wstETH: address(wstEth),

@@ -10,6 +10,7 @@ import { ud, UD60x18, UNIT } from "@prb/math/src/UD60x18.sol";
 import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
 
 import { ICurveStETHPool } from "./interfaces/external/ICurveStETHPool.sol";
+import { ILidoWithdrawalQueue } from "./interfaces/external/ILidoWithdrawalQueue.sol";
 import { IStETH } from "./interfaces/external/IStETH.sol";
 import { IWETH9 } from "./interfaces/external/IWETH9.sol";
 import { IWstETH } from "./interfaces/external/IWstETH.sol";
@@ -34,6 +35,9 @@ contract SablierLidoAdapter is
 
     /// @inheritdoc ISablierLidoAdapter
     address public immutable override CURVE_POOL;
+
+    /// @inheritdoc ISablierLidoAdapter
+    address public immutable override LIDO_WITHDRAWAL_QUEUE;
 
     /// @inheritdoc ISablierBobAdapter
     UD60x18 public constant override MAX_FEE = UD60x18.wrap(0.2e18);
@@ -67,6 +71,9 @@ contract SablierLidoAdapter is
                                   INTERNAL STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Lido withdrawal request IDs for each vault.
+    mapping(uint256 vaultId => uint256[] requestIds) internal _lidoWithdrawalRequestIds;
+
     /// @dev wstETH amount held for each user in each vault.
     mapping(uint256 vaultId => mapping(address user => uint128 wstETHAmount)) internal _userWstETH;
 
@@ -86,12 +93,15 @@ contract SablierLidoAdapter is
     /// @notice Deploys the Lido adapter.
     /// @param initialComptroller The address of the initial comptroller contract.
     /// @param sablierBob The address of the SablierBob contract.
+    /// @param curvePool The address of the Curve stETH/ETH pool.
+    /// @param lidoWithdrawalQueue The address of the Lido withdrawal queue contract.
     /// @param initialSlippageTolerance The initial slippage tolerance for Curve swaps as UD60x18.
     /// @param initialYieldFee The initial yield fee as UD60x18.
     constructor(
         address initialComptroller,
         address sablierBob,
         address curvePool,
+        address lidoWithdrawalQueue,
         address stETH,
         address wETH,
         address wstETH,
@@ -112,6 +122,7 @@ contract SablierLidoAdapter is
 
         SABLIER_BOB = sablierBob;
         CURVE_POOL = curvePool;
+        LIDO_WITHDRAWAL_QUEUE = lidoWithdrawalQueue;
         STETH = stETH;
         WETH = wETH;
         WSTETH = wstETH;
@@ -144,6 +155,11 @@ contract SablierLidoAdapter is
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierLidoAdapter
+    function getLidoWithdrawalRequestIds(uint256 vaultId) external view override returns (uint256[] memory) {
+        return _lidoWithdrawalRequestIds[vaultId];
+    }
 
     /// @inheritdoc ISablierBobAdapter
     function getTotalYieldBearingTokenBalance(uint256 vaultId) external view override returns (uint128) {
@@ -228,6 +244,69 @@ contract SablierLidoAdapter is
     }
 
     /// @inheritdoc ISablierLidoAdapter
+    function requestLidoWithdrawal(uint256 vaultId) external override onlyComptroller {
+        // Check: Lido withdrawal has not already been requested for this vault.
+        if (_lidoWithdrawalRequestIds[vaultId].length > 0) {
+            revert Errors.SablierLidoAdapter_LidoWithdrawalAlreadyRequested(vaultId);
+        }
+
+        // Get total wstETH in the vault.
+        uint128 totalWstETH = _vaultTotalWstETH[vaultId];
+
+        // Check: total wstETH is not zero.
+        if (totalWstETH == 0) {
+            revert Errors.SablierLidoAdapter_NoWstETHToWithdraw(vaultId);
+        }
+
+        // Interaction: Unwrap wstETH to get stETH.
+        uint256 stETHAmount = IWstETH(WSTETH).unwrap(totalWstETH);
+
+        // Get the maximum amount that can be withdrawn in a single request.
+        uint256 maxAmountPerRequest = ILidoWithdrawalQueue(LIDO_WITHDRAWAL_QUEUE).MAX_STETH_WITHDRAWAL_AMOUNT();
+
+        // Declare amounts array.
+        uint256[] memory amounts;
+
+        // If the total amount to be withdrawn is greater than the maximum amount per request, split it into multiple
+        // requests.
+        if (stETHAmount > maxAmountPerRequest) {
+            // Calculate the total number of requests required to withdraw the full amount using the ceiling division.
+            uint256 totalRequests = (stETHAmount + maxAmountPerRequest - 1) / maxAmountPerRequest;
+
+            // Initialize array length to the total number of requests.
+            amounts = new uint256[](totalRequests);
+
+            // Assign amounts for each request except the last one.
+            uint256 lastIndex = totalRequests - 1;
+            for (uint256 i; i < lastIndex; ++i) {
+                amounts[i] = maxAmountPerRequest;
+            }
+
+            // Assign the remaining amount to the last request.
+            amounts[lastIndex] = stETHAmount - maxAmountPerRequest * lastIndex;
+        }
+        // Otherwise, its just one request.
+        else {
+            // Initialize array length to 1.
+            amounts = new uint256[](1);
+            amounts[0] = stETHAmount;
+        }
+
+        // Interaction: Approve Lido withdrawal queue to spend the exact stETH amount.
+        IStETH(STETH).approve(LIDO_WITHDRAWAL_QUEUE, stETHAmount);
+
+        // Interaction: Submit stETH to Lido's withdrawal queue.
+        uint256[] memory requestIds =
+            ILidoWithdrawalQueue(LIDO_WITHDRAWAL_QUEUE).requestWithdrawals(amounts, address(this));
+
+        // Effect: store request IDs for later claiming (also disables the Curve path for this vault).
+        _lidoWithdrawalRequestIds[vaultId] = requestIds;
+
+        // Log the event.
+        emit RequestLidoWithdrawal(vaultId, msg.sender, totalWstETH, stETHAmount, requestIds);
+    }
+
+    /// @inheritdoc ISablierLidoAdapter
     function setSlippageTolerance(UD60x18 newTolerance) external override onlyComptroller {
         // Check: the slippage tolerance does not exceed MAX_SLIPPAGE_TOLERANCE.
         if (newTolerance.gt(MAX_SLIPPAGE_TOLERANCE)) {
@@ -292,8 +371,14 @@ contract SablierLidoAdapter is
         // Get total amount of wstETH in the vault.
         totalWstETH = _vaultTotalWstETH[vaultId];
 
-        // Interaction: Swap all wstETH for WETH.
-        amountReceivedFromUnstaking = _wstETHToWeth(totalWstETH);
+        // If a Lido withdrawal was requested, claim from the withdrawal queue.
+        if (_lidoWithdrawalRequestIds[vaultId].length > 0) {
+            amountReceivedFromUnstaking = _claimLidoWithdrawals(vaultId);
+        }
+        // Otherwise, swap via Curve.
+        else {
+            amountReceivedFromUnstaking = _wstETHToWeth(totalWstETH);
+        }
 
         // Effect: store the total WETH received for redemption calculations.
         _wethReceivedAfterUnstaking[vaultId] = amountReceivedFromUnstaking;
@@ -343,6 +428,34 @@ contract SablierLidoAdapter is
     /*//////////////////////////////////////////////////////////////////////////
                           PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Claims finalized Lido withdrawals for a vault and wraps the received ETH into WETH.
+    function _claimLidoWithdrawals(uint256 vaultId) private returns (uint128 wethReceived) {
+        uint256[] memory requestIds = _lidoWithdrawalRequestIds[vaultId];
+
+        // Interaction: Since Lido processes withdrawals in batches, we need to find the number of total finalized
+        // batches occurred so far. This is used in the next step.
+        uint256 lastIndex = ILidoWithdrawalQueue(LIDO_WITHDRAWAL_QUEUE).getLastCheckpointIndex();
+
+        // Interaction: search the request IDs in all the finalized batches. If any request ID is not finalized, the
+        // corresponding hint will be zero.
+        uint256[] memory hints =
+            ILidoWithdrawalQueue(LIDO_WITHDRAWAL_QUEUE).findCheckpointHints(requestIds, 1, lastIndex);
+
+        // Get the ETH balance before claiming.
+        uint256 ethBefore = address(this).balance;
+
+        // Interaction: Claim all request IDs. It will revert if any request ID is not finalized.
+        ILidoWithdrawalQueue(LIDO_WITHDRAWAL_QUEUE).claimWithdrawals(requestIds, hints);
+
+        // Calculate the ETH received from claiming.
+        uint256 ethReceived = address(this).balance - ethBefore;
+
+        // Interaction: Wrap ETH to get WETH.
+        IWETH9(WETH).deposit{ value: ethReceived }();
+
+        return ethReceived.toUint128();
+    }
 
     /// @dev Converts wstETH to WETH using Curve exchange.
     function _wstETHToWeth(uint128 wstETHAmount) private returns (uint128 wethReceived) {
