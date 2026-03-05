@@ -75,7 +75,7 @@ contract SablierEscrow is
         order.sellToken.safeTransfer(msg.sender, order.sellAmount);
 
         // Log the event.
-        emit CancelOrder(orderId, msg.sender, order.sellAmount);
+        emit CancelOrder({ orderId: orderId, seller: msg.sender, sellAmount: order.sellAmount });
     }
 
     /// @inheritdoc ISablierEscrow
@@ -156,7 +156,16 @@ contract SablierEscrow is
         sellToken.safeTransferFrom(msg.sender, address(this), sellAmount);
 
         // Log the event.
-        emit CreateOrder(orderId, msg.sender, buyer, sellToken, buyToken, sellAmount, minBuyAmount, expiryTime);
+        emit CreateOrder({
+            orderId: orderId,
+            seller: msg.sender,
+            buyer: buyer,
+            sellToken: sellToken,
+            buyToken: buyToken,
+            sellAmount: sellAmount,
+            minBuyAmount: minBuyAmount,
+            expiryTime: expiryTime
+        });
     }
 
     /// @inheritdoc ISablierEscrow
@@ -268,6 +277,6 @@ contract SablierEscrow is
         tradeFee = newTradeFee;
 
         // Log the event.
-        emit SetTradeFee(address(comptroller), previousTradeFee, newTradeFee);
+        emit SetTradeFee({ caller: msg.sender, previousTradeFee: previousTradeFee, newTradeFee: newTradeFee });
     }
 }

@@ -72,8 +72,8 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(adapter) });
         emit ISablierBobAdapter.UnstakeFullAmount({
             vaultId: vaultIds.vaultWithAdapter,
-            wrappedStakedAmount: WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT,
-            withdrawnAmount: expectedEthReceived
+            totalStakedAmount: WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT,
+            amountReceivedFromUnstaking: expectedEthReceived
         });
 
         (uint128 wrappedTokenBalance, uint128 amountReceivedFromUnstaking) =
