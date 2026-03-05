@@ -274,10 +274,10 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
             // Update the total redistribution amount paid.
             totalRedistributionAmountPaid += expectedRewardAmount;
 
-            // It should emit a {RedistributionReward} event if there are rewards to distribute.
+            // It should emit a {RedistributeReward} event if there are rewards to distribute.
             if (expectedRewardAmount > 0) {
                 vm.expectEmit({ emitter: address(merkleVCA) });
-                emit ISablierMerkleVCA.RedistributionReward({
+                emit ISablierMerkleVCA.RedistributeReward({
                     index: leafData.index,
                     recipient: leafData.recipient,
                     amount: expectedRewardAmount,

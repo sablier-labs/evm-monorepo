@@ -182,11 +182,11 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         uint128 rewardAmount = expectedTransferAmount - claimAmount;
         uint128 previousRedistributionPaid = merkleVCA.totalRedistributionAmountPaid();
 
-        // It should emit a {RedistributionReward} event for claims made after the vesting end time only if
+        // It should emit a {RedistributeReward} event for claims made after the vesting end time only if
         // redistribution is enabled.
         if (isRedistributionEnabled) {
             vm.expectEmit({ emitter: address(merkleVCA) });
-            emit ISablierMerkleVCA.RedistributionReward({
+            emit ISablierMerkleVCA.RedistributeReward({
                 index: index,
                 recipient: users.recipient,
                 amount: rewardAmount,

@@ -115,10 +115,10 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
         if (getBlockTimestamp() >= vestingEndTime && enableRedistribution) {
             expectedRewardAmount = merkleVCA.calculateRedistributionRewards({ fullAmount: vars.leafToClaim.amount });
 
-            // It should emit a {RedistributionReward} event if there are rewards to distribute.
+            // It should emit a {RedistributeReward} event if there are rewards to distribute.
             if (expectedRewardAmount > 0) {
                 vm.expectEmit({ emitter: address(merkleVCA) });
-                emit ISablierMerkleVCA.RedistributionReward({
+                emit ISablierMerkleVCA.RedistributeReward({
                     index: vars.leafToClaim.index,
                     recipient: vars.leafToClaim.recipient,
                     amount: expectedRewardAmount,

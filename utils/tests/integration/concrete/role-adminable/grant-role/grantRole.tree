@@ -6,4 +6,4 @@ GrantRole_RoleAdminable_Concrete_Test
    │  └── it should revert
    └── given account not have role
       ├── it should grant role to the account
-      └── it should emit {RoleGranted} event
+      └── it should emit {GrantRole} event
