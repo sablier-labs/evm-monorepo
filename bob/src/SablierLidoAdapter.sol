@@ -146,14 +146,44 @@ contract SablierLidoAdapter is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierBobAdapter
-    function calculateAmountToTransferWithYield(
+    function getTotalYieldBearingTokenBalance(uint256 vaultId) external view override returns (uint128) {
+        return _vaultTotalWstETH[vaultId];
+    }
+
+    /// @inheritdoc ISablierBobAdapter
+    function getVaultYieldFee(uint256 vaultId) external view override returns (UD60x18) {
+        return _vaultYieldFee[vaultId];
+    }
+
+    /// @inheritdoc ISablierLidoAdapter
+    function getWethReceivedAfterUnstaking(uint256 vaultId) external view override returns (uint256) {
+        return _wethReceivedAfterUnstaking[vaultId];
+    }
+
+    /// @inheritdoc ISablierBobAdapter
+    function getYieldBearingTokenBalanceFor(uint256 vaultId, address user) external view override returns (uint128) {
+        return _userWstETH[vaultId][user];
+    }
+
+    /// @inheritdoc ERC165
+    function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
+        return interfaceId == type(ISablierBobAdapter).interfaceId
+            || interfaceId == type(ISablierLidoAdapter).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                        USER-FACING STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierBobAdapter
+    function processRedemption(
         uint256 vaultId,
         address user,
         uint128 shareBalance
     )
         external
-        view
         override
+        onlySablierBob
         returns (uint128 transferAmount, uint128 feeAmountDeductedFromYield)
     {
         // Get total amount of wstETH in the vault before unstaking.
@@ -186,37 +216,10 @@ contract SablierLidoAdapter is
         else {
             transferAmount = userWethShare;
         }
-    }
 
-    /// @inheritdoc ISablierBobAdapter
-    function getTotalYieldBearingTokenBalance(uint256 vaultId) external view override returns (uint128) {
-        return _vaultTotalWstETH[vaultId];
+        // Effect: clear the user's wstETH balance.
+        delete _userWstETH[vaultId][user];
     }
-
-    /// @inheritdoc ISablierBobAdapter
-    function getVaultYieldFee(uint256 vaultId) external view override returns (UD60x18) {
-        return _vaultYieldFee[vaultId];
-    }
-
-    /// @inheritdoc ISablierLidoAdapter
-    function getWethReceivedAfterUnstaking(uint256 vaultId) external view override returns (uint256) {
-        return _wethReceivedAfterUnstaking[vaultId];
-    }
-
-    /// @inheritdoc ISablierBobAdapter
-    function getYieldBearingTokenBalanceFor(uint256 vaultId, address user) external view override returns (uint128) {
-        return _userWstETH[vaultId][user];
-    }
-
-    /// @inheritdoc ERC165
-    function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
-        return interfaceId == type(ISablierBobAdapter).interfaceId
-            || interfaceId == type(ISablierLidoAdapter).interfaceId || super.supportsInterface(interfaceId);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                        USER-FACING STATE-CHANGING FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierBobAdapter
     function registerVault(uint256 vaultId) external override onlySablierBob {

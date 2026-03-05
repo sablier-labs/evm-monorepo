@@ -270,9 +270,8 @@ contract SablierBob is
                 _vaults[vaultId].isStakedInAdapter = false;
             }
 
-            // Get the transfer amount and the fee deducted from yield.
-            (transferAmount, feeAmountDeductedFromYield) =
-                adapter.calculateAmountToTransferWithYield(vaultId, msg.sender, shareBalance);
+            // Interaction: Get the transfer amount and the fee deducted from yield.
+            (transferAmount, feeAmountDeductedFromYield) = adapter.processRedemption(vaultId, msg.sender, shareBalance);
 
             // Interaction: transfer the fee to the comptroller address.
             if (feeAmountDeductedFromYield > 0) {

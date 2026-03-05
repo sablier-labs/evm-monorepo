@@ -36,21 +36,6 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// @dev This is an immutable state variable.
     function SABLIER_BOB() external view returns (address);
 
-    /// @notice Calculates the amount to transfer to a user in a settled vault, and the yield fee.
-    /// @param vaultId The ID of the vault.
-    /// @param user The address of the user.
-    /// @param shareBalance The user's share balance in the vault.
-    /// @return transferAmount The amount to transfer to the user.
-    /// @return feeAmountDeductedFromYield The fee amount taken from the yield.
-    function calculateAmountToTransferWithYield(
-        uint256 vaultId,
-        address user,
-        uint128 shareBalance
-    )
-        external
-        view
-        returns (uint128 transferAmount, uint128 feeAmountDeductedFromYield);
-
     /// @notice Returns the current global fee on yield for new vaults, denominated in UD60x18, where 1e18 = 100%.
     function feeOnYield() external view returns (UD60x18);
 
@@ -73,6 +58,29 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Processes a user's token redemption by calculating the transfer amount, clearing the user's
+    /// yield-bearing token balance, and returning the amounts.
+    ///
+    /// Notes:
+    /// - The user's yield-bearing token balance is decremented after calculating the transfer amount. This does not
+    /// decrement the vault total as it is used in the calculation of the transfer amount for other users.
+    ///
+    /// Requirements:
+    /// - The caller must be the SablierBob contract.
+    ///
+    /// @param vaultId The ID of the vault.
+    /// @param user The address of the user.
+    /// @param shareBalance The user's share balance in the vault.
+    /// @return transferAmount The amount to transfer to the user.
+    /// @return feeAmountDeductedFromYield The fee amount taken from the yield.
+    function processRedemption(
+        uint256 vaultId,
+        address user,
+        uint128 shareBalance
+    )
+        external
+        returns (uint128 transferAmount, uint128 feeAmountDeductedFromYield);
 
     /// @notice Register a new vault with the adapter and snapshot the current fee on yield.
     ///
