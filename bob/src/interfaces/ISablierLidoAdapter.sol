@@ -13,6 +13,15 @@ interface ISablierLidoAdapter is ISablierBobAdapter {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when the comptroller requests a Lido native withdrawal for a vault.
+    event RequestLidoWithdrawal(
+        uint256 indexed vaultId,
+        address indexed comptroller,
+        uint128 wstETHAmount,
+        uint256 stETHAmount,
+        uint256[] withdrawalRequestIds
+    );
+
     /// @notice Emitted when the comptroller sets a new slippage tolerance.
     event SetSlippageTolerance(UD60x18 previousTolerance, UD60x18 newTolerance);
 
@@ -23,6 +32,10 @@ interface ISablierLidoAdapter is ISablierBobAdapter {
     /// @notice Returns the address of the Curve stETH/ETH pool.
     /// @dev This is an immutable state variable.
     function CURVE_POOL() external view returns (address);
+
+    /// @notice Returns the address of the Lido withdrawal queue contract.
+    /// @dev This is an immutable state variable.
+    function LIDO_WITHDRAWAL_QUEUE() external view returns (address);
 
     /// @notice Returns the maximum slippage tolerance that can be set, denominated in UD60x18, where 1e18 = 100%.
     /// @dev This is a constant state variable.
@@ -44,6 +57,11 @@ interface ISablierLidoAdapter is ISablierBobAdapter {
     /// @dev This is an immutable state variable.
     function WSTETH() external view returns (address);
 
+    /// @notice Returns the Lido withdrawal request IDs for a vault.
+    /// @dev Multiple request IDs may be generated for a vault if the total amount exceeds the Lido enforced
+    /// per-withdrawal limit.
+    function getLidoWithdrawalRequestIds(uint256 vaultId) external view returns (uint256[] memory);
+
     /// @notice Returns the total WETH received after unstaking for a vault.
     /// @param vaultId The ID of the vault.
     function getWethReceivedAfterUnstaking(uint256 vaultId) external view returns (uint256);
@@ -54,6 +72,24 @@ interface ISablierLidoAdapter is ISablierBobAdapter {
     /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Requests a native Lido withdrawal for a vault's staked tokens, bypassing the Curve swap.
+    ///
+    /// @dev Emits a {RequestLidoWithdrawal} event.
+    ///
+    /// Notes:
+    /// - This unwraps the vault's wstETH to stETH and submits it to Lido's withdrawal queue.
+    /// - Once called, the Curve swap is permanently disabled for `vaultId`.
+    /// - After the queue finalizes the withdrawal, ETH can be redeemed by calling {unstakeFullAmount}.
+    /// - Large amounts are automatically split into multiple requests to comply with Lido's per-request limit.
+    ///
+    /// Requirements:
+    /// - The caller must be the comptroller.
+    /// - The vault must have wstETH to withdraw.
+    /// - A withdrawal request must not have already been requested for this vault.
+    ///
+    /// @param vaultId The ID of the vault.
+    function requestLidoWithdrawal(uint256 vaultId) external;
 
     /// @notice Sets the slippage tolerance for Curve swaps.
     ///
