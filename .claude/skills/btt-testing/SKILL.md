@@ -190,7 +190,24 @@ For success cases, enumerate all side effects:
 
 Put events in parenthesis: {EventName}.
 
-### 5. Use proper indentation
+### 5. Don't Add a Modifier with the Same Name as the Function
+
+A test function should NEVER have a modifier that matches its own name. The function name already encodes the condition —
+adding a same-name modifier is redundant.
+
+```solidity
+// WRONG: modifier matches the function name
+function test_WhenWithdrawAmountNotZero()
+    external
+    whenWithdrawalAddressNotZero
+    whenWithdrawAmountNotZero // <- WRONG: redundant, same as the function name
+{ }
+
+// CORRECT:
+function test_WhenWithdrawAmountNotZero() external whenWithdrawalAddressNotZero { }
+```
+
+### 6. Use proper indentation
 
 Child branch symbols (├/└) must align with the **tail** of parent's `└──` or `├──` (3 spaces, not 4):
 
