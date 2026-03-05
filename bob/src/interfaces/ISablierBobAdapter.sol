@@ -128,8 +128,11 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// - The caller must be the SablierBob contract.
     ///
     /// @param vaultId The ID of the vault.
-    /// @return amountReceivedFromUnstaking The total amount of tokens received from unstaking.
-    function unstakeFullAmount(uint256 vaultId) external returns (uint128 amountReceivedFromUnstaking);
+    /// @return wrappedTokenBalance The total amount of yield-bearing tokens that were in the vault.
+    /// @return amountReceivedFromUnstaking The total amount of tokens received from unstaking the yield-bearing tokens.
+    function unstakeFullAmount(uint256 vaultId)
+        external
+        returns (uint128 wrappedTokenBalance, uint128 amountReceivedFromUnstaking);
 
     /// @notice Updates staked token balance of a user when vault shares are transferred.
     ///

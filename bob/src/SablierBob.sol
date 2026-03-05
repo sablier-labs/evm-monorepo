@@ -475,11 +475,10 @@ contract SablierBob is
         private
         returns (uint128 amountReceivedFromAdapter)
     {
-        // Get the total amount staked via the adapter.
-        uint128 wrappedTokenUnstakedAmount = adapter.getTotalYieldBearingTokenBalance(vaultId);
+        uint128 wrappedTokenUnstakedAmount;
 
         // Interaction: unstake all tokens via the adapter.
-        amountReceivedFromAdapter = adapter.unstakeFullAmount(vaultId);
+        (wrappedTokenUnstakedAmount, amountReceivedFromAdapter) = adapter.unstakeFullAmount(vaultId);
 
         // Log the event.
         emit UnstakeFromAdapter(vaultId, adapter, wrappedTokenUnstakedAmount, amountReceivedFromAdapter);

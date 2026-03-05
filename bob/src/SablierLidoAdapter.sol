@@ -287,10 +287,10 @@ contract SablierLidoAdapter is
         external
         override
         onlySablierBob
-        returns (uint128 amountReceivedFromUnstaking)
+        returns (uint128 totalWstETH, uint128 amountReceivedFromUnstaking)
     {
         // Get total amount of wstETH in the vault.
-        uint128 totalWstETH = _vaultTotalWstETH[vaultId];
+        totalWstETH = _vaultTotalWstETH[vaultId];
 
         // Interaction: Swap all wstETH for WETH.
         amountReceivedFromUnstaking = _wstETHToWeth(totalWstETH);
