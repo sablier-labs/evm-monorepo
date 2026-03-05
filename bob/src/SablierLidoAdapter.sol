@@ -321,13 +321,13 @@ contract SablierLidoAdapter is
         override
         onlySablierBob
     {
-        // Calculate proportional wstETH to transfer.
-        uint256 fromWstETH = _userWstETH[vaultId][from];
-
         // Check: the user's balance is not zero.
         if (userShareBalanceBeforeTransfer == 0) {
             revert Errors.SablierLidoAdapter_UserBalanceZero(vaultId, from);
         }
+
+        // Calculate proportional wstETH to transfer.
+        uint256 fromWstETH = _userWstETH[vaultId][from];
 
         // Calculate the portion of wstETH to transfer.
         uint128 wstETHToTransfer = (fromWstETH * shareAmountTransferred / userShareBalanceBeforeTransfer).toUint128();

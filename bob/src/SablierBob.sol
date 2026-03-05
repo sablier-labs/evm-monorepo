@@ -190,16 +190,16 @@ contract SablierBob is
         notNull(vaultId)
         onlyActive(vaultId)
     {
+        // Check: the deposit amount is not zero.
+        if (amount == 0) {
+            revert Errors.SablierBob_DepositAmountZero(vaultId, msg.sender);
+        }
+
         // Effect: sync the price from oracle.
         _syncPriceFromOracle(vaultId);
 
         // Check: the vault is still active after the price sync.
         _revertIfSettledOrExpired(vaultId);
-
-        // Check: the deposit amount is not zero.
-        if (amount == 0) {
-            revert Errors.SablierBob_DepositAmountZero(vaultId, msg.sender);
-        }
 
         // Cache storage variables.
         ISablierBobAdapter adapter = _vaults[vaultId].adapter;
