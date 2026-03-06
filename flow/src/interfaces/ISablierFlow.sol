@@ -79,13 +79,6 @@ interface ISablierFlow is
         uint256 totalDebt
     );
 
-    /// @notice Emitted when the comptroller recovers the surplus amount of token.
-    /// @param comptroller The address of the current comptroller.
-    /// @param token The address of the ERC-20 token the surplus amount has been recovered for.
-    /// @param to The address the surplus amount has been sent to.
-    /// @param surplus The amount of surplus tokens recovered.
-    event Recover(ISablierComptroller indexed comptroller, IERC20 indexed token, address to, uint256 surplus);
-
     /// @notice Emitted when a sender is refunded from a stream.
     /// @param streamId The ID of the stream.
     /// @param sender The stream's sender address.
@@ -345,15 +338,12 @@ interface ISablierFlow is
 
     /// @notice Recover the surplus amount of tokens.
     ///
-    /// @dev Emits a {Recover} event.
-    ///
-    /// Notes:
+    /// @dev Notes:
     /// - The surplus amount is defined as the difference between the total balance of the contract for the provided
     /// ERC-20 token and the sum of balances of all streams created using the same ERC-20 token.
     ///
     /// Requirements:
     /// - `msg.sender` must be the comptroller contract.
-    /// - The surplus amount must be greater than zero.
     ///
     /// @param token The contract address of the ERC-20 token to recover for.
     /// @param to The address to send the surplus amount.

@@ -4,8 +4,6 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
-import { Errors } from "src/libraries/Errors.sol";
 import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
 contract Recover_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
@@ -28,22 +26,15 @@ contract Recover_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         flow.recover(usdc, users.eve);
     }
 
-    function test_RevertWhen_TokenBalanceNotExceedAggregateAmount() external whenCallerComptroller {
-        // Using dai token for this test because it has zero surplus.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_SurplusZero.selector, dai));
-        flow.recover(dai, users.accountant);
-    }
-
-    function test_WhenTokenBalanceExceedAggregateAmount() external whenCallerComptroller {
+    function test_WhenCallerComptroller() external {
         assertEq(usdc.balanceOf(address(flow)), surplusAmount + flow.aggregateAmount(usdc));
 
-        // It should emit {Recover} and {Transfer} events.
+        // It should emit a {Transfer} event.
         vm.expectEmit({ emitter: address(usdc) });
         emit IERC20.Transfer({ from: address(flow), to: users.accountant, value: surplusAmount });
-        vm.expectEmit({ emitter: address(flow) });
-        emit ISablierFlow.Recover(comptroller, usdc, users.accountant, surplusAmount);
 
         // Recover the surplus.
+        setMsgSender(address(comptroller));
         flow.recover(usdc, users.accountant);
 
         // It should lead to token balance same as aggregate amount.
