@@ -4,6 +4,11 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract Getters_LidoAdapter_Integration_Concrete_Test is Integration_Test {
+    function test_GetLidoWithdrawalRequestIds_WhenNoRequest() external view {
+        uint256[] memory requestIds = adapter.getLidoWithdrawalRequestIds(vaultIds.vaultWithAdapter);
+        assertEq(requestIds.length, 0, "requestIds length before request");
+    }
+
     function test_GetTotalYieldBearingTokenBalance() external view {
         // It should return the total wstETH balance.
         assertEq(
