@@ -5,15 +5,13 @@ import { ILidoWithdrawalQueue } from "src/interfaces/external/ILidoWithdrawalQue
 
 /// @notice Mock Lido WithdrawalQueueERC721 for testing.
 contract MockLidoWithdrawalQueue is ILidoWithdrawalQueue {
+    uint256 public constant MAX_STETH_WITHDRAWAL_AMOUNT = 1000 ether;
+    uint256 public constant LAST_CHECKPOINT_INDEX = 1;
+
     uint256 private _nextRequestId = 1;
-    uint256 private _lastCheckpointIndex = 1;
 
     /// @dev Maps request ID to the stETH amount deposited.
     mapping(uint256 requestId => uint256 amount) private _requestAmounts;
-
-    function MAX_STETH_WITHDRAWAL_AMOUNT() external pure override returns (uint256) {
-        return 1000 ether;
-    }
 
     function requestWithdrawals(
         uint256[] calldata _amounts,
@@ -36,7 +34,6 @@ contract MockLidoWithdrawalQueue is ILidoWithdrawalQueue {
             totalEth += _requestAmounts[_requestIds[i]];
             delete _requestAmounts[_requestIds[i]];
         }
-        // Transfer ETH to the caller (simulating 1:1 stETH:ETH redemption).
         (bool success,) = msg.sender.call{ value: totalEth }("");
         require(success, "ETH transfer failed");
     }
@@ -57,8 +54,8 @@ contract MockLidoWithdrawalQueue is ILidoWithdrawalQueue {
         }
     }
 
-    function getLastCheckpointIndex() external view override returns (uint256) {
-        return _lastCheckpointIndex;
+    function getLastCheckpointIndex() external pure override returns (uint256) {
+        return LAST_CHECKPOINT_INDEX;
     }
 
     receive() external payable { }

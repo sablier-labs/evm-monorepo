@@ -28,6 +28,14 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier givenCurveWithdrawalRequested() {
+        _;
+    }
+
+    modifier givenLidoWithdrawalNotRequested() {
+        _;
+    }
+
     modifier givenNoAdapter() {
         _;
     }
@@ -63,6 +71,14 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     /*//////////////////////////////////////////////////////////////////////////
                                         WHEN
     //////////////////////////////////////////////////////////////////////////*/
+
+    modifier whenAmountExceedsMaxPerRequest() {
+        _;
+    }
+
+    modifier whenAmountNotExceedMaxPerRequest() {
+        _;
+    }
 
     modifier whenAmountNotZero() {
         _;
