@@ -104,6 +104,56 @@ contract Bob_Fork_Test is Fork_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                    LIDO WITHDRAWAL CLAIM + UNSTAKE + REDEEM FORK TEST
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Tests the full Lido native withdrawal lifecycle end-to-end:
+    /// create vault → enter → expire → request Lido withdrawal → finalize → unstake (claim) → redeem.
+    function testForkFuzz_BobLidoWithdrawalClaimAndRedeem(Params memory params) external {
+        _boundAndSetupParams(params);
+
+        // Step 1: Create vault with adapter.
+        uint256 vaultId = _createForkVault(params);
+
+        // Step 2: Deposit WETH into the vault.
+        _enterVault(params, vaultId);
+
+        uint128 vaultTotalWstETH = forkAdapter.getTotalYieldBearingTokenBalance(vaultId);
+        assertGt(vaultTotalWstETH, 0, "vaultTotalWstETH before request");
+
+        // Step 3: Warp past expiry so the vault becomes EXPIRED.
+        vm.warp(getBlockTimestamp() + params.vaultDuration + 1);
+
+        // Step 4: Comptroller requests Lido withdrawal.
+        setMsgSender(address(comptroller));
+        forkAdapter.requestLidoWithdrawal(vaultId);
+
+        // Step 5: Finalize the Lido withdrawal by impersonating the stETH contract (FINALIZE_ROLE holder).
+        // Over-estimate ETH needed as 2x the deposit amount.
+        _finalizeLidoWithdrawals(vaultId, uint256(params.depositAmount) * 2);
+
+        // Step 6: Unstake via adapter (claims finalized withdrawals from Lido queue).
+        uint128 amountReceived = forkBob.unstakeTokensViaAdapter(vaultId);
+        assertGt(amountReceived, 0, "amountReceived from Lido claim");
+
+        // Verify WETH was received by Bob.
+        assertGe(FORK_WETH.balanceOf(address(forkBob)), amountReceived, "bob WETH balance after unstake");
+
+        // Step 7: Redeem as the depositor.
+        setMsgSender(params.depositor);
+        (uint128 transferAmount, uint128 feeDeducted) = forkBob.redeem(vaultId);
+        assertGt(transferAmount, 0, "transferAmount after redeem");
+
+        // Verify depositor received WETH.
+        assertGe(FORK_WETH.balanceOf(params.depositor), transferAmount, "depositor WETH balance after redeem");
+
+        // Verify the fee was sent to the comptroller (if yield was positive).
+        if (feeDeducted > 0) {
+            assertGe(FORK_WETH.balanceOf(address(comptroller)), feeDeducted, "comptroller WETH balance after redeem");
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                   PRIVATE HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 

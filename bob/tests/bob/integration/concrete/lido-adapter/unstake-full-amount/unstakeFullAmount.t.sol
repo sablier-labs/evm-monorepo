@@ -114,8 +114,8 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(adapter) });
         emit ISablierBobAdapter.UnstakeFullAmount({
             vaultId: vaultIds.vaultWithAdapter,
-            wrappedStakedAmount: WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT,
-            withdrawnAmount: DEPOSIT_AMOUNT
+            totalStakedAmount: WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT,
+            amountReceivedFromUnstaking: DEPOSIT_AMOUNT
         });
 
         setMsgSender(address(bob));
