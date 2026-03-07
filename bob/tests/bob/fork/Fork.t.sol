@@ -20,7 +20,7 @@ interface IWithdrawalQueueFinalize {
 /// @notice Base logic needed by the Bob fork tests.
 abstract contract Fork_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
-                               MAINNET ADDRESSES
+                                 MAINNET ADDRESSES
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 internal constant FORK_WETH = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
@@ -34,14 +34,14 @@ abstract contract Fork_Test is Base_Test {
         AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  TEST CONTRACTS
+                                   TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
     ISablierBob internal forkBob;
     ISablierLidoAdapter internal forkAdapter;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  SET-UP FUNCTION
+                                       SET-UP
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
@@ -81,7 +81,7 @@ abstract contract Fork_Test is Base_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  FORK HELPERS
+                                      HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Finalizes pending Lido withdrawals by impersonating the stETH contract (FINALIZE_ROLE holder).

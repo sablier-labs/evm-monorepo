@@ -12,6 +12,9 @@ interface ILidoWithdrawalQueue {
     /// @notice Maximum amount of stETH that can be withdrawn in a single request.
     function MAX_STETH_WITHDRAWAL_AMOUNT() external view returns (uint256);
 
+    /// @notice Minimum amount of stETH that can be withdrawn in a single request.
+    function MIN_STETH_WITHDRAWAL_AMOUNT() external view returns (uint256);
+
     /// @notice Finds the list of hints for the given `_requestIds` searching among the checkpoints with indices in the
     /// range  `[_firstIndex, _lastIndex]`.
     /// @dev
