@@ -2,35 +2,43 @@ SafeOraclePrice_SafeOracle_Concrete_Test
 ├── when oracle address zero
 │  └── it should return zero for both price and updatedAt
 └── when oracle address not zero
-   ├── when latest round call fails
+   ├── when decimals call fails
    │  └── it should return zero for both price and updatedAt
-   └── when latest round call not fail
-      ├── when oracle price negative
-      │  └── it should return zero for price
-      ├── when oracle price zero
-      │  └── it should return zero for price
-      └── when oracle price positive
-         ├── when oracle updated time in future
-         │  └── it should return zero for price
-         └── when oracle updated time not in future
-            ├── when oracle price exceeds uint128 max
-            │  └── it should return zero for price
-            └── when oracle price not exceed uint128 max
-               ├── when decimals call fails
-               │  └── it should return zero for both price and updatedAt
-               └── when decimals call not fail
-                  ├── when oracle decimals zero
-                  │  └── it should return zero for both price and updatedAt
-                  └── when oracle decimals not zero
-                     ├── when oracle decimals too high
-                     │  └── it should return zero for both price and updatedAt
-                     └── when oracle decimals not too high
-                        ├── when normalized price exceeds uint128 max
-                        │  └── it should return zero for price
-                        └── when normalized price not exceed uint128 max
-                           ├── when oracle returns eight decimals
+   └── when decimals call not fail
+      ├── when oracle decimals zero
+      │  └── it should return zero for both price and updatedAt
+      └── when oracle decimals not zero
+         ├── when oracle decimals too high
+         │  └── it should return zero for both price and updatedAt
+         └── when oracle decimals not too high
+            ├── when latest round call fails
+            │  └── it should return zero for both price and updatedAt
+            └── when latest round call not fail
+               ├── when oracle price negative
+               │  └── it should return zero for price
+               ├── when oracle price zero
+               │  └── it should return zero for price
+               └── when oracle price positive
+                  ├── when oracle updated time in future
+                  │  └── it should return zero for price
+                  └── when oracle updated time not in future
+                     ├── when oracle price exceeds uint128 max
+                     │  └── it should return zero for price
+                     └── when oracle price not exceed uint128 max
+                        ├── when price normalized
+                        │  ├── when normalized price exceeds uint128 max
+                        │  │  └── it should return zero for price
+                        │  └── when normalized price not exceed uint128 max
+                        │     ├── when oracle returns eight decimals
+                        │     │  └── it should return the price as-is
+                        │     ├── when oracle returns more than eight decimals
+                        │     │  └── it should return the price normalized to eight decimals
+                        │     └── when oracle returns less than eight decimals
+                        │        └── it should return the price scaled up to eight decimals
+                        └── when price not normalized
+                           ├── when oracle has eight decimals
                            │  └── it should return the price as-is
-                           ├── when oracle returns more than eight decimals
-                           │  └── it should return the price truncated to eight decimals
-                           └── when oracle returns less than eight decimals
-                              └── it should return the price scaled up to eight decimals
+                           ├── when oracle has more than eight decimals
+                           │  └── it should return the price in native decimals
+                           └── when oracle has less than eight decimals
+                              └── it should return the price in native decimals

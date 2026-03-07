@@ -453,8 +453,8 @@ contract SablierBob is
     function _syncPriceFromOracle(uint256 vaultId) private returns (uint128 latestPrice) {
         AggregatorV3Interface oracleAddress = _vaults[vaultId].oracle;
 
-        // Get the latest price from the oracle with safety checks.
-        (latestPrice,) = SafeOracle.safeOraclePrice(oracleAddress);
+        // Get the latest price, normalized to 8 decimals, from the oracle with safety checks.
+        (latestPrice,,) = SafeOracle.safeOraclePrice({ oracle: oracleAddress, normalize: true });
 
         // Return if the latest price is zero.
         if (latestPrice == 0) {

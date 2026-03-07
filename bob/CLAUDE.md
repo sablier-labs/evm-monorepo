@@ -47,7 +47,7 @@ Over-the-counter (OTC) token swap protocol that allows users to swap ERC-20 toke
 - **Sell Token**: The ERC-20 token being sold, deposited by the seller when the order is created
 - **Buy Token**: The ERC-20 token the seller wants to receive
 - **Sell Amount**: The amount of sell token that the seller is willing to exchange
-- **Min Buy Amount**: The minimum amount of buy token that the seller is willing to accept. Buyer can pay more for price improvement.
+- **Min Buy Amount**: The minimum amount of buy token required to fill the order. Buyer can pay more for price improvement.
 - **Expiry Time** (`expiryTime`): The Unix timestamp when the order expires. `0` means the order never expires.
 - **Trade Fee**: Percentage fee (max 2%) deducted from both sell and buy amounts on fill. Sent to comptroller contract.
 

@@ -15,8 +15,7 @@ library SafeOracle {
                             INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Fetches the latest price from the oracle, normalized to 8 decimals. Returns 0 if any of the following
-    /// conditions are met:
+    /// @dev Fetches the latest price from the oracle. Returns 0 if any of the following conditions are met:
     /// - Oracle address is zero.
     /// - Call to `latestRoundData()` fails.
     /// - Call to `decimals()` fails.
@@ -24,62 +23,76 @@ library SafeOracle {
     /// - The price is not positive.
     /// - The price exceeds `uint128` max.
     /// - The `updatedAt` timestamp is in the future.
-    /// - The normalized price exceeds `uint128` max.
-    function safeOraclePrice(AggregatorV3Interface oracle) internal view returns (uint128 price, uint256 updatedAt) {
+    /// - `normalize` is true, and the normalized price exceeds `uint128` max.
+    ///
+    /// @param oracle The Chainlink oracle to query.
+    /// @param normalize If true, normalizes the price to 8 decimals. If false, returns the price in the oracle's
+    /// native decimals.
+    function safeOraclePrice(
+        AggregatorV3Interface oracle,
+        bool normalize
+    )
+        internal
+        view
+        returns (uint128 price, uint8 decimals, uint256 updatedAt)
+    {
         // If the oracle is not set, return 0 for both price and updated timestamp.
         if (address(oracle) == address(0)) {
-            return (0, 0);
+            return (0, 0, 0);
         }
 
         uint8 oracleDecimals;
 
-        // Normalize the price to 8 decimals.
         try oracle.decimals() returns (uint8 _oracleDecimals) {
             // If decimals exceed 36 or is zero, return 0 to avoid overflow/underflow in normalization.
             if (_oracleDecimals > 36 || _oracleDecimals == 0) {
-                return (0, 0);
+                return (0, 0, 0);
             }
 
             oracleDecimals = _oracleDecimals;
         } catch {
             // If the decimals call fails, return 0.
-            return (0, 0);
+            return (0, 0, 0);
         }
 
         // Interactions: query the oracle price and the time at which it was updated.
         try oracle.latestRoundData() returns (uint80, int256 _price, uint256, uint256 _updatedAt, uint80) {
             // If the price is not greater than 0, return 0 for price.
             if (_price <= 0) {
-                return (0, _updatedAt);
+                return (0, oracleDecimals, _updatedAt);
             }
 
             // Due to reorgs and latency issues, the oracle can have an `updatedAt` timestamp in the future.
             if (block.timestamp < _updatedAt) {
-                return (0, _updatedAt);
+                return (0, oracleDecimals, _updatedAt);
             }
 
-            uint256 normalizedPrice = uint256(_price);
+            uint256 oraclePrice = uint256(_price);
 
             // If the initial price is greater than max `uint128`, return 0 for price.
-            if (normalizedPrice > type(uint128).max) {
-                return (0, _updatedAt);
+            if (oraclePrice > type(uint128).max) {
+                return (0, oracleDecimals, _updatedAt);
             }
 
-            if (oracleDecimals != 8) {
-                normalizedPrice = _normalizePrice(normalizedPrice, oracleDecimals);
+            uint256 normalizedPrice = oraclePrice;
+
+            // Normalize to 8 decimals only if requested.
+            if (normalize && oracleDecimals != 8) {
+                normalizedPrice = _normalizePrice(oraclePrice, oracleDecimals);
 
                 // If the normalized price is greater than max `uint128`, return 0 for price.
                 if (normalizedPrice > type(uint128).max) {
-                    return (0, _updatedAt);
+                    return (0, oracleDecimals, _updatedAt);
                 }
             }
 
             // It's safe to cast as we checked that the price does not exceed `uint128` above.
             price = uint128(normalizedPrice);
+            decimals = normalize ? 8 : oracleDecimals;
             updatedAt = _updatedAt;
         } catch {
             // If the oracle call fails, return 0 for both price and updated timestamp.
-            return (0, 0);
+            return (0, 0, 0);
         }
     }
 

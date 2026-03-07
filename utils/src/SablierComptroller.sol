@@ -461,7 +461,8 @@ contract SablierComptroller is
         }
 
         // Get the latest price (normalized to 8 decimals) and feed updated timestamp from the oracle.
-        (uint256 price, uint256 updatedAt) = SafeOracle.safeOraclePrice(AggregatorV3Interface(oracle));
+        (uint256 price,, uint256 updatedAt) =
+            SafeOracle.safeOraclePrice({ oracle: AggregatorV3Interface(oracle), normalize: true });
 
         // Skip the calculations if any of the following conditions are met:
         // - The price is 0.

@@ -10,8 +10,15 @@ uint8 constant DEFAULT_DECIMALS = 8;
 
 /// @notice Mock contract to expose the internal SafeOracle library function.
 contract SafeOracleMock {
-    function safeOraclePrice(AggregatorV3Interface oracle) external view returns (uint128, uint256) {
-        return SafeOracle.safeOraclePrice(oracle);
+    function safeOraclePrice(
+        AggregatorV3Interface oracle,
+        bool normalize
+    )
+        external
+        view
+        returns (uint128, uint8, uint256)
+    {
+        return SafeOracle.safeOraclePrice(oracle, normalize);
     }
 
     function validateOracle(AggregatorV3Interface oracle) external view returns (uint128) {
@@ -136,8 +143,10 @@ contract ChainlinkOracleOutdatedPrice {
     }
 }
 
-/// @notice A mock Chainlink oracle that returns a $3000 price with 18 decimals.
+/// @notice A mock Chainlink oracle that returns a price with 18 decimals.
 contract ChainlinkOracleWith18Decimals {
+    int256 internal _price = 3000e18;
+
     function decimals() external pure returns (uint8) {
         return 18;
     }
@@ -147,9 +156,12 @@ contract ChainlinkOracleWith18Decimals {
         view
         returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
-        int256 answer_ = 3000e18;
         uint256 updatedAt_ = block.timestamp;
-        return (0, answer_, 0, updatedAt_, 0);
+        return (0, _price, 0, updatedAt_, 0);
+    }
+
+    function setPrice(uint256 newPrice) external {
+        _price = int256(newPrice);
     }
 }
 

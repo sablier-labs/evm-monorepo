@@ -8,9 +8,18 @@ import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 abstract contract Utils is BaseUtils {
     using Strings for uint256;
 
-    /// @dev Calculates the minimum ETH output after applying slippage tolerance.
-    function calculateMinEthOut(uint256 amount, UD60x18 slippageTolerance) internal pure returns (uint128) {
-        return ud(amount).mul(UNIT.sub(slippageTolerance)).intoUint128();
+    /// @dev Calculates the minimum ETH output after applying oracle price and slippage tolerance.
+    function calculateMinEthOut(
+        uint256 stEthAmount,
+        uint256 oraclePrice,
+        UD60x18 slippageTolerance
+    )
+        internal
+        pure
+        returns (uint128)
+    {
+        uint256 fairEthOut = stEthAmount * oraclePrice / 1e18;
+        return ud(fairEthOut).mul(UNIT.sub(slippageTolerance)).intoUint128();
     }
 
     /// @dev Decomposes a yield-bearing redemption into fee and net amount.

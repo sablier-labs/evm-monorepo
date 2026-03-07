@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ChainlinkOracleWith18Decimals } from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
 import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
-
 import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
 import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
 import { SablierBob } from "src/SablierBob.sol";
 import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
-
 import { MockCurvePool } from "./mocks/MockCurvePool.sol";
 import { MockStETH } from "./mocks/MockStETH.sol";
 import { MockWETH } from "./mocks/MockWETH.sol";
@@ -39,6 +38,7 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
     // External protocol mocks (Lido ecosystem).
     MockCurvePool internal curvePool;
     MockStETH internal steth;
+    ChainlinkOracleWith18Decimals internal stETHETHOracle;
     MockWETH internal weth;
     MockWstETH internal wstEth;
 
@@ -104,6 +104,10 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
         wstEth = new MockWstETH(address(steth));
         curvePool = new MockCurvePool(address(steth));
 
+        // Deploy a stETH/ETH oracle mock returning ~1:1 (1e18 in 18 decimals).
+        stETHETHOracle = new ChainlinkOracleWith18Decimals();
+        stETHETHOracle.setPrice(STETH_ETH_ORACLE_PRICE);
+
         // Fund Curve pool with ETH for swaps.
         vm.deal(address(curvePool), 10_000 ether);
     }
@@ -118,6 +122,7 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
             sablierBob: address(bob),
             curvePool: address(curvePool),
             stETH: address(steth),
+            stETH_ETH_Oracle: address(stETHETHOracle),
             wETH: address(weth),
             wstETH: address(wstEth),
             initialSlippageTolerance: SLIPPAGE_TOLERANCE,

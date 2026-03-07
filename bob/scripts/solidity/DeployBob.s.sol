@@ -25,6 +25,7 @@ contract DeployBob is BaseScript, LidoAdapterUtils {
             sablierBob: address(bob),
             curvePool: getCurvePool(),
             stETH: getStETH(),
+            stETH_ETH_Oracle: getStETHETHOracle(),
             wETH: getWETH(),
             wstETH: getWSTETH(),
             initialSlippageTolerance: INITIAL_SLIPPAGE_TOLERANCE,

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
@@ -8,6 +9,7 @@ import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { ud, UD60x18, UNIT } from "@prb/math/src/UD60x18.sol";
 import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
+import { SafeOracle } from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
 
 import { ICurveStETHPool } from "./interfaces/external/ICurveStETHPool.sol";
 import { IStETH } from "./interfaces/external/IStETH.sol";
@@ -43,6 +45,9 @@ contract SablierLidoAdapter is
 
     /// @inheritdoc ISablierLidoAdapter
     address public immutable override STETH;
+
+    /// @inheritdoc ISablierLidoAdapter
+    address public immutable override STETH_ETH_ORACLE;
 
     /// @inheritdoc ISablierLidoAdapter
     address public immutable override WETH;
@@ -93,6 +98,7 @@ contract SablierLidoAdapter is
         address sablierBob,
         address curvePool,
         address stETH,
+        address stETH_ETH_Oracle,
         address wETH,
         address wstETH,
         UD60x18 initialSlippageTolerance,
@@ -113,6 +119,7 @@ contract SablierLidoAdapter is
         SABLIER_BOB = sablierBob;
         CURVE_POOL = curvePool;
         STETH = stETH;
+        STETH_ETH_ORACLE = stETH_ETH_Oracle;
         WETH = wETH;
         WSTETH = wstETH;
 
@@ -349,16 +356,20 @@ contract SablierLidoAdapter is
                           PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Converts wstETH to WETH using Curve exchange.
+    /// @dev Converts wstETH to WETH using Curve exchange, with oracle-based slippage protection.
     function _wstETHToWeth(uint128 wstETHAmount) private returns (uint128 wethReceived) {
         // Interaction: Unwrap wstETH to get stETH.
         uint256 stETHAmount = IWstETH(WSTETH).unwrap(wstETHAmount);
 
-        // Get expected amount of ETH to receive from swapping stETH for ETH via Curve.
-        uint256 expectedEthOut = ICurveStETHPool(CURVE_POOL).get_dy(1, 0, stETHAmount);
+        // Get the stETH/ETH price from the Chainlink oracle in its native 18 decimals.
+        (uint128 oraclePrice,,) =
+            SafeOracle.safeOraclePrice({ oracle: AggregatorV3Interface(STETH_ETH_ORACLE), normalize: false });
+
+        // Calculate the fair ETH output using the oracle price as a manipulation-resistant reference.
+        uint256 fairEthOut = stETHAmount * oraclePrice / 1e18;
 
         // Calculate minimum acceptable output with slippage tolerance.
-        uint256 minEthOut = ud(expectedEthOut).mul(UNIT.sub(slippageTolerance)).unwrap();
+        uint256 minEthOut = ud(fairEthOut).mul(UNIT.sub(slippageTolerance)).unwrap();
 
         // Interaction: Swap stETH for ETH via Curve.
         uint256 ethReceived = ICurveStETHPool(CURVE_POOL).exchange(1, 0, stETHAmount, minEthOut);
@@ -368,10 +379,12 @@ contract SablierLidoAdapter is
             revert Errors.SablierLidoAdapter_SlippageExceeded(minEthOut, ethReceived);
         }
 
+        uint128 ethReceivedU128 = ethReceived.toUint128();
+
         // Interaction: Wrap ETH to get WETH.
         IWETH9(WETH).deposit{ value: ethReceived }();
 
-        return ethReceived.toUint128();
+        return ethReceivedU128;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

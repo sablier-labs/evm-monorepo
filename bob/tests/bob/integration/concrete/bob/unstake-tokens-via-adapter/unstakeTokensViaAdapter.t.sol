@@ -105,7 +105,7 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         curvePool.setDiff(1e18);
 
         uint256 stETHAmount = expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
-        uint256 minEthOut = calculateMinEthOut(stETHAmount, SLIPPAGE_TOLERANCE);
+        uint256 minEthOut = calculateMinEthOut(stETHAmount, STETH_ETH_ORACLE_PRICE, SLIPPAGE_TOLERANCE);
         uint256 actualOutput = stETHAmount - 1e18;
 
         // It should revert.
