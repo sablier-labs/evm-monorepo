@@ -2,29 +2,32 @@ RequestLidoWithdrawal_Integration_Concrete_Test
 ├── when caller not comptroller
 │  └── it should revert
 └── when caller comptroller
-   ├── given Lido withdrawal requested
+   ├── given ACTIVE status
    │  └── it should revert
-   └── given Lido withdrawal not requested
-      ├── given total wstETH zero
+   └── given not ACTIVE status
+      ├── given Lido withdrawal requested
       │  └── it should revert
-      └── given total wstETH not zero
-         ├── given amount not exceed min per request
+      └── given Lido withdrawal not requested
+         ├── given total wstETH zero
          │  └── it should revert
-         └── given amount exceeds min per request
-            ├── given amount not exceed max per request
-            │  ├── it should unwrap wstETH to stETH
-            │  ├── it should approve Lido withdrawal queue to spend stETH
-            │  ├── it should submit a single withdrawal request
-            │  ├── it should store one withdrawal request ID
-            │  └── it should emit a {RequestLidoWithdrawal} event
-            └── given amount exceeds max per request
-               ├── when remainder not exceed min per request
-               │  ├── it should adjust the second last and last request amounts
-               │  ├── it should store multiple withdrawal request IDs
+         └── given total wstETH not zero
+            ├── given amount not exceed min per request
+            │  └── it should revert
+            └── given amount exceeds min per request
+               ├── given amount not exceed max per request
+               │  ├── it should unwrap wstETH to stETH
+               │  ├── it should approve Lido withdrawal queue to spend stETH
+               │  ├── it should submit a single withdrawal request
+               │  ├── it should store one withdrawal request ID
                │  └── it should emit a {RequestLidoWithdrawal} event
-               └── when remainder exceeds min per request
-                  ├── it should unwrap wstETH to stETH
-                  ├── it should approve Lido withdrawal queue to spend stETH
-                  ├── it should split into multiple withdrawal requests
-                  ├── it should store multiple withdrawal request IDs
-                  └── it should emit a {RequestLidoWithdrawal} event
+               └── given amount exceeds max per request
+                  ├── when remainder not exceed min per request
+                  │  ├── it should adjust the second last and last request amounts
+                  │  ├── it should store multiple withdrawal request IDs
+                  │  └── it should emit a {RequestLidoWithdrawal} event
+                  └── when remainder exceeds min per request
+                     ├── it should unwrap wstETH to stETH
+                     ├── it should approve Lido withdrawal queue to spend stETH
+                     ├── it should split into multiple withdrawal requests
+                     ├── it should store multiple withdrawal request IDs
+                     └── it should emit a {RequestLidoWithdrawal} event

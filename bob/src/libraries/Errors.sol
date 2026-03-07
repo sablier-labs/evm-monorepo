@@ -162,6 +162,9 @@ library Errors {
     /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
     error SablierLidoAdapter_UserBalanceZero(uint256 vaultId, address user);
 
+    /// @notice Thrown when trying to request a Lido withdrawal for a vault that is active.
+    error SablierLidoAdapter_VaultActive(uint256 vaultId);
+
     /// @notice Thrown when the total amount to withdraw is below the minimum amount per request.
     error SablierLidoAdapter_WithdrawalAmountBelowMinimum(
         uint256 vaultId,

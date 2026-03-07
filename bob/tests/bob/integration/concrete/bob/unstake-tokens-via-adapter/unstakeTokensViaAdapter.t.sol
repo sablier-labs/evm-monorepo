@@ -98,9 +98,6 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         givenYieldTokenBalanceNotZero
         givenNotACTIVEStatus
     {
-        // Warp past expiry.
-        vm.warp(EXPIRY + 1);
-
         // Update Curve mock such that amount exchanged is less than the output received by the `get_dy` function.
         curvePool.setDiff(1e18);
 
@@ -123,8 +120,6 @@ contract UnstakeTokensViaAdapter_Integration_Concrete_Test is Integration_Test {
         givenYieldTokenBalanceNotZero
         givenNotACTIVEStatus
     {
-        vm.warp(EXPIRY + 1);
-
         uint128 expectedWethRedeemed = expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
 
         _testUnstakeTokensViaAdapter({ expectedWethRedeemed: expectedWethRedeemed });

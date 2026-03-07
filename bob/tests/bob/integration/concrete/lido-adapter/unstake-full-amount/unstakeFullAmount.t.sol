@@ -95,6 +95,9 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GivenLidoWithdrawalRequested() external whenCallerBob {
+        // Warp past expiry so the vault becomes expired.
+        vm.warp(EXPIRY);
+
         // First, request a Lido withdrawal.
         setMsgSender(address(comptroller));
         adapter.requestLidoWithdrawal(vaultIds.vaultWithAdapter);

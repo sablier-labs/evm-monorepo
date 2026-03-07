@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { ud } from "@prb/math/src/UD60x18.sol";
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
 import { ILidoWithdrawalQueue } from "src/interfaces/external/ILidoWithdrawalQueue.sol";
@@ -23,7 +23,15 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
         adapter.requestLidoWithdrawal(vaultIds.vaultWithAdapter);
     }
 
-    function test_RevertGiven_LidoWithdrawalRequested() external whenCallerComptroller {
+    function test_RevertGiven_ACTIVEStatus() external whenCallerComptroller {
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierLidoAdapter_VaultActive.selector, vaultIds.vaultWithAdapter)
+        );
+        adapter.requestLidoWithdrawal(vaultIds.vaultWithAdapter);
+    }
+
+    function test_RevertGiven_LidoWithdrawalRequested() external whenCallerComptroller givenNotACTIVEStatus {
         // Request a Lido withdrawal so it reverts on the second request.
         adapter.requestLidoWithdrawal(vaultIds.vaultWithAdapter);
 
@@ -36,7 +44,12 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
         adapter.requestLidoWithdrawal(vaultIds.vaultWithAdapter);
     }
 
-    function test_RevertGiven_TotalWstETHZero() external whenCallerComptroller givenLidoWithdrawalNotRequested {
+    function test_RevertGiven_TotalWstETHZero()
+        external
+        whenCallerComptroller
+        givenNotACTIVEStatus
+        givenLidoWithdrawalNotRequested
+    {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierLidoAdapter_NoWstETHToWithdraw.selector, vaultIds.defaultVault)
@@ -47,37 +60,33 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_AmountNotExceedMinPerRequest()
         external
         whenCallerComptroller
+        givenNotACTIVEStatus
         givenLidoWithdrawalNotRequested
         givenTotalWstETHNotZero
     {
         // Create a new vault with adapter and deposit the dust amount.
         uint128 dustAmount = LIDO_MIN_STETH_WITHDRAWAL_AMOUNT - 1;
-        uint256 dustVaultId = createVaultWithAdapter();
-
-        setMsgSender(users.depositor);
-        bob.enter(dustVaultId, dustAmount);
-
-        UD60x18 expectedWstETHMinted = ud(dustAmount).mul(WSTETH_WETH_EXCHANGE_RATE);
-        uint256 expectedStETHReceived = expectedWstETHMinted.div(WSTETH_WETH_EXCHANGE_RATE).intoUint256();
+        (uint256 vaultId,, uint256 expectedTotalStETHReceived) = _createVaultAndDeposit({ depositAmount: dustAmount });
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierLidoAdapter_WithdrawalAmountBelowMinimum.selector,
-                dustVaultId,
-                expectedStETHReceived,
+                vaultId,
+                expectedTotalStETHReceived,
                 LIDO_MIN_STETH_WITHDRAWAL_AMOUNT
             )
         );
 
         // Request a Lido withdrawal.
         setMsgSender(address(comptroller));
-        adapter.requestLidoWithdrawal(dustVaultId);
+        adapter.requestLidoWithdrawal(vaultId);
     }
 
     function test_GivenAmountNotExceedMaxPerRequest()
         external
         whenCallerComptroller
+        givenNotACTIVEStatus
         givenLidoWithdrawalNotRequested
         givenTotalWstETHNotZero
         givenAmountExceedsMinPerRequest
@@ -97,6 +106,7 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
     function test_WhenRemainderNotExceedMinPerRequest()
         external
         whenCallerComptroller
+        givenNotACTIVEStatus
         givenLidoWithdrawalNotRequested
         givenTotalWstETHNotZero
         givenAmountExceedsMinPerRequest
@@ -119,6 +129,7 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
     function test_WhenRemainderExceedsMinPerRequest()
         external
         whenCallerComptroller
+        givenNotACTIVEStatus
         givenLidoWithdrawalNotRequested
         givenTotalWstETHNotZero
         givenAmountExceedsMinPerRequest
@@ -128,6 +139,8 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
         uint128 depositAmount = LIDO_MAX_STETH_WITHDRAWAL_AMOUNT + DEPOSIT_AMOUNT;
         (uint256 vaultId, uint256 expectedTotalWstETHMinted, uint256 expectedTotalStETHReceived) =
             _createVaultAndDeposit(depositAmount);
+
+        // It should have the following expected amounts.
         uint256[] memory expectedAmounts = new uint256[](2);
         expectedAmounts[0] = LIDO_MAX_STETH_WITHDRAWAL_AMOUNT;
         expectedAmounts[1] = expectedTotalStETHReceived - LIDO_MAX_STETH_WITHDRAWAL_AMOUNT;
@@ -145,6 +158,9 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
         private
         returns (uint256 vaultId, uint256 expectedTotalWstETHMinted, uint256 expectedTotalStETHReceived)
     {
+        // Warp back to starting point in time.
+        vm.warp(FEB_1_2026);
+
         // Create a new vault with adapter.
         vaultId = createVaultWithAdapter();
 
@@ -157,6 +173,9 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
 
         // Calculate the expected total stETH that would be received after unstaking.
         expectedTotalStETHReceived = ud(expectedTotalWstETHMinted).div(WSTETH_WETH_EXCHANGE_RATE).intoUint256();
+
+        // Warp past expiry.
+        vm.warp(EXPIRY);
     }
 
     /// @dev Private helper to request a Lido withdrawal and assert the expected results.

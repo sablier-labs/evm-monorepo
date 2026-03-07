@@ -161,7 +161,8 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// the adapter.
     ///
     /// Requirements:
-    /// - The vault must have SETTLED status.
+    /// - Either block timestamp must be greater than or equal to the vault expiry or the latest price from the oracle
+    /// must be greater than or equal to the target price.
     /// - The share balance of the caller must be greater than zero.
     /// - If no adapter is configured for the vault, `msg.value` must be greater than or equal to the min fee required
     /// in the native token.
@@ -227,7 +228,8 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     ///
     /// Requirements:
     /// - The adapter set in the vault must not be zero address.
-    /// - The vault must have SETTLED status.
+    /// - Either block timestamp must be greater than or equal to the vault expiry or the latest price from the oracle
+    /// must be greater than or equal to the target price.
     /// - The vault must not have been unstaked already.
     /// - The amount staked must be greater than zero.
     ///
