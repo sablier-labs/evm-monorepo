@@ -17,7 +17,7 @@ interface ISablierLidoAdapter is ISablierBobAdapter {
     event RequestLidoWithdrawal(
         uint256 indexed vaultId,
         address indexed comptroller,
-        uint128 wstETHAmount,
+        uint256 wstETHAmount,
         uint256 stETHAmount,
         uint256[] withdrawalRequestIds
     );
@@ -83,6 +83,7 @@ interface ISablierLidoAdapter is ISablierBobAdapter {
     /// - The caller must be the comptroller.
     /// - The vault must have wstETH to withdraw.
     /// - A withdrawal request must not have already been requested for this vault.
+    /// - The total amount to withdraw must not be less than the minimum amount per request.
     ///
     /// @param vaultId The ID of the vault.
     function requestLidoWithdrawal(uint256 vaultId) external;

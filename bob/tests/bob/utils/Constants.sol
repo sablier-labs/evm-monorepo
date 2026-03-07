@@ -8,6 +8,8 @@ abstract contract Constants is BaseConstants {
     // Amounts
     uint128 public constant CURRENT_PRICE = 3000e8;
     uint128 public constant DEPOSIT_AMOUNT = 10e18;
+    uint128 public constant LIDO_MAX_STETH_WITHDRAWAL_AMOUNT = 1000 ether;
+    uint128 public constant LIDO_MIN_STETH_WITHDRAWAL_AMOUNT = 100 wei;
     uint128 public constant TARGET_PRICE = 4000e8;
     uint128 public constant WETH_STAKED = DEPOSIT_AMOUNT;
     UD60x18 public constant WSTETH_WETH_EXCHANGE_RATE = UD60x18.wrap(0.9e18);

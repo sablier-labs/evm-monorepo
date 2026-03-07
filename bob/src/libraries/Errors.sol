@@ -162,6 +162,13 @@ library Errors {
     /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
     error SablierLidoAdapter_UserBalanceZero(uint256 vaultId, address user);
 
+    /// @notice Thrown when the total amount to withdraw is below the minimum amount per request.
+    error SablierLidoAdapter_WithdrawalAmountBelowMinimum(
+        uint256 vaultId,
+        uint256 totalAmount,
+        uint256 minimumAmountPerRequest
+    );
+
     /// @notice Thrown when trying to set a yield fee that exceeds the maximum allowed.
     error SablierLidoAdapter_YieldFeeTooHigh(UD60x18 fee, UD60x18 maxFee);
 }

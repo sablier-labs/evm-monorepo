@@ -45,7 +45,7 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
     MockWstETH internal wstEth;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  SET-UP FUNCTION
+                                       SET-UP
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
@@ -92,8 +92,8 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
 
         // Deal ETH tokens to the depositor and deposit them into WETH.
         setMsgSender(users.depositor);
-        vm.deal(users.depositor, 1000 ether);
-        IWETH9(address(weth)).deposit{ value: 1000 ether }();
+        vm.deal(users.depositor, 10_000 ether);
+        IWETH9(address(weth)).deposit{ value: 10_000 ether }();
 
         // Approve the Bob contract to spend the depositor's WETH.
         weth.approve(address(bob), MAX_UINT128);

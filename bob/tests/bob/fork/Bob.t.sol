@@ -8,6 +8,10 @@ import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
 import { Fork_Test } from "./Fork.t.sol";
 
 contract Bob_Fork_Test is Fork_Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                       PARAMS
+    //////////////////////////////////////////////////////////////////////////*/
+
     struct Params {
         address depositor;
         uint128 depositAmount;
@@ -15,12 +19,36 @@ contract Bob_Fork_Test is Fork_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                               CURVE PATH FORK TEST
+                                     FORK TESTS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Tests that requestLidoWithdrawal reverts when the stETH amount is below Lido's minimum.
+    function testFork_RevertWhen_StETHAmountBelowMinimum() external {
+        // Create a vault with adapter.
+        uint256 vaultId = _createForkVaultWithDefaults();
+
+        // Deposit a dust amount (50 wei) which is below Lido's MIN_STETH_WITHDRAWAL_AMOUNT (100 wei).
+        uint128 dustAmount = 50;
+        address depositor = users.depositor;
+
+        setMsgSender(depositor);
+        vm.deal(depositor, 1 ether);
+        IWETH9(address(FORK_WETH)).deposit{ value: dustAmount }();
+        FORK_WETH.approve(address(forkBob), dustAmount);
+        forkBob.enter(vaultId, dustAmount);
+
+        // Warp past expiry.
+        vm.warp(getBlockTimestamp() + 2 days);
+
+        // Request Lido withdrawal should revert.
+        setMsgSender(address(comptroller));
+        vm.expectRevert();
+        forkAdapter.requestLidoWithdrawal(vaultId);
+    }
 
     /// @dev Tests the full adapter vault lifecycle using the Curve unstaking path:
     /// create vault → enter → expire → unstake via Curve → redeem.
-    function testForkFuzz_BobCurveUnstaking(Params memory params) external {
+    function testForkFuzz_CurveUnstaking(Params memory params) external {
         _boundAndSetupParams(params);
 
         // Step 1: Create vault with adapter.
@@ -60,56 +88,9 @@ contract Bob_Fork_Test is Fork_Test {
         }
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                          LIDO WITHDRAWAL REQUEST FORK TEST
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Tests that requestLidoWithdrawal correctly interacts with the real Lido withdrawal queue:
-    /// create vault → enter → expire → request Lido withdrawal → verify request state.
-    function testForkFuzz_BobLidoWithdrawalRequest(Params memory params) external {
-        _boundAndSetupParams(params);
-
-        // Step 1: Create vault with adapter.
-        uint256 vaultId = _createForkVault(params);
-
-        // Step 2: Deposit WETH into the vault.
-        _enterVault(params, vaultId);
-
-        uint128 vaultTotalWstETH = forkAdapter.getTotalYieldBearingTokenBalance(vaultId);
-        assertGt(vaultTotalWstETH, 0, "vaultTotalWstETH before request");
-
-        // Step 3: Warp past expiry so the vault becomes EXPIRED.
-        vm.warp(getBlockTimestamp() + params.vaultDuration + 1);
-
-        // Step 4: Comptroller requests Lido withdrawal.
-        setMsgSender(address(comptroller));
-        forkAdapter.requestLidoWithdrawal(vaultId);
-
-        // Verify request IDs were stored.
-        uint256[] memory requestIds = forkAdapter.getLidoWithdrawalRequestIds(vaultId);
-        assertGt(requestIds.length, 0, "requestIds length");
-
-        // Verify each request ID is valid (non-zero).
-        for (uint256 i; i < requestIds.length; ++i) {
-            assertGt(requestIds[i], 0, "requestId non-zero");
-        }
-
-        // Verify the adapter's wstETH was consumed (unwrapped and submitted to Lido).
-        uint256 adapterWstETHBalance = IERC20(FORK_WSTETH).balanceOf(address(forkAdapter));
-        assertEq(adapterWstETHBalance, 0, "adapter wstETH balance after request");
-
-        // Verify a duplicate request reverts.
-        vm.expectRevert();
-        forkAdapter.requestLidoWithdrawal(vaultId);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                    LIDO WITHDRAWAL CLAIM + UNSTAKE + REDEEM FORK TEST
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @dev Tests the full Lido native withdrawal lifecycle end-to-end:
     /// create vault → enter → expire → request Lido withdrawal → finalize → unstake (claim) → redeem.
-    function testForkFuzz_BobLidoWithdrawalClaimAndRedeem(Params memory params) external {
+    function testForkFuzz_LidoWithdrawalClaimAndRedeem(Params memory params) external {
         _boundAndSetupParams(params);
 
         // Step 1: Create vault with adapter.
@@ -153,8 +134,86 @@ contract Bob_Fork_Test is Fork_Test {
         }
     }
 
+    /// @dev Tests that requestLidoWithdrawal correctly interacts with the real Lido withdrawal queue:
+    /// create vault → enter → expire → request Lido withdrawal → verify request state.
+    function testForkFuzz_LidoWithdrawalRequest(Params memory params) external {
+        _boundAndSetupParams(params);
+
+        // Step 1: Create vault with adapter.
+        uint256 vaultId = _createForkVault(params);
+
+        // Step 2: Deposit WETH into the vault.
+        _enterVault(params, vaultId);
+
+        uint128 vaultTotalWstETH = forkAdapter.getTotalYieldBearingTokenBalance(vaultId);
+        assertGt(vaultTotalWstETH, 0, "vaultTotalWstETH before request");
+
+        // Step 3: Warp past expiry so the vault becomes EXPIRED.
+        vm.warp(getBlockTimestamp() + params.vaultDuration + 1);
+
+        // Step 4: Comptroller requests Lido withdrawal.
+        setMsgSender(address(comptroller));
+        forkAdapter.requestLidoWithdrawal(vaultId);
+
+        // Verify request IDs were stored.
+        uint256[] memory requestIds = forkAdapter.getLidoWithdrawalRequestIds(vaultId);
+        assertGt(requestIds.length, 0, "requestIds length");
+
+        // Verify each request ID is valid (non-zero).
+        for (uint256 i; i < requestIds.length; ++i) {
+            assertGt(requestIds[i], 0, "requestId non-zero");
+        }
+
+        // Verify the adapter's wstETH was consumed (unwrapped and submitted to Lido).
+        uint256 adapterWstETHBalance = IERC20(FORK_WSTETH).balanceOf(address(forkAdapter));
+        assertEq(adapterWstETHBalance, 0, "adapter wstETH balance after request");
+
+        // Verify a duplicate request reverts.
+        vm.expectRevert();
+        forkAdapter.requestLidoWithdrawal(vaultId);
+    }
+
+    /// @dev Tests that requestLidoWithdrawal correctly adjusts the remainder when it falls below
+    /// Lido's MIN_STETH_WITHDRAWAL_AMOUNT by borrowing from the second-to-last request.
+    function testFork_LidoWithdrawalRemainderAdjustment() external {
+        // Create a vault with adapter.
+        uint256 vaultId = _createForkVaultWithDefaults();
+
+        // Deposit an amount that will produce a remainder below MIN_STETH_WITHDRAWAL_AMOUNT after splitting.
+        // We need total stETH slightly above 1000 ether (MAX_STETH_WITHDRAWAL_AMOUNT).
+        // Due to stETH rebasing, we deposit slightly more than 1000 ether + a small amount.
+        uint128 depositAmount = 1000 ether + 10;
+        address depositor = users.depositor;
+
+        setMsgSender(depositor);
+        vm.deal(depositor, uint256(depositAmount) + 1 ether);
+        IWETH9(address(FORK_WETH)).deposit{ value: depositAmount }();
+        FORK_WETH.approve(address(forkBob), depositAmount);
+        forkBob.enter(vaultId, depositAmount);
+
+        // Warp past expiry.
+        vm.warp(getBlockTimestamp() + 2 days);
+
+        // Request Lido withdrawal — should succeed with remainder adjustment.
+        setMsgSender(address(comptroller));
+        forkAdapter.requestLidoWithdrawal(vaultId);
+
+        // Verify request IDs were stored (should be 2 requests due to splitting).
+        uint256[] memory requestIds = forkAdapter.getLidoWithdrawalRequestIds(vaultId);
+        assertEq(requestIds.length, 2, "requestIds length should be 2");
+
+        // Verify each request ID is valid.
+        for (uint256 i; i < requestIds.length; ++i) {
+            assertGt(requestIds[i], 0, "requestId non-zero");
+        }
+
+        // Verify the adapter's wstETH was fully consumed.
+        uint256 adapterWstETHBalance = IERC20(FORK_WSTETH).balanceOf(address(forkAdapter));
+        assertEq(adapterWstETHBalance, 0, "adapter wstETH balance after request");
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
-                                  PRIVATE HELPERS
+                                      HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Bounds and validates fuzz parameters.
@@ -184,6 +243,21 @@ contract Bob_Fork_Test is Fork_Test {
 
         // Set expiry based on fuzzed duration.
         uint40 expiry = getBlockTimestamp() + params.vaultDuration;
+
+        vaultId = forkBob.createVault({
+            token: FORK_WETH,
+            oracle: FORK_ETH_USD_ORACLE,
+            expiry: expiry,
+            targetPrice: targetPrice
+        });
+    }
+
+    /// @dev Creates a vault with default parameters for non-fuzz fork tests.
+    function _createForkVaultWithDefaults() private returns (uint256 vaultId) {
+        (, int256 answer,,,) = FORK_ETH_USD_ORACLE.latestRoundData();
+        uint128 currentPrice = uint128(uint256(answer));
+        uint128 targetPrice = currentPrice * 3 / 2;
+        uint40 expiry = getBlockTimestamp() + 1 days;
 
         vaultId = forkBob.createVault({
             token: FORK_WETH,

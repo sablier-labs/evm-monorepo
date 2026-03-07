@@ -261,8 +261,14 @@ contract SablierLidoAdapter is
         // Interaction: Unwrap wstETH to get stETH.
         uint256 stETHAmount = IWstETH(WSTETH).unwrap(totalWstETH);
 
-        // Get the maximum amount that can be withdrawn in a single request.
+        // Get the maximum and minimum amounts that can be withdrawn in a single request.
         uint256 maxAmountPerRequest = ILidoWithdrawalQueue(LIDO_WITHDRAWAL_QUEUE).MAX_STETH_WITHDRAWAL_AMOUNT();
+        uint256 minAmountPerRequest = ILidoWithdrawalQueue(LIDO_WITHDRAWAL_QUEUE).MIN_STETH_WITHDRAWAL_AMOUNT();
+
+        // Check: the total amount to withdraw is not less than the minimum amount per request.
+        if (stETHAmount < minAmountPerRequest) {
+            revert Errors.SablierLidoAdapter_WithdrawalAmountBelowMinimum(vaultId, stETHAmount, minAmountPerRequest);
+        }
 
         // Declare amounts array.
         uint256[] memory amounts;
@@ -283,7 +289,22 @@ contract SablierLidoAdapter is
             }
 
             // Assign the remaining amount to the last request.
-            amounts[lastIndex] = stETHAmount - maxAmountPerRequest * lastIndex;
+            uint256 remainder = stETHAmount - maxAmountPerRequest * lastIndex;
+
+            // If the remainder is below the minimum amount per request, deduct the difference from the second last
+            // request.
+            if (remainder < minAmountPerRequest) {
+                // Calculate the difference.
+                uint256 diff = minAmountPerRequest - remainder;
+
+                // Deduct the difference from the second last request.
+                amounts[lastIndex - 1] -= diff;
+
+                // Set the remainder to the minimum amount per request.
+                remainder = minAmountPerRequest;
+            }
+
+            amounts[lastIndex] = remainder;
         }
         // Otherwise, its just one request.
         else {

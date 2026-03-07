@@ -6,6 +6,7 @@ import { ILidoWithdrawalQueue } from "src/interfaces/external/ILidoWithdrawalQue
 /// @notice Mock Lido WithdrawalQueueERC721 for testing.
 contract MockLidoWithdrawalQueue is ILidoWithdrawalQueue {
     uint256 public constant MAX_STETH_WITHDRAWAL_AMOUNT = 1000 ether;
+    uint256 public constant MIN_STETH_WITHDRAWAL_AMOUNT = 100 wei;
     uint256 public constant LAST_CHECKPOINT_INDEX = 1;
 
     uint256 private _nextRequestId = 1;
