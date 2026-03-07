@@ -39,6 +39,6 @@ SafeOraclePrice_SafeOracle_Concrete_Test
                            ├── when oracle has eight decimals
                            │  └── it should return the price as-is
                            ├── when oracle has more than eight decimals
-                           │  └── it should return the price in native decimals
+                           │  └── it should return the price as-is
                            └── when oracle has less than eight decimals
-                              └── it should return the price in native decimals
+                              └── it should return the price as-is

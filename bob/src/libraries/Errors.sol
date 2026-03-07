@@ -37,6 +37,9 @@ library Errors {
     /// @notice Thrown when trying to redeem with `msg.value` less than the minimum fee required.
     error SablierBob_InsufficientFeePayment(uint256 feePaid, uint256 feeRequired);
 
+    /// @notice Thrown when trying to pay a fee in the native token from a vault that uses the adapter.
+    error SablierBob_MsgValueNotZero(uint256 vaultId);
+
     /// @notice Thrown when the native token fee transfer to the comptroller fails.
     error SablierBob_NativeFeeTransferFailed();
 
