@@ -70,9 +70,6 @@ library Errors {
     /// @notice Thrown when trying to perform a disallowed action on a pending stream.
     error SablierFlow_StreamPending(uint256 streamId, uint40 snapshotTime);
 
-    /// @notice Thrown when trying to recover for a token with zero surplus.
-    error SablierFlow_SurplusZero(address token);
-
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierFlow_Unauthorized(uint256 streamId, address caller);
 

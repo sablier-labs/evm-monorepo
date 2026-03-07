@@ -367,17 +367,12 @@ contract SablierFlow is
 
     /// @inheritdoc ISablierFlow
     function recover(IERC20 token, address to) external override onlyComptroller {
+        // If tokens are directly transferred to the contract without using the stream creation functions, the ERC-20
+        // balance may be greater than the aggregate amount.
         uint256 surplus = token.balanceOf(address(this)) - aggregateAmount[token];
-
-        // Check: there is a surplus to recover.
-        if (surplus == 0) {
-            revert Errors.SablierFlow_SurplusZero(address(token));
-        }
 
         // Interaction: transfer the surplus to the provided address.
         token.safeTransfer(to, surplus);
-
-        emit ISablierFlow.Recover(comptroller, token, to, surplus);
     }
 
     /// @inheritdoc ISablierFlow
