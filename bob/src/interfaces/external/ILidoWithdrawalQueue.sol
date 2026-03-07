@@ -5,18 +5,12 @@ pragma solidity >=0.8.22;
 /// @notice Minimal interface for Lido's WithdrawalQueueERC721 contract.
 /// @dev Used as a fallback unstaking path when the Curve pool is unavailable.
 interface ILidoWithdrawalQueue {
+    /*//////////////////////////////////////////////////////////////////////////
+                                READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @notice Maximum amount of stETH that can be withdrawn in a single request.
     function MAX_STETH_WITHDRAWAL_AMOUNT() external view returns (uint256);
-
-    /// @notice Claim a batch of withdrawal requests if they are finalized sending locked ether to the owner.
-    /// @param _requestIds array of request ids to claim.
-    /// @param _hints checkpoint hint for each id. Can be obtained with `findCheckpointHints()`
-    /// @dev Reverts if any of the following conditions are met:
-    ///  - `requestIds` and `hints` arrays length differs.
-    ///  - Any `requestId` or `hint` in arguments are not valid.
-    ///  - Any request is not finalized or already claimed.
-    ///  - `msg.sender` is not an owner of the requests.
-    function claimWithdrawals(uint256[] calldata _requestIds, uint256[] calldata _hints) external;
 
     /// @notice Finds the list of hints for the given `_requestIds` searching among the checkpoints with indices in the
     /// range  `[_firstIndex, _lastIndex]`.
@@ -40,6 +34,20 @@ interface ILidoWithdrawalQueue {
 
     /// @notice length of the checkpoint array. Last possible value for the hint.
     function getLastCheckpointIndex() external view returns (uint256);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                              STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Claim a batch of withdrawal requests if they are finalized sending locked ether to the owner.
+    /// @param _requestIds array of request ids to claim.
+    /// @param _hints checkpoint hint for each id. Can be obtained with `findCheckpointHints()`
+    /// @dev Reverts if any of the following conditions are met:
+    ///  - `requestIds` and `hints` arrays length differs.
+    ///  - Any `requestId` or `hint` in arguments are not valid.
+    ///  - Any request is not finalized or already claimed.
+    ///  - `msg.sender` is not an owner of the requests.
+    function claimWithdrawals(uint256[] calldata _requestIds, uint256[] calldata _hints) external;
 
     /// @notice Request the batch of stETH for withdrawal. Approvals for the passed amounts should be done before.
     /// @param _amounts an array of stETH amount values. The standalone withdrawal request will be created for each item
