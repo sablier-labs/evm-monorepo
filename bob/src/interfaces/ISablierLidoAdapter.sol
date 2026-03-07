@@ -86,6 +86,7 @@ interface ISablierLidoAdapter is ISablierBobAdapter {
     /// Requirements:
     /// - The caller must be the comptroller.
     /// - The vault must have wstETH to withdraw.
+    /// - The status of the vault must not be ACTIVE.
     /// - A withdrawal request must not have already been requested for this vault.
     /// - The total amount to withdraw must not be less than the minimum amount per request.
     ///

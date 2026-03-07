@@ -165,6 +165,9 @@ library Errors {
     /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
     error SablierLidoAdapter_UserBalanceZero(uint256 vaultId, address user);
 
+    /// @notice Thrown when trying to request a Lido withdrawal for a vault that is active.
+    error SablierLidoAdapter_VaultActive(uint256 vaultId);
+
     /// @notice Thrown when the calculated wstETH transfer amount rounds down to zero due to floor division.
     error SablierLidoAdapter_WstETHTransferAmountZero(uint256 vaultId, address from, address to);
 

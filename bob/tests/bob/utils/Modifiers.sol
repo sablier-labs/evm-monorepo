@@ -49,6 +49,8 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     }
 
     modifier givenNotACTIVEStatus() {
+        // Use expiry as a proxy to non-active status.
+        vm.warp(EXPIRY);
         _;
     }
 

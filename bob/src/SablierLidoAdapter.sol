@@ -17,8 +17,10 @@ import { IStETH } from "./interfaces/external/IStETH.sol";
 import { IWETH9 } from "./interfaces/external/IWETH9.sol";
 import { IWstETH } from "./interfaces/external/IWstETH.sol";
 import { ISablierBobAdapter } from "./interfaces/ISablierBobAdapter.sol";
+import { ISablierBobState } from "./interfaces/ISablierBobState.sol";
 import { ISablierLidoAdapter } from "./interfaces/ISablierLidoAdapter.sol";
 import { Errors } from "./libraries/Errors.sol";
+import { Bob } from "./types/Bob.sol";
 
 /// @title SablierLidoAdapter
 /// @notice Lido yield adapter for the SablierBob protocol.
@@ -252,6 +254,11 @@ contract SablierLidoAdapter is
 
     /// @inheritdoc ISablierLidoAdapter
     function requestLidoWithdrawal(uint256 vaultId) external override onlyComptroller {
+        // Check: the vault status is not ACTIVE.
+        if (ISablierBobState(SABLIER_BOB).statusOf(vaultId) == Bob.Status.ACTIVE) {
+            revert Errors.SablierLidoAdapter_VaultActive(vaultId);
+        }
+
         // Check: Lido withdrawal has not already been requested for this vault.
         if (_lidoWithdrawalRequestIds[vaultId].length > 0) {
             revert Errors.SablierLidoAdapter_LidoWithdrawalAlreadyRequested(vaultId);
