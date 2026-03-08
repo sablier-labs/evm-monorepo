@@ -29,20 +29,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         expectRevert_EXPIRED(abi.encodeCall(bob.enter, (vaultIds.defaultVault, DEPOSIT_AMOUNT)));
     }
 
-    function test_RevertWhen_NewStatusEXPIRED() external givenNotNull givenACTIVEStatus whenSyncChangesStatus {
-        expectRevert_EXPIRED(abi.encodeCall(bob.enter, (vaultIds.defaultVault, DEPOSIT_AMOUNT)));
-    }
-
-    function test_RevertWhen_NewStatusSETTLED() external givenNotNull givenACTIVEStatus whenSyncChangesStatus {
-        // Set oracle price to target price so that the sync settles the vault.
-        oracle.setPrice(TARGET_PRICE);
-
-        // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.defaultVault));
-        bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
-    }
-
-    function test_RevertWhen_AmountZero() external givenNotNull givenACTIVEStatus whenSyncNotChangeStatus {
+    function test_RevertWhen_AmountZero() external givenNotNull givenACTIVEStatus {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -52,7 +39,32 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         bob.enter(vaultIds.defaultVault, 0);
     }
 
-    function test_GivenNoAdapter() external givenNotNull givenACTIVEStatus whenSyncNotChangeStatus whenAmountNotZero {
+    function test_RevertWhen_NewStatusEXPIRED()
+        external
+        givenNotNull
+        givenACTIVEStatus
+        whenAmountNotZero
+        whenSyncChangesStatus
+    {
+        expectRevert_EXPIRED(abi.encodeCall(bob.enter, (vaultIds.defaultVault, DEPOSIT_AMOUNT)));
+    }
+
+    function test_RevertWhen_NewStatusSETTLED()
+        external
+        givenNotNull
+        givenACTIVEStatus
+        whenAmountNotZero
+        whenSyncChangesStatus
+    {
+        // Set oracle price to target price so that the sync settles the vault.
+        oracle.setPrice(TARGET_PRICE);
+
+        // It should revert.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.defaultVault));
+        bob.enter(vaultIds.defaultVault, DEPOSIT_AMOUNT);
+    }
+
+    function test_GivenNoAdapter() external givenNotNull givenACTIVEStatus whenAmountNotZero whenSyncNotChangeStatus {
         uint256 shareBalanceBefore = defaultShareToken.balanceOf(users.newDepositor);
 
         // It should emit an {Enter} event.
@@ -75,7 +87,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         assertEq(actualSharesMinted, expectedSharesMinted, "sharesMinted");
     }
 
-    function test_GivenAdapter() external givenNotNull givenACTIVEStatus whenSyncNotChangeStatus whenAmountNotZero {
+    function test_GivenAdapter() external givenNotNull givenACTIVEStatus whenAmountNotZero whenSyncNotChangeStatus {
         // Get address of the share token for the vault with adapter.
         IBobVaultShare shareTokenForVaultWithAdapter = bob.getShareToken(vaultIds.vaultWithAdapter);
         uint256 shareBalanceBefore = shareTokenForVaultWithAdapter.balanceOf(users.newDepositor);
