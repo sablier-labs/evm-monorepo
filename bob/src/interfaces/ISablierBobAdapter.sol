@@ -88,7 +88,8 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// - The caller must be the SablierBob contract.
     ///
     /// @param vaultId The ID of the newly created vault.
-    function registerVault(uint256 vaultId) external;
+    /// @param isNative Whether the vault uses the native token or not.
+    function registerVault(uint256 vaultId, bool isNative) external;
 
     /// @notice Sets the fee on yield for future vaults.
     ///
@@ -108,14 +109,17 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     ///
     /// @dev Emits a {Stake} event.
     ///
+    /// Notes:
+    /// - For native token vaults, ETH is received directly via `msg.value`.
+    /// - For ERC-20 vaults, tokens must have been transferred to this contract before calling.
+    ///
     /// Requirements:
     /// - The caller must be the SablierBob contract.
-    /// - The tokens must have been transferred to this contract.
     ///
     /// @param vaultId The ID of the vault.
     /// @param user The address of the user depositing the tokens.
     /// @param amount The amount of tokens to stake.
-    function stake(uint256 vaultId, address user, uint256 amount) external;
+    function stake(uint256 vaultId, address user, uint256 amount) external payable;
 
     /// @notice Converts all yield-bearing tokens in a vault back to deposit tokens after settlement.
     ///

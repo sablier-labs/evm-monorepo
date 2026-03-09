@@ -29,6 +29,20 @@ library SafeTokenSymbol {
         return true;
     }
 
+    /// @notice Sanitizes the token symbol to prevent security threats from malicious tokens injecting scripts in the
+    /// symbol string.
+    function sanitizedTokenSymbol(string memory symbol) internal pure returns (string memory) {
+        // Check if the symbol is too long or contains disallowed characters. This measure helps mitigate potential
+        // security threats from malicious tokens injecting scripts in the symbol string.
+        if (bytes(symbol).length > 30) {
+            return "Long Symbol";
+        }
+        if (!isAllowedCharacter(symbol)) {
+            return "Unsupported Symbol";
+        }
+        return symbol;
+    }
+
     /// @notice Retrieves the token's symbol safely, defaulting to a hard-coded value if an error occurs.
     /// @dev Performs a low-level call to handle tokens in which the symbol is not implemented or it is a bytes32
     /// instead of a string.
@@ -42,14 +56,6 @@ library SafeTokenSymbol {
 
         string memory symbol = abi.decode(returnData, (string));
 
-        // Check if the symbol is too long or contains disallowed characters. This measure helps mitigate potential
-        // security threats from malicious tokens injecting scripts in the symbol string.
-        if (bytes(symbol).length > 30) {
-            return "Long Symbol";
-        }
-        if (!isAllowedCharacter(symbol)) {
-            return "Unsupported Symbol";
-        }
-        return symbol;
+        return sanitizedTokenSymbol(symbol);
     }
 }

@@ -100,91 +100,57 @@ contract SablierBob is
             revert Errors.SablierBob_TokenAddressZero();
         }
 
-        // Check: token is not the native token.
-        if (address(token) == nativeToken) {
-            revert Errors.SablierBob_ForbidNativeToken(address(token));
+        // Check: token is not the native token placeholder.
+        if (address(token) == NATIVE_TOKEN_PLACEHOLDER) {
+            revert Errors.SablierBob_NativeTokenPlaceholderForbidden();
         }
 
-        uint40 currentTimestamp = uint40(block.timestamp);
-
-        // Check: expiry is in the future.
-        if (expiry <= currentTimestamp) {
-            revert Errors.SablierBob_ExpiryNotInFuture(expiry, currentTimestamp);
+        // Check: token is not the native token with ERC-20 interface.
+        if (address(token) == nativeTokenWithERC20Interface) {
+            revert Errors.SablierBob_ForbidNativeTokenWithERC20Interface(address(token));
         }
 
-        // Check: target price is not zero.
-        if (targetPrice == 0) {
-            revert Errors.SablierBob_TargetPriceZero();
-        }
-
-        // Check: oracle implements the Chainlink {AggregatorV3Interface} interface.
-        uint128 latestPrice = SafeOracle.validateOracle(oracle);
-
-        // Check: target price is greater than latest oracle price.
-        if (targetPrice <= latestPrice) {
-            revert Errors.SablierBob_TargetPriceTooLow(targetPrice, latestPrice);
-        }
-
-        // Load the vault ID from storage.
-        vaultId = nextVaultId;
-
-        // Effect: bump the next vault ID.
-        unchecked {
-            nextVaultId = vaultId + 1;
-        }
-
-        // Retrieve token symbol and token decimal.
+        // Retrieve token symbol and decimals from the ERC-20 contract.
         string memory tokenSymbol = address(token).safeTokenSymbol();
         uint8 tokenDecimals = IERC20Metadata(address(token)).decimals();
 
-        // Effect: deploy the share token for this vault.
-        IBobVaultShare shareToken = new BobVaultShare({
-            name_: string.concat("Sablier Bob ", tokenSymbol, " Vault #", vaultId.toString()),
-            symbol_: string.concat(
-                tokenSymbol,
-                "-",
-                uint256(targetPrice).toString(),
-                "-",
-                uint256(expiry).toString(),
-                "-",
-                vaultId.toString()
-            ),
-            decimals_: tokenDecimals,
-            sablierBob: address(this),
-            vaultId: vaultId
-        });
-
-        // Copy the adapter from storage to memory.
-        ISablierBobAdapter adapter = _defaultAdapters[token];
-
-        // Effect: create the vault.
-        _vaults[vaultId] = Bob.Vault({
-            token: token,
-            expiry: expiry,
-            lastSyncedAt: currentTimestamp,
-            shareToken: shareToken,
-            oracle: oracle,
-            adapter: adapter,
-            isStakedInAdapter: false,
-            targetPrice: targetPrice,
-            lastSyncedPrice: latestPrice
-        });
-
-        // Interaction: register the vault with the adapter.
-        if (address(adapter) != address(0)) {
-            adapter.registerVault(vaultId);
-
-            // Effect: mark the vault as staked in the adapter.
-            _vaults[vaultId].isStakedInAdapter = true;
-        }
-
-        // Log the event.
-        emit CreateVault(vaultId, token, oracle, adapter, shareToken, targetPrice, expiry);
+        // Create the vault with the provided parameters.
+        vaultId = _createVault(token, oracle, expiry, targetPrice, tokenSymbol, tokenDecimals);
     }
 
     /// @inheritdoc ISablierBob
-    function enter(uint256 vaultId, uint128 amount)
+    function createVaultWithNativeToken(
+        AggregatorV3Interface oracle,
+        uint40 expiry,
+        uint128 targetPrice,
+        string memory tokenSymbol,
+        uint8 tokenDecimals
+    )
         external
+        payable
+        override
+        returns (uint256 vaultId)
+    {
+        // Check: token symbol is not empty.
+        if (bytes(tokenSymbol).length == 0) {
+            revert Errors.SablierBob_TokenSymbolEmpty();
+        }
+
+        // Sanitize the token symbol.
+        tokenSymbol = SafeTokenSymbol.sanitizedTokenSymbol(tokenSymbol);
+
+        // Create the vault with the provided parameters.
+        vaultId =
+            _createVault(IERC20(NATIVE_TOKEN_PLACEHOLDER), oracle, expiry, targetPrice, tokenSymbol, tokenDecimals);
+    }
+
+    /// @inheritdoc ISablierBob
+    function enter(
+        uint256 vaultId,
+        uint128 amount
+    )
+        external
+        payable
         override
         nonReentrant
         notNull(vaultId)
@@ -196,25 +162,46 @@ contract SablierBob is
         // Check: the vault is still active after the price sync.
         _revertIfSettledOrExpired(vaultId);
 
+        // Get the vault token.
+        IERC20 token = _vaults[vaultId].token;
+        bool isNativeVault = address(token) == NATIVE_TOKEN_PLACEHOLDER;
+
+        // If its a native token vault, use the msg.value as the deposit amount.
+        if (isNativeVault) {
+            amount = msg.value.toUint128();
+        }
+        // Check: no native tokens sent for an ERC-20 vault.
+        else if (msg.value > 0) {
+            revert Errors.SablierBob_MsgValueNotZeroForERC20Vault();
+        }
+
         // Check: the deposit amount is not zero.
         if (amount == 0) {
             revert Errors.SablierBob_DepositAmountZero(vaultId, msg.sender);
         }
 
-        // Cache storage variables.
+        // Get the vault adapter.
         ISablierBobAdapter adapter = _vaults[vaultId].adapter;
-        IERC20 token = _vaults[vaultId].token;
 
-        // Interaction: transfer tokens from caller to this contract or the adapter.
-        if (address(adapter) != address(0)) {
-            // Interaction: Transfer token from caller to the adapter.
-            token.safeTransferFrom(msg.sender, address(adapter), amount);
+        // Check if its a native token vault.
+        if (isNativeVault) {
+            if (address(adapter) != address(0)) {
+                // Interaction: forward native tokens to the adapter using the adapter's {stake} function.
+                adapter.stake{ value: amount }(vaultId, msg.sender, amount);
+            } else {
+                // Do nothing since amount is deposited via `msg.value`.
+            }
+        }
+        // Otherwise, its an ERC-20 vault.
+        else {
+            if (address(adapter) != address(0)) {
+                token.safeTransferFrom(msg.sender, address(adapter), amount);
 
-            // Interaction: stake the tokens via the adapter.
-            adapter.stake(vaultId, msg.sender, amount);
-        } else {
-            // Interaction: Transfer tokens from caller to this contract.
-            token.safeTransferFrom(msg.sender, address(this), amount);
+                // Interaction: stake the tokens via the adapter.
+                adapter.stake(vaultId, msg.sender, amount);
+            } else {
+                token.safeTransferFrom(msg.sender, address(this), amount);
+            }
         }
 
         // Interaction: mint share tokens to the caller.
@@ -250,6 +237,7 @@ contract SablierBob is
         ISablierBobAdapter adapter = _vaults[vaultId].adapter;
         IBobVaultShare shareToken = _vaults[vaultId].shareToken;
         IERC20 token = _vaults[vaultId].token;
+        bool isNativeVault = address(token) == NATIVE_TOKEN_PLACEHOLDER;
 
         // Get the caller's share balance.
         uint128 shareBalance = shareToken.balanceOf(msg.sender).toUint128();
@@ -276,37 +264,61 @@ contract SablierBob is
 
             // Interaction: transfer the fee to the comptroller address.
             if (feeAmountDeductedFromYield > 0) {
-                token.safeTransfer(address(comptroller), feeAmountDeductedFromYield);
+                // If its a native token vault, forward native tokens to the comptroller.
+                if (isNativeVault) {
+                    (bool success,) = address(comptroller).call{ value: feeAmountDeductedFromYield }("");
+
+                    // Ignore success check because a failed transfer to comptroller should not block redemption.
+                    success;
+                }
+                // Otherwise, transfer ERC-20 tokens to the comptroller.
+                else {
+                    token.safeTransfer(address(comptroller), feeAmountDeductedFromYield);
+                }
             }
         }
-        // Otherwise, check that `msg.value` is greater than or equal to the minimum fee required.
+        // Otherwise, its an ERC-20 vault.
         else {
             // Get the minimum fee from the comptroller.
             ISablierComptroller comptroller_ = comptroller;
             uint256 minFeeWei = comptroller_.calculateMinFeeWei({ protocol: ISablierComptroller.Protocol.Bob });
 
-            // Check: `msg.value` is greater than or equal to the minimum fee.
-            if (msg.value < minFeeWei) {
-                revert Errors.SablierBob_InsufficientFeePayment(msg.value, minFeeWei);
-            }
-
-            // Interaction: forward native token fee to comptroller.
-            if (msg.value > 0) {
-                (bool success,) = address(comptroller_).call{ value: msg.value }("");
-                if (!success) {
-                    revert Errors.SablierBob_NativeFeeTransferFailed();
+            // If its an ERC-20 vault, check that `msg.value` is greater than or equal to the minimum fee.
+            if (!isNativeVault) {
+                // Check: `msg.value` is greater than or equal to the minimum fee.
+                if (msg.value < minFeeWei) {
+                    revert Errors.SablierBob_InsufficientFeePayment(msg.value, minFeeWei);
                 }
-            }
 
-            // Return the transfer amount.
-            transferAmount = shareBalance;
+                // Interaction: forward native token fee to comptroller.
+                if (msg.value > 0) {
+                    (bool success,) = address(comptroller_).call{ value: msg.value }("");
+                    if (!success) {
+                        revert Errors.SablierBob_NativeFeeTransferFailed();
+                    }
+                }
+
+                // Return the transfer amount.
+                transferAmount = shareBalance;
+            }
+            // Otherwise, its a native token vault, so deduct minFeeWei from transferAmount.
+            else {
+                transferAmount = shareBalance - uint128(minFeeWei);
+            }
         }
 
         // Interaction: burn share tokens from the caller.
         shareToken.burn(vaultId, msg.sender, shareBalance);
 
         // Interaction: transfer tokens to the caller.
-        token.safeTransfer(msg.sender, transferAmount);
+        if (isNativeVault) {
+            (bool success,) = msg.sender.call{ value: transferAmount }("");
+            if (!success) {
+                revert Errors.SablierBob_NativeTokenTransferFailed();
+            }
+        } else {
+            token.safeTransfer(msg.sender, transferAmount);
+        }
 
         // Log the event.
         emit Redeem({
@@ -325,13 +337,13 @@ contract SablierBob is
             revert Errors.SablierBob_NativeTokenZeroAddress();
         }
 
-        // Check: native token is not set.
-        if (nativeToken != address(0)) {
-            revert Errors.SablierBob_NativeTokenAlreadySet(nativeToken);
+        // Check: native token is not already set.
+        if (nativeTokenWithERC20Interface != address(0)) {
+            revert Errors.SablierBob_NativeTokenAlreadySet(nativeTokenWithERC20Interface);
         }
 
-        // Effect: set the native token.
-        nativeToken = newNativeToken;
+        // Effect: set the native token with ERC-20 interface.
+        nativeTokenWithERC20Interface = newNativeToken;
 
         // Log the update.
         emit SetNativeToken({ comptroller: msg.sender, nativeToken: newNativeToken });
@@ -438,8 +450,100 @@ contract SablierBob is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                      RECEIVE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev We need `receive` function to accept ETH from the adapter when native token vaults are used.
+    receive() external payable { }
+
+    /*//////////////////////////////////////////////////////////////////////////
                           PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Private function to create a vault with the provided parameters.
+    function _createVault(
+        IERC20 token,
+        AggregatorV3Interface oracle,
+        uint40 expiry,
+        uint128 targetPrice,
+        string memory tokenSymbol,
+        uint8 tokenDecimals
+    )
+        private
+        returns (uint256 vaultId)
+    {
+        uint40 currentTimestamp = uint40(block.timestamp);
+
+        // Check: expiry is in the future.
+        if (expiry <= currentTimestamp) {
+            revert Errors.SablierBob_ExpiryNotInFuture(expiry, currentTimestamp);
+        }
+
+        // Check: target price is not zero.
+        if (targetPrice == 0) {
+            revert Errors.SablierBob_TargetPriceZero();
+        }
+
+        // Check: oracle implements the Chainlink {AggregatorV3Interface} interface.
+        uint128 latestPrice = SafeOracle.validateOracle(oracle);
+
+        // Check: target price is greater than latest oracle price.
+        if (targetPrice <= latestPrice) {
+            revert Errors.SablierBob_TargetPriceTooLow(targetPrice, latestPrice);
+        }
+
+        // Load the vault ID from storage.
+        vaultId = nextVaultId;
+
+        // Effect: bump the next vault ID.
+        unchecked {
+            nextVaultId = vaultId + 1;
+        }
+
+        // Effect: deploy the share token for this vault.
+        IBobVaultShare shareToken = new BobVaultShare({
+            name_: string.concat("Sablier Bob ", tokenSymbol, " Vault #", vaultId.toString()),
+            symbol_: string.concat(
+                tokenSymbol,
+                "-",
+                uint256(targetPrice).toString(),
+                "-",
+                uint256(expiry).toString(),
+                "-",
+                vaultId.toString()
+            ),
+            decimals_: tokenDecimals,
+            sablierBob: address(this),
+            vaultId: vaultId
+        });
+
+        // Copy the adapter from storage to memory.
+        ISablierBobAdapter adapter = _defaultAdapters[token];
+
+        // Effect: create the vault.
+        _vaults[vaultId] = Bob.Vault({
+            token: token,
+            expiry: expiry,
+            lastSyncedAt: currentTimestamp,
+            shareToken: shareToken,
+            oracle: oracle,
+            adapter: adapter,
+            isStakedInAdapter: false,
+            targetPrice: targetPrice,
+            lastSyncedPrice: latestPrice
+        });
+
+        // Interaction: register the vault with the adapter.
+        if (address(adapter) != address(0)) {
+            adapter.registerVault({ vaultId: vaultId, isNative: address(token) == NATIVE_TOKEN_PLACEHOLDER });
+
+            // Effect: mark the vault as staked in the adapter.
+            _vaults[vaultId].isStakedInAdapter = true;
+        }
+
+        // Log the event.
+        emit CreateVault(vaultId, token, oracle, adapter, shareToken, targetPrice, expiry);
+    }
 
     /// @notice Private function that reverts if the vault is settled or expired.
     function _revertIfSettledOrExpired(uint256 vaultId) private view {

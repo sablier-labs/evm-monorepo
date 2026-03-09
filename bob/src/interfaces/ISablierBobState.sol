@@ -15,6 +15,10 @@ interface ISablierBobState {
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice The placeholder address to represent the native token (such as ETH) in vaults.
+    /// @dev This is a constant state variable.
+    function NATIVE_TOKEN_PLACEHOLDER() external view returns (address);
+
     /// @notice Returns the adapter configured for a specific vault.
     /// @dev Reverts if `vaultId` references a null vault.
     function getAdapter(uint256 vaultId) external view returns (ISablierBobAdapter adapter);
@@ -63,7 +67,7 @@ interface ISablierBobState {
     /// that `address(this).balance` returns the same value as `balanceOf(address(this))`. To avoid any unintended
     /// behavior, these tokens cannot be used in Sablier. As an alternative, users can use the Wrapped version of the
     /// token, i.e. WMATIC, which is a standard ERC-20 token.
-    function nativeToken() external view returns (address);
+    function nativeTokenWithERC20Interface() external view returns (address);
 
     /// @notice Counter for vault IDs, incremented every time a new vault is created.
     function nextVaultId() external view returns (uint256);

@@ -73,6 +73,9 @@ contract SablierLidoAdapter is
                                   INTERNAL STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Whether a vault uses the native token placeholder.
+    mapping(uint256 vaultId => bool isNative) internal _isNativeVault;
+
     /// @dev Lido withdrawal request IDs for each vault.
     mapping(uint256 vaultId => uint256[] requestIds) internal _lidoWithdrawalRequestIds;
 
@@ -240,9 +243,12 @@ contract SablierLidoAdapter is
     }
 
     /// @inheritdoc ISablierBobAdapter
-    function registerVault(uint256 vaultId) external override onlySablierBob {
+    function registerVault(uint256 vaultId, bool isNative) external override onlySablierBob {
         // Effect: snapshot the current global yield fee for this vault.
         _vaultYieldFee[vaultId] = feeOnYield;
+
+        // Effect: set whether the vault uses the native token.
+        _isNativeVault[vaultId] = isNative;
     }
 
     /// @inheritdoc ISablierLidoAdapter
@@ -368,9 +374,16 @@ contract SablierLidoAdapter is
     }
 
     /// @inheritdoc ISablierBobAdapter
-    function stake(uint256 vaultId, address user, uint256 amount) external override onlySablierBob {
-        // Interaction: Unwrap WETH into ETH.
-        IWETH9(WETH).withdraw(amount);
+    function stake(uint256 vaultId, address user, uint256 amount) external payable override onlySablierBob {
+        // If its a WETH vault, convert WETH to ETH first.
+        if (!_isNativeVault[vaultId]) {
+            // Interaction: Unwrap WETH into ETH.
+            IWETH9(WETH).withdraw(amount);
+        }
+        // Otherwise, its a native token vault, so check that the msg.value is equal to the amount provided.
+        else if (msg.value != amount) {
+            revert Errors.SablierLidoAdapter_MsgValueNotEqualAmount(msg.value, amount);
+        }
 
         // Interaction: Stake ETH to get stETH.
         IStETH(STETH).submit{ value: amount }({ referral: address(comptroller) });
@@ -405,14 +418,28 @@ contract SablierLidoAdapter is
         }
         // Otherwise, swap via Curve.
         else {
-            amountReceivedFromUnstaking = _wstETHToWeth(totalWstETH);
+            // Swap wstETH to ETH via Curve.
+            amountReceivedFromUnstaking = _swapViaCurve(totalWstETH);
+        }
+
+        // If its a native token vault, send ETH to Bob for distribution.
+        if (_isNativeVault[vaultId]) {
+            (bool success,) = SABLIER_BOB.call{ value: amountReceivedFromUnstaking }("");
+            if (!success) {
+                revert Errors.SablierLidoAdapter_NativeTokenTransferFailed();
+            }
+        }
+        // Otherwise, its an ERC-20 vault, so transfer WETH to SablierBob for distribution.
+        else {
+            // Interaction: Wrap ETH to get WETH.
+            IWETH9(WETH).deposit{ value: amountReceivedFromUnstaking }();
+
+            // Interaction: Transfer WETH to SablierBob.
+            IERC20(WETH).safeTransfer(SABLIER_BOB, amountReceivedFromUnstaking);
         }
 
         // Effect: store the total WETH received for redemption calculations.
         _wethReceivedAfterUnstaking[vaultId] = amountReceivedFromUnstaking;
-
-        // Interaction: Transfer WETH to SablierBob for distribution.
-        IERC20(WETH).safeTransfer(SABLIER_BOB, amountReceivedFromUnstaking);
 
         // Log the event.
         emit UnstakeFullAmount({
@@ -457,8 +484,8 @@ contract SablierLidoAdapter is
                           PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Claims finalized Lido withdrawals for a vault and wraps the received ETH into WETH.
-    function _claimLidoWithdrawals(uint256 vaultId) private returns (uint128 wethReceived) {
+    /// @dev Claims finalized Lido withdrawals for a vault and receive ETH.
+    function _claimLidoWithdrawals(uint256 vaultId) private returns (uint128 ethAmountReceived) {
         uint256[] memory requestIds = _lidoWithdrawalRequestIds[vaultId];
 
         // Interaction: Since Lido processes withdrawals in batches, we need to find the number of total finalized
@@ -479,14 +506,11 @@ contract SablierLidoAdapter is
         // Calculate the ETH received from claiming.
         uint256 ethReceived = address(this).balance - ethBefore;
 
-        // Interaction: Wrap ETH to get WETH.
-        IWETH9(WETH).deposit{ value: ethReceived }();
-
         return ethReceived.toUint128();
     }
 
-    /// @dev Converts wstETH to WETH using Curve exchange.
-    function _wstETHToWeth(uint128 wstETHAmount) private returns (uint128 wethReceived) {
+    /// @dev Converts wstETH to ETH using Curve exchange.
+    function _swapViaCurve(uint128 wstETHAmount) private returns (uint128) {
         // Interaction: Unwrap wstETH to get stETH.
         uint256 stETHAmount = IWstETH(WSTETH).unwrap(wstETHAmount);
 
@@ -503,9 +527,6 @@ contract SablierLidoAdapter is
         if (ethReceived < minEthOut) {
             revert Errors.SablierLidoAdapter_SlippageExceeded(minEthOut, ethReceived);
         }
-
-        // Interaction: Wrap ETH to get WETH.
-        IWETH9(WETH).deposit{ value: ethReceived }();
 
         return ethReceived.toUint128();
     }

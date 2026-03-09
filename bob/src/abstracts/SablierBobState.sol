@@ -14,6 +14,13 @@ import { Bob } from "../types/Bob.sol";
 /// @notice See the documentation in {ISablierBobState}.
 abstract contract SablierBobState is ISablierBobState {
     /*//////////////////////////////////////////////////////////////////////////
+                                     CONSTANTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierBobState
+    address public constant NATIVE_TOKEN_PLACEHOLDER = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+
+    /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -21,7 +28,7 @@ abstract contract SablierBobState is ISablierBobState {
     mapping(IERC20 token => ISablierBobAdapter adapter) internal _defaultAdapters;
 
     /// @inheritdoc ISablierBobState
-    address public override nativeToken;
+    address public override nativeTokenWithERC20Interface;
 
     /// @inheritdoc ISablierBobState
     uint256 public override nextVaultId;

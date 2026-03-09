@@ -32,10 +32,13 @@ library Errors {
     error SablierBob_ExpiryNotInFuture(uint40 expiry, uint40 currentTime);
 
     /// @notice Thrown when trying to create a vault with the native token.
-    error SablierBob_ForbidNativeToken(address nativeToken);
+    error SablierBob_ForbidNativeTokenWithERC20Interface(address nativeToken);
 
     /// @notice Thrown when trying to redeem with `msg.value` less than the minimum fee required.
     error SablierBob_InsufficientFeePayment(uint256 feePaid, uint256 feeRequired);
+
+    /// @notice Thrown when `msg.value` is not zero for an ERC-20 vault.
+    error SablierBob_MsgValueNotZeroForERC20Vault();
 
     /// @notice Thrown when the native token fee transfer to the comptroller fails.
     error SablierBob_NativeFeeTransferFailed();
@@ -45,6 +48,12 @@ library Errors {
 
     /// @notice Thrown when trying to set zero address as native token.
     error SablierBob_NativeTokenZeroAddress();
+
+    /// @notice Thrown when trying to create an ERC-20 vault with the native token placeholder address.
+    error SablierBob_NativeTokenPlaceholderForbidden();
+
+    /// @notice Thrown when a native token transfer to the user fails during redemption.
+    error SablierBob_NativeTokenTransferFailed();
 
     /// @notice Thrown when the new adapter does not implement the required interface.
     error SablierBob_NewAdapterMissesInterface(address adapter);
@@ -61,6 +70,9 @@ library Errors {
 
     /// @notice Thrown when trying to create a vault with a zero token address.
     error SablierBob_TokenAddressZero();
+
+    /// @notice Thrown when trying to create a native token vault without providing a symbol.
+    error SablierBob_TokenSymbolEmpty();
 
     /// @notice Thrown when trying to unstake vault tokens using the adapter but the amount staked is zero.
     error SablierBob_UnstakeAmountZero(uint256 vaultId);
@@ -146,6 +158,12 @@ library Errors {
 
     /// @notice Thrown when trying to request a Lido withdrawal for a vault that has already requested one.
     error SablierLidoAdapter_LidoWithdrawalAlreadyRequested(uint256 vaultId);
+
+    /// @notice Thrown when `msg.value` does not equal the expected deposit amount for native token vaults.
+    error SablierLidoAdapter_MsgValueNotEqualAmount(uint256 msgValue, uint256 expectedAmount);
+
+    /// @notice Thrown when a native token transfer to SablierBob fails after unstaking.
+    error SablierLidoAdapter_NativeTokenTransferFailed();
 
     /// @notice Thrown when trying to request a Lido withdrawal for a vault with no wstETH.
     error SablierLidoAdapter_NoWstETHToWithdraw(uint256 vaultId);
