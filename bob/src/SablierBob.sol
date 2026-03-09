@@ -281,8 +281,8 @@ contract SablierBob is
         // Otherwise, check that `msg.value` is greater than or equal to the minimum fee required.
         else {
             // Get the minimum fee from the comptroller.
-            ISablierComptroller comptroller_ = comptroller;
-            uint256 minFeeWei = comptroller_.calculateMinFeeWei({ protocol: ISablierComptroller.Protocol.Bob });
+            ISablierComptroller _comptroller = comptroller;
+            uint256 minFeeWei = _comptroller.calculateMinFeeWei({ protocol: ISablierComptroller.Protocol.Bob });
 
             // Check: `msg.value` is greater than or equal to the minimum fee.
             if (msg.value < minFeeWei) {
@@ -291,7 +291,7 @@ contract SablierBob is
 
             // Interaction: forward native token fee to comptroller.
             if (msg.value > 0) {
-                (bool success,) = address(comptroller_).call{ value: msg.value }("");
+                (bool success,) = address(_comptroller).call{ value: msg.value }("");
                 if (!success) {
                     revert Errors.SablierBob_NativeFeeTransferFailed();
                 }
