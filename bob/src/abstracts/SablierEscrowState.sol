@@ -128,17 +128,17 @@ abstract contract SablierEscrowState is ISablierEscrowState {
 
     /// @dev Return the order status without performing a null check.
     function _statusOf(uint256 orderId) internal view returns (Escrow.Status) {
-        Escrow.Order memory order = _orders[orderId];
-
-        if (order.wasFilled) {
+        if (_orders[orderId].wasFilled) {
             return Escrow.Status.FILLED;
         }
-        if (order.wasCanceled) {
+        if (_orders[orderId].wasCanceled) {
             return Escrow.Status.CANCELLED;
         }
 
+        uint40 expiryTime = _orders[orderId].expiryTime;
+
         // Return EXPIRED if the order has an expiry timestamp and it has expired.
-        if (order.expiryTime != 0 && block.timestamp >= order.expiryTime) {
+        if (expiryTime != 0 && block.timestamp >= expiryTime) {
             return Escrow.Status.EXPIRED;
         }
 

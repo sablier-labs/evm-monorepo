@@ -146,49 +146,6 @@ contract SablierLidoAdapter is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierBobAdapter
-    function calculateAmountToTransferWithYield(
-        uint256 vaultId,
-        address user,
-        uint128 shareBalance
-    )
-        external
-        view
-        override
-        returns (uint128 amountToTransfer, uint128 feeAmount)
-    {
-        // Get total amount of wstETH in the vault before unstaking.
-        uint256 totalWstETH = _vaultTotalWstETH[vaultId];
-
-        // Get total amount of WETH received after unstaking all tokens in the vault.
-        uint256 totalWeth = _wethReceivedAfterUnstaking[vaultId];
-
-        // If total wstETH or total WETH received is zero, return zero.
-        if (totalWstETH == 0 || totalWeth == 0) {
-            return (0, 0);
-        }
-
-        // Get wstETH allocated to the user before unstaking.
-        uint256 userWstETH = _userWstETH[vaultId][user];
-
-        // Calculate user's proportional share of WETH.
-        uint128 userWethShare = (userWstETH * totalWeth / totalWstETH).toUint128();
-
-        // If the user's share of WETH is greater than the user's vault share, the yield is positive and we need to
-        // calculate the fee.
-        if (userWethShare > shareBalance) {
-            uint128 yieldAmount = userWethShare - shareBalance;
-
-            // Calculate the fee.
-            feeAmount = ud(yieldAmount).mul(_vaultYieldFee[vaultId]).intoUint128();
-            amountToTransfer = userWethShare - feeAmount;
-        }
-        // Otherwise, the yield is negative or zero, so no fee is applicable.
-        else {
-            amountToTransfer = userWethShare;
-        }
-    }
-
-    /// @inheritdoc ISablierBobAdapter
     function getTotalYieldBearingTokenBalance(uint256 vaultId) external view override returns (uint128) {
         return _vaultTotalWstETH[vaultId];
     }
@@ -217,6 +174,52 @@ contract SablierLidoAdapter is
     /*//////////////////////////////////////////////////////////////////////////
                         USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierBobAdapter
+    function processRedemption(
+        uint256 vaultId,
+        address user,
+        uint128 shareBalance
+    )
+        external
+        override
+        onlySablierBob
+        returns (uint128 transferAmount, uint128 feeAmountDeductedFromYield)
+    {
+        // Get total amount of wstETH in the vault before unstaking.
+        uint256 totalWstETH = _vaultTotalWstETH[vaultId];
+
+        // Get total amount of WETH received after unstaking all tokens in the vault.
+        uint256 totalWeth = _wethReceivedAfterUnstaking[vaultId];
+
+        // If total wstETH or total WETH received is zero, return zero.
+        if (totalWstETH == 0 || totalWeth == 0) {
+            return (0, 0);
+        }
+
+        // Get wstETH allocated to the user before unstaking.
+        uint256 userWstETH = _userWstETH[vaultId][user];
+
+        // Calculate user's proportional share of WETH.
+        uint128 userWethShare = (userWstETH * totalWeth / totalWstETH).toUint128();
+
+        // If the user's share of WETH is greater than the user's vault share, the yield is positive and we need to
+        // calculate the fee.
+        if (userWethShare > shareBalance) {
+            uint128 yieldAmount = userWethShare - shareBalance;
+
+            // Calculate the fee.
+            feeAmountDeductedFromYield = ud(yieldAmount).mul(_vaultYieldFee[vaultId]).intoUint128();
+            transferAmount = userWethShare - feeAmountDeductedFromYield;
+        }
+        // Otherwise, the yield is negative or zero, so no fee is applicable.
+        else {
+            transferAmount = userWethShare;
+        }
+
+        // Effect: clear the user's wstETH balance.
+        delete _userWstETH[vaultId][user];
+    }
 
     /// @inheritdoc ISablierBobAdapter
     function registerVault(uint256 vaultId) external override onlySablierBob {
@@ -284,10 +287,10 @@ contract SablierLidoAdapter is
         external
         override
         onlySablierBob
-        returns (uint128 amountReceivedFromUnstaking)
+        returns (uint128 totalWstETH, uint128 amountReceivedFromUnstaking)
     {
         // Get total amount of wstETH in the vault.
-        uint128 totalWstETH = _vaultTotalWstETH[vaultId];
+        totalWstETH = _vaultTotalWstETH[vaultId];
 
         // Interaction: Swap all wstETH for WETH.
         amountReceivedFromUnstaking = _wstETHToWeth(totalWstETH);
@@ -299,7 +302,11 @@ contract SablierLidoAdapter is
         IERC20(WETH).safeTransfer(SABLIER_BOB, amountReceivedFromUnstaking);
 
         // Log the event.
-        emit UnstakeFullAmount(vaultId, totalWstETH, amountReceivedFromUnstaking);
+        emit UnstakeFullAmount({
+            vaultId: vaultId,
+            totalStakedAmount: totalWstETH,
+            amountReceivedFromUnstaking: amountReceivedFromUnstaking
+        });
     }
 
     /// @inheritdoc ISablierBobAdapter

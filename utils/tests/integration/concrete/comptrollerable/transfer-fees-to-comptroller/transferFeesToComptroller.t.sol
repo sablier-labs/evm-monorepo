@@ -23,7 +23,7 @@ contract TransferFeesToComptroller_Comptrollerable_Concrete_Test is Base_Test {
 
         // It should emit {TransferFeesToComptroller} event.
         vm.expectEmit({ emitter: address(comptrollerableMock) });
-        emit IComptrollerable.TransferFeesToComptroller(comptroller, fee);
+        emit IComptrollerable.TransferFeesToComptroller(address(comptroller), fee);
 
         // Call the function.
         comptrollerableMock.transferFeesToComptroller();

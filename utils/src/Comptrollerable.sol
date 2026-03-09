@@ -60,17 +60,18 @@ abstract contract Comptrollerable is IComptrollerable {
 
     /// @inheritdoc IComptrollerable
     function transferFeesToComptroller() external override {
+        address comptrollerAddress = address(comptroller);
         uint256 feeAmount = address(this).balance;
 
         // Interaction: transfer the fees to the comptroller.
-        (bool success,) = address(comptroller).call{ value: feeAmount }("");
+        (bool success,) = comptrollerAddress.call{ value: feeAmount }("");
 
         // Dummy assignment to silence the compiler warning, because comptroller is expected to implement `receive()`
         // function.
         success;
 
         // Log the fee transfer.
-        emit IComptrollerable.TransferFeesToComptroller(comptroller, feeAmount);
+        emit IComptrollerable.TransferFeesToComptroller(comptrollerAddress, feeAmount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

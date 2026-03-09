@@ -13,7 +13,7 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when the comptroller sets a new yield fee.
-    event SetYieldFee(UD60x18 oldFee, UD60x18 newFee);
+    event SetYieldFee(UD60x18 previousFee, UD60x18 newFee);
 
     /// @notice Emitted when tokens are staked for a user in a vault.
     event Stake(uint256 indexed vaultId, address indexed user, uint256 depositAmount, uint256 wrappedStakedAmount);
@@ -22,7 +22,7 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     event TransferStakedTokens(uint256 indexed vaultId, address indexed from, address indexed to, uint256 amount);
 
     /// @notice Emitted when all staked tokens in a vault are converted back to the deposit token.
-    event UnstakeFullAmount(uint256 indexed vaultId, uint128 wrappedStakedAmount, uint128 withdrawnAmount);
+    event UnstakeFullAmount(uint256 indexed vaultId, uint128 totalStakedAmount, uint128 amountReceivedFromUnstaking);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
@@ -35,21 +35,6 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// @notice Returns the address of the SablierBob contract.
     /// @dev This is an immutable state variable.
     function SABLIER_BOB() external view returns (address);
-
-    /// @notice Calculates the amount to transfer to a user in a settled vault, and the yield fee.
-    /// @param vaultId The ID of the vault.
-    /// @param user The address of the user.
-    /// @param shareBalance The user's share balance in the vault.
-    /// @return amountToTransfer The amount to transfer to the user.
-    /// @return feeAmount The fee amount taken from the yield.
-    function calculateAmountToTransferWithYield(
-        uint256 vaultId,
-        address user,
-        uint128 shareBalance
-    )
-        external
-        view
-        returns (uint128 amountToTransfer, uint128 feeAmount);
 
     /// @notice Returns the current global fee on yield for new vaults, denominated in UD60x18, where 1e18 = 100%.
     function feeOnYield() external view returns (UD60x18);
@@ -73,6 +58,29 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Processes a user's token redemption by calculating the transfer amount, clearing the user's
+    /// yield-bearing token balance, and returning the amounts.
+    ///
+    /// Notes:
+    /// - The user's yield-bearing token balance is decremented after calculating the transfer amount. This does not
+    /// decrement the vault total as it is used in the calculation of the transfer amount for other users.
+    ///
+    /// Requirements:
+    /// - The caller must be the SablierBob contract.
+    ///
+    /// @param vaultId The ID of the vault.
+    /// @param user The address of the user.
+    /// @param shareBalance The user's share balance in the vault.
+    /// @return transferAmount The amount to transfer to the user.
+    /// @return feeAmountDeductedFromYield The fee amount taken from the yield.
+    function processRedemption(
+        uint256 vaultId,
+        address user,
+        uint128 shareBalance
+    )
+        external
+        returns (uint128 transferAmount, uint128 feeAmountDeductedFromYield);
 
     /// @notice Register a new vault with the adapter and snapshot the current fee on yield.
     ///
@@ -120,8 +128,11 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// - The caller must be the SablierBob contract.
     ///
     /// @param vaultId The ID of the vault.
-    /// @return amountReceivedFromUnstaking The total amount of tokens received from unstaking.
-    function unstakeFullAmount(uint256 vaultId) external returns (uint128 amountReceivedFromUnstaking);
+    /// @return wrappedTokenBalance The total amount of yield-bearing tokens that were in the vault.
+    /// @return amountReceivedFromUnstaking The total amount of tokens received from unstaking the yield-bearing tokens.
+    function unstakeFullAmount(uint256 vaultId)
+        external
+        returns (uint128 wrappedTokenBalance, uint128 amountReceivedFromUnstaking);
 
     /// @notice Updates staked token balance of a user when vault shares are transferred.
     ///
