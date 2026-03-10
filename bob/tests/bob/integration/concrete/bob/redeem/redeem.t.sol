@@ -168,7 +168,24 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         assertEq(actualShareBalance, 0, "shareBalance");
     }
 
-    function test_GivenStakedInAdapter() external givenNotNull givenSETTLEDStatus whenSharesNotZero givenAdapter {
+    function test_RevertWhen_MsgValueNotZero() external givenNotNull givenSETTLEDStatus whenSharesNotZero givenAdapter {
+        // Set oracle price to target price so that the sync settles the vault.
+        oracle.setPrice(TARGET_PRICE);
+        bob.syncPriceFromOracle(vaultIds.vaultWithAdapter);
+
+        // It should revert.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_MsgValueNotZero.selector, vaultIds.vaultWithAdapter));
+        bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.vaultWithAdapter);
+    }
+
+    function test_GivenStakedInAdapter()
+        external
+        givenNotNull
+        givenSETTLEDStatus
+        whenSharesNotZero
+        givenAdapter
+        whenMsgValueZero
+    {
         // Set oracle price to target price so that the sync settles the vault.
         oracle.setPrice(TARGET_PRICE);
 
@@ -193,8 +210,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         expectCallToTransfer(weth, address(comptroller), expectedComptrollerFee);
 
         // Redeem shares from the vault.
-        (uint256 transferAmount, uint256 feeAmountDeductedFromYield) =
-            bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultIds.vaultWithAdapter);
+        (uint256 transferAmount, uint256 feeAmountDeductedFromYield) = bob.redeem(vaultIds.vaultWithAdapter);
 
         assertEq(transferAmount, expectedUserWeth, "transferAmount");
         assertEq(feeAmountDeductedFromYield, expectedComptrollerFee, "feeAmountDeductedFromYield");
@@ -219,7 +235,14 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         assertEq(actualComptrollerWethBalance, expectedComptrollerWethBalance, "comptrollerWethBalance");
     }
 
-    function test_GivenNotStakedInAdapter() external givenNotNull givenSETTLEDStatus whenSharesNotZero givenAdapter {
+    function test_GivenNotStakedInAdapter()
+        external
+        givenNotNull
+        givenSETTLEDStatus
+        whenSharesNotZero
+        givenAdapter
+        whenMsgValueZero
+    {
         // Settle the vault via price so status is SETTLED.
         oracle.setPrice(TARGET_PRICE);
 

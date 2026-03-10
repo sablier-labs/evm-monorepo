@@ -139,6 +139,7 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// Requirements:
     /// - The caller must be the SablierBob contract.
     /// - `userShareBalanceBeforeTransfer` must not be zero.
+    /// - The calculated wstETH transfer amount must not be zero.
     ///
     /// @param vaultId The ID of the vault.
     /// @param from The address transferring vault shares.

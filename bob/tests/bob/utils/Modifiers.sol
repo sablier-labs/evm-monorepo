@@ -86,6 +86,10 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenMsgValueZero() {
+        _;
+    }
+
     modifier whenNewAdapterNotZeroAddress() {
         _;
     }
@@ -123,6 +127,10 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     }
 
     modifier whenTokenNotZero() {
+        _;
+    }
+
+    modifier whenUserShareBalanceNotZero() {
         _;
     }
 }

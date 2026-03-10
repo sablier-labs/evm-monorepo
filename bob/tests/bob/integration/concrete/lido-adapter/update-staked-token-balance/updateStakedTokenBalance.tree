@@ -5,6 +5,9 @@ UpdateStakedTokenBalance_Integration_Concrete_Test
    ├── when user share balance zero
    │  └── it should revert
    └── when user share balance not zero
-      ├── it should decrease sender wstETH balance
-      ├── it should increase recipient wstETH balance
-      └── it should emit a {TransferStakedTokens} event
+      ├── when wstETH transfer amount zero
+      │  └── it should revert
+      └── when wstETH transfer amount not zero
+         ├── it should decrease sender wstETH balance
+         ├── it should increase recipient wstETH balance
+         └── it should emit a {TransferStakedTokens} event

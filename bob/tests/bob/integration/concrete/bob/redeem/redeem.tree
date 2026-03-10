@@ -29,15 +29,18 @@ Redeem_Integration_Concrete_Test
          │     ├── it should transfer tokens to depositor
          │     └── it should emit a {Redeem} event
          └── given adapter
-            ├── given staked in adapter
-            │  ├── it should trigger unstake via adapter
-            │  ├── it should set isStakedInAdapter to false
-            │  ├── it should burn all shares
-            │  ├── it should yield fee to the comptroller
-            │  ├── it should transfer tokens to depositor
-            │  └── it should emit a {Redeem} event
-            └── given not staked in adapter
-               ├── it should burn all shares
-               ├── it should transfer yield fee to the comptroller
-               ├── it should transfer tokens to depositor
-               └── it should emit a {Redeem} event
+            ├── when msg value not zero
+            │  └── it should revert
+            └── when msg value zero
+               ├── given staked in adapter
+               │  ├── it should trigger unstake via adapter
+               │  ├── it should set isStakedInAdapter to false
+               │  ├── it should burn all shares
+               │  ├── it should yield fee to the comptroller
+               │  ├── it should transfer tokens to depositor
+               │  └── it should emit a {Redeem} event
+               └── given not staked in adapter
+                  ├── it should burn all shares
+                  ├── it should transfer yield fee to the comptroller
+                  ├── it should transfer tokens to depositor
+                  └── it should emit a {Redeem} event

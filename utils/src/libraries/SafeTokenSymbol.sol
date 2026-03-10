@@ -32,7 +32,7 @@ library SafeTokenSymbol {
     /// @notice Retrieves the token's symbol safely, defaulting to a hard-coded value if an error occurs.
     /// @dev Performs a low-level call to handle tokens in which the symbol is not implemented or it is a bytes32
     /// instead of a string.
-    function safeTokenSymbol(address token) internal view returns (string memory) {
+    function safeTokenSymbol(address token) internal view returns (string memory symbol) {
         (bool success, bytes memory returnData) = token.staticcall(abi.encodeCall(IERC20Metadata.symbol, ()));
 
         // Non-empty strings have a length greater than 64, and bytes32 has length 32.
@@ -40,7 +40,7 @@ library SafeTokenSymbol {
             return "ERC20";
         }
 
-        string memory symbol = abi.decode(returnData, (string));
+        symbol = abi.decode(returnData, (string));
 
         // Check if the symbol is too long or contains disallowed characters. This measure helps mitigate potential
         // security threats from malicious tokens injecting scripts in the symbol string.
@@ -50,6 +50,5 @@ library SafeTokenSymbol {
         if (!isAllowedCharacter(symbol)) {
             return "Unsupported Symbol";
         }
-        return symbol;
     }
 }

@@ -29,7 +29,21 @@ contract UpdateStakedTokenBalance_Integration_Concrete_Test is Integration_Test 
         );
     }
 
-    function test_WhenUserShareBalanceNotZero() external whenCallerBob {
+    function test_RevertWhen_WstETHTransferAmountZero() external whenCallerBob whenUserShareBalanceNotZero {
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierLidoAdapter_WstETHTransferAmountZero.selector,
+                vaultIds.vaultWithAdapter,
+                users.depositor,
+                users.newDepositor
+            )
+        );
+        adapter.updateStakedTokenBalance(
+            vaultIds.vaultWithAdapter, users.depositor, users.newDepositor, 1, DEPOSIT_AMOUNT
+        );
+    }
+
+    function test_WhenWstETHTransferAmountNotZero() external whenCallerBob whenUserShareBalanceNotZero {
         uint256 transferAmount = DEPOSIT_AMOUNT / 4;
         uint128 expectedWstETHTransfer = WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT / 4;
 

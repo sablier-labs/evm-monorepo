@@ -9,7 +9,6 @@ import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { Batch } from "@sablier/evm-utils/src/Batch.sol";
 import { SafeOracle } from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
 import { SafeTokenSymbol } from "@sablier/evm-utils/src/libraries/SafeTokenSymbol.sol";
 import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
@@ -37,9 +36,8 @@ import { Bob } from "./types/Bob.sol";
 /// @title SablierBob
 /// @notice See the documentation in {ISablierBob}.
 contract SablierBob is
-    Batch, // 1 inherited component
     Comptrollerable, // 1 inherited component
-    ISablierBob, // 2 inherited components
+    ISablierBob, // 1 inherited component
     ReentrancyGuard, // 1 inherited component
     SablierBobState // 1 inherited component
 {
@@ -190,16 +188,16 @@ contract SablierBob is
         notNull(vaultId)
         onlyActive(vaultId)
     {
+        // Check: the deposit amount is not zero.
+        if (amount == 0) {
+            revert Errors.SablierBob_DepositAmountZero(vaultId, msg.sender);
+        }
+
         // Effect: sync the price from oracle.
         _syncPriceFromOracle(vaultId);
 
         // Check: the vault is still active after the price sync.
         _revertIfSettledOrExpired(vaultId);
-
-        // Check: the deposit amount is not zero.
-        if (amount == 0) {
-            revert Errors.SablierBob_DepositAmountZero(vaultId, msg.sender);
-        }
 
         // Cache storage variables.
         ISablierBobAdapter adapter = _vaults[vaultId].adapter;
@@ -261,6 +259,11 @@ contract SablierBob is
 
         // Check if the vault has an adapter.
         if (address(adapter) != address(0)) {
+            // Check: the `msg.value` is zero.
+            if (msg.value > 0) {
+                revert Errors.SablierBob_MsgValueNotZero(vaultId);
+            }
+
             // Check: the deposit token is staked with the adapter.
             if (_vaults[vaultId].isStakedInAdapter) {
                 // Interaction: unstake all tokens via the adapter.
@@ -453,8 +456,8 @@ contract SablierBob is
     function _syncPriceFromOracle(uint256 vaultId) private returns (uint128 latestPrice) {
         AggregatorV3Interface oracleAddress = _vaults[vaultId].oracle;
 
-        // Get the latest price from the oracle with safety checks.
-        (latestPrice,) = SafeOracle.safeOraclePrice(oracleAddress);
+        // Get the latest price, normalized to 8 decimals, from the oracle with safety checks.
+        (latestPrice,,) = SafeOracle.safeOraclePrice({ oracle: oracleAddress, normalize: true });
 
         // Return if the latest price is zero.
         if (latestPrice == 0) {

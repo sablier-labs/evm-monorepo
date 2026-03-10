@@ -7,15 +7,15 @@ Enter_Integration_Concrete_Test
    ├── given EXPIRED status
    │  └── it should revert
    └── given ACTIVE status
-      ├── when sync changes status
-      │  ├── when new status EXPIRED
-      │  │  └── it should revert
-      │  └── when new status SETTLED
-      │     └── it should revert
-      └── when sync not change status
-         ├── when amount zero
-         │  └── it should revert
-         └── when amount not zero
+      ├── when amount zero
+      │  └── it should revert
+      └── when amount not zero
+         ├── when sync changes status
+         │  ├── when new status EXPIRED
+         │  │  └── it should revert
+         │  └── when new status SETTLED
+         │     └── it should revert
+         └── when sync not change status
             ├── given no adapter
             │  ├── it should transfer tokens to the contract
             │  ├── it should mint share tokens to the caller

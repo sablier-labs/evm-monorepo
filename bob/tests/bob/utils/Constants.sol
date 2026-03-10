@@ -8,6 +8,7 @@ abstract contract Constants is BaseConstants {
     // Amounts
     uint128 public constant CURRENT_PRICE = 3000e8;
     uint128 public constant DEPOSIT_AMOUNT = 10e18;
+    uint256 public constant STETH_ETH_ORACLE_PRICE = 999_760_619_811_202_000;
     uint128 public constant TARGET_PRICE = 4000e8;
     uint128 public constant WETH_STAKED = DEPOSIT_AMOUNT;
     UD60x18 public constant WSTETH_WETH_EXCHANGE_RATE = UD60x18.wrap(0.9e18);

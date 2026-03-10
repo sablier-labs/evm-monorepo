@@ -37,6 +37,9 @@ library Errors {
     /// @notice Thrown when trying to redeem with `msg.value` less than the minimum fee required.
     error SablierBob_InsufficientFeePayment(uint256 feePaid, uint256 feeRequired);
 
+    /// @notice Thrown when trying to pay a fee in the native token from a vault that uses the adapter.
+    error SablierBob_MsgValueNotZero(uint256 vaultId);
+
     /// @notice Thrown when the native token fee transfer to the comptroller fails.
     error SablierBob_NativeFeeTransferFailed();
 
@@ -155,6 +158,9 @@ library Errors {
 
     /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
     error SablierLidoAdapter_UserBalanceZero(uint256 vaultId, address user);
+
+    /// @notice Thrown when the calculated wstETH transfer amount rounds down to zero due to floor division.
+    error SablierLidoAdapter_WstETHTransferAmountZero(uint256 vaultId, address from, address to);
 
     /// @notice Thrown when trying to set a yield fee that exceeds the maximum allowed.
     error SablierLidoAdapter_YieldFeeTooHigh(UD60x18 fee, UD60x18 maxFee);

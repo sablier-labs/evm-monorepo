@@ -3,7 +3,6 @@ pragma solidity >=0.8.22;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IBatch } from "@sablier/evm-utils/src/interfaces/IBatch.sol";
 import { IComptrollerable } from "@sablier/evm-utils/src/interfaces/IComptrollerable.sol";
 
 import { IBobVaultShare } from "./IBobVaultShare.sol";
@@ -15,7 +14,7 @@ import { ISablierBobState } from "./ISablierBobState.sol";
 /// equal to the target price set by the vault creator. The tokens are also unlocked if the vault expires. When a vault
 /// is configured with a adapter, the protocol automatically stakes the tokens via adapter and earns yield on the
 /// deposit amount.
-interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
+interface ISablierBob is IComptrollerable, ISablierBobState {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -136,6 +135,7 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     ///
     /// Requirements:
     /// - The caller must be the share token contract stored in the given vault.
+    /// - The calculated wstETH transfer amount must not be zero.
     ///
     /// @param vaultId The ID of the vault.
     /// @param from The address transferring share tokens.

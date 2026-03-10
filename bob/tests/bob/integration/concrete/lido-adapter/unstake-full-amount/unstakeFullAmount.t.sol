@@ -24,7 +24,7 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         // Update Curve mock such that amount exchanged is less than the output received by the `get_dy` function.
         curvePool.setDiff(1e18);
 
-        uint256 expectedMinEthOut = calculateMinEthOut(DEPOSIT_AMOUNT, SLIPPAGE_TOLERANCE);
+        uint256 expectedMinEthOut = calculateMinEthOut(DEPOSIT_AMOUNT, STETH_ETH_ORACLE_PRICE, SLIPPAGE_TOLERANCE);
         uint256 expectedEthOutFromExchange = DEPOSIT_AMOUNT - 1e18;
 
         // It should revert.
@@ -42,7 +42,7 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         wstEth.setExchangeRate(newExchangeRate);
 
         uint128 expectedEthReceived = expectedWethFromWstEth(WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, newExchangeRate);
-        uint128 expectedMinEthOut = calculateMinEthOut(expectedEthReceived, SLIPPAGE_TOLERANCE);
+        uint128 expectedMinEthOut = calculateMinEthOut(expectedEthReceived, STETH_ETH_ORACLE_PRICE, SLIPPAGE_TOLERANCE);
 
         // It should unwrap wstETH to stETH.
         vm.expectCall({

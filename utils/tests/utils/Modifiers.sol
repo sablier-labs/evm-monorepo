@@ -214,6 +214,14 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenPriceNormalized() {
+        _;
+    }
+
+    modifier whenPriceNotNormalized() {
+        _;
+    }
+
     modifier whenTokenContract() {
         _;
     }

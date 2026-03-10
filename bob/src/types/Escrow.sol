@@ -26,7 +26,7 @@ library Escrow {
     /// @param sellToken The ERC-20 token being sold, deposited by the seller when the order is created.
     /// @param buyToken The ERC-20 token the seller wants to receive.
     /// @param sellAmount The amount of sell token that the seller is willing to exchange.
-    /// @param minBuyAmount The minimum amount of buy token that the seller is willing to accept.
+    /// @param minBuyAmount The minimum amount of buy token required to fill the order.
     /// @param expiryTime The Unix timestamp when the order expires. Zero is sentinel for orders that never expire.
     /// @param wasCanceled Boolean indicating if the order was canceled.
     /// @param wasFilled Boolean indicating if the order was filled.

@@ -26,6 +26,16 @@ abstract contract LidoAdapterUtils {
         }
     }
 
+    function getStETH_ETHOracle() internal view returns (address stETH_ETH_Oracle) {
+        if (block.chainid == ChainId.ETHEREUM) {
+            // Chainlink stETH/ETH feed on mainnet.
+            stETH_ETH_Oracle = 0x86392dC19c0b719886221c78AB11eb8Cf5c52812;
+        } else if (block.chainid == ChainId.SEPOLIA) {
+            // Dummy since there is no stETH/ETH feed on Sepolia.
+            stETH_ETH_Oracle = address(0);
+        }
+    }
+
     function getWETH() internal view returns (address wETH) {
         if (block.chainid == ChainId.ETHEREUM) {
             wETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;

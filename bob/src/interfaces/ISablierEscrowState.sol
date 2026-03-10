@@ -32,7 +32,7 @@ interface ISablierEscrowState {
     /// @dev Reverts if `orderId` references a null order.
     function getExpiryTime(uint256 orderId) external view returns (uint40 expiryTime);
 
-    /// @notice Retrieves the minimum amount of buy token the seller is willing to accept.
+    /// @notice Retrieves the minimum amount of buy token required to fill the order.
     /// @dev Reverts if `orderId` references a null order.
     function getMinBuyAmount(uint256 orderId) external view returns (uint128 minBuyAmount);
 
