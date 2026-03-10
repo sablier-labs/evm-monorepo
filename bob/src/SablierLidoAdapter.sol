@@ -470,7 +470,7 @@ contract SablierLidoAdapter is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Claims finalized Lido withdrawals for a vault and wraps the received ETH into WETH.
-    function _claimLidoWithdrawals(uint256 vaultId) private returns (uint128 ethReceivedU128) {
+    function _claimLidoWithdrawals(uint256 vaultId) private returns (uint128 wethReceived) {
         uint256[] memory requestIds = _lidoWithdrawalRequestIds[vaultId];
 
         // Interaction: Since Lido processes withdrawals in batches, we need to find the number of total finalized
@@ -492,7 +492,7 @@ contract SablierLidoAdapter is
         uint256 ethReceived = address(this).balance - ethBefore;
 
         // Cast ethReceived to uint128.
-        ethReceivedU128 = ethReceived.toUint128();
+        wethReceived = ethReceived.toUint128();
 
         // Interaction: Wrap ETH to get WETH.
         IWETH9(WETH).deposit{ value: ethReceived }();
