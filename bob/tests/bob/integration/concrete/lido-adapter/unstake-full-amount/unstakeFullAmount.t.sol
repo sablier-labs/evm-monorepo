@@ -4,6 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { ICurveStETHPool } from "src/interfaces/external/ICurveStETHPool.sol";
+import { ILidoWithdrawalQueue } from "src/interfaces/external/ILidoWithdrawalQueue.sol";
 import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
 import { IWstETH } from "src/interfaces/external/IWstETH.sol";
 import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
@@ -20,7 +21,7 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         adapter.unstakeFullAmount(vaultIds.vaultWithAdapter);
     }
 
-    function test_RevertWhen_ETHReceivedNotExceedETHExpected() external whenCallerBob {
+    function test_RevertWhen_ETHReceivedNotExceedETHExpected() external whenCallerBob givenCurveWithdrawalRequested {
         // Update Curve mock such that amount exchanged is less than the output received by the `get_dy` function.
         curvePool.setDiff(1e18);
 
@@ -36,7 +37,7 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         adapter.unstakeFullAmount(vaultIds.vaultWithAdapter);
     }
 
-    function test_WhenETHReceivedExceedsETHExpected() external whenCallerBob {
+    function test_WhenETHReceivedExceedsETHExpected() external whenCallerBob givenCurveWithdrawalRequested {
         // Simulate yield generation at settlement by lowering the exchange rate.
         UD60x18 newExchangeRate = UD60x18.wrap(0.8e18);
         wstEth.setExchangeRate(newExchangeRate);
@@ -89,6 +90,51 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         assertEq(
             adapter.getWethReceivedAfterUnstaking(vaultIds.vaultWithAdapter),
             expectedEthReceived,
+            "wethReceivedAfterUnstaking"
+        );
+    }
+
+    function test_GivenLidoWithdrawalRequested() external whenCallerBob {
+        // Warp past expiry so the vault becomes expired.
+        vm.warp(EXPIRY);
+
+        // First, request a Lido withdrawal.
+        setMsgSender(address(comptroller));
+        adapter.requestLidoWithdrawal(vaultIds.vaultWithAdapter);
+
+        vm.expectCall({
+            callee: address(lidoWithdrawalQueue),
+            data: abi.encodeCall(ILidoWithdrawalQueue.getLastCheckpointIndex, ())
+        });
+
+        // It should wrap ETH into WETH.
+        vm.expectCall({ callee: address(weth), msgValue: DEPOSIT_AMOUNT, data: abi.encodeCall(IWETH9.deposit, ()) });
+
+        // It should transfer WETH to Bob.
+        expectCallToTransfer(weth, address(bob), DEPOSIT_AMOUNT);
+
+        // It should emit an {UnstakeFullAmount} event.
+        vm.expectEmit({ emitter: address(adapter) });
+        emit ISablierBobAdapter.UnstakeFullAmount({
+            vaultId: vaultIds.vaultWithAdapter,
+            totalStakedAmount: WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT,
+            amountReceivedFromUnstaking: DEPOSIT_AMOUNT
+        });
+
+        setMsgSender(address(bob));
+        (uint128 wrappedTokenBalance, uint128 amountReceivedFromUnstaking) =
+            adapter.unstakeFullAmount(vaultIds.vaultWithAdapter);
+
+        // It should return the wrapped token balance.
+        assertEq(wrappedTokenBalance, WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT, "wrappedTokenBalance");
+
+        // It should return the amount received from unstaking.
+        assertEq(amountReceivedFromUnstaking, DEPOSIT_AMOUNT, "amountReceivedFromUnstaking");
+
+        // It should update WETH amount received after unstaking.
+        assertEq(
+            adapter.getWethReceivedAfterUnstaking(vaultIds.vaultWithAdapter),
+            DEPOSIT_AMOUNT,
             "wethReceivedAfterUnstaking"
         );
     }

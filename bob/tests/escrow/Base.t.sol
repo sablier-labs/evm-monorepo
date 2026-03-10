@@ -23,7 +23,7 @@ abstract contract Base_Test is Assertions, Modifiers {
     IERC20 internal buyToken;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  SET-UP FUNCTION
+                                       SET-UP
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {

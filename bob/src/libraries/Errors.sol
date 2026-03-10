@@ -147,6 +147,12 @@ library Errors {
                                 SABLIER LIDO ADAPTER
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when trying to request a Lido withdrawal for a vault that has already requested one.
+    error SablierLidoAdapter_LidoWithdrawalAlreadyRequested(uint256 vaultId);
+
+    /// @notice Thrown when trying to request a Lido withdrawal for a vault with no wstETH.
+    error SablierLidoAdapter_NoWstETHToWithdraw(uint256 vaultId);
+
     /// @notice Thrown when a function is called by an address other than SablierBob.
     error SablierLidoAdapter_OnlySablierBob(address caller, address expectedCaller);
 
@@ -159,8 +165,18 @@ library Errors {
     /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
     error SablierLidoAdapter_UserBalanceZero(uint256 vaultId, address user);
 
+    /// @notice Thrown when trying to request a Lido withdrawal for a vault that is active.
+    error SablierLidoAdapter_VaultActive(uint256 vaultId);
+
     /// @notice Thrown when the calculated wstETH transfer amount rounds down to zero due to floor division.
     error SablierLidoAdapter_WstETHTransferAmountZero(uint256 vaultId, address from, address to);
+
+    /// @notice Thrown when the total amount to withdraw is below the minimum amount per request.
+    error SablierLidoAdapter_WithdrawalAmountBelowMinimum(
+        uint256 vaultId,
+        uint256 totalAmount,
+        uint256 minimumAmountPerRequest
+    );
 
     /// @notice Thrown when trying to set a yield fee that exceeds the maximum allowed.
     error SablierLidoAdapter_YieldFeeTooHigh(UD60x18 fee, UD60x18 maxFee);

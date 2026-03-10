@@ -6,6 +6,10 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// @title IStETH
 /// @notice Minimal interface for Lido's stETH.
 interface IStETH is IERC20 {
+    /*//////////////////////////////////////////////////////////////////////////
+                              STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @notice Send funds to the Lido pool with the optional referral parameter and mints stETH.
     /// @dev The amount of stETH minted equals the amount of ETH sent.
     /// @param referral The referral address can be zero.

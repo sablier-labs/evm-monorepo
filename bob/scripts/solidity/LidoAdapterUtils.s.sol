@@ -18,6 +18,16 @@ abstract contract LidoAdapterUtils {
         }
     }
 
+    function getLidoWithdrawalQueue() internal view returns (address lidoWithdrawalQueue) {
+        if (block.chainid == ChainId.ETHEREUM) {
+            // https://docs.lido.fi/deployed-contracts/
+            lidoWithdrawalQueue = 0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1;
+        } else if (block.chainid == ChainId.SEPOLIA) {
+            // https://docs.lido.fi/deployed-contracts/sepolia#core-protocol
+            lidoWithdrawalQueue = 0x1583C7b3f4C3B008720E6BcE5726336b0aB25fdd;
+        }
+    }
+
     function getStETH() internal view returns (address stETH) {
         if (block.chainid == ChainId.ETHEREUM) {
             stETH = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84;

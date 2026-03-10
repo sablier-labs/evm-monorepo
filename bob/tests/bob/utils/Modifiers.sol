@@ -28,11 +28,29 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier givenAmountExceedsMinPerRequest() {
+        _;
+    }
+
+    modifier givenAmountExceedsMaxPerRequest() {
+        _;
+    }
+
+    modifier givenCurveWithdrawalRequested() {
+        _;
+    }
+
+    modifier givenLidoWithdrawalNotRequested() {
+        _;
+    }
+
     modifier givenNoAdapter() {
         _;
     }
 
     modifier givenNotACTIVEStatus() {
+        // Use expiry as a proxy to non-active status.
+        vm.warp(EXPIRY);
         _;
     }
 
