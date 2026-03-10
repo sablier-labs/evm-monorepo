@@ -521,12 +521,10 @@ contract SablierLidoAdapter is
             revert Errors.SablierLidoAdapter_SlippageExceeded(minEthOut, ethReceived);
         }
 
-        uint128 ethReceivedU128 = ethReceived.toUint128();
+        wethReceived = ethReceived.toUint128();
 
         // Interaction: Wrap ETH to get WETH.
         IWETH9(WETH).deposit{ value: ethReceived }();
-
-        return ethReceivedU128;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
