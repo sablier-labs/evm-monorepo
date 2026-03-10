@@ -36,6 +36,10 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// @dev This is an immutable state variable.
     function SABLIER_BOB() external view returns (address);
 
+    /// @notice Returns the address of the WETH contract.
+    /// @dev This is an immutable state variable.
+    function WETH() external view returns (address);
+
     /// @notice Returns the current global fee on yield for new vaults, denominated in UD60x18, where 1e18 = 100%.
     function feeOnYield() external view returns (UD60x18);
 

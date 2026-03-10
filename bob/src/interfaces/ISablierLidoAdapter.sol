@@ -49,10 +49,6 @@ interface ISablierLidoAdapter is ISablierBobAdapter {
     /// @dev This is an immutable state variable.
     function STETH_ETH_ORACLE() external view returns (address);
 
-    /// @notice Returns the address of the WETH contract.
-    /// @dev This is an immutable state variable.
-    function WETH() external view returns (address);
-
     /// @notice Returns the address of the wstETH contract.
     /// @dev This is an immutable state variable.
     function WSTETH() external view returns (address);

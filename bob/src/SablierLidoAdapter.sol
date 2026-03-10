@@ -55,7 +55,7 @@ contract SablierLidoAdapter is
     /// @inheritdoc ISablierLidoAdapter
     address public immutable override STETH_ETH_ORACLE;
 
-    /// @inheritdoc ISablierLidoAdapter
+    /// @inheritdoc ISablierBobAdapter
     address public immutable override WETH;
 
     /// @inheritdoc ISablierLidoAdapter

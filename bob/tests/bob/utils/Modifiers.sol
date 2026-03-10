@@ -108,6 +108,10 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenMsgValueNotZero() {
+        _;
+    }
+
     modifier whenMsgValueZero() {
         _;
     }
@@ -137,6 +141,10 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     }
 
     modifier whenSyncNotChangeStatus() {
+        _;
+    }
+
+    modifier whenTokenIsWETH() {
         _;
     }
 
