@@ -18,14 +18,14 @@ interface ILidoWithdrawalQueue {
     /// @notice Finds the list of hints for the given `_requestIds` searching among the checkpoints with indices in the
     /// range  `[_firstIndex, _lastIndex]`.
     /// @dev
-    /// - Array of request ids should be sorted.
+    /// - Array of request IDs should be sorted.
     /// - `_firstIndex` should be greater than 0, because checkpoint list is 1-based array.
     /// - `_lastIndex` should be less than or equal to `getLastCheckpointIndex()`.
-    /// @param _requestIds ids of the requests sorted in the ascending order to get hints for.
-    /// @param _firstIndex left boundary of the search range. Should be greater than 0.
-    /// @param _lastIndex right boundary of the search range. Should be less than or equal to
+    /// @param _requestIds IDs of the requests sorted in the ascending order to get hints for.
+    /// @param _firstIndex Left boundary of the search range. Should be greater than 0.
+    /// @param _lastIndex Right boundary of the search range. Should be less than or equal to
     /// `getLastCheckpointIndex()`.
-    /// @return hintIds array of hints used to find required checkpoint for the request.
+    /// @return hintIds Array of hints used to find required checkpoint for the request.
     function findCheckpointHints(
         uint256[] calldata _requestIds,
         uint256 _firstIndex,
@@ -35,16 +35,16 @@ interface ILidoWithdrawalQueue {
         view
         returns (uint256[] memory hintIds);
 
-    /// @notice length of the checkpoint array. Last possible value for the hint.
+    /// @notice Length of the checkpoint array. Last possible value for the hint.
     function getLastCheckpointIndex() external view returns (uint256);
 
     /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Claim a batch of withdrawal requests if they are finalized sending locked ether to the owner.
-    /// @param _requestIds array of request ids to claim.
-    /// @param _hints checkpoint hint for each id. Can be obtained with `findCheckpointHints()`
+    /// @notice Claim a batch of withdrawal requests if they are finalized sending locked ETH to the owner.
+    /// @param _requestIds Array of request IDs to claim.
+    /// @param _hints Checkpoint hint for each ID. Can be obtained with `findCheckpointHints()`
     /// @dev Reverts if any of the following conditions are met:
     ///  - `requestIds` and `hints` arrays length differs.
     ///  - Any `requestId` or `hint` in arguments are not valid.
@@ -53,11 +53,11 @@ interface ILidoWithdrawalQueue {
     function claimWithdrawals(uint256[] calldata _requestIds, uint256[] calldata _hints) external;
 
     /// @notice Request the batch of stETH for withdrawal. Approvals for the passed amounts should be done before.
-    /// @param _amounts an array of stETH amount values. The standalone withdrawal request will be created for each item
+    /// @param _amounts Array of stETH amount values. The standalone withdrawal request will be created for each item
     /// in the passed list.
-    /// @param _owner address that will be able to manage the created requests. If `address(0)` is passed, `msg.sender`
+    /// @param _owner Address that will be able to manage the created requests. If `address(0)` is passed, `msg.sender`
     /// will be used as owner.
-    /// @return requestIds an array of the created withdrawal request ids.
+    /// @return requestIds Array of the created withdrawal request IDs.
     function requestWithdrawals(
         uint256[] calldata _amounts,
         address _owner
