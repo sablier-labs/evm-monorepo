@@ -1021,11 +1021,11 @@
 
     "@openzeppelin/upgrades-core/minimatch": ["minimatch@9.0.5", "", { "dependencies": { "brace-expansion": "^2.0.1" } }, "sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow=="],
 
-    "@sablier/evm-utils/forge-std": ["forge-std@github:foundry-rs/forge-std#8bbcf6e", {}, "foundry-rs-forge-std-8bbcf6e"],
+    "@sablier/evm-utils/forge-std": ["forge-std@github:foundry-rs/forge-std#8bbcf6e", {}, "foundry-rs-forge-std-8bbcf6e", "sha512-3RRHJADmEGs8pfN9Gp9ucyViy7aaF0OstI090Z9Pbo5xK8yQz2eCPGQjnDvNh++zOpFJ0vUHJEhXTyJ93x2AHw=="],
 
     "@sablier/lockup/@sablier/evm-utils": ["@sablier/evm-utils@file:../utils", { "dependencies": { "@chainlink/contracts": "1.3.0", "@openzeppelin/contracts": "5.3.0", "@openzeppelin/contracts-upgradeable": "5.3.0", "forge-std": "github:foundry-rs/forge-std#v1.10.0" }, "devDependencies": { "@openzeppelin/foundry-upgrades": "0.4.0", "@sablier/devkit": "1", "lint-staged": "16.2.6", "prettier": "3.6.2", "solhint": "6.0.1" } }],
 
-    "@sablier/lockup/forge-std": ["forge-std@github:foundry-rs/forge-std#8bbcf6e", {}, "foundry-rs-forge-std-8bbcf6e"],
+    "@sablier/lockup/forge-std": ["forge-std@github:foundry-rs/forge-std#8bbcf6e", {}, "foundry-rs-forge-std-8bbcf6e", "sha512-3RRHJADmEGs8pfN9Gp9ucyViy7aaF0OstI090Z9Pbo5xK8yQz2eCPGQjnDvNh++zOpFJ0vUHJEhXTyJ93x2AHw=="],
 
     "amazon-cognito-identity-js/@aws-crypto/sha256-js": ["@aws-crypto/sha256-js@1.2.2", "", { "dependencies": { "@aws-crypto/util": "^1.2.2", "@aws-sdk/types": "^3.1.0", "tslib": "^1.11.1" } }, "sha512-Nr1QJIbW/afYYGzYvrF70LtaHrIRtd4TNAglX8BvlfxJLZ45SAmueIKYl5tWoNBPzp65ymXGFK0Bb1vZUpuc9g=="],
 

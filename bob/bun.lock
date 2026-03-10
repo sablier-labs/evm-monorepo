@@ -360,7 +360,7 @@
 
     "@yarnpkg/lockfile": ["@yarnpkg/lockfile@1.1.0", "", {}, "sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ=="],
 
-    "@zksync/contracts": ["era-contracts@github:matter-labs/era-contracts#446d391", {}, "matter-labs-era-contracts-446d391"],
+    "@zksync/contracts": ["era-contracts@github:matter-labs/era-contracts#446d391", {}, "matter-labs-era-contracts-446d391", "sha512-ewhtc2nNpISnXOJLJ3HaEnAHmUQt/vAlIMDc2qkIQn9rlHnLXuIEmS2+RrpHZKP2dxZzvwu9O8AZYeHsoMrD9Q=="],
 
     "aes-js": ["aes-js@3.0.0", "", {}, "sha512-H7wUZRn8WpTq9jocdxQ2c8x2sKo9ZVmzfRE13GiNJXfp7NcKYEdvl3vspKjXox6RIG2VtaRe4JFvxG4rqp2Zuw=="],
 
