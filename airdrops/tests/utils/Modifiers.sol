@@ -112,6 +112,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenBillerNotZeroAddress() {
+        _;
+    }
+
     modifier whenCallerCampaignCreator() {
         setMsgSender(users.campaignCreator);
         _;
@@ -208,6 +212,10 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenToAddressNotZero() {
+        _;
+    }
+
+    modifier whenTokenNotZeroAddress() {
         _;
     }
 

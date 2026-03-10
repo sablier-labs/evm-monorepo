@@ -10,6 +10,7 @@ import { Clawback_Integration_Test } from "./../shared/clawback/clawback.t.sol";
 import { HasClaimed_Integration_Test } from "./../shared/has-claimed/hasClaimed.t.sol";
 import { HasExpired_Integration_Test } from "./../shared/has-expired/hasExpired.t.sol";
 import { LowerMinFeeUSD_Integration_Test } from "./../shared/lower-min-fee-usd/lowerMinFeeUSD.t.sol";
+import { Sponsor_Integration_Test } from "./../shared/sponsor/sponsor.t.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
                              NON-SHARED TESTS
@@ -75,6 +76,12 @@ contract LowerMinFeeUSD_MerkleExecute_Integration_Test is
     MerkleExecute_Integration_Shared_Test,
     LowerMinFeeUSD_Integration_Test
 {
+    function setUp() public override(MerkleExecute_Integration_Shared_Test, Integration_Test) {
+        MerkleExecute_Integration_Shared_Test.setUp();
+    }
+}
+
+contract Sponsor_MerkleExecute_Integration_Test is MerkleExecute_Integration_Shared_Test, Sponsor_Integration_Test {
     function setUp() public override(MerkleExecute_Integration_Shared_Test, Integration_Test) {
         MerkleExecute_Integration_Shared_Test.setUp();
     }

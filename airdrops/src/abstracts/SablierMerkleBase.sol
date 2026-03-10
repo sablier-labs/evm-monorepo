@@ -169,6 +169,29 @@ abstract contract SablierMerkleBase is
         });
     }
 
+    /// @inheritdoc ISablierMerkleBase
+    function sponsor(
+        IERC20 token,
+        uint128 amount,
+        address biller
+    )
+        external
+        override
+        notZeroAddress(biller)
+        notZeroAddress(address(token))
+    {
+        // Check: the amount is not zero.
+        if (amount == 0) {
+            revert Errors.SablierMerkleBase_SponsorAmountZero();
+        }
+
+        // Interaction: transfer the tokens from the caller to the biller address.
+        token.safeTransferFrom({ from: msg.sender, to: biller, value: amount });
+
+        // Log the sponsorship.
+        emit Sponsor({ caller: msg.sender, token: token, amount: amount, biller: biller });
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
