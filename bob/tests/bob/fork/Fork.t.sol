@@ -33,6 +33,9 @@ abstract contract Fork_Test is Base_Test {
     AggregatorV3Interface internal constant FORK_ETH_USD_ORACLE =
         AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
 
+    /// @dev Chainlink stETH/ETH price feed on Ethereum mainnet.
+    address internal constant FORK_STETH_ETH_ORACLE = 0x86392dC19c0b719886221c78AB11eb8Cf5c52812;
+
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -57,6 +60,7 @@ abstract contract Fork_Test is Base_Test {
         vm.label(FORK_CURVE_POOL, "CurvePool");
         vm.label(FORK_LIDO_WITHDRAWAL_QUEUE, "LidoWithdrawalQueue");
         vm.label(address(FORK_ETH_USD_ORACLE), "ETH/USD Oracle");
+        vm.label(FORK_STETH_ETH_ORACLE, "stETH/ETH Oracle");
 
         // Deploy fresh Bob and adapter on the fork using real mainnet Lido/Curve addresses.
         forkBob = new SablierBob(address(comptroller));
@@ -68,6 +72,7 @@ abstract contract Fork_Test is Base_Test {
             curvePool: FORK_CURVE_POOL,
             lidoWithdrawalQueue: FORK_LIDO_WITHDRAWAL_QUEUE,
             stETH: FORK_STETH,
+            stETH_ETH_Oracle: FORK_STETH_ETH_ORACLE,
             wETH: address(FORK_WETH),
             wstETH: FORK_WSTETH,
             initialSlippageTolerance: SLIPPAGE_TOLERANCE,

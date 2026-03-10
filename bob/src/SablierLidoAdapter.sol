@@ -412,7 +412,7 @@ contract SablierLidoAdapter is
         }
         // Otherwise, swap via Curve.
         else {
-            amountReceivedFromUnstaking = _wstETHToWeth(totalWstETH);
+            amountReceivedFromUnstaking = _swapWstETHToWeth(totalWstETH);
         }
 
         // Effect: store the total WETH received for redemption calculations.
@@ -498,8 +498,8 @@ contract SablierLidoAdapter is
         IWETH9(WETH).deposit{ value: ethReceived }();
     }
 
-    /// @dev Converts wstETH to WETH using Curve exchange, with oracle-based slippage protection.
-    function _wstETHToWeth(uint128 wstETHAmount) private returns (uint128 wethReceived) {
+    /// @dev Swap wstETH to WETH using Curve exchange, with oracle-based slippage protection.
+    function _swapWstETHToWeth(uint128 wstETHAmount) private returns (uint128 wethReceived) {
         // Interaction: Unwrap wstETH to get stETH.
         uint256 stETHAmount = IWstETH(WSTETH).unwrap(wstETHAmount);
 
