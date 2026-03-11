@@ -69,13 +69,16 @@ contract SablierEscrow is
         }
 
         // Effect: mark the order as canceled.
-        _orders[orderId].wasCanceled = true;
+        order.wasCanceled = true;
+
+        // Cache the sell amount for this order.
+        uint128 sellAmount = order.sellAmount;
 
         // Interaction: transfer sell tokens to caller.
-        order.sellToken.safeTransfer(msg.sender, order.sellAmount);
+        order.sellToken.safeTransfer(msg.sender, sellAmount);
 
         // Log the event.
-        emit CancelOrder({ orderId: orderId, seller: msg.sender, sellAmount: order.sellAmount });
+        emit CancelOrder({ orderId: orderId, seller: msg.sender, sellAmount: sellAmount });
     }
 
     /// @inheritdoc ISablierEscrow
@@ -202,7 +205,7 @@ contract SablierEscrow is
         }
 
         // Effect: mark the order as filled.
-        _orders[orderId].wasFilled = true;
+        order.wasFilled = true;
 
         // Get the trade fee from storage.
         UD60x18 currentTradeFee = tradeFee;
@@ -213,7 +216,7 @@ contract SablierEscrow is
         // If the fee is non-zero, deduct the fee from both sides.
         if (currentTradeFee.unwrap() > 0) {
             // Calculate the fee on the sell amount.
-            feeDeductedFromBuyerAmount = ud(order.sellAmount).mul(currentTradeFee).intoUint128();
+            feeDeductedFromBuyerAmount = ud(amountToTransferToBuyer).mul(currentTradeFee).intoUint128();
             amountToTransferToBuyer -= feeDeductedFromBuyerAmount;
 
             // Calculate the fee on the buy amount.
@@ -228,8 +231,11 @@ contract SablierEscrow is
             order.sellToken.safeTransfer(feeRecipient, feeDeductedFromBuyerAmount);
         }
 
+        // Cache the seller address.
+        address seller = order.seller;
+
         // Interaction: transfer buy token to the seller.
-        order.buyToken.safeTransferFrom(msg.sender, order.seller, amountToTransferToSeller);
+        order.buyToken.safeTransferFrom(msg.sender, seller, amountToTransferToSeller);
 
         // Interaction: transfer sell tokens to the buyer.
         order.sellToken.safeTransfer(msg.sender, amountToTransferToBuyer);
@@ -238,7 +244,7 @@ contract SablierEscrow is
         emit FillOrder({
             orderId: orderId,
             buyer: msg.sender,
-            seller: order.seller,
+            seller: seller,
             sellAmount: amountToTransferToBuyer,
             buyAmount: amountToTransferToSeller,
             feeDeductedFromBuyerAmount: feeDeductedFromBuyerAmount,
