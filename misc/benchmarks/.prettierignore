@@ -1,0 +1,10 @@
+# directories
+cache
+node_modules
+out
+out-optimized
+
+# files
+*.sol
+package-lock.json
+pnpm-lock.yaml
