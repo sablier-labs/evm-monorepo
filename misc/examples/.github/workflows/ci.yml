@@ -1,0 +1,65 @@
+name: "CI"
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{github.workflow}}-${{github.ref}}
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - "main"
+      - "staging"
+
+jobs:
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+
+  build-airdrops:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+    with:
+      foundry-profiles: airdrops
+
+  test-airdrops:
+    needs: ["check", "build-airdrops"]
+    if: needs.build-airdrops.outputs.cache-status != 'primary'
+    secrets:
+      ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-profile: "airdrops"
+      match-path: "airdrops/**/*.sol"
+      name: "Airdrops tests"
+
+  build-flow:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+    with:
+      foundry-profiles: flow
+
+  test-flow:
+    needs: ["check", "build-flow"]
+    if: needs.build-flow.outputs.cache-status != 'primary'
+    secrets:
+      ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-profile: "flow"
+      match-path: "flow/**/*.sol"
+      name: "Flow tests"
+
+  build-lockup:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+    with:
+      foundry-profiles: lockup
+
+  test-lockup:
+    needs: ["check", "build-lockup"]
+    if: needs.build-lockup.outputs.cache-status != 'primary'
+    secrets:
+      ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-profile: "lockup"
+      match-path: "lockup/**/*.sol"
+      name: "Lockup tests"

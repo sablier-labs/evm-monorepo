@@ -1,0 +1,14 @@
+# directories
+cache
+node_modules
+out
+
+# files
+*.env
+*.log
+.DS_Store
+.pnp.*
+bun.lockb
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
