@@ -55,6 +55,6 @@ contract LockupDynamicStreamCreator {
         );
 
         // Create the LockupDynamic stream
-        streamId = LOCKUP.createWithTimestampsLD(params, segments);
+        streamId = LOCKUP.createWithTimestampsLD({ params: params, segments: segments });
     }
 }

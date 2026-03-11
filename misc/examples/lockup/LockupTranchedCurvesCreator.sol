@@ -46,7 +46,7 @@ contract LockupTranchedCurvesCreator {
         }
 
         // Create the Lockup stream using tranche model with periodic unlocks in step
-        streamId = LOCKUP.createWithDurationsLT(params, tranches);
+        streamId = LOCKUP.createWithDurationsLT({ params: params, tranchesWithDuration: tranches });
     }
 
     function createStream_MonthlyUnlocks() external returns (uint256 streamId) {
@@ -80,7 +80,7 @@ contract LockupTranchedCurvesCreator {
         }
 
         // Create the Lockup stream using tranche model with web2 style monthly unlocks
-        streamId = LOCKUP.createWithDurationsLT(params, tranches);
+        streamId = LOCKUP.createWithDurationsLT({ params: params, tranchesWithDuration: tranches });
     }
 
     function createStream_Timelock() external returns (uint256 streamId) {
@@ -108,6 +108,6 @@ contract LockupTranchedCurvesCreator {
         tranches[0] = LockupTranched.TrancheWithDuration({ amount: 100e18, duration: 90 days });
 
         // Create the Lockup stream using tranche model with full unlock only at the end
-        streamId = LOCKUP.createWithDurationsLT(params, tranches);
+        streamId = LOCKUP.createWithDurationsLT({ params: params, tranchesWithDuration: tranches });
     }
 }

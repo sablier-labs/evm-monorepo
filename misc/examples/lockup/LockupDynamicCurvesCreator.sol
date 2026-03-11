@@ -44,7 +44,7 @@ contract LockupDynamicCurvesCreator {
             LockupDynamic.SegmentWithDuration({ amount: depositAmount, duration: 100 days, exponent: ud2x18(6e18) });
 
         // Create the Lockup stream using dynamic model with exponential shape
-        streamId = LOCKUP.createWithDurationsLD(params, segments);
+        streamId = LOCKUP.createWithDurationsLD({ params: params, segmentsWithDuration: segments });
     }
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
@@ -76,6 +76,6 @@ contract LockupDynamicCurvesCreator {
         segments[2] = LockupDynamic.SegmentWithDuration({ amount: 80e18, duration: 50 days, exponent: ud2x18(6e18) });
 
         // Create the Lockup stream using dynamic model  with exponential cliff shape
-        streamId = LOCKUP.createWithDurationsLD(params, segments);
+        streamId = LOCKUP.createWithDurationsLD({ params: params, segmentsWithDuration: segments });
     }
 }

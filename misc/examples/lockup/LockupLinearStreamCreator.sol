@@ -40,6 +40,8 @@ contract LockupLinearStreamCreator {
          });
 
         // Create the LockupLinear stream using a function that sets the start time to `block.timestamp`
-        streamId = LOCKUP.createWithDurationsLL(params, unlockAmounts, durations);
+        streamId = LOCKUP.createWithDurationsLL({
+            params: params, unlockAmounts: unlockAmounts, granularity: 1 seconds, durations: durations
+        });
     }
 }

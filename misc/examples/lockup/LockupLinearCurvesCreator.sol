@@ -41,10 +41,12 @@ contract LockupLinearCurvesCreator {
         LockupLinear.Durations memory durations = LockupLinear.Durations({
             cliff: 0, // Setting a cliff of 0
             total: 100 days // Setting a total duration of 100 days
-         });
+        });
 
         // Create the Lockup stream with Linear shape, no cliff and start time as `block.timestamp`
-        streamId = LOCKUP.createWithDurationsLL(params, unlockAmounts, durations);
+        streamId = LOCKUP.createWithDurationsLL({
+            params: params, unlockAmounts: unlockAmounts, granularity: 1 seconds, durations: durations
+        });
     }
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
@@ -74,10 +76,12 @@ contract LockupLinearCurvesCreator {
         LockupLinear.Durations memory durations = LockupLinear.Durations({
             cliff: 25 days, // Setting a cliff of 25 days
             total: 100 days // Setting a total duration of 100 days
-         });
+        });
 
         // Create the Lockup stream with Linear shape, a cliff and start time as `block.timestamp`
-        streamId = LOCKUP.createWithDurationsLL(params, unlockAmounts, durations);
+        streamId = LOCKUP.createWithDurationsLL({
+            params: params, unlockAmounts: unlockAmounts, granularity: 1 seconds, durations: durations
+        });
     }
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
@@ -107,10 +111,12 @@ contract LockupLinearCurvesCreator {
         LockupLinear.Durations memory durations = LockupLinear.Durations({
             cliff: 0, // Setting a cliff of 0
             total: 100 days // Setting a total duration of 100 days
-         });
+        });
 
         // Create the Lockup stream with Linear shape, an initial unlock, no cliff and start time as `block.timestamp`
-        streamId = LOCKUP.createWithDurationsLL(params, unlockAmounts, durations);
+        streamId = LOCKUP.createWithDurationsLL({
+            params: params, unlockAmounts: unlockAmounts, granularity: 1 seconds, durations: durations
+        });
     }
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
@@ -140,10 +146,12 @@ contract LockupLinearCurvesCreator {
         LockupLinear.Durations memory durations = LockupLinear.Durations({
             cliff: 50 days, // Setting a cliff of 50 days
             total: 100 days // Setting a total duration of 100 days
-         });
+        });
 
         // Create the Lockup stream with Linear shape, an initial unlock, a cliff and start time as `block.timestamp`
-        streamId = LOCKUP.createWithDurationsLL(params, unlockAmounts, durations);
+        streamId = LOCKUP.createWithDurationsLL({
+            params: params, unlockAmounts: unlockAmounts, granularity: 1 seconds, durations: durations
+        });
     }
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
@@ -172,10 +180,12 @@ contract LockupLinearCurvesCreator {
         LockupLinear.Durations memory durations = LockupLinear.Durations({
             cliff: 25 days, // Setting a cliff of 25 days
             total: 100 days // Setting a total duration of 100 days
-         });
+        });
 
         // Create the Lockup stream with Linear shape, zero unlock until cliff and start time as `block.timestamp`
-        streamId = LOCKUP.createWithDurationsLL(params, unlockAmounts, durations);
+        streamId = LOCKUP.createWithDurationsLL({
+            params: params, unlockAmounts: unlockAmounts, granularity: 1 seconds, durations: durations
+        });
     }
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
@@ -205,10 +215,12 @@ contract LockupLinearCurvesCreator {
         LockupLinear.Durations memory durations = LockupLinear.Durations({
             cliff: 25 days, // Setting a cliff of 25 days
             total: 100 days // Setting a total duration of 100 days
-         });
+        });
 
         // Create the Lockup stream with Linear shape, an initial unlock followed by zero unlock until cliff and start
         // time as `block.timestamp`
-        streamId = LOCKUP.createWithDurationsLL(params, unlockAmounts, durations);
+        streamId = LOCKUP.createWithDurationsLL({
+            params: params, unlockAmounts: unlockAmounts, granularity: 1 seconds, durations: durations
+        });
     }
 }

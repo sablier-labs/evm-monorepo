@@ -42,6 +42,6 @@ contract LockupTranchedStreamCreator {
         tranches[1] = (LockupTranched.TrancheWithDuration({ amount: amount1, duration: uint40(6 weeks) }));
 
         // Create the LockupTranched stream
-        streamId = LOCKUP.createWithDurationsLT(params, tranches);
+        streamId = LOCKUP.createWithDurationsLT({ params: params, tranchesWithDuration: tranches });
     }
 }
