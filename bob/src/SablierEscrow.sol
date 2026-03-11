@@ -69,7 +69,7 @@ contract SablierEscrow is
         }
 
         // Effect: mark the order as canceled.
-        _orders[orderId].wasCanceled = true;
+        order.wasCanceled = true;
 
         // Cache the sell amount for this order.
         uint128 sellAmount = order.sellAmount;
@@ -205,7 +205,7 @@ contract SablierEscrow is
         }
 
         // Effect: mark the order as filled.
-        _orders[orderId].wasFilled = true;
+        order.wasFilled = true;
 
         // Get the trade fee from storage.
         UD60x18 currentTradeFee = tradeFee;
