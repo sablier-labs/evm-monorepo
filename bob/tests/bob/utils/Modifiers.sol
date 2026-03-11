@@ -44,6 +44,10 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier givenNotAlreadyUnstaked() {
+        _;
+    }
+
     modifier givenNoAdapter() {
         _;
     }

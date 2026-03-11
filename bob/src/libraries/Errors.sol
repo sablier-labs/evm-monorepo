@@ -168,6 +168,9 @@ library Errors {
     /// @notice Thrown when trying to request a Lido withdrawal for a vault that is active.
     error SablierLidoAdapter_VaultActive(uint256 vaultId);
 
+    /// @notice Thrown when trying to request a Lido withdrawal for a vault that has already been unstaked.
+    error SablierLidoAdapter_VaultAlreadyUnstaked(uint256 vaultId);
+
     /// @notice Thrown when the calculated wstETH transfer amount rounds down to zero due to floor division.
     error SablierLidoAdapter_WstETHTransferAmountZero(uint256 vaultId, address from, address to);
 

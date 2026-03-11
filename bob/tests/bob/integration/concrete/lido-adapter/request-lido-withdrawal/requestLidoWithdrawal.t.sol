@@ -31,7 +31,23 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
         adapter.requestLidoWithdrawal(vaultIds.vaultWithAdapter);
     }
 
-    function test_RevertGiven_LidoWithdrawalRequested() external whenCallerComptroller givenNotACTIVEStatus {
+    function test_RevertGiven_AlreadyUnstaked() external whenCallerComptroller givenNotACTIVEStatus {
+        // Unstake via Curve path first.
+        bob.unstakeTokensViaAdapter(vaultIds.vaultWithAdapter);
+
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierLidoAdapter_VaultAlreadyUnstaked.selector, vaultIds.vaultWithAdapter)
+        );
+        adapter.requestLidoWithdrawal(vaultIds.vaultWithAdapter);
+    }
+
+    function test_RevertGiven_LidoWithdrawalRequested()
+        external
+        whenCallerComptroller
+        givenNotACTIVEStatus
+        givenNotAlreadyUnstaked
+    {
         // Request a Lido withdrawal so it reverts on the second request.
         adapter.requestLidoWithdrawal(vaultIds.vaultWithAdapter);
 
@@ -48,19 +64,24 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
         external
         whenCallerComptroller
         givenNotACTIVEStatus
+        givenNotAlreadyUnstaked
         givenLidoWithdrawalNotRequested
     {
+        // Create a vault with adapter but no deposits (wstETH balance is zero).
+        vm.warp(FEB_1_2026);
+        uint256 emptyVaultId = createVaultWithAdapter();
+        vm.warp(EXPIRY);
+
         // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLidoAdapter_NoWstETHToWithdraw.selector, vaultIds.defaultVault)
-        );
-        adapter.requestLidoWithdrawal(vaultIds.defaultVault);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLidoAdapter_NoWstETHToWithdraw.selector, emptyVaultId));
+        adapter.requestLidoWithdrawal(emptyVaultId);
     }
 
     function test_RevertGiven_AmountNotExceedMinPerRequest()
         external
         whenCallerComptroller
         givenNotACTIVEStatus
+        givenNotAlreadyUnstaked
         givenLidoWithdrawalNotRequested
         givenTotalWstETHNotZero
     {
@@ -87,6 +108,7 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
         external
         whenCallerComptroller
         givenNotACTIVEStatus
+        givenNotAlreadyUnstaked
         givenLidoWithdrawalNotRequested
         givenTotalWstETHNotZero
         givenAmountExceedsMinPerRequest
@@ -107,6 +129,7 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
         external
         whenCallerComptroller
         givenNotACTIVEStatus
+        givenNotAlreadyUnstaked
         givenLidoWithdrawalNotRequested
         givenTotalWstETHNotZero
         givenAmountExceedsMinPerRequest
@@ -130,6 +153,7 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
         external
         whenCallerComptroller
         givenNotACTIVEStatus
+        givenNotAlreadyUnstaked
         givenLidoWithdrawalNotRequested
         givenTotalWstETHNotZero
         givenAmountExceedsMinPerRequest

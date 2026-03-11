@@ -259,6 +259,11 @@ contract SablierLidoAdapter is
             revert Errors.SablierLidoAdapter_VaultActive(vaultId);
         }
 
+        // Check: the vault tokens are still staked in the adapter.
+        if (!ISablierBobState(SABLIER_BOB).isStakedInAdapter(vaultId)) {
+            revert Errors.SablierLidoAdapter_VaultAlreadyUnstaked(vaultId);
+        }
+
         // Check: Lido withdrawal has not already been requested for this vault.
         if (_lidoWithdrawalRequestIds[vaultId].length > 0) {
             revert Errors.SablierLidoAdapter_LidoWithdrawalAlreadyRequested(vaultId);
