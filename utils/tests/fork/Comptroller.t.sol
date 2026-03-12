@@ -86,11 +86,11 @@ contract Comptroller_Fork_Test is Base_Test {
             vm.expectEmit({ emitter: address(comptroller) });
             emit ISablierComptroller.Execute({
                 target: protocolAddresses[i],
-                data: abi.encodeCall(IComptrollerable.setComptroller, (newComptroller)),
+                targetCallData: abi.encodeCall(IComptrollerable.setComptroller, (newComptroller)),
                 result: ""
             });
 
-            comptroller.execute({ target: protocolAddresses[i], data: payload });
+            comptroller.execute({ target: protocolAddresses[i], targetCallData: payload });
 
             // It should change the comptroller.
             assertEq(
