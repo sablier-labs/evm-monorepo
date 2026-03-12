@@ -120,10 +120,10 @@ contract Comptroller_Fork_Test is Base_Test {
         assertEq(comptroller.getMinFeeUSD(protocol), newMinFeeUSD, "min fee USD");
     }
 
-    /// @dev It should transfer fees from Comptroller, Lockup and Flow to the provided fee recipient.
+    /// @dev It should transfer fees from Lockup and Flow to the provided fee recipient.
     function testForkFuzz_TransferFees(address feeRecipient) external whenFeeRecipientNotZero {
-        // Skip if fee recipient is zero address.
-        vm.assume(feeRecipient != address(0));
+        // Skip if fee recipient is zero address, or a contract that cannot receive ETH.
+        vm.assume(feeRecipient != address(0) && feeRecipient.code.length == 0);
 
         uint256 initialFeeRecipientBalance = feeRecipient.balance;
 
