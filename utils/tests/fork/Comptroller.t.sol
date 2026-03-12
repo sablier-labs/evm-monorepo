@@ -73,13 +73,6 @@ contract Comptroller_Fork_Test is Base_Test {
         assertEq(comptroller.oracle(), baseScript.getChainlinkOracle(), "oracle");
     }
 
-    /// @dev It should return non-zero value for all values of feeUSD.
-    function testForkFuzz_ConvertUSDFeeToWei(uint128 feeUSD) external view {
-        // It should convert the USD fee to wei.
-        uint256 feeInWei = comptroller.convertUSDFeeToWei(feeUSD);
-        assertGt(feeInWei, 0, "feeInWei == 0");
-    }
-
     /// @dev It should use `execute` function to change the comptroller on the protocol contracts.
     function testFork_Execute() external {
         // Deploy a new comptroller.
@@ -109,9 +102,9 @@ contract Comptroller_Fork_Test is Base_Test {
     }
 
     /// @dev It should change the min fee in USD for a given protocol.
-    function testForkFuzz_SetMinFeeUSD(uint8 protocolIndex, uint128 newMinFeeUSD) external whenNewFeeNotExceedMaxFee {
+    function testForkFuzz_SetMinFeeUSD(uint8 protocolIndex, uint256 newMinFeeUSD) external whenNewFeeNotExceedMaxFee {
         // Bound custom fee USD to the max fee USD.
-        newMinFeeUSD = boundUint128(newMinFeeUSD, 0, uint128(MAX_FEE_USD));
+        newMinFeeUSD = bound(newMinFeeUSD, 0, MAX_FEE_USD);
 
         // Bound the protocol enum to a valid enum value.
         ISablierComptroller.Protocol protocol = boundProtocolEnum(protocolIndex);
@@ -156,7 +149,7 @@ contract Comptroller_Fork_Test is Base_Test {
         UUPSUpgradeable(address(comptroller)).upgradeToAndCall(newImplementation, "");
 
         // It should set the new implementation.
-        address actualComptrollerImpl = payable(Upgrades.getImplementationAddress(address(comptroller)));
+        address actualComptrollerImpl = Upgrades.getImplementationAddress(address(comptroller));
         address expectedComptrollerImpl = newImplementation;
         assertEq(actualComptrollerImpl, expectedComptrollerImpl, "implementation");
     }
