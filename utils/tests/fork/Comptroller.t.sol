@@ -16,6 +16,7 @@ contract Comptroller_Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     BaseScriptMock internal baseScript;
+    address internal currentMainnetAdmin;
     address[] internal protocolAddresses;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -25,6 +26,9 @@ contract Comptroller_Fork_Test is Base_Test {
     function setUp() public override {
         // Fork Ethereum Mainnet at the latest block number.
         vm.createSelectFork({ urlOrAlias: "ethereum" });
+
+        // Set the current mainnet admin address.
+        currentMainnetAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
 
         // Deploy the `BaseScriptMock` contract.
         baseScript = new BaseScriptMock();
@@ -38,7 +42,7 @@ contract Comptroller_Fork_Test is Base_Test {
         protocolAddresses[1] = 0x7a86d3e6894f9c5B5f25FFBDAaE658CFc7569623;
 
         // Set comptroller admin as the caller.
-        setMsgSender(baseScript.getAdmin());
+        setMsgSender(currentMainnetAdmin);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -64,7 +68,7 @@ contract Comptroller_Fork_Test is Base_Test {
     /// @dev It tests the state variables that will rarely be changed.
     function testFork_Constructor() external view {
         // Assert the comptroller admin.
-        assertEq(comptroller.admin(), baseScript.getAdmin(), "admin");
+        assertEq(comptroller.admin(), currentMainnetAdmin, "admin");
 
         // Assert the max fee in usd.
         assertEq(comptroller.MAX_FEE_USD(), MAX_FEE_USD, "max fee USD");
@@ -76,7 +80,7 @@ contract Comptroller_Fork_Test is Base_Test {
     /// @dev It should use `execute` function to change the comptroller on the protocol contracts.
     function testFork_Execute() external {
         // Deploy a new comptroller.
-        SablierComptroller newComptroller = new SablierComptroller(admin);
+        SablierComptroller newComptroller = new SablierComptroller(currentMainnetAdmin);
 
         bytes memory payload = abi.encodeCall(IComptrollerable.setComptroller, (newComptroller));
 
