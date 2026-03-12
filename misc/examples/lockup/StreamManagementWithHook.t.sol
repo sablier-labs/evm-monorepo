@@ -26,7 +26,7 @@ contract StreamManagementWithHookTest is Test {
     address internal comptroller;
 
     function setUp() public {
-        vm.createSelectFork("ethereum");
+        vm.createSelectFork("sepolia");
 
         // Create a test users
         alice = makeAddr("Alice");
@@ -37,7 +37,7 @@ contract StreamManagementWithHookTest is Test {
         token = new MockERC20(bob);
 
         // Load Sablier Lockup
-        sablierLockup = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+        sablierLockup = ISablierLockup(0xAcDc1b0686D38a4aDE97e73e242b30A96761Be64);
 
         // Deploy StreamManagementWithHook contract
         streamManager = new StreamManagementWithHook(sablierLockup, token);

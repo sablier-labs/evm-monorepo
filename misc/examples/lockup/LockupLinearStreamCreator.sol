@@ -10,9 +10,9 @@ import { LockupLinear } from "@sablier/lockup/src/types/LockupLinear.sol";
 /// @dev This code is referenced in the docs:
 /// https://docs.sablier.com/guides/lockup/examples/create-stream/lockup-linear
 contract LockupLinearStreamCreator {
-    // Mainnet addresses
-    IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-    ISablierLockup public constant LOCKUP = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+    // Sepolia addresses
+    IERC20 public constant DAI = IERC20(0x68194a729C2450ad26072b3D33ADaCbcef39D574);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0xAcDc1b0686D38a4aDE97e73e242b30A96761Be64);
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
     function createStream(uint128 depositAmount) public returns (uint256 streamId) {
@@ -37,7 +37,7 @@ contract LockupLinearStreamCreator {
         LockupLinear.Durations memory durations = LockupLinear.Durations({
             cliff: 0, // Setting a cliff of 0
             total: 52 weeks // Setting a total duration of ~1 year
-         });
+        });
 
         // Create the LockupLinear stream using a function that sets the start time to `block.timestamp`
         streamId = LOCKUP.createWithDurationsLL({

@@ -5,8 +5,8 @@ import { ud21x18 } from "@prb/math/src/UD21x18.sol";
 import { ISablierFlow } from "@sablier/flow/src/interfaces/ISablierFlow.sol";
 
 contract FlowStreamManager {
-    // Mainnet address
-    ISablierFlow public constant FLOW = ISablierFlow(0x7a86d3e6894f9c5B5f25FFBDAaE658CFc7569623);
+    // Sepolia address
+    ISablierFlow public constant FLOW = ISablierFlow(0xd32480233aC90f3C97903c4E5263611B7a7DFe66);
 
     function adjustRatePerSecond(uint256 streamId) external {
         FLOW.adjustRatePerSecond({ streamId: streamId, newRatePerSecond: ud21x18(0.0001e18) });

@@ -35,4 +35,4 @@
   wrap_comments = true
 
 [rpc_endpoints]
-  ethereum = "https://direct.routeme.sh/rpc/1/${ROUTEMESH_API_KEY}"
+  sepolia = "https://direct.routeme.sh/rpc/11155111/${ROUTEMESH_API_KEY}"

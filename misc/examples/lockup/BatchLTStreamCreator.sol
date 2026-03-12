@@ -8,11 +8,11 @@ import { BatchLockup } from "@sablier/lockup/src/types/BatchLockup.sol";
 import { LockupTranched } from "@sablier/lockup/src/types/LockupTranched.sol";
 
 contract BatchLTStreamCreator {
-    // Mainnet addresses
-    IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    // Sepolia addresses
+    IERC20 public constant DAI = IERC20(0x68194a729C2450ad26072b3D33ADaCbcef39D574);
     // See https://docs.sablier.com/guides/lockup/deployments for all deployments
-    ISablierLockup public constant LOCKUP = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
-    ISablierBatchLockup public constant BATCH_LOCKUP = ISablierBatchLockup(0x0636D83B184D65C242c43de6AAd10535BFb9D45a);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0xAcDc1b0686D38a4aDE97e73e242b30A96761Be64);
+    ISablierBatchLockup public constant BATCH_LOCKUP = ISablierBatchLockup(0x608DC64C0Da32CB723F6c2AE300Ea734edbE4015);
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
     function batchCreateStreams(uint128 perStreamAmount) public returns (uint256[] memory streamIds) {
@@ -39,12 +39,10 @@ contract BatchLTStreamCreator {
         // Declare some dummy tranches
         stream0.tranches = new LockupTranched.Tranche[](2);
         stream0.tranches[0] = LockupTranched.Tranche({
-            amount: uint128(perStreamAmount / 2),
-            timestamp: uint40(block.timestamp + 1 weeks)
+            amount: uint128(perStreamAmount / 2), timestamp: uint40(block.timestamp + 1 weeks)
         });
         stream0.tranches[1] = LockupTranched.Tranche({
-            amount: uint128(perStreamAmount - stream0.tranches[0].amount),
-            timestamp: uint40(block.timestamp + 24 weeks)
+            amount: uint128(perStreamAmount - stream0.tranches[0].amount), timestamp: uint40(block.timestamp + 24 weeks)
         });
 
         // Declare the second stream in the batch
@@ -58,12 +56,10 @@ contract BatchLTStreamCreator {
         // Declare some dummy tranches
         stream1.tranches = new LockupTranched.Tranche[](2);
         stream1.tranches[0] = LockupTranched.Tranche({
-            amount: uint128(perStreamAmount / 4),
-            timestamp: uint40(block.timestamp + 4 weeks)
+            amount: uint128(perStreamAmount / 4), timestamp: uint40(block.timestamp + 4 weeks)
         });
         stream1.tranches[1] = LockupTranched.Tranche({
-            amount: uint128(perStreamAmount - stream1.tranches[0].amount),
-            timestamp: uint40(block.timestamp + 24 weeks)
+            amount: uint128(perStreamAmount - stream1.tranches[0].amount), timestamp: uint40(block.timestamp + 24 weeks)
         });
 
         // Fill the batch array

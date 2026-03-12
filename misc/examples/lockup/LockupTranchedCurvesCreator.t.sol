@@ -12,8 +12,8 @@ contract LockupTranchedCurvesCreatorTest is Test {
     address internal user;
 
     function setUp() public {
-        // Fork Ethereum Mainnet
-        vm.createSelectFork("ethereum");
+        // Fork Ethereum Sepolia
+        vm.createSelectFork("sepolia");
 
         // Deploy the stream creator
         creator = new LockupTranchedCurvesCreator();

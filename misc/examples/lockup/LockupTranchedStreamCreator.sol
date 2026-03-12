@@ -10,9 +10,9 @@ import { LockupTranched } from "@sablier/lockup/src/types/LockupTranched.sol";
 /// @dev This code is referenced in the docs:
 /// https://docs.sablier.com/guides/lockup/examples/create-stream/lockup-tranched
 contract LockupTranchedStreamCreator {
-    // Mainnet addresses
-    IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-    ISablierLockup public constant LOCKUP = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+    // Sepolia addresses
+    IERC20 public constant DAI = IERC20(0x68194a729C2450ad26072b3D33ADaCbcef39D574);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0xAcDc1b0686D38a4aDE97e73e242b30A96761Be64);
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
     function createStream(uint128 amount0, uint128 amount1) public returns (uint256 streamId) {

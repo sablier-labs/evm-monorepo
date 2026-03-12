@@ -8,11 +8,11 @@ import { BatchLockup } from "@sablier/lockup/src/types/BatchLockup.sol";
 import { LockupLinear } from "@sablier/lockup/src/types/LockupLinear.sol";
 
 contract BatchLLStreamCreator {
-    // Mainnet addresses
-    IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    // Sepolia addresses
+    IERC20 public constant DAI = IERC20(0x68194a729C2450ad26072b3D33ADaCbcef39D574);
     // See https://docs.sablier.com/guides/lockup/deployments for all deployments
-    ISablierLockup public constant LOCKUP = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
-    ISablierBatchLockup public constant BATCH_LOCKUP = ISablierBatchLockup(0x0636D83B184D65C242c43de6AAd10535BFb9D45a);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0xAcDc1b0686D38a4aDE97e73e242b30A96761Be64);
+    ISablierBatchLockup public constant BATCH_LOCKUP = ISablierBatchLockup(0x608DC64C0Da32CB723F6c2AE300Ea734edbE4015);
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
     function batchCreateStreams(uint128 perStreamAmount) public returns (uint256[] memory streamIds) {
@@ -38,11 +38,11 @@ contract BatchLLStreamCreator {
         stream0.durations = LockupLinear.Durations({
             cliff: 4 weeks, // Tokens will start streaming continuously after 4 weeks
             total: 52 weeks // Setting a total duration of ~1 year
-         });
+        });
         stream0.unlockAmounts = LockupLinear.UnlockAmounts({
             start: 0, // Whether the stream will unlock a certain amount of tokens at the start time
             cliff: 0 // Whether the stream will unlock a certain amount of tokens at the cliff time
-         });
+        });
 
         // Declare the second stream in the batch
         BatchLockup.CreateWithDurationsLL memory stream1;
@@ -54,11 +54,11 @@ contract BatchLLStreamCreator {
         stream1.durations = LockupLinear.Durations({
             cliff: 1 weeks, // Tokens will start streaming continuously after 4 weeks
             total: 26 weeks // Setting a total duration of ~6 months
-         });
+        });
         stream1.unlockAmounts = LockupLinear.UnlockAmounts({
             start: 0, // Whether the stream will unlock a certain amount of tokens at the start time
             cliff: 0 // Whether the stream will unlock a certain amount of tokens at the start time
-         });
+        });
 
         // Fill the batch param
         BatchLockup.CreateWithDurationsLL[] memory batch = new BatchLockup.CreateWithDurationsLL[](batchSize);
