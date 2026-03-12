@@ -156,6 +156,9 @@ library Errors {
     /// @notice Thrown when a function is called by an address other than SablierBob.
     error SablierLidoAdapter_OnlySablierBob(address caller, address expectedCaller);
 
+    /// @notice Thrown when the stETH/ETH oracle returns a zero price.
+    error SablierLidoAdapter_OraclePriceZero();
+
     /// @notice Thrown when the Curve swap output is below the minimum acceptable amount.
     error SablierLidoAdapter_SlippageExceeded(uint256 expected, uint256 actual);
 

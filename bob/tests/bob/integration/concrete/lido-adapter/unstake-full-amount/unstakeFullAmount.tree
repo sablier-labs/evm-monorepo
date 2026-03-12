@@ -3,15 +3,18 @@ UnstakeFullAmount_Integration_Concrete_Test
 │  └── it should revert
 └── when caller Bob
    ├── given Curve withdrawal requested
-   │  ├── when ETH received not exceed ETH expected
+   │  ├── when oracle price zero
    │  │  └── it should revert
-   │  └── when ETH received exceeds ETH expected
-   │     ├── it should unwrap wstETH to stETH
-   │     ├── it should swap stETH for ETH via Curve
-   │     ├── it should wrap ETH into WETH
-   │     ├── it should update WETH amount received after unstaking
-   │     ├── it should transfer WETH to Bob
-   │     └── it should emit an {UnstakeFullAmount} event
+   │  └── when oracle price not zero
+   │     ├── when ETH received not exceed ETH expected
+   │     │  └── it should revert
+   │     └── when ETH received exceeds ETH expected
+   │        ├── it should unwrap wstETH to stETH
+   │        ├── it should swap stETH for ETH via Curve
+   │        ├── it should wrap ETH into WETH
+   │        ├── it should update WETH amount received after unstaking
+   │        ├── it should transfer WETH to Bob
+   │        └── it should emit an {UnstakeFullAmount} event
    └── given Lido withdrawal requested
       ├── it should claim ETH from Lido withdrawal queue
       ├── it should wrap ETH into WETH
