@@ -512,6 +512,11 @@ contract SablierLidoAdapter is
         (uint128 oraclePrice,,) =
             SafeOracle.safeOraclePrice({ oracle: AggregatorV3Interface(STETH_ETH_ORACLE), normalize: false });
 
+        // Check: the oracle price is not zero.
+        if (oraclePrice == 0) {
+            revert Errors.SablierLidoAdapter_OraclePriceZero();
+        }
+
         // Calculate the fair ETH output using the oracle price as a manipulation-resistant reference.
         uint256 fairEthOut = stETHAmount * oraclePrice / 1e18;
 

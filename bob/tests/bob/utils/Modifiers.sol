@@ -120,6 +120,10 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenOraclePriceNotZero() {
+        _;
+    }
+
     modifier whenProvidedAddressNotZero() {
         _;
     }

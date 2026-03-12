@@ -21,7 +21,21 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         adapter.unstakeFullAmount(vaultIds.vaultWithAdapter);
     }
 
-    function test_RevertWhen_ETHReceivedNotExceedETHExpected() external whenCallerBob givenCurveWithdrawalRequested {
+    function test_RevertWhen_OraclePriceZero() external whenCallerBob givenCurveWithdrawalRequested {
+        // Set the stETH/ETH oracle price to zero.
+        stETHETHOracle.setPrice(0);
+
+        // It should revert.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLidoAdapter_OraclePriceZero.selector));
+        adapter.unstakeFullAmount(vaultIds.vaultWithAdapter);
+    }
+
+    function test_RevertWhen_ETHReceivedNotExceedETHExpected()
+        external
+        whenCallerBob
+        givenCurveWithdrawalRequested
+        whenOraclePriceNotZero
+    {
         // Update Curve mock such that amount exchanged is less than the output received by the `get_dy` function.
         curvePool.setDiff(1e18);
 
@@ -37,7 +51,12 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         adapter.unstakeFullAmount(vaultIds.vaultWithAdapter);
     }
 
-    function test_WhenETHReceivedExceedsETHExpected() external whenCallerBob givenCurveWithdrawalRequested {
+    function test_WhenETHReceivedExceedsETHExpected()
+        external
+        whenCallerBob
+        givenCurveWithdrawalRequested
+        whenOraclePriceNotZero
+    {
         // Simulate yield generation at settlement by lowering the exchange rate.
         UD60x18 newExchangeRate = UD60x18.wrap(0.8e18);
         wstEth.setExchangeRate(newExchangeRate);
