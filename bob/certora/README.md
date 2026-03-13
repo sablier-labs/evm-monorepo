@@ -134,7 +134,7 @@ Vault state machine, immutability, and authorization.
 | B-7 | `nextVaultIdMonotonic` | Parametric | `nextVaultId` never decreases after any function call | ✓ | ✓ |
 | B-9 | `vaultFieldsImmutable` | Parametric | Core vault fields (`token`, `oracle`, `targetPrice`, `expiry`, `shareToken`) never change after creation | ✓ | ✓ |
 | B-10 | `lastSyncedPriceAuthorization` | Parametric | `lastSyncedPrice` can only be modified by `syncPriceFromOracle`, `enter`, `redeem`, `unstakeTokensViaAdapter`, or `createVault` | ✓ | ✓ |
-| B-12 | `noEthStuckInContract` | Parametric | **Inv 12 / L-9**: No ETH should remain stuck in `SablierBob` after any function call. Adapter vault ETH trapping fixed (L-9: `msg.value > 0` now reverts). Comptroller linked to MockComptroller (with `receive() payable`) so the prover correctly models ETH balance transfer via low-level `call{value}` | ✓ | ✓ |
+| B-12 | `noEthStuckInContract` | Parametric | **Inv 12 / L-9 FIXED**: No ETH should remain stuck in `SablierBob` after any function call. Adapter vault ETH trapping fixed (L-9: `msg.value > 0` now reverts). Comptroller linked to MockComptroller (with `receive() payable`) so the prover correctly models ETH balance transfer via low-level `call{value}` | ✗ | ✓ |
 | B-13 | `createVaultRevertsIfExpiryInPast` | Revert Condition | `createVault` reverts if `expiry <= block.timestamp` — vaults cannot be created with a past or current expiry | ✓ | ✓ |
 | B-14 | `createVaultRevertsIfTargetPriceTooLow` | Revert Condition | `createVault` reverts if `targetPrice <= current oracle price` (with decimals=8) — vaults cannot be created with an already-reached target | ✓ | ✓ |
 | B-15a | `enterRevertsWhenNotActive` | Revert Condition | `enter` reverts when the vault is SETTLED or EXPIRED | ✓ | ✓ |
@@ -183,8 +183,8 @@ Adapter yield fee immutability, parameter bounds, WETH distribution conservation
 
 | ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Name | Type | Description | Audit | Mitig. |
 |:------|:----------------------------------------|:----------|:-------------------------------------------------|:---:|:---:|
-| L-C1 | `userWstETHClearedAfterRedemption` | Integrity | **C-1 FIXED**: `processRedemption` (renamed from `calculateAmountToTransferWithYield`) now includes `delete _userWstETH[vaultId][user]`, clearing the user's wstETH balance after computing WETH payout — prevents repeated redemption via share recycling | ✗ | ✓ |
-| L-L7 | `wethDistributionConservation` | Conservation | **L-7**: `processRedemption` uses floor division — sum of individual WETH shares < total WETH received, leaving dust stuck in contract with no recovery mechanism | ✗ | ✗ |
+| L-C1 | `userWstETHClearedAfterRedemption` | Integrity | **Inv 29 / C-1 FIXED**: `processRedemption` (renamed from `calculateAmountToTransferWithYield`) now includes `delete _userWstETH[vaultId][user]`, clearing the user's wstETH balance after computing WETH payout — prevents repeated redemption via share recycling | ✗ | ✓ |
+| L-L7 | `wethDistributionConservation` | Conservation | **Inv 24 / L-7**: `processRedemption` uses floor division — sum of individual WETH shares < total WETH received, leaving dust stuck in contract with no recovery mechanism | ✗ | ✗ |
 | L-31 | `vaultYieldFeeImmutable` | Parametric | Once a vault's yield fee is set via `registerVault`, no function can modify it | ✓ | ✓ |
 | L-48a | `setYieldFeeOnlyComptroller` | Access Control | `setYieldFee` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
 | L-48b | `setSlippageToleranceOnlyComptroller` | Access Control | `setSlippageTolerance` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
@@ -195,7 +195,7 @@ Adapter yield fee immutability, parameter bounds, WETH distribution conservation
 | L-49e | `updateStakedTokenBalanceOnlySablierBob` | Access Control | `updateStakedTokenBalance` reverts if `msg.sender` is not `SABLIER_BOB` | ✓ | ✓ |
 | L-53 | `feeOnYieldNotTooHigh` | Parametric | `feeOnYield` never exceeds `MAX_FEE` after any state change | ✓ | ✓ |
 | L-54 | `slippageToleranceNotTooHigh` | Parametric | `slippageTolerance` never exceeds `MAX_SLIPPAGE_TOLERANCE` after any state change | ✓ | ✓ |
-| L-M3 | `nonZeroShareTransferMovesWstETH` | Integrity | **M-3 FIXED**: `updateStakedTokenBalance` now reverts when the computed wstETH transfer amount is zero — prevents unbacked share transfers from floor division truncation | ✗ | ✓ |
+| L-M3 | `nonZeroShareTransferMovesWstETH` | Integrity | **Inv 32 / M-3 FIXED**: `updateStakedTokenBalance` now reverts when the computed wstETH transfer amount is zero — prevents unbacked share transfers from floor division truncation | ✗ | ✓ |
 | L-55 | `requestLidoWithdrawalOnlyComptroller` | Access Control | **NEW (Inv 55)**: `requestLidoWithdrawal` reverts if `msg.sender` is not the comptroller | | ✓ |
 | L-56 | `processRedemptionOnlySablierBob` | Access Control | **NEW (Inv 56)**: `processRedemption` reverts if `msg.sender` is not `SABLIER_BOB` | | ✓ |
 | L-57a | `lidoWithdrawalRequestIdsMonotonic` | Parametric | **NEW (Inv 57)**: Once Lido withdrawal request IDs are set for a vault, no function can clear them — Curve path permanently blocked | | ✓ |
