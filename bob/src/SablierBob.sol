@@ -266,11 +266,11 @@ contract SablierBob is
 
             // Check: the deposit token is staked with the adapter.
             if (_vaults[vaultId].isStakedInAdapter) {
-                // Interaction: unstake all tokens via the adapter.
-                _unstakeFullAmountViaAdapter(vaultId, adapter);
-
                 // Effect: set isStakedInAdapter to false.
                 _vaults[vaultId].isStakedInAdapter = false;
+
+                // Interaction: unstake all tokens via the adapter.
+                _unstakeFullAmountViaAdapter(vaultId, adapter);
             }
 
             // Interaction: Get the transfer amount and the fee deducted from yield.
