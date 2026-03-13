@@ -17,6 +17,7 @@ rm -rf "$artifacts"
 # Create the new artifacts directories
 mkdir "$artifacts" \
   "$artifacts/interfaces" \
+  "$artifacts/interfaces/external" \
   "$artifacts/libraries" \
   "$artifacts/erc20"
 
@@ -33,11 +34,15 @@ cp out-optimized/BobVaultShare.sol/BobVaultShare.json "$bob"
 bob_interfaces=./artifacts/interfaces
 cp out-optimized/IBobVaultShare.sol/IBobVaultShare.json "$bob_interfaces"
 cp out-optimized/ISablierBob.sol/ISablierBob.json "$bob_interfaces"
-cp out-optimized/ISablierBobAdapter.sol/ISablierBobAdapter.json "$bob_interfaces"
-cp out-optimized/ISablierBobState.sol/ISablierBobState.json "$bob_interfaces"
 cp out-optimized/ISablierEscrow.sol/ISablierEscrow.json "$bob_interfaces"
-cp out-optimized/ISablierEscrowState.sol/ISablierEscrowState.json "$bob_interfaces"
 cp out-optimized/ISablierLidoAdapter.sol/ISablierLidoAdapter.json "$bob_interfaces"
+
+bob_external=./artifacts/interfaces/external
+cp out-optimized/ICurveStETHPool.sol/ICurveStETHPool.json "$bob_external"
+cp out-optimized/ILidoWithdrawalQueue.sol/ILidoWithdrawalQueue.json "$bob_external"
+cp out-optimized/IStETH.sol/IStETH.json "$bob_external"
+cp out-optimized/IWETH9.sol/IWETH9.json "$bob_external"
+cp out-optimized/IWstETH.sol/IWstETH.json "$bob_external"
 
 bob_libraries=./artifacts/libraries
 cp out-optimized/Errors.sol/Errors.json "$bob_libraries"
