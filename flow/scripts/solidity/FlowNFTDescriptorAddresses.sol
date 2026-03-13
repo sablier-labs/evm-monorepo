@@ -18,7 +18,6 @@ abstract contract FlowNFTDescriptorAddresses {
         if (chainId == ChainId.BERACHAIN) return 0x581250eE4311F7Dc1afCF965cF8024004B423e9E;
         if (chainId == ChainId.BSC) return 0xAE557c04B46d47Ecac24edA63F22cabB4571Da61;
         if (chainId == ChainId.CHILIZ) return 0xC7fd18CA19938d559dC45aDE362a850015CF0bd8;
-        if (chainId == ChainId.COREDAO) return 0x7293F2D4A4e676EF67C085E92277AdF560AECb88;
         if (chainId == ChainId.ETHEREUM) return 0x24bE13897eE1F83367661B6bA616a72523fC55C9;
         if (chainId == ChainId.GNOSIS) return 0x5A47FC8732d399a2f3845c4FC91aB91bb97da31F;
         if (chainId == ChainId.HYPEREVM) return 0x81Cc8C4B57B9A60a56330d087D6854A8E17Dfc7A;
@@ -29,7 +28,6 @@ abstract contract FlowNFTDescriptorAddresses {
         if (chainId == ChainId.OPTIMISM) return 0x7AD245b74bBC1B71Da1713D53238931F791b90A3;
         if (chainId == ChainId.POLYGON) return 0x87B836a9e26673feB3E409A0da2EAf99C79f26C3;
         if (chainId == ChainId.SCROLL) return 0x797Fe78c41d9cbE81BBEA2f420101be5e47d2aFf;
-        if (chainId == ChainId.SEI) return 0xF3D18b06c87735a58DAb3baC45af058b3772fD54;
         if (chainId == ChainId.SONIC) return 0xAab30e5CB903f67F109aFc7102ac8ED803681EA5;
         if (chainId == ChainId.SOPHON) return 0x2F1eB117A87217E8bE9AA96795F69c9e380686Db;
         if (chainId == ChainId.SUPERSEED) return 0xd932fDA016eE9d9F70f745544b4F56715b1E723b;
