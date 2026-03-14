@@ -459,8 +459,13 @@ contract SablierBob is
 
         // If adapter is set, transfer tokens to the adapter.
         if (address(adapter) != address(0)) {
-            // Interaction: transfer tokens to the adapter.
-            token.safeTransferFrom(from, address(adapter), amount);
+            // Interaction: transfer tokens to the adapter. Use `safeTransfer` for the native token path since
+            // the contract already holds the wrapped tokens.
+            if (from == address(this)) {
+                token.safeTransfer(address(adapter), amount);
+            } else {
+                token.safeTransferFrom(from, address(adapter), amount);
+            }
 
             // Interaction: stake tokens via the adapter on behalf of the caller.
             adapter.stake(vaultId, msg.sender, amount);

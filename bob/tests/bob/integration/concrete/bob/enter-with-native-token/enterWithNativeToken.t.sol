@@ -145,7 +145,7 @@ contract EnterWithNativeToken_Integration_Concrete_Test is Integration_Test {
         vm.expectCall(address(weth), DEPOSIT_AMOUNT, abi.encodeCall(IWETH9.deposit, ()));
 
         // It should transfer tokens to the adapter.
-        expectCallToTransferFrom({ token: weth, from: address(bob), to: address(adapter), value: DEPOSIT_AMOUNT });
+        expectCallToTransfer({ token: weth, to: address(adapter), value: DEPOSIT_AMOUNT });
 
         bob.enterWithNativeToken{ value: DEPOSIT_AMOUNT }(vaultIds.vaultWithAdapter);
 
