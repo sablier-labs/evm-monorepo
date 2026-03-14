@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file. The format is based on
 [Common Changelog](https://common-changelog.org/).
 
+## [3.0.0] - 2026-03-14
+
+### Changed
+
+- Refactor `SablierMerkleBase` and `SablierMerkleLockup` constructors to accept `ConstructorParams` struct ([#1403](https://github.com/sablier-labs/lockup/pull/1403))
+- Refactor `DataTypes` into separate type files (`MerkleBase`, `MerkleExecute`, `MerkleInstant`,
+  `MerkleLL`, `MerkleLT`, `MerkleLockup`, `MerkleVCA`) ([#1408](https://github.com/sablier-labs/lockup/pull/1408))
+  - `DataTypes` is kept for backward compatibility and will be deprecated in future versions.
+- Add `granularity` parameter to `SablierMerkleLL` for Lockup Linear streams ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
+
+### Added
+
+- **Breaking:** Add `ClaimType` enum in campaign deployment parameters ([#1405](https://github.com/sablier-labs/lockup/pull/1405))
+- Add `SablierMerkleExecute` campaign contract for executing arbitrary calls with airdropped tokens ([#1393](https://github.com/sablier-labs/lockup/pull/1393))
+- Add claim via attestation (`claimViaAttestation`) with `SablierMerkleSignature` abstract contract ([#1403](https://github.com/sablier-labs/lockup/pull/1403))
+- Add redistribution of forgone tokens in `MerkleVCA` ([#1363](https://github.com/sablier-labs/lockup/pull/1363))
+
 ## [2.0.1] - 2025-10-14
 
 ### Changed
@@ -70,3 +87,4 @@ All notable changes to this project will be documented in this file. The format 
 [1.3.0]: https://github.com/sablier-labs/airdrops/releases/tag/v1.3.0
 [2.0.0]: https://github.com/sablier-labs/airdrops/compare/v1.3.0...v2.0.0
 [2.0.1]: https://github.com/sablier-labs/airdrops/compare/v2.0.0...v2.0.1
+[3.0.0]: https://github.com/sablier-labs/airdrops/compare/v2.0.1...v3.0.0

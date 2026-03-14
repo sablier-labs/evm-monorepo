@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+## [2.1.0] - 2026-03-14
+
+### Changed
+
+- Rename `Helpers` library to `FlowHelpers` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
+
+### Added
+
+- Add `transferFromPayable` function ([#1384](https://github.com/sablier-labs/lockup/pull/1384))
+
+### Removed
+
+- Remove `Recover` event from `ISablierFlow` ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+- Remove surplus zero check from `recover` function ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+- Remove `SablierFlow_SurplusZero` error ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+
 ## [2.0.1] - 2025-10-22
 
 ### Changed
@@ -74,3 +90,4 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [1.1.1]: https://github.com/sablier-labs/flow/compare/v1.1.0...v1.1.1
 [2.0.0]: https://github.com/sablier-labs/flow/compare/v1.1.1...v2.0.0
 [2.0.1]: https://github.com/sablier-labs/flow/compare/v2.0.0...v2.0.1
+[2.1.0]: https://github.com/sablier-labs/flow/compare/v2.0.1...v2.1.0
