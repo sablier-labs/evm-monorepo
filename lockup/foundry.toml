@@ -4,7 +4,7 @@
 
 [profile.default]
   extends = "../foundry.base.toml"
-  optimizer_runs = 500
+  optimizer_runs = 100
 
 [profile.default.fuzz]
   runs = 50
