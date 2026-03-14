@@ -102,6 +102,10 @@ contract SablierLidoAdapter is
     /// @param sablierBob The address of the SablierBob contract.
     /// @param curvePool The address of the Curve stETH/ETH pool.
     /// @param lidoWithdrawalQueue The address of the Lido withdrawal queue contract.
+    /// @param steth The address of the stETH contract.
+    /// @param stethEthOracle The address of the Chainlink's stETH/ETH oracle.
+    /// @param weth The address of the WETH contract.
+    /// @param wsteth The address of the wstETH contract.
     /// @param initialSlippageTolerance The initial slippage tolerance for Curve swaps as UD60x18.
     /// @param initialYieldFee The initial yield fee as UD60x18.
     constructor(
@@ -109,10 +113,10 @@ contract SablierLidoAdapter is
         address sablierBob,
         address curvePool,
         address lidoWithdrawalQueue,
-        address stETH,
-        address stETH_ETH_Oracle,
-        address wETH,
-        address wstETH,
+        address steth,
+        address stethEthOracle,
+        address weth,
+        address wsteth,
         UD60x18 initialSlippageTolerance,
         UD60x18 initialYieldFee
     )
@@ -131,10 +135,10 @@ contract SablierLidoAdapter is
         SABLIER_BOB = sablierBob;
         CURVE_POOL = curvePool;
         LIDO_WITHDRAWAL_QUEUE = lidoWithdrawalQueue;
-        STETH = stETH;
-        STETH_ETH_ORACLE = stETH_ETH_Oracle;
-        WETH = wETH;
-        WSTETH = wstETH;
+        STETH = steth;
+        STETH_ETH_ORACLE = stethEthOracle;
+        WETH = weth;
+        WSTETH = wsteth;
 
         // Effect: set the initial slippage tolerance.
         slippageTolerance = initialSlippageTolerance;

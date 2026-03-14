@@ -40,7 +40,7 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
     MockCurvePool internal curvePool;
     MockLidoWithdrawalQueue internal lidoWithdrawalQueue;
     MockStETH internal steth;
-    ChainlinkOracleWith18Decimals internal stETHETHOracle;
+    ChainlinkOracleWith18Decimals internal stethEthOracle;
     MockWETH internal weth;
     MockWstETH internal wstEth;
 
@@ -105,8 +105,8 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
         lidoWithdrawalQueue = new MockLidoWithdrawalQueue();
 
         // Deploy a stETH/ETH oracle mock returning ~1:1 (1e18 in 18 decimals).
-        stETHETHOracle = new ChainlinkOracleWith18Decimals();
-        stETHETHOracle.setPrice(STETH_ETH_ORACLE_PRICE);
+        stethEthOracle = new ChainlinkOracleWith18Decimals();
+        stethEthOracle.setPrice(STETH_ETH_ORACLE_PRICE);
 
         // Fund Curve pool with ETH for swaps.
         vm.deal(address(curvePool), 10_000 ether);
@@ -125,10 +125,10 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
             sablierBob: address(bob),
             curvePool: address(curvePool),
             lidoWithdrawalQueue: address(lidoWithdrawalQueue),
-            stETH: address(steth),
-            stETH_ETH_Oracle: address(stETHETHOracle),
-            wETH: address(weth),
-            wstETH: address(wstEth),
+            steth: address(steth),
+            stethEthOracle: address(stethEthOracle),
+            weth: address(weth),
+            wsteth: address(wstEth),
             initialSlippageTolerance: SLIPPAGE_TOLERANCE,
             initialYieldFee: YIELD_FEE
         });
