@@ -11,8 +11,8 @@ EnterWithNativeToken_Integration_Concrete_Test
       │  └── it should revert
       └── when msg value not zero
          ├── when token not WETH
-         │  └── it should revert 
-         └── when token is WETH
+         │  └── it should revert
+         └── when token Weth
             ├── when sync changes status
             │  ├── when new status EXPIRED
             │  │  └── it should revert

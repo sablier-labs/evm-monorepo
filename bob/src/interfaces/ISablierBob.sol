@@ -122,6 +122,7 @@ interface ISablierBob is IComptrollerable, ISablierBobState {
     /// - Share tokens are minted 1:1 with the deposited amount.
     ///
     /// Requirements:
+    /// - `vaultId` must not reference a null vault.
     /// - The vault must have ACTIVE status.
     /// - `amount` must be greater than zero.
     /// - The caller must have approved this contract to transfer `amount` tokens.
@@ -130,19 +131,18 @@ interface ISablierBob is IComptrollerable, ISablierBobState {
     /// @param amount The amount of tokens to deposit.
     function enter(uint256 vaultId, uint128 amount) external;
 
-    /// @notice Enter into a vault by depositing ETH which is wrapped into WETH.
+    /// @notice Enter into a vault by depositing native token (such as ETH, POL, etc.) into it and minting share tokens
+    /// to the caller.
     ///
     /// @dev Emits an {Enter} event.
     ///
     /// Notes:
-    /// - `msg.value` is used as the deposit amount and is safe-cast to `uint128`.
-    /// - If an adapter is configured for the vault, tokens are automatically staked for yield using the adapter.
-    /// - Share tokens are minted 1:1 with the deposited amount.
+    /// - `msg.value` is used as the deposit amount.
+    /// - See notes for {enter}.
     ///
     /// Requirements:
-    /// - `vaultId` must not reference a null vault.
-    /// - The vault must have ACTIVE status.
-    /// - `msg.value` must be greater than zero and fit in `uint128`.
+    /// - See requirements for {enter}.
+    /// - `msg.value` must be greater than zero and must not exceed `type(uint128).max`.
     ///
     /// @param vaultId The ID of the vault to deposit into.
     function enterWithNativeToken(uint256 vaultId) external payable;
@@ -180,6 +180,7 @@ interface ISablierBob is IComptrollerable, ISablierBobState {
     /// Lido queue is finalized.
     ///
     /// Requirements:
+    /// - `vaultId` must not reference a null vault.
     /// - Either block timestamp must be greater than or equal to the vault expiry or the latest price from the oracle
     /// must be greater than or equal to the target price.
     /// - The share balance of the caller must be greater than zero.
@@ -233,6 +234,7 @@ interface ISablierBob is IComptrollerable, ISablierBobState {
     /// anyone to settle vault when the price is above the target price.
     ///
     /// Requirements:
+    /// - `vaultId` must not reference a null vault.
     /// - The vault must have ACTIVE status.
     /// - The oracle must return a positive price.
     ///
@@ -246,6 +248,7 @@ interface ISablierBob is IComptrollerable, ISablierBobState {
     /// @dev Emits an {UnstakeFromAdapter} event.
     ///
     /// Requirements:
+    /// - `vaultId` must not reference a null vault.
     /// - The adapter set in the vault must not be zero address.
     /// - Either block timestamp must be greater than or equal to the vault expiry or the latest price from the oracle
     /// must be greater than or equal to the target price.

@@ -65,9 +65,6 @@ library Errors {
     /// @notice Thrown when trying to create a vault with a zero token address.
     error SablierBob_TokenAddressZero();
 
-    /// @notice Thrown when trying to enter with native token but the vault's token is not WETH.
-    error SablierBob_VaultTokenNotWETH(uint256 vaultId, address vaultToken, address weth);
-
     /// @notice Thrown when trying to unstake vault tokens using the adapter but the amount staked is zero.
     error SablierBob_UnstakeAmountZero(uint256 vaultId);
 

@@ -104,7 +104,7 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
         curvePool = new MockCurvePool(address(steth));
         lidoWithdrawalQueue = new MockLidoWithdrawalQueue();
 
-        // Deploy a stETH/ETH oracle mock returning ~1:1 (1e18 in 18 decimals).
+        // Deploy the stETH/ETH oracle mock and set the oracle price.
         stethEthOracle = new ChainlinkOracleWith18Decimals();
         stethEthOracle.setPrice(STETH_ETH_ORACLE_PRICE);
 

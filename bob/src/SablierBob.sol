@@ -201,14 +201,15 @@ contract SablierBob is
         notNull(vaultId)
         onlyActive(vaultId)
     {
-        // Cast `msg.value` to `uint128`.
-        uint128 amount = msg.value.toUint128();
-
         // Cache the vault's token.
         address token = address(_vaults[vaultId].token);
 
-        // Interaction: wrap the native token.
+        // Interaction: call the deposit function in the vault tokens assuming it follows the IWETH9 interface.
+        // Otherwise, it will revert.
         IWETH9(token).deposit{ value: msg.value }();
+
+        // Cast `msg.value` to `uint128`.
+        uint128 amount = msg.value.toUint128();
 
         // Enter the vault.
         _enter({ vaultId: vaultId, from: address(this), amount: amount, token: IERC20(token) });
@@ -435,11 +436,10 @@ contract SablierBob is
                           PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Common logic for entering a vault. Syncs the oracle price, transfers tokens, stakes via adapter if
-    /// applicable, and mints share tokens.
+    /// @dev Common function to enter into a vault by depositing tokens into it and minting share tokens to caller.
     /// @param vaultId The ID of the vault to deposit into.
-    /// @param from The address holding the tokens. Use `msg.sender` for ERC-20 deposits or `address(this)` when the
-    /// contract already holds the tokens (e.g., after wrapping native tokens).
+    /// @param from The address holding the vault token when calling this function. In case of native token deposits,
+    /// the vault tokens are held by this contract.
     /// @param amount The amount of tokens to deposit.
     /// @param token The ERC-20 token accepted by the vault.
     function _enter(uint256 vaultId, address from, uint128 amount, IERC20 token) private {
@@ -448,23 +448,26 @@ contract SablierBob is
             revert Errors.SablierBob_DepositAmountZero(vaultId, msg.sender);
         }
 
-        // Cache the adapter from storage to memory.
-        ISablierBobAdapter adapter = _vaults[vaultId].adapter;
-
         // Effect: sync the price from oracle.
         _syncPriceFromOracle(vaultId);
 
         // Check: the vault is still active after the price sync.
         _revertIfSettledOrExpired(vaultId);
 
-        // Interaction: transfer tokens to this contract or the adapter.
+        // Cache storage variables.
+        ISablierBobAdapter adapter = _vaults[vaultId].adapter;
+
+        // If adapter is set, transfer tokens to the adapter.
         if (address(adapter) != address(0)) {
             // Interaction: transfer tokens to the adapter.
             token.safeTransferFrom(from, address(adapter), amount);
 
-            // Interaction: stake the tokens via the adapter.
+            // Interaction: stake tokens via the adapter on behalf of the caller.
             adapter.stake(vaultId, msg.sender, amount);
-        } else if (from != address(this)) {
+        }
+        // Otherwise, if `from` is `msg.sender`, transfer tokens to this contract. When this function is called by
+        // `enterWithNativeToken`, the vault tokens are held by this contract already.
+        else if (from == msg.sender) {
             // Interaction: transfer tokens from caller to this contract.
             token.safeTransferFrom(from, address(this), amount);
         }
@@ -477,6 +480,7 @@ contract SablierBob is
     }
 
     /// @notice Private function that reverts if the vault is settled or expired.
+    /// @param vaultId The ID of the vault.
     function _revertIfSettledOrExpired(uint256 vaultId) private view {
         if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
             revert Errors.SablierBob_VaultNotActive(vaultId);

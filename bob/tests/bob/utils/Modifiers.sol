@@ -136,15 +136,15 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenSlippageToleranceNotExceedMax() {
+        _;
+    }
+
     modifier whenSyncChangesStatus() {
         _;
     }
 
     modifier whenSyncNotChangeStatus() {
-        _;
-    }
-
-    modifier whenTokenIsWETH() {
         _;
     }
 
@@ -156,7 +156,7 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier whenSlippageToleranceNotExceedMax() {
+    modifier whenTokenWETH() {
         _;
     }
 

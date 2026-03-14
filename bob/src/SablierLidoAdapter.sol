@@ -55,7 +55,7 @@ contract SablierLidoAdapter is
     /// @inheritdoc ISablierLidoAdapter
     address public immutable override STETH_ETH_ORACLE;
 
-    /// @inheritdoc ISablierBobAdapter
+    /// @inheritdoc ISablierLidoAdapter
     address public immutable override WETH;
 
     /// @inheritdoc ISablierLidoAdapter
@@ -427,7 +427,7 @@ contract SablierLidoAdapter is
         // Effect: store the total WETH received for redemption calculations.
         _wethReceivedAfterUnstaking[vaultId] = amountReceivedFromUnstaking;
 
-        // Interaction: Transfer WETH to SablierBob for distribution.
+        // Interaction: transfer WETH to SablierBob for distribution.
         IERC20(WETH).safeTransfer(SABLIER_BOB, amountReceivedFromUnstaking);
 
         // Log the event.

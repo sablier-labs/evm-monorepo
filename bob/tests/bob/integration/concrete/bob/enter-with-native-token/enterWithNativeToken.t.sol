@@ -14,9 +14,7 @@ contract EnterWithNativeToken_Integration_Concrete_Test is Integration_Test {
 
         // Change caller to new depositor for this test.
         setMsgSender(users.newDepositor);
-
-        // Deal enough ETH for native token deposits.
-        vm.deal(users.newDepositor, 100 ether);
+        deal(users.newDepositor, DEPOSIT_AMOUNT);
     }
 
     function test_RevertGiven_Null() external {
@@ -43,11 +41,7 @@ contract EnterWithNativeToken_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertWhen_TokenNotWETH() external givenNotNull givenACTIVEStatus whenMsgValueNotZero {
-        // Create a vault with DAI (non-WETH token).
-        setMsgSender(users.depositor);
         uint256 daiVaultId = bob.createVault({ token: dai, oracle: oracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
-        setMsgSender(users.newDepositor);
-        vm.deal(users.newDepositor, 100 ether);
 
         // It should revert because DAI does not implement the `deposit()` function.
         vm.expectRevert();
@@ -59,7 +53,7 @@ contract EnterWithNativeToken_Integration_Concrete_Test is Integration_Test {
         givenNotNull
         givenACTIVEStatus
         whenMsgValueNotZero
-        whenTokenIsWETH
+        whenTokenWETH
         whenSyncChangesStatus
     {
         expectRevert_EXPIRED(abi.encodeCall(bob.enterWithNativeToken, (vaultIds.defaultVault)));
@@ -70,7 +64,7 @@ contract EnterWithNativeToken_Integration_Concrete_Test is Integration_Test {
         givenNotNull
         givenACTIVEStatus
         whenMsgValueNotZero
-        whenTokenIsWETH
+        whenTokenWETH
         whenSyncChangesStatus
     {
         // Set oracle price to target price so that the sync settles the vault.
@@ -86,7 +80,7 @@ contract EnterWithNativeToken_Integration_Concrete_Test is Integration_Test {
         givenNotNull
         givenACTIVEStatus
         whenMsgValueNotZero
-        whenTokenIsWETH
+        whenTokenWETH
         whenSyncNotChangeStatus
     {
         uint256 shareBalanceBefore = defaultShareToken.balanceOf(users.newDepositor);
@@ -122,7 +116,7 @@ contract EnterWithNativeToken_Integration_Concrete_Test is Integration_Test {
         givenNotNull
         givenACTIVEStatus
         whenMsgValueNotZero
-        whenTokenIsWETH
+        whenTokenWETH
         whenSyncNotChangeStatus
     {
         // Get address of the share token for the vault with adapter.
