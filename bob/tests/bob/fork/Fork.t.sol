@@ -71,10 +71,10 @@ abstract contract Fork_Test is Base_Test {
             sablierBob: address(forkBob),
             curvePool: FORK_CURVE_POOL,
             lidoWithdrawalQueue: FORK_LIDO_WITHDRAWAL_QUEUE,
-            stETH: FORK_STETH,
-            stETH_ETH_Oracle: FORK_STETH_ETH_ORACLE,
-            wETH: address(FORK_WETH),
-            wstETH: FORK_WSTETH,
+            steth: FORK_STETH,
+            stethEthOracle: FORK_STETH_ETH_ORACLE,
+            weth: address(FORK_WETH),
+            wsteth: FORK_WSTETH,
             initialSlippageTolerance: SLIPPAGE_TOLERANCE,
             initialYieldFee: YIELD_FEE
         });

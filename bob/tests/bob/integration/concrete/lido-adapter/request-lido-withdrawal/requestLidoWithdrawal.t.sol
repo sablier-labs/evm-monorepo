@@ -67,7 +67,7 @@ contract RequestLidoWithdrawal_Integration_Concrete_Test is Integration_Test {
         givenNotAlreadyUnstaked
         givenLidoWithdrawalNotRequested
     {
-        // Create a vault with adapter but no deposits (wstETH balance is zero).
+        // Create a vault with adapter without any deposit so total wstETH balance is zero.
         vm.warp(FEB_1_2026);
         uint256 emptyVaultId = createVaultWithAdapter();
         vm.warp(EXPIRY);

@@ -24,10 +24,10 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
             sablierBob: address(bob),
             curvePool: address(curvePool),
             lidoWithdrawalQueue: address(lidoWithdrawalQueue),
-            stETH: address(steth),
-            stETH_ETH_Oracle: address(stETHETHOracle),
-            wETH: address(weth),
-            wstETH: address(wstEth),
+            steth: address(steth),
+            stethEthOracle: address(stethEthOracle),
+            weth: address(weth),
+            wsteth: address(wstEth),
             initialSlippageTolerance: slippageTolerance,
             initialYieldFee: YIELD_FEE
         });
@@ -46,10 +46,10 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
             sablierBob: address(bob),
             curvePool: address(curvePool),
             lidoWithdrawalQueue: address(lidoWithdrawalQueue),
-            stETH: address(steth),
-            stETH_ETH_Oracle: address(stETHETHOracle),
-            wETH: address(weth),
-            wstETH: address(wstEth),
+            steth: address(steth),
+            stethEthOracle: address(stethEthOracle),
+            weth: address(weth),
+            wsteth: address(wstEth),
             initialSlippageTolerance: SLIPPAGE_TOLERANCE,
             initialYieldFee: yieldFee
         });
@@ -62,10 +62,10 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
             sablierBob: address(bob),
             curvePool: address(curvePool),
             lidoWithdrawalQueue: address(lidoWithdrawalQueue),
-            stETH: address(steth),
-            stETH_ETH_Oracle: address(stETHETHOracle),
-            wETH: address(weth),
-            wstETH: address(wstEth),
+            steth: address(steth),
+            stethEthOracle: address(stethEthOracle),
+            weth: address(weth),
+            wsteth: address(wstEth),
             initialSlippageTolerance: SLIPPAGE_TOLERANCE,
             initialYieldFee: YIELD_FEE
         });

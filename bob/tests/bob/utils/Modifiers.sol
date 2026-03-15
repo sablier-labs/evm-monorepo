@@ -28,11 +28,11 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenAmountExceedsMinPerRequest() {
+    modifier givenAmountExceedsMaxPerRequest() {
         _;
     }
 
-    modifier givenAmountExceedsMaxPerRequest() {
+    modifier givenAmountExceedsMinPerRequest() {
         _;
     }
 
@@ -44,11 +44,11 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenNotAlreadyUnstaked() {
+    modifier givenNoAdapter() {
         _;
     }
 
-    modifier givenNoAdapter() {
+    modifier givenNotAlreadyUnstaked() {
         _;
     }
 
@@ -108,6 +108,10 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenMsgValueNotZero() {
+        _;
+    }
+
     modifier whenMsgValueZero() {
         _;
     }
@@ -132,6 +136,10 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenSlippageToleranceNotExceedMax() {
+        _;
+    }
+
     modifier whenSyncChangesStatus() {
         _;
     }
@@ -148,11 +156,11 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier whenSlippageToleranceNotExceedMax() {
+    modifier whenTokenNotZero() {
         _;
     }
 
-    modifier whenTokenNotZero() {
+    modifier whenTokenWETH() {
         _;
     }
 
