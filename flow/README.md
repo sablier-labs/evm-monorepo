@@ -14,7 +14,7 @@ time elapsed is linear and defined as:
 
 Sablier Flow can be used in several areas of everyday finance, such as payroll, subscriptions, grant distributions,
 insurance premiums, loans interest, token ESOPs etc. If you are looking for vesting and airdrops, please refer to our
-[Lockup](https://github.com/sablier-labs/v2-core/) protocol.
+[Lockup](../lockup/) protocol.
 
 ## Features
 
@@ -93,9 +93,9 @@ bug bounty program per the terms outlined in the aforementioned policy.
 
 ## Contributing
 
-Feel free to dive in! [Open](https://github.com/sablier-labs/flow/issues/new) an issue,
-[start](https://github.com/sablier-labs/flow/discussions/new) a discussion or submit
-[a PR](https://github.com/sablier-labs/flow/compare). For any concerns or feedback, please join our
+Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new) a discussion or submit
+[a PR](https://github.com/sablier-labs/evm-monorepo/compare). For any concerns or feedback, please join our
 [Discord server](https://discord.gg/bSwRCwWRsT).
 
 Refer to [CONTRIBUTING](./CONTRIBUTING.md) guidelines if you wish to create a PR.
@@ -110,7 +110,7 @@ See [LICENSE.md](./LICENSE.md).
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
-[gha]: https://github.com/sablier-labs/flow/actions
-[gha-badge]: https://github.com/sablier-labs/flow/actions/workflows/ci.yml/badge.svg
+[gha]: https://github.com/sablier-labs/evm-monorepo/actions
+[gha-badge]: https://github.com/sablier-labs/evm-monorepo/actions/workflows/ci-flow.yml/badge.svg
 [twitter]: https://x.com/Sablier
 [twitter-badge]: https://img.shields.io/twitter/follow/Sablier

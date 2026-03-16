@@ -75,8 +75,8 @@ bug bounty program per the terms outlined in the aforementioned policy.
 
 ## Contributing
 
-Feel free to dive in! [Open](https://github.com/sablier-labs/airdrops/issues/new) an issue,
-[start](https://github.com/sablier-labs/airdrops/discussions/new) a discussion or submit a PR. For any informal concerns
+Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new) a discussion or submit a PR. For any informal concerns
 or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
 For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) guide.
@@ -91,7 +91,7 @@ See [LICENSE.md](./LICENSE.md).
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
-[gha]: https://github.com/sablier-labs/airdrops/actions
-[gha-badge]: https://github.com/sablier-labs/airdrops/actions/workflows/ci.yml/badge.svg
+[gha]: https://github.com/sablier-labs/evm-monorepo/actions
+[gha-badge]: https://github.com/sablier-labs/evm-monorepo/actions/workflows/ci-airdrops.yml/badge.svg
 [twitter]: https://x.com/Sablier
 [twitter-badge]: https://img.shields.io/twitter/follow/Sablier
