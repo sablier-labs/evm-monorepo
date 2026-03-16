@@ -19,7 +19,7 @@ abstract contract Sponsor_Integration_Test is Integration_Test {
         merkleBase.sponsor({ token: usdc, amount: 0, biller: address(comptroller) });
     }
 
-    function test_WhenAmountNotZero() external whenBillerNotZeroAddress whenTokenNotZeroAddress {
+    function test_WhenAmountNotZero() external whenBillerNotZeroAddress {
         // Approve the merkle base to transfer the sponsor amount.
         setMsgSender(users.campaignCreator);
         usdc.approve(address(merkleBase), SPONSOR_AMOUNT);
