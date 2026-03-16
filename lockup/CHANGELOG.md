@@ -4,23 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
-## [4.0.0] - 2026-03-14
+## [4.0.0] - 2026-03-16
 
 ### Changed
 
 - **Breaking:** Add `granularity` parameter to Lockup Linear create functions ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
-- Rename error names from `SablierHelpers_` prefix to `SablierLockupHelpers_` prefix ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
 - Rename `Helpers` library to `LockupHelpers` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
-- Move `safeTokenSymbol` and `isAllowedCharacter` from `LockupNFTDescriptor` to `@sablier/evm-utils` - `SafeTokenSymbol` library ([#1424](https://github.com/sablier-labs/lockup/pull/1424))
 
 ### Added
 
-- Add Lockup Price Gated model with `createWithTimestampsLPG` and oracle-based token unlock ([#1406](https://github.com/sablier-labs/lockup/pull/1406))
-- Add zero-check validation for segment count and tranche count in `LockupHelpers` ([159ff1](https://github.com/sablier-labs/lockup/commit/159ff104))
+- Add new Price Gated model to Lockup that unlock tokens based on a target price of the stream token ([#1406](https://github.com/sablier-labs/lockup/pull/1406), [#1416](https://github.com/sablier-labs/lockup/pull/1416))
+  - Add `createWithTimestampsLPG` to `SablierBatchLockup` contract ([#1416](https://github.com/sablier-labs/lockup/pull/1416))
 
 ### Removed
 
-- Remove `safeTokenSymbol` and `isAllowedCharacter` from `LockupNFTDescriptor` (moved to `@sablier/evm-utils`) ([#1424](https://github.com/sablier-labs/lockup/pull/1424))
+- Remove `safeTokenSymbol` and `isAllowedCharacter` functions from `LockupNFTDescriptor` (moved to `@sablier/evm-utils`) ([#1424](https://github.com/sablier-labs/lockup/pull/1424))
+
+### Fixed
+
+- Add zero-check validation for segment count and tranche count in `LockupHelpers` ([#1429](https://github.com/sablier-labs/lockup/pull/1429))
 
 ## [3.0.1] - 2025-10-14
 
