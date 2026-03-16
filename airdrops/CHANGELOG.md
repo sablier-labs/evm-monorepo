@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file. The format 
 - **Breaking**: Change return type of `totalForgoneAmount()` in `SablierMerkleVCA` from `uint256` to `uint128` ([#1363](https://github.com/sablier-labs/lockup/pull/1363))
 - Refactor `SablierMerkleBase` and `SablierMerkleLockup` constructors to accept `ConstructorParams` struct ([#1403](https://github.com/sablier-labs/lockup/pull/1403))
 - Refactor `DataTypes` into separate type files ([#1408](https://github.com/sablier-labs/lockup/pull/1408))
-  - `DataTypes` is kept for backward compatibility and will be deprecated in future versions.
+  - `DataTypes` is deprecated and kept only for backward compatibility.
 
 ### Added
 
