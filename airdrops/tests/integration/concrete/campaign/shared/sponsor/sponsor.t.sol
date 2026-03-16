@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
@@ -16,19 +14,13 @@ abstract contract Sponsor_Integration_Test is Integration_Test {
         merkleBase.sponsor({ token: usdc, amount: SPONSOR_AMOUNT, biller: address(0) });
     }
 
-    function test_RevertWhen_TokenZeroAddress() external whenBillerNotZeroAddress {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_ToZeroAddress.selector));
-        merkleBase.sponsor({ token: IERC20(address(0)), amount: SPONSOR_AMOUNT, biller: address(comptroller) });
-    }
-
-    function test_RevertWhen_AmountZero() external whenBillerNotZeroAddress whenTokenNotZeroAddress {
+    function test_RevertWhen_AmountZero() external whenBillerNotZeroAddress {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_SponsorAmountZero.selector));
         merkleBase.sponsor({ token: usdc, amount: 0, biller: address(comptroller) });
     }
 
     function test_WhenAmountNotZero() external whenBillerNotZeroAddress whenTokenNotZeroAddress {
-        // Fund the caller with USDC and approve the campaign.
-        deal({ token: address(usdc), to: users.campaignCreator, give: SPONSOR_AMOUNT });
+        // Approve the merkle base to transfer the sponsor amount.
         setMsgSender(users.campaignCreator);
         usdc.approve(address(merkleBase), SPONSOR_AMOUNT);
 

@@ -2,11 +2,8 @@ Sponsor_Integration_Test
 ├── when biller zero address
 │  └── it should revert
 └── when biller not zero address
-   ├── when token zero address
+   ├── when amount zero
    │  └── it should revert
-   └── when token not zero address
-     ├── when amount zero
-     │  └── it should revert
-     └── when amount not zero
-        ├── it should perform the ERC-20 transfer
-        └── it should emit a {Sponsor} event
+   └── when amount not zero
+      ├── it should perform the ERC-20 transfer
+      └── it should emit a {Sponsor} event

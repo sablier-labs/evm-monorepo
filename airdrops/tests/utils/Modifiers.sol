@@ -215,10 +215,6 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenTokenNotZeroAddress() {
-        _;
-    }
-
     modifier whenTotalPercentage100() {
         _;
     }

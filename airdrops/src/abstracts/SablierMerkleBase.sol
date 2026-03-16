@@ -170,16 +170,7 @@ abstract contract SablierMerkleBase is
     }
 
     /// @inheritdoc ISablierMerkleBase
-    function sponsor(
-        IERC20 token,
-        uint128 amount,
-        address biller
-    )
-        external
-        override
-        notZeroAddress(biller)
-        notZeroAddress(address(token))
-    {
+    function sponsor(IERC20 token, uint128 amount, address biller) external override notZeroAddress(biller) {
         // Check: the amount is not zero.
         if (amount == 0) {
             revert Errors.SablierMerkleBase_SponsorAmountZero();
