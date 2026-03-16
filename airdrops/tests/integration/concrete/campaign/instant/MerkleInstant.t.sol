@@ -12,6 +12,7 @@ import { HasClaimed_Integration_Test } from "./../shared/has-claimed/hasClaimed.
 import { HasExpired_Integration_Test } from "./../shared/has-expired/hasExpired.t.sol";
 import { LowerMinFeeUSD_Integration_Test } from "./../shared/lower-min-fee-usd/lowerMinFeeUSD.t.sol";
 import { SetAttestor_Integration_Test } from "./../shared/set-attestor/setAttestor.t.sol";
+import { Sponsor_Integration_Test } from "./../shared/sponsor/sponsor.t.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
                              NON-SHARED TESTS
@@ -98,6 +99,12 @@ contract SetAttestor_MerkleInstant_Integration_Test is
     MerkleInstant_Integration_Shared_Test,
     SetAttestor_Integration_Test
 {
+    function setUp() public override(MerkleInstant_Integration_Shared_Test, Integration_Test) {
+        MerkleInstant_Integration_Shared_Test.setUp();
+    }
+}
+
+contract Sponsor_MerkleInstant_Integration_Test is MerkleInstant_Integration_Shared_Test, Sponsor_Integration_Test {
     function setUp() public override(MerkleInstant_Integration_Shared_Test, Integration_Test) {
         MerkleInstant_Integration_Shared_Test.setUp();
     }
