@@ -8,16 +8,15 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
-- **Breaking:** Add `granularity` parameter to `createWithTimestampsLL` and `createWithDurationsLL` functions ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
-- **Breaking**: Refactor `checkCreateLL` function of `LockupHelpers` library to allow additional parameters ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
 - Rename `Helpers` library to `LockupHelpers` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
-- Rename error prefix for `Helpers` library from `SablierHelpers_` to `SablierLockupHelpers_` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
+  - Rename error prefix for `Helpers` library from `SablierHelpers_` to `SablierLockupHelpers_` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
 
 ### Added
 
-- Add `createWithTimestampsLPG` function to create streams that unlock tokens based on a target price of the stream token ([#1406](https://github.com/sablier-labs/lockup/pull/1406), [#1416](https://github.com/sablier-labs/lockup/pull/1416))
-- Add `createWithTimestampsLPG` to `SablierBatchLockup` contract ([#1416](https://github.com/sablier-labs/lockup/pull/1416))
-- Add `checkCreateLPG` function to `LockupHelpers` library ([#1406](https://github.com/sablier-labs/lockup/pull/1406))
+- **Breaking:** Add `granularity` parameter to LL model functions ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
+- Add new `LPG`streams model that unlock tokens based on a target price of the stream token ([#1406](https://github.com/sablier-labs/lockup/pull/1406), [#1416](https://github.com/sablier-labs/lockup/pull/1416))
+  - Add `createWithTimestampsLPG` to `SablierBatchLockup` contract ([#1416](https://github.com/sablier-labs/lockup/pull/1416))
+  - Add `checkCreateLPG` function to `LockupHelpers` library ([#1406](https://github.com/sablier-labs/lockup/pull/1406))
 
 ### Removed
 

@@ -1,7 +1,8 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. The format is based on
-[Common Changelog](https://common-changelog.org/).
+All notable changes to this project will be documented in this file.
+
+The format is based on [Common Changelog](https://common-changelog.org/).
 
 ## [3.0.0] - 2026-03-16
 

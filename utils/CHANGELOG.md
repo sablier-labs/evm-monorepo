@@ -1,9 +1,10 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. The format is based on
-[Common Changelog](https://common-changelog.org/).
+All notable changes to this project will be documented in this file.
 
-## [1.1.0] - 2026-03-16
+The format is based on [Common Changelog](https://common-changelog.org/).
+
+## [2.0.0] - 2026-03-16
 
 ### Changed
 
@@ -61,4 +62,4 @@ All notable changes to this project will be documented in this file. The format 
 [1.0.0]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0
 [1.0.1]: https://github.com/sablier-labs/evm-utils/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/sablier-labs/evm-utils/compare/v1.0.1...v1.0.2
-[1.1.0]: https://github.com/sablier-labs/evm-utils/compare/v1.0.2...v1.1.0
+[2.0.0]: https://github.com/sablier-labs/evm-utils/compare/v1.0.2...v2.0.0

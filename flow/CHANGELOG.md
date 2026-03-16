@@ -89,3 +89,4 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [1.1.1]: https://github.com/sablier-labs/flow/compare/v1.1.0...v1.1.1
 [2.0.0]: https://github.com/sablier-labs/flow/compare/v1.1.1...v2.0.0
 [2.0.1]: https://github.com/sablier-labs/flow/compare/v2.0.0...v2.0.1
+[3.0.0]: https://github.com/sablier-labs/flow/compare/v2.0.1...v3.0.0
