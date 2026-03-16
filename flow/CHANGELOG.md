@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
-## [2.1.0] - 2026-03-16
+## [3.0.0] - 2026-03-16
 
 ### Changed
 
@@ -16,7 +16,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Removed
 
-- Remove `Recover` event from `recover` function ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+- **Breaking**: Remove `Recover` event from `recover` function ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
 - Remove zero surplus check from `recover` function ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
 
 ## [2.0.1] - 2025-10-22
@@ -89,4 +89,3 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [1.1.1]: https://github.com/sablier-labs/flow/compare/v1.1.0...v1.1.1
 [2.0.0]: https://github.com/sablier-labs/flow/compare/v1.1.1...v2.0.0
 [2.0.1]: https://github.com/sablier-labs/flow/compare/v2.0.0...v2.0.1
-[2.1.0]: https://github.com/sablier-labs/flow/compare/v2.0.1...v2.1.0
