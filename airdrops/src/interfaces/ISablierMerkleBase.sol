@@ -113,9 +113,8 @@ interface ISablierMerkleBase is IAdminable {
     /// Notes:
     /// - This function only makes the payment. The claim fees are updated only after the payment has been verified
     /// off-chain.
-    /// - Transferring a token other than the designated token will result in a loss of funds. Refer to the website
-    /// for details on the correct token to use for this function.
-    ///
+    /// - Refer to the Sablier website in order to sponsor with the correct token, otherwise the sponsorship may be
+    /// ignored.
     /// Requirements:
     /// - `biller` must not be the zero address.
     /// - `amount` must be greater than zero.
