@@ -16,9 +16,8 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Removed
 
-- Remove `Recover` event from `ISablierFlow` ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
-- Remove surplus zero check from `recover` function ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
-- Remove `SablierFlow_SurplusZero` error ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+- **Breaking**: Remove `Recover` event from `recover` function ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+- Remove zero surplus check from `recover` function ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
 
 ## [2.0.1] - 2025-10-22
 

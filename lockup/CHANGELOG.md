@@ -8,19 +8,24 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
-- **Breaking:** Add `granularity` parameter to Lockup Linear create functions ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
-- Rename error names from `SablierHelpers_` prefix to `SablierLockupHelpers_` prefix ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
+- **Breaking:** Add `granularity` parameter to `createWithTimestampsLL` and `createWithDurationsLL` functions ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
+- **Breaking:** Rename error prefix for `Helpers` library from `SablierHelpers_` to `SablierLockupHelpers_` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
+- **Breaking**: Refactor `checkCreateLL` function of `LockupHelpers` library to allow additional parameters ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
 - Rename `Helpers` library to `LockupHelpers` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
-- Move `safeTokenSymbol` and `isAllowedCharacter` from `LockupNFTDescriptor` to `@sablier/evm-utils` - `SafeTokenSymbol` library ([#1424](https://github.com/sablier-labs/lockup/pull/1424))
 
 ### Added
 
-- Add Lockup Price Gated model with `createWithTimestampsLPG` and oracle-based token unlock ([#1406](https://github.com/sablier-labs/lockup/pull/1406))
-- Add zero-check validation for segment count and tranche count in `LockupHelpers` ([159ff1](https://github.com/sablier-labs/lockup/commit/159ff104))
+- Add `createWithTimestampsLPG` function to create streams that unlock tokens based on a target price of the stream token ([#1406](https://github.com/sablier-labs/lockup/pull/1406), [#1416](https://github.com/sablier-labs/lockup/pull/1416))
+- Add `createWithTimestampsLPG` to `SablierBatchLockup` contract ([#1416](https://github.com/sablier-labs/lockup/pull/1416))
+- Add `checkCreateLPG` function to `LockupHelpers` library ([#1406](https://github.com/sablier-labs/lockup/pull/1406))
 
 ### Removed
 
-- Remove `safeTokenSymbol` and `isAllowedCharacter` from `LockupNFTDescriptor` (moved to `@sablier/evm-utils`) ([#1424](https://github.com/sablier-labs/lockup/pull/1424))
+- **Breaking**: Remove `safeTokenSymbol` and `isAllowedCharacter` functions from `LockupNFTDescriptor` (moved to `@sablier/evm-utils`) ([#1424](https://github.com/sablier-labs/lockup/pull/1424))
+
+### Fixed
+
+- Add zero-check validation for segment count and tranche count in `LockupHelpers` ([#1429](https://github.com/sablier-labs/lockup/pull/1429))
 
 ## [3.0.1] - 2025-10-14
 
