@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
-## [2.1.0] - 2026-03-14
+## [2.1.0] - 2026-03-16
 
 ### Changed
 
@@ -16,7 +16,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Removed
 
-- **Breaking**: Remove `Recover` event from `recover` function ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+- Remove `Recover` event from `recover` function ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
 - Remove zero surplus check from `recover` function ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
 
 ## [2.0.1] - 2025-10-22

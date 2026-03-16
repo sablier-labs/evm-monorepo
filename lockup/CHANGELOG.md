@@ -4,14 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
-## [4.0.0] - 2026-03-14
+## [4.0.0] - 2026-03-16
 
 ### Changed
 
 - **Breaking:** Add `granularity` parameter to `createWithTimestampsLL` and `createWithDurationsLL` functions ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
-- **Breaking:** Rename error prefix for `Helpers` library from `SablierHelpers_` to `SablierLockupHelpers_` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
 - **Breaking**: Refactor `checkCreateLL` function of `LockupHelpers` library to allow additional parameters ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
 - Rename `Helpers` library to `LockupHelpers` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
+- Rename error prefix for `Helpers` library from `SablierHelpers_` to `SablierLockupHelpers_` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
 
 ### Added
 

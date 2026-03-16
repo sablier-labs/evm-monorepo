@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. The format is based on
 [Common Changelog](https://common-changelog.org/).
 
-## [1.0.0] - 2026-03-14
+## [1.0.0] - 2026-03-16
 
 ### Added
 
