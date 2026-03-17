@@ -30,7 +30,6 @@ abstract contract FlowNFTDescriptorAddresses {
         if (chainId == ChainId.POLYGON) return 0x87B836a9e26673feB3E409A0da2EAf99C79f26C3;
         if (chainId == ChainId.SCROLL) return 0x797Fe78c41d9cbE81BBEA2f420101be5e47d2aFf;
         if (chainId == ChainId.SONIC) return 0xAab30e5CB903f67F109aFc7102ac8ED803681EA5;
-        if (chainId == ChainId.SOPHON) return 0x2F1eB117A87217E8bE9AA96795F69c9e380686Db;
         if (chainId == ChainId.SUPERSEED) return 0xd932fDA016eE9d9F70f745544b4F56715b1E723b;
         // if (chainId == ChainId.TANGLE) return 0xDf578C2c70A86945999c65961417057363530a1c;
         if (chainId == ChainId.UNICHAIN) return 0x89824A7e48dcf6B7AE9DeE6E566f62A5aDF037F2;

@@ -7,7 +7,7 @@ library ChainId {
                                       MAINNETS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 public constant MAINNETS_COUNT = 24;
+    uint256 public constant MAINNETS_COUNT = 23;
 
     uint256 public constant ABSTRACT = 2741;
     uint256 public constant ARBITRUM = 42_161;
@@ -28,7 +28,6 @@ library ChainId {
     uint256 public constant POLYGON = 137;
     uint256 public constant SCROLL = 534_352;
     uint256 public constant SONIC = 146;
-    uint256 public constant SOPHON = 50_104;
     uint256 public constant SUPERSEED = 5330;
     uint256 public constant UNICHAIN = 130;
     uint256 public constant XDC = 50;
@@ -73,11 +72,10 @@ library ChainId {
         supportedIds[16] = POLYGON;
         supportedIds[17] = SCROLL;
         supportedIds[18] = SONIC;
-        supportedIds[19] = SOPHON;
-        supportedIds[20] = SUPERSEED;
-        supportedIds[21] = UNICHAIN;
-        supportedIds[22] = XDC;
-        supportedIds[23] = ZKSYNC;
+        supportedIds[19] = SUPERSEED;
+        supportedIds[20] = UNICHAIN;
+        supportedIds[21] = XDC;
+        supportedIds[22] = ZKSYNC;
     }
 
     /// @notice Returns the full list of supported testnet chain IDs.
@@ -113,7 +111,6 @@ library ChainId {
         if (chainId == ChainId.POLYGON) return "polygon";
         if (chainId == ChainId.SCROLL) return "scroll";
         if (chainId == ChainId.SONIC) return "sonic";
-        if (chainId == ChainId.SOPHON) return "sophon";
         if (chainId == ChainId.SUPERSEED) return "superseed";
         if (chainId == ChainId.UNICHAIN) return "unichain";
         if (chainId == ChainId.XDC) return "xdc";

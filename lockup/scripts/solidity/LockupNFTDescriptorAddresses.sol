@@ -29,7 +29,6 @@ abstract contract LockupNFTDescriptorAddresses {
         if (chainId == ChainId.POLYGON) return 0xf5e12d0bA25FCa0D738Ec57f149736B2e4C46980;
         if (chainId == ChainId.SCROLL) return 0x00Ff6443E902874924dd217c1435e3be04f57431;
         if (chainId == ChainId.SONIC) return 0x955dC7A2170782344FA9Ac11De0C0C42C05De2Fc;
-        if (chainId == ChainId.SOPHON) return 0xAc2E42b520364940c90Ce164412Ca9BA212d014B;
         if (chainId == ChainId.SUPERSEED) return 0xa4576b58Ec760A8282D081dc94F3dc716DFc61e9;
         if (chainId == ChainId.UNICHAIN) return 0xa5F12D63E18a28C9BE27B6f3d91ce693320067ba;
         if (chainId == ChainId.XDC) return 0x4c1311a9d88BFb7023148aB04F7321C2E91c29bf;

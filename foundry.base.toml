@@ -92,7 +92,6 @@
   polygon = "https://direct.routeme.sh/rpc/137/${ROUTEMESH_API_KEY}"
   scroll = "https://direct.routeme.sh/rpc/534352/${ROUTEMESH_API_KEY}"
   sonic = "https://direct.routeme.sh/rpc/146/${ROUTEMESH_API_KEY}"
-  sophon = "https://direct.routeme.sh/rpc/50104/${ROUTEMESH_API_KEY}"
   superseed = "https://direct.routeme.sh/rpc/5330/${ROUTEMESH_API_KEY}"
   unichain = "https://direct.routeme.sh/rpc/130/${ROUTEMESH_API_KEY}"
   xdc = "https://direct.routeme.sh/rpc/50/${ROUTEMESH_API_KEY}"
