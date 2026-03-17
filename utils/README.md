@@ -1,6 +1,6 @@
 # Sablier EVM Utils [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
 
-This repository contains the following two sets of contracts:
+This package contains the following two sets of contracts:
 
 ### Sablier comptroller
 
@@ -23,7 +23,7 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 
 ## Repository Structure
 
-This repo contains the following subdirectories:
+This package contains the following subdirectories:
 
 - [`src/interfaces`](./src/interfaces/): Interfaces to be used by external projects.
 - [`src/mocks`](./src/mocks/): Mock contracts used by external projects in tests.
@@ -75,11 +75,11 @@ Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues
 [start](https://github.com/sablier-labs/evm-monorepo/discussions/new) a discussion or submit a PR. For any informal
 concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
-For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) guide.
+For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) guide.
 
 ## License
 
-See [LICENSE.md](./LICENSE.md).
+See [LICENSE.md](../LICENSE.md).
 
 [codecov]: https://codecov.io/gh/sablier-labs/evm-utils
 [codecov-badge]: https://codecov.io/gh/sablier-labs/evm-utils/graph/badge.svg?token=iWxbU4RAsi

@@ -88,7 +88,7 @@ The list of all deployment addresses can be found [here](https://docs.sablier.co
 The codebase has undergone rigorous audits by leading security experts from Cantina, as well as independent auditors.
 For a comprehensive list of all audits conducted, please click [here](https://github.com/sablier-labs/audits).
 
-For any security-related concerns, please refer to the [SECURITY](./SECURITY.md) policy. This repository is subject to a
+For any security-related concerns, please refer to the [SECURITY](../SECURITY.md) policy. This repository is subject to a
 bug bounty program per the terms outlined in the aforementioned policy.
 
 ## Contributing
@@ -98,11 +98,11 @@ Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues
 [a PR](https://github.com/sablier-labs/evm-monorepo/compare). For any concerns or feedback, please join our
 [Discord server](https://discord.gg/bSwRCwWRsT).
 
-Refer to [CONTRIBUTING](./CONTRIBUTING.md) guidelines if you wish to create a PR.
+Refer to [CONTRIBUTING](../CONTRIBUTING.md) guidelines if you wish to create a PR.
 
 ## License
 
-See [LICENSE.md](./LICENSE.md).
+See [LICENSE.md](../LICENSE.md).
 
 [codecov]: https://codecov.io/gh/sablier-labs/flow
 [codecov-badge]: https://codecov.io/gh/sablier-labs/flow/branch/main/graph/badge.svg
