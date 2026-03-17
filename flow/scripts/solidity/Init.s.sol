@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD21x18 } from "@prb/math/src/UD21x18.sol";
 import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
+import { ISablierFlow } from "../../src/interfaces/ISablierFlow.sol";
 
 interface IERC20Mint {
     function mint(address beneficiary, uint256 value) external;
@@ -25,6 +25,7 @@ contract Init is BaseScript {
                 sender: sender,
                 recipient: recipient,
                 ratePerSecond: UD21x18.wrap(uint128(i + 1) * 0.0000001e18),
+                startTime: uint40(block.timestamp),
                 token: token,
                 transferable: true
             });
