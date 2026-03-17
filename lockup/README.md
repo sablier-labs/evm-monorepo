@@ -82,20 +82,20 @@ our docs.
 The codebase has undergone rigorous audits by leading security experts from Cantina, as well as independent auditors.
 For a comprehensive list of all audits conducted, please click [here](https://github.com/sablier-labs/audits).
 
-For any security-related concerns, please refer to the [SECURITY](./SECURITY.md) policy. This repository is subject to a
+For any security-related concerns, please refer to the [SECURITY](../SECURITY.md) policy. This repository is subject to a
 bug bounty program per the terms outlined in the aforementioned policy.
 
 ## Contributing
 
-Feel free to dive in! [Open](https://github.com/sablier-labs/lockup/issues/new) an issue,
-[start](https://github.com/sablier-labs/lockup/discussions/new) a discussion or submit a PR. For any informal concerns
+Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new) a discussion or submit a PR. For any informal concerns
 or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
-For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) guide.
+For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) guide.
 
 ## License
 
-See [LICENSE.md](./LICENSE.md).
+See [LICENSE.md](../LICENSE.md).
 
 [codecov]: https://codecov.io/gh/sablier-labs/lockup
 [codecov-badge]: https://codecov.io/gh/sablier-labs/lockup/branch/main/graph/badge.svg
@@ -103,7 +103,7 @@ See [LICENSE.md](./LICENSE.md).
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
-[gha]: https://github.com/sablier-labs/lockup/actions
-[gha-badge]: https://github.com/sablier-labs/lockup/actions/workflows/ci.yml/badge.svg
+[gha]: https://github.com/sablier-labs/evm-monorepo/actions
+[gha-badge]: https://github.com/sablier-labs/evm-monorepo/actions/workflows/ci-lockup.yml/badge.svg
 [twitter]: https://x.com/Sablier
 [twitter-badge]: https://img.shields.io/twitter/follow/Sablier
