@@ -38,11 +38,10 @@ library ChainId {
                                       TESTNETS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 public constant TESTNETS_COUNT = 5;
+    uint256 public constant TESTNETS_COUNT = 4;
 
     uint256 public constant ARBITRUM_SEPOLIA = 421_614;
     uint256 public constant BASE_SEPOLIA = 84_532;
-    uint256 public constant MODE_SEPOLIA = 919;
     uint256 public constant OPTIMISM_SEPOLIA = 11_155_420;
     uint256 public constant SEPOLIA = 11_155_111;
 
@@ -86,9 +85,8 @@ library ChainId {
 
         supportedIds[0] = ARBITRUM_SEPOLIA;
         supportedIds[1] = BASE_SEPOLIA;
-        supportedIds[2] = MODE_SEPOLIA;
-        supportedIds[3] = OPTIMISM_SEPOLIA;
-        supportedIds[4] = SEPOLIA;
+        supportedIds[2] = OPTIMISM_SEPOLIA;
+        supportedIds[3] = SEPOLIA;
     }
 
     /// @notice Returns the chain name for the given chain ID.
@@ -122,7 +120,6 @@ library ChainId {
         // Testnets.
         if (chainId == ChainId.ARBITRUM_SEPOLIA) return "arbitrum_sepolia";
         if (chainId == ChainId.BASE_SEPOLIA) return "base_sepolia";
-        if (chainId == ChainId.MODE_SEPOLIA) return "mode_sepolia";
         if (chainId == ChainId.OPTIMISM_SEPOLIA) return "optimism_sepolia";
         if (chainId == ChainId.SEPOLIA) return "sepolia";
     }

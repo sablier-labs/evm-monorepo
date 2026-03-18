@@ -37,7 +37,6 @@ abstract contract LockupNFTDescriptorAddresses {
         // Testnets.
         if (chainId == ChainId.ARBITRUM_SEPOLIA) return 0x8224eb5D7d76B2D7Df43b868D875E79B11500eA8;
         if (chainId == ChainId.BASE_SEPOLIA) return 0xCA2593027BA24856c292Fdcb5F987E0c25e755a4;
-        if (chainId == ChainId.MODE_SEPOLIA) return 0xDd695E927b97460C8d454D8f6d8Cd797Dcf1FCfD;
         if (chainId == ChainId.OPTIMISM_SEPOLIA) return 0xDf6163ddD3Ebcb552Cc1379a9c65AFe68683534e;
         if (chainId == ChainId.SEPOLIA) return 0x955dC7A2170782344FA9Ac11De0C0C42C05De2Fc;
 
