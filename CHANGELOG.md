@@ -8,8 +8,6 @@ For detailed per-package changelogs, see each package's `CHANGELOG.md`.
 
 ## March 16, 2026
 
-This release introduces the Bob protocol - price-gated vaults that can generate yield on the deposited tokens.
-
 ### Packages
 
 | Package                         | Version |
@@ -22,23 +20,7 @@ This release introduces the Bob protocol - price-gated vaults that can generate 
 
 ### All Changes
 
-#### [`@sablier/lockup`](lockup)@4.0.0
-
-- **Breaking:** Add `granularity` parameter to Lockup Linear create functions
-  ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
-- Rename `Helpers` library to `LockupHelpers`
-  ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
-- **New Model:** Add Price Gated model to Lockup that unlocks tokens based on a target price of the stream token
-  ([#1406](https://github.com/sablier-labs/lockup/pull/1406),
-  [#1416](https://github.com/sablier-labs/lockup/pull/1416))
-- Add `createWithTimestampsLPG` to `SablierBatchLockup` contract
-  ([#1416](https://github.com/sablier-labs/lockup/pull/1416))
-- Remove `safeTokenSymbol` and `isAllowedCharacter` functions from `LockupNFTDescriptor` (moved to `@sablier/evm-utils`)
-  ([#1424](https://github.com/sablier-labs/lockup/pull/1424))
-- Fix: Add zero-check validation for segment count and tranche count in `LockupHelpers`
-  ([#1429](https://github.com/sablier-labs/lockup/pull/1429))
-
-#### [`@sablier/airdrops`](airdrops)@3.0.0
+#### [@sablier/airdrops@3.0.0](https://github.com/sablier-labs/evm-monorepo/releases/tag/airdrops-v3.0.0)
 
 - **Breaking:** Change return type of `totalForgoneAmount()` in `SablierMerkleVCA` from `uint256` to `uint128`
   ([#1363](https://github.com/sablier-labs/lockup/pull/1363))
@@ -61,22 +43,11 @@ This release introduces the Bob protocol - price-gated vaults that can generate 
 - **Breaking:** Remove `aggregateAmount` parameter from `createMerkleVCA` function
   ([#1363](https://github.com/sablier-labs/lockup/pull/1363))
 
-#### [`@sablier/flow`](flow)@3.0.0
+#### [@sablier/bob@1.0.0](https://github.com/sablier-labs/evm-monorepo/releases/tag/bob-v1.0.0)
 
-- Rename `Helpers` library to `FlowHelpers`
-  ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
-- Add `transferFromPayable` function
-  ([#1384](https://github.com/sablier-labs/lockup/pull/1384))
-- **Breaking:** Remove `Recover` event from `recover` function
-  ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
-- Remove zero surplus check from `recover` function
-  ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+- Initial release
 
-#### [`@sablier/bob`](bob)@1.0.0
-
-- Initial release — Price-gated vault protocol for conditional token releases with optional yield generation
-
-#### [`@sablier/evm-utils`](utils)@2.0.0
+#### [@sablier/evm-utils@2.0.0](https://github.com/sablier-labs/evm-monorepo/releases/tag/utils-v2.0.0)
 
 - **Breaking:** Rename `RoleGranted` event to `GrantRole`
   ([#1433](https://github.com/sablier-labs/lockup/pull/1433))
@@ -105,3 +76,30 @@ This release introduces the Bob protocol - price-gated vaults that can generate 
 - Drop support for Blast, CoreDAO and SEI chains from `ChainId` library
   ([#1391](https://github.com/sablier-labs/lockup/pull/1391),
   [#1451](https://github.com/sablier-labs/lockup/pull/1451))
+
+#### [@sablier/flow@3.0.0](https://github.com/sablier-labs/evm-monorepo/releases/tag/flow-v3.0.0)
+
+- Rename `Helpers` library to `FlowHelpers`
+  ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
+- Add `transferFromPayable` function
+  ([#1384](https://github.com/sablier-labs/lockup/pull/1384))
+- **Breaking:** Remove `Recover` event from `recover` function
+  ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+- Remove zero surplus check from `recover` function
+  ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+
+#### [@sablier/lockup@4.0.0](https://github.com/sablier-labs/evm-monorepo/releases/tag/lockup-v4.0.0)
+
+- **Breaking:** Add `granularity` parameter to Lockup Linear create functions
+  ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
+- Rename `Helpers` library to `LockupHelpers`
+  ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
+- **New Model:** Add Price Gated model to Lockup that unlocks tokens based on a target price of the stream token
+  ([#1406](https://github.com/sablier-labs/lockup/pull/1406),
+  [#1416](https://github.com/sablier-labs/lockup/pull/1416))
+- Add `createWithTimestampsLPG` to `SablierBatchLockup` contract
+  ([#1416](https://github.com/sablier-labs/lockup/pull/1416))
+- Remove `safeTokenSymbol` and `isAllowedCharacter` functions from `LockupNFTDescriptor` (moved to `@sablier/evm-utils`)
+  ([#1424](https://github.com/sablier-labs/lockup/pull/1424))
+- Fix: Add zero-check validation for segment count and tranche count in `LockupHelpers`
+  ([#1429](https://github.com/sablier-labs/lockup/pull/1429))
