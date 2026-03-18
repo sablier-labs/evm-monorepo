@@ -132,6 +132,9 @@ abstract contract BaseScript is Script {
     /// @notice Returns the Sablier Comptroller on each chain.
     function getComptroller() public view returns (address) {
         if (ChainId.isSupported(chainId)) {
+            // For dEnergy, return the different address.
+            if (chainId == ChainId.DENERGY) return 0x946654AB30Dd6eD10236C89f2C8B2719df653691;
+
             // For Linea, return the different address.
             if (chainId == ChainId.LINEA) return 0xF21b304A08993f98A79C7Eb841f812CCeab49B8b;
 
