@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
-For detailed per-package changelogs, see each package's `CHANGELOG.md`.
+For detailed per-package changelogs, see each package's `CHANGELOG.md`:
+
+- [airdrops](./airdrops/CHANGELOG.md)
+- [bob](./bob/CHANGELOG.md)
+- [flow](./flow/CHANGELOG.md)
+- [lockup](./lockup/CHANGELOG.md)
+- [utils](./utils/CHANGELOG.md)
 
 ## March 16, 2026
 
@@ -12,10 +18,10 @@ For detailed per-package changelogs, see each package's `CHANGELOG.md`.
 
 | Package                         | Version |
 | ------------------------------- | ------- |
-| [`@sablier/lockup`](lockup)     | 4.0.0   |
 | [`@sablier/airdrops`](airdrops) | 3.0.0   |
-| [`@sablier/flow`](flow)         | 3.0.0   |
 | [`@sablier/bob`](bob)           | 1.0.0   |
+| [`@sablier/flow`](flow)         | 3.0.0   |
+| [`@sablier/lockup`](lockup)     | 4.0.0   |
 | [`@sablier/evm-utils`](utils)   | 2.0.0   |
 
 ### All Changes
@@ -47,6 +53,33 @@ For detailed per-package changelogs, see each package's `CHANGELOG.md`.
 
 - Initial release
 
+#### [@sablier/flow@3.0.0](https://github.com/sablier-labs/evm-monorepo/releases/tag/flow-v3.0.0)
+
+- Rename `Helpers` library to `FlowHelpers`
+  ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
+- Add `transferFromPayable` function
+  ([#1384](https://github.com/sablier-labs/lockup/pull/1384))
+- **Breaking:** Remove `Recover` event from `recover` function
+  ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+- Remove zero surplus check from `recover` function
+  ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+
+#### [@sablier/lockup@4.0.0](https://github.com/sablier-labs/evm-monorepo/releases/tag/lockup-v4.0.0)
+
+- **Breaking:** Add `granularity` parameter to Lockup Linear create functions
+  ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
+- Rename `Helpers` library to `LockupHelpers`
+  ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
+- **New Model:** Add Price Gated model to Lockup that unlocks tokens based on a target price of the stream token
+  ([#1406](https://github.com/sablier-labs/lockup/pull/1406),
+  [#1416](https://github.com/sablier-labs/lockup/pull/1416))
+- Add `createWithTimestampsLPG` to `SablierBatchLockup` contract
+  ([#1416](https://github.com/sablier-labs/lockup/pull/1416))
+- Remove `safeTokenSymbol` and `isAllowedCharacter` functions from `LockupNFTDescriptor` (moved to `@sablier/evm-utils`)
+  ([#1424](https://github.com/sablier-labs/lockup/pull/1424))
+- Fix: Add zero-check validation for segment count and tranche count in `LockupHelpers`
+  ([#1429](https://github.com/sablier-labs/lockup/pull/1429))
+
 #### [@sablier/evm-utils@2.0.0](https://github.com/sablier-labs/evm-monorepo/releases/tag/utils-v2.0.0)
 
 - **Breaking:** Rename `RoleGranted` event to `GrantRole`
@@ -76,30 +109,3 @@ For detailed per-package changelogs, see each package's `CHANGELOG.md`.
 - Drop support for Blast, CoreDAO and SEI chains from `ChainId` library
   ([#1391](https://github.com/sablier-labs/lockup/pull/1391),
   [#1451](https://github.com/sablier-labs/lockup/pull/1451))
-
-#### [@sablier/flow@3.0.0](https://github.com/sablier-labs/evm-monorepo/releases/tag/flow-v3.0.0)
-
-- Rename `Helpers` library to `FlowHelpers`
-  ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
-- Add `transferFromPayable` function
-  ([#1384](https://github.com/sablier-labs/lockup/pull/1384))
-- **Breaking:** Remove `Recover` event from `recover` function
-  ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
-- Remove zero surplus check from `recover` function
-  ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
-
-#### [@sablier/lockup@4.0.0](https://github.com/sablier-labs/evm-monorepo/releases/tag/lockup-v4.0.0)
-
-- **Breaking:** Add `granularity` parameter to Lockup Linear create functions
-  ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
-- Rename `Helpers` library to `LockupHelpers`
-  ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
-- **New Model:** Add Price Gated model to Lockup that unlocks tokens based on a target price of the stream token
-  ([#1406](https://github.com/sablier-labs/lockup/pull/1406),
-  [#1416](https://github.com/sablier-labs/lockup/pull/1416))
-- Add `createWithTimestampsLPG` to `SablierBatchLockup` contract
-  ([#1416](https://github.com/sablier-labs/lockup/pull/1416))
-- Remove `safeTokenSymbol` and `isAllowedCharacter` functions from `LockupNFTDescriptor` (moved to `@sablier/evm-utils`)
-  ([#1424](https://github.com/sablier-labs/lockup/pull/1424))
-- Fix: Add zero-check validation for segment count and tranche count in `LockupHelpers`
-  ([#1429](https://github.com/sablier-labs/lockup/pull/1429))
