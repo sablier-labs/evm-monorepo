@@ -28,7 +28,7 @@ contract Comptroller_Fork_Test is Base_Test {
         vm.createSelectFork({ urlOrAlias: "ethereum" });
 
         // Set the current mainnet admin address.
-        currentMainnetAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
+        currentMainnetAdmin = 0x58290bbdb51A4c6B022A81e9cDeD24BE19Ca57fd;
 
         // Deploy the `BaseScriptMock` contract.
         baseScript = new BaseScriptMock();
@@ -36,10 +36,12 @@ contract Comptroller_Fork_Test is Base_Test {
         // Load comptroller address from the mainnet.
         comptroller = ISablierComptroller(0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399);
 
-        // Load Lockup and Flow addresses from the mainnet.
-        protocolAddresses = new address[](2);
-        protocolAddresses[0] = 0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73;
-        protocolAddresses[1] = 0x7a86d3e6894f9c5B5f25FFBDAaE658CFc7569623;
+        // Load Airdrops (only Merkle Instant Factory) Bob, Flow and Lockup addresses from the mainnet.
+        protocolAddresses = new address[](4);
+        protocolAddresses[0] = 0xb2855845067e126207DE2155Ad1c8AD5C495cb3F;
+        protocolAddresses[1] = 0xC8AB7E45E6DF99596b86870c26C25c721eB5C9af;
+        protocolAddresses[2] = 0x844344Cd871B28221d725ecE9630E8bDE4E3a181;
+        protocolAddresses[3] = 0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB;
 
         // Set comptroller admin as the caller.
         setMsgSender(currentMainnetAdmin);
@@ -61,7 +63,7 @@ contract Comptroller_Fork_Test is Base_Test {
         if (protocol == ISablierComptroller.Protocol.Staking) {
             assertEq(minFeeInWei, 0, "Staking: minFeeInWei > 0");
         } else {
-            assertGt(minFeeInWei, 0, "Lockup, Flow, Airdrops: minFeeInWei == 0");
+            assertGt(minFeeInWei, 0, "Airdrops, Bob, Flow, Lockup: minFeeInWei == 0");
         }
     }
 
