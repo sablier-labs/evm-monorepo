@@ -39,7 +39,6 @@ abstract contract FlowNFTDescriptorAddresses {
         // Testnets.
         if (chainId == ChainId.ARBITRUM_SEPOLIA) return 0x3E64A31C3974b6ae9f09a8fbc784519bF551e795;
         if (chainId == ChainId.BASE_SEPOLIA) return 0xcb5591F6d0e0fFC03037ef7b006D1361C6D33D25;
-        if (chainId == ChainId.MODE_SEPOLIA) return 0xe1eDdA64eea2173a015A3738171C3a1C263324C7;
         if (chainId == ChainId.OPTIMISM_SEPOLIA) return 0x4739327acfb56E90177d44Cb0845e759276BCA88;
         if (chainId == ChainId.SEPOLIA) return 0xc9dBf2D207D178875b698e5f7493ce2d8BA88994;
 
