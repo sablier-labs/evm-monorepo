@@ -45,10 +45,16 @@ bun add @sablier/evm-utils
 
 This installation method is not recommended, but it is available for those who prefer it.
 
-First, install the submodule using Forge:
+Install the monorepo using Forge:
 
 ```shell
-forge install --no-commit sablier-labs/evm-utils
+forge install sablier-labs/evm-monorepo@utils-v2.0.0
+```
+
+Then, add the following remapping in `remappings.txt`:
+
+```text
+@sablier/evm-utils/=lib/evm-monorepo/utils/
 ```
 
 ## Usage
@@ -81,8 +87,8 @@ For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) gu
 
 See [LICENSE.md](../LICENSE.md).
 
-[codecov]: https://codecov.io/gh/sablier-labs/evm-utils
-[codecov-badge]: https://codecov.io/gh/sablier-labs/evm-utils/graph/badge.svg?token=iWxbU4RAsi
+[codecov]: https://codecov.io/gh/sablier-labs/evm-monorepo
+[codecov-badge]: https://codecov.io/gh/sablier-labs/evm-monorepo/graph/badge.svg
 [discord]: https://discord.gg/bSwRCwWRsT
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh

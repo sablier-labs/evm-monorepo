@@ -45,16 +45,19 @@ bun add @sablier/flow
 
 This installation method is not recommended, but it is available for those who prefer it.
 
-Install the submodule using Forge:
+Install the monorepo and its dependencies using Forge:
 
 ```shell
-forge install sablier-labs/flow
+forge install sablier-labs/evm-monorepo@flow-v3.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
 ```
 
-Then, install the project's dependencies:
+Then, add the following remappings in `remappings.txt`:
 
-```shell
-forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
+```text
+@sablier/flow/=lib/evm-monorepo/flow/
+@sablier/evm-utils/=lib/evm-monorepo/utils/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@prb/math/=lib/prb-math/
 ```
 
 ### Branching Tree Technique
@@ -104,8 +107,8 @@ Refer to [CONTRIBUTING](../CONTRIBUTING.md) guidelines if you wish to create a P
 
 See [LICENSE.md](../LICENSE.md).
 
-[codecov]: https://codecov.io/gh/sablier-labs/flow
-[codecov-badge]: https://codecov.io/gh/sablier-labs/flow/branch/main/graph/badge.svg
+[codecov]: https://codecov.io/gh/sablier-labs/evm-monorepo
+[codecov-badge]: https://codecov.io/gh/sablier-labs/evm-monorepo/branch/main/graph/badge.svg
 [discord]: https://discord.gg/bSwRCwWRsT
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh

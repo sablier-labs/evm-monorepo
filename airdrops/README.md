@@ -44,16 +44,20 @@ bun add @sablier/airdrops
 
 This installation method is not recommended, but it is available for those who prefer it.
 
-First, install the submodule using Forge:
+Install the monorepo and its dependencies using Forge:
 
 ```shell
-forge install sablier-labs/airdrops
+forge install sablier-labs/evm-monorepo@airdrops-v3.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
 ```
 
-Second, install the project's dependencies:
+Then, add the following remappings in `remappings.txt`:
 
-```shell
-forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0 sablier-labs/lockup@v3.0.0
+```text
+@sablier/airdrops/=lib/evm-monorepo/airdrops/
+@sablier/lockup/=lib/evm-monorepo/lockup/
+@sablier/evm-utils/=lib/evm-monorepo/utils/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@prb/math/=lib/prb-math/
 ```
 
 ### Branching Tree Technique
@@ -85,8 +89,8 @@ For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) gu
 
 See [LICENSE.md](../LICENSE.md).
 
-[codecov]: https://codecov.io/gh/sablier-labs/airdrops
-[codecov-badge]: https://codecov.io/gh/sablier-labs/airdrops/branch/main/graph/badge.svg
+[codecov]: https://codecov.io/gh/sablier-labs/evm-monorepo
+[codecov-badge]: https://codecov.io/gh/sablier-labs/evm-monorepo/branch/main/graph/badge.svg
 [discord]: https://discord.gg/bSwRCwWRsT
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh
