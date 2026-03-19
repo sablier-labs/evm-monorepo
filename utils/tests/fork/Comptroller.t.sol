@@ -53,7 +53,7 @@ contract Comptroller_Fork_Test is Base_Test {
 
     /// @dev Checklist:
     /// - It should return zero value for Staking protocol.
-    /// - It should return non-zero value for Lockup, Flow and Airdrops.
+    /// - It should return non-zero value for Airdrops, Bob, Flow and Lockup.
     function testForkFuzz_CalculateMinFeeWei(uint8 protocolIndex) external view {
         // Bound the protocol enum to a valid enum value.
         ISablierComptroller.Protocol protocol = boundProtocolEnum(protocolIndex);
