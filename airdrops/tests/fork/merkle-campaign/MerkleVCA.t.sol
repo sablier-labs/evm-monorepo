@@ -74,8 +74,9 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
             vestingStartTime: vestingStartTime
         });
 
-        vars.expectedMerkleCampaign =
-            computeMerkleVCAAddress({ params: constructorParams, campaignCreator: params.campaignCreator });
+        // Since the mainnet contracts are deployed using `via_ir`, use `computeMerkleVCA` function to compute the
+        // expected address.
+        vars.expectedMerkleCampaign = factoryMerkleVCA.computeMerkleVCA(params.campaignCreator, constructorParams);
 
         vm.expectEmit({ emitter: address(factoryMerkleVCA) });
         emit ISablierFactoryMerkleVCA.CreateMerkleVCA({

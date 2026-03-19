@@ -65,8 +65,9 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
             vestingStartTime: vestingStartTime
         });
 
-        vars.expectedMerkleCampaign =
-            computeMerkleLLAddress({ params: constructorParams, campaignCreator: params.campaignCreator });
+        // Since the mainnet contracts are deployed using `via_ir`, use `computeMerkleLL` function to compute the
+        // expected address.
+        vars.expectedMerkleCampaign = factoryMerkleLL.computeMerkleLL(params.campaignCreator, constructorParams);
 
         vm.expectEmit({ emitter: address(factoryMerkleLL) });
         emit ISablierFactoryMerkleLL.CreateMerkleLL({

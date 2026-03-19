@@ -60,8 +60,10 @@ abstract contract MerkleExecute_Fork_Test is MerkleBase_Fork_Test {
             token: FORK_TOKEN
         });
 
+        // Since the mainnet contracts are deployed using `via_ir`, use `computeMerkleExecute` function to compute the
+        // expected address.
         vars.expectedMerkleCampaign =
-            computeMerkleExecuteAddress({ params: constructorParams, campaignCreator: params.campaignCreator });
+            factoryMerkleExecute.computeMerkleExecute(params.campaignCreator, constructorParams);
 
         vm.expectEmit({ emitter: address(factoryMerkleExecute) });
         emit ISablierFactoryMerkleExecute.CreateMerkleExecute({
