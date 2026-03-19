@@ -15,7 +15,7 @@ repomix/
 typechain-types/
 
 # files
-.claude/settings.local.json
+**/.claude/settings.local.json
 .env
 *.log
 .DS_Store

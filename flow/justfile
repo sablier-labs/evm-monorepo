@@ -9,3 +9,8 @@ deploy *args:
     FOUNDRY_PROFILE=optimized \
         forge script scripts/solidity/DeployDeterministicProtocol.s.sol \
         -vvv --broadcast {{ args }}
+
+deploy-non-deterministic *args:
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/DeployProtocol.s.sol \
+        -vvv --broadcast {{ args }}

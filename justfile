@@ -66,6 +66,11 @@ coverage-all:
 deploy-all *args:
     just for-each deploy {{ args }}
 
+# Deploy all contracts for all packages without deterministic addresses
+[group("all")]
+deploy-non-deterministic-all *args:
+    just for-each deploy-non-deterministic {{ args }}
+
 # Run full check on all packages
 [group("all")]
 full-check-all:

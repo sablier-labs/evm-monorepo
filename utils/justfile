@@ -7,5 +7,10 @@ default:
 
 deploy *args:
     FOUNDRY_PROFILE=optimized \
-        forge script scripts/solidity/DeployDeterministicComptrollerProxy.s.sol \
+        forge script scripts/solidity/DeployDeterministicComptrollerImpl.s.sol \
+        -vvv --broadcast {{ args }}
+
+deploy-non-deterministic *args:
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/DeployComptrollerImpl.s.sol \
         -vvv --broadcast {{ args }}
