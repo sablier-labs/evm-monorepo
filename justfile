@@ -53,7 +53,7 @@ clean-all:
 # Clear node_modules in all packages
 [group("all")]
 clean-modules-all:
-    just for-each clean-modules
+    rm -rf */node_modules
     rm -rf node_modules
 
 # Run coverage for all packages
