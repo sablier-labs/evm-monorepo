@@ -98,7 +98,9 @@ contract BaseScript_Fuzz_Test is StdAssertions {
 
     function testFuzz_GetComptroller(uint64 chainId) external setChainId(chainId) {
         if (ChainId.isSupported(chainId)) {
-            if (chainId == ChainId.LINEA) {
+            if (chainId == ChainId.DENERGY) {
+                assertEq(baseScript.getComptroller(), 0x946654AB30Dd6eD10236C89f2C8B2719df653691, "comptroller");
+            } else if (chainId == ChainId.LINEA) {
                 assertEq(baseScript.getComptroller(), 0xF21b304A08993f98A79C7Eb841f812CCeab49B8b, "comptroller");
             } else {
                 assertEq(baseScript.getComptroller(), 0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399, "comptroller");

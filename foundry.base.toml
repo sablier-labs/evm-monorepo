@@ -80,6 +80,7 @@
   berachain = "https://direct.routeme.sh/rpc/80094/${ROUTEMESH_API_KEY}"
   bsc = "https://direct.routeme.sh/rpc/56/${ROUTEMESH_API_KEY}"
   chiliz = "https://direct.routeme.sh/rpc/88888/${ROUTEMESH_API_KEY}"
+  denergy = "https://rpc.d.energy/"
   ethereum = "https://direct.routeme.sh/rpc/1/${ROUTEMESH_API_KEY}"
   gnosis = "https://direct.routeme.sh/rpc/100/${ROUTEMESH_API_KEY}"
   hyperevm = "https://direct.routeme.sh/rpc/999/${ROUTEMESH_API_KEY}"
