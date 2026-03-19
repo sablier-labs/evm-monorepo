@@ -158,7 +158,7 @@ jobs:
         continue-on-error: true
 
       - name: "Run BB Action CI"
-        uses: BuildBearLabs/buildbear_x_action@v1.7.3
+        uses: BuildBearLabs/buildbear_x_action@v1.7.4
         with:
           buildbear-api-key: ${{ secrets.BUILDBEAR_API_KEY }}
           working-directory: ${{ inputs.working-directory }}
