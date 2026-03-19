@@ -195,6 +195,9 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         varsLPG.initialLockupBalance = varsLPG.actualLockupBalance;
         varsLPG.initialRecipientBalance = FORK_TOKEN.balanceOf(params.create.recipient);
 
+        // Get the current fee from the mainnet.
+        uint256 actualMinFeeWei = lockup.calculateMinFeeWei(varsLPG.streamId);
+
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.WithdrawFromLockupStream({
@@ -209,7 +212,7 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         // Make the withdrawal and pay a fee.
         setMsgSender(params.create.recipient);
         vm.deal({ account: params.create.recipient, newBalance: 100 ether });
-        lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({
+        lockup.withdraw{ value: actualMinFeeWei }({
             streamId: varsLPG.streamId,
             to: params.create.recipient,
             amount: params.withdrawAmount
@@ -242,7 +245,7 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         // Assert that the contract's ETH balance has been updated.
         assertEq(
             address(lockup).balance,
-            varsLPG.initialComptrollerBalanceETH + LOCKUP_MIN_FEE_WEI,
+            varsLPG.initialComptrollerBalanceETH + actualMinFeeWei,
             "post-withdraw Lockup balance ETH"
         );
 

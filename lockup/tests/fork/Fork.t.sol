@@ -4,6 +4,10 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
+import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
+
 import { Base_Test } from "./../Base.t.sol";
 import { Defaults } from "./../utils/Defaults.sol";
 
@@ -33,16 +37,12 @@ abstract contract Fork_Test is Base_Test {
         // Fork Ethereum Mainnet at the latest block number.
         vm.createSelectFork({ urlOrAlias: "ethereum" });
 
-        // TODO: Load deployed addresses from Ethereum mainnet.
-        // batchLockup = ISablierBatchLockup(0x0636D83B184D65C242c43de6AAd10535BFb9D45a);
-        // nftDescriptor = ILockupNFTDescriptor(0xA9dC6878C979B5cc1d98a1803F0664ad725A1f56);
-        // lockup = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+        // Load deployed addresses from Ethereum mainnet.
+        batchLockup = ISablierBatchLockup(0x4f3be262D1358A82b468CF81bfc5A9cC32Cf9875);
+        nftDescriptor = ILockupNFTDescriptor(0xA9dC6878C979B5cc1d98a1803F0664ad725A1f56);
+        lockup = ISablierLockup(0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB);
 
         defaults = new Defaults();
-
-        // We need these in case we work on a new iteration.
-        Base_Test.setUp();
-        vm.etch(address(FORK_TOKEN), address(usdc).code);
 
         // Create a random user for this test suite.
         forkTokenHolder = vm.randomAddress();
