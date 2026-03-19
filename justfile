@@ -28,7 +28,7 @@ default:
   @just --list
 
 # Setup script
-setup: setup-env install-all install-mdformat
+setup: create-symlinks install-all install-mdformat
 
 # ---------------------------------------------------------------------------- #
 #                                 ALL PACKAGES                                 #
@@ -119,14 +119,17 @@ for-each recipe *args:
         just "$dir::{{ recipe }}" {{ args }}
     done
 
-# Setup .env and .prettierignore symlinks in all packages
+# Create .env and .prettierignore symlinks in all packages
 [private]
-setup-env:
+create-symlinks:
     #!/usr/bin/env bash
     # Create root .env if it doesn't exist
     [ ! -f .env ] && touch .env
+
     # Create symlinks in each package
     for dir in {{ PACKAGES }}; do
+        # Create .env symlink
         [ ! -L "$dir/.env" ] && ln -sf ../.env "$dir/.env" || true
+        # Create .prettierignore symlink
         [ ! -L "$dir/.prettierignore" ] && ln -sf ../.prettierignore "$dir/.prettierignore" || true
     done

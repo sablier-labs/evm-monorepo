@@ -18,6 +18,10 @@ cp "$MONOREPO_ROOT/LICENSE.md" \
 
 echo "✓ Copied license files from monorepo root"
 
+# Copy security files from monorepo root to current package directory
+cp "$MONOREPO_ROOT/SECURITY.md" .
+echo "✓ Copied security files from monorepo root"
+
 # Install dependencies
 echo "Installing dependencies..."
 bun install --frozen-lockfile

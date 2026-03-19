@@ -24,9 +24,35 @@ qualify as a vulnerability, it must adhere to these assumptions:
 
 ## Airdrops
 
-Sablier Airdrops has been developed with the following additional assumptions:
+Sablier Airdrops Protocol has been developed with the following additional assumptions:
 
 - Campaign creator does not fund an Airdrop campaign contract before deploying it through the Sablier Merkle Factory.
+
+## Bob
+
+Sablier Bob Protocol has been developed with the following additional assumptions:
+
+### 1. Trusted Oracles
+
+Vault creators choose their own oracles and bear full responsibility for oracle selection. The protocol intentionally
+does not validate oracle staleness or the accuracy of the value returned. Depositors should verify the oracle address
+and its reliability before depositing into any vault.
+
+### 2. Curve Pool Slippage and Liquidity
+
+By default, the Lido adapter relies on the Curve stETH/ETH pool for converting stETH back to ETH. This has important implications:
+
+- **Extreme market conditions**: In extreme market conditions, unstaking may fail due to excessive slippage or
+  insufficient liquidity.
+- **Chainlink stETH/ETH oracle**: If the Chainlink stETH/ETH oracle becomes stale, the unstaking may fail.
+
+In such extreme market conditions, Sablier admin may need to trigger unstaking via Lido withdrawal queue mechanism.
+
+### 3. Manual Settlement
+
+When the oracle price goes above the target price, the vault does not settle by itself. A deliberate action is required
+to mark it as settled; until that step is taken, the vault remains active. If the price later falls back below the
+target, the vault still stays active and the user cannot redeem their tokens.
 
 ## Flow
 

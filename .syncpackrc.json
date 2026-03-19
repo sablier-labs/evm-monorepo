@@ -1,6 +1,13 @@
 {
   "$schema": "https://unpkg.com/syncpack@latest/dist/schema.json",
-  "source": ["package.json", "airdrops/package.json", "flow/package.json", "lockup/package.json", "utils/package.json"],
+  "source": [
+    "package.json",
+    "airdrops/package.json",
+    "bob/package.json",
+    "flow/package.json",
+    "lockup/package.json",
+    "utils/package.json"
+  ],
   "semverGroups": [
     {
       "label": "Use exact versions",

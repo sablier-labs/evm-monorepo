@@ -6,10 +6,12 @@ Merkle-based token distribution with optional vesting via Lockup streams.
 
 ## Protocol Overview
 
-Distribute ERC-20 tokens using Merkle trees. Three distribution modes:
+Distribute ERC-20 tokens using Merkle trees. Five distribution modes:
 
+- **Execute**: Claims execute arbitrary calldata
 - **Instant**: Recipients claim tokens immediately
-- **Vesting**: Claims create Lockup streams for gradual vesting
+- **LL (Lockup Linear)**: Claims create Lockup Linear streams
+- **LT (Lockup Tranched)**: Claims create Lockup Tranched streams
 - **VCA (Variable Claim Amount)**: Linear unlock; unvested tokens forfeited on claim
 
 Campaign timing options:
@@ -21,19 +23,27 @@ Campaign timing options:
 
 ```
 src/
-├── SablierMerkleFactory.sol    # Factory for campaigns
-├── SablierMerkleInstant.sol    # Instant distribution
-├── SablierMerkleLT.sol         # Lockup Tranched vesting
-├── SablierMerkleVCA.sol        # Variable claim amount
-├── interfaces/                  # Campaign interfaces
-└── types/                       # Structs, enums
+├── SablierMerkleInstant.sol           # Instant distribution
+├── SablierMerkleLL.sol                # Lockup Linear vesting
+├── SablierMerkleLT.sol                # Lockup Tranched vesting
+├── SablierMerkleVCA.sol               # Variable claim amount
+├── SablierMerkleExecute.sol           # Execute-based campaigns
+├── SablierFactoryMerkleInstant.sol    # Factory for Instant campaigns
+├── SablierFactoryMerkleLL.sol         # Factory for LL campaigns
+├── SablierFactoryMerkleLT.sol         # Factory for LT campaigns
+├── SablierFactoryMerkleVCA.sol        # Factory for VCA campaigns
+├── SablierFactoryMerkleExecute.sol    # Factory for Execute campaigns
+├── abstracts/                         # Shared base contracts
+├── interfaces/                        # Campaign interfaces
+├── libraries/                         # Helper libraries
+└── types/                             # Structs, enums
 tests/
-├── integration/
-│   ├── concrete/               # BTT-based tests
-│   └── fuzz/                   # Fuzz tests
-└── fork/                       # Fork tests
+├── integration/                       # BTT-based and fuzz tests
+├── invariant/                         # Invariant tests
+├── unit/                              # Unit tests
+└── fork/                              # Fork tests
 scripts/
-└── solidity/                   # Deployment scripts
+└── solidity/                          # Deployment scripts
 ```
 
 ## Commands
@@ -53,8 +63,10 @@ just airdrops::full-check    # All checks
 - **Claim**: User proves eligibility via Merkle proof
 - **Expiration**: Optional deadline after which admin can claw back
 
-## Import Path
+## Import Paths
 
 ```solidity
-import { ISablierMerkleFactory } from "@sablier/airdrops/src/interfaces/ISablierMerkleFactory.sol";
+import { ISablierFactoryMerkleInstant } from "@sablier/airdrops/src/interfaces/ISablierFactoryMerkleInstant.sol";
+import { ISablierFactoryMerkleLT } from "@sablier/airdrops/src/interfaces/ISablierFactoryMerkleLT.sol";
+import { ISablierMerkleInstant } from "@sablier/airdrops/src/interfaces/ISablierMerkleInstant.sol";
 ```

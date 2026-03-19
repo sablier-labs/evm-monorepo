@@ -2,7 +2,7 @@
 
 This package contains the following two sets of contracts:
 
-### Sablier comptroller
+## Sablier Comptroller
 
 Its a standalone contract with the following responsibilities:
 
@@ -10,12 +10,13 @@ Its a standalone contract with the following responsibilities:
   Sablier protocols.
 - Authority over admin functions across Sablier protocols.
 
-### Utility contracts
+## Utility contracts
 
 Its a collection of smart contracts used across various Sablier Solidity projects. The motivation behind this is to
 reduce code duplication. The following projects imports these contracts:
 
 - [Sablier Airdrops](https://github.com/sablier-labs/evm-monorepo/tree/main/airdrops)
+- [Sablier Bob](https://github.com/sablier-labs/evm-monorepo/tree/main/bob)
 - [Sablier Flow](https://github.com/sablier-labs/evm-monorepo/tree/main/flow)
 - [Sablier Lockup](https://github.com/sablier-labs/evm-monorepo/tree/main/lockup)
 
@@ -26,6 +27,7 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 This package contains the following subdirectories:
 
 - [`src/interfaces`](./src/interfaces/): Interfaces to be used by external projects.
+- [`src/libraries`](./src/libraries/): Helper libraries used by external projects.
 - [`src/mocks`](./src/mocks/): Mock contracts used by external projects in tests.
 - [`src/tests`](./src/tests/): Helper contracts used by external projects in tests and deployment scripts.
 
@@ -78,7 +80,7 @@ contract MyContract is Adminable, Batch, NoDelegateCall {
 ## Contributing
 
 Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
-[start](https://github.com/sablier-labs/evm-monorepo/discussions/new) a discussion or submit a PR. For any informal
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any informal
 concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
 For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) guide.

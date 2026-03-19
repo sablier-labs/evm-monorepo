@@ -24,14 +24,15 @@ Key features:
 ```
 src/
 ├── SablierFlow.sol         # Main contract
+├── FlowNFTDescriptor.sol   # NFT metadata and SVG generation
+├── abstracts/              # Shared base contracts
 ├── interfaces/             # ISablierFlow, etc.
 ├── libraries/              # Helpers
 └── types/                  # Structs, enums
 tests/
-├── integration/
-│   ├── concrete/           # BTT-based tests
-│   └── fuzz/               # Fuzz tests
-└── invariant/              # Invariant tests
+├── integration/            # BTT-based and fuzz tests
+├── invariant/              # Invariant tests
+└── fork/                   # Fork tests
 scripts/
 └── solidity/               # Deployment scripts
 ```

@@ -54,10 +54,10 @@ forge install sablier-labs/evm-monorepo@flow-v3.0.0 OpenZeppelin/openzeppelin-co
 Then, add the following remappings in `remappings.txt`:
 
 ```text
-@sablier/flow/=lib/evm-monorepo/flow/
-@sablier/evm-utils/=lib/evm-monorepo/utils/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 @prb/math/=lib/prb-math/
+@sablier/evm-utils/=lib/evm-monorepo/utils/
+@sablier/flow/=lib/evm-monorepo/flow/
 ```
 
 ### Branching Tree Technique
@@ -97,7 +97,7 @@ bug bounty program per the terms outlined in the aforementioned policy.
 ## Contributing
 
 Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
-[start](https://github.com/sablier-labs/evm-monorepo/discussions/new) a discussion or submit
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit
 [a PR](https://github.com/sablier-labs/evm-monorepo/compare). For any concerns or feedback, please join our
 [Discord server](https://discord.gg/bSwRCwWRsT).
 

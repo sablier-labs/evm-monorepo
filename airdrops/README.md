@@ -53,11 +53,11 @@ forge install sablier-labs/evm-monorepo@airdrops-v3.0.0 OpenZeppelin/openzeppeli
 Then, add the following remappings in `remappings.txt`:
 
 ```text
-@sablier/airdrops/=lib/evm-monorepo/airdrops/
-@sablier/lockup/=lib/evm-monorepo/lockup/
-@sablier/evm-utils/=lib/evm-monorepo/utils/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 @prb/math/=lib/prb-math/
+@sablier/evm-utils/=lib/evm-monorepo/utils/
+@sablier/airdrops/=lib/evm-monorepo/airdrops/
+@sablier/lockup/=lib/evm-monorepo/lockup/
 ```
 
 ### Branching Tree Technique
@@ -80,7 +80,7 @@ bug bounty program per the terms outlined in the aforementioned policy.
 ## Contributing
 
 Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
-[start](https://github.com/sablier-labs/evm-monorepo/discussions/new) a discussion or submit a PR. For any informal concerns
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any informal concerns
 or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
 For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) guide.

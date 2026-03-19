@@ -1,8 +1,6 @@
-<!-- TODO: update the file if it needs more work for each protocol -->
-
 # Contributing
 
-Feel free to dive in! [Open](../../issues/new) an issue, [start](../../discussions/new) a discussion or submit a PR. For
+Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue, [start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For
 any informal concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
 Contributions are welcome by anyone interested in writing more tests, improving readability, optimizing for gas
@@ -40,12 +38,6 @@ Create your root `.env` from `.env.example`:
 
 ```shell
 cp .env.example .env
-```
-
-Then, execute the one-time setup script:
-
-```shell
-just setup
 ```
 
 The setup script installs dependencies in all packages as well as create symlinks for `.env`.
