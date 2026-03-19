@@ -45,8 +45,6 @@ abstract contract MerkleInstant_Fork_Test is MerkleBase_Fork_Test {
             tokenAddress: FORK_TOKEN
         });
 
-        // Since the mainnet contracts are deployed using `via_ir`, use `computeMerkleInstant` function to compute the
-        // expected address.
         vars.expectedMerkleCampaign =
             factoryMerkleInstant.computeMerkleInstant(params.campaignCreator, constructorParams);
 
