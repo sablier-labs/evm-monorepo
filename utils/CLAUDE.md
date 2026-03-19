@@ -43,7 +43,9 @@ src/
 tests/
 ├── integration/                # BTT-based and fuzz tests
 ├── invariant/                  # Invariant tests
-└── fork/                       # Fork tests
+├── fork/                       # Fork tests
+├── mocks/                      # Mock contracts
+└── utils/                      # Test utilities
 scripts/
 └── solidity/                   # Deployment scripts
 ```

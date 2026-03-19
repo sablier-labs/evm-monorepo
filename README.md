@@ -1,4 +1,4 @@
-# Sablier EVM Monorepo [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
+# Sablier EVM Monorepo [![GitHub Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
 
 Monorepo for Sablier's EVM smart contracts. In-depth documentation is available at
 [docs.sablier.com](https://docs.sablier.com).

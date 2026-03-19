@@ -1,4 +1,4 @@
-# Sablier EVM Utils [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
+# Sablier EVM Utils [![GitHub Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
 
 This package contains the following two sets of contracts:
 

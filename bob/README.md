@@ -1,4 +1,4 @@
-# Sablier Bob [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
+# Sablier Bob [![GitHub Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
 
 ## Background
 
@@ -77,6 +77,6 @@ See [LICENSE.md](../LICENSE.md).
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 [gha]: https://github.com/sablier-labs/evm-monorepo/actions
-[gha-badge]: https://github.com/sablier-labs/evm-monorepo/actions/workflows/ci-flow.yml/badge.svg
+[gha-badge]: https://github.com/sablier-labs/evm-monorepo/actions/workflows/ci-bob.yml/badge.svg
 [twitter]: https://x.com/Sablier
 [twitter-badge]: https://img.shields.io/twitter/follow/Sablier

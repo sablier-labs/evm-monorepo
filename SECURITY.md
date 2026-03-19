@@ -40,7 +40,8 @@ and its reliability before depositing into any vault.
 
 ### 2. Curve Pool Slippage and Liquidity
 
-By default, the Lido adapter relies on the Curve stETH/ETH pool for converting stETH back to ETH. This has important implications:
+By default, the Lido adapter relies on the Curve stETH/ETH pool for converting stETH back to ETH.
+This has important implications:
 
 - **Extreme market conditions**: In extreme market conditions, unstaking may fail due to excessive slippage or
   insufficient liquidity.
