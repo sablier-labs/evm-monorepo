@@ -2,6 +2,10 @@
 
 [profile.default]
   extends = "../foundry.base.toml"
+  fs_permissions = [
+    { access = "read", path = "./out" },
+    { access = "read-write", path = "benchmarks/results" },
+  ]
 
 [profile.benchmarks-flow]
   extends = "../foundry.base.toml"

@@ -19,7 +19,7 @@ contract FlowBenchmark is BaseTest, Constants {
 
     uint8 internal constant USDC_DECIMALS = 6;
 
-    string internal IMM_RESULTS_FILE = "results/flow/flow.md";
+    string internal IMM_RESULTS_FILE = "benchmarks/results/flow/flow.md";
 
     uint256[8] internal streamIds;
     Users internal users;
@@ -43,7 +43,7 @@ contract FlowBenchmark is BaseTest, Constants {
 
         // Load deployed addresses from Ethereum mainnet.
         // See https://docs.sablier.com/guides/flow/deployments
-        flow = ISablierFlow(0x7a86d3e6894f9c5B5f25FFBDAaE658CFc7569623);
+        flow = ISablierFlow(0x844344Cd871B28221d725ecE9630E8bDE4E3a181);
         logGreen("Loaded SablierFlow contract");
 
         // Load USDC token.

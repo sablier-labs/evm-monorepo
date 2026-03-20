@@ -23,7 +23,7 @@ contract LockupDynamicBenchmark is LockupBenchmark {
 
     function setUp() public virtual override {
         super.setUp();
-        IMM_RESULTS_FILE = "results/lockup/lockup-dynamic.md";
+        IMM_RESULTS_FILE = "benchmarks/results/lockup/lockup-dynamic.md";
         vm.writeFile({
             path: IMM_RESULTS_FILE,
             data: string.concat(

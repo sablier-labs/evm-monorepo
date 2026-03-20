@@ -2,7 +2,6 @@
 import "./node_modules/@sablier/devkit/just/evm.just"
 
 # Override constants for this project structure
-GLOBS_PRETTIER := "**/*.{md,yml}"
 GLOBS_SOLIDITY := "{benchmarks,examples}/**/*.sol"
 
 # Run just --list to see all available commands
@@ -71,7 +70,7 @@ benchmark *args:
 [group("benchmarks")]
 format-numbers:
   na ./benchmarks/scripts/format-numbers.js
-  na prettier --write "benchmarks/results/**/*.md"
+  mdformat benchmarks/results/
 
 # ---------------------------------------------------------------------------- #
 #                                   FORMATS                                    #
@@ -79,11 +78,11 @@ format-numbers:
 
 # Run all code checks
 [group("format")]
-full-check: (solhint-check GLOBS_SOLIDITY) fmt-check (prettier-check GLOBS_PRETTIER)
+full-check: (solhint-check GLOBS_SOLIDITY) fmt-check (mdformat-check ".")
 
 # Run all code fixes
 [group("format")]
-full-write: (solhint-write GLOBS_SOLIDITY) fmt-write (prettier-write GLOBS_PRETTIER)
+full-write: (solhint-write GLOBS_SOLIDITY) fmt-write (mdformat-write ".")
 
 # Check code with Forge formatter
 [group("format")]

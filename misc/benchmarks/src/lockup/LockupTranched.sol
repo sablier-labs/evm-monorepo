@@ -22,7 +22,7 @@ contract LockupTranchedBenchmark is LockupBenchmark {
 
     function setUp() public virtual override {
         super.setUp();
-        IMM_RESULTS_FILE = "results/lockup/lockup-tranched.md";
+        IMM_RESULTS_FILE = "benchmarks/results/lockup/lockup-tranched.md";
         vm.writeFile({
             path: IMM_RESULTS_FILE,
             data: string.concat(

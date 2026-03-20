@@ -21,7 +21,7 @@ contract LockupLinearBenchmark is LockupBenchmark {
 
     function setUp() public virtual override {
         super.setUp();
-        IMM_RESULTS_FILE = "results/lockup/lockup-linear.md";
+        IMM_RESULTS_FILE = "benchmarks/results/lockup/lockup-linear.md";
         vm.writeFile({
             path: IMM_RESULTS_FILE,
             data: string.concat(
@@ -106,7 +106,7 @@ contract LockupLinearBenchmark is LockupBenchmark {
         if (cliffDuration == 0) unlockAmounts.cliff = 0;
 
         uint256 beforeGas = gasleft();
-        lockup.createWithDurationsLL(params, unlockAmounts, durations);
+        lockup.createWithDurationsLL(params, unlockAmounts, defaults.GRANULARITY(), durations);
         uint256 gasUsed = beforeGas - gasleft();
 
         string memory cliffConfig = cliffDuration == 0 ? "no cliff" : " with cliff";
@@ -122,7 +122,7 @@ contract LockupLinearBenchmark is LockupBenchmark {
         if (cliffTime == 0) unlockAmounts.cliff = 0;
 
         uint256 beforeGas = gasleft();
-        lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime);
+        lockup.createWithTimestampsLL(params, unlockAmounts, defaults.GRANULARITY(), cliffTime);
         uint256 gasUsed = beforeGas - gasleft();
 
         string memory cliffConfig = cliffTime == 0 ? "no cliff" : " with cliff";
@@ -147,22 +147,26 @@ contract LockupLinearBenchmark is LockupBenchmark {
         _linearStreamIds[0] = lockup.createWithTimestampsLL({
             params: params,
             unlockAmounts: defaults.unlockAmounts(),
+            granularity: defaults.GRANULARITY(),
             cliffTime: defaults.CLIFF_TIME()
         });
         _linearStreamIds[1] = lockup.createWithTimestampsLL({
             params: params,
             unlockAmounts: defaults.unlockAmounts(),
+            granularity: defaults.GRANULARITY(),
             cliffTime: defaults.CLIFF_TIME()
         });
 
         _linearStreamIds[2] = lockup.createWithTimestampsLL({
             params: params,
             unlockAmounts: defaults.unlockAmounts(),
+            granularity: defaults.GRANULARITY(),
             cliffTime: defaults.CLIFF_TIME()
         });
         _linearStreamIds[3] = lockup.createWithTimestampsLL({
             params: params,
             unlockAmounts: defaults.unlockAmounts(),
+            granularity: defaults.GRANULARITY(),
             cliffTime: defaults.CLIFF_TIME()
         });
     }
