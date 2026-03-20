@@ -10,9 +10,9 @@ import { LockupLinear } from "@sablier/lockup/src/types/LockupLinear.sol";
 /// @dev This code is referenced in the docs:
 /// https://docs.sablier.com/guides/lockup/examples/create-stream/lockup-linear
 contract LockupLinearStreamCreator {
-    // Sepolia addresses
-    IERC20 public constant DAI = IERC20(0x68194a729C2450ad26072b3D33ADaCbcef39D574);
-    ISablierLockup public constant LOCKUP = ISablierLockup(0xAcDc1b0686D38a4aDE97e73e242b30A96761Be64);
+    // Mainnet addresses
+    IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0x2455c72a4aFE3b0e2B26b5EFD7F8EFFE6B828C90);
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
     function createStream(uint128 depositAmount) public returns (uint256 streamId) {

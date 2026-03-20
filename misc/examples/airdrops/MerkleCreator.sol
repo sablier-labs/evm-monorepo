@@ -21,21 +21,21 @@ import { MerkleExecute } from "@sablier/airdrops/src/types/MerkleExecute.sol";
 /// @notice Example of how to create Merkle airdrop campaigns.
 /// @dev This code is referenced in the docs: https://docs.sablier.com/guides/airdrops/examples/create-campaign
 contract MerkleCreator {
-    // Sepolia addresses
-    IERC20 public constant DAI = IERC20(0x68194a729C2450ad26072b3D33ADaCbcef39D574);
+    // Mainnet addresses
+    IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 
     // See https://docs.sablier.com/guides/lockup/deployments for all deployments
     ISablierFactoryMerkleExecute public constant EXECUTE_FACTORY =
-        ISablierFactoryMerkleExecute(0x832BF79bF135d474585171DB28c8feA962943Ec7);
+        ISablierFactoryMerkleExecute(0x75ca3677966737E70649336ee8f9be57AC9f74bA);
     ISablierFactoryMerkleInstant public constant INSTANT_FACTORY =
-        ISablierFactoryMerkleInstant(0x0F04F7eF61aAEda752d38c5b72A5F4BD69B9656A);
+        ISablierFactoryMerkleInstant(0xb2855845067e126207DE2155Ad1c8AD5C495cb3F);
     ISablierFactoryMerkleLL public constant LL_FACTORY =
-        ISablierFactoryMerkleLL(0xdF7Da7a69A90C6F60B170B304c4d8899d865f0f5);
+        ISablierFactoryMerkleLL(0x3210E9b8ed75f9E2Db00ef17167C775e658c2221);
     ISablierFactoryMerkleLT public constant LT_FACTORY =
-        ISablierFactoryMerkleLT(0x603CDD1a2A517B6584330109f06cAb6B89c525d3);
+        ISablierFactoryMerkleLT(0x239BD5431aDa12F09cA95d0a5d4388A5644268e9);
     ISablierFactoryMerkleVCA public constant VCA_FACTORY =
-        ISablierFactoryMerkleVCA(0x997ed890D6AeD711e885Bfc02D4F7F2aF92BbA02);
-    ISablierLockup public constant LOCKUP = ISablierLockup(0xAcDc1b0686D38a4aDE97e73e242b30A96761Be64);
+        ISablierFactoryMerkleVCA(0xe60Df8e04cE1616a06db8AD11ce71c05dDcB5D88);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0x2455c72a4aFE3b0e2B26b5EFD7F8EFFE6B828C90);
 
     function createMerkleExecute() public returns (ISablierMerkleExecute merkleExecute) {
         // Declare the constructor parameters of MerkleExecute.

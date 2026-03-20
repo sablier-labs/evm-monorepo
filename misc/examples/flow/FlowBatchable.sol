@@ -9,9 +9,9 @@ import { ISablierFlow } from "@sablier/flow/src/interfaces/ISablierFlow.sol";
 /// enables any possible combination of functions to be executed within a single transaction.
 /// @dev For some functions to work, `msg.sender` must have approved this contract to spend USDC.
 contract FlowBatchable {
-    // Sepolia addresses
-    IERC20 public constant USDC = IERC20(0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238);
-    ISablierFlow public constant FLOW = ISablierFlow(0xd32480233aC90f3C97903c4E5263611B7a7DFe66);
+    // Mainnet addresses
+    IERC20 public constant USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+    ISablierFlow public constant FLOW = ISablierFlow(0x844344cd871b28221d725ece9630e8bde4e3a181);
 
     /// @dev A function to adjust the rate per second and deposit into a stream in a single transaction.
     /// Note: The streamId's sender must be this contract, otherwise, the call will fail due to no authorization.

@@ -8,11 +8,11 @@ import { BatchLockup } from "@sablier/lockup/src/types/BatchLockup.sol";
 import { LockupLinear } from "@sablier/lockup/src/types/LockupLinear.sol";
 
 contract BatchLLStreamCreator {
-    // Sepolia addresses
-    IERC20 public constant DAI = IERC20(0x68194a729C2450ad26072b3D33ADaCbcef39D574);
+    // Mainnet addresses
+    IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
     // See https://docs.sablier.com/guides/lockup/deployments for all deployments
-    ISablierLockup public constant LOCKUP = ISablierLockup(0xAcDc1b0686D38a4aDE97e73e242b30A96761Be64);
-    ISablierBatchLockup public constant BATCH_LOCKUP = ISablierBatchLockup(0x608DC64C0Da32CB723F6c2AE300Ea734edbE4015);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0x2455c72a4aFE3b0e2B26b5EFD7F8EFFE6B828C90);
+    ISablierBatchLockup public constant BATCH_LOCKUP = ISablierBatchLockup(0x653Cbc0cC19dCb43F06a0d0909835a9d7dec33dF);
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
     function batchCreateStreams(uint128 perStreamAmount) public returns (uint256[] memory streamIds) {
