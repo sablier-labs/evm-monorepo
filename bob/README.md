@@ -60,11 +60,10 @@ bug bounty program per the terms outlined in the aforementioned policy.
 ## Contributing
 
 Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
-[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit
-[a PR](https://github.com/sablier-labs/evm-monorepo/compare). For any concerns or feedback, please join our
-[Discord server](https://discord.gg/bSwRCwWRsT).
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any informal concerns
+or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
-Refer to [CONTRIBUTING](../CONTRIBUTING.md) guidelines if you wish to create a PR.
+For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) guide.
 
 ## License
 
