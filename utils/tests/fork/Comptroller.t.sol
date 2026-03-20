@@ -16,7 +16,7 @@ contract Comptroller_Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     BaseScriptMock internal baseScript;
-    address internal currentMainnetAdmin;
+    address internal defaultMultisigAdmin;
     address[] internal protocolAddresses;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -27,8 +27,8 @@ contract Comptroller_Fork_Test is Base_Test {
         // Fork Ethereum Mainnet at the latest block number.
         vm.createSelectFork({ urlOrAlias: "ethereum" });
 
-        // Set the current mainnet admin address.
-        currentMainnetAdmin = 0x58290bbdb51A4c6B022A81e9cDeD24BE19Ca57fd;
+        // Set the default multisig admin address.
+        defaultMultisigAdmin = 0x58290bbdb51A4c6B022A81e9cDeD24BE19Ca57fd;
 
         // Deploy the `BaseScriptMock` contract.
         baseScript = new BaseScriptMock();
@@ -44,12 +44,17 @@ contract Comptroller_Fork_Test is Base_Test {
         protocolAddresses[3] = 0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB;
 
         // Set comptroller admin as the caller.
-        setMsgSender(currentMainnetAdmin);
+        setMsgSender(defaultMultisigAdmin);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                        TESTS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev It should return the correct admin address.
+    function testFork_Admin() external view {
+        assertEq(comptroller.admin(), defaultMultisigAdmin, "admin");
+    }
 
     /// @dev Checklist:
     /// - It should return zero value for Staking protocol.
@@ -70,10 +75,13 @@ contract Comptroller_Fork_Test is Base_Test {
     /// @dev It tests the state variables that will rarely be changed.
     function testFork_Constructor() external view {
         // Assert the comptroller admin.
-        assertEq(comptroller.admin(), currentMainnetAdmin, "admin");
+        assertEq(comptroller.admin(), defaultMultisigAdmin, "admin");
 
         // Assert the max fee in usd.
         assertEq(comptroller.MAX_FEE_USD(), MAX_FEE_USD, "max fee USD");
+
+        // Assert the comptroller version.
+        assertEq(comptroller.VERSION(), "v1.1", "version");
 
         // Assert the oracle address.
         assertEq(comptroller.oracle(), baseScript.getChainlinkOracle(), "oracle");
@@ -82,7 +90,7 @@ contract Comptroller_Fork_Test is Base_Test {
     /// @dev It should use `execute` function to change the comptroller on the protocol contracts.
     function testFork_Execute() external {
         // Deploy a new comptroller.
-        SablierComptroller newComptroller = new SablierComptroller(currentMainnetAdmin);
+        SablierComptroller newComptroller = new SablierComptroller(defaultMultisigAdmin);
 
         bytes memory payload = abi.encodeCall(IComptrollerable.setComptroller, (newComptroller));
 
