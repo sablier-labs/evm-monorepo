@@ -6,7 +6,7 @@ import { ISablierFlow } from "@sablier/flow/src/interfaces/ISablierFlow.sol";
 
 contract FlowStreamManager {
     // Mainnet address
-    ISablierFlow public constant FLOW = ISablierFlow(0x844344cd871b28221d725ece9630e8bde4e3a181);
+    ISablierFlow public constant FLOW = ISablierFlow(0x844344Cd871B28221d725ecE9630E8bDE4E3a181);
 
     function adjustRatePerSecond(uint256 streamId) external {
         FLOW.adjustRatePerSecond({ streamId: streamId, newRatePerSecond: ud21x18(0.0001e18) });

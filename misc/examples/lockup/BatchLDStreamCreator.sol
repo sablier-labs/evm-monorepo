@@ -12,8 +12,8 @@ contract BatchLDStreamCreator {
     // Mainnet addresses
     IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
     // See https://docs.sablier.com/guides/lockup/deployments for all deployments
-    ISablierLockup public constant LOCKUP = ISablierLockup(0x2455c72a4aFE3b0e2B26b5EFD7F8EFFE6B828C90);
-    ISablierBatchLockup public constant BATCH_LOCKUP = ISablierBatchLockup(0x653Cbc0cC19dCb43F06a0d0909835a9d7dec33dF);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB);
+    ISablierBatchLockup public constant BATCH_LOCKUP = ISablierBatchLockup(0x4f3be262D1358A82b468CF81bfc5A9cC32Cf9875);
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
     function batchCreateStreams(uint128 perStreamAmount) public returns (uint256[] memory streamIds) {
@@ -64,7 +64,9 @@ contract BatchLDStreamCreator {
         // Declare some dummy segments
         stream1.segments = new LockupDynamic.Segment[](2);
         stream1.segments[0] = LockupDynamic.Segment({
-            amount: uint128(perStreamAmount / 4), exponent: ud2x18(1e18), timestamp: uint40(block.timestamp + 4 weeks)
+            amount: uint128(perStreamAmount / 4),
+            exponent: ud2x18(1e18),
+            timestamp: uint40(block.timestamp + 4 weeks)
         });
         stream1.segments[1] =
         (LockupDynamic.Segment({

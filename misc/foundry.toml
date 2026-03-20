@@ -3,22 +3,27 @@
 [profile.default]
   extends = "../foundry.base.toml"
 
-[profile.examples.airdrops]
-  src = "examples/airdrops"
-  test = "examples/airdrops"
+[profile.benchmarks-flow]
+  extends = "../foundry.base.toml"
+  src = "benchmarks/src/flow"
+  test = "benchmarks/src/flow"
 
-[profile.examples.flow]
-  src = "examples/flow"
-  test = "examples/flow"
-
-[profile.examples.lockup]
-  src = "examples/lockup"
-  test = "examples/lockup"
-
-[profile.benchmarks.lockup]
+[profile.benchmarks-lockup]
+  extends = "../foundry.base.toml"
   src = "benchmarks/src/lockup"
   test = "benchmarks/src/lockup"
 
-[profile.benchmarks.flow]
-  src = "benchmarks/src/flow"
-  test = "benchmarks/src/flow"
+[profile.examples-airdrops]
+  extends = "../foundry.base.toml"
+  src = "examples/airdrops"
+  test = "examples/airdrops"
+
+[profile.examples-flow]
+  extends = "../foundry.base.toml"
+  src = "examples/flow"
+  test = "examples/flow"
+
+[profile.examples-lockup]
+  extends = "../foundry.base.toml"
+  src = "examples/lockup"
+  test = "examples/lockup"

@@ -49,7 +49,7 @@ contract MerkleCreator {
         params.ipfsCID = "QmT5NvUtoM5nWFfrQdVrFtvGfKFmG7AHE8P34isapyhCxX"; // IPFS hash of the campaign metadata
         params.merkleRoot = 0x4e07408562bedb8b60ce05c1decfe3ad16b722309875f562c03d02d7aaacb123;
         params.campaignName = "My First Campaign"; // Unique campaign name
-        params.target = address(0xCAFE); // Target contract to call on claim
+        params.target = address(DAI); // Target contract to call on claim
         params.selector = bytes4(0x12345678); // Function selector to call on the target
 
         // The total amount of tokens you want to airdrop to your users.
@@ -119,7 +119,9 @@ contract MerkleCreator {
         // Deploy the MerkleLL campaign contract. The deployed contract will be completely owned by the campaign admin.
         // Recipients will interact with the deployed contract to claim their airdrop.
         merkleLL = LL_FACTORY.createMerkleLL({
-            campaignParams: params, aggregateAmount: aggregateAmount, recipientCount: recipientCount
+            campaignParams: params,
+            aggregateAmount: aggregateAmount,
+            recipientCount: recipientCount
         });
     }
 
@@ -158,7 +160,9 @@ contract MerkleCreator {
         // Deploy the MerkleLT campaign contract. The deployed contract will be completely owned by the campaign admin.
         // Recipients will interact with the deployed contract to claim their airdrop.
         merkleLT = LT_FACTORY.createMerkleLT({
-            campaignParams: params, aggregateAmount: aggregateAmount, recipientCount: recipientCount
+            campaignParams: params,
+            aggregateAmount: aggregateAmount,
+            recipientCount: recipientCount
         });
     }
 
@@ -171,7 +175,7 @@ contract MerkleCreator {
         params.token = DAI;
         params.campaignStartTime = uint40(block.timestamp);
         params.enableRedistribution = false;
-        params.expiration = uint40(block.timestamp + 12 weeks); // The expiration of the campaign
+        params.expiration = uint40(block.timestamp + 14 weeks); // The expiration of the campaign
         params.initialAdmin = address(0xBeeF); // Admin of the merkle lockup contract
         params.ipfsCID = "QmT5NvUtoM5nWFfrQdVrFtvGfKFmG7AHE8P34isapyhCxX"; // IPFS hash of the campaign metadata
         params.merkleRoot = 0x4e07408562bedb8b60ce05c1decfe3ad16b722309875f562c03d02d7aaacb123;

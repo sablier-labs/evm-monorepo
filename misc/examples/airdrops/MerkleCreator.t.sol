@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-3-0-or-later
 pragma solidity >=0.8.22;
 
+import { ISablierMerkleExecute } from "@sablier/airdrops/src/interfaces/ISablierMerkleExecute.sol";
 import { ISablierMerkleInstant } from "@sablier/airdrops/src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "@sablier/airdrops/src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "@sablier/airdrops/src/interfaces/ISablierMerkleLT.sol";
+import { ISablierMerkleVCA } from "@sablier/airdrops/src/interfaces/ISablierMerkleVCA.sol";
 import { Test } from "forge-std/src/Test.sol";
 
 import { MerkleCreator } from "./MerkleCreator.sol";

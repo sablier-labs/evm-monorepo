@@ -148,9 +148,8 @@ contract LockupTranchedBenchmark is LockupBenchmark {
 
         // Populate tranches
         for (uint256 i = 0; i < trancheCount; ++i) {
-            tranches_[i] = (
-                LockupTranched.TrancheWithDuration({ amount: AMOUNT_PER_TRANCHE, duration: defaults.CLIFF_DURATION() })
-            );
+            tranches_[i] =
+            (LockupTranched.TrancheWithDuration({ amount: AMOUNT_PER_TRANCHE, duration: defaults.CLIFF_DURATION() }));
         }
 
         uint128 depositAmount = AMOUNT_PER_SEGMENT * trancheCount;
@@ -168,12 +167,11 @@ contract LockupTranchedBenchmark is LockupBenchmark {
         tranches_ = new LockupTranched.Tranche[](trancheCount);
 
         for (uint256 i = 0; i < trancheCount; ++i) {
-            tranches_[i] = (
-                LockupTranched.Tranche({
+            tranches_[i] =
+            (LockupTranched.Tranche({
                     amount: AMOUNT_PER_TRANCHE,
                     timestamp: getBlockTimestamp() + uint40(defaults.CLIFF_DURATION() * (1 + i))
-                })
-            );
+                }));
         }
 
         uint128 depositAmount = AMOUNT_PER_SEGMENT * trancheCount;

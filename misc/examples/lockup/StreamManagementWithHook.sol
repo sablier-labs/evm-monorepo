@@ -78,7 +78,10 @@ contract StreamManagementWithHook is ISablierLockupRecipient {
 
         // Create the stream.
         streamId = SABLIER.createWithDurationsLL({
-            params: params, unlockAmounts: unlockAmounts, granularity: 1 seconds, durations: durations
+            params: params,
+            unlockAmounts: unlockAmounts,
+            granularity: 1 seconds,
+            durations: durations
         });
 
         // Set the `beneficiary` .

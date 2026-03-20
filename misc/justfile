@@ -1,11 +1,11 @@
 # See https://github.com/sablier-labs/devkit/blob/main/just/evm.just
-# Run just --list to see all available commands
 import "./node_modules/@sablier/devkit/just/evm.just"
 
 # Override constants for this project structure
 GLOBS_PRETTIER := "**/*.{md,yml}"
 GLOBS_SOLIDITY := "{benchmarks,examples}/**/*.sol"
 
+# Run just --list to see all available commands
 default:
   @just --list
 
@@ -20,17 +20,17 @@ build-examples: build-examples-airdrops build-examples-flow build-examples-locku
 # Build examples airdrops contracts
 [group("examples")]
 build-examples-airdrops:
-  FOUNDRY_PROFILE=examples.airdrops forge build
+  FOUNDRY_PROFILE=examples-airdrops forge build
 
 # Build examples flow contracts
 [group("examples")]
 build-examples-flow:
-  FOUNDRY_PROFILE=examples.flow forge build
+  FOUNDRY_PROFILE=examples-flow forge build
 
 # Build examples lockup contracts
 [group("examples")]
 build-examples-lockup:
-  FOUNDRY_PROFILE=examples.lockup forge build
+  FOUNDRY_PROFILE=examples-lockup forge build
 
 # Test all example contracts (airdrops, flow, lockup)
 [group("examples")]
@@ -39,17 +39,17 @@ test-examples: test-examples-airdrops test-examples-flow test-examples-lockup
 # Test examples airdrops contracts
 [group("examples")]
 test-examples-airdrops:
-  FOUNDRY_PROFILE=examples.airdrops forge test
+  FOUNDRY_PROFILE=examples-airdrops forge test
 
 # Test examples flow contracts
 [group("examples")]
 test-examples-flow:
-  FOUNDRY_PROFILE=examples.flow forge test
+  FOUNDRY_PROFILE=examples-flow forge test
 
 # Test examples lockup contracts
 [group("examples")]
 test-examples-lockup:
-  FOUNDRY_PROFILE=examples.lockup forge test
+  FOUNDRY_PROFILE=examples-lockup forge test
 
 # ---------------------------------------------------------------------------- #
 #                                  BENCHMARKS                                  #
@@ -64,7 +64,7 @@ benchmark-all:
 # Benchmark a specific protocol
 [group("benchmarks")]
 benchmark *args:
-  FOUNDRY_PROFILE=benchmarks.{{ args }} forge test --show-progress -vv
+  FOUNDRY_PROFILE=benchmarks-{{ args }} forge test --show-progress -vv
   just format-numbers
 
 # Format benchmark numbers

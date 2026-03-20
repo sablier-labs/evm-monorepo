@@ -148,13 +148,12 @@ contract LockupDynamicBenchmark is LockupBenchmark {
         segments_ = new LockupDynamic.SegmentWithDuration[](segmentCount);
 
         for (uint256 i = 0; i < segmentCount; ++i) {
-            segments_[i] = (
-                LockupDynamic.SegmentWithDuration({
+            segments_[i] =
+            (LockupDynamic.SegmentWithDuration({
                     amount: AMOUNT_PER_SEGMENT,
                     exponent: ud2x18(0.5e18),
                     duration: defaults.CLIFF_DURATION()
-                })
-            );
+                }));
         }
 
         uint128 depositAmount = AMOUNT_PER_SEGMENT * segmentCount;
@@ -172,13 +171,12 @@ contract LockupDynamicBenchmark is LockupBenchmark {
         segments_ = new LockupDynamic.Segment[](segmentCount);
 
         for (uint256 i = 0; i < segmentCount; ++i) {
-            segments_[i] = (
-                LockupDynamic.Segment({
+            segments_[i] =
+            (LockupDynamic.Segment({
                     amount: AMOUNT_PER_SEGMENT,
                     exponent: ud2x18(0.5e18),
                     timestamp: getBlockTimestamp() + uint40(defaults.CLIFF_DURATION() * (1 + i))
-                })
-            );
+                }));
         }
 
         uint128 depositAmount = AMOUNT_PER_SEGMENT * segmentCount;

@@ -229,12 +229,11 @@ contract BatchLockupBenchmark is LockupBenchmark {
         LockupTranched.Tranche[] memory tranches = new LockupTranched.Tranche[](trancheCount);
 
         for (uint256 i = 0; i < trancheCount; ++i) {
-            tranches[i] = (
-                LockupTranched.Tranche({
+            tranches[i] =
+            (LockupTranched.Tranche({
                     amount: AMOUNT_PER_ITEM,
                     timestamp: getBlockTimestamp() + uint40(defaults.CLIFF_DURATION() * (1 + i))
-                })
-            );
+                }));
         }
 
         return tranches;
