@@ -125,3 +125,6 @@ setup-env:
         [ ! -L "$dir/.env" ] && ln -sf ../.env "$dir/.env" || true
         [ ! -L "$dir/.prettierignore" ] && ln -sf ../.prettierignore "$dir/.prettierignore" || true
     done
+    # Create symlinks in misc
+    [ ! -L "misc/.env" ] && ln -sf ../.env "misc/.env" || true
+    [ ! -L "misc/.prettierignore" ] && ln -sf ../.prettierignore "misc/.prettierignore" || true

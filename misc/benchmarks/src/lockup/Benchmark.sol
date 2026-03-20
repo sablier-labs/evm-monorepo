@@ -53,8 +53,8 @@ abstract contract LockupBenchmark is BaseTest {
 
         // Load deployed addresses from Ethereum mainnet.
         // See https://docs.sablier.com/guides/lockup/deployments
-        batchLockup = ISablierBatchLockup(0x0636D83B184D65C242c43de6AAd10535BFb9D45a);
-        lockup = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+        batchLockup = ISablierBatchLockup(0x4f3be262D1358A82b468CF81bfc5A9cC32Cf9875);
+        lockup = ISablierLockup(0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB);
         logGreen("Loaded Sablier contracts");
 
         // Load WETH token.
@@ -185,6 +185,7 @@ abstract contract LockupBenchmark is BaseTest {
         lockup.createWithTimestampsLL({
             params: params,
             unlockAmounts: defaults.unlockAmounts(),
+            granularity: defaults.GRANULARITY(),
             cliffTime: defaults.CLIFF_TIME()
         });
         lockup.createWithTimestampsLT({ params: params, tranches: defaults.tranches() });

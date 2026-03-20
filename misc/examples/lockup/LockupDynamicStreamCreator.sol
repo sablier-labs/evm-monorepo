@@ -13,7 +13,7 @@ import { LockupDynamic } from "@sablier/lockup/src/types/LockupDynamic.sol";
 contract LockupDynamicStreamCreator {
     // Mainnet addresses
     IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-    ISablierLockup public constant LOCKUP = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB);
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
     function createStream(uint128 amount0, uint128 amount1) public returns (uint256 streamId) {
@@ -46,15 +46,14 @@ contract LockupDynamicStreamCreator {
             exponent: ud2x18(1e18),
             timestamp: uint40(block.timestamp + 4 weeks)
         });
-        segments[1] = (
-            LockupDynamic.Segment({
+        segments[1] =
+        (LockupDynamic.Segment({
                 amount: amount1,
                 exponent: ud2x18(3.14e18),
                 timestamp: uint40(block.timestamp + 52 weeks)
-            })
-        );
+            }));
 
         // Create the LockupDynamic stream
-        streamId = LOCKUP.createWithTimestampsLD(params, segments);
+        streamId = LOCKUP.createWithTimestampsLD({ params: params, segments: segments });
     }
 }

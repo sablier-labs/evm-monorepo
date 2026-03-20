@@ -12,7 +12,7 @@ import { LockupTranched } from "@sablier/lockup/src/types/LockupTranched.sol";
 contract LockupTranchedStreamCreator {
     // Mainnet addresses
     IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-    ISablierLockup public constant LOCKUP = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB);
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
     function createStream(uint128 amount0, uint128 amount1) public returns (uint256 streamId) {
@@ -42,6 +42,6 @@ contract LockupTranchedStreamCreator {
         tranches[1] = (LockupTranched.TrancheWithDuration({ amount: amount1, duration: uint40(6 weeks) }));
 
         // Create the LockupTranched stream
-        streamId = LOCKUP.createWithDurationsLT(params, tranches);
+        streamId = LOCKUP.createWithDurationsLT({ params: params, tranchesWithDuration: tranches });
     }
 }

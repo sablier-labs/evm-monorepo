@@ -13,7 +13,7 @@ import { LockupTranched } from "@sablier/lockup/src/types/LockupTranched.sol";
 contract LockupTranchedCurvesCreator {
     // Mainnet addresses
     IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-    ISablierLockup public constant LOCKUP = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB);
 
     function createStream_UnlockInSteps() external returns (uint256 streamId) {
         // Declare the total amount as 100 DAI
@@ -46,7 +46,7 @@ contract LockupTranchedCurvesCreator {
         }
 
         // Create the Lockup stream using tranche model with periodic unlocks in step
-        streamId = LOCKUP.createWithDurationsLT(params, tranches);
+        streamId = LOCKUP.createWithDurationsLT({ params: params, tranchesWithDuration: tranches });
     }
 
     function createStream_MonthlyUnlocks() external returns (uint256 streamId) {
@@ -80,7 +80,7 @@ contract LockupTranchedCurvesCreator {
         }
 
         // Create the Lockup stream using tranche model with web2 style monthly unlocks
-        streamId = LOCKUP.createWithDurationsLT(params, tranches);
+        streamId = LOCKUP.createWithDurationsLT({ params: params, tranchesWithDuration: tranches });
     }
 
     function createStream_Timelock() external returns (uint256 streamId) {
@@ -108,6 +108,6 @@ contract LockupTranchedCurvesCreator {
         tranches[0] = LockupTranched.TrancheWithDuration({ amount: 100e18, duration: 90 days });
 
         // Create the Lockup stream using tranche model with full unlock only at the end
-        streamId = LOCKUP.createWithDurationsLT(params, tranches);
+        streamId = LOCKUP.createWithDurationsLT({ params: params, tranchesWithDuration: tranches });
     }
 }

@@ -35,9 +35,9 @@ async function format(filePath) {
 }
 
 (async () => {
-  await format("results/flow/flow.md");
-  await format("results/lockup/batch-lockup.md");
-  await format("results/lockup/lockup-dynamic.md");
-  await format("results/lockup/lockup-linear.md");
-  await format("results/lockup/lockup-tranched.md");
+  await format("benchmarks/results/flow/flow.md");
+  await format("benchmarks/results/lockup/batch-lockup.md");
+  await format("benchmarks/results/lockup/lockup-dynamic.md");
+  await format("benchmarks/results/lockup/lockup-linear.md");
+  await format("benchmarks/results/lockup/lockup-tranched.md");
 })();

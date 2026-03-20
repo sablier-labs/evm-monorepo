@@ -1,0 +1,33 @@
+# Full reference https://github.com/foundry-rs/foundry/tree/master/config
+
+[profile.default]
+  extends = "../foundry.base.toml"
+  fs_permissions = [
+    { access = "read", path = "./out" },
+    { access = "read-write", path = "benchmarks/results" },
+  ]
+
+[profile.benchmarks-flow]
+  extends = "../foundry.base.toml"
+  src = "benchmarks/src/flow"
+  test = "benchmarks/src/flow"
+
+[profile.benchmarks-lockup]
+  extends = "../foundry.base.toml"
+  src = "benchmarks/src/lockup"
+  test = "benchmarks/src/lockup"
+
+[profile.examples-airdrops]
+  extends = "../foundry.base.toml"
+  src = "examples/airdrops"
+  test = "examples/airdrops"
+
+[profile.examples-flow]
+  extends = "../foundry.base.toml"
+  src = "examples/flow"
+  test = "examples/flow"
+
+[profile.examples-lockup]
+  extends = "../foundry.base.toml"
+  src = "examples/lockup"
+  test = "examples/lockup"

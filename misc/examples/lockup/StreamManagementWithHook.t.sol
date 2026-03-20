@@ -37,7 +37,7 @@ contract StreamManagementWithHookTest is Test {
         token = new MockERC20(bob);
 
         // Load Sablier Lockup
-        sablierLockup = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+        sablierLockup = ISablierLockup(0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB);
 
         // Deploy StreamManagementWithHook contract
         streamManager = new StreamManagementWithHook(sablierLockup, token);

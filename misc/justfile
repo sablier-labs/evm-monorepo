@@ -1,0 +1,95 @@
+# See https://github.com/sablier-labs/devkit/blob/main/just/evm.just
+import "./node_modules/@sablier/devkit/just/evm.just"
+
+# Override constants for this project structure
+GLOBS_SOLIDITY := "{benchmarks,examples}/**/*.sol"
+
+# Run just --list to see all available commands
+default:
+  @just --list
+
+# ---------------------------------------------------------------------------- #
+#                                   EXAMPLES                                   #
+# ---------------------------------------------------------------------------- #
+
+# Build all example contracts (airdrops, flow, lockup)
+[group("examples")]
+build-examples: build-examples-airdrops build-examples-flow build-examples-lockup
+
+# Build examples airdrops contracts
+[group("examples")]
+build-examples-airdrops:
+  FOUNDRY_PROFILE=examples-airdrops forge build
+
+# Build examples flow contracts
+[group("examples")]
+build-examples-flow:
+  FOUNDRY_PROFILE=examples-flow forge build
+
+# Build examples lockup contracts
+[group("examples")]
+build-examples-lockup:
+  FOUNDRY_PROFILE=examples-lockup forge build
+
+# Test all example contracts (airdrops, flow, lockup)
+[group("examples")]
+test-examples: test-examples-airdrops test-examples-flow test-examples-lockup
+
+# Test examples airdrops contracts
+[group("examples")]
+test-examples-airdrops:
+  FOUNDRY_PROFILE=examples-airdrops forge test
+
+# Test examples flow contracts
+[group("examples")]
+test-examples-flow:
+  FOUNDRY_PROFILE=examples-flow forge test
+
+# Test examples lockup contracts
+[group("examples")]
+test-examples-lockup:
+  FOUNDRY_PROFILE=examples-lockup forge test
+
+# ---------------------------------------------------------------------------- #
+#                                  BENCHMARKS                                  #
+# ---------------------------------------------------------------------------- #
+
+# Benchmark both Flow and Lockup
+[group("benchmarks")]
+benchmark-all:
+  just benchmark flow
+  just benchmark lockup
+
+# Benchmark a specific protocol
+[group("benchmarks")]
+benchmark *args:
+  FOUNDRY_PROFILE=benchmarks-{{ args }} forge test --show-progress -vv
+  just format-numbers
+
+# Format benchmark numbers
+[group("benchmarks")]
+format-numbers:
+  na ./benchmarks/scripts/format-numbers.js
+  mdformat benchmarks/results/
+
+# ---------------------------------------------------------------------------- #
+#                                   FORMATS                                    #
+# ---------------------------------------------------------------------------- #
+
+# Run all code checks
+[group("format")]
+full-check: (solhint-check GLOBS_SOLIDITY) fmt-check (mdformat-check ".")
+
+# Run all code fixes
+[group("format")]
+full-write: (solhint-write GLOBS_SOLIDITY) fmt-write (mdformat-write ".")
+
+# Check code with Forge formatter
+[group("format")]
+fmt-check:
+  forge fmt --check benchmarks/ examples/
+
+# Fix code with Forge formatter
+[group("format")]
+fmt-write:
+  forge fmt benchmarks/ examples/

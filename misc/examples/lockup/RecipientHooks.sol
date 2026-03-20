@@ -81,7 +81,6 @@ contract RecipientHooks is ISablierLockupRecipient {
         uint128 recipientAmount
     )
         internal
-        pure
-    { }
+        pure { }
     function _transfer(address to, uint128 amount) internal pure { }
 }

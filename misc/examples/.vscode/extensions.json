@@ -1,8 +1,0 @@
-{
-  "recommendations": [
-    "esbenp.prettier-vscode",
-    "NomicFoundation.hardhat-solidity",
-    "PraneshASP.vscode-solidity-inspector",
-    "tamasfe.even-better-toml"
-  ]
-}

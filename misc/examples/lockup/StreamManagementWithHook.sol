@@ -74,10 +74,15 @@ contract StreamManagementWithHook is ISablierLockupRecipient {
         LockupLinear.Durations memory durations = LockupLinear.Durations({
             cliff: 0, // Setting a cliff of 0
             total: 52 weeks // Setting a total duration of ~1 year
-         });
+        });
 
         // Create the stream.
-        streamId = SABLIER.createWithDurationsLL(params, unlockAmounts, durations);
+        streamId = SABLIER.createWithDurationsLL({
+            params: params,
+            unlockAmounts: unlockAmounts,
+            granularity: 1 seconds,
+            durations: durations
+        });
 
         // Set the `beneficiary` .
         streamBeneficiaries[streamId] = beneficiary;

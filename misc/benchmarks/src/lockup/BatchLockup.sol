@@ -29,7 +29,7 @@ contract BatchLockupBenchmark is LockupBenchmark {
 
     function setUp() public virtual override {
         super.setUp();
-        IMM_RESULTS_FILE = "results/lockup/batch-lockup.md";
+        IMM_RESULTS_FILE = "benchmarks/results/lockup/batch-lockup.md";
 
         // Create the file if it doesn't exist, otherwise overwrite it.
         vm.writeFile({
@@ -108,6 +108,7 @@ contract BatchLockupBenchmark is LockupBenchmark {
         BatchLockup.CreateWithDurationsLL[] memory batchParams = BatchLockupBuilder.fillBatch({
             params: defaults.createWithDurations(),
             unlockAmounts: defaults.unlockAmounts(),
+            granularity: defaults.GRANULARITY(),
             durations: defaults.durations(),
             batchSize: batchSize
         });
@@ -124,6 +125,7 @@ contract BatchLockupBenchmark is LockupBenchmark {
             params: defaults.createWithTimestamps(),
             unlockAmounts: defaults.unlockAmounts(),
             cliffTime: defaults.CLIFF_TIME(),
+            granularity: defaults.GRANULARITY(),
             batchSize: batchSize
         });
 
@@ -229,12 +231,11 @@ contract BatchLockupBenchmark is LockupBenchmark {
         LockupTranched.Tranche[] memory tranches = new LockupTranched.Tranche[](trancheCount);
 
         for (uint256 i = 0; i < trancheCount; ++i) {
-            tranches[i] = (
-                LockupTranched.Tranche({
+            tranches[i] =
+            (LockupTranched.Tranche({
                     amount: AMOUNT_PER_ITEM,
                     timestamp: getBlockTimestamp() + uint40(defaults.CLIFF_DURATION() * (1 + i))
-                })
-            );
+                }));
         }
 
         return tranches;

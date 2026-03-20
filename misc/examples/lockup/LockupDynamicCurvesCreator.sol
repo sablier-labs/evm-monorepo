@@ -14,7 +14,7 @@ import { LockupDynamic } from "@sablier/lockup/src/types/LockupDynamic.sol";
 contract LockupDynamicCurvesCreator {
     // Mainnet addresses
     IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-    ISablierLockup public constant LOCKUP = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB);
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
     function createStream_Exponential() external returns (uint256 streamId) {
@@ -44,7 +44,7 @@ contract LockupDynamicCurvesCreator {
             LockupDynamic.SegmentWithDuration({ amount: depositAmount, duration: 100 days, exponent: ud2x18(6e18) });
 
         // Create the Lockup stream using dynamic model with exponential shape
-        streamId = LOCKUP.createWithDurationsLD(params, segments);
+        streamId = LOCKUP.createWithDurationsLD({ params: params, segmentsWithDuration: segments });
     }
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
@@ -76,6 +76,6 @@ contract LockupDynamicCurvesCreator {
         segments[2] = LockupDynamic.SegmentWithDuration({ amount: 80e18, duration: 50 days, exponent: ud2x18(6e18) });
 
         // Create the Lockup stream using dynamic model  with exponential cliff shape
-        streamId = LOCKUP.createWithDurationsLD(params, segments);
+        streamId = LOCKUP.createWithDurationsLD({ params: params, segmentsWithDuration: segments });
     }
 }
