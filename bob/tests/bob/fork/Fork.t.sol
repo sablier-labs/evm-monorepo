@@ -3,11 +3,10 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
-import { SablierBob } from "src/SablierBob.sol";
-import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
 
 import { Base_Test } from "./../Base.t.sol";
 
@@ -51,7 +50,15 @@ abstract contract Fork_Test is Base_Test {
         // Fork Ethereum Mainnet at the latest block number.
         vm.createSelectFork({ urlOrAlias: "ethereum" });
 
-        Base_Test.setUp();
+        // Load deployed contracts from Ethereum mainnet.
+        forkBob = ISablierBob(0xC8AB7E45E6DF99596b86870c26C25c721eB5C9af);
+        forkAdapter = ISablierLidoAdapter(0x40c564A59bB2f1544222D6848E3eEc1Cb68837E6);
+        comptroller = ISablierComptroller(0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399);
+
+        // Create test user.
+        address[] memory spenders = new address[](1);
+        spenders[0] = address(forkBob);
+        users.depositor = createUser("Depositor", spenders);
 
         // Label the mainnet addresses.
         vm.label(address(FORK_WETH), "WETH");
@@ -61,28 +68,8 @@ abstract contract Fork_Test is Base_Test {
         vm.label(FORK_LIDO_WITHDRAWAL_QUEUE, "LidoWithdrawalQueue");
         vm.label(address(FORK_ETH_USD_ORACLE), "ETH/USD Oracle");
         vm.label(FORK_STETH_ETH_ORACLE, "stETH/ETH Oracle");
-
-        // Deploy fresh Bob and adapter on the fork using real mainnet Lido/Curve addresses.
-        forkBob = new SablierBob(address(comptroller));
         vm.label(address(forkBob), "ForkSablierBob");
-
-        forkAdapter = new SablierLidoAdapter({
-            initialComptroller: address(comptroller),
-            sablierBob: address(forkBob),
-            curvePool: FORK_CURVE_POOL,
-            lidoWithdrawalQueue: FORK_LIDO_WITHDRAWAL_QUEUE,
-            steth: FORK_STETH,
-            stethEthOracle: FORK_STETH_ETH_ORACLE,
-            weth: address(FORK_WETH),
-            wsteth: FORK_WSTETH,
-            initialSlippageTolerance: SLIPPAGE_TOLERANCE,
-            initialYieldFee: YIELD_FEE
-        });
         vm.label(address(forkAdapter), "ForkSablierLidoAdapter");
-
-        // Set the default adapter for WETH via comptroller.
-        setMsgSender(address(comptroller));
-        forkBob.setDefaultAdapter(FORK_WETH, forkAdapter);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

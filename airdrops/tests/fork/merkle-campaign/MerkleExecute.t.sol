@@ -61,7 +61,7 @@ abstract contract MerkleExecute_Fork_Test is MerkleBase_Fork_Test {
         });
 
         vars.expectedMerkleCampaign =
-            computeMerkleExecuteAddress({ params: constructorParams, campaignCreator: params.campaignCreator });
+            factoryMerkleExecute.computeMerkleExecute(params.campaignCreator, constructorParams);
 
         vm.expectEmit({ emitter: address(factoryMerkleExecute) });
         emit ISablierFactoryMerkleExecute.CreateMerkleExecute({

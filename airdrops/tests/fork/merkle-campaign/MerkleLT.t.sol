@@ -63,8 +63,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
             vestingStartTime: vestingStartTime
         });
 
-        vars.expectedMerkleCampaign =
-            computeMerkleLTAddress({ params: constructorParams, campaignCreator: params.campaignCreator });
+        vars.expectedMerkleCampaign = factoryMerkleLT.computeMerkleLT(params.campaignCreator, constructorParams);
 
         vm.expectEmit({ emitter: address(factoryMerkleLT) });
         emit ISablierFactoryMerkleLT.CreateMerkleLT({
