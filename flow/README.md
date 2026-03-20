@@ -48,7 +48,7 @@ This installation method is not recommended, but it is available for those who p
 Install the monorepo and its dependencies using Forge:
 
 ```shell
-forge install sablier-labs/evm-monorepo@flow-v3.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
+forge install sablier-labs/evm-monorepo@flow@v3.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
 ```
 
 Then, add the following remappings in `remappings.txt`:

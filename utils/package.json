@@ -29,8 +29,7 @@
     "CHANGELOG.md",
     "LICENSE.md",
     "LICENSE-BUSL.md",
-    "LICENSE-GPL.md",
-    "SECURITY.md"
+    "LICENSE-GPL.md"
   ],
   "homepage": "https://github.com/sablier-labs/evm-monorepo#readme",
   "keywords": [

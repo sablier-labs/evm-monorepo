@@ -31,13 +31,13 @@ This installation method is not recommended, but it is available for those who p
 Install the monorepo and its dependencies using Forge:
 
 ```shell
-forge install sablier-labs/evm-monorepo@lockup-v4.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0 smartcontractkit/chainlink
+forge install sablier-labs/evm-monorepo@lockup@v4.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0 smartcontractkit/chainlink-evm@contracts-v1.4.0
 ```
 
 Then, add the following remappings in `remappings.txt`:
 
 ```text
-@chainlink/contracts/=lib/chainlink/contracts/
+@chainlink/contracts/=lib/chainlink/contracts-evm/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 @prb/math/=lib/prb-math/
 @sablier/evm-utils/=lib/evm-monorepo/utils/
