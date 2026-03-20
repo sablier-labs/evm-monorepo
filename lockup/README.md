@@ -1,4 +1,4 @@
-# Sablier Lockup [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
+# Sablier Lockup [![GitHub Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
 
 In-depth documentation is available at [docs.sablier.com](https://docs.sablier.com).
 
@@ -28,16 +28,20 @@ bun add @sablier/lockup
 
 This installation method is not recommended, but it is available for those who prefer it.
 
-Install the submodule using Forge:
+Install the monorepo and its dependencies using Forge:
 
 ```shell
-forge install sablier-labs/lockup
+forge install sablier-labs/evm-monorepo@lockup@v4.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0 smartcontractkit/chainlink-evm@contracts-v1.4.0
 ```
 
-Then, install the project's dependencies:
+Then, add the following remappings in `remappings.txt`:
 
-```shell
-forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
+```text
+@chainlink/contracts/=lib/chainlink/contracts-evm/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@prb/math/=lib/prb-math/
+@sablier/evm-utils/=lib/evm-monorepo/utils/
+@sablier/lockup/=lib/evm-monorepo/lockup/
 ```
 
 ### Branching Tree Technique
@@ -88,7 +92,7 @@ bug bounty program per the terms outlined in the aforementioned policy.
 ## Contributing
 
 Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
-[start](https://github.com/sablier-labs/evm-monorepo/discussions/new) a discussion or submit a PR. For any informal concerns
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any informal concerns
 or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
 For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) guide.
@@ -97,8 +101,8 @@ For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) gu
 
 See [LICENSE.md](../LICENSE.md).
 
-[codecov]: https://codecov.io/gh/sablier-labs/lockup
-[codecov-badge]: https://codecov.io/gh/sablier-labs/lockup/branch/main/graph/badge.svg
+[codecov]: https://codecov.io/gh/sablier-labs/evm-monorepo
+[codecov-badge]: https://codecov.io/gh/sablier-labs/evm-monorepo/branch/main/graph/badge.svg
 [discord]: https://discord.gg/bSwRCwWRsT
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh

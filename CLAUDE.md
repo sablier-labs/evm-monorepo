@@ -15,7 +15,7 @@ Smart contracts for Sablier token streaming protocols.
 
 ```
 ├── airdrops/   # Merkle-based token distribution
-├── bob/        # Price-target vaults with yield adapters
+├── bob/        # Price-target vaults with yield adapters + OTC escrow
 ├── flow/       # Open-ended token streaming
 ├── lockup/     # Fixed-term vesting and airdrops
 └── utils/      # Shared utilities and comptroller

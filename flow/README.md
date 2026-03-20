@@ -1,4 +1,4 @@
-# Sablier Flow [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
+# Sablier Flow [![GitHub Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
 
 In-depth documentation is available at [docs.sablier.com](https://docs.sablier.com).
 
@@ -45,16 +45,19 @@ bun add @sablier/flow
 
 This installation method is not recommended, but it is available for those who prefer it.
 
-Install the submodule using Forge:
+Install the monorepo and its dependencies using Forge:
 
 ```shell
-forge install sablier-labs/flow
+forge install sablier-labs/evm-monorepo@flow@v3.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
 ```
 
-Then, install the project's dependencies:
+Then, add the following remappings in `remappings.txt`:
 
-```shell
-forge install sablier-labs/evm-utils@v1.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0
+```text
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@prb/math/=lib/prb-math/
+@sablier/evm-utils/=lib/evm-monorepo/utils/
+@sablier/flow/=lib/evm-monorepo/flow/
 ```
 
 ### Branching Tree Technique
@@ -94,7 +97,7 @@ bug bounty program per the terms outlined in the aforementioned policy.
 ## Contributing
 
 Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
-[start](https://github.com/sablier-labs/evm-monorepo/discussions/new) a discussion or submit
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit
 [a PR](https://github.com/sablier-labs/evm-monorepo/compare). For any concerns or feedback, please join our
 [Discord server](https://discord.gg/bSwRCwWRsT).
 
@@ -104,8 +107,8 @@ Refer to [CONTRIBUTING](../CONTRIBUTING.md) guidelines if you wish to create a P
 
 See [LICENSE.md](../LICENSE.md).
 
-[codecov]: https://codecov.io/gh/sablier-labs/flow
-[codecov-badge]: https://codecov.io/gh/sablier-labs/flow/branch/main/graph/badge.svg
+[codecov]: https://codecov.io/gh/sablier-labs/evm-monorepo
+[codecov-badge]: https://codecov.io/gh/sablier-labs/evm-monorepo/branch/main/graph/badge.svg
 [discord]: https://discord.gg/bSwRCwWRsT
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh

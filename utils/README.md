@@ -1,8 +1,8 @@
-# Sablier EVM Utils [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
+# Sablier EVM Utils [![GitHub Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
 
 This package contains the following two sets of contracts:
 
-### Sablier comptroller
+## Sablier Comptroller
 
 Its a standalone contract with the following responsibilities:
 
@@ -10,12 +10,13 @@ Its a standalone contract with the following responsibilities:
   Sablier protocols.
 - Authority over admin functions across Sablier protocols.
 
-### Utility contracts
+## Utility contracts
 
 Its a collection of smart contracts used across various Sablier Solidity projects. The motivation behind this is to
 reduce code duplication. The following projects imports these contracts:
 
 - [Sablier Airdrops](https://github.com/sablier-labs/evm-monorepo/tree/main/airdrops)
+- [Sablier Bob](https://github.com/sablier-labs/evm-monorepo/tree/main/bob)
 - [Sablier Flow](https://github.com/sablier-labs/evm-monorepo/tree/main/flow)
 - [Sablier Lockup](https://github.com/sablier-labs/evm-monorepo/tree/main/lockup)
 
@@ -26,6 +27,7 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 This package contains the following subdirectories:
 
 - [`src/interfaces`](./src/interfaces/): Interfaces to be used by external projects.
+- [`src/libraries`](./src/libraries/): Helper libraries used by external projects.
 - [`src/mocks`](./src/mocks/): Mock contracts used by external projects in tests.
 - [`src/tests`](./src/tests/): Helper contracts used by external projects in tests and deployment scripts.
 
@@ -45,10 +47,18 @@ bun add @sablier/evm-utils
 
 This installation method is not recommended, but it is available for those who prefer it.
 
-First, install the submodule using Forge:
+Install the monorepo using Forge:
 
 ```shell
-forge install --no-commit sablier-labs/evm-utils
+forge install sablier-labs/evm-monorepo@utils@v2.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 smartcontractkit/chainlink-evm@contracts-v1.4.0
+```
+
+Then, add the following remapping in `remappings.txt`:
+
+```text
+@chainlink/contracts/=lib/chainlink/contracts-evm/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@sablier/evm-utils/=lib/evm-monorepo/utils/
 ```
 
 ## Usage
@@ -72,7 +82,7 @@ contract MyContract is Adminable, Batch, NoDelegateCall {
 ## Contributing
 
 Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
-[start](https://github.com/sablier-labs/evm-monorepo/discussions/new) a discussion or submit a PR. For any informal
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any informal
 concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
 For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) guide.
@@ -81,8 +91,8 @@ For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) gu
 
 See [LICENSE.md](../LICENSE.md).
 
-[codecov]: https://codecov.io/gh/sablier-labs/evm-utils
-[codecov-badge]: https://codecov.io/gh/sablier-labs/evm-utils/graph/badge.svg?token=iWxbU4RAsi
+[codecov]: https://codecov.io/gh/sablier-labs/evm-monorepo
+[codecov-badge]: https://codecov.io/gh/sablier-labs/evm-monorepo/graph/badge.svg
 [discord]: https://discord.gg/bSwRCwWRsT
 [discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh

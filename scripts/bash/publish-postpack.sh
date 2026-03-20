@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-# Remove license files from current package directory
+# Remove license and security files from current package directory
 rm -f LICENSE.md LICENSE-BUSL.md LICENSE-GPL.md
 
 echo "✓ Cleaned up license files"

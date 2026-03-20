@@ -1,6 +1,6 @@
 {
-  "name": "@sablier/monorepo",
-  "description": "Monorepo for Sablier's EVM smart contracts including Lockup, Flow, Airdrops, and Utils protocols",
+  "name": "@sablier/evm-monorepo",
+  "description": "Monorepo for Sablier's EVM smart contracts including Lockup, Flow, Airdrops, Bob and Utils protocols",
   "license": "SEE LICENSE IN LICENSE",
   "private": true,
   "version": "1.0.0",

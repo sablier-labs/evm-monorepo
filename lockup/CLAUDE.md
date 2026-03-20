@@ -18,17 +18,20 @@ Uses singleton architecture - all streams managed in `SablierLockup` contract.
 
 ```
 src/
-├── SablierLockup.sol       # Main contract
-├── interfaces/             # ISablierLockup, etc.
-├── libraries/              # Helpers, SVG generation
-└── types/                  # Structs, enums
+├── SablierLockup.sol           # Main contract
+├── SablierBatchLockup.sol      # Batch stream creation
+├── LockupNFTDescriptor.sol     # NFT metadata and SVG generation
+├── abstracts/                  # Shared base contracts
+├── interfaces/                 # ISablierLockup, etc.
+├── libraries/                  # Helpers, SVG generation
+└── types/                      # Structs, enums
 tests/
-├── integration/
-│   ├── concrete/           # BTT-based tests
-│   └── fuzz/               # Fuzz tests
-└── invariant/              # Invariant tests
+├── integration/                # BTT-based and fuzz tests
+├── invariant/                  # Invariant tests
+├── unit/                       # Unit tests
+└── fork/                       # Fork tests
 scripts/
-└── solidity/               # Deployment scripts
+└── solidity/                   # Deployment scripts
 ```
 
 ## Commands

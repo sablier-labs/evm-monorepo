@@ -51,6 +51,25 @@ Over-the-counter (OTC) token swap protocol that allows users to swap ERC-20 toke
 - **Expiry Time** (`expiryTime`): The Unix timestamp when the order expires. `0` means the order never expires.
 - **Trade Fee**: Percentage fee (max 2%) deducted from both sell and buy amounts on fill. Sent to comptroller contract.
 
+## Package Structure
+
+```
+src/
+├── SablierBob.sol              # Main vault contract
+├── SablierEscrow.sol           # OTC swap contract
+├── SablierLidoAdapter.sol      # Lido yield adapter
+├── BobVaultShare.sol           # ERC-20 share token
+├── abstracts/                  # Shared base contracts
+├── interfaces/                 # Public interfaces
+├── libraries/                  # Helper libraries
+└── types/                      # Structs, enums
+tests/
+├── bob/                        # Bob-specific tests
+└── escrow/                     # Escrow-specific tests
+scripts/
+└── solidity/                   # Deployment scripts
+```
+
 ## Commands
 
 ```bash
