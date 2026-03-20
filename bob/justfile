@@ -5,6 +5,22 @@ import "./node_modules/@sablier/devkit/just/evm.just"
 default:
   @just --list
 
+deploy *args:
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/DeployDeterministicBob.s.sol \
+        -vvv --broadcast {{ args }}
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/DeployDeterministicEscrow.s.sol \
+        -vvv --broadcast {{ args }}
+
+deploy-non-deterministic *args:
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/DeployBob.s.sol \
+        -vvv --broadcast {{ args }}
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/DeployEscrow.s.sol \
+        -vvv --broadcast {{ args }}
+
 deploy-bob *args:
     FOUNDRY_PROFILE=optimized \
         forge script scripts/solidity/DeployBob.s.sol \

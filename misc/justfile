@@ -62,8 +62,8 @@ benchmark-all:
 
 # Benchmark a specific protocol
 [group("benchmarks")]
-benchmark *args:
-  FOUNDRY_PROFILE=benchmarks-{{ args }} forge test --show-progress -vv
+benchmark protocol:
+  FOUNDRY_PROFILE=benchmarks-{{ protocol }} forge test --show-progress -vv
   just format-numbers
 
 # Format benchmark numbers
