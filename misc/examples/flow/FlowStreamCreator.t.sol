@@ -11,7 +11,7 @@ contract FlowStreamCreatorTest is Test {
 
     function setUp() external {
         // Fork Ethereum Mainnet
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("ethereum");
 
         // Deploy the FlowStreamCreator contract
         streamCreator = new FlowStreamCreator();

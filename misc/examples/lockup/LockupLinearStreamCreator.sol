@@ -12,7 +12,7 @@ import { LockupLinear } from "@sablier/lockup/src/types/LockupLinear.sol";
 contract LockupLinearStreamCreator {
     // Mainnet addresses
     IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-    ISablierLockup public constant LOCKUP = ISablierLockup(0x2455c72a4aFE3b0e2B26b5EFD7F8EFFE6B828C90);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB);
 
     /// @dev For this function to work, the sender must have approved this dummy contract to spend DAI.
     function createStream(uint128 depositAmount) public returns (uint256 streamId) {
@@ -41,7 +41,10 @@ contract LockupLinearStreamCreator {
 
         // Create the LockupLinear stream using a function that sets the start time to `block.timestamp`
         streamId = LOCKUP.createWithDurationsLL({
-            params: params, unlockAmounts: unlockAmounts, granularity: 1 seconds, durations: durations
+            params: params,
+            unlockAmounts: unlockAmounts,
+            granularity: 1 seconds,
+            durations: durations
         });
     }
 }

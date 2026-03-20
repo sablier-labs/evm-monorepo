@@ -13,7 +13,7 @@ import { LockupTranched } from "@sablier/lockup/src/types/LockupTranched.sol";
 contract LockupTranchedCurvesCreator {
     // Mainnet addresses
     IERC20 public constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-    ISablierLockup public constant LOCKUP = ISablierLockup(0x2455c72a4aFE3b0e2B26b5EFD7F8EFFE6B828C90);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB);
 
     function createStream_UnlockInSteps() external returns (uint256 streamId) {
         // Declare the total amount as 100 DAI

@@ -17,7 +17,7 @@ contract BatchStreamCreatorTest is Test {
 
     function setUp() public {
         // Fork Ethereum Mainnet
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("ethereum");
 
         // Deploy the stream creators
         dynamicCreator = new BatchLDStreamCreator();

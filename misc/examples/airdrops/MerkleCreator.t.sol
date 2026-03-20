@@ -16,7 +16,7 @@ contract MerkleCreatorTest is Test {
 
     function setUp() public {
         // Fork Ethereum Mainnet
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("ethereum");
 
         // Deploy the Merkle creator
         merkleCreator = new MerkleCreator();
@@ -27,6 +27,19 @@ contract MerkleCreatorTest is Test {
 
         // Make the test user the `msg.sender` in all following calls
         vm.startPrank({ msgSender: user });
+    }
+
+    // Test creating the MerkleExecute campaign.
+    function test_CreateMerkleExecute() public {
+        ISablierMerkleExecute merkleExecute = merkleCreator.createMerkleExecute();
+
+        // Assert the merkleExecute contract was created with correct params
+        assertEq(address(0xBeeF), merkleExecute.admin(), "admin");
+        assertEq(
+            0x4e07408562bedb8b60ce05c1decfe3ad16b722309875f562c03d02d7aaacb123,
+            merkleExecute.MERKLE_ROOT(),
+            "merkle-root"
+        );
     }
 
     // Test creating the MerkleInstant campaign.
@@ -61,6 +74,17 @@ contract MerkleCreatorTest is Test {
         assertEq(address(0xBeeF), merkleLT.admin(), "admin");
         assertEq(
             0x4e07408562bedb8b60ce05c1decfe3ad16b722309875f562c03d02d7aaacb123, merkleLT.MERKLE_ROOT(), "merkle-root"
+        );
+    }
+
+    // Test creating the MerkleVCA campaign.
+    function test_CreateMerkleVCA() public {
+        ISablierMerkleVCA merkleVCA = merkleCreator.createMerkleVCA();
+
+        // Assert the merkleVCA contract was created with correct params
+        assertEq(address(0xBeeF), merkleVCA.admin(), "admin");
+        assertEq(
+            0x4e07408562bedb8b60ce05c1decfe3ad16b722309875f562c03d02d7aaacb123, merkleVCA.MERKLE_ROOT(), "merkle-root"
         );
     }
 }

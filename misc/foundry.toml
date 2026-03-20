@@ -1,0 +1,24 @@
+# Full reference https://github.com/foundry-rs/foundry/tree/master/config
+
+[profile.default]
+  extends = "../foundry.base.toml"
+
+[profile.examples.airdrops]
+  src = "examples/airdrops"
+  test = "examples/airdrops"
+
+[profile.examples.flow]
+  src = "examples/flow"
+  test = "examples/flow"
+
+[profile.examples.lockup]
+  src = "examples/lockup"
+  test = "examples/lockup"
+
+[profile.benchmarks.lockup]
+  src = "benchmarks/src/lockup"
+  test = "benchmarks/src/lockup"
+
+[profile.benchmarks.flow]
+  src = "benchmarks/src/flow"
+  test = "benchmarks/src/flow"

@@ -13,7 +13,7 @@ contract LockupDynamicCurvesCreatorTest is Test {
 
     function setUp() public {
         // Fork Ethereum Mainnet
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("ethereum");
 
         // Deploy the stream creator
         creator = new LockupDynamicCurvesCreator();

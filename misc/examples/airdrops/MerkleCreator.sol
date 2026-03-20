@@ -35,7 +35,7 @@ contract MerkleCreator {
         ISablierFactoryMerkleLT(0x239BD5431aDa12F09cA95d0a5d4388A5644268e9);
     ISablierFactoryMerkleVCA public constant VCA_FACTORY =
         ISablierFactoryMerkleVCA(0xe60Df8e04cE1616a06db8AD11ce71c05dDcB5D88);
-    ISablierLockup public constant LOCKUP = ISablierLockup(0x2455c72a4aFE3b0e2B26b5EFD7F8EFFE6B828C90);
+    ISablierLockup public constant LOCKUP = ISablierLockup(0x93b37Bd5B6b278373217333Ac30D7E74c85fBDCB);
 
     function createMerkleExecute() public returns (ISablierMerkleExecute merkleExecute) {
         // Declare the constructor parameters of MerkleExecute.

@@ -11,7 +11,7 @@ contract FlowBatchableTest is Test {
 
     function setUp() external {
         // Fork Ethereum Mainnet
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("ethereum");
 
         // Deploy the batchable contract
         batchable = new FlowBatchable();

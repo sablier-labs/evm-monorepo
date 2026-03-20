@@ -26,7 +26,7 @@ contract StreamManagementWithHookTest is Test {
     address internal comptroller;
 
     function setUp() public {
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("ethereum");
 
         // Create a test users
         alice = makeAddr("Alice");
