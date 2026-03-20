@@ -5,12 +5,14 @@ import { Test } from "forge-std/src/Test.sol";
 
 import { BatchLDStreamCreator } from "./BatchLDStreamCreator.sol";
 import { BatchLLStreamCreator } from "./BatchLLStreamCreator.sol";
+import { BatchLPGStreamCreator } from "./BatchLPGStreamCreator.sol";
 import { BatchLTStreamCreator } from "./BatchLTStreamCreator.sol";
 
 contract BatchStreamCreatorTest is Test {
     // Test contracts
     BatchLDStreamCreator internal dynamicCreator;
     BatchLLStreamCreator internal linearCreator;
+    BatchLPGStreamCreator internal priceGatedCreator;
     BatchLTStreamCreator internal tranchedCreator;
 
     address internal user;
@@ -22,6 +24,7 @@ contract BatchStreamCreatorTest is Test {
         // Deploy the stream creators
         dynamicCreator = new BatchLDStreamCreator();
         linearCreator = new BatchLLStreamCreator();
+        priceGatedCreator = new BatchLPGStreamCreator();
         tranchedCreator = new BatchLTStreamCreator();
 
         // Create a test user
@@ -29,7 +32,7 @@ contract BatchStreamCreatorTest is Test {
         vm.deal({ account: user, newBalance: 1 ether });
 
         // Mint some DAI tokens to the test user, which will be pulled by the creator contracts
-        deal({ token: address(linearCreator.DAI()), to: user, give: 6 * 1337e18 });
+        deal({ token: address(linearCreator.DAI()), to: user, give: 8 * 1337e18 });
 
         // Make the test user the `msg.sender` in all following calls
         vm.startPrank({ msgSender: user });
@@ -37,6 +40,7 @@ contract BatchStreamCreatorTest is Test {
         // Approve the creator contracts to pull DAI tokens from the test user
         dynamicCreator.DAI().approve({ spender: address(dynamicCreator), value: 2 * 1337e18 });
         linearCreator.DAI().approve({ spender: address(linearCreator), value: 2 * 1337e18 });
+        priceGatedCreator.DAI().approve({ spender: address(priceGatedCreator), value: 2 * 1337e18 });
         tranchedCreator.DAI().approve({ spender: address(tranchedCreator), value: 2 * 1337e18 });
     }
 
@@ -69,7 +73,21 @@ contract BatchStreamCreatorTest is Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   LOCKUP-DYNAMIC
+                                 LOCKUP-PRICE-GATED
+    //////////////////////////////////////////////////////////////////////////*/
+
+    // Tests that creating streams works by checking the stream ids
+    function test_BatchLockupPriceGatedStreamCreator() public {
+        uint256 nextStreamId = priceGatedCreator.LOCKUP().nextStreamId();
+        uint256[] memory actualStreamIds = priceGatedCreator.batchCreateStreams({ perStreamAmount: 1337e18 });
+        uint256[] memory expectedStreamIds = new uint256[](2);
+        expectedStreamIds[0] = nextStreamId;
+        expectedStreamIds[1] = nextStreamId + 1;
+        assertEq(actualStreamIds, expectedStreamIds);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  LOCKUP-TRANCHED
     //////////////////////////////////////////////////////////////////////////*/
 
     // Tests that creating streams works by checking the stream ids
