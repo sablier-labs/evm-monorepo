@@ -10,7 +10,7 @@ import { BaseScriptMock } from "tests/mocks/BaseScriptMock.sol";
 contract BaseScript_Fuzz_Test is StdAssertions {
     BaseScriptMock internal baseScript;
 
-    string public constant PACKAGE_VERSION = "2.0.0";
+    string public constant PACKAGE_VERSION = "2.0.1";
 
     Vm internal vm = StdConstants.VM;
 
