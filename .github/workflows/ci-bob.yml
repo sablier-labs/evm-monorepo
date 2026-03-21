@@ -30,9 +30,9 @@ jobs:
     uses: "./.github/workflows/ci-module.yml"
     secrets: inherit
     with:
-      exclude-invariant-tests: true
       exclude-unit-tests: true
       match-path-coverage: "tests/*/integration/**/*.sol"
       match-path-fork: "tests/*/fork/**/*.sol"
       match-path-integration: "tests/*/integration/**/*.sol"
+      match-path-invariant: "tests/*/invariant/**/*.sol"
       module: "bob"
