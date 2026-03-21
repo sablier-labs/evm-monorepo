@@ -18,6 +18,7 @@ abstract contract FlowNFTDescriptorAddresses {
         if (chainId == ChainId.BERACHAIN) return 0x581250eE4311F7Dc1afCF965cF8024004B423e9E;
         if (chainId == ChainId.BSC) return 0xAE557c04B46d47Ecac24edA63F22cabB4571Da61;
         if (chainId == ChainId.CHILIZ) return 0xC7fd18CA19938d559dC45aDE362a850015CF0bd8;
+        if (chainId == ChainId.DENERGY) return 0x8C4bCE3A96CA4E1275B11FDcC38d00D142af2C3f;
         if (chainId == ChainId.ETHEREUM) return 0x24bE13897eE1F83367661B6bA616a72523fC55C9;
         if (chainId == ChainId.GNOSIS) return 0x5A47FC8732d399a2f3845c4FC91aB91bb97da31F;
         if (chainId == ChainId.HYPEREVM) return 0x81Cc8C4B57B9A60a56330d087D6854A8E17Dfc7A;
