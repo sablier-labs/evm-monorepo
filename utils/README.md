@@ -50,7 +50,7 @@ This installation method is not recommended, but it is available for those who p
 Install the monorepo using Forge:
 
 ```shell
-forge install sablier-labs/evm-monorepo@utils@v2.0.0 OpenZeppelin/openzeppelin-contracts@v5.3.0 smartcontractkit/chainlink-evm@contracts-v1.4.0
+forge install sablier-labs/evm-monorepo@utils@v2.0.1 OpenZeppelin/openzeppelin-contracts@v5.3.0 smartcontractkit/chainlink-evm@contracts-v1.4.0
 ```
 
 Then, add the following remapping in `remappings.txt`:
