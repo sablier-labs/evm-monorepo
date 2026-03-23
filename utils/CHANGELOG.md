@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+## [2.0.1] - 2026-03-23
+
+### Added
+
+- Add support for Denergy chain ([#1464](https://github.com/sablier-labs/evm-monorepo/pull/1464))
+
+### Removed
+
+- Drop support for Mode Sepolia and Sophon ([#1463](https://github.com/sablier-labs/evm-monorepo/pull/1463), [#1467](https://github.com/sablier-labs/evm-monorepo/pull/1467))
+
 ## [2.0.0] - 2026-03-16
 
 ### Changed
@@ -58,7 +68,8 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Add base contracts for testing Sablier EVM protocols
 - Add mock contracts used across Sablier EVM protocols
 
-[1.0.0]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0
-[1.0.1]: https://github.com/sablier-labs/evm-utils/compare/v1.0.0...v1.0.1
-[1.0.2]: https://github.com/sablier-labs/evm-utils/compare/v1.0.1...v1.0.2
-[2.0.0]: https://github.com/sablier-labs/evm-utils/compare/v1.0.2...v2.0.0
+[1.0.0]: https://github.com/sablier-labs/evm-utils/releases/v1.0.0
+[1.0.1]: https://github.com/sablier-labs/evm-utils/releases/v1.0.1
+[1.0.2]: https://github.com/sablier-labs/evm-utils/releases/v1.0.2
+[2.0.0]: https://github.com/sablier-labs/evm-monorepo/releases/utils@v2.0.0
+[2.0.1]: https://github.com/sablier-labs/evm-monorepo/releases/utils@v2.0.1
