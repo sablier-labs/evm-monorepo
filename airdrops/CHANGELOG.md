@@ -97,6 +97,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Remove `V2` from the contract names and related references ([#994](https://github.com/sablier-labs/v2-core/pull/994))
 
 [1.3.0]: https://github.com/sablier-labs/airdrops/releases/tag/v1.3.0
-[2.0.0]: https://github.com/sablier-labs/airdrops/compare/v1.3.0...v2.0.0
-[2.0.1]: https://github.com/sablier-labs/airdrops/compare/v2.0.0...v2.0.1
-[3.0.0]: https://github.com/sablier-labs/airdrops/compare/v2.0.1...v3.0.0
+[2.0.0]: https://github.com/sablier-labs/airdrops/releases/tag/v2.0.0
+[2.0.1]: https://github.com/sablier-labs/airdrops/releases/tag/v2.0.1
+[3.0.0]: https://github.com/sablier-labs/evm-monorepo/releases/tag/airdrops@v3.0.0
+[3.0.1]: https://github.com/sablier-labs/evm-monorepo/releases/tag/airdrops@v3.0.1
