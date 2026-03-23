@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+## [4.0.1] - 2026-03-23
+
+### Changed
+
+- Bump utils package ([#1481](https://github.com/sablier-labs/evm-monorepo/pull/1481))
+
 ## [4.0.0] - 2026-03-16
 
 ### Changed
@@ -209,14 +215,15 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Initial release
 
 [1.0.0]: https://github.com/sablier-labs/lockup/releases/tag/v1.0.0
-[1.0.1]: https://github.com/sablier-labs/lockup/compare/v1.0.0...v1.0.1
-[1.0.2]: https://github.com/sablier-labs/lockup/compare/v1.0.1...v1.0.2
-[1.1.0]: https://github.com/sablier-labs/lockup/compare/v1.0.2...v1.1.0
-[1.1.1]: https://github.com/sablier-labs/lockup/compare/v1.1.0...v1.1.1
-[1.1.2]: https://github.com/sablier-labs/lockup/compare/v1.1.1...v1.1.2
-[1.2.0]: https://github.com/sablier-labs/lockup/compare/v1.1.2...v1.2.0
-[2.0.0]: https://github.com/sablier-labs/lockup/compare/v1.2.0...v2.0.0
-[2.0.1]: https://github.com/sablier-labs/lockup/compare/v2.0.0...v2.0.1
-[3.0.0]: https://github.com/sablier-labs/lockup/compare/v2.0.1...v3.0.0
-[3.0.1]: https://github.com/sablier-labs/lockup/compare/v3.0.0...v3.0.1
-[4.0.0]: https://github.com/sablier-labs/lockup/compare/v3.0.1...v4.0.0
+[1.0.1]: https://github.com/sablier-labs/lockup/releases/tag/v1.0.1
+[1.0.2]: https://github.com/sablier-labs/lockup/releases/tag/v1.0.2
+[1.1.0]: https://github.com/sablier-labs/lockup/releases/tag/v1.1.0
+[1.1.1]: https://github.com/sablier-labs/lockup/releases/tag/v1.1.1
+[1.1.2]: https://github.com/sablier-labs/lockup/releases/tag/v1.1.2
+[1.2.0]: https://github.com/sablier-labs/lockup/releases/tag/v1.2.0
+[2.0.0]: https://github.com/sablier-labs/lockup/releases/tag/v2.0.0
+[2.0.1]: https://github.com/sablier-labs/lockup/releases/tag/v2.0.1
+[3.0.0]: https://github.com/sablier-labs/lockup/releases/tag/v3.0.0
+[3.0.1]: https://github.com/sablier-labs/lockup/releases/tag/v3.0.1
+[4.0.0]: https://github.com/sablier-labs/evm-monorepo/releases/tag/lockup@v4.0.0
+[4.0.1]: https://github.com/sablier-labs/evm-monorepo/releases/tag/lockup@v4.0.1

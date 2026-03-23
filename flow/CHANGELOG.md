@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+## [3.0.1] - 2026-03-23
+
+### Changed
+
+- Bump utils package ([#1481](https://github.com/sablier-labs/evm-monorepo/pull/1481))
+
 ## [3.0.0] - 2026-03-16
 
 ### Changed
@@ -85,8 +91,9 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Initial release
 
 [1.0.0]: https://github.com/sablier-labs/flow/releases/tag/v1.0.0
-[1.1.0]: https://github.com/sablier-labs/flow/compare/v1.0.0...v1.1.0
-[1.1.1]: https://github.com/sablier-labs/flow/compare/v1.1.0...v1.1.1
-[2.0.0]: https://github.com/sablier-labs/flow/compare/v1.1.1...v2.0.0
-[2.0.1]: https://github.com/sablier-labs/flow/compare/v2.0.0...v2.0.1
-[3.0.0]: https://github.com/sablier-labs/flow/compare/v2.0.1...v3.0.0
+[1.1.0]: https://github.com/sablier-labs/flow/releases/tag/v1.1.0
+[1.1.1]: https://github.com/sablier-labs/flow/releases/tag/v1.1.1
+[2.0.0]: https://github.com/sablier-labs/flow/releases/tag/v2.0.0
+[2.0.1]: https://github.com/sablier-labs/flow/releases/tag/v2.0.1
+[3.0.0]: https://github.com/sablier-labs/evm-monorepo/releases/tag/flow@v3.0.0
+[3.0.1]: https://github.com/sablier-labs/evm-monorepo/releases/tag/flow@v3.0.1
