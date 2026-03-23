@@ -2,7 +2,7 @@
   "name": "@sablier/airdrops",
   "description": "EVM smart contracts of the Sablier Airdrops protocol",
   "license": "SEE LICENSE IN LICENSE",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
@@ -13,8 +13,8 @@
   "dependencies": {
     "@openzeppelin/contracts": "5.3.0",
     "@prb/math": "4.1.0",
-    "@sablier/evm-utils": "2.0.0",
-    "@sablier/lockup": "4.0.0"
+    "@sablier/evm-utils": "2.0.1",
+    "@sablier/lockup": "4.0.1"
   },
   "devDependencies": {
     "@sablier/devkit": "1",
