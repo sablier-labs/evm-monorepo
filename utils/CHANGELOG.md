@@ -4,15 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
-## [2.0.1] - 2026-03-20
+## [2.0.1] - 2026-03-23
 
 ### Added
 
-- Add Denergy chain to support ([#1464](https://github.com/sablier-labs/evm-monorepo/pull/1464))
-
-### Changed
-
-- Update the hyperlink in the README file ([#1471](https://github.com/sablier-labs/evm-monorepo/pull/1471))
+- Add support for Denergy chain ([#1464](https://github.com/sablier-labs/evm-monorepo/pull/1464))
 
 ### Removed
 
