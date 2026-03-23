@@ -97,7 +97,6 @@ alias fwa := full-write-all
 [group("all")]
 @install-all:
     just for-each install
-    bun install
 
 # Run all tests
 [group("all")]
