@@ -68,8 +68,8 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Add base contracts for testing Sablier EVM protocols
 - Add mock contracts used across Sablier EVM protocols
 
-[1.0.0]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0
-[1.0.1]: https://github.com/sablier-labs/evm-utils/compare/v1.0.0...v1.0.1
-[1.0.2]: https://github.com/sablier-labs/evm-utils/compare/v1.0.1...v1.0.2
-[2.0.0]: https://github.com/sablier-labs/evm-utils/compare/v1.0.2...v2.0.0
-[2.0.1]: https://github.com/sablier-labs/evm-monorepo/compare/utils-v2.0.0...utils-v2.0.1
+[1.0.0]: https://github.com/sablier-labs/evm-utils/releases/v1.0.0
+[1.0.1]: https://github.com/sablier-labs/evm-utils/releases/v1.0.1
+[1.0.2]: https://github.com/sablier-labs/evm-utils/releases/v1.0.2
+[2.0.0]: https://github.com/sablier-labs/evm-monorepo/releases/utils@v2.0.0
+[2.0.1]: https://github.com/sablier-labs/evm-monorepo/releases/utils@v2.0.1
