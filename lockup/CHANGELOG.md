@@ -8,7 +8,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
-- Bump package version for NPM release ([bd886f1](https://github.com/sablier-labs/lockup/commit/bd886f1912d11aa9362a8c2024ed317e9f8dffd5))
+- Bump utils package ([#1481](https://github.com/sablier-labs/evm-monorepo/pull/1481))
 
 ## [4.0.0] - 2026-03-16
 
