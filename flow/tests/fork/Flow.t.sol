@@ -253,7 +253,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit ISablierFlow.AdjustFlowStream({
             streamId: streamId,
-            totalDebt: totalDebt,
+            totalDebt: totalDebt + 1,
             oldRatePerSecond: oldRatePerSecond,
             newRatePerSecond: newRatePerSecond
         });
