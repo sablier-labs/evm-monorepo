@@ -12,21 +12,32 @@ For detailed per-package changelogs, see each package's `CHANGELOG.md`:
 - [lockup](./lockup/CHANGELOG.md)
 - [utils](./utils/CHANGELOG.md)
 
+## March 23, 2026
+
+#### [airdrops@v3.0.1](https://www.npmjs.com/package/@sablier/airdrops/v/3.0.1)
+
+- Bump `lockup` and `utils` package ([#1483](https://github.com/sablier-labs/evm-monorepo/pull/1483))
+
+#### [bob@v1.0.1](https://www.npmjs.com/package/@sablier/bob/v/1.0.1)
+
+- Bump utils package ([#1481](https://github.com/sablier-labs/evm-monorepo/pull/1481))
+
+#### [flow@v3.0.1](https://www.npmjs.com/package/@sablier/flow/v/3.0.1)
+
+- Bump utils package ([#1481](https://github.com/sablier-labs/evm-monorepo/pull/1481))
+
+#### [lockup@v4.0.1](https://www.npmjs.com/package/@sablier/lockup/v/4.0.1)
+
+- Bump utils package ([#1481](https://github.com/sablier-labs/evm-monorepo/pull/1481))
+
+#### [utils@v2.0.1](https://www.npmjs.com/package/@sablier/evm-utils/v/2.0.1)
+
+- Add support for Denergy chain ([#1464](https://github.com/sablier-labs/evm-monorepo/pull/1464))
+- Drop support for Mode Sepolia and Sophon ([#1463](https://github.com/sablier-labs/evm-monorepo/pull/1463), [#1467](https://github.com/sablier-labs/evm-monorepo/pull/1467))
+
 ## March 16, 2026
 
-### Packages
-
-| Protocol | NPM Package                                                              | GitHub Tag        | Version |
-| -------- | ------------------------------------------------------------------------ | ----------------- | ------- |
-| Airdrops | [`@sablier/airdrops`](https://www.npmjs.com/package/@sablier/airdrops)   | `airdrops@v3.0.0` | 3.0.0   |
-| Bob      | [`@sablier/bob`](https://www.npmjs.com/package/@sablier/bob)             | `bob@v1.0.0`      | 1.0.0   |
-| Flow     | [`@sablier/flow`](https://www.npmjs.com/package/@sablier/flow)           | `flow@v3.0.0`     | 3.0.0   |
-| Lockup   | [`@sablier/lockup`](https://www.npmjs.com/package/@sablier/lockup)       | `lockup@v4.0.0`   | 4.0.0   |
-| Utils    | [`@sablier/evm-utils`](https://www.npmjs.com/package/@sablier/evm-utils) | `utils@v2.0.0`    | 2.0.0   |
-
-### All Changes
-
-#### airdrops@v3.0.0
+#### [airdrops@v3.0.0](https://www.npmjs.com/package/@sablier/airdrops/v/3.0.0)
 
 - **Breaking:** Change return type of `totalForgoneAmount()` in `SablierMerkleVCA` from `uint256` to `uint128`
   ([#1363](https://github.com/sablier-labs/lockup/pull/1363))
@@ -49,11 +60,11 @@ For detailed per-package changelogs, see each package's `CHANGELOG.md`:
 - **Breaking:** Remove `aggregateAmount` parameter from `createMerkleVCA` function
   ([#1363](https://github.com/sablier-labs/lockup/pull/1363))
 
-#### bob@v1.0.0
+#### [bob@v1.0.0](https://www.npmjs.com/package/@sablier/bob/v/1.0.0)
 
 - Initial release
 
-#### flow@v3.0.0
+#### [flow@v3.0.0](https://www.npmjs.com/package/@sablier/flow/v/3.0.0)
 
 - Rename `Helpers` library to `FlowHelpers`
   ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
@@ -64,7 +75,7 @@ For detailed per-package changelogs, see each package's `CHANGELOG.md`:
 - Remove zero surplus check from `recover` function
   ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
 
-#### lockup@v4.0.0
+#### [lockup@v4.0.0](https://www.npmjs.com/package/@sablier/lockup/v/4.0.0)
 
 - **Breaking:** Add `granularity` parameter to Lockup Linear create functions
   ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
@@ -80,7 +91,7 @@ For detailed per-package changelogs, see each package's `CHANGELOG.md`:
 - Fix: Add zero-check validation for segment count and tranche count in `LockupHelpers`
   ([#1429](https://github.com/sablier-labs/lockup/pull/1429))
 
-#### utils@v2.0.0
+#### [utils@v2.0.0](https://www.npmjs.com/package/@sablier/evm-utils/v/2.0.0)
 
 - **Breaking:** Rename `RoleGranted` event to `GrantRole`
   ([#1433](https://github.com/sablier-labs/lockup/pull/1433))
