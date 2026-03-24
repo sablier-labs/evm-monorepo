@@ -3,7 +3,7 @@
   "description": "Monorepo for Sablier's EVM smart contracts including Lockup, Flow, Airdrops, Bob and Utils protocols",
   "license": "SEE LICENSE IN LICENSE",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
