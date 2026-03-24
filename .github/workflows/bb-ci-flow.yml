@@ -11,6 +11,8 @@ on:
     paths:
       - ".github/workflows/bb-ci-flow.yml"
       - ".github/workflows/bb-ci-module.yml"
+      - ".github/workflows/bb-forge-test.yml"
+      - ".github/workflows/bb-fork-forge-test.yml"
       - "flow/**"
       - "foundry.base.toml"
       - "package.json"
@@ -21,6 +23,8 @@ on:
     paths:
       - ".github/workflows/bb-ci-flow.yml"
       - ".github/workflows/bb-ci-module.yml"
+      - ".github/workflows/bb-forge-test.yml"
+      - ".github/workflows/bb-fork-forge-test.yml"
       - "flow/**"
       - "foundry.base.toml"
       - "package.json"

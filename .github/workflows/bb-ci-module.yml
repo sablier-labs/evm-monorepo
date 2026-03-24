@@ -11,6 +11,22 @@ on:
         default: false
         required: false
         type: boolean
+      match-path-fork:
+        default: "tests/fork/**/*.sol"
+        required: false
+        type: string
+      match-path-integration:
+        default: "tests/{integration,utils}/**/*.sol"
+        required: false
+        type: string
+      match-path-invariant:
+        default: "tests/invariant/**/*.sol"
+        required: false
+        type: string
+      match-path-unit:
+        default: "tests/unit/**/*.sol"
+        required: false
+        type: string
       module:
         description: "Module name (e.g., airdrops, flow, lockup, utils)"
         required: true
@@ -31,6 +47,7 @@ jobs:
 
   test-fork:
     needs: ["build"]
+    if: needs.build.outputs.cache-status != 'primary'
     uses: "./.github/workflows/bb-fork-forge-test.yml"
     secrets: inherit
     with:
@@ -41,12 +58,13 @@ jobs:
         ${{ inputs.module }}/out-optimized
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
-      match-path: "tests/fork/**/*.sol"
+      match-path: ${{ inputs.match-path-fork }}
       name: "Fork tests"
       working-directory: ${{ inputs.module }}
 
   test-integration:
     needs: ["build"]
+    if: needs.build.outputs.cache-status != 'primary'
     uses: "./.github/workflows/bb-forge-test.yml"
     secrets: inherit
     with:
@@ -56,13 +74,13 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      match-path: "tests/{integration,utils}/**/*.sol"
+      match-path: ${{ inputs.match-path-integration }}
       name: "Integration tests"
       working-directory: ${{ inputs.module }}
 
   test-invariant:
-    if: ${{ !inputs.exclude-invariant-tests }}
     needs: ["build"]
+    if: needs.build.outputs.cache-status != 'primary' && !inputs.exclude-invariant-tests
     uses: "./.github/workflows/bb-forge-test.yml"
     secrets: inherit
     with:
@@ -72,13 +90,13 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      match-path: "tests/invariant/**/*.sol"
+      match-path: ${{ inputs.match-path-invariant }}
       name: "Invariant tests"
       working-directory: ${{ inputs.module }}
 
   test-unit:
-    if: ${{ !inputs.exclude-unit-tests }}
     needs: ["build"]
+    if: needs.build.outputs.cache-status != 'primary' && !inputs.exclude-unit-tests
     uses: "./.github/workflows/bb-forge-test.yml"
     secrets: inherit
     with:
@@ -88,6 +106,6 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      match-path: "tests/unit/**/*.sol"
+      match-path: ${{ inputs.match-path-unit }}
       name: "Unit tests"
       working-directory: ${{ inputs.module }}

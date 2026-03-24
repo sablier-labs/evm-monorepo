@@ -76,9 +76,8 @@ jobs:
       ROUTEMESH_API_KEY: "${{ secrets.ROUTEMESH_API_KEY }}"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+      - name: "Check out the repo"
+        uses: "actions/checkout@v4"
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -102,7 +101,7 @@ jobs:
         with:
           path: |
             foundry/target
-            $HOME/.config/.foundry/bin
+            ~/.config/.foundry/bin
           key: ${{ runner.os }}-foundry-build-${{ steps.foundry_hash.outputs.hash }}
 
       - name: Build Foundry from source or copy from target
@@ -129,11 +128,11 @@ jobs:
 
       - name: Save Foundry build cache
         if: steps.cache-foundry.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             foundry/target
-            $HOME/.config/.foundry/bin
+            ~/.config/.foundry/bin
           key: ${{ runner.os }}-foundry-build-${{ steps.foundry_hash.outputs.hash }}
 
       - name: Show Forge version
