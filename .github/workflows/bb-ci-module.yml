@@ -18,8 +18,6 @@ on:
     secrets:
       CODECOV_TOKEN:
         required: false
-      ROUTEMESH_API_KEY:
-        required: false
 
 jobs:
   check:
