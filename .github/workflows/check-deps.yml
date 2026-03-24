@@ -21,4 +21,4 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: "Check dependencies versions for mismatch"
-        run: bunx syncpack@13.0.4 list-mismatches
+        run: bunx syncpack@14.2.1 lint
