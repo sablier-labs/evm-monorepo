@@ -5,6 +5,8 @@
 //   C-1 (VERIFIED — fixed in mitigation): processRedemption now clears user's wstETH balance
 //   L-7 (EXPECTED VIOLATION): WETH distribution dust loss in processRedemption
 //   M-3 (VERIFIED — fixed in mitigation): updateStakedTokenBalance reverts on zero wstETH transfer
+//   Inv 28: _vaultTotalWstETH == sum of _userWstETH (excluding processRedemption)
+//   Inv 29: Already covered by C-1 (userWstETHClearedAfterRedemption)
 //   Inv 31: _vaultYieldFee immutable after creation
 //   Inv 48 (partial): comptroller-only admin
 //   Inv 49 (partial): onlySablierBob access control
@@ -12,9 +14,10 @@
 //   Inv 54: slippageTolerance <= MAX_SLIPPAGE_TOLERANCE
 //   Inv 55: requestLidoWithdrawal only callable by comptroller
 //   Inv 56: processRedemption only callable by SablierBob
-//   Inv 28: _vaultTotalWstETH == sum of _userWstETH (excluding processRedemption)
-//   Inv 29: Already covered by C-1 (userWstETHClearedAfterRedemption)
 //   Inv 57: Curve and Lido exit paths mutually exclusive per vault
+//   Inv 71: updateStakedTokenBalance preserves _vaultTotalWstETH
+//   Inv 72: processRedemption conservation (transferAmount + fee == proportional WETH share)
+//   Inv 73: No payout without prior unstaking
 //
 // REMOVED after mitigation review (grace period feature removed per finding M-2):
 //   Inv 49 (partial): unstakeForUserWithinGracePeriod access control
@@ -549,4 +552,75 @@ rule curvePathBlocksLidoPath(method f, uint256 vaultId) filtered {
 
     assert ghostLidoRequestCount[vaultId] == 0,
         "Inv 57: Lido withdrawal requested after vault was already unstaked via Curve";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+    INV 71: updateStakedTokenBalance preserves _vaultTotalWstETH
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: transferring wstETH attribution between users does not change the vault total
+/// @notice updateStakedTokenBalance moves wstETH from one user to another. The vault-level
+///         total _vaultTotalWstETH must remain unchanged since this is a net-zero operation.
+rule updateStakedTokenBalancePreservesTotal(
+    uint256 vaultId, address from, address to, uint256 shareAmountTransferred, uint256 userShareBalanceBeforeTransfer
+) {
+    uint128 totalBefore = getTotalYieldBearingTokenBalance(vaultId);
+
+    env e;
+    updateStakedTokenBalance(e, vaultId, from, to, shareAmountTransferred, userShareBalanceBeforeTransfer);
+
+    uint128 totalAfter = getTotalYieldBearingTokenBalance(vaultId);
+
+    assert totalAfter == totalBefore,
+        "Inv 71: updateStakedTokenBalance changed _vaultTotalWstETH";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+    INV 72: processRedemption conservation
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: transferAmount + fee equals the user's proportional WETH share
+/// @notice processRedemption computes userWethShare = userWstETH * totalWeth / totalWstETH,
+///         then splits it into transferAmount and feeAmountDeductedFromYield. The split is
+///         exact — no rounding occurs in the addition, only in the fee computation.
+rule processRedemptionConservation(uint256 vaultId, address user, uint128 shareBalance) {
+    // Read state before processRedemption (which deletes _userWstETH)
+    uint128 userWstETH = getYieldBearingTokenBalanceFor(vaultId, user);
+    uint256 totalWeth = getWethReceivedAfterUnstaking(vaultId);
+    uint128 totalWstETH = getTotalYieldBearingTokenBalance(vaultId);
+
+    // Compute expected WETH share using mathint (matches Solidity integer division)
+    mathint expectedWethShare = (totalWstETH > 0)
+        ? to_mathint(userWstETH) * to_mathint(totalWeth) / to_mathint(totalWstETH)
+        : 0;
+
+    env e;
+    uint128 transferAmount;
+    uint128 fee;
+    (transferAmount, fee) = processRedemption(e, vaultId, user, shareBalance);
+
+    assert to_mathint(transferAmount) + to_mathint(fee) == expectedWethShare,
+        "Inv 72: transferAmount + fee != user's proportional WETH share";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+    INV 73: No payout without prior unstaking
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: processRedemption returns zero transfer when unstaking has not occurred
+/// @notice When _wethReceivedAfterUnstaking[vaultId] is zero (unstakeFullAmount not yet called),
+///         processRedemption returns (0, 0) regardless of the user's wstETH balance.
+rule noPayoutWithoutUnstaking(uint256 vaultId, address user, uint128 shareBalance) {
+    require getWethReceivedAfterUnstaking(vaultId) == 0,
+        "safe: vault has not been unstaked yet";
+
+    env e;
+    uint128 transferAmount;
+    uint128 fee;
+    (transferAmount, fee) = processRedemption(e, vaultId, user, shareBalance);
+
+    assert transferAmount == 0,
+        "Inv 73: non-zero transfer amount without prior unstaking";
+    assert fee == 0,
+        "Inv 73: non-zero fee without prior unstaking";
 }

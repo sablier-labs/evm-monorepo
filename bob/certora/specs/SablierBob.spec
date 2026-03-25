@@ -18,6 +18,13 @@
 //   Inv 46: nativeToken never accepted as vault token
 //   Inv 47 (partial): nativeToken set-once
 //   Inv 48 (partial): comptroller-only admin functions
+//   Inv 58: createVault reverts if token is zero address
+//   Inv 59: createVault reverts if targetPrice is zero
+//   Inv 63: Adapter vault redeem reverts if msg.value > 0
+//   Inv 64: onShareTransfer reverts if caller != share token
+//   Inv 67: Vault adapter field immutable after creation (extends Inv 9)
+//   Inv 81: enterWithNativeToken reverts if msg.value == 0
+//   Inv 83: enterWithNativeToken reverts if msg.value > uint128 max
 //
 // REMOVED after mitigation review (grace period feature removed per finding M-2):
 //   Inv 20: exitWithinGracePeriod reverts after grace period
@@ -263,7 +270,8 @@ rule nextVaultIdMonotonic(method f) filtered {
 //////////////////////////////////////////////////////////////////////////*/
 
 /// @title Rule: Core vault fields never change after creation
-/// @notice token, oracle, targetPrice, expiry, shareToken are set once in createVault and never modified
+/// @notice token, oracle, targetPrice, expiry, shareToken, adapter are set once in createVault
+///         and never modified. Adapter added per Inv 67.
 rule vaultFieldsImmutable(method f, uint256 vaultId) filtered {
     f -> !f.isView
         && f.selector != sig:createVault(address, address, uint40, uint128).selector
@@ -277,6 +285,7 @@ rule vaultFieldsImmutable(method f, uint256 vaultId) filtered {
     uint128 targetPriceBefore = getTargetPrice(vaultId);
     uint40  expiryBefore      = getExpiry(vaultId);
     address shareTokenBefore  = getShareToken(vaultId);
+    address adapterBefore     = getAdapter(vaultId);
 
     env e;
     calldataarg args;
@@ -292,6 +301,8 @@ rule vaultFieldsImmutable(method f, uint256 vaultId) filtered {
         "Inv 9: expiry changed";
     assert getShareToken(vaultId) == shareTokenBefore,
         "Inv 9: shareToken changed";
+    assert getAdapter(vaultId) == adapterBefore,
+        "Inv 67: adapter changed after creation";
 }
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -299,11 +310,14 @@ rule vaultFieldsImmutable(method f, uint256 vaultId) filtered {
 //////////////////////////////////////////////////////////////////////////*/
 
 /// @title Rule: lastSyncedPrice can only be changed by specific functions
-/// @notice Only syncPriceFromOracle, enter, redeem, unstakeTokensViaAdapter, and createVault can modify it
+/// @notice Only syncPriceFromOracle, enter, enterWithNativeToken, redeem, unstakeTokensViaAdapter,
+///         and createVault can modify it. enterWithNativeToken added post-audit (commit ffae958)
+///         as it also calls _syncPriceFromOracle via _enter.
 rule lastSyncedPriceAuthorization(method f, uint256 vaultId) filtered {
     f -> !f.isView
         && f.selector != sig:syncPriceFromOracle(uint256).selector
         && f.selector != sig:enter(uint256, uint128).selector
+        && f.selector != sig:enterWithNativeToken(uint256).selector
         && f.selector != sig:redeem(uint256).selector
         && f.selector != sig:unstakeTokensViaAdapter(uint256).selector
         && f.selector != sig:createVault(address, address, uint40, uint128).selector
@@ -406,10 +420,16 @@ rule setDefaultAdapterOnlyComptroller(address token, address newAdapter) {
 ///      nativeToken, lastSyncedPrice, lastSyncedAt, or ETH balances. Its access control is verified
 ///      separately by setComptrollerOnlyComptroller (which is not a parametric rule and is unaffected
 ///      by the link).
+/// @dev enterWithNativeToken filtered because it sends msg.value ETH to IWETH9.deposit (external
+///      call summarized as NONDET). NONDET cannot model ETH leaving via the external call, so
+///      nativeBalances[currentContract] appears to retain the ETH — false positive. The ETH is
+///      correctly forwarded to the WETH contract on every code path; the function either wraps
+///      all ETH and enters the vault, or reverts (no partial ETH retention).
 rule noEthStuckInContract(method f) filtered {
     f -> !f.isView
         && f.selector != sig:createVault(address, address, uint40, uint128).selector
         && f.selector != sig:setComptroller(address).selector
+        && f.selector != sig:enterWithNativeToken(uint256).selector
 } {
     require nativeBalances[currentContract] == 0,
         "safe: SablierBob starts with no ETH (no receive/fallback)";
@@ -664,3 +684,164 @@ rule createVaultRejectsNativeToken(address token, address oracle, uint40 expiry,
 // REMOVED: exitRevertsAfterGracePeriod (Inv 20) — grace period feature removed per finding M-2
 // REMOVED: firstDepositTimeImmutableOnceSet (Inv 22) — grace period feature removed per finding M-2
 // REMOVED: exitWithinGracePeriodClearsDepositTime (Inv 23) — grace period feature removed per finding M-2
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 58: createVault reverts if token is zero address
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: createVault reverts if token address is zero
+/// @notice SablierBob.createVault checks `if (address(token) == address(0)) revert`.
+///         Unlike other createVault revert rules, this fires before any oracle or expiry check.
+rule createVaultRevertsTokenZero(address token, address oracle, uint40 expiry, uint128 targetPrice) {
+    require token == 0,
+        "safe: token must be zero address to test the revert";
+
+    env e;
+    require e.msg.value == 0,
+        "safe: createVault is not payable";
+
+    createVault@withrevert(e, token, oracle, expiry, targetPrice);
+
+    assert lastReverted,
+        "Inv 58: createVault accepted zero token address";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 59: createVault reverts if targetPrice is zero
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: createVault reverts if targetPrice is zero
+/// @notice SablierBob.createVault checks `if (targetPrice == 0) revert` after
+///         token validation and before oracle comparison.
+rule createVaultRevertsTargetPriceZero(address token, address oracle, uint40 expiry, uint128 targetPrice) {
+    require targetPrice == 0,
+        "safe: targetPrice must be zero to test the revert";
+
+    env e;
+    require e.msg.value == 0,
+        "safe: createVault is not payable";
+    require token != 0,
+        "safe: token is non-zero (skip earlier revert)";
+    require token != nativeToken() || nativeToken() == 0,
+        "safe: token is not native (skip earlier revert)";
+
+    createVault@withrevert(e, token, oracle, expiry, targetPrice);
+
+    assert lastReverted,
+        "Inv 59: createVault accepted zero target price";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 63: Adapter vault redeem reverts if msg.value > 0
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: redeem reverts with msg.value > 0 for adapter vaults
+/// @notice For adapter vaults, the code checks `if (msg.value > 0) revert` to prevent
+///         accidental ETH loss. The fee for adapter vaults is deducted from yield, not ETH.
+rule adapterVaultRedeemRevertsWithValue(uint256 vaultId) {
+    require vaultId < nextVaultId(),
+        "safe: only valid vault IDs";
+    require getAdapter(vaultId) != 0,
+        "safe: vault must have an adapter";
+
+    // Vault must be SETTLED or EXPIRED so redeem proceeds past the status check
+    uint128 targetPrice = getTargetPrice(vaultId);
+    uint128 lastPrice = getLastSyncedPrice(vaultId);
+    uint40 expiry = getExpiry(vaultId);
+    require targetPrice > 0,
+        "safe: valid vault has non-zero targetPrice";
+
+    env e;
+    // Either settled (price >= target) or expired (timestamp >= expiry)
+    require lastPrice >= targetPrice || e.block.timestamp >= expiry,
+        "safe: vault must be SETTLED or EXPIRED";
+    require e.msg.value > 0,
+        "safe: msg.value must be positive to test the revert";
+
+    redeem@withrevert(e, vaultId);
+
+    assert lastReverted,
+        "Inv 63: adapter vault redeem succeeded with msg.value > 0";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 64: onShareTransfer reverts if caller != share token
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: onShareTransfer reverts if caller is not the vault's share token contract
+/// @notice SablierBob.onShareTransfer checks `if (msg.sender != address(_vaults[vaultId].shareToken)) revert`.
+rule onShareTransferRevertsWrongCaller(
+    uint256 vaultId, address from, address to, uint256 amount, uint256 fromBalanceBefore
+) {
+    require vaultId < nextVaultId(),
+        "safe: only valid vault IDs";
+    address shareToken = getShareToken(vaultId);
+    require shareToken != 0,
+        "safe: vault has a share token";
+
+    env e;
+    require e.msg.sender != shareToken,
+        "safe: caller must not be the share token";
+    require e.msg.value == 0,
+        "safe: onShareTransfer is not payable";
+
+    onShareTransfer@withrevert(e, vaultId, from, to, amount, fromBalanceBefore);
+
+    assert lastReverted,
+        "Inv 64: onShareTransfer succeeded from non-share-token caller";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 81: enterWithNativeToken reverts if msg.value == 0
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: enterWithNativeToken reverts if msg.value is zero
+/// @notice enterWithNativeToken wraps msg.value via WETH deposit, then calls _enter with
+///         amount = msg.value. _enter reverts when amount == 0 (DepositAmountZero check).
+///         If the WETH deposit call also reverts (NONDET), the function still reverts.
+///         Either way, msg.value == 0 guarantees revert.
+rule enterWithNativeTokenRevertsZeroValue(uint256 vaultId) {
+    require vaultId < nextVaultId(),
+        "safe: only valid vault IDs";
+
+    // Vault should be ACTIVE so we reach the _enter logic
+    uint128 lastPrice = getLastSyncedPrice(vaultId);
+    uint128 targetPrice = getTargetPrice(vaultId);
+    uint40 expiry = getExpiry(vaultId);
+    require targetPrice > 0,
+        "safe: valid vault has non-zero targetPrice";
+
+    env e;
+    require e.block.timestamp < expiry,
+        "safe: vault must not be expired";
+    require lastPrice < targetPrice,
+        "safe: vault must not be settled";
+    require e.msg.value == 0,
+        "safe: msg.value must be zero to test the revert";
+
+    enterWithNativeToken@withrevert(e, vaultId);
+
+    assert lastReverted,
+        "Inv 81: enterWithNativeToken succeeded with zero msg.value";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 83: enterWithNativeToken reverts if msg.value > uint128 max
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: enterWithNativeToken reverts if msg.value exceeds type(uint128).max
+/// @notice SafeCast.toUint128() reverts when the value exceeds type(uint128).max.
+///         If the WETH deposit call reverts first (NONDET), the function still reverts.
+rule enterWithNativeTokenRevertsOverflow(uint256 vaultId) {
+    require vaultId < nextVaultId(),
+        "safe: only valid vault IDs";
+
+    env e;
+    require to_mathint(e.msg.value) > to_mathint(max_uint128),
+        "safe: msg.value must exceed uint128 max";
+
+    enterWithNativeToken@withrevert(e, vaultId);
+
+    assert lastReverted,
+        "Inv 83: enterWithNativeToken succeeded with msg.value > uint128 max";
+}

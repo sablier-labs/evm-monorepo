@@ -18,6 +18,11 @@
 //   Inv 47 (partial): nativeToken set-once
 //   Inv 48 (partial): comptroller-only admin functions
 //   Inv 50: wasFilled and wasCanceled mutually exclusive
+//   Inv 76: createOrder reverts if sellToken == buyToken
+//   Inv 77: createOrder reverts if sellAmount == 0
+//   Inv 78: createOrder reverts if minBuyAmount == 0
+//   Inv 79: Zero expiryTime order never expires
+//   Inv 80: fillOrder reverts if buyAmount < minBuyAmount
 
 methods {
     // Escrow state getters — envfree (only types that map cleanly to CVL)
@@ -485,4 +490,151 @@ rule createOrderRejectsNativeBuyToken(
 
     assert lastReverted,
         "Inv 46: createOrder accepted native token as buy token";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 76: createOrder reverts if sellToken == buyToken
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: createOrder reverts if sell and buy tokens are the same
+/// @notice SablierEscrow.createOrder checks `if (sellToken == buyToken) revert`.
+rule createOrderRevertsSameToken(
+    address sellToken, uint128 sellAmount, address buyToken, uint128 minBuyAmount, address buyer, uint40 expiryTime
+) {
+    // Skip earlier revert paths
+    require sellToken != 0,
+        "safe: sellToken is not zero (avoid earlier revert)";
+    address native = nativeToken();
+    require native == 0 || (sellToken != native && buyToken != native),
+        "safe: neither token is native (avoid earlier revert)";
+    require buyToken != 0,
+        "safe: buyToken is not zero (avoid earlier revert)";
+
+    require sellToken == buyToken,
+        "safe: tokens must be the same to test the revert";
+
+    env e;
+    require e.msg.value == 0,
+        "safe: createOrder is not payable";
+    createOrder@withrevert(e, sellToken, sellAmount, buyToken, minBuyAmount, buyer, expiryTime);
+
+    assert lastReverted,
+        "Inv 76: createOrder accepted same sell and buy token";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 77: createOrder reverts if sellAmount == 0
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: createOrder reverts if sellAmount is zero
+/// @notice SablierEscrow.createOrder checks `if (sellAmount == 0) revert`.
+rule createOrderRevertsSellAmountZero(
+    address sellToken, address buyToken, uint128 minBuyAmount, address buyer, uint40 expiryTime
+) {
+    // Skip earlier revert paths
+    require sellToken != 0,
+        "safe: sellToken is not zero";
+    require buyToken != 0,
+        "safe: buyToken is not zero";
+    address native = nativeToken();
+    require native == 0 || (sellToken != native && buyToken != native),
+        "safe: neither token is native";
+    require sellToken != buyToken,
+        "safe: tokens are different";
+
+    env e;
+    require e.msg.value == 0,
+        "safe: createOrder is not payable";
+    createOrder@withrevert(e, sellToken, 0, buyToken, minBuyAmount, buyer, expiryTime);
+
+    assert lastReverted,
+        "Inv 77: createOrder accepted zero sell amount";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 78: createOrder reverts if minBuyAmount == 0
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: createOrder reverts if minBuyAmount is zero
+/// @notice SablierEscrow.createOrder checks `if (minBuyAmount == 0) revert`.
+rule createOrderRevertsMinBuyAmountZero(
+    address sellToken, uint128 sellAmount, address buyToken, address buyer, uint40 expiryTime
+) {
+    // Skip earlier revert paths
+    require sellToken != 0,
+        "safe: sellToken is not zero";
+    require buyToken != 0,
+        "safe: buyToken is not zero";
+    address native = nativeToken();
+    require native == 0 || (sellToken != native && buyToken != native),
+        "safe: neither token is native";
+    require sellToken != buyToken,
+        "safe: tokens are different";
+    require sellAmount > 0,
+        "safe: sellAmount is non-zero";
+
+    env e;
+    require e.msg.value == 0,
+        "safe: createOrder is not payable";
+    createOrder@withrevert(e, sellToken, sellAmount, buyToken, 0, buyer, expiryTime);
+
+    assert lastReverted,
+        "Inv 78: createOrder accepted zero min buy amount";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 79: Zero expiryTime order never expires
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: an order with expiryTime of zero never enters the EXPIRED state
+/// @notice The _statusOf function short-circuits: `if (expiryTime != 0 && ...)`.
+///         When expiryTime is zero, the order remains OPEN regardless of block.timestamp.
+rule zeroExpiryOrderNeverExpires(uint256 orderId) {
+    require orderId < nextOrderId(),
+        "safe: only valid order IDs";
+    require getExpiryTime(orderId) == 0,
+        "safe: order has zero expiry (never expires)";
+    require wasFilled(orderId) == false,
+        "safe: order is not filled";
+    require wasCanceled(orderId) == false,
+        "safe: order is not canceled";
+
+    env e;
+    // Use an arbitrarily large block.timestamp to prove it never expires
+    require e.block.timestamp > max_uint40,
+        "safe: block.timestamp far in the future";
+
+    uint8 status = assert_uint8(statusOf(e, orderId));
+
+    assert status == OPEN(),
+        "Inv 79: zero-expiry order returned non-OPEN status";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 80: fillOrder reverts if buyAmount < minBuyAmount
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: fillOrder reverts if buyAmount is less than the order's minBuyAmount
+/// @notice SablierEscrow.fillOrder checks `if (buyAmount < order.minBuyAmount) revert`.
+rule fillOrderRevertsInsufficientBuyAmount(uint256 orderId, uint128 buyAmount) {
+    require orderId < nextOrderId(),
+        "safe: only valid order IDs";
+
+    // Order must be OPEN for fill to proceed to the buyAmount check
+    require wasFilled(orderId) == false,
+        "safe: order is not filled";
+    require wasCanceled(orderId) == false,
+        "safe: order is not canceled";
+
+    uint128 minBuy = getMinBuyAmount(orderId);
+    require to_mathint(buyAmount) < to_mathint(minBuy),
+        "safe: buyAmount must be below minBuyAmount";
+
+    env e;
+    require e.msg.value == 0,
+        "safe: fillOrder is not payable";
+    fillOrder@withrevert(e, orderId, buyAmount);
+
+    assert lastReverted,
+        "Inv 80: fillOrder accepted buy amount below minimum";
 }

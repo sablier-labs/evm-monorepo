@@ -19,11 +19,27 @@
 15. `enter` and `syncPriceFromOracle` must revert when the vault is settled or expired
 16. For non-adapter vaults, users must not be able to pay a redemption fee less than the `minFeeWei` configured by the comptroller
 17. `lastSyncedPrice` and `lastSyncedAt` must only change when the oracle reports a positive price
+58. `createVault` must revert if the `token` address is zero
+59. `createVault` must revert if `targetPrice` is zero
+60. `redeem` is all-or-nothing: the caller's entire share balance must be burned in a single redemption, partial redemptions are not supported
+61. For non-adapter vaults, the amount of tokens transferred to a user upon `redeem` must equal their share balance at the time of redemption
+62. When `redeem` burns shares, a corresponding token transfer to `msg.sender` must occur in the same transaction
+63. `redeem` for adapter vaults must revert if `msg.value` is greater than zero
+64. `onShareTransfer` must revert if the caller is not the vault's designated share token contract
+65. A vault created with a non-zero adapter must have `isStakedInAdapter` set to `true` immediately after creation
+66. A vault created with a zero adapter must have `isStakedInAdapter` set to `false` after creation
+67. The vault's `adapter` is snapshotted from `_defaultAdapters[token]` at creation time and is not affected by subsequent changes to the default adapter mapping
+81. `enterWithNativeToken` must revert if `msg.value` is zero
+82. `enterWithNativeToken` must wrap exactly `msg.value` of native tokens into the vault's token before minting shares
+83. `enterWithNativeToken` must revert if `msg.value` exceeds `type(uint128).max`
 
 ## SablierBob — Share Token
 
 18. Per-vault share token `totalSupply` must equal the sum of all holder balances
 19. Only `SablierBob` can mint and burn share tokens
+68. Each `BobVaultShare` contract's immutable `VAULT_ID` must equal the vault ID for which it was deployed
+69. Each `BobVaultShare` contract's immutable `SABLIER_BOB` must equal the address of the `SablierBob` contract that deployed it
+70. `BobVaultShare::mint` and `burn` must revert if the provided `vaultId` does not match the token's immutable `VAULT_ID`
 
 ## SablierBob — Grace Period
 
@@ -46,6 +62,11 @@
 53. `feeOnYield` must never exceed `MAX_FEE`
 54. `slippageTolerance` must never exceed `MAX_SLIPPAGE_TOLERANCE`
 57. For a given vault, the Curve swap and Lido native withdrawal exit paths must be mutually exclusive — once one path is used, the other must be permanently blocked
+71. `updateStakedTokenBalance` must preserve `_vaultTotalWstETH`: transferring wstETH attribution between users must not change the vault's total
+72. For adapter vaults, `processRedemption` must satisfy the conservation: `transferAmount + feeAmountDeductedFromYield` equals the user's proportional WETH share (`_userWstETH * _wethReceivedAfterUnstaking / _vaultTotalWstETH`)
+73. `_wethReceivedAfterUnstaking[vaultId]` must be set via `unstakeFullAmount` before any user can receive a non-zero transfer amount from `processRedemption`
+74. `_lidoWithdrawalRequestIds[vaultId]` once populated must never be modified or cleared
+75. `requestLidoWithdrawal` must be callable at most once per vault
 
 ## SablierEscrow
 
@@ -63,6 +84,11 @@
 44. Only the seller who created the order can cancel it
 45. The final `buyToken` amount received by the seller must be >= `minBuyAmount` — **broken by L-8**
 50. `wasFilled` and `wasCanceled` must never both be `true` for the same order
+76. `createOrder` must revert if `sellToken` and `buyToken` are the same address
+77. `createOrder` must revert if `sellAmount` is zero
+78. `createOrder` must revert if `minBuyAmount` is zero
+79. An order with `expiryTime` of zero must never enter the EXPIRED state
+80. `fillOrder` must revert if `buyAmount` is less than the order's `minBuyAmount`
 
 ## Cross-Cutting
 

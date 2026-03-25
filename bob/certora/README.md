@@ -1,11 +1,11 @@
 # Formal Verification Report: Sablier Bob & Escrow
 
-- Date: March 13th, 2026
+- Date: March 25th, 2026
 - Audit Repo: https://github.com/Cyfrin/audit-2026-02-sablier-bob-2
-- Client Repo: https://github.com/sablier-labs/lockup/tree/staging
+- Client Repo: https://github.com/sablier-labs/evm-monorepo/tree/staging
 - Audit Commit: 9fbc34f8ac384b0effcb6545cf387e42ec96f910
-- Mitigation Commit: 7fae8429bdb2b88d4b0e63dcf25eb8a1477e5a8a
-- Author: Specialist AI FV-Certora v1.0.6 created by [Dacian](https://x.com/DevDacian)
+- Mitigation Commit: ffae95821335a4ddd7c1a54638aa5ffed36819b2
+- Author: Bastion v1.1.0 created by [Dacian](https://x.com/DevDacian)
 - Human Auditor: [Dacian](https://x.com/DevDacian) ([Cyfrin](https://x.com/cyfrin) private audit)
 - Certora Prover version: 8.8.1
 
@@ -13,19 +13,19 @@
 
 ## Table of Contents
 
-- [About Sablier Bob \& Escrow](#about-sablier-bob--escrow)
+- [About Sablier Bob and Escrow](#about-sablier-bob-and-escrow)
 - [Formal Verification Methodology](#formal-verification-methodology)
 - [Project Structure](#project-structure)
 - [Verification Properties](#verification-properties)
-  - [BobVaultShare (4 properties)](#bobvaultshare-4-properties)
-  - [SablierBob (19 active + 4 n/a properties)](#sablierbob-19-active--4-na-properties)
-  - [SablierEscrow (18 properties)](#sablierescrow-18-properties)
-  - [SablierLidoAdapter (18 active + 1 n/a properties)](#sablierlidoadapter-18-active--1-na-properties)
-- [Assumptions — Safe](#assumptions--safe)
-- [Assumptions — Proved](#assumptions--proved)
+  - [BobVaultShare (6 properties)](#bobvaultshare-6-properties)
+  - [SablierBob (25 active, 4 n/a properties)](#sablierbob-25-active-4-na-properties)
+  - [SablierEscrow (23 properties)](#sablierescrow-23-properties)
+  - [SablierLidoAdapter (21 active, 1 n/a properties)](#sablierlidoadapter-21-active-1-na-properties)
+- [Assumptions - Safe](#assumptions---safe)
+- [Assumptions - Proved](#assumptions---proved)
 - [Verification Results](#verification-results)
 - [Setup and Execution](#setup-and-execution)
-  - [Common Setup (Steps 1–4)](#common-setup-steps-14)
+  - [Common Setup (Steps 1-4)](#common-setup-steps-1-4)
   - [Remote Execution](#remote-execution)
   - [Local Execution](#local-execution)
   - [Running Verification](#running-verification)
@@ -33,7 +33,7 @@
 
 ---
 
-## About Sablier Bob & Escrow
+## About Sablier Bob and Escrow
 
 **Sablier Bob** is a price-gated vault protocol for conditional token releases with optional yield generation. Users deposit ERC-20 tokens into vaults that release based on price conditions — either when an oracle-synced price reaches a target (SETTLED) or when an expiry timestamp passes (EXPIRED). Each vault mints a `BobVaultShare` ERC-20 token on deposit (1:1 ratio). An optional Lido adapter enables yield generation by staking deposited WETH as wstETH, with support for both Curve swap and native Lido withdrawal paths.
 
@@ -92,28 +92,28 @@ bob/certora/
 ├── helper/
 │   └── MockComptroller.sol         # Minimal mock with receive() for ETH transfer modeling
 └── specs/
-    ├── BobVaultShare.spec          # Inv 18–19: ERC-20 accounting and auth
-    ├── SablierBob.spec             # Inv 2, 4, 7, 9, 10, 12–17, 25, 30, 46, 47, 48: Vault state machine (Inv 20, 22, 23 n/a)
-    ├── SablierEscrow.spec          # Inv 33–46, 47, 48, 50: Order state machine and conservation
-    └── SablierLidoAdapter.spec     # Inv 28, 31, 48, 49, 53–57 + C-1, L-7, M-3: Adapter yield, Lido withdrawal, access control
+    ├── BobVaultShare.spec          # Inv 18–19, 70: ERC-20 accounting, auth, vault ID enforcement
+    ├── SablierBob.spec             # Inv 2, 4, 7, 9, 10, 12–17, 25, 30, 46–48, 58–59, 63–64, 67, 81, 83: Vault state machine, native token entry (Inv 20, 22, 23 n/a)
+    ├── SablierEscrow.spec          # Inv 33–46, 47, 48, 50, 76–80: Order state machine, conservation, input validation
+    └── SablierLidoAdapter.spec     # Inv 28, 31, 48, 49, 53–57, 71–73 + C-1, L-7, M-3: Adapter yield, conservation, Lido withdrawal
 ```
 
 A `MockComptroller` helper contract provides a `receive() payable` function, enabling the Certora prover to correctly model ETH balance transfers via low-level `call{value}`. All internal state is accessible via public getters.
 
 ## Verification Properties
 
-59 active properties across 4 contracts (5 additional properties marked n/a after mitigation review — grace period feature removed per finding M-2).
+75 active properties across 4 contracts (5 additional properties marked n/a after mitigation review — grace period feature removed per finding M-2).
 
 - Invariants: 1
 - Parametric rules: 24
 - Access control rules: 13
-- Revert condition rules: 13
-- Integrity rules: 5
-- Conservation rules: 3
+- Revert condition rules: 25
+- Integrity rules: 7
+- Conservation rules: 5
 
-### BobVaultShare (4 properties)
+### BobVaultShare (6 properties)
 
-ERC-20 share token accounting invariant and authorization.
+ERC-20 share token accounting invariant, authorization, and vault ID enforcement.
 
 | ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Name | Type | Description | Audit | Mitig. |
 |:------|:----------------------------------------|:----------|:-------------------------------------------------|:---:|:---:|
@@ -121,10 +121,12 @@ ERC-20 share token accounting invariant and authorization.
 | S-19 | `onlySablierBobCanChangeTotalSupply` | Parametric | If `totalSupply` changes, `msg.sender` must be the `SABLIER_BOB` address | ✓ | ✓ |
 | S-18a | `transferPreservesTotalSupply` | Integrity | `transfer` does not change `totalSupply` | ✓ | ✓ |
 | S-18b | `transferFromPreservesTotalSupply` | Integrity | `transferFrom` does not change `totalSupply` | ✓ | ✓ |
+| S-70a | `mintRevertsOnVaultIdMismatch` | Revert Condition | **Inv 70**: `BobVaultShare::mint` reverts if the provided `vaultId` does not match the token's immutable `VAULT_ID` | | ✓ |
+| S-70b | `burnRevertsOnVaultIdMismatch` | Revert Condition | **Inv 70**: `BobVaultShare::burn` reverts if the provided `vaultId` does not match the token's immutable `VAULT_ID` | | ✓ |
 
-### SablierBob (19 active + 4 n/a properties)
+### SablierBob (25 active, 4 n/a properties)
 
-Vault state machine, immutability, and authorization.
+Vault state machine, immutability, authorization, and native token entry.
 
 | ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Name | Type | Description | Audit | Mitig. |
 |:------|:----------------------------------------|:----------|:-------------------------------------------------|:---:|:---:|
@@ -132,9 +134,9 @@ Vault state machine, immutability, and authorization.
 | B-2b | `expiredVaultCannotBecomeActive` | Parametric | Once `block.timestamp >= expiry` (EXPIRED), `expiry` is immutable — vault cannot un-expire | ✓ | ✓ |
 | B-4 | `redeemRevertsWhenStillActive` | Revert Condition | `redeem` reverts if the vault is ACTIVE after internal price sync (oracle constrained below target with decimals=8, not expired) | ✓ | ✓ |
 | B-7 | `nextVaultIdMonotonic` | Parametric | `nextVaultId` never decreases after any function call | ✓ | ✓ |
-| B-9 | `vaultFieldsImmutable` | Parametric | Core vault fields (`token`, `oracle`, `targetPrice`, `expiry`, `shareToken`) never change after creation | ✓ | ✓ |
-| B-10 | `lastSyncedPriceAuthorization` | Parametric | `lastSyncedPrice` can only be modified by `syncPriceFromOracle`, `enter`, `redeem`, `unstakeTokensViaAdapter`, or `createVault` | ✓ | ✓ |
-| B-12 | `noEthStuckInContract` | Parametric | **Inv 12 / L-9 FIXED**: No ETH should remain stuck in `SablierBob` after any function call. Adapter vault ETH trapping fixed (L-9: `msg.value > 0` now reverts). Comptroller linked to MockComptroller (with `receive() payable`) so the prover correctly models ETH balance transfer via low-level `call{value}` | ✗ | ✓ |
+| B-9 | `vaultFieldsImmutable` | Parametric | **Inv 9, 67**: Core vault fields (`token`, `oracle`, `targetPrice`, `expiry`, `shareToken`, `adapter`) never change after creation. `adapter` added per Inv 67 | ✓ | ✓ |
+| B-10 | `lastSyncedPriceAuthorization` | Parametric | `lastSyncedPrice` can only be modified by `syncPriceFromOracle`, `enter`, `enterWithNativeToken`, `redeem`, `unstakeTokensViaAdapter`, or `createVault` | ✓ | ✓ |
+| B-12 | `noEthStuckInContract` | Parametric | **Inv 12 / L-9 FIXED**: No ETH should remain stuck in `SablierBob` after any function call. `enterWithNativeToken` filtered (NONDET on WETH deposit prevents ETH balance tracking; ETH is correctly forwarded on all code paths) | ✗ | ✓ |
 | B-13 | `createVaultRevertsIfExpiryInPast` | Revert Condition | `createVault` reverts if `expiry <= block.timestamp` — vaults cannot be created with a past or current expiry | ✓ | ✓ |
 | B-14 | `createVaultRevertsIfTargetPriceTooLow` | Revert Condition | `createVault` reverts if `targetPrice <= current oracle price` (with decimals=8) — vaults cannot be created with an already-reached target | ✓ | ✓ |
 | B-15a | `enterRevertsWhenNotActive` | Revert Condition | `enter` reverts when the vault is SETTLED or EXPIRED | ✓ | ✓ |
@@ -148,13 +150,19 @@ Vault state machine, immutability, and authorization.
 | B-47 | `nativeTokenSetOnce` | Parametric | Once `nativeToken` is set to non-zero, no function can change it | ✓ | ✓ |
 | B-48a | `setNativeTokenOnlyComptroller` | Access Control | `setNativeToken` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
 | B-48b | `setDefaultAdapterOnlyComptroller` | Access Control | `setDefaultAdapter` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
-| B-25 | `unstakeTokensViaAdapterCallableOnce` | Revert Condition | **NEW (Inv 25)**: `unstakeTokensViaAdapter` reverts if the vault has already been unstaked (`isStakedInAdapter == false`) | | ✓ |
-| B-30 | `isStakedInAdapterOnlyTrueToFalse` | Parametric | **NEW (Inv 30)**: `isStakedInAdapter` can only transition `true → false`, never `false → true` — excludes `createVault` (sets initial value) | | ✓ |
-| B-46 | `createVaultRejectsNativeToken` | Revert Condition | **NEW (Inv 46)**: `createVault` reverts if the vault token equals `nativeToken` | | ✓ |
+| B-25 | `unstakeTokensViaAdapterCallableOnce` | Revert Condition | **Inv 25**: `unstakeTokensViaAdapter` reverts if the vault has already been unstaked (`isStakedInAdapter == false`) | | ✓ |
+| B-30 | `isStakedInAdapterOnlyTrueToFalse` | Parametric | **Inv 30**: `isStakedInAdapter` can only transition `true → false`, never `false → true` — excludes `createVault` (sets initial value) | | ✓ |
+| B-46 | `createVaultRejectsNativeToken` | Revert Condition | **Inv 46**: `createVault` reverts if the vault token equals `nativeToken` | | ✓ |
+| B-58 | `createVaultRevertsTokenZero` | Revert Condition | **Inv 58**: `createVault` reverts if the `token` address is zero | | ✓ |
+| B-59 | `createVaultRevertsTargetPriceZero` | Revert Condition | **Inv 59**: `createVault` reverts if `targetPrice` is zero | | ✓ |
+| B-63 | `adapterVaultRedeemRevertsWithValue` | Revert Condition | **Inv 63**: `redeem` reverts with `msg.value > 0` for adapter vaults — prevents accidental ETH loss since adapter vault fees are deducted from yield | | ✓ |
+| B-64 | `onShareTransferRevertsWrongCaller` | Revert Condition | **Inv 64**: `onShareTransfer` reverts if the caller is not the vault's designated share token contract | | ✓ |
+| B-81 | `enterWithNativeTokenRevertsZeroValue` | Revert Condition | **Inv 81**: `enterWithNativeToken` reverts if `msg.value` is zero — either WETH deposit reverts or `_enter` reverts on zero amount | | ✓ |
+| B-83 | `enterWithNativeTokenRevertsOverflow` | Revert Condition | **Inv 83**: `enterWithNativeToken` reverts if `msg.value` exceeds `type(uint128).max` — `SafeCast.toUint128` enforces the bound | | ✓ |
 
-### SablierEscrow (18 properties)
+### SablierEscrow (23 properties)
 
-Order state machine, monotonic flags, conservation on fill, and authorization.
+Order state machine, monotonic flags, conservation on fill, input validation, and authorization.
 
 | ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Name | Type | Description | Audit | Mitig. |
 |:------|:----------------------------------------|:----------|:-------------------------------------------------|:---:|:---:|
@@ -174,10 +182,15 @@ Order state machine, monotonic flags, conservation on fill, and authorization.
 | E-47 | `nativeTokenSetOnce` | Parametric | Once `nativeToken` is set to non-zero, no function can change it | ✓ | ✓ |
 | E-48a | `setTradeFeeOnlyComptroller` | Access Control | `setTradeFee` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
 | E-48b | `setNativeTokenOnlyComptroller` | Access Control | `setNativeToken` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
-| E-46a | `createOrderRejectsNativeSellToken` | Revert Condition | **NEW (Inv 46)**: `createOrder` reverts if `sellToken` equals `nativeToken` | | ✓ |
-| E-46b | `createOrderRejectsNativeBuyToken` | Revert Condition | **NEW (Inv 46)**: `createOrder` reverts if `buyToken` equals `nativeToken` | | ✓ |
+| E-46a | `createOrderRejectsNativeSellToken` | Revert Condition | **Inv 46**: `createOrder` reverts if `sellToken` equals `nativeToken` | | ✓ |
+| E-46b | `createOrderRejectsNativeBuyToken` | Revert Condition | **Inv 46**: `createOrder` reverts if `buyToken` equals `nativeToken` | | ✓ |
+| E-76 | `createOrderRevertsSameToken` | Revert Condition | **Inv 76**: `createOrder` reverts if `sellToken` and `buyToken` are the same address | | ✓ |
+| E-77 | `createOrderRevertsSellAmountZero` | Revert Condition | **Inv 77**: `createOrder` reverts if `sellAmount` is zero | | ✓ |
+| E-78 | `createOrderRevertsMinBuyAmountZero` | Revert Condition | **Inv 78**: `createOrder` reverts if `minBuyAmount` is zero | | ✓ |
+| E-79 | `zeroExpiryOrderNeverExpires` | Integrity | **Inv 79**: An order with `expiryTime` of zero returns OPEN status regardless of `block.timestamp` — zero is a sentinel for orders that never expire | | ✓ |
+| E-80 | `fillOrderRevertsInsufficientBuyAmount` | Revert Condition | **Inv 80**: `fillOrder` reverts if `buyAmount` is less than the order's `minBuyAmount` | | ✓ |
 
-### SablierLidoAdapter (18 active + 1 n/a properties)
+### SablierLidoAdapter (21 active, 1 n/a properties)
 
 Adapter yield fee immutability, parameter bounds, WETH distribution conservation, Lido withdrawal, and access control.
 
@@ -196,26 +209,29 @@ Adapter yield fee immutability, parameter bounds, WETH distribution conservation
 | L-53 | `feeOnYieldNotTooHigh` | Parametric | `feeOnYield` never exceeds `MAX_FEE` after any state change | ✓ | ✓ |
 | L-54 | `slippageToleranceNotTooHigh` | Parametric | `slippageTolerance` never exceeds `MAX_SLIPPAGE_TOLERANCE` after any state change | ✓ | ✓ |
 | L-M3 | `nonZeroShareTransferMovesWstETH` | Integrity | **Inv 32 / M-3 FIXED**: `updateStakedTokenBalance` now reverts when the computed wstETH transfer amount is zero — prevents unbacked share transfers from floor division truncation | ✗ | ✓ |
-| L-55 | `requestLidoWithdrawalOnlyComptroller` | Access Control | **NEW (Inv 55)**: `requestLidoWithdrawal` reverts if `msg.sender` is not the comptroller | | ✓ |
-| L-56 | `processRedemptionOnlySablierBob` | Access Control | **NEW (Inv 56)**: `processRedemption` reverts if `msg.sender` is not `SABLIER_BOB` | | ✓ |
-| L-57a | `lidoWithdrawalRequestIdsMonotonic` | Parametric | **NEW (Inv 57)**: Once Lido withdrawal request IDs are set for a vault, no function can clear them — Curve path permanently blocked | | ✓ |
-| L-57b | `requestLidoWithdrawalIdempotent` | Revert Condition | **NEW (Inv 57)**: `requestLidoWithdrawal` reverts if Lido withdrawal already requested for the vault | | ✓ |
-| L-57c | `curvePathBlocksLidoPath` | Parametric | **NEW (Inv 57)**: If a vault was unstaked via Curve, no function can set Lido withdrawal request IDs for that vault | | ✓ |
-| L-28 | `vaultTotalWstETHEqualsSumUserWstETH` | Parametric | **NEW (Inv 28)**: `_vaultTotalWstETH[vaultId]` equals the ghost sum of all `_userWstETH[vaultId][user]` after any function except `processRedemption` (which intentionally desyncs — total is snapshot denominator for proportional WETH distribution) | | ✓ |
+| L-55 | `requestLidoWithdrawalOnlyComptroller` | Access Control | **Inv 55**: `requestLidoWithdrawal` reverts if `msg.sender` is not the comptroller | | ✓ |
+| L-56 | `processRedemptionOnlySablierBob` | Access Control | **Inv 56**: `processRedemption` reverts if `msg.sender` is not `SABLIER_BOB` | | ✓ |
+| L-57a | `lidoWithdrawalRequestIdsMonotonic` | Parametric | **Inv 57, 74**: Once Lido withdrawal request IDs are set for a vault, no function can clear them — Curve path permanently blocked | | ✓ |
+| L-57b | `requestLidoWithdrawalIdempotent` | Revert Condition | **Inv 57, 75**: `requestLidoWithdrawal` reverts if Lido withdrawal already requested for the vault | | ✓ |
+| L-57c | `curvePathBlocksLidoPath` | Parametric | **Inv 57**: If a vault was unstaked via Curve, no function can set Lido withdrawal request IDs for that vault | | ✓ |
+| L-28 | `vaultTotalWstETHEqualsSumUserWstETH` | Parametric | **Inv 28**: `_vaultTotalWstETH[vaultId]` equals the ghost sum of all `_userWstETH[vaultId][user]` after any function except `processRedemption` (which intentionally desyncs — total is snapshot denominator for proportional WETH distribution) | | ✓ |
+| L-71 | `updateStakedTokenBalancePreservesTotal` | Conservation | **Inv 71**: `updateStakedTokenBalance` does not change `_vaultTotalWstETH` — transferring wstETH between users is a net-zero operation on the vault total | | ✓ |
+| L-72 | `processRedemptionConservation` | Conservation | **Inv 72**: `transferAmount + feeAmountDeductedFromYield` equals the user's proportional WETH share (`_userWstETH * _wethReceivedAfterUnstaking / _vaultTotalWstETH`) | | ✓ |
+| L-73 | `noPayoutWithoutUnstaking` | Integrity | **Inv 73**: `processRedemption` returns zero `transferAmount` and zero fee when `_wethReceivedAfterUnstaking` is zero — no payout possible before unstaking occurs | | ✓ |
 
-## Assumptions — Safe
+## Assumptions - Safe
 
 The following `require` statements are used in specs to constrain the prover to realistic states. Each is annotated with `"safe: ..."` in the spec source.
 
 | Assumption | Used In | Justification |
 |------------|---------|---------------|
-| `vaultId < nextVaultId()` | B-2a–B-23 | Only valid vault IDs that have been created |
-| `orderId < nextOrderId()` | E-33–E-45 | Only valid order IDs that have been created |
-| `targetPrice > 0` | B-2a, B-4, B-14, B-15 | Valid vaults always have non-zero target price (set in `createVault`) |
+| `vaultId < nextVaultId()` | B-2a–B-23, B-25, B-30, B-58–B-83 | Only valid vault IDs that have been created |
+| `orderId < nextOrderId()` | E-33–E-45, E-79, E-80 | Only valid order IDs that have been created |
+| `targetPrice > 0` | B-2a, B-4, B-14, B-15, B-63, B-81 | Valid vaults always have non-zero target price (set in `createVault`) |
 | `expiry > 0` | B-2b, B-15 | Valid vaults always have non-zero expiry (enforced by `createVault`) |
 | `lastPrice >= targetPrice` | B-2a | Precondition for SETTLED state |
-| `lastPrice < targetPrice` | B-4 | Precondition for ACTIVE state (price below target) |
-| `e.block.timestamp < expiry` | B-4 | Precondition for non-expired vault |
+| `lastPrice < targetPrice` | B-4, B-81 | Precondition for ACTIVE state (price below target) |
+| `e.block.timestamp < expiry` | B-4, B-81 | Precondition for non-expired vault |
 | `e.block.timestamp >= expiry` | B-2b | Precondition for EXPIRED state |
 | `token != 0` | B-13 | Non-zero token to reach the expiry check (skips earlier token-zero revert) |
 | `e.block.timestamp <= max_uint40` | B-13 | Solidity casts `block.timestamp` to `uint40` at L113; without this, the prover exploits wrap-around (year 36,812 unreachable) |
@@ -223,7 +239,7 @@ The following `require` statements are used in specs to constrain the prover to 
 | `ghostOracleAnswer > 0` | B-14 | Oracle reports a positive answer |
 | `ghostOracleAnswer >= targetPrice` | B-14 | Oracle price at or above target price |
 | `ghostOracleAnswer < targetPrice` | B-4 | Models oracle not reporting settlement price — ensures vault stays ACTIVE after internal sync |
-| `lastPrice >= targetPrice \|\| timestamp >= expiry` | B-15a/b/c | Vault is in non-ACTIVE state (SETTLED or EXPIRED) |
+| `lastPrice >= targetPrice \|\| timestamp >= expiry` | B-15a/b/c, B-63 | Vault is in non-ACTIVE state (SETTLED or EXPIRED) |
 | `getAdapter(vaultId) == 0` | B-16 | Vault has no adapter (non-adapter vault) |
 | `ghostMinFeeWei > 0` | B-16 | Min fee must be positive for the check to be meaningful |
 | `msg.value < ghostMinFeeWei` | B-16 | Fee payment is below minimum (testing revert condition) |
@@ -255,7 +271,6 @@ The following `require` statements are used in specs to constrain the prover to 
 | `totalSupply + amount ≤ max_uint256` | S-18 preserved | OZ ERC-20 uses checked addition for `_totalSupply` on mint |
 | `!isStakedInAdapter(vaultId)` | B-30 | Precondition: vault is not staked — testing that `false` cannot transition to `true` |
 | `!isStakedInAdapter(vaultId)` | B-25 | Vault has already been unstaked — testing `unstakeTokensViaAdapter` reverts |
-| `e.msg.value == 0` | B-25 | `unstakeTokensViaAdapter` is not payable |
 | `native != 0` | B-46, E-46a, E-46b | `nativeToken` must be set for the native token check to be meaningful |
 | `token == native` | B-46 | Attempting to create vault with native token — testing revert |
 | `sellToken == native` | E-46a | Attempting to use native token as sell token — testing revert |
@@ -263,8 +278,23 @@ The following `require` statements are used in specs to constrain the prover to 
 | `sellToken != native && sellToken != 0` | E-46b | Bypass earlier reverts to reach the buy token check |
 | `getTotalYieldBearingTokenBalance == ghostSum` | L-28 | Inductive hypothesis — total equals sum before function call |
 | `transferFeesToComptroller` filtered | L-28, L-57a, L-57c | Low-level `call{value}("")` triggers HAVOC_ALL on adapter storage — false positive since it only sends ETH |
+| `token == 0` | B-58 | Token must be zero address to test the revert condition |
+| `targetPrice == 0` | B-59 | Target price must be zero to test the revert condition |
+| `getAdapter(vaultId) != 0` | B-63 | Vault must have an adapter to test the adapter-specific msg.value revert |
+| `e.msg.value > 0` | B-63 | msg.value must be positive to test the revert condition |
+| `e.msg.sender != shareToken` | B-64 | Caller must not be the share token to test access control |
+| `e.msg.value == 0` | B-25, B-58, B-59, B-64, S-70a, S-70b, E-76–E-80 | Non-payable functions — prevents Solidity ABI revert on msg.value > 0 |
+| `sellToken == buyToken` | E-76 | Tokens must be the same to test the same-token revert |
+| `sellAmount == 0` | E-77 | Sell amount must be zero to test the revert condition |
+| `minBuyAmount == 0` | E-78 | Min buy amount must be zero to test the revert condition |
+| `getExpiryTime(orderId) == 0` | E-79 | Order must have zero expiry to test never-expires semantics |
+| `e.block.timestamp > max_uint40` | E-79 | Arbitrarily large timestamp to prove zero-expiry orders remain OPEN regardless |
+| `buyAmount < minBuyAmount` | E-80 | Buy amount must be below minimum to test the revert condition |
+| `e.msg.value > max_uint128` | B-83 | msg.value must exceed uint128 max to test SafeCast overflow revert |
+| `enterWithNativeToken` filtered | B-10, B-12 | `enterWithNativeToken` calls `_syncPriceFromOracle` via `_enter` (authorized price modifier); NONDET on WETH deposit prevents ETH balance tracking (ETH correctly forwarded on all paths) |
+| `getWethReceivedAfterUnstaking == 0` | L-73 | Vault must not have been unstaked to test the zero-payout condition |
 
-## Assumptions — Proved
+## Assumptions - Proved
 
 The following invariant is used as a precondition via `requireInvariant` in preserved blocks:
 
@@ -276,20 +306,20 @@ The following invariant is used as a precondition via `requireInvariant` in pres
 
 ## Verification Results
 
-Final prover run URLs (Certora Prover v8.8.1). All 59 active properties verified; the 2 expected violations correspond to documented bugs (L-7 and L-8).
+Final prover run URLs (Certora Prover v8.8.1). All 75 active properties verified; the 2 expected violations correspond to documented bugs (L-7 and L-8).
 
 | Spec | Result | Prover URL |
 |------|--------|-----------|
-| BobVaultShare | All 4 rules pass | [Prover Link](https://prover.certora.com/output/4319676/cc4d65c1c52c4aab86ba85a9711618a7?anonymousKey=7b8e31c6f9e6a5930060f36111977bcfb57f8389) |
-| SablierBob | All 19 rules pass | [Prover Link](https://prover.certora.com/output/4319676/78f547debf0e4502a2882f8ddeb4b606?anonymousKey=59050875f6f0eb2182aa601f96ade9e1d88e9099) |
-| SablierEscrow | 17 pass, 1 expected fail (E-45/L-8) | [Prover Link](https://prover.certora.com/output/4319676/a5a77b5bb1464681afea6a01dfb50aa1?anonymousKey=9e25a869c800a438563eda42b95143353523b4d2) |
-| SablierLidoAdapter | 17 pass, 1 expected fail (L-L7) | [Prover Link](https://prover.certora.com/output/4319676/db3b58a8e97a4dacb949647dde0f3f51?anonymousKey=d2eb5886d249cea41eb6e64934c4eea4a591597b) |
+| BobVaultShare | All 7 rules pass | [Prover Link](https://prover.certora.com/output/4319676/0e4d0d6902d94b5087e2fb48229f3317?anonymousKey=dad6f097cecdcd91b4ffee592ed3ce918155d16b) |
+| SablierBob | All 26 rules pass | [Prover Link](https://prover.certora.com/output/4319676/0e6c6b2f2a7a434db89465fef7fab53d?anonymousKey=b4dc89630a70c49edbe24cf937ca7f09fb7e8aab) |
+| SablierEscrow | 23 pass, 1 expected fail (E-45/L-8) | [Prover Link](https://prover.certora.com/output/4319676/8c5c72e5ca0043d2920c609f6dbbeac9?anonymousKey=85a75d319d418447050296ef87eb40124877439c) |
+| SablierLidoAdapter | 21 pass, 1 expected fail (L-L7) | [Prover Link](https://prover.certora.com/output/4319676/427b7ca14bdf41f5bfa9fb9b178a6c16?anonymousKey=167d9583de75e9ef7ba5475d49d01121250acf62) |
 
 ## Setup and Execution
 
 The Certora Prover can be run either remotely (using Certora's cloud infrastructure) or locally (building from source); both modes share the same initial setup steps.
 
-### Common Setup (Steps 1–4)
+### Common Setup (Steps 1-4)
 
 The instructions below are for Ubuntu 24.04. For step-by-step installation details refer to this setup [tutorial](https://alexzoid.com/first-steps-with-certora-fv-catching-a-real-bug#heading-setup).
 

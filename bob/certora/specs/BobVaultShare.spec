@@ -4,6 +4,7 @@
 // Covers:
 //   Inv 18: totalSupply == sum of all balances
 //   Inv 19: Only SablierBob can change totalSupply (mint/burn)
+//   Inv 70: mint/burn revert if vaultId != VAULT_ID
 
 methods {
     // BobVaultShare getters
@@ -132,4 +133,42 @@ rule transferFromPreservesTotalSupply(address from, address to, uint256 amount) 
 
     assert supplyAfter == supplyBefore,
         "transferFrom must not change totalSupply";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                INV 70: mint/burn revert if vaultId != VAULT_ID
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title Rule: mint reverts if provided vaultId does not match the token's immutable VAULT_ID
+/// @notice Each BobVaultShare is deployed for a specific vault. The onlyVault modifier
+///         reverts if the caller passes a different vaultId.
+rule mintRevertsOnVaultIdMismatch(uint256 vaultId, address to, uint256 amount) {
+    uint256 expectedVaultId = VAULT_ID();
+    require vaultId != expectedVaultId,
+        "safe: vaultId must differ from VAULT_ID to test the revert";
+
+    env e;
+    require e.msg.value == 0,
+        "safe: mint is not payable";
+
+    mint@withrevert(e, vaultId, to, amount);
+
+    assert lastReverted,
+        "Inv 70: mint succeeded with wrong vaultId";
+}
+
+/// @title Rule: burn reverts if provided vaultId does not match the token's immutable VAULT_ID
+rule burnRevertsOnVaultIdMismatch(uint256 vaultId, address from, uint256 amount) {
+    uint256 expectedVaultId = VAULT_ID();
+    require vaultId != expectedVaultId,
+        "safe: vaultId must differ from VAULT_ID to test the revert";
+
+    env e;
+    require e.msg.value == 0,
+        "safe: burn is not payable";
+
+    burn@withrevert(e, vaultId, from, amount);
+
+    assert lastReverted,
+        "Inv 70: burn succeeded with wrong vaultId";
 }
