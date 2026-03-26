@@ -7,7 +7,7 @@ import { Escrow } from "src/types/Escrow.sol";
 
 import { Base_Test } from "../Base.t.sol";
 import { EscrowHandler } from "./handlers/EscrowHandler.sol";
-import { EscrowStore } from "./stores/EscrowStore.sol";
+import { Store } from "./stores/Store.sol";
 
 /// @notice Invariant tests for {SablierEscrow}.
 contract Invariant_Test is Base_Test, StdInvariant {
@@ -16,7 +16,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     //////////////////////////////////////////////////////////////////////////*/
 
     EscrowHandler internal handler;
-    EscrowStore internal store;
+    Store internal store;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -26,11 +26,11 @@ contract Invariant_Test is Base_Test, StdInvariant {
         Base_Test.setUp();
 
         // Deploy the contracts.
-        store = new EscrowStore();
+        store = new Store();
         handler = new EscrowHandler({ store_: store, escrow_: escrow });
 
         // Label the contracts.
-        vm.label({ account: address(store), newLabel: "EscrowStore" });
+        vm.label({ account: address(store), newLabel: "Store" });
         vm.label({ account: address(handler), newLabel: "EscrowHandler" });
 
         // Target the handler for invariant testing.
@@ -51,13 +51,13 @@ contract Invariant_Test is Base_Test, StdInvariant {
     /// - Sell side: amount transferred to buyer + amount transferred to comptroller = sell amount.
     /// - Buy side: amount transferred to seller + amount transferred to comptroller = buy amount.
     function invariant_AmountConservationOnFill() external view {
-        for (uint256 i = 0; i < store.totalOrders(); ++i) {
+        for (uint256 i = 0; i < store.orderCount(); ++i) {
             uint256 orderId = store.orderIds(i);
 
             // Skip if order is not filled.
             if (!escrow.wasFilled(orderId)) continue;
 
-            EscrowStore.FillData memory data = store.getFillData(orderId);
+            Store.FillData memory data = store.getFillData(orderId);
             assertEq(
                 data.amountToTransferToBuyer + data.feeDeductedFromBuyerAmount,
                 escrow.getSellAmount(orderId),
@@ -75,11 +75,11 @@ contract Invariant_Test is Base_Test, StdInvariant {
     /// @dev For a given sell token, the escrow's balance equals the sum of sell amounts across all open and expired
     /// orders.
     function invariant_ContractBalancePerSellToken() external view {
-        for (uint256 t = 0; t < store.totalTokens(); ++t) {
+        for (uint256 t = 0; t < store.tokensCount(); ++t) {
             IERC20 token = store.tokens(t);
             uint256 expectedBalance = 0;
 
-            for (uint256 i = 0; i < store.totalOrders(); ++i) {
+            for (uint256 i = 0; i < store.orderCount(); ++i) {
                 uint256 orderId = store.orderIds(i);
                 bool isOpenOrExpired =
                     escrow.statusOf(orderId) == Escrow.Status.OPEN || escrow.statusOf(orderId) == Escrow.Status.EXPIRED;

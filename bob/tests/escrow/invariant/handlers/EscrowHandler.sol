@@ -11,7 +11,7 @@ import { ISablierEscrow } from "src/interfaces/ISablierEscrow.sol";
 import { Escrow } from "src/types/Escrow.sol";
 
 import { Constants } from "../../utils/Constants.sol";
-import { EscrowStore } from "../stores/EscrowStore.sol";
+import { Store } from "../stores/Store.sol";
 
 /// @notice Handler for the invariant tests of {SablierEscrow} contract.
 contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
@@ -21,9 +21,6 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
 
     /// @dev Maximum number of orders that can be created during invariant runs.
     uint256 internal constant MAX_ORDER_COUNT = 1000;
-
-    /// @dev Maximum number of tokens that can be created during invariant runs.
-    uint256 internal constant MAX_TOKEN_COUNT = 20;
 
     /// @dev Maps function names to their call counts.
     mapping(string func => uint256 count) public calls;
@@ -36,7 +33,7 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
     //////////////////////////////////////////////////////////////////////////*/
 
     ISablierEscrow public escrow;
-    EscrowStore public store;
+    Store public store;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -58,7 +55,7 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
 
     /// @dev Skip if no orders exist.
     modifier orderCountNotZero() {
-        if (store.totalOrders() == 0) return;
+        if (store.orderCount() == 0) return;
         _;
     }
 
@@ -66,7 +63,7 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(EscrowStore store_, ISablierEscrow escrow_) {
+    constructor(Store store_, ISablierEscrow escrow_) {
         store = store_;
         escrow = escrow_;
     }
@@ -75,8 +72,25 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
                                  HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function cancelOrder(uint256 timeJumpSeed)
+        external
+        instrument("cancelOrder")
+        adjustTimestamp(timeJumpSeed)
+        orderCountNotZero
+    {
+        // Pick a random order from the store.
+        uint256 orderId = _fuzzOrderId();
+
+        // Skip if order has been filled or canceled.
+        if (escrow.wasFilled(orderId) || escrow.wasCanceled(orderId)) return;
+
+        // Cancel the order.
+        setMsgSender(escrow.getSeller(orderId));
+        escrow.cancelOrder(orderId);
+    }
+
     function createOrder(
-        address sender,
+        address seller,
         uint128 sellAmount,
         uint128 minBuyAmount,
         address buyer,
@@ -86,10 +100,10 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
         instrument("createOrder")
     {
         // Limit the number of orders.
-        if (store.totalOrders() >= MAX_ORDER_COUNT) return;
+        if (store.orderCount() >= MAX_ORDER_COUNT) return;
 
-        // Exclude sender from being fuzzed as certain addresses.
-        if (sender == address(0) || sender == address(escrow)) return;
+        // Exclude seller from being fuzzed as certain addresses.
+        if (seller == address(0) || seller == address(escrow)) return;
 
         // Create new tokens or use existing ones.
         IERC20 sellToken = _getOrCreateToken();
@@ -99,8 +113,8 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
         if (sellToken == buyToken) return;
 
         // Bound buy and sell amounts.
-        sellAmount = boundUint128(sellAmount, 1, 1000 ether);
-        minBuyAmount = boundUint128(minBuyAmount, 1, 1000 ether);
+        sellAmount = boundUint128(sellAmount, 1, 1000e18);
+        minBuyAmount = boundUint128(minBuyAmount, 1, 1000e18);
 
         // If expiry time is not zero, bound it to reasonable range.
         if (expiryTime > 0) {
@@ -110,11 +124,11 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
         // If buyer is not zero, exclude it from being fuzzed as certain addresses.
         if (buyer != address(0) && buyer == address(escrow)) return;
 
-        // Deal sell tokens to sender.
-        deal({ token: address(sellToken), to: sender, give: sellAmount });
+        // Deal sell tokens to seller.
+        deal({ token: address(sellToken), to: seller, give: sellAmount });
 
-        // Set sender as the caller and approve escrow to spend sell tokens.
-        setMsgSender(sender);
+        // Set seller as the caller and approve escrow to spend sell tokens.
+        setMsgSender(seller);
         sellToken.approve({ spender: address(escrow), value: sellAmount });
 
         // Create the order.
@@ -131,30 +145,8 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
         store.pushOrderId(orderId);
     }
 
-    function cancelOrder(
-        uint256 timeJumpSeed,
-        uint256 orderIndexSeed
-    )
-        external
-        instrument("cancelOrder")
-        adjustTimestamp(timeJumpSeed)
-        orderCountNotZero
-    {
-        // Pick a random order from the store.
-        uint256 orderIndex = bound(orderIndexSeed, 0, store.totalOrders() - 1);
-        uint256 orderId = store.orderIds(orderIndex);
-
-        // Skip if order has been filled or canceled.
-        if (escrow.wasFilled(orderId) || escrow.wasCanceled(orderId)) return;
-
-        // Cancel the order.
-        setMsgSender(escrow.getSeller(orderId));
-        escrow.cancelOrder(orderId);
-    }
-
     function fillOrder(
         uint256 timeJumpSeed,
-        uint256 orderIndexSeed,
         uint128 buyAmount,
         address buyer
     )
@@ -164,7 +156,7 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
         orderCountNotZero
     {
         // Pick a random order from the store.
-        uint256 orderId = store.orderIds(bound(orderIndexSeed, 0, store.totalOrders() - 1));
+        uint256 orderId = _fuzzOrderId();
 
         // Skip if order is not open.
         if (escrow.statusOf(orderId) != Escrow.Status.OPEN) return;
@@ -198,7 +190,7 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
         // Update fill order metadata in the store.
         store.recordFill({
             orderId: orderId,
-            data: EscrowStore.FillData(
+            data: Store.FillData(
                 buyAmount,
                 amountToTransferToSeller,
                 amountToTransferToBuyer,
@@ -234,28 +226,34 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
     /// @dev Returns an existing token or creates a new one.
     function _getOrCreateToken() private returns (IERC20) {
         // If no tokens exist or random number is even, create a new one.
-        if (store.totalTokens() == 0 || vm.randomUint() % 2 == 0) {
+        if (store.tokensCount() == 0 || vm.randomUint() % 2 == 0) {
             // Generate a random decimals value.
             uint8 decimals = uint8(vm.randomUint(2, 20));
 
             // Use next token index as the ID.
-            string memory id = vm.toString(store.totalTokens());
+            string memory id = vm.toString(store.tokensCount());
 
             // Set the caller to the handler's address to deploy a new token.
-            setMsgSender(address(this));
+            // setMsgSender(address(this));
             ERC20Mock token = new ERC20Mock(string.concat("Token", id), string.concat("TKN", id), decimals);
 
             // Update it in the store.
-            store.pushToken(IERC20(address(token)));
+            store.pushToken(token);
 
             // Return the new token.
-            return IERC20(address(token));
+            return token;
         }
 
         // Otherwise, pick a random existing token.
-        uint256 tokenIndex = vm.randomUint(0, store.totalTokens() - 1);
+        uint256 tokenIndex = vm.randomUint(0, store.tokensCount() - 1);
 
         // Return the token.
         return store.tokens(tokenIndex);
+    }
+
+    /// @dev Returns a random order ID from the store.
+    function _fuzzOrderId() private view returns (uint256 orderId) {
+        uint256 orderIndex = vm.randomUint(0, store.orderCount() - 1);
+        orderId = store.orderIds(orderIndex);
     }
 }

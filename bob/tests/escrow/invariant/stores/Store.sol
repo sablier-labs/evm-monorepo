@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @notice Storage contract that tracks escrow order state for invariant assertions.
-contract EscrowStore {
+contract Store {
     /*//////////////////////////////////////////////////////////////////////////
                                        TYPES
     //////////////////////////////////////////////////////////////////////////*/
@@ -39,6 +39,10 @@ contract EscrowStore {
         return _fillData[orderId];
     }
 
+    function orderCount() external view returns (uint256) {
+        return orderIds.length;
+    }
+
     /// @dev Records a newly created order.
     function pushOrderId(uint256 orderId) external {
         orderIds.push(orderId);
@@ -54,11 +58,7 @@ contract EscrowStore {
         _fillData[orderId] = data;
     }
 
-    function totalOrders() external view returns (uint256) {
-        return orderIds.length;
-    }
-
-    function totalTokens() external view returns (uint256) {
+    function tokensCount() external view returns (uint256) {
         return tokens.length;
     }
 }
