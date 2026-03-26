@@ -91,7 +91,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             assertEq(
                 token.balanceOf(address(escrow)),
                 expectedBalance,
-                "Invariant violation: contract balance != sum of sell amounts of all open orders"
+                "Invariant violation: contract balance != sum of sell amounts of all open and expired orders"
             );
         }
     }

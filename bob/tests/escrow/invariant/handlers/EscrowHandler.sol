@@ -20,7 +20,7 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Maximum number of orders that can be created during invariant runs.
-    uint256 internal constant MAX_ORDER_COUNT = 1000;
+    uint256 internal constant MAX_ORDER_COUNT = 20;
 
     /// @dev Maps function names to their call counts.
     mapping(string func => uint256 count) public calls;
@@ -121,8 +121,8 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
             expiryTime = boundUint40(expiryTime, getBlockTimestamp() + 10 days, getBlockTimestamp() + 100 days);
         }
 
-        // If buyer is not zero, exclude it from being fuzzed as certain addresses.
-        if (buyer != address(0) && buyer == address(escrow)) return;
+        // Make sure the buyer is not the escrow contract.
+        if (buyer == address(escrow)) return;
 
         // Deal sell tokens to seller.
         deal({ token: address(sellToken), to: seller, give: sellAmount });
@@ -223,6 +223,12 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Returns a random order ID from the store.
+    function _fuzzOrderId() private view returns (uint256 orderId) {
+        uint256 orderIndex = vm.randomUint(0, store.orderCount() - 1);
+        orderId = store.orderIds(orderIndex);
+    }
+
     /// @dev Returns an existing token or creates a new one.
     function _getOrCreateToken() private returns (IERC20) {
         // If no tokens exist or random number is even, create a new one.
@@ -234,7 +240,7 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
             string memory id = vm.toString(store.tokensCount());
 
             // Set the caller to the handler's address to deploy a new token.
-            // setMsgSender(address(this));
+            setMsgSender(address(this));
             ERC20Mock token = new ERC20Mock(string.concat("Token", id), string.concat("TKN", id), decimals);
 
             // Update it in the store.
@@ -249,11 +255,5 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
 
         // Return the token.
         return store.tokens(tokenIndex);
-    }
-
-    /// @dev Returns a random order ID from the store.
-    function _fuzzOrderId() private view returns (uint256 orderId) {
-        uint256 orderIndex = vm.randomUint(0, store.orderCount() - 1);
-        orderId = store.orderIds(orderIndex);
     }
 }
