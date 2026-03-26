@@ -239,21 +239,17 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
             // Use next token index as the ID.
             string memory id = vm.toString(store.tokensCount());
 
-            // Set the caller to the handler's address to deploy a new token.
+            // Set the caller to the handler address so the token deployment can always use the handler's address and
+            // nonce. This would avoid collisions when deploying the token.
             setMsgSender(address(this));
             ERC20Mock token = new ERC20Mock(string.concat("Token", id), string.concat("TKN", id), decimals);
 
-            // Update it in the store.
             store.pushToken(token);
-
-            // Return the new token.
             return token;
         }
 
         // Otherwise, pick a random existing token.
         uint256 tokenIndex = vm.randomUint(0, store.tokensCount() - 1);
-
-        // Return the token.
         return store.tokens(tokenIndex);
     }
 }
