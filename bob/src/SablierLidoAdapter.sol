@@ -34,7 +34,7 @@ contract SablierLidoAdapter is
     using SafeCast for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierLidoAdapter
@@ -64,19 +64,11 @@ contract SablierLidoAdapter is
     /// @inheritdoc ISablierBobAdapter
     address public immutable override SABLIER_BOB;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                   PUBLIC STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @inheritdoc ISablierBobAdapter
     UD60x18 public override feeOnYield;
 
     /// @inheritdoc ISablierLidoAdapter
     UD60x18 public override slippageTolerance;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  INTERNAL STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Lido withdrawal request IDs for each vault.
     mapping(uint256 vaultId => uint256[] requestIds) internal _lidoWithdrawalRequestIds;
