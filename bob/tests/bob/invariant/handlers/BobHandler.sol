@@ -11,10 +11,9 @@ import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
 import { Bob } from "src/types/Bob.sol";
-
-import { Constants } from "../../utils/Constants.sol";
-import { MockWstETH } from "../../mocks/MockWstETH.sol";
-import { BobStore } from "../stores/BobStore.sol";
+import { MockWstETH } from "./../../mocks/MockWstETH.sol";
+import { Constants } from "./../../utils/Constants.sol";
+import { BobStore } from "./../stores/BobStore.sol";
 
 /// @notice Handler for the invariant tests of {SablierBob} contract.
 contract BobHandler is Constants, StdCheats, BaseUtils {
@@ -104,13 +103,7 @@ contract BobHandler is Constants, StdCheats, BaseUtils {
                                  HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createVault(
-        bool withAdapter,
-        uint40 expirySeed
-    )
-        external
-        instrument("createVault")
-    {
+    function createVault(bool withAdapter, uint40 expirySeed) external instrument("createVault") {
         // Limit the number of vaults.
         if (store.vaultCount() >= MAX_VAULT_COUNT) return;
 
@@ -129,12 +122,7 @@ contract BobHandler is Constants, StdCheats, BaseUtils {
         setMsgSender(address(this));
 
         // Create the vault.
-        uint256 vaultId = bob.createVault({
-            token: weth,
-            oracle: oracle,
-            expiry: expiry,
-            targetPrice: TARGET_PRICE
-        });
+        uint256 vaultId = bob.createVault({ token: weth, oracle: oracle, expiry: expiry, targetPrice: TARGET_PRICE });
 
         // Snapshot creation-time properties.
         address shareTokenAddr = address(bob.getShareToken(vaultId));
@@ -144,11 +132,7 @@ contract BobHandler is Constants, StdCheats, BaseUtils {
         store.pushVaultId(vaultId, withAdapter);
         store.setVaultMeta(
             vaultId,
-            BobStore.VaultMeta({
-                hasAdapter: withAdapter,
-                token: weth,
-                shareToken: IBobVaultShare(shareTokenAddr)
-            })
+            BobStore.VaultMeta({ hasAdapter: withAdapter, token: weth, shareToken: IBobVaultShare(shareTokenAddr) })
         );
         store.pushCreationRecord(
             BobStore.CreationData({
@@ -297,9 +281,7 @@ contract BobHandler is Constants, StdCheats, BaseUtils {
 
         // Snapshot user's token balance and wstETH before redeem.
         uint256 tokenBalBefore = weth.balanceOf(user);
-        uint128 userWstETHBefore = meta.hasAdapter
-            ? adapter.getYieldBearingTokenBalanceFor(vaultId, user)
-            : 0;
+        uint128 userWstETHBefore = meta.hasAdapter ? adapter.getYieldBearingTokenBalanceFor(vaultId, user) : 0;
 
         // Redeem.
         uint128 transferAmount;
@@ -347,11 +329,7 @@ contract BobHandler is Constants, StdCheats, BaseUtils {
         }
     }
 
-    function syncPriceFromOracle(uint256 vaultIdSeed)
-        external
-        instrument("syncPriceFromOracle")
-        vaultCountNotZero
-    {
+    function syncPriceFromOracle(uint256 vaultIdSeed) external instrument("syncPriceFromOracle") vaultCountNotZero {
         // Pick a random vault.
         uint256 vaultId = _fuzzVaultId(vaultIdSeed);
 

@@ -114,10 +114,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             uint256 orderId = store.orderIds(i);
             bool filled = escrow.wasFilled(orderId);
             bool canceled = escrow.wasCanceled(orderId);
-            assertFalse(
-                filled && canceled,
-                "Inv 50: wasFilled and wasCanceled both true for same order"
-            );
+            assertFalse(filled && canceled, "Inv 50: wasFilled and wasCanceled both true for same order");
         }
     }
 }
