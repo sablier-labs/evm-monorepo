@@ -18,6 +18,14 @@ contract Store {
         uint128 feeDeductedFromSellerAmount;
     }
 
+    /// @dev Data captured from each successful `cancelOrder` call.
+    struct CancelData {
+        uint256 orderId;
+        uint128 sellAmount;
+        uint256 sellerBalanceBefore;
+        uint256 sellerBalanceAfter;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -30,6 +38,9 @@ contract Store {
 
     /// @dev Maps order ID to its fill data.
     mapping(uint256 orderId => FillData) internal _fillData;
+
+    /// @dev Records from each cancel call.
+    CancelData[] internal _cancelRecords;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      FUNCTIONS
@@ -60,5 +71,18 @@ contract Store {
 
     function tokensCount() external view returns (uint256) {
         return tokens.length;
+    }
+
+    function cancelRecordCount() external view returns (uint256) {
+        return _cancelRecords.length;
+    }
+
+    function getCancelRecord(uint256 index) external view returns (CancelData memory) {
+        return _cancelRecords[index];
+    }
+
+    /// @dev Records the cancel data from a successful `cancelOrder` call.
+    function recordCancel(CancelData calldata data) external {
+        _cancelRecords.push(data);
     }
 }

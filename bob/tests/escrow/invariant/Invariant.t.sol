@@ -95,4 +95,26 @@ contract Invariant_Test is Base_Test, StdInvariant {
             );
         }
     }
+
+    /// @dev Inv 36: On cancellation, the full sellAmount must be returned to the seller.
+    function invariant_CancellationReturnsFullSellAmount() external view {
+        for (uint256 i = 0; i < store.cancelRecordCount(); ++i) {
+            Store.CancelData memory data = store.getCancelRecord(i);
+            assertEq(
+                data.sellerBalanceAfter - data.sellerBalanceBefore,
+                data.sellAmount,
+                "Invariant violation: cancellation did not return full sellAmount to seller"
+            );
+        }
+    }
+
+    /// @dev Inv 50: wasFilled and wasCanceled must never both be true for the same order.
+    function invariant_FilledAndCanceledMutuallyExclusive() external view {
+        for (uint256 i = 0; i < store.orderCount(); ++i) {
+            uint256 orderId = store.orderIds(i);
+            bool filled = escrow.wasFilled(orderId);
+            bool canceled = escrow.wasCanceled(orderId);
+            assertFalse(filled && canceled, "Inv 50: wasFilled and wasCanceled both true for same order");
+        }
+    }
 }
