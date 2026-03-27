@@ -23,7 +23,7 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertWhen_OraclePriceZero() external whenCallerBob givenCurveWithdrawalRequested {
         // Set the stETH/ETH oracle price to zero.
-        stETHETHOracle.setPrice(0);
+        stethEthOracle.setPrice(0);
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierLidoAdapter_OraclePriceZero.selector));

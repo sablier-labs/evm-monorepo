@@ -20,6 +20,9 @@ abstract contract Integration_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
+        // Warp to Feb 1, 2026 at 00:00 UTC to provide a more realistic testing environment.
+        vm.warp({ newTimestamp: FEB_1_2026 });
+
         // Use DAI as sell token and USDC as buy token.
         sellToken = dai;
         buyToken = usdc;

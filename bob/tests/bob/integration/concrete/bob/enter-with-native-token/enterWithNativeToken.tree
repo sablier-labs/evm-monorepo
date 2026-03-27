@@ -1,0 +1,32 @@
+EnterWithNativeToken_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given SETTLED status
+   │  └── it should revert
+   ├── given EXPIRED status
+   │  └── it should revert
+   └── given ACTIVE status
+      ├── when msg value zero
+      │  └── it should revert
+      └── when msg value not zero
+         ├── when token not WETH
+         │  └── it should revert
+         └── when token Weth
+            ├── when sync changes status
+            │  ├── when new status EXPIRED
+            │  │  └── it should revert
+            │  └── when new status SETTLED
+            │     └── it should revert
+            └── when sync not change status
+               ├── given no adapter
+               │  ├── it should wrap the native token into WETH
+               │  ├── it should transfer tokens to the contract
+               │  ├── it should mint share tokens to the caller
+               │  └── it should emit an {Enter} event
+               └── given adapter
+                  ├── it should wrap the native token into WETH
+                  ├── it should transfer tokens to the adapter
+                  ├── it should stake via the adapter
+                  ├── it should mint share tokens to the caller
+                  └── it should emit {Enter} and {Stake} events

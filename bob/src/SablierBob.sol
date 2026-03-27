@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { SafeOracle } from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
-import { SafeTokenSymbol } from "@sablier/evm-utils/src/libraries/SafeTokenSymbol.sol";
 import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
-
+import { SafeOracle } from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
+import { SafeTokenSymbol } from "@sablier/evm-utils/src/libraries/SafeTokenSymbol.sol";
 import { SablierBobState } from "./abstracts/SablierBobState.sol";
 import { BobVaultShare } from "./BobVaultShare.sol";
+import { IWETH9 } from "./interfaces/external/IWETH9.sol";
 import { IBobVaultShare } from "./interfaces/IBobVaultShare.sol";
 import { ISablierBob } from "./interfaces/ISablierBob.sol";
 import { ISablierBobAdapter } from "./interfaces/ISablierBobAdapter.sol";
@@ -188,38 +188,31 @@ contract SablierBob is
         notNull(vaultId)
         onlyActive(vaultId)
     {
-        // Check: the deposit amount is not zero.
-        if (amount == 0) {
-            revert Errors.SablierBob_DepositAmountZero(vaultId, msg.sender);
-        }
+        // Enter the vault.
+        _enter({ vaultId: vaultId, from: msg.sender, amount: amount, token: _vaults[vaultId].token });
+    }
 
-        // Effect: sync the price from oracle.
-        _syncPriceFromOracle(vaultId);
+    /// @inheritdoc ISablierBob
+    function enterWithNativeToken(uint256 vaultId)
+        external
+        payable
+        override
+        nonReentrant
+        notNull(vaultId)
+        onlyActive(vaultId)
+    {
+        // Cache the vault's token.
+        address token = address(_vaults[vaultId].token);
 
-        // Check: the vault is still active after the price sync.
-        _revertIfSettledOrExpired(vaultId);
+        // Interaction: call the deposit function in the vault tokens assuming it follows the IWETH9 interface.
+        // Otherwise, it will revert.
+        IWETH9(token).deposit{ value: msg.value }();
 
-        // Cache storage variables.
-        ISablierBobAdapter adapter = _vaults[vaultId].adapter;
-        IERC20 token = _vaults[vaultId].token;
+        // Cast `msg.value` to `uint128`.
+        uint128 amount = msg.value.toUint128();
 
-        // Interaction: transfer tokens from caller to this contract or the adapter.
-        if (address(adapter) != address(0)) {
-            // Interaction: Transfer token from caller to the adapter.
-            token.safeTransferFrom(msg.sender, address(adapter), amount);
-
-            // Interaction: stake the tokens via the adapter.
-            adapter.stake(vaultId, msg.sender, amount);
-        } else {
-            // Interaction: Transfer tokens from caller to this contract.
-            token.safeTransferFrom(msg.sender, address(this), amount);
-        }
-
-        // Interaction: mint share tokens to the caller.
-        _vaults[vaultId].shareToken.mint(vaultId, msg.sender, amount);
-
-        // Log the deposit.
-        emit Enter({ vaultId: vaultId, user: msg.sender, amountReceived: amount, sharesMinted: amount });
+        // Enter the vault.
+        _enter({ vaultId: vaultId, from: address(this), amount: amount, token: IERC20(token) });
     }
 
     /// @inheritdoc ISablierBob
@@ -443,7 +436,56 @@ contract SablierBob is
                           PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Common function to enter into a vault by depositing tokens into it and minting share tokens to caller.
+    /// @param vaultId The ID of the vault to deposit into.
+    /// @param from The address holding the vault token when calling this function. In case of native token deposits,
+    /// the vault tokens are held by this contract.
+    /// @param amount The amount of tokens to deposit.
+    /// @param token The ERC-20 token accepted by the vault.
+    function _enter(uint256 vaultId, address from, uint128 amount, IERC20 token) private {
+        // Check: the deposit amount is not zero.
+        if (amount == 0) {
+            revert Errors.SablierBob_DepositAmountZero(vaultId, msg.sender);
+        }
+
+        // Effect: sync the price from oracle.
+        _syncPriceFromOracle(vaultId);
+
+        // Check: the vault is still active after the price sync.
+        _revertIfSettledOrExpired(vaultId);
+
+        // Cache storage variables.
+        ISablierBobAdapter adapter = _vaults[vaultId].adapter;
+
+        // If adapter is set, transfer tokens to the adapter.
+        if (address(adapter) != address(0)) {
+            // Interaction: transfer tokens to the adapter. Use `safeTransfer` for the native token path since
+            // the contract already holds the wrapped tokens.
+            if (from == address(this)) {
+                token.safeTransfer(address(adapter), amount);
+            } else {
+                token.safeTransferFrom(from, address(adapter), amount);
+            }
+
+            // Interaction: stake tokens via the adapter on behalf of the caller.
+            adapter.stake(vaultId, msg.sender, amount);
+        }
+        // Otherwise, if `from` is `msg.sender`, transfer tokens to this contract. When this function is called by
+        // `enterWithNativeToken`, the vault tokens are held by this contract already.
+        else if (from == msg.sender) {
+            // Interaction: transfer tokens from caller to this contract.
+            token.safeTransferFrom(from, address(this), amount);
+        }
+
+        // Interaction: mint share tokens to the caller.
+        _vaults[vaultId].shareToken.mint(vaultId, msg.sender, amount);
+
+        // Log the deposit.
+        emit Enter({ vaultId: vaultId, user: msg.sender, amountReceived: amount, sharesMinted: amount });
+    }
+
     /// @notice Private function that reverts if the vault is settled or expired.
+    /// @param vaultId The ID of the vault.
     function _revertIfSettledOrExpired(uint256 vaultId) private view {
         if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
             revert Errors.SablierBob_VaultNotActive(vaultId);

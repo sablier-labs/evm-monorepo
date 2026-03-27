@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+## [4.0.0] - 2026-03-16
+
+### Changed
+
+- **Breaking:** Add `granularity` parameter to Lockup Linear create functions ([#1366](https://github.com/sablier-labs/lockup/pull/1366))
+- Rename `Helpers` library to `LockupHelpers` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
+
+### Added
+
+- Add new Price Gated model to Lockup that unlock tokens based on a target price of the stream token ([#1406](https://github.com/sablier-labs/lockup/pull/1406), [#1416](https://github.com/sablier-labs/lockup/pull/1416))
+  - Add `createWithTimestampsLPG` to `SablierBatchLockup` contract ([#1416](https://github.com/sablier-labs/lockup/pull/1416))
+
+### Removed
+
+- Remove `safeTokenSymbol` and `isAllowedCharacter` functions from `LockupNFTDescriptor` (moved to `@sablier/evm-utils`) ([#1424](https://github.com/sablier-labs/lockup/pull/1424))
+
+### Fixed
+
+- Add zero-check validation for segment count and tranche count in `LockupHelpers` ([#1429](https://github.com/sablier-labs/lockup/pull/1429))
+
 ## [3.0.1] - 2025-10-14
 
 ### Changed
@@ -20,8 +40,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
   ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
 - Refactor `DataTypes` into separate type files ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
   - `DataTypes` is kept for backward compatibility and will be deprecated in the future versions.
-- Replace admin with comptroller ([#1260](https://github.com/sablier-labs/lockup/pull/1260),
-  [#1268](https://github.com/sablier-labs/lockup/pull/1268))
+- Replace admin with comptroller ([#1260](https://github.com/sablier-labs/lockup/pull/1260), [#1268](https://github.com/sablier-labs/lockup/pull/1268))
 - Rename `VestingMath` library to `LockupMath`
 - Rename `SablierLockupBase` to `SablierLockupState` ([#1247](https://github.com/sablier-labs/lockup/pull/1247))
 - Make `cancelMultiple` non-reverting ([#1173](https://github.com/sablier-labs/lockup/pull/1173))
@@ -200,3 +219,4 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [2.0.1]: https://github.com/sablier-labs/lockup/compare/v2.0.0...v2.0.1
 [3.0.0]: https://github.com/sablier-labs/lockup/compare/v2.0.1...v3.0.0
 [3.0.1]: https://github.com/sablier-labs/lockup/compare/v3.0.0...v3.0.1
+[4.0.0]: https://github.com/sablier-labs/lockup/compare/v3.0.1...v4.0.0

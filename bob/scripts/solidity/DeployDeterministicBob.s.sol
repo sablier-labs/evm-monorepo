@@ -27,10 +27,10 @@ contract DeployDeterministicBob is BaseScript, LidoAdapterUtils {
             sablierBob: address(bob),
             curvePool: getCurvePool(),
             lidoWithdrawalQueue: getLidoWithdrawalQueue(),
-            stETH: getStETH(),
-            stETH_ETH_Oracle: getStETH_ETHOracle(),
-            wETH: getWETH(),
-            wstETH: getWSTETH(),
+            steth: getSteth(),
+            stethEthOracle: getStethEthOracle(),
+            weth: getWeth(),
+            wsteth: getWsteth(),
             initialSlippageTolerance: INITIAL_SLIPPAGE_TOLERANCE,
             initialYieldFee: INITIAL_YIELD_FEE
         });

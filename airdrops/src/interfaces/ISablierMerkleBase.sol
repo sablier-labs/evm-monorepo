@@ -19,6 +19,9 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice Emitted when the min USD fee is lowered by the comptroller.
     event LowerMinFeeUSD(address indexed comptroller, uint256 newMinFeeUSD, uint256 previousMinFeeUSD);
 
+    /// @notice Emitted when campaign owner sponsors the claim fees for eligible recipients.
+    event Sponsor(address indexed caller, IERC20 indexed token, uint128 amount, address indexed biller);
+
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -102,4 +105,24 @@ interface ISablierMerkleBase is IAdminable {
     /// - The new fee must be less than the current {minFeeUSD}.
     /// @param newMinFeeUSD The new min USD fee to set, denominated in 8 decimals.
     function lowerMinFeeUSD(uint256 newMinFeeUSD) external;
+
+    /// @notice Sponsors the claim fees for eligible recipients.
+    ///
+    /// @dev Emits a {Sponsor} event.
+    ///
+    /// Notes:
+    /// - This function only makes the payment. The claim fees are updated only after the payment has been verified
+    /// off-chain.
+    /// - Refer to the Sablier website in order to sponsor with the correct token, otherwise the sponsorship may be
+    /// ignored.
+    /// Requirements:
+    /// - `biller` must not be the zero address.
+    /// - `amount` must be greater than zero.
+    /// - `token` must not be the zero address and must be a valid ERC20 token.
+    /// - `msg.sender` must have approved the contract to spend the tokens.
+    ///
+    /// @param token The ERC-20 token to transfer.
+    /// @param amount The amount of tokens to transfer.
+    /// @param biller The address to receive the tokens.
+    function sponsor(IERC20 token, uint128 amount, address biller) external;
 }

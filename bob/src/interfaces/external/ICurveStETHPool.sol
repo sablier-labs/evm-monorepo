@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// solhint-disable func-name-mixedcase
 pragma solidity >=0.8.22;
 
 /// @title ICurveStETHPool

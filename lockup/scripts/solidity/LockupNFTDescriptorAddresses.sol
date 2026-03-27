@@ -18,7 +18,6 @@ abstract contract LockupNFTDescriptorAddresses {
         if (chainId == ChainId.BERACHAIN) return 0x3bbE0a21792564604B0fDc00019532Adeffa70eb;
         if (chainId == ChainId.BSC) return 0x56831a5a932793E02251126831174Ab8Bf2f7695;
         if (chainId == ChainId.CHILIZ) return 0x8A96f827082FB349B6e268baa0a7A5584c4Ccda6;
-        if (chainId == ChainId.COREDAO) return 0xac0cF0F2A96Ed7ec3cfA4D0Be621C67ADC9Dd903;
         if (chainId == ChainId.ETHEREUM) return 0xA9dC6878C979B5cc1d98a1803F0664ad725A1f56;
         if (chainId == ChainId.GNOSIS) return 0x3140a6900AA2FF3186730741ad8255ee4e6d8Ff1;
         if (chainId == ChainId.HYPEREVM) return 0x7263d77e9e872f82A15e5E1a9816440D23758708;
@@ -29,9 +28,7 @@ abstract contract LockupNFTDescriptorAddresses {
         if (chainId == ChainId.OPTIMISM) return 0x41dBa1AfBB6DF91b3330dc009842327A9858Cbae;
         if (chainId == ChainId.POLYGON) return 0xf5e12d0bA25FCa0D738Ec57f149736B2e4C46980;
         if (chainId == ChainId.SCROLL) return 0x00Ff6443E902874924dd217c1435e3be04f57431;
-        if (chainId == ChainId.SEI) return 0xeaFB40669fe3523b073904De76410b46e79a56D7;
         if (chainId == ChainId.SONIC) return 0x955dC7A2170782344FA9Ac11De0C0C42C05De2Fc;
-        if (chainId == ChainId.SOPHON) return 0xAc2E42b520364940c90Ce164412Ca9BA212d014B;
         if (chainId == ChainId.SUPERSEED) return 0xa4576b58Ec760A8282D081dc94F3dc716DFc61e9;
         if (chainId == ChainId.UNICHAIN) return 0xa5F12D63E18a28C9BE27B6f3d91ce693320067ba;
         if (chainId == ChainId.XDC) return 0x4c1311a9d88BFb7023148aB04F7321C2E91c29bf;
