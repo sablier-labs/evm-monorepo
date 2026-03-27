@@ -11,9 +11,9 @@
 
 #### Creation-Time Properties
 
-7. (Inv 65) Adapter vault has `isStakedInAdapter == true` after creation.
-8. (Inv 66) Non-adapter vault has `isStakedInAdapter == false` after creation.
-9. (Inv 68) `BobVaultShare.VAULT_ID()` matches the vault it was deployed for.
+07. (Inv 65) Adapter vault has `isStakedInAdapter == true` after creation.
+08. (Inv 66) Non-adapter vault has `isStakedInAdapter == false` after creation.
+09. (Inv 68) `BobVaultShare.VAULT_ID()` matches the vault it was deployed for.
 10. (Inv 69) `BobVaultShare.SABLIER_BOB()` matches `address(bob)`.
 
 #### Cross-Contract Atomicity
