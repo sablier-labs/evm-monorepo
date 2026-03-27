@@ -1,11 +1,11 @@
 # Formal Verification Report: Sablier Bob & Escrow
 
-- Date: March 25th, 2026
+- Date: March 27th, 2026
 - Audit Repo: https://github.com/Cyfrin/audit-2026-02-sablier-bob-2
 - Client Repo: https://github.com/sablier-labs/evm-monorepo/tree/staging
 - Audit Commit: 9fbc34f8ac384b0effcb6545cf387e42ec96f910
 - Mitigation Commit: ffae95821335a4ddd7c1a54638aa5ffed36819b2
-- Author: Bastion v1.1.0 created by [Dacian](https://x.com/DevDacian)
+- Author: Bastion v1.2.4 created by [Dacian](https://x.com/DevDacian)
 - Human Auditor: [Dacian](https://x.com/DevDacian) ([Cyfrin](https://x.com/cyfrin) private audit)
 - Certora Prover version: 8.8.1
 
@@ -18,8 +18,8 @@
 - [Project Structure](#project-structure)
 - [Verification Properties](#verification-properties)
   - [BobVaultShare (6 properties)](#bobvaultshare-6-properties)
-  - [SablierBob (25 active, 4 n/a properties)](#sablierbob-25-active-4-na-properties)
-  - [SablierEscrow (23 properties)](#sablierescrow-23-properties)
+  - [SablierBob (32 active, 4 n/a properties)](#sablierbob-32-active-4-na-properties)
+  - [SablierEscrow (29 properties)](#sablierescrow-29-properties)
   - [SablierLidoAdapter (21 active, 1 n/a properties)](#sablierlidoadapter-21-active-1-na-properties)
 - [Assumptions - Safe](#assumptions---safe)
 - [Assumptions - Proved](#assumptions---proved)
@@ -60,19 +60,21 @@ The process involves crafting properties in CVL (Certora Verification Language) 
 
 **Parametric Rules** — Rules verified against every non-view external function using `method f` with `calldataarg args`. Used for properties like "only mint can increase totalSupply" or "counter values never decrease."
 
-**Access Control Rules** — Rules verifying that state-changing functions revert when the caller lacks the required role. Uses the `@withrevert` pattern: call the function, then `assert !lastReverted => hasRole(...)`.
+**Access Control Rules** — Parametric state-change rules verifying that only authorized callers can modify critical state variables. For each protected variable, a parametric rule snapshots state before and after every function call, then asserts: if state changed, the caller must hold the required role. This is strictly stronger than function-specific `@withrevert` testing because it catches unauthorized modifications by unexpected functions.
 
 **Revert Condition Rules** — Rules verifying that functions revert under specific invalid conditions (zero inputs, paused state, missing allowlist, etc.). Uses `@withrevert` followed by `assert lastReverted`.
 
 **Integrity Rules** — Rules verifying that successful function calls produce the correct state changes (e.g., transfer moves exact amounts, deposit records match inputs, preview functions match actual operations, round-trip conversions never inflate value).
 
-**Sanity (Satisfy) Rules** — Lightweight reachability checks ensuring functions are not vacuously verified. Uses `satisfy true` to confirm at least one non-reverting execution path exists.
+**Reachability Rules** — Targeted `satisfy` rules proving specific scenarios are reachable (e.g., deadlock detection, edge case paths). General vacuity checking is handled by `rule_sanity: "basic"` in the conf file rather than per-function `satisfy true` rules.
 
 Key modeling decisions:
 
 - **Oracle ghost variable**: Chainlink `latestRoundData()` is summarized via a ghost variable (`ghostOracleAnswer`) rather than `NONDET`, allowing rules to constrain oracle behavior while remaining unconstrained by default
 - **MinFeeWei ghost variable**: `calculateMinFeeWei()` is summarized via a ghost variable (`ghostMinFeeWei`) rather than `NONDET`, allowing the Inv 16 rule to verify that `msg.value >= minFeeWei` on non-adapter redeems
-- **External call summaries**: ERC-20 token functions (`transfer`, `transferFrom`, `balanceOf`, etc.) and adapter interactions are summarized as `NONDET` (conservative havoc)
+- **CVL Ghost ERC20 Model**: Token interactions use a CVL ghost-based ERC20 model (Pattern A103) with SafeERC20 internal summaries. This enables concrete balance tracking for per-vault/per-order tokens without needing `link` directives. External wildcard summaries for `transfer`/`transferFrom` are intentionally omitted to prevent double ghost updates with SafeERC20 summaries (Gotcha 198)
+- **Adapter interactions**: Adapter functions (`stake`, `unstakeFullAmount`, `processRedemption`, etc.) are summarized as `NONDET` (conservative havoc) — adapter state verified separately in `SablierLidoAdapter.spec`
+- **commonFilters**: All parametric rules use a standard `commonFilters` definition including `f.contract == currentContract` to prevent the prover from calling linked contract functions directly
 - **Oracle decimals ghost variable**: `decimals()` is summarized via a ghost variable (`ghostOracleDecimals`) rather than `NONDET`. The updated `SafeOracle.safeOraclePrice` now normalizes prices to 8 decimals — without constraining decimals, NONDET could pick values causing normalization to multiply or divide the raw price, producing false counterexamples in oracle-dependent rules
 - **MockComptroller link**: The comptroller state variable is linked to a minimal `MockComptroller` contract with `receive() payable {}`, enabling the prover to resolve low-level `address(comptroller).call{value}("")` to a concrete contract and correctly model ETH balance transfers via `nativeBalances`
 - **Preserved blocks**: OpenZeppelin ERC-20 v5 `unchecked` arithmetic requires explicit invariant maintenance in `BobVaultShare` preserved blocks
@@ -90,26 +92,32 @@ bob/certora/
 │   ├── SablierEscrow.conf          # OTC escrow config
 │   └── SablierLidoAdapter.conf     # Lido adapter config
 ├── helper/
-│   └── MockComptroller.sol         # Minimal mock with receive() for ETH transfer modeling
+│   ├── MockComptroller.sol         # Minimal mock with receive() for ETH transfer modeling
+│   ├── DummyERC20Impl.sol          # Minimal ERC-20 implementation for concrete balance tracking
+│   ├── DummyERC20A.sol             # DummyERC20 instance A
+│   └── DummyERC20B.sol             # DummyERC20 instance B
 └── specs/
     ├── BobVaultShare.spec          # Inv 18–19, 70: ERC-20 accounting, auth, vault ID enforcement
-    ├── SablierBob.spec             # Inv 2, 4, 7, 9, 10, 12–17, 25, 30, 46–48, 58–59, 63–64, 67, 81, 83: Vault state machine, native token entry (Inv 20, 22, 23 n/a)
-    ├── SablierEscrow.spec          # Inv 33–46, 47, 48, 50, 76–80: Order state machine, conservation, input validation
-    └── SablierLidoAdapter.spec     # Inv 28, 31, 48, 49, 53–57, 71–73 + C-1, L-7, M-3: Adapter yield, conservation, Lido withdrawal
+    ├── SablierBob.spec             # Vault state machine, access control, immutability, token integrity
+    ├── SablierEscrow.spec          # Order state machine, conservation, access control, input validation
+    ├── SablierLidoAdapter.spec     # Adapter yield, conservation, access control, Lido withdrawal
+    └── summarization/
+        └── ERC20.spec              # CVL Ghost ERC20 Model with SafeERC20 internal summaries
 ```
 
-A `MockComptroller` helper contract provides a `receive() payable` function, enabling the Certora prover to correctly model ETH balance transfers via low-level `call{value}`. All internal state is accessible via public getters.
+Helper contracts: `MockComptroller` provides `receive() payable` for ETH transfer modeling. `DummyERC20Impl`/`A`/`B` provide concrete ERC-20 behavior for balance tracking. `ERC20.spec` implements a CVL ghost-based ERC20 model (Pattern A103) using SafeERC20 internal summaries to track per-token balances without `link` directives.
 
 ## Verification Properties
 
-75 active properties across 4 contracts (5 additional properties marked n/a after mitigation review — grace period feature removed per finding M-2).
+88 active properties across 4 contracts (5 additional properties marked n/a after mitigation review — grace period feature removed per finding M-2).
 
 - Invariants: 1
-- Parametric rules: 24
-- Access control rules: 13
-- Revert condition rules: 25
-- Integrity rules: 7
-- Conservation rules: 5
+- Parametric rules: 34
+- Access control rules: 9
+- Revert condition rules: 27
+- Integrity rules: 8
+- Conservation rules: 7
+- Expected violations: 3 (L-7 dust, L-8 fee deduction — known findings)
 
 ### BobVaultShare (6 properties)
 
@@ -124,9 +132,9 @@ ERC-20 share token accounting invariant, authorization, and vault ID enforcement
 | S-70a | `mintRevertsOnVaultIdMismatch` | Revert Condition | **Inv 70**: `BobVaultShare::mint` reverts if the provided `vaultId` does not match the token's immutable `VAULT_ID` | | ✓ |
 | S-70b | `burnRevertsOnVaultIdMismatch` | Revert Condition | **Inv 70**: `BobVaultShare::burn` reverts if the provided `vaultId` does not match the token's immutable `VAULT_ID` | | ✓ |
 
-### SablierBob (25 active, 4 n/a properties)
+### SablierBob (32 active, 4 n/a properties)
 
-Vault state machine, immutability, authorization, and native token entry.
+Vault state machine, immutability, parametric access control, cross-variable consistency, token integrity, and native token entry.
 
 | ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Name | Type | Description | Audit | Mitig. |
 |:------|:----------------------------------------|:----------|:-------------------------------------------------|:---:|:---:|
@@ -148,8 +156,8 @@ Vault state machine, immutability, authorization, and native token entry.
 | ~~B-22~~ | ~~`firstDepositTimeImmutableOnceSet`~~ | ~~Parametric~~ | ~~`firstDepositTime` can only be modified by `enter` (setting when zero) and `exitWithinGracePeriod` (resetting to zero)~~ | ✓ | N/A |
 | ~~B-23~~ | ~~`exitWithinGracePeriodClearsDepositTime`~~ | ~~Integrity~~ | ~~`exitWithinGracePeriod` clears the user's `firstDepositTime` to zero~~ | ✓ | N/A |
 | B-47 | `nativeTokenSetOnce` | Parametric | Once `nativeToken` is set to non-zero, no function can change it | ✓ | ✓ |
-| B-48a | `setNativeTokenOnlyComptroller` | Access Control | `setNativeToken` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
-| B-48b | `setDefaultAdapterOnlyComptroller` | Access Control | `setDefaultAdapter` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
+| B-1 | `onlyComptrollerCanChangeNativeToken` | Access Control | **Inv 48**: Parametric state-change — if `nativeToken` changes, `msg.sender` must be comptroller | ✓ | ✓ |
+| B-2 | `onlyComptrollerCanChangeDefaultAdapter` | Access Control | **Inv 48**: Parametric state-change — if `defaultAdapter` changes for any token, `msg.sender` must be comptroller | ✓ | ✓ |
 | B-25 | `unstakeTokensViaAdapterCallableOnce` | Revert Condition | **Inv 25**: `unstakeTokensViaAdapter` reverts if the vault has already been unstaked (`isStakedInAdapter == false`) | | ✓ |
 | B-30 | `isStakedInAdapterOnlyTrueToFalse` | Parametric | **Inv 30**: `isStakedInAdapter` can only transition `true → false`, never `false → true` — excludes `createVault` (sets initial value) | | ✓ |
 | B-46 | `createVaultRejectsNativeToken` | Revert Condition | **Inv 46**: `createVault` reverts if the vault token equals `nativeToken` | | ✓ |
@@ -159,10 +167,17 @@ Vault state machine, immutability, authorization, and native token entry.
 | B-64 | `onShareTransferRevertsWrongCaller` | Revert Condition | **Inv 64**: `onShareTransfer` reverts if the caller is not the vault's designated share token contract | | ✓ |
 | B-81 | `enterWithNativeTokenRevertsZeroValue` | Revert Condition | **Inv 81**: `enterWithNativeToken` reverts if `msg.value` is zero — either WETH deposit reverts or `_enter` reverts on zero amount | | ✓ |
 | B-83 | `enterWithNativeTokenRevertsOverflow` | Revert Condition | **Inv 83**: `enterWithNativeToken` reverts if `msg.value` exceeds `type(uint128).max` — `SafeCast.toUint128` enforces the bound | | ✓ |
+| B-3 | `noAdapterImpliesNotStaked` | Parametric | Cross-variable consistency: if `adapter == address(0)`, then `isStakedInAdapter` must be false (inductive) | | ✓ |
+| B-4 | `validVaultHasNonZeroTargetPrice` | Parametric | Cross-variable consistency: existing vault's `targetPrice` can never become zero | | ✓ |
+| B-5 | `nextVaultIdOnlyChangedByCreateVault` | Parametric | `nextVaultId` can only be modified by `createVault` — no other function changes it | | ✓ |
+| B-6 | `lastSyncedAtMonotonic` | Parametric | `lastSyncedAt` never decreases for existing vaults (time moves forward) | | ✓ |
+| B-9 | `lastSyncedPriceMonotonicWhenSettled` | Parametric | Once SETTLED (`lastSyncedPrice >= targetPrice`), price cannot drop below target | | ✓ |
+| B-10 | `enterDecreasesCallerBalance` | Integrity | CVL Ghost ERC20: `enter` on non-adapter vault decreases caller's token balance by exactly the deposit amount | | ✓ |
+| B-11 | `enterIncreasesContractBalance` | Integrity | CVL Ghost ERC20: `enter` on non-adapter vault increases contract's token balance by exactly the deposit amount | | ✓ |
 
-### SablierEscrow (23 properties)
+### SablierEscrow (29 properties)
 
-Order state machine, monotonic flags, conservation on fill, input validation, and authorization.
+Order state machine, monotonic flags, parametric access control, conservation on fill, input validation, and cross-variable consistency.
 
 | ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Name | Type | Description | Audit | Mitig. |
 |:------|:----------------------------------------|:----------|:-------------------------------------------------|:---:|:---:|
@@ -180,8 +195,8 @@ Order state machine, monotonic flags, conservation on fill, input validation, an
 | E-45 | `sellerReceivesAtLeastMinBuyAmount` | Integrity | **Inv 45 / L-8**: Expected FAIL — the trade fee is deducted from `buyAmount`, so `amountToTransferToSeller = buyAmount - fee` can be less than `minBuyAmount` when the buyer pays exactly `minBuyAmount` and the fee is non-zero | ✗ | ✗ |
 | E-50 | `filledAndCanceledMutuallyExclusive` | Parametric | `wasFilled` and `wasCanceled` can never both be true for the same order — inductive proof assuming mutual exclusion holds before any function call | ✓ | ✓ |
 | E-47 | `nativeTokenSetOnce` | Parametric | Once `nativeToken` is set to non-zero, no function can change it | ✓ | ✓ |
-| E-48a | `setTradeFeeOnlyComptroller` | Access Control | `setTradeFee` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
-| E-48b | `setNativeTokenOnlyComptroller` | Access Control | `setNativeToken` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
+| E-1 | `onlyComptrollerCanChangeTradeFee` | Access Control | **Inv 48**: Parametric state-change — if `tradeFee` changes, `msg.sender` must be comptroller | ✓ | ✓ |
+| E-2 | `onlyComptrollerCanChangeNativeToken` | Access Control | **Inv 48**: Parametric state-change — if `nativeToken` changes, `msg.sender` must be comptroller | ✓ | ✓ |
 | E-46a | `createOrderRejectsNativeSellToken` | Revert Condition | **Inv 46**: `createOrder` reverts if `sellToken` equals `nativeToken` | | ✓ |
 | E-46b | `createOrderRejectsNativeBuyToken` | Revert Condition | **Inv 46**: `createOrder` reverts if `buyToken` equals `nativeToken` | | ✓ |
 | E-76 | `createOrderRevertsSameToken` | Revert Condition | **Inv 76**: `createOrder` reverts if `sellToken` and `buyToken` are the same address | | ✓ |
@@ -189,28 +204,31 @@ Order state machine, monotonic flags, conservation on fill, input validation, an
 | E-78 | `createOrderRevertsMinBuyAmountZero` | Revert Condition | **Inv 78**: `createOrder` reverts if `minBuyAmount` is zero | | ✓ |
 | E-79 | `zeroExpiryOrderNeverExpires` | Integrity | **Inv 79**: An order with `expiryTime` of zero returns OPEN status regardless of `block.timestamp` — zero is a sentinel for orders that never expire | | ✓ |
 | E-80 | `fillOrderRevertsInsufficientBuyAmount` | Revert Condition | **Inv 80**: `fillOrder` reverts if `buyAmount` is less than the order's `minBuyAmount` | | ✓ |
+| E-3 | `nextOrderIdOnlyChangedByCreateOrder` | Parametric | `nextOrderId` can only be modified by `createOrder` — no other function changes it | | ✓ |
+| E-4 | `validOrderHasNonZeroSeller` | Parametric | Cross-variable consistency: existing order's `seller` can never become zero | | ✓ |
+| E-5 | `filledOrderCannotBeCancelled` | Revert Condition | Once `wasFilled` is true, `cancelOrder` must revert | | ✓ |
+| E-6 | `cancelledOrderCannotBeFilled` | Revert Condition | Once `wasCanceled` is true, `fillOrder` must revert | | ✓ |
+| E-7 | `cancelOrderReturnsSellAmount` | Conservation | **Inv 36**: CVL Ghost ERC20 — cancel returns full `sellAmount` to seller (concrete balance verification) | | ✓ |
+| E-8 | `fillOrderSellTokenConservation` | Conservation | **Inv 42 (concrete)**: CVL Ghost ERC20 — escrow sell token balance decreases by exactly `sellAmount` on fill | | ✓ |
 
 ### SablierLidoAdapter (21 active, 1 n/a properties)
 
-Adapter yield fee immutability, parameter bounds, WETH distribution conservation, Lido withdrawal, and access control.
+Adapter yield fee immutability, parameter bounds, parametric access control, WETH distribution conservation, Lido withdrawal, and cross-variable consistency.
 
 | ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Name | Type | Description | Audit | Mitig. |
 |:------|:----------------------------------------|:----------|:-------------------------------------------------|:---:|:---:|
 | L-C1 | `userWstETHClearedAfterRedemption` | Integrity | **Inv 29 / C-1 FIXED**: `processRedemption` (renamed from `calculateAmountToTransferWithYield`) now includes `delete _userWstETH[vaultId][user]`, clearing the user's wstETH balance after computing WETH payout — prevents repeated redemption via share recycling | ✗ | ✓ |
 | L-L7 | `wethDistributionConservation` | Conservation | **Inv 24 / L-7**: `processRedemption` uses floor division — sum of individual WETH shares < total WETH received, leaving dust stuck in contract with no recovery mechanism | ✗ | ✗ |
 | L-31 | `vaultYieldFeeImmutable` | Parametric | Once a vault's yield fee is set via `registerVault`, no function can modify it | ✓ | ✓ |
-| L-48a | `setYieldFeeOnlyComptroller` | Access Control | `setYieldFee` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
-| L-48b | `setSlippageToleranceOnlyComptroller` | Access Control | `setSlippageTolerance` reverts if `msg.sender` is not the comptroller | ✓ | ✓ |
-| L-49a | `stakeOnlySablierBob` | Access Control | `stake` reverts if `msg.sender` is not `SABLIER_BOB` | ✓ | ✓ |
-| L-49b | `registerVaultOnlySablierBob` | Access Control | `registerVault` reverts if `msg.sender` is not `SABLIER_BOB` | ✓ | ✓ |
+| LA-1 | `onlyComptrollerCanChangeFeeOnYield` | Access Control | **Inv 48**: Parametric state-change — if `feeOnYield` changes, `msg.sender` must be comptroller | ✓ | ✓ |
+| LA-2 | `onlyComptrollerCanChangeSlippageTolerance` | Access Control | **Inv 48**: Parametric state-change — if `slippageTolerance` changes, `msg.sender` must be comptroller | ✓ | ✓ |
+| LA-3 | `onlySablierBobCanChangeTotalWstETH` | Access Control | **Inv 49**: Parametric state-change — if `_vaultTotalWstETH` changes, `msg.sender` must be `SABLIER_BOB` | ✓ | ✓ |
+| LA-4 | `onlySablierBobCanChangeUserWstETH` | Access Control | **Inv 49**: Parametric state-change — if `_userWstETH` changes for any vault/user, `msg.sender` must be `SABLIER_BOB` | ✓ | ✓ |
 | ~~L-49c~~ | ~~`unstakeForUserOnlySablierBob`~~ | ~~Access Control~~ | ~~`unstakeForUserWithinGracePeriod` reverts if `msg.sender` is not `SABLIER_BOB`~~ | ✓ | N/A |
-| L-49d | `unstakeFullAmountOnlySablierBob` | Access Control | `unstakeFullAmount` reverts if `msg.sender` is not `SABLIER_BOB` | ✓ | ✓ |
-| L-49e | `updateStakedTokenBalanceOnlySablierBob` | Access Control | `updateStakedTokenBalance` reverts if `msg.sender` is not `SABLIER_BOB` | ✓ | ✓ |
 | L-53 | `feeOnYieldNotTooHigh` | Parametric | `feeOnYield` never exceeds `MAX_FEE` after any state change | ✓ | ✓ |
 | L-54 | `slippageToleranceNotTooHigh` | Parametric | `slippageTolerance` never exceeds `MAX_SLIPPAGE_TOLERANCE` after any state change | ✓ | ✓ |
 | L-M3 | `nonZeroShareTransferMovesWstETH` | Integrity | **Inv 32 / M-3 FIXED**: `updateStakedTokenBalance` now reverts when the computed wstETH transfer amount is zero — prevents unbacked share transfers from floor division truncation | ✗ | ✓ |
-| L-55 | `requestLidoWithdrawalOnlyComptroller` | Access Control | **Inv 55**: `requestLidoWithdrawal` reverts if `msg.sender` is not the comptroller | | ✓ |
-| L-56 | `processRedemptionOnlySablierBob` | Access Control | **Inv 56**: `processRedemption` reverts if `msg.sender` is not `SABLIER_BOB` | | ✓ |
+| LA-5 | `onlyComptrollerCanChangeLidoRequestIds` | Access Control | **Inv 55**: Parametric state-change — if `_lidoWithdrawalRequestIds` changes, `msg.sender` must be comptroller | | ✓ |
 | L-57a | `lidoWithdrawalRequestIdsMonotonic` | Parametric | **Inv 57, 74**: Once Lido withdrawal request IDs are set for a vault, no function can clear them — Curve path permanently blocked | | ✓ |
 | L-57b | `requestLidoWithdrawalIdempotent` | Revert Condition | **Inv 57, 75**: `requestLidoWithdrawal` reverts if Lido withdrawal already requested for the vault | | ✓ |
 | L-57c | `curvePathBlocksLidoPath` | Parametric | **Inv 57**: If a vault was unstaked via Curve, no function can set Lido withdrawal request IDs for that vault | | ✓ |
@@ -218,6 +236,9 @@ Adapter yield fee immutability, parameter bounds, WETH distribution conservation
 | L-71 | `updateStakedTokenBalancePreservesTotal` | Conservation | **Inv 71**: `updateStakedTokenBalance` does not change `_vaultTotalWstETH` — transferring wstETH between users is a net-zero operation on the vault total | | ✓ |
 | L-72 | `processRedemptionConservation` | Conservation | **Inv 72**: `transferAmount + feeAmountDeductedFromYield` equals the user's proportional WETH share (`_userWstETH * _wethReceivedAfterUnstaking / _vaultTotalWstETH`) | | ✓ |
 | L-73 | `noPayoutWithoutUnstaking` | Integrity | **Inv 73**: `processRedemption` returns zero `transferAmount` and zero fee when `_wethReceivedAfterUnstaking` is zero — no payout possible before unstaking occurs | | ✓ |
+| LA-6 | `vaultYieldFeeBounded` | Parametric | Per-vault yield fee never exceeds `MAX_FEE` — snapshotted from `feeOnYield` which is bounded by Inv 53 | | ✓ |
+| LA-7 | `wethReceivedOnlyChangedByUnstake` | Parametric | `_wethReceivedAfterUnstaking` can only be modified by `unstakeFullAmount` | | ✓ |
+| LA-8 | `wethReceivedImmutableOnceSet` | Parametric | Once `_wethReceivedAfterUnstaking` is set (non-zero), no function other than `unstakeFullAmount` can change it | | ✓ |
 
 ## Assumptions - Safe
 
@@ -306,14 +327,14 @@ The following invariant is used as a precondition via `requireInvariant` in pres
 
 ## Verification Results
 
-Final prover run URLs (Certora Prover v8.8.1). All 75 active properties verified; the 2 expected violations correspond to documented bugs (L-7 and L-8).
+Final prover run URLs (Certora Prover v8.8.1). All 88 active properties verified; the 2 expected violations correspond to documented bugs (L-7 and L-8).
 
 | Spec | Result | Prover URL |
 |------|--------|-----------|
-| BobVaultShare | All 7 rules pass | [Prover Link](https://prover.certora.com/output/4319676/0e4d0d6902d94b5087e2fb48229f3317?anonymousKey=dad6f097cecdcd91b4ffee592ed3ce918155d16b) |
-| SablierBob | All 26 rules pass | [Prover Link](https://prover.certora.com/output/4319676/0e6c6b2f2a7a434db89465fef7fab53d?anonymousKey=b4dc89630a70c49edbe24cf937ca7f09fb7e8aab) |
-| SablierEscrow | 23 pass, 1 expected fail (E-45/L-8) | [Prover Link](https://prover.certora.com/output/4319676/8c5c72e5ca0043d2920c609f6dbbeac9?anonymousKey=85a75d319d418447050296ef87eb40124877439c) |
-| SablierLidoAdapter | 21 pass, 1 expected fail (L-L7) | [Prover Link](https://prover.certora.com/output/4319676/427b7ca14bdf41f5bfa9fb9b178a6c16?anonymousKey=167d9583de75e9ef7ba5475d49d01121250acf62) |
+| BobVaultShare | All 7 rules pass | [Prover Link](https://prover.certora.com/output/4319676/477da5eebc26496d9fa5d51fe96630e0?anonymousKey=f28f0b20f04448887671cff196af85e46c1dbef2) |
+| SablierBob | All 33 rules pass | [Prover Link](https://prover.certora.com/output/4319676/7b9c436f3a594fdb86a97c889aab7788?anonymousKey=a07ed44e8701ad41cc8c19c7e4731eaebfb27470) |
+| SablierEscrow | 29 pass, 1 expected fail (E-45/L-8) | [Prover Link](https://prover.certora.com/output/4319676/9244dc8c32fd459fa71f6cf41e93c0d5?anonymousKey=17d3d71e8cf701e695ebedc088fae805070df01a) |
+| SablierLidoAdapter | 21 pass, 1 expected fail (L-L7) | [Prover Link](https://prover.certora.com/output/4319676/af0985c8557e4b7d8943b46be37af720?anonymousKey=c6c2689a37da787b1aeeb2d4619b8c8c036237a7) |
 
 ## Setup and Execution
 

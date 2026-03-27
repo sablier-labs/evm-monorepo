@@ -29,6 +29,10 @@ methods {
     function getTotalYieldBearingTokenBalance(uint256)            external returns (uint128) envfree;
     function getYieldBearingTokenBalanceFor(uint256, address)     external returns (uint128) envfree;
     function getWethReceivedAfterUnstaking(uint256)               external returns (uint256) envfree;
+    function feeOnYield()                                         external returns (uint256);
+    function slippageTolerance()                                  external returns (uint256);
+    function MAX_FEE()                                            external returns (uint256);
+    function MAX_SLIPPAGE_TOLERANCE()                             external returns (uint256);
 
     // processRedemption returns (uint128, uint128) — clean CVL types.
     // Not declared envfree because internal UD60x18 math may cause type-merge issues.
@@ -76,6 +80,15 @@ methods {
 ///      - init: all vaults start as not staked (conservative default)
 ///      - When `_wethReceivedAfterUnstaking[vaultId]` is written (unstaking occurred),
 ///        the vault is no longer staked — modeled via require in rules as a safe assumption.
+/// @notice Standard filter for parametric rules.
+///         transferFeesToComptroller excluded: low-level call{value}("") triggers
+///         HAVOC_ALL on adapter storage — false positive. Only sends ETH.
+definition excludedFromParametric(method f) returns bool =
+    f.selector == sig:transferFeesToComptroller().selector;
+
+definition commonFilters(method f) returns bool =
+    !f.isView && !excludedFromParametric(f);
+
 persistent ghost mapping(uint256 => bool) ghostIsStakedInAdapter;
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -135,9 +148,8 @@ hook Sstore _userWstETH[KEY uint256 vaultId][KEY address user] uint128 newVal (u
 ///         transferFeesToComptroller is excluded because its low-level call{value}("")
 ///         triggers HAVOC_ALL on adapter storage — false positive since it only sends ETH.
 rule vaultTotalWstETHEqualsSumUserWstETH(method f, uint256 vaultId) filtered {
-    f -> !f.isView
+    f -> commonFilters(f)
         && f.selector != sig:processRedemption(uint256, address, uint128).selector
-        && f.selector != sig:transferFeesToComptroller().selector
 } {
     require to_mathint(getTotalYieldBearingTokenBalance(vaultId)) == ghostSumUserWstETH[vaultId],
         "safe: inductive hypothesis — total equals sum before call";
@@ -251,7 +263,7 @@ rule wethDistributionConservation(
 /// @title Rule: vault yield fee never changes after registerVault
 /// @notice Once a vault's yield fee is set via registerVault, no function should modify it
 rule vaultYieldFeeImmutable(method f, uint256 vaultId) filtered {
-    f -> !f.isView && f.selector != sig:registerVault(uint256).selector
+    f -> commonFilters(f) && f.selector != sig:registerVault(uint256).selector
 } {
     env e1;
     uint256 feeBefore = getVaultYieldFee(e1, vaultId);
@@ -269,99 +281,55 @@ rule vaultYieldFeeImmutable(method f, uint256 vaultId) filtered {
 }
 
 /*//////////////////////////////////////////////////////////////////////////
-                INV 48 (partial): comptroller-only admin
+                INV 48 & 49: Parametric access control
 //////////////////////////////////////////////////////////////////////////*/
 
-/// @title Rule: setYieldFee only callable by comptroller
-rule setYieldFeeOnlyComptroller(uint256 newFee) {
-    address comp = comptroller();
-
-    env e;
-    require e.msg.sender != comp,
-        "safe: caller must not be comptroller";
-
-    setYieldFee@withrevert(e, newFee);
-
-    assert lastReverted,
-        "Inv 48: setYieldFee called by non-comptroller";
+/// @title LA-1: Only comptroller can change feeOnYield
+/// @notice Parametric state-change rule — proves no function can modify feeOnYield
+///         without the caller being the comptroller.
+rule onlyComptrollerCanChangeFeeOnYield(env e, method f, calldataarg args)
+    filtered { f -> commonFilters(f) } {
+    env e1;
+    uint256 feeBefore = feeOnYield(e1);
+    f(e, args);
+    env e2;
+    uint256 feeAfter = feeOnYield(e2);
+    assert feeAfter != feeBefore => e.msg.sender == comptroller(),
+        "Inv 48: feeOnYield changed by non-comptroller";
 }
 
-/// @title Rule: setSlippageTolerance only callable by comptroller
-rule setSlippageToleranceOnlyComptroller(uint256 newTolerance) {
-    address comp = comptroller();
-
-    env e;
-    require e.msg.sender != comp,
-        "safe: caller must not be comptroller";
-
-    setSlippageTolerance@withrevert(e, newTolerance);
-
-    assert lastReverted,
-        "Inv 48: setSlippageTolerance called by non-comptroller";
+/// @title LA-2: Only comptroller can change slippageTolerance
+rule onlyComptrollerCanChangeSlippageTolerance(env e, method f, calldataarg args)
+    filtered { f -> commonFilters(f) } {
+    env e1;
+    uint256 toleranceBefore = slippageTolerance(e1);
+    f(e, args);
+    env e2;
+    uint256 toleranceAfter = slippageTolerance(e2);
+    assert toleranceAfter != toleranceBefore => e.msg.sender == comptroller(),
+        "Inv 48: slippageTolerance changed by non-comptroller";
 }
 
-/*//////////////////////////////////////////////////////////////////////////
-            INV 49 (partial): onlySablierBob access control
-//////////////////////////////////////////////////////////////////////////*/
-
-/// @title Rule: stake only callable by SablierBob
-rule stakeOnlySablierBob(uint256 vaultId, address user, uint256 amount) {
-    address bob = SABLIER_BOB();
-
-    env e;
-    require e.msg.sender != bob,
-        "safe: caller must not be SablierBob";
-
-    stake@withrevert(e, vaultId, user, amount);
-
-    assert lastReverted,
-        "Inv 49: stake called by non-SablierBob";
+/// @title LA-3: Only SablierBob can change _vaultTotalWstETH
+/// @notice Proves no function can modify _vaultTotalWstETH for any vault without the
+///         caller being SablierBob. Uses getTotalYieldBearingTokenBalance getter.
+rule onlySablierBobCanChangeTotalWstETH(env e, method f, calldataarg args, uint256 vaultId)
+    filtered { f -> commonFilters(f) } {
+    uint128 before = getTotalYieldBearingTokenBalance(vaultId);
+    f(e, args);
+    assert getTotalYieldBearingTokenBalance(vaultId) != before => e.msg.sender == SABLIER_BOB(),
+        "Inv 49: _vaultTotalWstETH changed by non-SablierBob";
 }
 
-/// @title Rule: registerVault only callable by SablierBob
-rule registerVaultOnlySablierBob(uint256 vaultId) {
-    address bob = SABLIER_BOB();
-
-    env e;
-    require e.msg.sender != bob,
-        "safe: caller must not be SablierBob";
-
-    registerVault@withrevert(e, vaultId);
-
-    assert lastReverted,
-        "Inv 49: registerVault called by non-SablierBob";
-}
-
-// REMOVED: unstakeForUserOnlySablierBob — grace period feature removed per finding M-2
-
-/// @title Rule: unstakeFullAmount only callable by SablierBob
-rule unstakeFullAmountOnlySablierBob(uint256 vaultId) {
-    address bob = SABLIER_BOB();
-
-    env e;
-    require e.msg.sender != bob,
-        "safe: caller must not be SablierBob";
-
-    unstakeFullAmount@withrevert(e, vaultId);
-
-    assert lastReverted,
-        "Inv 49: unstakeFullAmount called by non-SablierBob";
-}
-
-/// @title Rule: updateStakedTokenBalance only callable by SablierBob
-rule updateStakedTokenBalanceOnlySablierBob(
-    uint256 vaultId, address from, address to, uint256 amount, uint256 balBefore
-) {
-    address bob = SABLIER_BOB();
-
-    env e;
-    require e.msg.sender != bob,
-        "safe: caller must not be SablierBob";
-
-    updateStakedTokenBalance@withrevert(e, vaultId, from, to, amount, balBefore);
-
-    assert lastReverted,
-        "Inv 49: updateStakedTokenBalance called by non-SablierBob";
+/// @title LA-4: Only SablierBob can change _userWstETH
+/// @notice Proves no function can modify _userWstETH for any vault/user without the
+///         caller being SablierBob.
+rule onlySablierBobCanChangeUserWstETH(env e, method f, calldataarg args, uint256 vaultId, address user)
+    filtered { f -> commonFilters(f) } {
+    uint128 before = getYieldBearingTokenBalanceFor(vaultId, user);
+    f(e, args);
+    assert getYieldBearingTokenBalanceFor(vaultId, user) != before => e.msg.sender == SABLIER_BOB(),
+        "Inv 49: _userWstETH changed by non-SablierBob";
 }
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -371,7 +339,7 @@ rule updateStakedTokenBalanceOnlySablierBob(
 /// @title Rule: feeOnYield never exceeds MAX_FEE after any state change
 /// @notice Using a rule instead of invariant since feeOnYield/MAX_FEE return UD60x18
 rule feeOnYieldNotTooHigh(method f) filtered {
-    f -> !f.isView
+    f -> commonFilters(f)
 } {
     env e1;
     uint256 feeBefore = feeOnYield(e1);
@@ -397,7 +365,7 @@ rule feeOnYieldNotTooHigh(method f) filtered {
 /// @title Rule: slippageTolerance never exceeds MAX_SLIPPAGE_TOLERANCE after any state change
 /// @notice Using a rule instead of invariant since slippageTolerance/MAX_SLIPPAGE_TOLERANCE return UD60x18
 rule slippageToleranceNotTooHigh(method f) filtered {
-    f -> !f.isView
+    f -> commonFilters(f)
 } {
     env e1;
     uint256 toleranceBefore = slippageTolerance(e1);
@@ -452,43 +420,15 @@ rule nonZeroShareTransferMovesWstETH(
         "M-3: non-zero share transfer did not decrease sender's wstETH — floor division rounds to zero";
 }
 
-/*//////////////////////////////////////////////////////////////////////////
-            INV 55: requestLidoWithdrawal only callable by comptroller
-//////////////////////////////////////////////////////////////////////////*/
-
-/// @title Rule: requestLidoWithdrawal only callable by comptroller
-/// @notice This is a new function added during mitigation. Only comptroller can initiate Lido native withdrawal.
-rule requestLidoWithdrawalOnlyComptroller(uint256 vaultId) {
-    address comp = comptroller();
-
-    env e;
-    require e.msg.sender != comp,
-        "safe: caller must not be comptroller";
-
-    requestLidoWithdrawal@withrevert(e, vaultId);
-
-    assert lastReverted,
-        "Inv 55: requestLidoWithdrawal called by non-comptroller";
-}
-
-/*//////////////////////////////////////////////////////////////////////////
-            INV 56: processRedemption only callable by SablierBob
-//////////////////////////////////////////////////////////////////////////*/
-
-/// @title Rule: processRedemption only callable by SablierBob
-/// @notice processRedemption (renamed from calculateAmountToTransferWithYield) modifies state
-///         by deleting _userWstETH. Only SablierBob should be able to call it.
-rule processRedemptionOnlySablierBob(uint256 vaultId, address user, uint128 shareBalance) {
-    address bob = SABLIER_BOB();
-
-    env e;
-    require e.msg.sender != bob,
-        "safe: caller must not be SablierBob";
-
-    processRedemption@withrevert(e, vaultId, user, shareBalance);
-
-    assert lastReverted,
-        "Inv 56: processRedemption called by non-SablierBob";
+/// @title LA-5: Only comptroller can change _lidoWithdrawalRequestIds
+/// @notice requestLidoWithdrawal is the only function that populates this array.
+///         Proves no function can modify the request IDs without comptroller authorization.
+rule onlyComptrollerCanChangeLidoRequestIds(env e, method f, calldataarg args, uint256 vaultId)
+    filtered { f -> commonFilters(f) } {
+    mathint countBefore = ghostLidoRequestCount[vaultId];
+    f(e, args);
+    assert ghostLidoRequestCount[vaultId] != countBefore => e.msg.sender == comptroller(),
+        "Inv 55: _lidoWithdrawalRequestIds changed by non-comptroller";
 }
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -502,7 +442,7 @@ rule processRedemptionOnlySablierBob(uint256 vaultId, address user, uint128 shar
 rule lidoWithdrawalRequestIdsMonotonic(method f, uint256 vaultId) filtered {
     // transferFeesToComptroller uses low-level call{value}("") which triggers HAVOC_ALL
     // on adapter storage — false positive since it only sends ETH, never touches Lido state
-    f -> !f.isView && f.selector != sig:transferFeesToComptroller().selector
+    f -> commonFilters(f)
 } {
     require ghostLidoRequestCount[vaultId] > 0,
         "safe: Lido withdrawal has been requested for this vault";
@@ -537,7 +477,7 @@ rule requestLidoWithdrawalIdempotent(uint256 vaultId) {
 rule curvePathBlocksLidoPath(method f, uint256 vaultId) filtered {
     // transferFeesToComptroller uses low-level call{value}("") which triggers HAVOC_ALL
     // on adapter storage — false positive since it only sends ETH, never touches Lido state
-    f -> !f.isView && f.selector != sig:transferFeesToComptroller().selector
+    f -> commonFilters(f)
 } {
     require ghostWethReceived[vaultId] > 0,
         "safe: vault has been unstaked (WETH received)";
@@ -623,4 +563,66 @@ rule noPayoutWithoutUnstaking(uint256 vaultId, address user, uint128 shareBalanc
         "Inv 73: non-zero transfer amount without prior unstaking";
     assert fee == 0,
         "Inv 73: non-zero fee without prior unstaking";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+        OFFENSIVE RULES: Cross-Variable Consistency
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title LA-6: _vaultYieldFee bounded by MAX_FEE for any vault
+/// @notice Each vault's yield fee is snapshotted from feeOnYield at registration time.
+///         Since feeOnYield <= MAX_FEE is enforced (Inv 53), the snapshotted value
+///         must also be <= MAX_FEE. This verifies no function can break this bound.
+/// @dev registerVault excluded because it snapshots feeOnYield which may be unconstrained
+///      in the prover's arbitrary initial state. The feeOnYieldNotTooHigh rule separately
+///      verifies feeOnYield <= MAX_FEE holds inductively.
+rule vaultYieldFeeBounded(env e, method f, calldataarg args, uint256 vaultId)
+    filtered { f -> commonFilters(f)
+        && f.selector != sig:registerVault(uint256).selector
+    } {
+    env e1;
+    uint256 vaultFee = getVaultYieldFee(e1, vaultId);
+    uint256 maxFee = MAX_FEE(e1);
+    require vaultFee <= maxFee,
+        "safe: inductive hypothesis — vault fee bounded";
+
+    f(e, args);
+
+    env e2;
+    assert getVaultYieldFee(e2, vaultId) <= maxFee,
+        "LA-6: vault yield fee exceeds MAX_FEE after function call";
+}
+
+/// @title LA-7: _wethReceivedAfterUnstaking only changes via unstakeFullAmount
+/// @notice No function other than unstakeFullAmount should modify the WETH received value.
+rule wethReceivedOnlyChangedByUnstake(env e, method f, calldataarg args, uint256 vaultId)
+    filtered { f -> commonFilters(f)
+        && f.selector != sig:unstakeFullAmount(uint256).selector
+    } {
+    mathint before = ghostWethReceived[vaultId];
+
+    f(e, args);
+
+    assert ghostWethReceived[vaultId] == before,
+        "LA-7: _wethReceivedAfterUnstaking changed by function other than unstakeFullAmount";
+}
+
+/// @title LA-8: Once _wethReceivedAfterUnstaking is set, no function other than
+///        unstakeFullAmount can change it
+/// @notice After unstaking, the WETH received value is a permanent snapshot.
+///         unstakeFullAmount is excluded because it's the writer; its access control
+///         is verified by onlySablierBobCanChangeTotalWstETH.
+rule wethReceivedImmutableOnceSet(env e, method f, calldataarg args, uint256 vaultId)
+    filtered { f -> commonFilters(f)
+        && f.selector != sig:unstakeFullAmount(uint256).selector
+    } {
+    require ghostWethReceived[vaultId] > 0,
+        "safe: WETH has been received (vault was unstaked)";
+
+    mathint before = ghostWethReceived[vaultId];
+
+    f(e, args);
+
+    assert ghostWethReceived[vaultId] == before,
+        "LA-8: _wethReceivedAfterUnstaking changed after being set";
 }

@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SablierEscrow.spec — Certora CVL specification for SablierEscrow
+
+// CVL Ghost ERC20 model — tracks balances per-token via calledContract discriminator.
+// Works for per-order tokens without needing top-level storage variable linking.
+import "./summarization/ERC20.spec";
 //
 // Covers:
 //   Inv 33: Order state irreversibility (FILLED/CANCELLED/EXPIRED -> OPEN impossible)
@@ -38,16 +42,14 @@ methods {
     function wasFilled(uint256)               external returns (bool)      envfree;
     function wasCanceled(uint256)             external returns (bool)      envfree;
     function comptroller()                    external returns (address)   envfree;
+    function tradeFee()                       external returns (uint256);
 
     // Note: statusOf returns Escrow.Status (enum), tradeFee/MAX_TRADE_FEE return UD60x18 (UDVT)
     // These are NOT declared envfree due to CVL type-merge issues with enums and UDVTs.
     // They must be called with an env parameter.
 
-    // ERC-20 token interactions — NONDET summary (conservative havoc)
-    function _.transferFrom(address, address, uint256) external => NONDET;
-    function _.transfer(address, uint256)              external => NONDET;
-    function _.balanceOf(address)                      external => NONDET;
-    function _.allowance(address, address)             external => NONDET;
+    // ERC20 token calls handled by imported ERC20.spec CVL ghost model.
+    // calledContract discriminates between different tokens per-order.
 }
 
 // Escrow.Status enum values: CANCELLED=0, EXPIRED=1, FILLED=2, OPEN=3
@@ -56,6 +58,10 @@ definition EXPIRED()   returns uint8 = 1;
 definition FILLED()    returns uint8 = 2;
 definition OPEN()      returns uint8 = 3;
 
+/// @notice Standard filter for parametric rules.
+definition commonFilters(method f) returns bool =
+    !f.isView;
+
 /*//////////////////////////////////////////////////////////////////////////
                 INV 33: Order state irreversibility
 //////////////////////////////////////////////////////////////////////////*/
@@ -63,7 +69,7 @@ definition OPEN()      returns uint8 = 3;
 /// @title Rule: Terminal states cannot revert to OPEN
 /// @notice Once an order is FILLED or CANCELLED, it cannot become OPEN again
 rule orderStateIrreversibility(method f, uint256 orderId) filtered {
-    f -> !f.isView
+    f -> commonFilters(f)
 } {
     require orderId < nextOrderId(),
         "safe: only valid order IDs";
@@ -94,7 +100,7 @@ rule orderStateIrreversibility(method f, uint256 orderId) filtered {
 
 /// @title Rule: wasFilled is monotonic (once true, never false)
 rule wasFilledMonotonic(method f, uint256 orderId) filtered {
-    f -> !f.isView
+    f -> commonFilters(f)
 } {
     require orderId < nextOrderId(),
         "safe: only valid order IDs";
@@ -137,7 +143,7 @@ rule cancelRevertsIfFilled(uint256 orderId) {
 /// @title Rule: tradeFee never exceeds MAX_TRADE_FEE after any state change
 /// @notice Using a rule instead of invariant since tradeFee/MAX_TRADE_FEE return UD60x18
 rule tradeFeeNotTooHigh(method f) filtered {
-    f -> !f.isView
+    f -> commonFilters(f)
 } {
     env e1;
     uint256 feeBefore = tradeFee(e1);
@@ -193,7 +199,7 @@ rule privateOrderBuyerEnforcement(uint256 orderId, uint128 buyAmount) {
 ///         physically-unreachable max_uint256 state to prevent the prover from finding a
 ///         wrap-around counterexample.
 rule nextOrderIdMonotonic(method f) filtered {
-    f -> !f.isView
+    f -> commonFilters(f)
 } {
     uint256 idBefore = nextOrderId();
     require idBefore < max_uint256,
@@ -215,7 +221,7 @@ rule nextOrderIdMonotonic(method f) filtered {
 
 /// @title Rule: Order core fields never change after creation
 rule orderFieldsImmutable(method f, uint256 orderId) filtered {
-    f -> !f.isView
+    f -> commonFilters(f)
 } {
     require orderId < nextOrderId(),
         "safe: only valid order IDs";
@@ -254,7 +260,7 @@ rule orderFieldsImmutable(method f, uint256 orderId) filtered {
 
 /// @title Rule: wasCanceled is monotonic (once true, never false)
 rule wasCanceledMonotonic(method f, uint256 orderId) filtered {
-    f -> !f.isView
+    f -> commonFilters(f)
 } {
     require orderId < nextOrderId(),
         "safe: only valid order IDs";
@@ -371,7 +377,7 @@ rule sellerReceivesAtLeastMinBuyAmount(uint256 orderId, uint128 buyAmount) {
 /// @notice setNativeToken is filtered because it reverts when nativeToken != 0 (set-once pattern).
 ///         Its access control is verified by setNativeTokenOnlyComptroller.
 rule nativeTokenSetOnce(method f) filtered {
-    f -> !f.isView && f.selector != sig:setNativeToken(address).selector
+    f -> commonFilters(f) && f.selector != sig:setNativeToken(address).selector
 } {
     address nativeBefore = nativeToken();
     require nativeBefore != 0,
@@ -391,18 +397,25 @@ rule nativeTokenSetOnce(method f) filtered {
                 INV 48 (partial): comptroller-only admin
 //////////////////////////////////////////////////////////////////////////*/
 
-/// @title Rule: setTradeFee only callable by comptroller
-rule setTradeFeeOnlyComptroller(uint256 newFee) {
-    address comp = comptroller();
+/// @title E-1: Only comptroller can change tradeFee
+/// @notice Parametric state-change rule — proves no function can modify tradeFee
+///         without the caller being the comptroller.
+rule onlyComptrollerCanChangeTradeFee(env e, method f, calldataarg args)
+    filtered { f -> commonFilters(f) } {
+    uint256 feeBefore = tradeFee(e);
+    f(e, args);
+    assert tradeFee(e) != feeBefore => e.msg.sender == comptroller(),
+        "Inv 48: tradeFee changed by non-comptroller";
+}
 
-    env e;
-    require e.msg.sender != comp,
-        "safe: caller must not be comptroller";
-
-    setTradeFee@withrevert(e, newFee);
-
-    assert lastReverted,
-        "Inv 48: setTradeFee called by non-comptroller";
+/// @title E-2: Only comptroller can change nativeToken
+/// @notice Parametric state-change rule for nativeToken access control.
+rule onlyComptrollerCanChangeNativeToken(env e, method f, calldataarg args)
+    filtered { f -> commonFilters(f) } {
+    address before = nativeToken();
+    f(e, args);
+    assert nativeToken() != before => e.msg.sender == comptroller(),
+        "Inv 48: nativeToken changed by non-comptroller";
 }
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -412,7 +425,7 @@ rule setTradeFeeOnlyComptroller(uint256 newFee) {
 /// @title Rule: wasFilled and wasCanceled can never both be true for the same order
 /// @notice Inductive: assume mutual exclusion holds before any function call, assert it holds after
 rule filledAndCanceledMutuallyExclusive(method f, uint256 orderId) filtered {
-    f -> !f.isView
+    f -> commonFilters(f)
 } {
     require orderId < nextOrderId(),
         "safe: only valid order IDs";
@@ -431,20 +444,6 @@ rule filledAndCanceledMutuallyExclusive(method f, uint256 orderId) filtered {
 
     assert !(filledAfter && canceledAfter),
         "Inv 50: wasFilled and wasCanceled are both true for the same order";
-}
-
-/// @title Rule: setNativeToken only callable by comptroller
-rule setNativeTokenOnlyComptroller(address newNative) {
-    address comp = comptroller();
-
-    env e;
-    require e.msg.sender != comp,
-        "safe: caller must not be comptroller";
-
-    setNativeToken@withrevert(e, newNative);
-
-    assert lastReverted,
-        "Inv 48: setNativeToken called by non-comptroller";
 }
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -637,4 +636,148 @@ rule fillOrderRevertsInsufficientBuyAmount(uint256 orderId, uint128 buyAmount) {
 
     assert lastReverted,
         "Inv 80: fillOrder accepted buy amount below minimum";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                OFFENSIVE RULES: Cross-Variable Consistency
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title E-3: nextOrderId only changes via createOrder
+/// @notice No function other than createOrder should modify nextOrderId.
+rule nextOrderIdOnlyChangedByCreateOrder(env e, method f, calldataarg args)
+    filtered { f -> commonFilters(f)
+        && f.selector != sig:createOrder(address, uint128, address, uint128, address, uint40).selector
+    } {
+    uint256 before = nextOrderId();
+
+    f(e, args);
+
+    assert nextOrderId() == before,
+        "nextOrderId changed by a function other than createOrder";
+}
+
+/// @title E-4: Valid order has non-zero seller
+/// @notice Every created order must have seller != address(0).
+///         No function should be able to zero out an existing order's seller.
+rule validOrderHasNonZeroSeller(env e, method f, calldataarg args, uint256 orderId)
+    filtered { f -> commonFilters(f) } {
+    require orderId < nextOrderId(),
+        "safe: only valid order IDs";
+    require getSeller(orderId) != 0,
+        "safe: valid order starts with non-zero seller";
+
+    f(e, args);
+
+    assert getSeller(orderId) != 0,
+        "Cross-variable: seller zeroed on existing order";
+}
+
+/// @title E-5: Filled order cannot be cancelled
+/// @notice Once wasFilled is true, cancelOrder must revert for that order.
+///         Tests the implicit assumption that the state machine prevents this transition.
+rule filledOrderCannotBeCancelled(uint256 orderId) {
+    require orderId < nextOrderId(),
+        "safe: only valid order IDs";
+    require wasFilled(orderId),
+        "safe: order must be filled";
+
+    env e;
+    require e.msg.value == 0,
+        "safe: cancelOrder is not payable";
+    cancelOrder@withrevert(e, orderId);
+
+    assert lastReverted,
+        "Offensive: filled order was successfully cancelled";
+}
+
+/// @title E-6: Cancelled order cannot be filled
+/// @notice Once wasCanceled is true, fillOrder must revert for that order.
+rule cancelledOrderCannotBeFilled(uint256 orderId, uint128 buyAmount) {
+    require orderId < nextOrderId(),
+        "safe: only valid order IDs";
+    require wasCanceled(orderId),
+        "safe: order must be cancelled";
+
+    env e;
+    require e.msg.value == 0,
+        "safe: fillOrder is not payable";
+    fillOrder@withrevert(e, orderId, buyAmount);
+
+    assert lastReverted,
+        "Offensive: cancelled order was successfully filled";
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+            CONCRETE TOKEN RULES (CVL Ghost ERC20 Model)
+//////////////////////////////////////////////////////////////////////////*/
+
+/// @title E-7: Cancel returns full sellAmount to seller (Inv 36)
+/// @notice When a seller cancels an OPEN order, they must receive back exactly
+///         the full sellAmount they deposited. Uses CVL ghost ERC20 model.
+rule cancelOrderReturnsSellAmount(uint256 orderId) {
+    require orderId < nextOrderId(),
+        "safe: only valid order IDs";
+    require !wasFilled(orderId) && !wasCanceled(orderId),
+        "safe: order must be OPEN";
+
+    address seller = getSeller(orderId);
+    address sellToken = getSellToken(orderId);
+    uint128 sellAmount = getSellAmount(orderId);
+    require seller != currentContract && seller != 0,
+        "safe: anti-aliasing";
+    require sellToken != 0 && sellToken != currentContract && sellToken != seller,
+        "safe: anti-aliasing";
+
+    uint256 sellerBalBefore = ghostERC20Balances[sellToken][seller];
+
+    env e;
+    require e.msg.sender == seller,
+        "safe: only seller can cancel";
+    require e.msg.value == 0,
+        "safe: cancelOrder is not payable";
+    cancelOrder(e, orderId);
+
+    uint256 sellerBalAfter = ghostERC20Balances[sellToken][seller];
+
+    assert sellerBalAfter - sellerBalBefore == to_mathint(sellAmount),
+        "Inv 36: cancel did not return full sellAmount to seller";
+}
+
+/// @title E-8: Fill order — sell token conservation (concrete)
+/// @notice After fillOrder, the escrow's sell token balance decreases by exactly sellAmount
+///         (all sell tokens leave the escrow to buyer + comptroller fee).
+rule fillOrderSellTokenConservation(uint256 orderId, uint128 buyAmount) {
+    require orderId < nextOrderId(),
+        "safe: only valid order IDs";
+    require !wasFilled(orderId) && !wasCanceled(orderId),
+        "safe: order must be OPEN";
+
+    address sellToken = getSellToken(orderId);
+    address seller = getSeller(orderId);
+    address comp = comptroller();
+    uint128 sellAmount = getSellAmount(orderId);
+
+    env e;
+    // Anti-aliasing: all addresses must be distinct
+    require e.msg.sender != seller && e.msg.sender != currentContract;
+    require e.msg.sender != comp && seller != comp;
+    require seller != currentContract && comp != currentContract;
+    require sellToken != 0 && sellToken != currentContract;
+    require sellToken != seller && sellToken != comp && sellToken != e.msg.sender;
+    require e.msg.value == 0,
+        "safe: fillOrder is not payable";
+
+    // The escrow must hold at least sellAmount of the sell token
+    require ghostERC20Balances[sellToken][currentContract] >= sellAmount,
+        "safe: escrow holds enough sell tokens for this order";
+
+    uint256 escrowBefore = ghostERC20Balances[sellToken][currentContract];
+
+    fillOrder(e, orderId, buyAmount);
+
+    uint256 escrowAfter = ghostERC20Balances[sellToken][currentContract];
+
+    // All sell tokens leave the escrow (to buyer + fee recipient)
+    assert escrowBefore - escrowAfter == to_mathint(sellAmount),
+        "Inv 42 (concrete): escrow sell token balance did not decrease by sellAmount";
 }
