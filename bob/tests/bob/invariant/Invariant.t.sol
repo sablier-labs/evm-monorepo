@@ -4,7 +4,6 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { StdInvariant } from "forge-std/src/StdInvariant.sol";
 import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
-import { Bob } from "src/types/Bob.sol";
 
 import { Base_Test } from "../Base.t.sol";
 import { BobHandler } from "./handlers/BobHandler.sol";
@@ -33,12 +32,8 @@ contract Invariant_Test is Base_Test, StdInvariant {
         store = new BobStore();
 
         // Collect user addresses for the handler.
-        address[4] memory handlerUsers = [
-            address(users.alice),
-            address(users.eve),
-            address(users.depositor),
-            address(users.newDepositor)
-        ];
+        address[4] memory handlerUsers =
+            [address(users.alice), address(users.eve), address(users.depositor), address(users.newDepositor)];
 
         handler = new BobHandler({
             store_: store,
@@ -95,11 +90,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     function invariant_SharesMinted1To1() external view {
         for (uint256 i = 0; i < store.enterRecordCount(); ++i) {
             BobStore.EnterData memory d = store.getEnterRecord(i);
-            assertEq(
-                d.shareBalanceAfter - d.shareBalanceBefore,
-                d.amount,
-                "Inv 5: shares minted != deposit amount"
-            );
+            assertEq(d.shareBalanceAfter - d.shareBalanceBefore, d.amount, "Inv 5: shares minted != deposit amount");
         }
     }
 
@@ -110,9 +101,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             IBobVaultShare shareToken = bob.getShareToken(vaultId);
             uint256 expectedSupply = store.totalDeposited(vaultId) - store.totalSharesBurned(vaultId);
             assertEq(
-                shareToken.totalSupply(),
-                expectedSupply,
-                "Inv 8: token conservation violated for non-adapter vault"
+                shareToken.totalSupply(), expectedSupply, "Inv 8: token conservation violated for non-adapter vault"
             );
         }
     }
@@ -219,9 +208,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             if (wethReceived == 0) continue;
             uint256 totalDistributed = store.totalRedemptionDistributed(vaultId);
             assertLe(
-                totalDistributed,
-                wethReceived,
-                "Inv 1: broad solvency - adapter WETH distributed exceeds unstaked"
+                totalDistributed, wethReceived, "Inv 1: broad solvency - adapter WETH distributed exceeds unstaked"
             );
         }
     }
@@ -235,11 +222,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             // For non-adapter, non-native enters: verify bob's token balance increased by amount.
             if (!meta.hasAdapter && !d.usedNativeToken) {
                 uint256 tokenIncrease = d.tokenBalanceBobAfter - d.tokenBalanceBobBefore;
-                assertEq(
-                    tokenIncrease,
-                    d.amount,
-                    "Inv 11: bob token balance increase != deposit amount"
-                );
+                assertEq(tokenIncrease, d.amount, "Inv 11: bob token balance increase != deposit amount");
             }
 
             // For all enters: verify shares minted == amount (also covered by Inv 5).
@@ -254,11 +237,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             BobStore.EnterData memory d = store.getEnterRecord(i);
             if (!d.usedNativeToken) continue;
             uint256 sharesMinted = d.shareBalanceAfter - d.shareBalanceBefore;
-            assertEq(
-                sharesMinted,
-                d.msgValue,
-                "Inv 82: shares minted != msg.value for native token entry"
-            );
+            assertEq(sharesMinted, d.msgValue, "Inv 82: shares minted != msg.value for native token entry");
         }
     }
 
@@ -275,19 +254,11 @@ contract Invariant_Test is Base_Test, StdInvariant {
             uint256 totalReceived = uint256(d.transferAmount) + uint256(d.feeAmountDeductedFromYield);
             if (totalReceived <= d.shareBalanceBefore) {
                 // No yield or negative yield — fee must be zero.
-                assertEq(
-                    d.feeAmountDeductedFromYield,
-                    0,
-                    "Inv 6: fee charged on zero/negative yield"
-                );
+                assertEq(d.feeAmountDeductedFromYield, 0, "Inv 6: fee charged on zero/negative yield");
             } else {
                 // Yield exists — fee must not exceed the yield portion.
                 uint256 yieldAmount = totalReceived - d.shareBalanceBefore;
-                assertLe(
-                    d.feeAmountDeductedFromYield,
-                    yieldAmount,
-                    "Inv 6: fee exceeds yield earned"
-                );
+                assertLe(d.feeAmountDeductedFromYield, yieldAmount, "Inv 6: fee exceeds yield earned");
             }
         }
     }
@@ -300,9 +271,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             if (wethReceived == 0) continue;
             uint256 totalDistributed = store.totalRedemptionDistributed(vaultId);
             assertLe(
-                totalDistributed,
-                wethReceived,
-                "Inv 24: total WETH distributed exceeds wethReceivedAfterUnstaking"
+                totalDistributed, wethReceived, "Inv 24: total WETH distributed exceeds wethReceivedAfterUnstaking"
             );
         }
     }
@@ -325,15 +294,9 @@ contract Invariant_Test is Base_Test, StdInvariant {
             // Use the per-redeem wstETH captured right before the redeem call.
             uint256 userWstETH = uint256(rd.userWstETHBeforeRedeem);
             // User's max fair share of WETH (integer division + 1 for rounding tolerance).
-            uint256 maxFairShare =
-                (userWstETH * uint256(totalWeth) / uint256(totalWstETH)) + 1;
-            uint256 totalUserReceived =
-                uint256(rd.transferAmount) + uint256(rd.feeAmountDeductedFromYield);
-            assertLe(
-                totalUserReceived,
-                maxFairShare,
-                "Inv 27: user received more than proportional WETH share"
-            );
+            uint256 maxFairShare = (userWstETH * uint256(totalWeth) / uint256(totalWstETH)) + 1;
+            uint256 totalUserReceived = uint256(rd.transferAmount) + uint256(rd.feeAmountDeductedFromYield);
+            assertLe(totalUserReceived, maxFairShare, "Inv 27: user received more than proportional WETH share");
         }
     }
 
@@ -369,11 +332,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     /// SablierBob has no receive()/fallback(), so ETH can only enter via payable functions
     /// (redeem, enterWithNativeToken). Both forward all ETH onward atomically.
     function invariant_NoEthStuckInBob() external view {
-        assertEq(
-            address(bob).balance,
-            0,
-            "Inv 12: ETH stuck in SablierBob"
-        );
+        assertEq(address(bob).balance, 0, "Inv 12: ETH stuck in SablierBob");
     }
 
     /// @dev Inv 18: Per-vault share token totalSupply equals the sum of all holder balances.
@@ -395,11 +354,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             sum += shareToken.balanceOf(address(bob));
             sum += shareToken.balanceOf(address(adapter));
 
-            assertEq(
-                shareToken.totalSupply(),
-                sum,
-                "Inv 18: share token totalSupply != sum of holder balances"
-            );
+            assertEq(shareToken.totalSupply(), sum, "Inv 18: share token totalSupply != sum of holder balances");
         }
     }
 
@@ -421,11 +376,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 sumUsers += adapter.getYieldBearingTokenBalanceFor(vaultId, depositors[j]);
             }
 
-            assertEq(
-                uint256(vaultTotal),
-                sumUsers,
-                "Inv 28: _vaultTotalWstETH != sum of _userWstETH"
-            );
+            assertEq(uint256(vaultTotal), sumUsers, "Inv 28: _vaultTotalWstETH != sum of _userWstETH");
         }
     }
 
@@ -473,11 +424,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             uint256 expectedWethShare = userWstETH * uint256(totalWeth) / totalWstETH;
             uint256 actualTotal = uint256(rd.transferAmount) + uint256(rd.feeAmountDeductedFromYield);
 
-            assertEq(
-                actualTotal,
-                expectedWethShare,
-                "Inv 72: transferAmount + fee != proportional WETH share"
-            );
+            assertEq(actualTotal, expectedWethShare, "Inv 72: transferAmount + fee != proportional WETH share");
         }
     }
 }
