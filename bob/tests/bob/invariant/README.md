@@ -31,3 +31,11 @@
 #### Adapter Aggregate
 
 17. (Inv 26) After all users redeem, each depositor's wstETH balance is zero.
+
+#### Additional Live-State Invariants
+
+18. (Inv 12) No ETH should remain stuck in the `SablierBob` contract.
+19. (Inv 18) Per-vault share token `totalSupply` equals the sum of all holder balances.
+20. (Inv 28) `_vaultTotalWstETH` equals the sum of all `_userWstETH` for adapter vaults while staked.
+21. (Inv 29) When shares are burned in `redeem`, `_userWstETH` is cleared for adapter vaults.
+22. (Inv 72) `processRedemption` conservation: `transferAmount + fee` equals the user's proportional WETH share.
