@@ -140,5 +140,16 @@ contract SetCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
 
         // It should set the custom fee.
         assertEq(comptroller.getMinFeeUSDFor(protocol, user), newCustomFeeUSD, "custom fee USD");
+
+        // It should add the user to the custom fee users set.
+        (address[] memory customUsers,) = comptroller.getCustomFeeUsers(protocol);
+        bool found;
+        for (uint256 i = 0; i < customUsers.length; ++i) {
+            if (customUsers[i] == user) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found, "user not in custom fee users");
     }
 }

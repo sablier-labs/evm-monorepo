@@ -8,6 +8,7 @@ import { ERC165Upgradeable } from "@openzeppelin/contracts-upgradeable/utils/int
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import { IComptrollerable } from "./interfaces/IComptrollerable.sol";
 import { ISablierComptroller } from "./interfaces/ISablierComptroller.sol";
@@ -43,6 +44,7 @@ contract SablierComptroller is
     RoleAdminable, // 3 inherited components
     UUPSUpgradeable // 1 inherited component
 {
+    using EnumerableSet for EnumerableSet.AddressSet;
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -68,11 +70,14 @@ contract SablierComptroller is
     /// @inheritdoc ISablierComptroller
     address public override attestor;
 
+    /// @dev A mapping that tracks all users with custom fees for each protocol, enabling enumeration.
+    mapping(Protocol => EnumerableSet.AddressSet) private _customFeeUsers;
+
     /// @dev We reserve 50 storage slots to allow for adding new state variables in this and its parent contracts in the
-    /// future. A gap of 45 slots is added in addition to 1 slot used by admin in {Adminable}, 1 empty slot used by the
-    /// roles mapping, 1 slot used by the oracle, 1 empty slot used by protocol fees mapping and 1 slot used by the
-    /// attestor.
-    uint256[45] private __gap;
+    /// future. A gap of 44 slots is added in addition to 1 slot used by admin in {Adminable}, 1 empty slot used by the
+    /// roles mapping, 1 slot used by the oracle, 1 empty slot used by protocol fees mapping, 1 slot used by the
+    /// attestor and 1 empty slot used by the custom fee users mapping.
+    uint256[44] private __gap;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -166,6 +171,23 @@ contract SablierComptroller is
     }
 
     /// @inheritdoc ISablierComptroller
+    function getCustomFeeUsers(Protocol protocol)
+        external
+        view
+        override
+        returns (address[] memory users, uint256[] memory fees)
+    {
+        uint256 count = _customFeeUsers[protocol].length();
+        users = new address[](count);
+        fees = new uint256[](count);
+        for (uint256 i = 0; i < count; ++i) {
+            address user = _customFeeUsers[protocol].at(i);
+            users[i] = user;
+            fees[i] = _protocolFees[protocol].customFeesUSD[user].fee;
+        }
+    }
+
+    /// @inheritdoc ISablierComptroller
     function getMinFeeUSD(Protocol protocol) external view override returns (uint256) {
         return _protocolFees[protocol].minFeeUSD;
     }
@@ -197,6 +219,9 @@ contract SablierComptroller is
 
         // Effect: delete the custom fee for the provided protocol and user.
         delete _protocolFees[protocol].customFeesUSD[user];
+
+        // Effect: remove the user from the custom fee users set.
+        _customFeeUsers[protocol].remove(user);
 
         // Log the update.
         emit ISablierComptroller.UpdateCustomFeeUSD({
@@ -332,6 +357,9 @@ contract SablierComptroller is
 
         // Effect: update the custom fee for the provided protocol and user.
         _protocolFees[protocol].customFeesUSD[user].fee = customFeeUSD;
+
+        // Effect: add the user to the custom fee users set (no-op if already present).
+        _customFeeUsers[protocol].add(user);
 
         // Log the update.
         emit ISablierComptroller.UpdateCustomFeeUSD({

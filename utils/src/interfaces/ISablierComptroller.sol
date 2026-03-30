@@ -119,6 +119,17 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// @return The fee in wei, denominated in 18 decimals (1e18 = 1 native token).
     function convertUSDFeeToWei(uint256 feeUSD) external view returns (uint256);
 
+    /// @notice Retrieves all users with custom fees and their corresponding fee amounts for the given protocol.
+    /// @dev Iterates over the internal enumerable set of custom fee users for the specified protocol.
+    /// @param protocol The protocol as defined in {Protocol} enum.
+    /// @return users An array of addresses that have custom fees set.
+    /// @return fees An array of fee amounts corresponding to each user, denominated in Chainlink's 8-decimal format for
+    /// USD prices, where 1e8 is $1.
+    function getCustomFeeUsers(Protocol protocol)
+        external
+        view
+        returns (address[] memory users, uint256[] memory fees);
+
     /// @notice Get the minimum fee in USD for the given protocol, paid in the native token of the chain, e.g.,
     /// ETH for Ethereum Mainnet. Use {calculateMinFeeWei} to retrieve the fee in wei.
     /// @dev The fee is denominated in Chainlink's 8-decimal format for USD prices, where 1e8 is $1.
