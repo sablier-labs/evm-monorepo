@@ -2,18 +2,19 @@
 // solhint-disable no-inline-assembly
 pragma solidity >=0.8.22;
 
-import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import { ERC165Upgradeable } from "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {ERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import { IComptrollerable } from "./interfaces/IComptrollerable.sol";
-import { ISablierComptroller } from "./interfaces/ISablierComptroller.sol";
-import { Errors } from "./libraries/Errors.sol";
-import { SafeOracle } from "./libraries/SafeOracle.sol";
-import { RoleAdminable } from "./RoleAdminable.sol";
+import {IComptrollerable} from "./interfaces/IComptrollerable.sol";
+import {ISablierComptroller} from "./interfaces/ISablierComptroller.sol";
+import {Errors} from "./libraries/Errors.sol";
+import {SafeOracle} from "./libraries/SafeOracle.sol";
+import {RoleAdminable} from "./RoleAdminable.sol";
 
 /*
 
@@ -43,6 +44,7 @@ contract SablierComptroller is
     RoleAdminable, // 3 inherited components
     UUPSUpgradeable // 1 inherited component
 {
+    using EnumerableSet for EnumerableSet.AddressSet;
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -68,11 +70,14 @@ contract SablierComptroller is
     /// @inheritdoc ISablierComptroller
     address public override attestor;
 
+    /// @dev A mapping that tracks all users with custom fees for each protocol, enabling enumeration.
+    mapping(Protocol => EnumerableSet.AddressSet) private _customFeeUsers;
+
     /// @dev We reserve 50 storage slots to allow for adding new state variables in this and its parent contracts in the
-    /// future. A gap of 45 slots is added in addition to 1 slot used by admin in {Adminable}, 1 empty slot used by the
-    /// roles mapping, 1 slot used by the oracle, 1 empty slot used by protocol fees mapping and 1 slot used by the
-    /// attestor.
-    uint256[45] private __gap;
+    /// future. A gap of 44 slots is added in addition to 1 slot used by admin in {Adminable}, 1 empty slot used by the
+    /// roles mapping, 1 slot used by the oracle, 1 empty slot used by protocol fees mapping, 1 slot used by the
+    /// attestor and 1 empty slot used by the custom fee users mapping.
+    uint256[44] private __gap;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -114,16 +119,12 @@ contract SablierComptroller is
         uint256 initialFlowMinFeeUSD,
         uint256 initialLockupMinFeeUSD,
         address initialOracle
-    )
-        external
-        initializer
-        onlyProxy
-    {
+    ) external initializer onlyProxy {
         __ERC165_init();
         __UUPSUpgradeable_init();
 
         // Effect: set the initial admin.
-        _transferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
+        _transferAdmin({oldAdmin: address(0), newAdmin: initialAdmin});
 
         // Check and Effect: initialize the initial parameters of the contract.
         _initialize(
@@ -136,7 +137,7 @@ contract SablierComptroller is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Receive function to accept native tokens.
-    receive() external payable { }
+    receive() external payable {}
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
@@ -163,6 +164,23 @@ contract SablierComptroller is
     /// @inheritdoc ISablierComptroller
     function convertUSDFeeToWei(uint256 feeUSD) external view override returns (uint256) {
         return _convertUSDFeeToWei(feeUSD);
+    }
+
+    /// @inheritdoc ISablierComptroller
+    function getCustomFeeUsers(Protocol protocol)
+        external
+        view
+        override
+        returns (address[] memory users, uint256[] memory fees)
+    {
+        uint256 count = _customFeeUsers[protocol].length();
+        users = new address[](count);
+        fees = new uint256[](count);
+        for (uint256 i = 0; i < count; ++i) {
+            address user = _customFeeUsers[protocol].at(i);
+            users[i] = user;
+            fees[i] = _protocolFees[protocol].customFeesUSD[user].fee;
+        }
     }
 
     /// @inheritdoc ISablierComptroller
@@ -198,6 +216,9 @@ contract SablierComptroller is
         // Effect: delete the custom fee for the provided protocol and user.
         delete _protocolFees[protocol].customFeesUSD[user];
 
+        // Effect: remove the user from the custom fee users set.
+        _customFeeUsers[protocol].remove(user);
+
         // Log the update.
         emit ISablierComptroller.UpdateCustomFeeUSD({
             protocol: protocol,
@@ -209,10 +230,7 @@ contract SablierComptroller is
     }
 
     /// @inheritdoc ISablierComptroller
-    function execute(
-        address target,
-        bytes calldata targetCallData
-    )
+    function execute(address target, bytes calldata targetCallData)
         external
         override
         onlyAdmin
@@ -247,10 +265,7 @@ contract SablierComptroller is
     }
 
     /// @inheritdoc ISablierComptroller
-    function lowerMinFeeUSDForCampaign(
-        address campaign,
-        uint256 newMinFeeUSD
-    )
+    function lowerMinFeeUSDForCampaign(address campaign, uint256 newMinFeeUSD)
         external
         override
         onlyRole(FEE_MANAGEMENT_ROLE)
@@ -287,10 +302,7 @@ contract SablierComptroller is
     }
 
     /// @inheritdoc ISablierComptroller
-    function setAttestorForCampaign(
-        address campaign,
-        address newAttestor
-    )
+    function setAttestorForCampaign(address campaign, address newAttestor)
         external
         override
         onlyRole(ATTESTOR_MANAGER_ROLE)
@@ -312,11 +324,7 @@ contract SablierComptroller is
     }
 
     /// @inheritdoc ISablierComptroller
-    function setCustomFeeUSDFor(
-        Protocol protocol,
-        address user,
-        uint256 customFeeUSD
-    )
+    function setCustomFeeUSDFor(Protocol protocol, address user, uint256 customFeeUSD)
         external
         override
         onlyRole(FEE_MANAGEMENT_ROLE)
@@ -333,6 +341,9 @@ contract SablierComptroller is
         // Effect: update the custom fee for the provided protocol and user.
         _protocolFees[protocol].customFeesUSD[user].fee = customFeeUSD;
 
+        // Effect: add the user to the custom fee users set (no-op if already present).
+        _customFeeUsers[protocol].add(user);
+
         // Log the update.
         emit ISablierComptroller.UpdateCustomFeeUSD({
             protocol: protocol,
@@ -344,10 +355,7 @@ contract SablierComptroller is
     }
 
     /// @inheritdoc ISablierComptroller
-    function setMinFeeUSD(
-        Protocol protocol,
-        uint256 newMinFeeUSD
-    )
+    function setMinFeeUSD(Protocol protocol, uint256 newMinFeeUSD)
         external
         override
         onlyRole(FEE_MANAGEMENT_ROLE)
@@ -376,7 +384,7 @@ contract SablierComptroller is
         _setOracle(newOracle);
 
         // Log the update.
-        emit ISablierComptroller.SetOracle({ admin: msg.sender, previousOracle: currentOracle, newOracle: newOracle });
+        emit ISablierComptroller.SetOracle({admin: msg.sender, previousOracle: currentOracle, newOracle: newOracle});
     }
 
     /// @inheritdoc ISablierComptroller
@@ -388,9 +396,9 @@ contract SablierComptroller is
 
         // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
         // `feeRecipient` must be the admin address.
-        bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
+        bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({role: FEE_COLLECTOR_ROLE, account: msg.sender});
         if (!hasRoleOrIsAdmin && feeRecipient != admin) {
-            revert Errors.SablierComptroller_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
+            revert Errors.SablierComptroller_FeeRecipientNotAdmin({feeRecipient: feeRecipient, admin: admin});
         }
 
         // Interactions: transfer the fees from the provided protocol addresses to this contract.
@@ -402,7 +410,7 @@ contract SablierComptroller is
         uint256 feeAmount = address(this).balance;
 
         // Interaction: transfer the fees to the fee recipient.
-        (bool success,) = feeRecipient.call{ value: feeAmount }("");
+        (bool success,) = feeRecipient.call{value: feeAmount}("");
 
         // Revert if the call failed.
         if (!success) {
@@ -432,7 +440,7 @@ contract SablierComptroller is
         token.safeTransfer(to, amount);
 
         // Log the withdrawal.
-        emit WithdrawERC20Token({ admin: msg.sender, token: token, to: to, amount: amount });
+        emit WithdrawERC20Token({admin: msg.sender, token: token, to: to, amount: amount});
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -442,7 +450,7 @@ contract SablierComptroller is
     /// @inheritdoc UUPSUpgradeable
     /// @dev This function is called by {UUPSUpgradeable.upgradeToAndCall} when changing the implementation of the proxy
     /// contract. Reverts if the caller is not the proxy admin.
-    function _authorizeUpgrade(address newImplementation) internal override onlyAdmin { }
+    function _authorizeUpgrade(address newImplementation) internal override onlyAdmin {}
 
     /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
@@ -462,7 +470,7 @@ contract SablierComptroller is
 
         // Get the latest price (normalized to 8 decimals) and feed updated timestamp from the oracle.
         (uint256 price,, uint256 updatedAt) =
-            SafeOracle.safeOraclePrice({ oracle: AggregatorV3Interface(oracle), normalize: true });
+            SafeOracle.safeOraclePrice({oracle: AggregatorV3Interface(oracle), normalize: true});
 
         // Skip the calculations if any of the following conditions are met:
         // - The price is 0.
@@ -513,9 +521,7 @@ contract SablierComptroller is
         uint256 initialFlowMinFeeUSD,
         uint256 initialLockupMinFeeUSD,
         address initialOracle
-    )
-        private
-    {
+    ) private {
         // Check: the initial minimum fees do not exceed the maximum allowed fee.
         _notExceedMaxFeeUSD(initialAirdropMinFeeUSD);
         _notExceedMaxFeeUSD(initialBobMinFeeUSD);

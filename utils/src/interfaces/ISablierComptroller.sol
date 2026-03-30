@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { IERC1822Proxiable } from "@openzeppelin/contracts/interfaces/draft-IERC1822.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import { IRoleAdminable } from "./IRoleAdminable.sol";
+import {IERC1822Proxiable} from "@openzeppelin/contracts/interfaces/draft-IERC1822.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {IRoleAdminable} from "./IRoleAdminable.sol";
 
 /// @title ISablierComptroller
 /// @notice Manage fees across all Sablier protocols. State-changing functions are only accessible to the admin and the
@@ -61,11 +61,7 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
 
     /// @notice Emitted when the admin or the fee manager sets/disables the custom USD fee for the provided user.
     event UpdateCustomFeeUSD(
-        Protocol indexed protocol,
-        address caller,
-        address indexed user,
-        uint256 previousMinFeeUSD,
-        uint256 newMinFeeUSD
+        Protocol indexed protocol, address caller, address indexed user, uint256 previousMinFeeUSD, uint256 newMinFeeUSD
     );
 
     /// @notice Emitted when the admin withdraws ERC-20 tokens from the comptroller.
@@ -118,6 +114,17 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// @param feeUSD The fee in USD, denominated in Chainlink's 8-decimal format for USD prices, where 1e8 is $1.
     /// @return The fee in wei, denominated in 18 decimals (1e18 = 1 native token).
     function convertUSDFeeToWei(uint256 feeUSD) external view returns (uint256);
+
+    /// @notice Retrieves all users with custom fees and their corresponding fee amounts for the given protocol.
+    /// @dev Iterates over the internal enumerable set of custom fee users for the specified protocol.
+    /// @param protocol The protocol as defined in {Protocol} enum.
+    /// @return users An array of addresses that have custom fees set.
+    /// @return fees An array of fee amounts corresponding to each user, denominated in Chainlink's 8-decimal format for
+    /// USD prices, where 1e8 is $1.
+    function getCustomFeeUsers(Protocol protocol)
+        external
+        view
+        returns (address[] memory users, uint256[] memory fees);
 
     /// @notice Get the minimum fee in USD for the given protocol, paid in the native token of the chain, e.g.,
     /// ETH for Ethereum Mainnet. Use {calculateMinFeeWei} to retrieve the fee in wei.
