@@ -3,10 +3,18 @@ GetCustomFeeUsers_Comptroller_Concrete_Test
 │  └── it should return empty arrays
 ├── given one custom fee set
 │  ├── it should return one user
-│  └── it should return the correct fee
+│  ├── it should return the correct fee
+│  └── when fee is zero
+│     └── it should include the zero fee user
+├── given same user set twice
+│  └── it should not duplicate the user
+├── given custom fees set on different protocols
+│  └── it should isolate users per protocol
 └── given multiple custom fees set
    ├── it should return all users
    ├── it should return the correct fees
-   └── when a custom fee is disabled
-      ├── it should not include the disabled user
-      └── it should return remaining users and fees
+   ├── when a custom fee is disabled
+   │  ├── it should not include the disabled user
+   │  └── it should return remaining users and fees
+   └── when a non-existent user is disabled
+      └── it should not affect existing users

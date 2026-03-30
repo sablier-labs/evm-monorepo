@@ -60,5 +60,11 @@ contract DisableCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
         // It should disable the custom fee.
         assertEq(comptroller.calculateMinFeeWeiFor(protocol, users.sender), getFeeInWei(protocol), "custom fee not set");
         assertNotEq(comptroller.calculateMinFeeWeiFor(protocol, users.sender), 0, "custom fee not disabled");
+
+        // It should remove the user from the custom fee users set.
+        (address[] memory customUsers,) = comptroller.getCustomFeeUsers(protocol);
+        for (uint256 i = 0; i < customUsers.length; ++i) {
+            assertNotEq(customUsers[i], users.sender, "user still in custom fee users");
+        }
     }
 }
