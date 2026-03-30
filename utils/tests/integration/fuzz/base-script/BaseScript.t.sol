@@ -113,11 +113,7 @@ contract BaseScript_Fuzz_Test is StdAssertions {
     }
 
     function testFuzz_GetInitialMinFeeUSD(uint64 chainId) external setChainId(chainId) {
-        if (baseScript.getChainlinkOracle() != address(0)) {
-            assertEq(baseScript.getInitialMinFeeUSD(), 0.99e8, "initial min fee");
-        } else {
-            assertEq(baseScript.getInitialMinFeeUSD(), 0, "initial min fee");
-        }
+        assertEq(baseScript.getInitialMinFeeUSD(), 0, "initial min fee");
     }
 
     function testFuzz_GetVersion(uint64 chainId) external setChainId(chainId) {
