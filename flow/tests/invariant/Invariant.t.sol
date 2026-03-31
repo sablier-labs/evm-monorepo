@@ -65,7 +65,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     /// - The ERC-20 balance of the Flow contract should always be greater than or equal to the aggregated amount.
     /// - The ERC-20 balance of the Flow contract should always be greater than or equal to the stream balances sum.
     /// - The stream balances sum should equal the aggregate amount.
-    /// - The stream balances sum should should equal the total deposits minus the total refunds and total withdrawals.
+    /// - The stream balances sum should equal the total deposits minus the total refunds and total withdrawals.
     function invariant_Balances() external view {
         // Check the invariant for each token.
         for (uint256 i = 0; i < tokens.length; ++i) {
@@ -158,7 +158,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                                CONDITIONAL INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev If RPS > 0, the status should be be PENDING, STREAMING_SOLVENT or STREAMING_INSOLVENT.
+    /// @dev If RPS > 0, the status should be PENDING, STREAMING_SOLVENT or STREAMING_INSOLVENT.
     function invariant_RPSNotZero_StatusPendingOrStreaming() external view {
         uint256 lastStreamId = store.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
