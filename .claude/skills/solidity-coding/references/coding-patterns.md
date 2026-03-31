@@ -96,6 +96,12 @@ ______________________________________________________________________
 1. **CHECKS** - Validate inputs and state, revert if invalid
 2. **EFFECTS** - Update state before any external calls
 3. **INTERACTIONS** - External calls last (token transfers, hooks)
+4. **PROTOCOL INVARIANT** (optional) - `assert()` post-interaction state when a cheap protocol invariant exists
+
+### When to Use CEI-PI
+
+Use step 4 (CEI-PI / FREI-PI) only when a protocol-level invariant can be cheaply verified. Default to plain CEI
+otherwise. See `SablierFlow._withdraw` for a production example.
 
 ______________________________________________________________________
 

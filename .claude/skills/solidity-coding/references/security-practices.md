@@ -2,7 +2,8 @@
 
 Security rules for Solidity contracts. Find examples in the actual codebase.
 
-> **Note**: CEI pattern and SafeERC20 basics are covered in the main SKILL.md. This reference covers advanced patterns.
+> **Note**: CEI pattern, CEI-PI (FREI-PI), and SafeERC20 basics are covered in `coding-patterns.md`. This reference
+> covers advanced patterns.
 
 ## Access Control
 
