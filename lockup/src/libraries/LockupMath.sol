@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
-import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
-import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
-import { SD59x18 } from "@prb/math/src/SD59x18.sol";
-import { SafeOracle } from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
+import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import {PRBMathCastingUint128 as CastingUint128} from "@prb/math/src/casting/Uint128.sol";
+import {PRBMathCastingUint40 as CastingUint40} from "@prb/math/src/casting/Uint40.sol";
+import {SD59x18} from "@prb/math/src/SD59x18.sol";
+import {SafeOracle} from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
 
-import { LockupDynamic } from "../types/LockupDynamic.sol";
-import { LockupLinear } from "../types/LockupLinear.sol";
-import { LockupPriceGated } from "../types/LockupPriceGated.sol";
-import { LockupTranched } from "../types/LockupTranched.sol";
+import {LockupDynamic} from "../types/LockupDynamic.sol";
+import {LockupLinear} from "../types/LockupLinear.sol";
+import {LockupPriceGated} from "../types/LockupPriceGated.sol";
+import {LockupTranched} from "../types/LockupTranched.sol";
 
 /// @title LockupMath
 /// @notice Provides functions for calculating the streamed amounts in Lockup streams. Note that 'streamed' is
@@ -55,11 +55,7 @@ library LockupMath {
         LockupDynamic.Segment[] calldata segments,
         uint40 startTime,
         uint128 withdrawnAmount
-    )
-        external
-        view
-        returns (uint128)
-    {
+    ) external view returns (uint128) {
         uint40 blockTimestamp = uint40(block.timestamp);
 
         // If the start time is in the future, return zero.
@@ -128,10 +124,10 @@ library LockupMath {
     /// @dev The LL streaming model uses the following distribution function:
     ///
     /// $$
-    ///        ⎧ s,              block timestamp < cliff time
-    /// f(x) = ⎨
-    ///        ⎩ x * sa + s + c, block timestamp >= cliff time
-    ///
+    /// f(x) = \begin{cases}
+    ///   s, & \text{block timestamp} < \text{cliff time} \\
+    ///   x * sa + s + c, & \text{block timestamp} \geq \text{cliff time}
+    /// \end{cases}
     /// $$
     ///
     /// Where:
@@ -142,11 +138,7 @@ library LockupMath {
     /// - $x$ is the elapsed time percentage with discrete unlocks:
     ///
     /// $$
-    ///
-    ///     ⌊time elapsed / granularity⌋ * granularity
-    /// x = －－－－－－－－－－－－－－－－－－－－－－－－－
-    ///                streamable time
-    ///
+    /// x = \frac{\lfloor \text{time elapsed} / \text{granularity} \rfloor * \text{granularity}}{\text{streamable time}}
     /// $$
     ///
     /// The floor division in the numerator creates discrete unlock steps at every granularity seconds.
@@ -166,11 +158,7 @@ library LockupMath {
         uint40 startTime,
         LockupLinear.UnlockAmounts calldata unlockAmounts,
         uint128 withdrawnAmount
-    )
-        external
-        view
-        returns (uint128)
-    {
+    ) external view returns (uint128) {
         uint40 blockTimestamp = uint40(block.timestamp);
 
         // If the start time is in the future, return zero.
@@ -239,10 +227,11 @@ library LockupMath {
     /// @dev The LPG streaming model uses all-or-nothing unlock based on price threshold:
     ///
     /// $$
-    ///        ⎧ deposited, block timestamp >= end time OR latest price >= target price
-    /// f(x) = ⎨
-    ///        ⎩ 0,         otherwise
-    ///
+    /// f(x) = \begin{cases}
+    ///   \text{deposited}, & \text{block timestamp} \geq \text{end time}
+    ///     \lor \text{latest price} \geq \text{target price} \\
+    ///   0, & \text{otherwise}
+    /// \end{cases}
     /// $$
     ///
     /// Assumptions:
@@ -252,18 +241,14 @@ library LockupMath {
         uint128 deposited,
         uint40 endTime,
         LockupPriceGated.UnlockParams memory unlockParams
-    )
-        external
-        view
-        returns (uint128)
-    {
+    ) external view returns (uint128) {
         // If the current time is greater than or equal to the end time, return the deposited amount.
         if (block.timestamp >= endTime) {
             return deposited;
         }
 
         // Get the latest price, normalized to 8 decimals, from the oracle with safety checks.
-        (uint128 latestPrice,,) = SafeOracle.safeOraclePrice({ oracle: unlockParams.oracle, normalize: true });
+        (uint128 latestPrice,,) = SafeOracle.safeOraclePrice({oracle: unlockParams.oracle, normalize: true});
 
         // If the oracle price is at or above the target price, return the deposited amount.
         if (latestPrice > 0 && latestPrice >= unlockParams.targetPrice) {
@@ -294,11 +279,7 @@ library LockupMath {
         uint40 endTime,
         uint40 startTime,
         LockupTranched.Tranche[] calldata tranches
-    )
-        external
-        view
-        returns (uint128)
-    {
+    ) external view returns (uint128) {
         uint40 blockTimestamp = uint40(block.timestamp);
 
         // If the start time is in the future, return zero.
