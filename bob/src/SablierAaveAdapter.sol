@@ -218,10 +218,14 @@ contract SablierAaveAdapter is
 
     /// @inheritdoc ISablierBobAdapter
     function registerVault(uint256 vaultId) external override onlySablierBob {
-        // Retrieve the underlying token and validate Aave support.
+        // Get the underlying token.
         IERC20 vaultToken = _getVaultToken(vaultId);
+
+        // Get aToken address for the underlying token.
         (address aToken,,) =
             IAavePoolDataProvider(AAVE_POOL_DATA_PROVIDER).getReserveTokensAddresses(address(vaultToken));
+
+        // Check: aToken address is not the zero address.
         if (aToken == address(0)) {
             revert Errors.SablierAaveAdapter_TokenNotSupportedByAave(address(vaultToken));
         }
