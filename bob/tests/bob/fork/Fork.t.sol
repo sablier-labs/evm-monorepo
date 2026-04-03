@@ -14,6 +14,13 @@ import { Base_Test } from "./../Base.t.sol";
 /// @dev The FINALIZE_ROLE is held by the stETH contract on mainnet.
 interface IWithdrawalQueueFinalize {
     function finalize(uint256 _lastRequestIdToBeFinalized, uint256 _maxShareRate) external payable;
+    function prefinalize(
+        uint256[] calldata _batches,
+        uint256 _maxShareRate
+    )
+        external
+        view
+        returns (uint256 ethToLock, uint256 sharesToBurn);
 }
 
 /// @notice Base logic needed by the Bob fork tests.
@@ -77,18 +84,24 @@ abstract contract Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Finalizes pending Lido withdrawals by impersonating the stETH contract (FINALIZE_ROLE holder).
-    /// Uses a 2x over-estimate of the deposit amount to ensure the withdrawal queue has enough ETH.
-    function _finalizeLidoWithdrawals(uint256 vaultId, uint256 ethEstimate) internal {
+    /// Queries the exact ETH needed via `prefinalize` to avoid TooMuchEtherToFinalize reverts.
+    function _finalizeLidoWithdrawals(uint256 vaultId) internal {
         uint256[] memory requestIds = forkAdapter.getLidoWithdrawalRequestIds(vaultId);
         uint256 lastRequestId = requestIds[requestIds.length - 1];
+
+        // Query the exact ETH needed for finalization.
+        uint256[] memory batches = new uint256[](1);
+        batches[0] = lastRequestId;
+        (uint256 ethToLock,) =
+            IWithdrawalQueueFinalize(FORK_LIDO_WITHDRAWAL_QUEUE).prefinalize(batches, type(uint256).max);
 
         // Stop any ongoing prank before impersonating stETH.
         vm.stopPrank();
 
         // Fund the stETH contract with enough ETH to cover the withdrawal and impersonate it.
-        vm.deal(FORK_STETH, address(FORK_STETH).balance + ethEstimate);
+        vm.deal(FORK_STETH, address(FORK_STETH).balance + ethToLock);
         vm.prank(FORK_STETH);
-        IWithdrawalQueueFinalize(FORK_LIDO_WITHDRAWAL_QUEUE).finalize{ value: ethEstimate }(
+        IWithdrawalQueueFinalize(FORK_LIDO_WITHDRAWAL_QUEUE).finalize{ value: ethToLock }(
             lastRequestId, type(uint256).max
         );
     }

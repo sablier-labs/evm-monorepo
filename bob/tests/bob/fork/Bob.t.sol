@@ -110,8 +110,7 @@ contract Bob_Fork_Test is Fork_Test {
         forkAdapter.requestLidoWithdrawal(vaultId);
 
         // Step 5: Finalize the Lido withdrawal by impersonating the stETH contract (FINALIZE_ROLE holder).
-        // Over-estimate ETH needed as 2x the deposit amount.
-        _finalizeLidoWithdrawals(vaultId, uint256(params.depositAmount) * 2);
+        _finalizeLidoWithdrawals(vaultId);
 
         // Step 6: Unstake via adapter (claims finalized withdrawals from Lido queue).
         uint128 amountReceived = forkBob.unstakeTokensViaAdapter(vaultId);
