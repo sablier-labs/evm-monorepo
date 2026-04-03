@@ -151,6 +151,9 @@ contract Bob_Fork_Test is Fork_Test {
         // Step 3: Warp past expiry so the vault becomes EXPIRED.
         vm.warp(getBlockTimestamp() + params.vaultDuration + 1);
 
+        // Snapshot the adapter's wstETH balance before requesting (other mainnet vaults may hold wstETH).
+        uint256 wstETHBefore = IERC20(FORK_WSTETH).balanceOf(address(forkAdapter));
+
         // Step 4: Comptroller requests Lido withdrawal.
         setMsgSender(address(comptroller));
         forkAdapter.requestLidoWithdrawal(vaultId);
@@ -164,9 +167,9 @@ contract Bob_Fork_Test is Fork_Test {
             assertGt(requestIds[i], 0, "requestId non-zero");
         }
 
-        // Verify the adapter's wstETH was consumed (unwrapped and submitted to Lido).
-        uint256 adapterWstETHBalance = IERC20(FORK_WSTETH).balanceOf(address(forkAdapter));
-        assertEq(adapterWstETHBalance, 0, "adapter wstETH balance after request");
+        // Verify the vault's wstETH was consumed (unwrapped and submitted to Lido).
+        uint256 wstETHAfter = IERC20(FORK_WSTETH).balanceOf(address(forkAdapter));
+        assertEq(wstETHBefore - wstETHAfter, vaultTotalWstETH, "adapter wstETH consumed for vault");
 
         // Verify a duplicate request reverts.
         vm.expectRevert();
@@ -191,6 +194,10 @@ contract Bob_Fork_Test is Fork_Test {
         FORK_WETH.approve(address(forkBob), depositAmount);
         forkBob.enter(vaultId, depositAmount);
 
+        // Snapshot the adapter's wstETH balance before requesting.
+        uint128 vaultTotalWstETH = forkAdapter.getTotalYieldBearingTokenBalance(vaultId);
+        uint256 wstETHBefore = IERC20(FORK_WSTETH).balanceOf(address(forkAdapter));
+
         // Warp past expiry.
         vm.warp(getBlockTimestamp() + 2 days);
 
@@ -207,9 +214,9 @@ contract Bob_Fork_Test is Fork_Test {
             assertGt(requestIds[i], 0, "requestId non-zero");
         }
 
-        // Verify the adapter's wstETH was fully consumed.
-        uint256 adapterWstETHBalance = IERC20(FORK_WSTETH).balanceOf(address(forkAdapter));
-        assertEq(adapterWstETHBalance, 0, "adapter wstETH balance after request");
+        // Verify the vault's wstETH was fully consumed.
+        uint256 wstETHAfter = IERC20(FORK_WSTETH).balanceOf(address(forkAdapter));
+        assertEq(wstETHBefore - wstETHAfter, vaultTotalWstETH, "adapter wstETH consumed for vault");
     }
 
     /*//////////////////////////////////////////////////////////////////////////

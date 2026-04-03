@@ -144,6 +144,25 @@ library Errors {
     error SablierEscrowState_Null(uint256 orderId);
 
     /*//////////////////////////////////////////////////////////////////////////
+                                SABLIER AAVE ADAPTER
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when a function is called by an address other than SablierBob.
+    error SablierAaveAdapter_OnlySablierBob(address caller, address expectedCaller);
+
+    /// @notice Thrown when the calculated scaled balance transfer amount rounds down to zero due to floor division.
+    error SablierAaveAdapter_ScaledTransferAmountZero(uint256 vaultId, address from, address to);
+
+    /// @notice Thrown when the token is not supported by Aave (aToken address resolved to zero).
+    error SablierAaveAdapter_TokenNotSupportedByAave(address token);
+
+    /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
+    error SablierAaveAdapter_UserBalanceZero(uint256 vaultId, address user);
+
+    /// @notice Thrown when trying to set a yield fee that exceeds the maximum allowed.
+    error SablierAaveAdapter_YieldFeeTooHigh(UD60x18 fee, UD60x18 maxFee);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER LIDO ADAPTER
     //////////////////////////////////////////////////////////////////////////*/
 
