@@ -32,6 +32,14 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier givenTotalScaledBalanceNotZero() {
+        _;
+    }
+
+    modifier givenTotalTokensReceivedNotZero() {
+        _;
+    }
+
     modifier givenAmountExceedsMinPerRequest() {
         _;
     }

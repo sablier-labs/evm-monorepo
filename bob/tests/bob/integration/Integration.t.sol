@@ -41,10 +41,15 @@ abstract contract Integration_Test is Base_Test {
         bob.syncPriceFromOracle(vaultIds.settledVault);
         oracle.setPrice(CURRENT_PRICE); // Reset for other tests.
 
-        // Create a vault with adapter.
+        // Create a vault with Lido adapter.
         vaultIds.vaultWithAdapter = createVaultWithAdapter();
         setMsgSender(users.depositor);
         bob.enter(vaultIds.vaultWithAdapter, DEPOSIT_AMOUNT);
+
+        // Create a vault with Aave adapter.
+        vaultIds.vaultWithAaveAdapter = createVaultWithAaveAdapter();
+        setMsgSender(users.depositor);
+        bob.enter(vaultIds.vaultWithAaveAdapter, WBTC_DEPOSIT_AMOUNT);
 
         // Set a null vault ID.
         vaultIds.nullVault = 1729;

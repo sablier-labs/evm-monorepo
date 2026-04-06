@@ -1,0 +1,13 @@
+UpdateStakedTokenBalance_AaveAdapter_Integration_Concrete_Test
+├── when caller not Bob
+│  └── it should revert
+└── when caller Bob
+   ├── when user share balance zero
+   │  └── it should revert
+   └── when user share balance not zero
+      ├── when scaled transfer amount zero
+      │  └── it should revert
+      └── when scaled transfer amount not zero
+         ├── it should decrease sender scaled balance
+         ├── it should increase recipient scaled balance
+         └── it should emit a {TransferStakedTokens} event

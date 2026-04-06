@@ -5,6 +5,12 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { BaseConstants } from "@sablier/evm-utils/src/tests/BaseConstants.sol";
 
 abstract contract Constants is BaseConstants {
+    // Aave
+    uint256 public constant AAVE_INITIAL_NORMALIZED_INCOME = 1e27;
+
+    // Amounts (WBTC - 8 decimals)
+    uint128 public constant WBTC_DEPOSIT_AMOUNT = 10e8; // 10 WBTC
+
     // Amounts
     uint128 public constant CURRENT_PRICE = 3000e8;
     uint128 public constant DEPOSIT_AMOUNT = 10e18;

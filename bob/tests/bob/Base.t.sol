@@ -5,10 +5,17 @@ import { ChainlinkOracleWith18Decimals } from "@sablier/evm-utils/src/mocks/Chai
 import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
 import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
+import { ISablierAaveAdapter } from "src/interfaces/ISablierAaveAdapter.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
+import { SablierAaveAdapter } from "src/SablierAaveAdapter.sol";
 import { SablierBob } from "src/SablierBob.sol";
 import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
+import { ERC20Mock } from "@sablier/evm-utils/src/mocks/erc20/ERC20Mock.sol";
+import { MockAaveAToken } from "./mocks/MockAaveAToken.sol";
+import { MockAavePool } from "./mocks/MockAavePool.sol";
+import { MockAavePoolAddressesProvider } from "./mocks/MockAavePoolAddressesProvider.sol";
+import { MockAavePoolDataProvider } from "./mocks/MockAavePoolDataProvider.sol";
 import { MockCurvePool } from "./mocks/MockCurvePool.sol";
 import { MockLidoWithdrawalQueue } from "./mocks/MockLidoWithdrawalQueue.sol";
 import { MockStETH } from "./mocks/MockStETH.sol";
@@ -32,15 +39,23 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    ISablierAaveAdapter internal aaveAdapter;
     ISablierLidoAdapter internal adapter;
     ISablierBob internal bob;
     IBobVaultShare internal defaultShareToken;
+
+    // External protocol mocks (Aave ecosystem).
+    MockAaveAToken internal aaveAToken;
+    MockAavePool internal aavePool;
+    MockAavePoolAddressesProvider internal aavePoolAddressesProvider;
+    MockAavePoolDataProvider internal aavePoolDataProvider;
 
     // External protocol mocks (Lido ecosystem).
     MockCurvePool internal curvePool;
     MockLidoWithdrawalQueue internal lidoWithdrawalQueue;
     MockStETH internal steth;
     ChainlinkOracleWith18Decimals internal stethEthOracle;
+    ERC20Mock internal wbtc;
     MockWETH internal weth;
     MockWstETH internal wstEth;
 
@@ -54,8 +69,9 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
         // Deploy external Lido/Curve mocks.
         deployExternalMocks();
 
-        // Push the WETH to the list of tokens.
+        // Push the WETH and WBTC to the list of tokens.
         tokens.push(weth);
+        tokens.push(wbtc);
 
         // Deploy the protocol.
         deployProtocol();
@@ -113,6 +129,18 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
 
         // Fund Lido withdrawal queue with ETH for claims.
         vm.deal(address(lidoWithdrawalQueue), 10_000 ether);
+
+        // Deploy WBTC mock.
+        wbtc = new ERC20Mock("Wrapped BTC", "WBTC", 8);
+        vm.label(address(wbtc), "WBTC");
+
+        // Deploy Aave mocks.
+        aaveAToken = new MockAaveAToken();
+        aavePool = new MockAavePool(address(aaveAToken));
+        aaveAToken.setPool(address(aavePool));
+        aavePoolDataProvider = new MockAavePoolDataProvider();
+        aavePoolDataProvider.setAToken(address(wbtc), address(aaveAToken));
+        aavePoolAddressesProvider = new MockAavePoolAddressesProvider(address(aavePool), address(aavePoolDataProvider));
     }
 
     /// @dev Deploys the Bob protocol.
@@ -133,6 +161,14 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
             initialYieldFee: YIELD_FEE
         });
         vm.label({ account: address(adapter), newLabel: "SablierLidoAdapter" });
+
+        aaveAdapter = new SablierAaveAdapter({
+            aavePoolAddressesProvider: address(aavePoolAddressesProvider),
+            initialComptroller: address(comptroller),
+            initialYieldFee: YIELD_FEE,
+            sablierBob: address(bob)
+        });
+        vm.label({ account: address(aaveAdapter), newLabel: "SablierAaveAdapter" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -144,7 +180,17 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
         vaultId = bob.createVault({ token: weth, oracle: oracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
     }
 
-    /// @dev Creates a vault with an adapter configured.
+    /// @dev Creates a vault with the Aave adapter configured (uses WBTC as underlying token).
+    function createVaultWithAaveAdapter() internal returns (uint256 vaultId) {
+        // Set the default adapter for WBTC to the Aave adapter.
+        setMsgSender(address(comptroller));
+        bob.setDefaultAdapter(wbtc, aaveAdapter);
+
+        // Create the vault.
+        vaultId = bob.createVault({ token: wbtc, oracle: oracle, expiry: EXPIRY, targetPrice: TARGET_PRICE });
+    }
+
+    /// @dev Creates a vault with the Lido adapter configured.
     function createVaultWithAdapter() internal returns (uint256 vaultId) {
         // Set the default adapter for WETH.
         setMsgSender(address(comptroller));

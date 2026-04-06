@@ -1,0 +1,9 @@
+SupportsInterface_AaveAdapter_Integration_Concrete_Test
+├── when input matches none
+│  └── it should return false
+├── when input matches IERC165 interface id
+│  └── it should return true
+├── when input matches ISablierBobAdapter interface id
+│  └── it should return true
+└── when input matches ISablierAaveAdapter interface id
+   └── it should return true

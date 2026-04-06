@@ -1,0 +1,7 @@
+UnstakeFullAmount_AaveAdapter_Integration_Concrete_Test
+├── when caller not Bob
+│  └── it should revert
+└── when caller Bob
+   ├── it should withdraw tokens from Aave to SablierBob
+   ├── it should store the tokens received after unstaking
+   └── it should emit an {UnstakeFullAmount} event
