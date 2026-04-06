@@ -8,7 +8,7 @@ Monorepo for Sablier's EVM smart contracts. In-depth documentation is available 
 | Package                  | Description                                           | Docs                                                        |
 | ------------------------ | ----------------------------------------------------- | ----------------------------------------------------------- |
 | [`airdrops`](./airdrops) | Merkle-based token distribution with optional vesting | [Airdrops Docs](https://docs.sablier.com/concepts/airdrops) |
-| [`bob`](./bob)           | Price-gated vaults with optional yield adapters       | [Bob README](./bob/README.md)                               |
+| [`bob`](./bob)           | Price-gated vaults with optional yield adapters       | [Bob Docs](https://docs.sablier.com/concepts/bob/overview)  |
 | [`flow`](./flow)         | Open-ended token streaming with no fixed end time     | [Flow Docs](https://docs.sablier.com/concepts/flow)         |
 | [`lockup`](./lockup)     | Fixed-term vesting and token distribution             | [Lockup Docs](https://docs.sablier.com/concepts/lockup)     |
 | [`utils`](./utils)       | Shared utilities, base contracts, and comptroller     | [Utils README](./utils/README.md)                           |
