@@ -30,17 +30,20 @@ abstract contract Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 internal constant FORK_WETH = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-    address internal constant FORK_STETH = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84;
-    address internal constant FORK_WSTETH = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0;
-    address internal constant FORK_CURVE_POOL = 0xDC24316b9AE028F1497c275EB9192a3Ea0f67022;
-    address internal constant FORK_LIDO_WITHDRAWAL_QUEUE = 0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1;
+    IERC20 internal constant FORK_WBTC = IERC20(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599);
 
     /// @dev Chainlink ETH/USD price feed on Ethereum mainnet.
     AggregatorV3Interface internal constant FORK_ETH_USD_ORACLE =
         AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
 
-    /// @dev Chainlink stETH/ETH price feed on Ethereum mainnet.
-    address internal constant FORK_STETH_ETH_ORACLE = 0x86392dC19c0b719886221c78AB11eb8Cf5c52812;
+    // Lido ecosystem.
+    address internal constant FORK_STETH = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84;
+    address internal constant FORK_WSTETH = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0;
+    address internal constant FORK_CURVE_POOL = 0xDC24316b9AE028F1497c275EB9192a3Ea0f67022;
+    address internal constant FORK_LIDO_WITHDRAWAL_QUEUE = 0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1;
+
+    // Aave V3 ecosystem.
+    address internal constant FORK_AAVE_POOL_ADDRESSES_PROVIDER = 0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
@@ -59,7 +62,7 @@ abstract contract Fork_Test is Base_Test {
 
         // Load deployed contracts from Ethereum mainnet.
         forkBob = ISablierBob(0xC8AB7E45E6DF99596b86870c26C25c721eB5C9af);
-        forkAdapter = ISablierLidoAdapter(0x40c564A59bB2f1544222D6848E3eEc1Cb68837E6);
+        forkAdapter = ISablierLidoAdapter(0x40C564A59Bb2F1244222d6848E3eec1Cb68837e6);
         comptroller = ISablierComptroller(0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399);
 
         // Create test user.
@@ -69,12 +72,13 @@ abstract contract Fork_Test is Base_Test {
 
         // Label the mainnet addresses.
         vm.label(address(FORK_WETH), "WETH");
+        vm.label(address(FORK_WBTC), "WBTC");
         vm.label(FORK_STETH, "stETH");
         vm.label(FORK_WSTETH, "wstETH");
         vm.label(FORK_CURVE_POOL, "CurvePool");
         vm.label(FORK_LIDO_WITHDRAWAL_QUEUE, "LidoWithdrawalQueue");
         vm.label(address(FORK_ETH_USD_ORACLE), "ETH/USD Oracle");
-        vm.label(FORK_STETH_ETH_ORACLE, "stETH/ETH Oracle");
+        vm.label(FORK_AAVE_POOL_ADDRESSES_PROVIDER, "AavePoolAddressesProvider");
         vm.label(address(forkBob), "ForkSablierBob");
         vm.label(address(forkAdapter), "ForkSablierLidoAdapter");
     }
