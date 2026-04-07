@@ -86,7 +86,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         excludeSender(address(curvePool));
         excludeSender(address(lidoWithdrawalQueue));
         excludeSender(address(oracle));
-        for (uint256 i = 0; i < 12; ++i) {
+        for (uint256 i = 0; i < tokenList.length; ++i) {
             excludeSender(address(tokenList[i]));
         }
     }
