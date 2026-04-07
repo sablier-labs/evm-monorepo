@@ -31,6 +31,14 @@ contract Invariant_Test is Base_Test, StdInvariant {
         // Warp to Feb 1, 2026 for realistic timestamps.
         vm.warp(FEB_1_2026);
 
+        // Set the default adapter for WETH token.
+        setMsgSender(address(comptroller));
+        bob.setDefaultAdapter(IERC20(address(weth)), adapter);
+
+        // Fund Curve pool and Lido mocks so that they are solvent for unstaking.
+        vm.deal(address(curvePool), 1_000_000 ether);
+        vm.deal(address(lidoWithdrawalQueue), 1_000_000 ether);
+
         // Deploy 13 tokens: ERC20Mock for decimals 6-17, plus WETH for decimal 18.
         IERC20[] memory tokenList = new IERC20[](13);
         for (uint8 d = 6; d <= 17; ++d) {
@@ -273,7 +281,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             Bob.Status currentStatus = bob.statusOf(vaultId);
 
             // Get previous status of the vault.
-            Bob.Status prevStatus = Bob.Status(store.prevStatus(vaultId));
+            Bob.Status prevStatus = store.prevStatus(vaultId);
 
             // If the previous status was expired, the current status must be expired.
             if (prevStatus == Bob.Status.EXPIRED) {

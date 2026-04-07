@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Bob } from "src/types/Bob.sol";
 
 /// @notice Storage contract that tracks vault state for invariant assertions.
 contract Store {
@@ -18,11 +19,11 @@ contract Store {
     /// @dev Maps vault ID to its list of users.
     mapping(uint256 vaultId => address[]) internal _vaultUsers;
 
-    /// @dev Previous value of isStakedInAdapter, captured at the start of each handler call.
+    /// @dev Previous value of isStakedInAdapter.
     mapping(uint256 vaultId => bool) public prevIsStakedInAdapter;
 
-    /// @dev Previous vault status, captured at the start of each handler call.
-    mapping(uint256 vaultId => uint8) public prevStatus;
+    /// @dev Previous vault status.
+    mapping(uint256 vaultId => Bob.Status) public prevStatus;
 
     /// @dev Cumulative amount deposited per vault.
     mapping(uint256 vaultId => uint256) public totalDeposited;
@@ -33,7 +34,7 @@ contract Store {
     /// @dev Cumulative tokens withdrawn from vault (transferAmount + fee on yield).
     mapping(uint256 vaultId => uint256) public totalWithdrawn;
 
-    /// @dev Array of all created vault IDs.
+    /// @dev List of all created vault IDs.
     uint256[] public vaultIds;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -85,7 +86,7 @@ contract Store {
         prevIsStakedInAdapter[vaultId] = value;
     }
 
-    function setPrevStatus(uint256 vaultId, uint8 status) external {
+    function setPrevStatus(uint256 vaultId, Bob.Status status) external {
         prevStatus[vaultId] = status;
     }
 

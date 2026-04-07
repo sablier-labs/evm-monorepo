@@ -6,6 +6,7 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { ChainlinkOracleMock } from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
+import { Bob } from "src/types/Bob.sol";
 
 import { MockWstETH } from "../../mocks/MockWstETH.sol";
 import { Store } from "../stores/Store.sol";
@@ -42,22 +43,37 @@ contract LidoAdapterHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         vaultCountNotZero
     {
-        _recordStatuses();
-
         uint256 vaultId = _fuzzVaultId(vaultIdSeed);
 
+        // Skip if vault has no adapter.
         if (address(bob.getAdapter(vaultId)) == address(0)) return;
-        if (!bob.isStakedInAdapter(vaultId)) return;
-        if (bob.getShareToken(vaultId).totalSupply() == 0) return;
-        if (adapter.getLidoWithdrawalRequestIds(vaultId).length > 0) return;
 
-        _settleVault(vaultId);
+        // Skip if vault is still active.
+        if (bob.statusOf(vaultId) == Bob.Status.ACTIVE) return;
+
+        // Skip if vault is already unstaked.
+        if (!bob.isStakedInAdapter(vaultId)) return;
+
+        // Skip if no one has deposited into this vault.
+        if (store.totalDeposited(vaultId) == 0) return;
+
+        // Skip if Lido withdrawal has already been requested.
+        if (adapter.getLidoWithdrawalRequestIds(vaultId).length > 0) return;
 
         setMsgSender(comptroller);
         adapter.requestLidoWithdrawal(vaultId);
     }
 
-    function setYieldFee(uint256 feeSeed) external instrument("setYieldFee") {
+    function setYieldFee(
+        uint256 feeSeed,
+        uint256 timeJumpSeed
+    )
+        external
+        instrument("setYieldFee")
+        adjustTimestamp(timeJumpSeed)
+    {
+        if (calls["setYieldFee"] > MAX_ADMIN_CALLS) return;
+
         UD60x18 newFee = UD60x18.wrap(_bound(feeSeed, 0, 0.2e18));
 
         setMsgSender(comptroller);

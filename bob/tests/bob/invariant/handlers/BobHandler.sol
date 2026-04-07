@@ -4,14 +4,12 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ChainlinkOracleMock } from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
-import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
+import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
-import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
 import { Bob } from "src/types/Bob.sol";
-
-import { MockWstETH } from "../../mocks/MockWstETH.sol";
-import { Store } from "../stores/Store.sol";
+import { MockWstETH } from "./../../mocks/MockWstETH.sol";
+import { Store } from "./../stores/Store.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 /// @notice Handler for the invariant tests of {SablierBob} contract.
@@ -37,61 +35,72 @@ contract BobHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     function createVault(
-        bool withAdapter,
         uint40 expirySeed,
-        uint256 tokenIndex
+        uint256 tokenIndex,
+        uint256 timeJumpSeed
     )
         external
         instrument("createVault")
+        adjustTimestamp(timeJumpSeed)
         useFuzzedToken(tokenIndex)
     {
-        _recordStatuses();
-
+        // Skip if max vault count is reached.
         if (store.vaultCount() >= MAX_VAULT_COUNT) return;
 
-        uint40 expiry = boundUint40(expirySeed, getBlockTimestamp() + 10 days, getBlockTimestamp() + 60 days);
+        // Bound expiry to a reasonable range.
+        uint40 expiry = boundUint40(expirySeed, getBlockTimestamp() + 1, getBlockTimestamp() + 60 days);
 
-        // Adapter is only supported for WETH.
-        bool useAdapter = withAdapter && address(currentToken) == address(weth);
+        // Set target price to be above current oracle price.
+        uint128 targetPrice = 2 * uint128(uint256(oracle.price()));
 
-        setMsgSender(comptroller);
-        if (useAdapter) {
-            bob.setDefaultAdapter(weth, ISablierBobAdapter(address(adapter)));
-        } else {
-            bob.setDefaultAdapter(weth, ISablierBobAdapter(address(0)));
-        }
-
+        // Create the vault.
         setMsgSender(address(this));
-
         uint256 vaultId =
-            bob.createVault({ token: currentToken, oracle: oracle, expiry: expiry, targetPrice: TARGET_PRICE });
+            bob.createVault({ token: currentToken, oracle: oracle, expiry: expiry, targetPrice: targetPrice });
 
+        // Add the vault ID to the store and snapshot its initial adapter state.
         store.pushVaultId(vaultId);
-        store.setPrevStatus(vaultId, uint8(bob.statusOf(vaultId)));
         store.setPrevIsStakedInAdapter(vaultId, bob.isStakedInAdapter(vaultId));
     }
 
     function enter(
         uint256 vaultIdSeed,
         uint128 amountSeed,
-        address user
+        address newUser,
+        uint256 existingUserSeed,
+        uint256 timeJumpSeed
     )
         external
         instrument("enter")
-        checkUser(user)
+        adjustTimestamp(timeJumpSeed)
         vaultCountNotZero
     {
-        _recordStatuses();
-
         uint256 vaultId = _fuzzVaultId(vaultIdSeed);
 
+        // Snapshot the vault status before making the call.
+        _recordStatus(vaultId);
+
+        // Skip if vault is not active.
         if (bob.statusOf(vaultId) != Bob.Status.ACTIVE) return;
+
+        // Pick a user such that 50% chance to reuse an existing depositor.
+        address user = _pickUser(vaultId, newUser, existingUserSeed);
 
         IERC20 token = bob.getUnderlyingToken(vaultId);
         uint128 amount = _boundDepositAmount(amountSeed, token);
 
-        deal({ token: address(token), to: user, give: amount });
-        setMsgSender(user);
+        // If token is WETH, then deal ETH and wrap it into WETH.
+        if (address(token) == address(weth)) {
+            setMsgSender(user);
+            vm.deal(user, amount);
+            IWETH9(address(weth)).deposit{ value: amount }();
+        }
+        // Otherwise, deal the token directly to the user.
+        else {
+            deal({ token: address(token), to: user, give: amount });
+            setMsgSender(user);
+        }
+
         token.approve(address(bob), amount);
 
         bob.enter(vaultId, amount);
@@ -103,27 +112,32 @@ contract BobHandler is BaseHandler {
     function enterWithNativeToken(
         uint256 vaultIdSeed,
         uint128 amountSeed,
-        address user
+        address newUser,
+        uint256 existingUserSeed,
+        uint256 timeJumpSeed
     )
         external
         instrument("enterWithNativeToken")
-        checkUser(user)
+        adjustTimestamp(timeJumpSeed)
         vaultCountNotZero
     {
-        _recordStatuses();
-
         uint256 vaultId = _fuzzVaultId(vaultIdSeed);
+
+        // Snapshot the vault status before making the call.
+        _recordStatus(vaultId);
 
         // Native token entry only works with WETH vaults.
         if (address(bob.getUnderlyingToken(vaultId)) != address(weth)) return;
 
         if (bob.statusOf(vaultId) != Bob.Status.ACTIVE) return;
 
+        // Pick a user such that 50% chance to reuse an existing depositor.
+        address user = _pickUser(vaultId, newUser, existingUserSeed);
+
         uint128 amount = _boundDepositAmount(amountSeed, weth);
 
-        vm.stopPrank();
+        setMsgSender(user);
         vm.deal(user, amount);
-        vm.prank(user);
         bob.enterWithNativeToken{ value: amount }(vaultId);
 
         store.addUser(vaultId, user);
@@ -132,77 +146,49 @@ contract BobHandler is BaseHandler {
 
     function redeem(
         uint256 vaultIdSeed,
-        address user,
+        uint256 userSeed,
         uint256 timeJumpSeed
     )
         external
         instrument("redeem")
-        checkUser(user)
         adjustTimestamp(timeJumpSeed)
         vaultCountNotZero
     {
-        _recordStatuses();
-
         uint256 vaultId = _fuzzVaultId(vaultIdSeed);
-        bool hasAdapterVault = address(bob.getAdapter(vaultId)) != address(0);
 
-        _settleVault(vaultId);
+        // Snapshot the vault status before making the call.
+        _recordStatus(vaultId);
+
+        // Skip if vault is still active.
+        if (bob.statusOf(vaultId) == Bob.Status.ACTIVE) return;
+
+        // Pick an existing depositor.
+        address[] memory existingUsers = store.getUsers(vaultId);
+
+        // Skip if no users.
+        if (existingUsers.length == 0) return;
+
+        address user = existingUsers[userSeed % existingUsers.length];
 
         uint128 shareBalance = uint128(bob.getShareToken(vaultId).balanceOf(user));
+
+        // Skip if user has no shares.
         if (shareBalance == 0) return;
 
-        uint128 transferAmount;
-        uint128 feeAmount;
-        if (hasAdapterVault) {
-            setMsgSender(user);
+        uint256 transferAmount;
+        uint256 feeAmount;
+
+        setMsgSender(user);
+        if (address(bob.getAdapter(vaultId)) != address(0)) {
             (transferAmount, feeAmount) = bob.redeem(vaultId);
         } else {
-            vm.stopPrank();
             vm.deal(user, BOB_MIN_FEE_WEI);
-            vm.prank(user);
-            (transferAmount, feeAmount) = bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultId);
+            // Ignore the fee amount if vault has no adapter.
+            (transferAmount,) = bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultId);
         }
 
         store.addTotalSharesBurned(vaultId, shareBalance);
-        store.addTotalWithdrawn(vaultId, uint256(transferAmount) + uint256(feeAmount));
-    }
-
-    function syncPriceFromOracle(uint256 vaultIdSeed) external instrument("syncPriceFromOracle") vaultCountNotZero {
-        _recordStatuses();
-
-        uint256 vaultId = _fuzzVaultId(vaultIdSeed);
-
-        if (bob.statusOf(vaultId) != Bob.Status.ACTIVE) return;
-
-        bob.syncPriceFromOracle(vaultId);
-    }
-
-    function transferShares(
-        uint256 vaultIdSeed,
-        address from,
-        address to,
-        uint128 amountSeed
-    )
-        external
-        instrument("transferShares")
-        checkUsers(from, to)
-        vaultCountNotZero
-    {
-        _recordStatuses();
-
-        uint256 vaultId = _fuzzVaultId(vaultIdSeed);
-
-        IBobVaultShare shareToken = bob.getShareToken(vaultId);
-        uint256 shareBalance = shareToken.balanceOf(from);
-        if (shareBalance == 0) return;
-
-        uint128 amount = boundUint128(amountSeed, 1, uint128(shareBalance));
-
-        // Use try/catch because adapter vaults revert when the proportional wstETH transfer rounds to zero (M-3 fix).
-        setMsgSender(from);
-        try IERC20(address(shareToken)).transfer(to, amount) {
-            store.addUser(vaultId, to);
-        } catch { }
+        store.addTotalWithdrawn(vaultId, transferAmount + feeAmount);
     }
 
     function unstakeTokensViaAdapter(
@@ -214,15 +200,25 @@ contract BobHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         vaultCountNotZero
     {
-        _recordStatuses();
-
         uint256 vaultId = _fuzzVaultId(vaultIdSeed);
 
-        if (address(bob.getAdapter(vaultId)) == address(0)) return;
-        if (!bob.isStakedInAdapter(vaultId)) return;
-        if (bob.getShareToken(vaultId).totalSupply() == 0) return;
+        // Snapshot the vault status before making the call.
+        _recordStatus(vaultId);
 
-        _settleVault(vaultId);
+        // Snapshot the isStakedInAdapter before making the call.
+        store.setPrevIsStakedInAdapter(vaultId, bob.isStakedInAdapter(vaultId));
+
+        // Skip if vault has no adapter.
+        if (address(bob.getAdapter(vaultId)) == address(0)) return;
+
+        // Skip if vault is still active.
+        if (bob.statusOf(vaultId) == Bob.Status.ACTIVE) return;
+
+        // Skip if vault is already unstaked.
+        if (!bob.isStakedInAdapter(vaultId)) return;
+
+        // Skip if no one has deposited into this vault.
+        if (store.totalDeposited(vaultId) == 0) return;
 
         setMsgSender(address(this));
         bob.unstakeTokensViaAdapter(vaultId);
@@ -234,9 +230,21 @@ contract BobHandler is BaseHandler {
 
     /// @dev Bounds the deposit amount to a reasonable range scaled to the token's decimals.
     function _boundDepositAmount(uint128 seed, IERC20 token) private view returns (uint128) {
-        uint8 d = IERC20Metadata(address(token)).decimals();
-        uint128 minDeposit = uint128(10 ** (d - 2));
-        uint128 maxDeposit = uint128(100 * 10 ** uint256(d));
+        uint256 d = IERC20Metadata(address(token)).decimals();
+
+        uint128 minDeposit = uint128(100 * 10 ** d);
+        uint128 maxDeposit = uint128(10_000 * 10 ** d);
         return boundUint128(seed, minDeposit, maxDeposit);
+    }
+
+    /// @dev A helper function to pick a user such that 50% chance to reuse an existing depositor.
+    function _pickUser(uint256 vaultId, address newUser, uint256 existingUserSeed) private view returns (address) {
+        address[] memory existingUsers = store.getUsers(vaultId);
+        if (existingUserSeed % 2 == 0 && existingUsers.length > 0) {
+            return existingUsers[existingUserSeed / 2 % existingUsers.length];
+        } else {
+            _assumeValidUser(newUser);
+            return newUser;
+        }
     }
 }

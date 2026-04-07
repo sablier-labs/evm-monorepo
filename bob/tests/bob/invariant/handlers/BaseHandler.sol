@@ -2,19 +2,19 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { ChainlinkOracleMock } from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
+import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
-import { Bob } from "src/types/Bob.sol";
 
 import { MockWstETH } from "../../mocks/MockWstETH.sol";
 import { Constants } from "../../utils/Constants.sol";
 import { Store } from "../stores/Store.sol";
 
-/// @notice Base contract with common logic needed by {BobHandler} and {LidoAdapterHandler}.
+/// @notice Base contract with common logic needed by handlers.
 abstract contract BaseHandler is Constants, StdCheats, BaseUtils {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
@@ -25,6 +25,9 @@ abstract contract BaseHandler is Constants, StdCheats, BaseUtils {
 
     /// @dev The current token selected by the fuzzer.
     IERC20 public currentToken;
+
+    /// @dev Maximum number of admin config calls (e.g. setYieldFee) per run.
+    uint256 internal constant MAX_ADMIN_CALLS = 10;
 
     /// @dev Maximum number of vaults that can be created during invariant runs.
     uint256 internal constant MAX_VAULT_COUNT = 10;
@@ -52,20 +55,6 @@ abstract contract BaseHandler is Constants, StdCheats, BaseUtils {
     modifier adjustTimestamp(uint256 timeJumpSeed) {
         uint256 timeJump = _bound(timeJumpSeed, 0, 15 days);
         skip(timeJump);
-        _;
-    }
-
-    /// @dev Checks user assumptions.
-    modifier checkUser(address user) {
-        _assumeValidUser(user);
-        _;
-    }
-
-    /// @dev Checks user assumptions for two users.
-    modifier checkUsers(address user0, address user1) {
-        _assumeValidUser(user0);
-        _assumeValidUser(user1);
-        vm.assume(user0 != user1);
         _;
     }
 
@@ -116,17 +105,77 @@ abstract contract BaseHandler is Constants, StdCheats, BaseUtils {
                                  HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function recordStatuses() external instrument("recordStatuses") {
-        _recordStatuses();
+    /// @dev Increases the oracle price by 10%, simulating real-world price appreciation.
+    function increaseOraclePrice(uint256 timeJumpSeed)
+        external
+        instrument("increaseOraclePrice")
+        adjustTimestamp(timeJumpSeed)
+    {
+        uint256 currentPrice = uint256(oracle.price());
+        uint256 newPrice = currentPrice * 110 / 100;
+        oracle.setPrice(newPrice);
+    }
+
+    /// @dev Lowers the wstETH exchange rate by 5%, simulating staking yield accumulation. A lower rate means each
+    /// wstETH unwraps to more stETH.
+    function simulateYield(uint256 timeJumpSeed) external instrument("simulateYield") adjustTimestamp(timeJumpSeed) {
+        if (calls["simulateYield"] > MAX_ADMIN_CALLS) return;
+
+        UD60x18 currentRate = wstEth.exchangeRate();
+        wstEth.setExchangeRate(currentRate.mul(ud(0.95e18)));
+    }
+
+    /// @dev A helper function to transfer shares between users.
+    function transferShares(
+        uint256 vaultIdSeed,
+        address from,
+        address to,
+        uint128 amountSeed,
+        uint256 timeJumpSeed
+    )
+        external
+        instrument("transferShares")
+        adjustTimestamp(timeJumpSeed)
+        vaultCountNotZero
+    {
+        _assumeValidUser(from);
+        _assumeValidUser(to);
+
+        // Ensure from and to are different users.
+        vm.assume(from != to);
+
+        uint256 vaultId = _fuzzVaultId(vaultIdSeed);
+
+        IBobVaultShare shareToken = bob.getShareToken(vaultId);
+        uint256 shareBalance = shareToken.balanceOf(from);
+
+        // Skip if from has no shares.
+        if (shareBalance == 0) return;
+
+        uint128 minAmount = 1;
+
+        // For adapter vaults, ensure the transfer amount is large enough so proportional wstETH is not zero.
+        if (address(bob.getAdapter(vaultId)) != address(0)) {
+            uint128 fromWstETH = adapter.getYieldBearingTokenBalanceFor(vaultId, from);
+            if (fromWstETH == 0) return;
+            minAmount = uint128((shareBalance + fromWstETH - 1) / fromWstETH);
+            if (minAmount > shareBalance) return;
+        }
+
+        uint128 amount = boundUint128(amountSeed, minAmount, uint128(shareBalance));
+
+        setMsgSender(from);
+        IERC20(address(shareToken)).transfer(to, amount);
+        store.addUser(vaultId, to);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Filters out addresses that cannot be used as users (zero, precompiles, known contracts).
+    /// @dev Filters out addresses that cannot be used as users.
     function _assumeValidUser(address user) internal view {
-        vm.assume(user > address(9));
+        vm.assume(user != address(0));
         vm.assume(user != address(this));
         vm.assume(user != address(bob));
         vm.assume(user != address(adapter));
@@ -143,28 +192,8 @@ abstract contract BaseHandler is Constants, StdCheats, BaseUtils {
         return store.vaultIds(index);
     }
 
-    /// @dev Snapshots the current status and isStakedInAdapter for all vaults as pre-state.
-    function _recordStatuses() internal {
-        for (uint256 i = 0; i < store.vaultCount(); ++i) {
-            uint256 vaultId = store.vaultIds(i);
-            store.setPrevStatus(vaultId, uint8(bob.statusOf(vaultId)));
-            store.setPrevIsStakedInAdapter(vaultId, bob.isStakedInAdapter(vaultId));
-        }
-    }
-
-    /// @dev Settles a vault by temporarily raising oracle price to target.
-    ///      For adapter vaults, also simulates yield by lowering the wstETH exchange rate
-    ///      (each wstETH unwraps to more stETH, creating a net gain).
-    function _settleVault(uint256 vaultId) internal {
-        if (bob.statusOf(vaultId) == Bob.Status.ACTIVE) {
-            oracle.setPrice(TARGET_PRICE);
-            setMsgSender(address(this));
-            bob.syncPriceFromOracle(vaultId);
-            oracle.setPrice(CURRENT_PRICE);
-        }
-
-        if (address(bob.getAdapter(vaultId)) != address(0) && bob.isStakedInAdapter(vaultId)) {
-            wstEth.setExchangeRate(UD60x18.wrap(0.8e18));
-        }
+    /// @dev Snapshots the current status for a vault as pre-state.
+    function _recordStatus(uint256 vaultId) internal {
+        store.setPrevStatus(vaultId, bob.statusOf(vaultId));
     }
 }
