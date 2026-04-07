@@ -7,6 +7,4 @@
 
 2. For a given sell token, contract balance = $`\sum`$ sell amount of all open and expired orders.
 
-3. (Inv 36) On cancellation, the full `sellAmount` must be returned to the seller.
-
-4. (Inv 50) `wasFilled` and `wasCanceled` must never both be true for the same order.
+3. For a given order, only one of `wasFilled` or `wasCanceled` can be true.

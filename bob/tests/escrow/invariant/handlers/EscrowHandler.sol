@@ -84,26 +84,9 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
         // Skip if order has been filled or canceled.
         if (escrow.wasFilled(orderId) || escrow.wasCanceled(orderId)) return;
 
-        // Snapshot seller's sell-token balance before cancel.
-        address seller = escrow.getSeller(orderId);
-        IERC20 sellToken = escrow.getSellToken(orderId);
-        uint128 sellAmount = escrow.getSellAmount(orderId);
-        uint256 sellerBalanceBefore = sellToken.balanceOf(seller);
-
         // Cancel the order.
-        setMsgSender(seller);
+        setMsgSender(escrow.getSeller(orderId));
         escrow.cancelOrder(orderId);
-
-        // Snapshot after and record.
-        uint256 sellerBalanceAfter = sellToken.balanceOf(seller);
-        store.recordCancel(
-            Store.CancelData({
-                orderId: orderId,
-                sellAmount: sellAmount,
-                sellerBalanceBefore: sellerBalanceBefore,
-                sellerBalanceAfter: sellerBalanceAfter
-            })
-        );
     }
 
     function createOrder(

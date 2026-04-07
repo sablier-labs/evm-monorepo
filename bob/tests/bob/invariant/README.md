@@ -1,41 +1,47 @@
 ### List of Invariants Implemented in [Invariant.t.sol](./Invariant.t.sol)
 
-#### Non-Adapter Solvency
+#### Bob
 
-1. (Inv 3) For non-adapter vaults, `token.balanceOf(bob) >= sum of shareToken.totalSupply()`.
-2. (Inv 5) Shares are minted 1:1 with deposits on `enter`.
-3. (Inv 8) For non-adapter vaults, `shareToken.totalSupply() == totalDeposited - totalSharesBurned`.
-4. (Inv 60) Redeem is all-or-nothing: user's share balance is zero after `redeem`.
-5. (Inv 61) For non-adapter vaults, tokens transferred on `redeem` equal the user's prior share balance.
-6. (Inv 62) When shares are burned on `redeem`, the user's token balance increases.
+1. `nextVaultId` = number of vaults created + 1.
 
-#### Creation-Time Properties
+2. For a given token $`\tau`$,
 
-07. (Inv 65) Adapter vault has `isStakedInAdapter == true` after creation.
-08. (Inv 66) Non-adapter vault has `isStakedInAdapter == false` after creation.
-09. (Inv 68) `BobVaultShare.VAULT_ID()` matches the vault it was deployed for.
-10. (Inv 69) `BobVaultShare.SABLIER_BOB()` matches `address(bob)`.
+   - Across all vaults without adapter, $`\sum`$ deposits = $`\sum`$ tokens redeemed + $`\sum`$ share supply.
+   - Token balance of Bob = $`\sum`$ deposit amount across vaults without adapter + $`\sum`$ tokens received from adapter - $`\sum`$ withdrawn amount by users across all vaults.
 
-#### Cross-Contract Atomicity
+3. For a given vault,
 
-11. (Inv 1) Broad solvency: non-adapter token balance sufficient + adapter distribution capped.
-12. (Inv 11) For non-adapter, non-native enters, bob's token balance increases by deposit amount.
-13. (Inv 82) `enterWithNativeToken` wraps exactly `msg.value` into shares.
+   - the value of `isStakedInAdapter` can never change from `false` to `true`.
+   - total supply of share tokens = $`\sum_{\text{vault}}`$ deposits - $`\sum_{\text{vault}}`$ shares burned.
 
-#### Adapter Economics
+4. For a given vault with adapter,
 
-14. (Inv 6) Yield fees must never exceed yield earned.
-15. (Inv 24) Total WETH distributed across all redemptions $`\le`$ `wethReceivedAfterUnstaking`.
-16. (Inv 27) No user receives more than their proportional WETH share based on wstETH attribution.
+   - `amountReceivedFromAdapter` $`\ge`$ $`\sum_{user}`$ transfer amount + fee amount during redemption for each user.
 
-#### Adapter Aggregate
+5. For an active vault,
 
-17. (Inv 26) After all users redeem, each depositor's wstETH balance is zero.
+   - lastSyncedPrice $`\lt`$ targetPrice and `block.timestamp` $`\lt`$ expiry
 
-#### Additional Live-State Invariants
+6. For an expired vault,
 
-18. (Inv 12) No ETH should remain stuck in the `SablierBob` contract.
-19. (Inv 18) Per-vault share token `totalSupply` equals the sum of all holder balances.
-20. (Inv 28) `_vaultTotalWstETH` equals the sum of all `_userWstETH` for adapter vaults while staked.
-21. (Inv 29) When shares are burned in `redeem`, `_userWstETH` is cleared for adapter vaults.
-22. (Inv 72) `processRedemption` conservation: `transferAmount + fee` equals the user's proportional WETH share.
+   - `block.timestamp` $`\ge`$ expiry
+
+7. For a settled vault,
+
+   - lastSyncedPrice $`\ge`$ targetPrice and `block.timestamp` $`\lt`$ expiry
+
+8. State transitions:
+
+   - EXPIRED $`\not\to`$ { ACTIVE, SETTLED }
+   - SETTLED $`\not\to`$ { ACTIVE }
+
+#### Lido Adapter
+
+1. `wstETH` balance of adapter = $`\sum_{\text{staked vaults}}`$ `wstETH` balance.
+
+2. For a given vault with adapter,
+
+   - If `isStakedInAdapter` = true, `wstETH` balance of vault = $`\sum_{\text{user}}`$ `wstETH` balance of each user.
+   - If `isStakedInAdapter` = false, `wstETH` balance of vault $`\ge`$ $`\sum_{\text{user}}`$ `wstETH` balance of each user.
+
+3. If share balance of a user = 0, $`\implies`$ `getYieldBearingTokenBalanceFor` = 0. If the user has share balance > 0, `getYieldBearingTokenBalanceFor` > 0.

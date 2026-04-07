@@ -2,21 +2,24 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ERC20Mock } from "@sablier/evm-utils/src/mocks/erc20/ERC20Mock.sol";
 import { StdInvariant } from "forge-std/src/StdInvariant.sol";
-import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
+import { Bob } from "src/types/Bob.sol";
 
 import { Base_Test } from "../Base.t.sol";
 import { BobHandler } from "./handlers/BobHandler.sol";
-import { BobStore } from "./stores/BobStore.sol";
+import { LidoAdapterHandler } from "./handlers/LidoAdapterHandler.sol";
+import { Store } from "./stores/Store.sol";
 
-/// @notice Invariant tests for {SablierBob}.
+/// @notice Invariant tests for {SablierBob} and {SablierLidoAdapter}.
 contract Invariant_Test is Base_Test, StdInvariant {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    BobHandler internal handler;
-    BobStore internal store;
+    BobHandler internal bobHandler;
+    LidoAdapterHandler internal lidoAdapterHandler;
+    Store internal store;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -28,36 +31,54 @@ contract Invariant_Test is Base_Test, StdInvariant {
         // Warp to Feb 1, 2026 for realistic timestamps.
         vm.warp(FEB_1_2026);
 
-        // Deploy the store and handler.
-        store = new BobStore();
+        // Deploy 13 tokens: ERC20Mock for decimals 6-17, plus WETH for decimal 18.
+        IERC20[] memory tokenList = new IERC20[](13);
+        for (uint8 d = 6; d <= 17; ++d) {
+            string memory name = string.concat("Token", vm.toString(d));
+            string memory symbol = string.concat("T", vm.toString(d));
+            tokenList[d - 6] = IERC20(address(new ERC20Mock(name, symbol, d)));
+            vm.label(address(tokenList[d - 6]), symbol);
+        }
+        tokenList[12] = IERC20(address(weth));
 
-        // Collect user addresses for the handler.
-        address[4] memory handlerUsers =
-            [address(users.alice), address(users.eve), address(users.depositor), address(users.newDepositor)];
+        // Deploy the store and handlers.
+        store = new Store(tokenList);
 
-        handler = new BobHandler({
+        bobHandler = new BobHandler({
             store_: store,
             bob_: bob,
             adapter_: adapter,
             weth_: IERC20(address(weth)),
             wstEth_: wstEth,
             oracle_: oracle,
-            comptroller_: address(comptroller),
-            users_: handlerUsers
+            comptroller_: address(comptroller)
+        });
+
+        lidoAdapterHandler = new LidoAdapterHandler({
+            store_: store,
+            bob_: bob,
+            adapter_: adapter,
+            weth_: IERC20(address(weth)),
+            wstEth_: wstEth,
+            oracle_: oracle,
+            comptroller_: address(comptroller)
         });
 
         // Label the contracts.
-        vm.label({ account: address(store), newLabel: "BobStore" });
-        vm.label({ account: address(handler), newLabel: "BobHandler" });
+        vm.label({ account: address(store), newLabel: "Store" });
+        vm.label({ account: address(bobHandler), newLabel: "BobHandler" });
+        vm.label({ account: address(lidoAdapterHandler), newLabel: "LidoAdapterHandler" });
 
-        // Target the handler for invariant testing.
-        targetContract(address(handler));
+        // Target both handlers for invariant testing.
+        targetContract(address(bobHandler));
+        targetContract(address(lidoAdapterHandler));
 
         // Prevent system addresses from being fuzzed as `msg.sender`.
         excludeSender(address(bob));
         excludeSender(address(adapter));
         excludeSender(address(comptroller));
-        excludeSender(address(handler));
+        excludeSender(address(bobHandler));
+        excludeSender(address(lidoAdapterHandler));
         excludeSender(address(store));
         excludeSender(address(weth));
         excludeSender(address(steth));
@@ -65,366 +86,295 @@ contract Invariant_Test is Base_Test, StdInvariant {
         excludeSender(address(curvePool));
         excludeSender(address(lidoWithdrawalQueue));
         excludeSender(address(oracle));
+        for (uint256 i = 0; i < 12; ++i) {
+            excludeSender(address(tokenList[i]));
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-              GROUP A: NON-ADAPTER SOLVENCY (Inv 3, 5, 8, 60, 61, 62)
+                                  INVARIANTS - BOB
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Inv 3: For non-adapter vaults, bob's token balance >= sum of share token supplies.
-    function invariant_NonAdapterVaultSolvency() external view {
-        uint256 totalShareSupply = 0;
-        for (uint256 i = 0; i < store.nonAdapterVaultCount(); ++i) {
-            uint256 vaultId = store.nonAdapterVaultIds(i);
-            IBobVaultShare shareToken = bob.getShareToken(vaultId);
-            totalShareSupply += shareToken.totalSupply();
-        }
-        assertGe(
-            weth.balanceOf(address(bob)),
-            totalShareSupply,
-            "Inv 3: non-adapter vaults: token.balanceOf(bob) < sum of shareToken.totalSupply()"
+    /// @dev The next vault ID should always be incremented by 1.
+    function invariant_NextVaultId() external view {
+        assertEq(
+            bob.nextVaultId(),
+            store.vaultCount() + 1,
+            "Invariant violation: nextVaultId != number of vaults created + 1"
         );
     }
 
-    /// @dev Inv 5: Shares are minted 1:1 with deposits on enter.
-    function invariant_SharesMinted1To1() external view {
-        for (uint256 i = 0; i < store.enterRecordCount(); ++i) {
-            BobStore.EnterData memory d = store.getEnterRecord(i);
-            assertEq(d.shareBalanceAfter - d.shareBalanceBefore, d.amount, "Inv 5: shares minted != deposit amount");
-        }
-    }
+    /// @dev For a given token, across all vaults without adapter, Σ deposits = Σ share supply + Σ tokens redeemed.
+    function invariant_DepositsEqualsShareSupplyPlusRedeemed() external view {
+        IERC20[] memory tokenList = store.getTokens();
+        for (uint256 t = 0; t < tokenList.length; ++t) {
+            uint256 totalDeposits;
+            uint256 totalShareSupply;
+            uint256 totalRedeemed;
 
-    /// @dev Inv 8: For non-adapter vaults, share supply == totalDeposited - totalSharesBurned.
-    function invariant_NonAdapterTokenConservation() external view {
-        for (uint256 i = 0; i < store.nonAdapterVaultCount(); ++i) {
-            uint256 vaultId = store.nonAdapterVaultIds(i);
-            IBobVaultShare shareToken = bob.getShareToken(vaultId);
-            uint256 expectedSupply = store.totalDeposited(vaultId) - store.totalSharesBurned(vaultId);
+            for (uint256 i = 0; i < store.vaultCount(); ++i) {
+                uint256 vaultId = store.vaultIds(i);
+
+                // Since the invariant only holds true for vaults without adapter, skip if vault has an adapter.
+                if (address(bob.getAdapter(vaultId)) != address(0)) continue;
+
+                // Skip if vault's underlying token is not the token being tested.
+                if (bob.getUnderlyingToken(vaultId) != tokenList[t]) continue;
+
+                // Add to the total deposits, share supply, and redeemed tokens.
+                totalDeposits += store.totalDeposited(vaultId);
+                totalShareSupply += bob.getShareToken(vaultId).totalSupply();
+                totalRedeemed += store.totalSharesBurned(vaultId);
+            }
+
             assertEq(
-                shareToken.totalSupply(), expectedSupply, "Inv 8: token conservation violated for non-adapter vault"
+                totalDeposits,
+                totalShareSupply + totalRedeemed,
+                "Invariant violation: deposits != share supply + tokens redeemed (non-adapter)"
             );
         }
     }
 
-    /// @dev Inv 60: Redeem is all-or-nothing — user's share balance must be zero after redeem.
-    function invariant_RedeemAllOrNothing() external view {
-        for (uint256 i = 0; i < store.redeemRecordCount(); ++i) {
-            BobStore.RedeemData memory d = store.getRedeemRecord(i);
-            assertEq(d.shareBalanceAfter, 0, "Inv 60: user share balance not zero after redeem");
-        }
-    }
+    /// @dev For a given token, token balance of Bob should equal Σ deposit amount across vaults without adapter + Σ
+    /// token received from adapter - Σ withdrawn amount by users across all vaults.
+    function invariant_ConservationOfTokenBalance() external view {
+        IERC20[] memory tokenList = store.getTokens();
+        for (uint256 t = 0; t < tokenList.length; ++t) {
+            uint256 totalDepositAmountInVaultsWithoutAdapter;
+            uint256 totalReceivedFromAdapter;
+            uint256 totalWithdrawn;
 
-    /// @dev Inv 61: For non-adapter vaults, tokens transferred on redeem == prior share balance.
-    function invariant_NonAdapterRedeemTransfersShareBalance() external view {
-        for (uint256 i = 0; i < store.redeemRecordCount(); ++i) {
-            BobStore.RedeemData memory d = store.getRedeemRecord(i);
-            if (d.hasAdapter) continue;
+            IERC20 token = tokenList[t];
+            for (uint256 i = 0; i < store.vaultCount(); ++i) {
+                uint256 vaultId = store.vaultIds(i);
+
+                // Skip if vault's underlying token is not the token being tested.
+                if (bob.getUnderlyingToken(vaultId) != token) continue;
+
+                // If vault has no adapter, add to the total deposit amount.
+                if (address(bob.getAdapter(vaultId)) == address(0)) {
+                    totalDepositAmountInVaultsWithoutAdapter += store.totalDeposited(vaultId);
+                }
+                // Otherwise, add to the total amount received from adapter.
+                else {
+                    totalReceivedFromAdapter += adapter.getWethReceivedAfterUnstaking(vaultId);
+                }
+                totalWithdrawn += store.totalWithdrawn(vaultId);
+            }
+
             assertEq(
-                d.transferAmount,
-                d.shareBalanceBefore,
-                "Inv 61: non-adapter redeem transferAmount != prior share balance"
+                token.balanceOf(address(bob)),
+                totalDepositAmountInVaultsWithoutAdapter + totalReceivedFromAdapter - totalWithdrawn,
+                "Invariant violation: token balance != deposits (non-adapter) + received from adapter - withdrawn"
             );
         }
     }
 
-    /// @dev Inv 62: When shares are burned on redeem, a corresponding token transfer occurs.
-    function invariant_RedeemBurnsSharesWithTransfer() external view {
-        for (uint256 i = 0; i < store.redeemRecordCount(); ++i) {
-            BobStore.RedeemData memory d = store.getRedeemRecord(i);
-            if (d.shareBalanceBefore > 0) {
-                assertGt(
-                    d.tokenBalanceUserAfter,
-                    d.tokenBalanceUserBefore,
-                    "Inv 62: shares burned but user token balance did not increase"
-                );
-            }
-        }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-              GROUP B: CREATION-TIME PROPERTIES (Inv 65, 66, 68, 69)
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Inv 65: Adapter vault has isStakedInAdapter == true after creation.
-    function invariant_AdapterVaultStakedAfterCreation() external view {
-        for (uint256 i = 0; i < store.creationRecordCount(); ++i) {
-            BobStore.CreationData memory d = store.getCreationRecord(i);
-            if (d.hasAdapter) {
-                assertTrue(d.isStakedInAdapter, "Inv 65: adapter vault not staked after creation");
-            }
-        }
-    }
-
-    /// @dev Inv 66: Non-adapter vault has isStakedInAdapter == false after creation.
-    function invariant_NonAdapterVaultNotStakedAfterCreation() external view {
-        for (uint256 i = 0; i < store.creationRecordCount(); ++i) {
-            BobStore.CreationData memory d = store.getCreationRecord(i);
-            if (!d.hasAdapter) {
-                assertFalse(d.isStakedInAdapter, "Inv 66: non-adapter vault staked after creation");
-            }
-        }
-    }
-
-    /// @dev Inv 68: BobVaultShare.VAULT_ID() matches the vault it was deployed for.
-    function invariant_ShareTokenVaultIdMatches() external view {
-        for (uint256 i = 0; i < store.creationRecordCount(); ++i) {
-            BobStore.CreationData memory d = store.getCreationRecord(i);
-            IBobVaultShare shareToken = IBobVaultShare(d.shareToken);
-            assertEq(shareToken.VAULT_ID(), d.vaultId, "Inv 68: VAULT_ID mismatch");
-        }
-    }
-
-    /// @dev Inv 69: BobVaultShare.SABLIER_BOB() matches address(bob).
-    function invariant_ShareTokenSablierBobMatches() external view {
-        for (uint256 i = 0; i < store.creationRecordCount(); ++i) {
-            BobStore.CreationData memory d = store.getCreationRecord(i);
-            IBobVaultShare shareToken = IBobVaultShare(d.shareToken);
-            assertEq(shareToken.SABLIER_BOB(), address(bob), "Inv 69: SABLIER_BOB mismatch");
-        }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-              GROUP C: CROSS-CONTRACT ATOMICITY (Inv 1, 11, 82)
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Inv 1: Broad solvency — non-adapter solvency + adapter distribution cap.
-    function invariant_BroadSolvency() external view {
-        // Non-adapter solvency: bob holds enough WETH for all non-adapter shares.
-        uint256 totalNonAdapterShareSupply = 0;
-        for (uint256 i = 0; i < store.nonAdapterVaultCount(); ++i) {
-            uint256 vaultId = store.nonAdapterVaultIds(i);
-            totalNonAdapterShareSupply += bob.getShareToken(vaultId).totalSupply();
-        }
-        assertGe(
-            weth.balanceOf(address(bob)),
-            totalNonAdapterShareSupply,
-            "Inv 1: broad solvency - non-adapter WETH insufficient"
-        );
-
-        // Adapter solvency: total distributed <= WETH received from unstaking.
-        for (uint256 i = 0; i < store.adapterVaultCount(); ++i) {
-            uint256 vaultId = store.adapterVaultIds(i);
-            uint128 wethReceived = store.unstakeResults(vaultId);
-            if (wethReceived == 0) continue;
-            uint256 totalDistributed = store.totalRedemptionDistributed(vaultId);
-            assertLe(
-                totalDistributed, wethReceived, "Inv 1: broad solvency - adapter WETH distributed exceeds unstaked"
-            );
-        }
-    }
-
-    /// @dev Inv 11: For non-adapter, non-native enters, bob's token balance increases by deposit amount.
-    function invariant_EnterTransferMatchesMinting() external view {
-        for (uint256 i = 0; i < store.enterRecordCount(); ++i) {
-            BobStore.EnterData memory d = store.getEnterRecord(i);
-            BobStore.VaultMeta memory meta = store.getVaultMeta(d.vaultId);
-
-            // For non-adapter, non-native enters: verify bob's token balance increased by amount.
-            if (!meta.hasAdapter && !d.usedNativeToken) {
-                uint256 tokenIncrease = d.tokenBalanceBobAfter - d.tokenBalanceBobBefore;
-                assertEq(tokenIncrease, d.amount, "Inv 11: bob token balance increase != deposit amount");
-            }
-
-            // For all enters: verify shares minted == amount (also covered by Inv 5).
-            uint256 sharesMinted = d.shareBalanceAfter - d.shareBalanceBefore;
-            assertEq(sharesMinted, d.amount, "Inv 11: shares minted != deposit amount");
-        }
-    }
-
-    /// @dev Inv 82: enterWithNativeToken wraps exactly msg.value into shares.
-    function invariant_NativeTokenWrapsExactMsgValue() external view {
-        for (uint256 i = 0; i < store.enterRecordCount(); ++i) {
-            BobStore.EnterData memory d = store.getEnterRecord(i);
-            if (!d.usedNativeToken) continue;
-            uint256 sharesMinted = d.shareBalanceAfter - d.shareBalanceBefore;
-            assertEq(sharesMinted, d.msgValue, "Inv 82: shares minted != msg.value for native token entry");
-        }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-              GROUP D: ADAPTER ECONOMICS (Inv 6, 24, 27)
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Inv 6: Yield fees must never exceed yield earned.
-    function invariant_YieldFeesNotExceedYield() external view {
-        for (uint256 i = 0; i < store.redeemRecordCount(); ++i) {
-            BobStore.RedeemData memory d = store.getRedeemRecord(i);
-            if (!d.hasAdapter) continue;
-
-            uint256 totalReceived = uint256(d.transferAmount) + uint256(d.feeAmountDeductedFromYield);
-            if (totalReceived <= d.shareBalanceBefore) {
-                // No yield or negative yield — fee must be zero.
-                assertEq(d.feeAmountDeductedFromYield, 0, "Inv 6: fee charged on zero/negative yield");
-            } else {
-                // Yield exists — fee must not exceed the yield portion.
-                uint256 yieldAmount = totalReceived - d.shareBalanceBefore;
-                assertLe(d.feeAmountDeductedFromYield, yieldAmount, "Inv 6: fee exceeds yield earned");
-            }
-        }
-    }
-
-    /// @dev Inv 24: Total WETH distributed across all redemptions <= wethReceivedAfterUnstaking.
-    function invariant_WethDistributedNotExceedUnstaked() external view {
-        for (uint256 i = 0; i < store.adapterVaultCount(); ++i) {
-            uint256 vaultId = store.adapterVaultIds(i);
-            uint128 wethReceived = store.unstakeResults(vaultId);
-            if (wethReceived == 0) continue;
-            uint256 totalDistributed = store.totalRedemptionDistributed(vaultId);
-            assertLe(
-                totalDistributed, wethReceived, "Inv 24: total WETH distributed exceeds wethReceivedAfterUnstaking"
-            );
-        }
-    }
-
-    /// @dev Inv 27: Late depositor must not earn disproportionate yield.
-    /// Uses the user's live wstETH captured right before the redeem call (not the unstake-time
-    /// snapshot, which can diverge if share transfers move wstETH between snapshot and redeem).
-    function invariant_NoDisproportionateYield() external view {
-        for (uint256 i = 0; i < store.redeemRecordCount(); ++i) {
-            BobStore.RedeemData memory rd = store.getRedeemRecord(i);
-            if (!rd.hasAdapter) continue;
-            if (rd.transferAmount == 0 && rd.feeAmountDeductedFromYield == 0) continue;
-
-            uint128 totalWeth = store.unstakeResults(rd.vaultId);
-            if (totalWeth == 0) continue;
-
-            uint128 totalWstETH = store.snapshotTotalWstETH(rd.vaultId);
-            if (totalWstETH == 0) continue;
-
-            // Use the per-redeem wstETH captured right before the redeem call.
-            uint256 userWstETH = uint256(rd.userWstETHBeforeRedeem);
-            // User's max fair share of WETH (integer division + 1 for rounding tolerance).
-            uint256 maxFairShare = (userWstETH * uint256(totalWeth) / uint256(totalWstETH)) + 1;
-            uint256 totalUserReceived = uint256(rd.transferAmount) + uint256(rd.feeAmountDeductedFromYield);
-            assertLe(totalUserReceived, maxFairShare, "Inv 27: user received more than proportional WETH share");
-        }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-              GROUP E: ADAPTER AGGREGATE (Inv 26)
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Inv 26: After all users redeem, each depositor's wstETH balance is zero.
-    function invariant_AllRedeemsClearUserWstETH() external view {
-        for (uint256 i = 0; i < store.adapterVaultCount(); ++i) {
-            uint256 vaultId = store.adapterVaultIds(i);
-            IBobVaultShare shareToken = bob.getShareToken(vaultId);
-
-            // Only check when all shares have been redeemed.
-            if (shareToken.totalSupply() > 0) continue;
-
-            address[] memory depositors = store.getVaultDepositors(vaultId);
-            for (uint256 j = 0; j < depositors.length; ++j) {
-                assertEq(
-                    adapter.getYieldBearingTokenBalanceFor(vaultId, depositors[j]),
-                    0,
-                    "Inv 26: user wstETH not zero after all shares redeemed"
-                );
-            }
-        }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-              GROUP F: ADDITIONAL LIVE-STATE INVARIANTS (Inv 12, 18, 28, 29, 72)
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Inv 12: No ETH should remain stuck in the SablierBob contract.
-    /// SablierBob has no receive()/fallback(), so ETH can only enter via payable functions
-    /// (redeem, enterWithNativeToken). Both forward all ETH onward atomically.
-    function invariant_NoEthStuckInBob() external view {
-        assertEq(address(bob).balance, 0, "Inv 12: ETH stuck in SablierBob");
-    }
-
-    /// @dev Inv 18: Per-vault share token totalSupply equals the sum of all holder balances.
-    /// The handler only creates shares for the 4 users. We also check handler, bob, and adapter
-    /// as defense-in-depth (they should always be zero).
-    function invariant_ShareTokenTotalSupplyEqualsSumOfBalances() external view {
+    /// @dev The value of isStakedInAdapter can never change from false to true.
+    function invariant_IsStakedInAdapterMonotonicity() external view {
         for (uint256 i = 0; i < store.vaultCount(); ++i) {
             uint256 vaultId = store.vaultIds(i);
-            IBobVaultShare shareToken = bob.getShareToken(vaultId);
 
-            uint256 sum = 0;
-            // Sum the 4 known users.
-            address[] memory depositors = store.getVaultDepositors(vaultId);
-            for (uint256 j = 0; j < depositors.length; ++j) {
-                sum += shareToken.balanceOf(depositors[j]);
+            // If previous value of isStakedInAdapter was false, current value must be false.
+            if (!store.prevIsStakedInAdapter(vaultId)) {
+                assertFalse(
+                    bob.isStakedInAdapter(vaultId), "Invariant violation: isStakedInAdapter changed from false to true"
+                );
             }
-            // Defense-in-depth: check handler, bob, and adapter (should always be zero).
-            sum += shareToken.balanceOf(address(handler));
-            sum += shareToken.balanceOf(address(bob));
-            sum += shareToken.balanceOf(address(adapter));
-
-            assertEq(shareToken.totalSupply(), sum, "Inv 18: share token totalSupply != sum of holder balances");
         }
     }
 
-    /// @dev Inv 28: _vaultTotalWstETH equals the sum of all _userWstETH for adapter vaults.
-    /// Only checked while isStakedInAdapter is true because processRedemption intentionally
-    /// deletes per-user wstETH without decrementing the vault total (the total serves as a
-    /// snapshot denominator for proportional WETH distribution).
-    function invariant_VaultTotalWstETHEqualsSumUserWstETH() external view {
-        for (uint256 i = 0; i < store.adapterVaultCount(); ++i) {
-            uint256 vaultId = store.adapterVaultIds(i);
-
-            // Only valid while tokens are still staked (before processRedemption runs).
-            if (!bob.isStakedInAdapter(vaultId)) continue;
-
-            uint128 vaultTotal = adapter.getTotalYieldBearingTokenBalance(vaultId);
-            uint256 sumUsers = 0;
-            address[] memory depositors = store.getVaultDepositors(vaultId);
-            for (uint256 j = 0; j < depositors.length; ++j) {
-                sumUsers += adapter.getYieldBearingTokenBalanceFor(vaultId, depositors[j]);
-            }
-
-            assertEq(uint256(vaultTotal), sumUsers, "Inv 28: _vaultTotalWstETH != sum of _userWstETH");
-        }
-    }
-
-    /// @dev Inv 29: When shares are burned in redeem, _userWstETH is cleared for adapter vaults.
-    /// Only checked for users whose current share balance is still zero (confirming they haven't
-    /// re-entered the vault since redeeming, which would give them new wstETH).
-    function invariant_UserWstETHClearedAfterRedemption() external view {
-        for (uint256 i = 0; i < store.redeemRecordCount(); ++i) {
-            BobStore.RedeemData memory d = store.getRedeemRecord(i);
-            if (!d.hasAdapter) continue;
-
-            // Skip if user has re-entered (received new shares since redeeming).
-            BobStore.VaultMeta memory meta = store.getVaultMeta(d.vaultId);
-            if (meta.shareToken.balanceOf(d.user) > 0) continue;
-
+    /// @dev For a given vault, total supply of share tokens should equal Σ deposits - Σ shares burned.
+    function invariant_ShareTokenConservation() external view {
+        for (uint256 i = 0; i < store.vaultCount(); ++i) {
+            uint256 vaultId = store.vaultIds(i);
             assertEq(
-                adapter.getYieldBearingTokenBalanceFor(d.vaultId, d.user),
-                0,
-                "Inv 29: user wstETH not cleared after redemption"
+                bob.getShareToken(vaultId).totalSupply(),
+                store.totalDeposited(vaultId) - store.totalSharesBurned(vaultId),
+                "Invariant violation: share token supply != deposits - burned"
             );
         }
     }
 
-    /// @dev Inv 72: processRedemption conservation — transferAmount + fee equals the user's
-    /// proportional WETH share. Uses the user's live wstETH captured right before the redeem
-    /// call (not the unstake-time snapshot, which can diverge if share transfers move wstETH
-    /// between snapshot and redeem). Strict equality because transferAmount = userWethShare - fee
-    /// in Solidity, so the sum is algebraically exact.
-    function invariant_ProcessRedemptionConservation() external view {
-        for (uint256 i = 0; i < store.redeemRecordCount(); ++i) {
-            BobStore.RedeemData memory rd = store.getRedeemRecord(i);
-            if (!rd.hasAdapter) continue;
-            if (rd.transferAmount == 0 && rd.feeAmountDeductedFromYield == 0) continue;
+    /// @dev For vaults with adapter, amount received from adapter should be >= the sum of transfer amounts and fees for
+    /// during redemption for each user.
+    function invariant_TokenSolvencyForVaultsWithAdapter() external view {
+        for (uint256 i = 0; i < store.vaultCount(); ++i) {
+            uint256 vaultId = store.vaultIds(i);
 
-            // Need unstake results for this vault to compute expected share.
-            uint128 totalWeth = store.unstakeResults(rd.vaultId);
-            if (totalWeth == 0) continue;
+            // Skip if vault has no adapter.
+            if (address(bob.getAdapter(vaultId)) == address(0)) continue;
 
-            // Use the vault-level snapshot total (set before unstaking, never modified after).
-            uint256 totalWstETH = uint256(store.snapshotTotalWstETH(rd.vaultId));
-            if (totalWstETH == 0) continue;
+            // Skip if tokens are still staked.
+            if (bob.isStakedInAdapter(vaultId)) continue;
 
-            // Use the per-redeem wstETH captured right before the redeem call.
-            uint256 userWstETH = uint256(rd.userWstETHBeforeRedeem);
-            uint256 expectedWethShare = userWstETH * uint256(totalWeth) / totalWstETH;
-            uint256 actualTotal = uint256(rd.transferAmount) + uint256(rd.feeAmountDeductedFromYield);
+            assertGe(
+                adapter.getWethReceivedAfterUnstaking(vaultId),
+                store.totalWithdrawn(vaultId),
+                "Invariant violation: amount received from adapter < sum of transfer amounts and fees during redemption"
+            );
+        }
+    }
 
-            assertEq(actualTotal, expectedWethShare, "Inv 72: transferAmount + fee != proportional WETH share");
+    /// @dev For an active vault, lastSyncedPrice < targetPrice and block.timestamp < expiry.
+    function invariant_ActiveVaultConditions() external view {
+        for (uint256 i = 0; i < store.vaultCount(); ++i) {
+            uint256 vaultId = store.vaultIds(i);
+
+            // Skip if vault is not active.
+            if (bob.statusOf(vaultId) != Bob.Status.ACTIVE) continue;
+
+            assertLt(
+                bob.getLastSyncedPrice(vaultId),
+                bob.getTargetPrice(vaultId),
+                "Invariant violation: lastSyncedPrice >= targetPrice"
+            );
+            assertLt(getBlockTimestamp(), bob.getExpiry(vaultId), "Invariant violation: block.timestamp >= expiry");
+        }
+    }
+
+    /// @dev For an expired vault, block.timestamp >= expiry.
+    function invariant_ExpiredVaultConditions() external view {
+        for (uint256 i = 0; i < store.vaultCount(); ++i) {
+            uint256 vaultId = store.vaultIds(i);
+
+            // Skip if vault is not expired.
+            if (bob.statusOf(vaultId) != Bob.Status.EXPIRED) continue;
+
+            assertGe(getBlockTimestamp(), bob.getExpiry(vaultId), "Invariant violation: block.timestamp < expiry");
+        }
+    }
+
+    /// @dev For a settled vault, lastSyncedPrice >= targetPrice and block.timestamp < expiry.
+    function invariant_SettledVaultConditions() external view {
+        for (uint256 i = 0; i < store.vaultCount(); ++i) {
+            uint256 vaultId = store.vaultIds(i);
+
+            // Skip if vault is not settled.
+            if (bob.statusOf(vaultId) != Bob.Status.SETTLED) continue;
+
+            assertGe(
+                bob.getLastSyncedPrice(vaultId),
+                bob.getTargetPrice(vaultId),
+                "Invariant violation: lastSyncedPrice < targetPrice"
+            );
+            assertLt(getBlockTimestamp(), bob.getExpiry(vaultId), "Invariant violation: block.timestamp >= expiry");
+        }
+    }
+
+    /// @dev State transitions:
+    /// - An expired vault cannot transition to active or settled.
+    /// - A settled vault cannot transition to active.
+    function invariant_StateTransitions() external view {
+        for (uint256 i = 0; i < store.vaultCount(); ++i) {
+            uint256 vaultId = store.vaultIds(i);
+
+            // Get the current status of the vault.
+            Bob.Status currentStatus = bob.statusOf(vaultId);
+
+            // Get previous status of the vault.
+            Bob.Status prevStatus = Bob.Status(store.prevStatus(vaultId));
+
+            // If the previous status was expired, the current status must be expired.
+            if (prevStatus == Bob.Status.EXPIRED) {
+                assertNotEq(currentStatus, Bob.Status.ACTIVE, "Invariant violation: EXPIRED -> ACTIVE");
+                assertNotEq(currentStatus, Bob.Status.SETTLED, "Invariant violation: EXPIRED -> SETTLED");
+            }
+
+            // If the previous status was settled, the current status must not be active.
+            if (prevStatus == Bob.Status.SETTLED) {
+                assertNotEq(currentStatus, Bob.Status.ACTIVE, "Invariant violation: SETTLED -> ACTIVE");
+            }
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                             INVARIANTS - LIDO ADAPTER
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev The wstETH balance of the adapter should equal the sum of wstETH balances of staked vaults.
+    function invariant_ConservationOfWstethBalance() external view {
+        uint256 totalVaultWstETH;
+        for (uint256 i = 0; i < store.vaultCount(); ++i) {
+            uint256 vaultId = store.vaultIds(i);
+
+            // Skip if the vault has no adapter.
+            if (address(bob.getAdapter(vaultId)) == address(0)) continue;
+
+            // Skip if vault has already been unstaked.
+            if (!bob.isStakedInAdapter(vaultId)) continue;
+
+            // Skip if Lido withdrawal is requested.
+            if (adapter.getLidoWithdrawalRequestIds(vaultId).length > 0) continue;
+
+            totalVaultWstETH += adapter.getTotalYieldBearingTokenBalance(vaultId);
+        }
+
+        assertEq(
+            wstEth.balanceOf(address(adapter)),
+            totalVaultWstETH,
+            "Invariant violation: wstETH balance != sum of staked vault wstETH"
+        );
+    }
+
+    /// @dev For vaults with adapter,
+    /// - if isStakedInAdapter = true, vault total wstETH should equal the sum of wstETH balances of each user.
+    /// - if isStakedInAdapter = false, vault total wstETH should be greater than or equal to the sum of wstETH balances
+    /// of each user.
+    function invariant_VaultTotalWstethEqSumUserWstethWhenStaked() external view {
+        for (uint256 i = 0; i < store.vaultCount(); ++i) {
+            uint256 vaultId = store.vaultIds(i);
+
+            // Skip if vault has no adapter.
+            if (address(bob.getAdapter(vaultId)) == address(0)) continue;
+
+            uint256 cumulativeUserWstETHBalance = 0;
+            address[] memory depositors = store.getUsers(vaultId);
+            for (uint256 j = 0; j < depositors.length; ++j) {
+                cumulativeUserWstETHBalance += adapter.getYieldBearingTokenBalanceFor(vaultId, depositors[j]);
+            }
+
+            if (bob.isStakedInAdapter(vaultId)) {
+                assertEq(
+                    adapter.getTotalYieldBearingTokenBalance(vaultId),
+                    cumulativeUserWstETHBalance,
+                    "Invariant violation: _vaultTotalWstETH != sum of _userWstETH for staked vault"
+                );
+            } else {
+                assertGe(
+                    adapter.getTotalYieldBearingTokenBalance(vaultId),
+                    cumulativeUserWstETHBalance,
+                    "Invariant violation: _vaultTotalWstETH < sum of _userWstETH for unstaked vault"
+                );
+            }
+        }
+    }
+
+    /// @dev If a user's share balance is 0, `getYieldBearingTokenBalanceFor` should return 0. If the user has share
+    /// balance > 0, `getYieldBearingTokenBalanceFor` > 0.
+    function invariant_SynchronizationBetweenSharesAndWstethBalance() external view {
+        for (uint256 i = 0; i < store.vaultCount(); ++i) {
+            uint256 vaultId = store.vaultIds(i);
+
+            // Skip if vault has no adapter.
+            if (address(bob.getAdapter(vaultId)) == address(0)) continue;
+
+            address[] memory depositors = store.getUsers(vaultId);
+            for (uint256 j = 0; j < depositors.length; ++j) {
+                if (bob.getShareToken(vaultId).balanceOf(depositors[j]) > 0) {
+                    assertGt(
+                        adapter.getYieldBearingTokenBalanceFor(vaultId, depositors[j]),
+                        0,
+                        "Invariant violation: user has shares but wstETH = 0"
+                    );
+                } else {
+                    assertEq(
+                        adapter.getYieldBearingTokenBalanceFor(vaultId, depositors[j]),
+                        0,
+                        "Invariant violation: user has 0 shares but wstETH > 0"
+                    );
+                }
+            }
         }
     }
 }
