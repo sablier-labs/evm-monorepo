@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ChainlinkOracleWith18Decimals } from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
+import { ERC20Mock } from "@sablier/evm-utils/src/mocks/erc20/ERC20Mock.sol";
 import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
 import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
@@ -11,7 +12,6 @@ import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
 import { SablierAaveAdapter } from "src/SablierAaveAdapter.sol";
 import { SablierBob } from "src/SablierBob.sol";
 import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
-import { ERC20Mock } from "@sablier/evm-utils/src/mocks/erc20/ERC20Mock.sol";
 import { MockAaveAToken } from "./mocks/MockAaveAToken.sol";
 import { MockAavePool } from "./mocks/MockAavePool.sol";
 import { MockAavePoolAddressesProvider } from "./mocks/MockAavePoolAddressesProvider.sol";

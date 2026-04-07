@@ -62,7 +62,7 @@ abstract contract Fork_Test is Base_Test {
 
         // Load deployed contracts from Ethereum mainnet.
         forkBob = ISablierBob(0xC8AB7E45E6DF99596b86870c26C25c721eB5C9af);
-        forkAdapter = ISablierLidoAdapter(0x40C564A59Bb2F1244222d6848E3eec1Cb68837e6);
+        forkAdapter = ISablierLidoAdapter(0x40c564A59bB2f1544222D6848E3eEc1Cb68837E6);
         comptroller = ISablierComptroller(0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399);
 
         // Create test user.
