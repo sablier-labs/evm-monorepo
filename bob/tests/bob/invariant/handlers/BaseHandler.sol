@@ -116,13 +116,38 @@ abstract contract BaseHandler is Constants, StdCheats, BaseUtils {
         oracle.setPrice(newPrice);
     }
 
-    /// @dev Lowers the wstETH exchange rate by 5%, simulating staking yield accumulation. A lower rate means each
-    /// wstETH unwraps to more stETH.
-    function simulateYield(uint256 timeJumpSeed) external instrument("simulateYield") adjustTimestamp(timeJumpSeed) {
-        if (calls["simulateYield"] > MAX_ADMIN_CALLS) return;
+    /// @dev Raises the wstETH exchange rate, simulating a Lido slashing event. A higher rate means each wstETH unwraps
+    /// to less stETH.
+    function simulateLidoSlashing(
+        uint256 slashingSeed,
+        uint256 timeJumpSeed
+    )
+        external
+        instrument("simulateLidoSlashing")
+        adjustTimestamp(timeJumpSeed)
+    {
+        // Limit this call.
+        if (calls["simulateLidoSlashing"] > MAX_ADMIN_CALLS) return;
+
+        // Only triggers ~1% of the time to reflect real-world scenario.
+        if (slashingSeed % 100 != 0) return;
 
         UD60x18 currentRate = wstEth.exchangeRate();
-        wstEth.setExchangeRate(currentRate.mul(ud(0.95e18)));
+        wstEth.setExchangeRate(currentRate.mul(ud(1.02e18)));
+    }
+
+    /// @dev Lowers the wstETH exchange rate by 1%, simulating staking yield accumulation. A lower rate means each
+    /// wstETH unwraps to more stETH.
+    function simulateLidoYield(uint256 timeJumpSeed)
+        external
+        instrument("simulateLidoYield")
+        adjustTimestamp(timeJumpSeed)
+    {
+        // Limit this call.
+        if (calls["simulateLidoYield"] > MAX_ADMIN_CALLS) return;
+
+        UD60x18 currentRate = wstEth.exchangeRate();
+        wstEth.setExchangeRate(currentRate.mul(ud(0.99e18)));
     }
 
     /// @dev A helper function to transfer shares between users.

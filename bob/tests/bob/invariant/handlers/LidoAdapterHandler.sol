@@ -72,6 +72,7 @@ contract LidoAdapterHandler is BaseHandler {
         instrument("setYieldFee")
         adjustTimestamp(timeJumpSeed)
     {
+        // Limit this call.
         if (calls["setYieldFee"] > MAX_ADMIN_CALLS) return;
 
         UD60x18 newFee = UD60x18.wrap(_bound(feeSeed, 0, 0.2e18));
