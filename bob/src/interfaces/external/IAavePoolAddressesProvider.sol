@@ -10,7 +10,7 @@ interface IAavePoolAddressesProvider {
     /// @notice Returns the address of the Pool proxy.
     function getPool() external view returns (address);
 
-    /// @notice Returns the address of the PoolDataProvider.
+    /// @notice Returns the address of the pool data provider.
     function getPoolDataProvider() external view returns (address);
 }
 

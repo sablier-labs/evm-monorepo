@@ -32,14 +32,6 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenTotalScaledBalanceNotZero() {
-        _;
-    }
-
-    modifier givenTotalTokensReceivedNotZero() {
-        _;
-    }
-
     modifier givenAmountExceedsMinPerRequest() {
         _;
     }
@@ -56,13 +48,13 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenNotAlreadyUnstaked() {
-        _;
-    }
-
     modifier givenNotACTIVEStatus() {
         // Use expiry as a proxy to non-active status.
         vm.warp(EXPIRY);
+        _;
+    }
+
+    modifier givenNotAlreadyUnstaked() {
         _;
     }
 
@@ -75,6 +67,14 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     }
 
     modifier givenSETTLEDStatus() {
+        _;
+    }
+
+    modifier givenTotalScaledBalanceNotZero() {
+        _;
+    }
+
+    modifier givenTotalTokensReceivedNotZero() {
         _;
     }
 
