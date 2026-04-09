@@ -9,7 +9,7 @@ abstract contract AaveAdapterUtils {
     UD60x18 internal constant INITIAL_YIELD_FEE = UD60x18.wrap(0.1e18); // 10%
 
     /// @dev Returns the Aave V3 PoolAddressesProvider for the current chain.
-    /// See https://docs.aave.com/developers/deployed-contracts/v3-mainnet
+    /// See https://aave.com/docs/resources/addresses
     function getAavePoolAddressesProvider() internal view returns (address aavePoolAddressesProvider) {
         if (block.chainid == ChainId.ETHEREUM) {
             aavePoolAddressesProvider = 0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e;
