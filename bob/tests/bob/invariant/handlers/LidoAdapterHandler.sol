@@ -43,6 +43,9 @@ contract LidoAdapterHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         vaultCountNotZero
     {
+        // Limit this call.
+        if (calls["requestLidoWithdrawal"] > MAX_ADMIN_CALLS) return;
+
         uint256 vaultId = _fuzzVaultId(vaultIdSeed);
 
         // Skip if vault has no adapter.

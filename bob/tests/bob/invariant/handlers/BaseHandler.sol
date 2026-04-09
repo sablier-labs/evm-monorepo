@@ -9,6 +9,7 @@ import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
+import { Bob } from "src/types/Bob.sol";
 
 import { MockWstETH } from "../../mocks/MockWstETH.sol";
 import { Constants } from "../../utils/Constants.sol";
@@ -184,7 +185,6 @@ abstract contract BaseHandler is Constants, StdCheats, BaseUtils {
             uint128 fromWstETH = adapter.getYieldBearingTokenBalanceFor(vaultId, from);
             if (fromWstETH == 0) return;
             minAmount = uint128((shareBalance + fromWstETH - 1) / fromWstETH);
-            if (minAmount > shareBalance) return;
         }
 
         uint128 amount = boundUint128(amountSeed, minAmount, uint128(shareBalance));
@@ -217,8 +217,12 @@ abstract contract BaseHandler is Constants, StdCheats, BaseUtils {
         return store.vaultIds(index);
     }
 
-    /// @dev Snapshots the current status for a vault as pre-state.
-    function _recordStatus(uint256 vaultId) internal {
-        store.setPrevStatus(vaultId, bob.statusOf(vaultId));
+    /// @dev Records the oracle price when a vault becomes settled for the first time.
+    function _recordPriceAtSettlement(uint256 vaultId) internal {
+        // Skip if vault is not settled or the price has already been recorded.
+        if (bob.statusOf(vaultId) == Bob.Status.SETTLED && store.priceAtSettlement(vaultId) == 0) {
+            uint128 lastSyncedPrice = bob.getLastSyncedPrice(vaultId);
+            store.setPriceAtSettlement(vaultId, lastSyncedPrice);
+        }
     }
 }

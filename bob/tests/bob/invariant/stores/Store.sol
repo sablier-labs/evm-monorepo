@@ -25,6 +25,9 @@ contract Store {
     /// @dev Previous vault status.
     mapping(uint256 vaultId => Bob.Status) public prevStatus;
 
+    /// @dev Price at which a vault becomes settled.
+    mapping(uint256 vaultId => uint128) public priceAtSettlement;
+
     /// @dev Cumulative amount deposited per vault.
     mapping(uint256 vaultId => uint256) public totalDeposited;
 
@@ -88,6 +91,10 @@ contract Store {
 
     function setPrevStatus(uint256 vaultId, Bob.Status status) external {
         prevStatus[vaultId] = status;
+    }
+
+    function setPriceAtSettlement(uint256 vaultId, uint128 price) external {
+        priceAtSettlement[vaultId] = price;
     }
 
     function vaultCount() external view returns (uint256) {

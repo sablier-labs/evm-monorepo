@@ -29,6 +29,7 @@
 7. For a settled vault,
 
    - lastSyncedPrice $`\ge`$ targetPrice and `block.timestamp` $`\lt`$ expiry
+   - lastSyncedPrice does not change.
 
 8. State transitions:
 

@@ -77,11 +77,11 @@ contract BobHandler is BaseHandler {
     {
         uint256 vaultId = _fuzzVaultId(vaultIdSeed);
 
-        // Snapshot the vault status before making the call.
-        _recordStatus(vaultId);
-
         // Skip if vault is not active.
         if (bob.statusOf(vaultId) != Bob.Status.ACTIVE) return;
+
+        // Snapshot the vault status before making the call.
+        store.setPrevStatus(vaultId, bob.statusOf(vaultId));
 
         // Pick a user such that 50% chance to reuse an existing depositor.
         address user = _pickUser(vaultId, newUser, existingUserSeed);
@@ -105,6 +105,9 @@ contract BobHandler is BaseHandler {
 
         bob.enter(vaultId, amount);
 
+        // If this actions makes the vault settled, record the price.
+        _recordPriceAtSettlement(vaultId);
+
         store.addUser(vaultId, user);
         store.addTotalDeposited(vaultId, amount);
     }
@@ -123,13 +126,14 @@ contract BobHandler is BaseHandler {
     {
         uint256 vaultId = _fuzzVaultId(vaultIdSeed);
 
-        // Snapshot the vault status before making the call.
-        _recordStatus(vaultId);
-
         // Native token entry only works with WETH vaults.
         if (address(bob.getUnderlyingToken(vaultId)) != address(weth)) return;
 
+        // Skip if vault is not active.
         if (bob.statusOf(vaultId) != Bob.Status.ACTIVE) return;
+
+        // Snapshot the vault status before making the call.
+        store.setPrevStatus(vaultId, bob.statusOf(vaultId));
 
         // Pick a user such that 50% chance to reuse an existing depositor.
         address user = _pickUser(vaultId, newUser, existingUserSeed);
@@ -139,6 +143,9 @@ contract BobHandler is BaseHandler {
         setMsgSender(user);
         vm.deal(user, amount);
         bob.enterWithNativeToken{ value: amount }(vaultId);
+
+        // If this actions makes the vault settled, record the price.
+        _recordPriceAtSettlement(vaultId);
 
         store.addUser(vaultId, user);
         store.addTotalDeposited(vaultId, amount);
@@ -156,11 +163,12 @@ contract BobHandler is BaseHandler {
     {
         uint256 vaultId = _fuzzVaultId(vaultIdSeed);
 
-        // Snapshot the vault status before making the call.
-        _recordStatus(vaultId);
-
         // Skip if vault is still active.
         if (bob.statusOf(vaultId) == Bob.Status.ACTIVE) return;
+
+        // Snapshot the vault status and adapter state before making the call.
+        store.setPrevStatus(vaultId, bob.statusOf(vaultId));
+        store.setPrevIsStakedInAdapter(vaultId, bob.isStakedInAdapter(vaultId));
 
         // Pick an existing depositor.
         address[] memory existingUsers = store.getUsers(vaultId);
@@ -187,8 +195,34 @@ contract BobHandler is BaseHandler {
             (transferAmount,) = bob.redeem{ value: BOB_MIN_FEE_WEI }(vaultId);
         }
 
+        // If this actions makes the vault settled, record the price.
+        _recordPriceAtSettlement(vaultId);
+
         store.addTotalSharesBurned(vaultId, shareBalance);
         store.addTotalWithdrawn(vaultId, transferAmount + feeAmount);
+    }
+
+    function syncPriceFromOracle(
+        uint256 vaultIdSeed,
+        uint256 timeJumpSeed
+    )
+        external
+        instrument("syncPriceFromOracle")
+        adjustTimestamp(timeJumpSeed)
+        vaultCountNotZero
+    {
+        uint256 vaultId = _fuzzVaultId(vaultIdSeed);
+
+        // Skip if vault is not active.
+        if (bob.statusOf(vaultId) != Bob.Status.ACTIVE) return;
+
+        // Snapshot the vault status before making the call.
+        store.setPrevStatus(vaultId, bob.statusOf(vaultId));
+
+        bob.syncPriceFromOracle(vaultId);
+
+        // Record the settled price if the vault transitioned to settled.
+        _recordPriceAtSettlement(vaultId);
     }
 
     function unstakeTokensViaAdapter(
@@ -202,12 +236,6 @@ contract BobHandler is BaseHandler {
     {
         uint256 vaultId = _fuzzVaultId(vaultIdSeed);
 
-        // Snapshot the vault status before making the call.
-        _recordStatus(vaultId);
-
-        // Snapshot the isStakedInAdapter before making the call.
-        store.setPrevIsStakedInAdapter(vaultId, bob.isStakedInAdapter(vaultId));
-
         // Skip if vault has no adapter.
         if (address(bob.getAdapter(vaultId)) == address(0)) return;
 
@@ -220,7 +248,10 @@ contract BobHandler is BaseHandler {
         // Skip if no one has deposited into this vault.
         if (store.totalDeposited(vaultId) == 0) return;
 
-        setMsgSender(address(this));
+        // Snapshot the vault status and adapter state before making the call.
+        store.setPrevStatus(vaultId, bob.statusOf(vaultId));
+        store.setPrevIsStakedInAdapter(vaultId, bob.isStakedInAdapter(vaultId));
+
         bob.unstakeTokensViaAdapter(vaultId);
     }
 

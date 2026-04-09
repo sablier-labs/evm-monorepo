@@ -39,15 +39,12 @@ contract Invariant_Test is Base_Test, StdInvariant {
         vm.deal(address(curvePool), 1_000_000 ether);
         vm.deal(address(lidoWithdrawalQueue), 1_000_000 ether);
 
-        // Deploy 13 tokens: ERC20Mock for decimals 6-17, plus WETH for decimal 18.
-        IERC20[] memory tokenList = new IERC20[](13);
-        for (uint8 d = 6; d <= 17; ++d) {
-            string memory name = string.concat("Token", vm.toString(d));
-            string memory symbol = string.concat("T", vm.toString(d));
-            tokenList[d - 6] = IERC20(address(new ERC20Mock(name, symbol, d)));
-            vm.label(address(tokenList[d - 6]), symbol);
-        }
-        tokenList[12] = IERC20(address(weth));
+        // Build tokens list.
+        ERC20Mock wbtc = new ERC20Mock("Wrapped Bitcoin", "WBTC", 8);
+        IERC20[] memory tokenList = new IERC20[](3);
+        tokenList[0] = IERC20(address(usdc));
+        tokenList[1] = IERC20(address(wbtc));
+        tokenList[2] = IERC20(address(weth));
 
         // Deploy the store and handlers.
         store = new Store(tokenList);
@@ -267,6 +264,22 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 "Invariant violation: lastSyncedPrice < targetPrice"
             );
             assertLt(getBlockTimestamp(), bob.getExpiry(vaultId), "Invariant violation: block.timestamp >= expiry");
+        }
+    }
+
+    /// @dev For a settled vault, `lastSyncedPrice` does not change.
+    function invariant_SettledPriceDoesNotChange() external view {
+        for (uint256 i = 0; i < store.vaultCount(); ++i) {
+            uint256 vaultId = store.vaultIds(i);
+
+            // Skip if vault is not settled.
+            if (bob.statusOf(vaultId) != Bob.Status.SETTLED) continue;
+
+            assertEq(
+                bob.getLastSyncedPrice(vaultId),
+                store.priceAtSettlement(vaultId),
+                "Invariant violation: lastSyncedPrice != price at settlement"
+            );
         }
     }
 
