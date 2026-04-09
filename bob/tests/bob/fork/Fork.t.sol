@@ -2,13 +2,13 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
+import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
 
-import { Base_Test } from "./../Base.t.sol";
+import { Base_Test } from "../Base.t.sol";
 
 /// @notice Minimal interface for calling `finalize` on Lido's WithdrawalQueue in fork tests.
 /// @dev The FINALIZE_ROLE is held by the stETH contract on mainnet.
@@ -29,7 +29,7 @@ abstract contract Fork_Test is Base_Test {
                                  MAINNET ADDRESSES
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 internal constant FORK_WETH = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    IWETH9 internal constant FORK_WETH = IWETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
     address internal constant FORK_STETH = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84;
     address internal constant FORK_WSTETH = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0;
     address internal constant FORK_CURVE_POOL = 0xDC24316b9AE028F1497c275EB9192a3Ea0f67022;

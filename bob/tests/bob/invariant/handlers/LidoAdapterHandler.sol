@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { ChainlinkOracleMock } from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
+import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
 import { Bob } from "src/types/Bob.sol";
@@ -22,7 +22,7 @@ contract LidoAdapterHandler is BaseHandler {
         Store store_,
         ISablierBob bob_,
         ISablierLidoAdapter adapter_,
-        IERC20 weth_,
+        IWETH9 weth_,
         MockWstETH wstEth_,
         ChainlinkOracleMock oracle_,
         address comptroller_

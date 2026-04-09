@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ISablierEscrow } from "src/interfaces/ISablierEscrow.sol";
 import { Escrow } from "src/types/Escrow.sol";
 
-import { Integration_Test } from "./../Integration.t.sol";
+import { Integration_Test } from "../Integration.t.sol";
 
 contract CreateOrder_Integration_Fuzz_Test is Integration_Test {
     function testFuzz_CreateOrder(

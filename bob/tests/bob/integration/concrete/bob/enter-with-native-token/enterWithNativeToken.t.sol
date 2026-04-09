@@ -6,7 +6,8 @@ import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Integration_Test } from "./../../../Integration.t.sol";
+
+import { Integration_Test } from "../../../Integration.t.sol";
 
 contract EnterWithNativeToken_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {

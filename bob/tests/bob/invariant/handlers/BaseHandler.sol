@@ -6,11 +6,11 @@ import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { ChainlinkOracleMock } from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
+import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
 import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
 import { Bob } from "src/types/Bob.sol";
-
 import { MockWstETH } from "../../mocks/MockWstETH.sol";
 import { Constants } from "../../utils/Constants.sol";
 import { Store } from "../stores/Store.sol";
@@ -45,7 +45,7 @@ abstract contract BaseHandler is Constants, StdCheats, BaseUtils {
     address public comptroller;
     ChainlinkOracleMock public oracle;
     Store public store;
-    IERC20 public weth;
+    IWETH9 public weth;
     MockWstETH public wstEth;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ abstract contract BaseHandler is Constants, StdCheats, BaseUtils {
         Store store_,
         ISablierBob bob_,
         ISablierLidoAdapter adapter_,
-        IERC20 weth_,
+        IWETH9 weth_,
         MockWstETH wstEth_,
         ChainlinkOracleMock oracle_,
         address comptroller_

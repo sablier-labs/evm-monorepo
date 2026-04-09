@@ -3,8 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
-
 import { Fork_Test } from "./Fork.t.sol";
 
 contract Bob_Fork_Test is Fork_Test {
@@ -33,7 +31,7 @@ contract Bob_Fork_Test is Fork_Test {
 
         setMsgSender(depositor);
         vm.deal(depositor, 1 ether);
-        IWETH9(address(FORK_WETH)).deposit{ value: dustAmount }();
+        FORK_WETH.deposit{ value: dustAmount }();
         FORK_WETH.approve(address(forkBob), dustAmount);
         forkBob.enter(vaultId, dustAmount);
 
@@ -189,7 +187,7 @@ contract Bob_Fork_Test is Fork_Test {
 
         setMsgSender(depositor);
         vm.deal(depositor, uint256(depositAmount) + 1 ether);
-        IWETH9(address(FORK_WETH)).deposit{ value: depositAmount }();
+        FORK_WETH.deposit{ value: depositAmount }();
         FORK_WETH.approve(address(forkBob), depositAmount);
         forkBob.enter(vaultId, depositAmount);
 
@@ -278,7 +276,7 @@ contract Bob_Fork_Test is Fork_Test {
         // Set the depositor as the caller first (setMsgSender deals 1 ETH), then deal the actual amount needed.
         setMsgSender(params.depositor);
         vm.deal(params.depositor, uint256(params.depositAmount) + 1 ether);
-        IWETH9(address(FORK_WETH)).deposit{ value: params.depositAmount }();
+        FORK_WETH.deposit{ value: params.depositAmount }();
 
         // Approve Bob to spend WETH.
         FORK_WETH.approve(address(forkBob), params.depositAmount);

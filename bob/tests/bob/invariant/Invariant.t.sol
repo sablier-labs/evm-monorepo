@@ -33,7 +33,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
 
         // Set the default adapter for WETH token.
         setMsgSender(address(comptroller));
-        bob.setDefaultAdapter(IERC20(address(weth)), adapter);
+        bob.setDefaultAdapter(weth, adapter);
 
         // Fund Curve pool and Lido mocks so that they are solvent for unstaking.
         vm.deal(address(curvePool), 1_000_000 ether);
@@ -42,9 +42,9 @@ contract Invariant_Test is Base_Test, StdInvariant {
         // Build tokens list.
         ERC20Mock wbtc = new ERC20Mock("Wrapped Bitcoin", "WBTC", 8);
         IERC20[] memory tokenList = new IERC20[](3);
-        tokenList[0] = IERC20(address(usdc));
-        tokenList[1] = IERC20(address(wbtc));
-        tokenList[2] = IERC20(address(weth));
+        tokenList[0] = usdc;
+        tokenList[1] = wbtc;
+        tokenList[2] = weth;
 
         // Deploy the store and handlers.
         store = new Store(tokenList);
@@ -53,7 +53,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             store_: store,
             bob_: bob,
             adapter_: adapter,
-            weth_: IERC20(address(weth)),
+            weth_: weth,
             wstEth_: wstEth,
             oracle_: oracle,
             comptroller_: address(comptroller)
@@ -63,7 +63,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             store_: store,
             bob_: bob,
             adapter_: adapter,
-            weth_: IERC20(address(weth)),
+            weth_: weth,
             wstEth_: wstEth,
             oracle_: oracle,
             comptroller_: address(comptroller)

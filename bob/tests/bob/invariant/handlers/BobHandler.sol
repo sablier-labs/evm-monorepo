@@ -8,8 +8,8 @@ import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
 import { Bob } from "src/types/Bob.sol";
-import { MockWstETH } from "./../../mocks/MockWstETH.sol";
-import { Store } from "./../stores/Store.sol";
+import { MockWstETH } from "../../mocks/MockWstETH.sol";
+import { Store } from "../stores/Store.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 /// @notice Handler for the invariant tests of {SablierBob} contract.
@@ -22,7 +22,7 @@ contract BobHandler is BaseHandler {
         Store store_,
         ISablierBob bob_,
         ISablierLidoAdapter adapter_,
-        IERC20 weth_,
+        IWETH9 weth_,
         MockWstETH wstEth_,
         ChainlinkOracleMock oracle_,
         address comptroller_
@@ -93,7 +93,7 @@ contract BobHandler is BaseHandler {
         if (address(token) == address(weth)) {
             setMsgSender(user);
             vm.deal(user, amount);
-            IWETH9(address(weth)).deposit{ value: amount }();
+            weth.deposit{ value: amount }();
         }
         // Otherwise, deal the token directly to the user.
         else {
