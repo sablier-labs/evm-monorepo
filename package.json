@@ -16,7 +16,7 @@
     "solhint": "6.0.1"
   },
   "engines": {
-    "bun": ">=1.0.0"
+    "bun": ">=1.3"
   },
   "homepage": "https://github.com/sablier-labs/evm-monorepo#readme",
   "keywords": [
@@ -33,7 +33,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/sablier-labs/evm-monorepo.git"
+    "url": "git+https://github.com/sablier-labs/evm-monorepo.git"
   },
   "scripts": {
     "prepare": "husky && for dir in airdrops bob flow lockup utils; do (cd \"$dir\" && ni) || exit 1; done && just setup"

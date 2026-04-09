@@ -1,6 +1,6 @@
 # Sablier EVM Monorepo
 
-Smart contracts for Sablier token streaming protocols.
+Smart contracts for Sablier onchain token distribution protocol.
 
 ## Tech Stack
 
