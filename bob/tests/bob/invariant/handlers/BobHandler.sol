@@ -166,10 +166,6 @@ contract BobHandler is BaseHandler {
         // Skip if vault is still active.
         if (bob.statusOf(vaultId) == Bob.Status.ACTIVE) return;
 
-        // Snapshot the vault status and adapter state before making the call.
-        store.setPrevStatus(vaultId, bob.statusOf(vaultId));
-        store.setPrevIsStakedInAdapter(vaultId, bob.isStakedInAdapter(vaultId));
-
         // Pick an existing depositor.
         address[] memory existingUsers = store.getUsers(vaultId);
 
@@ -182,6 +178,10 @@ contract BobHandler is BaseHandler {
 
         // Skip if user has no shares.
         if (shareBalance == 0) return;
+
+        // Snapshot the vault status and adapter state before making the call.
+        store.setPrevStatus(vaultId, bob.statusOf(vaultId));
+        store.setPrevIsStakedInAdapter(vaultId, bob.isStakedInAdapter(vaultId));
 
         uint256 transferAmount;
         uint256 feeAmount;
