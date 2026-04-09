@@ -12,7 +12,7 @@ import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
 import { IAavePool } from "./interfaces/external/IAavePool.sol";
 import { IAavePoolAddressesProvider } from "./interfaces/external/IAavePoolAddressesProvider.sol";
 import { IAavePoolDataProvider } from "./interfaces/external/IAavePoolDataProvider.sol";
-import { IAaveAToken } from "./interfaces/external/IAaveToken.sol";
+import { IAaveToken } from "./interfaces/external/IAaveToken.sol";
 import { ISablierAaveAdapter } from "./interfaces/ISablierAaveAdapter.sol";
 import { ISablierBobAdapter } from "./interfaces/ISablierBobAdapter.sol";
 import { ISablierBobState } from "./interfaces/ISablierBobState.sol";
@@ -52,20 +52,21 @@ contract SablierAaveAdapter is
     /// @inheritdoc ISablierBobAdapter
     UD60x18 public override feeOnYield;
 
+    /// @dev The Aave token for each supported underlying token.
+    mapping(address vaultToken => IAaveToken aaveToken) private _aaveTokens;
+
+    /// @dev The total scaled balance of Aave tokens for each vault.
+    mapping(uint256 vaultId => uint256 totalScaledBalance) private _aaveTokenScaledBalances;
+
+    /// @dev Scaled balance of Aave tokens for each user in each vault.
+    mapping(uint256 vaultId => mapping(address user => uint256 aaveTokenScaledBalance)) private
+        _aaveTokenScaledBalanceFor;
+
     /// @dev Total tokens received after unstaking all positions in a vault.
     mapping(uint256 vaultId => uint128 tokensReceived) private _tokensReceivedAfterUnstaking;
 
-    /// @dev Scaled balance of aTokens for each user in each vault.
-    mapping(uint256 vaultId => mapping(address user => uint256 scaledATokenBalance)) private _userATokenScaledBalances;
-
-    /// @dev The aToken address for each vault's underlying token.
-    mapping(uint256 vaultId => IAaveAToken aToken) private _vaultATokens;
-
     /// @dev The underlying token address for each vault.
     mapping(uint256 vaultId => address token) private _vaultTokens;
-
-    /// @dev The total scaled balance of aTokens for each vault.
-    mapping(uint256 vaultId => uint256 totalScaledBalance) private _vaultATokenTotalScaledBalance;
 
     /// @dev Yield fee snapshotted for each vault.
     mapping(uint256 vaultId => UD60x18 fee) private _vaultYieldFee;
@@ -75,7 +76,7 @@ contract SablierAaveAdapter is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Deploys the Aave V3 adapter.
-    /// @param aavePoolAddressesProvider The address of the Aave V3 PoolAddressesProvider (chain-specific).
+    /// @param aavePoolAddressesProvider The address of the Aave V3 PoolAddressesProvider.
     /// @param initialComptroller The address of the initial comptroller contract.
     /// @param initialYieldFee The initial yield fee as UD60x18.
     /// @param sablierBob The address of the SablierBob contract.
@@ -119,14 +120,14 @@ contract SablierAaveAdapter is
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierBobAdapter
-    function getTotalYieldBearingTokenBalance(uint256 vaultId) external view override returns (uint128) {
-        uint256 totalATokenScaled = _vaultATokenTotalScaledBalance[vaultId];
-        if (totalATokenScaled == 0) {
-            return 0;
-        }
-        uint256 currentIndex = AAVE_POOL.getReserveNormalizedIncome(_vaultTokens[vaultId]);
-        return (totalATokenScaled * currentIndex / RAY).toUint128();
+    /// @inheritdoc ISablierAaveAdapter
+    function getAaveTokenBalanceScaled(uint256 vaultId) external view override returns (uint256) {
+        return _aaveTokenScaledBalances[vaultId];
+    }
+
+    /// @inheritdoc ISablierAaveAdapter
+    function getAaveTokenBalanceScaledFor(uint256 vaultId, address user) external view override returns (uint256) {
+        return _aaveTokenScaledBalanceFor[vaultId][user];
     }
 
     /// @inheritdoc ISablierAaveAdapter
@@ -134,14 +135,13 @@ contract SablierAaveAdapter is
         return _tokensReceivedAfterUnstaking[vaultId];
     }
 
-    /// @inheritdoc ISablierAaveAdapter
-    function getATokenTotalScaledBalance(uint256 vaultId) external view override returns (uint256) {
-        return _vaultATokenTotalScaledBalance[vaultId];
-    }
-
-    /// @inheritdoc ISablierAaveAdapter
-    function getATokenUserScaledBalance(uint256 vaultId, address user) external view override returns (uint256) {
-        return _userATokenScaledBalances[vaultId][user];
+    /// @inheritdoc ISablierBobAdapter
+    function getTotalYieldBearingTokenBalance(uint256 vaultId) external view override returns (uint128) {
+        uint256 aaveTokenScaledBalance = _aaveTokenScaledBalances[vaultId];
+        if (aaveTokenScaledBalance == 0) {
+            return 0;
+        }
+        return _calculateUnderlyingAmount(_vaultTokens[vaultId], aaveTokenScaledBalance);
     }
 
     /// @inheritdoc ISablierBobAdapter
@@ -151,12 +151,11 @@ contract SablierAaveAdapter is
 
     /// @inheritdoc ISablierBobAdapter
     function getYieldBearingTokenBalanceFor(uint256 vaultId, address user) external view override returns (uint128) {
-        uint256 userATokenScaled = _userATokenScaledBalances[vaultId][user];
-        if (userATokenScaled == 0) {
+        uint256 userAaveTokenScaledBalance = _aaveTokenScaledBalanceFor[vaultId][user];
+        if (userAaveTokenScaledBalance == 0) {
             return 0;
         }
-        uint256 currentIndex = AAVE_POOL.getReserveNormalizedIncome(_vaultTokens[vaultId]);
-        return (userATokenScaled * currentIndex / RAY).toUint128();
+        return _calculateUnderlyingAmount(_vaultTokens[vaultId], userAaveTokenScaledBalance);
     }
 
     /// @inheritdoc ERC165
@@ -181,19 +180,19 @@ contract SablierAaveAdapter is
         returns (uint128 transferAmount, uint128 feeAmountDeductedFromYield)
     {
         // Get total scaled balance in the vault.
-        uint256 totalATokenScaled = _vaultATokenTotalScaledBalance[vaultId];
+        uint256 aaveTokenScaledBalance = _aaveTokenScaledBalances[vaultId];
 
         // Get total tokens received after unstaking.
         uint256 totalTokens = _tokensReceivedAfterUnstaking[vaultId];
 
         // If total scaled balance or total tokens received is zero, return zero.
-        if (totalATokenScaled == 0 || totalTokens == 0) {
+        if (aaveTokenScaledBalance == 0 || totalTokens == 0) {
             return (0, 0);
         }
 
         // Calculate the user's proportional share of the withdrawn tokens.
         uint128 userTokenShare =
-            (_userATokenScaledBalances[vaultId][user] * totalTokens / totalATokenScaled).toUint128();
+            (_aaveTokenScaledBalanceFor[vaultId][user] * totalTokens / aaveTokenScaledBalance).toUint128();
 
         // If the user's share is greater than their original deposit, the yield is positive and we need to calculate
         // the fee.
@@ -209,8 +208,8 @@ contract SablierAaveAdapter is
             transferAmount = userTokenShare;
         }
 
-        // Effect: clear the user's aToken scaled balance.
-        delete _userATokenScaledBalances[vaultId][user];
+        // Effect: clear the user's Aave token scaled balance.
+        delete _aaveTokenScaledBalanceFor[vaultId][user];
     }
 
     /// @inheritdoc ISablierBobAdapter
@@ -218,17 +217,20 @@ contract SablierAaveAdapter is
         // Retrieve the underlying token from SablierBob.
         address vaultToken = address(ISablierBobState(SABLIER_BOB).getUnderlyingToken(vaultId));
 
-        // Retrieve the aToken address for the underlying token.
-        (address aTokenAddress,,) = IAavePoolDataProvider(AAVE_POOL_DATA_PROVIDER).getReserveTokensAddresses(vaultToken);
+        // Retrieve the Aave token address for the underlying token.
+        (address aaveTokenAddress,,) =
+            IAavePoolDataProvider(AAVE_POOL_DATA_PROVIDER).getReserveTokensAddresses(vaultToken);
 
-        // Check: aToken address is not the zero address.
-        if (aTokenAddress == address(0)) {
+        // Check: Aave token address is not the zero address.
+        if (aaveTokenAddress == address(0)) {
             revert Errors.SablierAaveAdapter_TokenNotSupportedByAave(address(vaultToken));
         }
 
-        // Effect: store the vault token and aToken for future lookups.
+        // Effect: store the vault token and Aave token for future lookups.
         _vaultTokens[vaultId] = vaultToken;
-        _vaultATokens[vaultId] = IAaveAToken(aTokenAddress);
+        if (_aaveTokens[vaultToken] == IAaveToken(address(0))) {
+            _aaveTokens[vaultToken] = IAaveToken(aaveTokenAddress);
+        }
 
         // Effect: snapshot the current global yield fee for this vault.
         _vaultYieldFee[vaultId] = feeOnYield;
@@ -255,24 +257,25 @@ contract SablierAaveAdapter is
 
     /// @inheritdoc ISablierBobAdapter
     function stake(uint256 vaultId, address user, uint256 amount) external override onlySablierBob {
-        // Load the aToken into memory.
-        IAaveAToken aToken = _vaultATokens[vaultId];
+        // Load the vault token and Aave token into memory.
+        address vaultToken = _vaultTokens[vaultId];
+        IAaveToken aaveToken = _aaveTokens[vaultToken];
 
-        // Snapshot the contract's total aToken scaled balance before supply.
-        uint256 scaledATokenBefore = aToken.scaledBalanceOf(address(this));
+        // Snapshot the contract's total Aave token scaled balance before supply.
+        uint256 aaveTokenScaledBalanceBefore = aaveToken.scaledBalanceOf(address(this));
 
         // Interaction: supply tokens to the Aave Pool.
-        AAVE_POOL.supply(_vaultTokens[vaultId], amount, address(this), 0);
+        AAVE_POOL.supply(vaultToken, amount, address(this), 0);
 
         // The scaled balance delta is the exact scaled amount attributable to this deposit.
-        uint256 scaledATokenAmount = aToken.scaledBalanceOf(address(this)) - scaledATokenBefore;
+        uint256 aaveTokenAmount = aaveToken.scaledBalanceOf(address(this)) - aaveTokenScaledBalanceBefore;
 
         // Effect: track user's scaled balance.
-        _userATokenScaledBalances[vaultId][user] += scaledATokenAmount;
-        _vaultATokenTotalScaledBalance[vaultId] += scaledATokenAmount;
+        _aaveTokenScaledBalanceFor[vaultId][user] += aaveTokenAmount;
+        _aaveTokenScaledBalances[vaultId] += aaveTokenAmount;
 
         // Log the event.
-        emit Stake(vaultId, user, amount, scaledATokenAmount);
+        emit Stake(vaultId, user, amount, aaveTokenAmount);
     }
 
     /// @inheritdoc ISablierBobAdapter
@@ -280,17 +283,16 @@ contract SablierAaveAdapter is
         external
         override
         onlySablierBob
-        returns (uint128 totalVaultATokenBalance, uint128 amountReceivedFromUnstaking)
+        returns (uint128 vaultTokenBalance, uint128 amountReceivedFromUnstaking)
     {
         // Load the vault token into memory.
         address vaultToken = _vaultTokens[vaultId];
 
-        // Convert the vault's aToken total scaled balance back to underlying tokens using the current liquidity index.
-        uint256 currentIndex = AAVE_POOL.getReserveNormalizedIncome(vaultToken);
-        totalVaultATokenBalance = (_vaultATokenTotalScaledBalance[vaultId] * currentIndex / RAY).toUint128();
+        // Convert the vault's Aave token total scaled balance back to underlying tokens.
+        vaultTokenBalance = _calculateUnderlyingAmount(vaultToken, _aaveTokenScaledBalances[vaultId]);
 
         // Interaction: withdraw only this vault's portion from Aave directly to SablierBob.
-        uint256 actualWithdrawn = AAVE_POOL.withdraw(vaultToken, totalVaultATokenBalance, SABLIER_BOB);
+        uint256 actualWithdrawn = AAVE_POOL.withdraw(vaultToken, vaultTokenBalance, SABLIER_BOB);
         amountReceivedFromUnstaking = actualWithdrawn.toUint128();
 
         // Effect: store the total tokens received.
@@ -299,7 +301,7 @@ contract SablierAaveAdapter is
         // Log the event.
         emit UnstakeFullAmount({
             vaultId: vaultId,
-            totalStakedAmount: totalVaultATokenBalance,
+            totalStakedAmount: vaultTokenBalance,
             amountReceivedFromUnstaking: amountReceivedFromUnstaking
         });
     }
@@ -322,7 +324,7 @@ contract SablierAaveAdapter is
         }
 
         // Calculate proportional scaled balance to transfer.
-        uint256 fromScaled = _userATokenScaledBalances[vaultId][from];
+        uint256 fromScaled = _aaveTokenScaledBalanceFor[vaultId][from];
 
         // Calculate the portion of scaled balance to transfer.
         uint256 scaledToTransfer = fromScaled * shareAmountTransferred / userShareBalanceBeforeTransfer;
@@ -333,10 +335,21 @@ contract SablierAaveAdapter is
         }
 
         // Effect: move scaled balance from sender to recipient.
-        _userATokenScaledBalances[vaultId][from] -= scaledToTransfer;
-        _userATokenScaledBalances[vaultId][to] += scaledToTransfer;
+        _aaveTokenScaledBalanceFor[vaultId][from] -= scaledToTransfer;
+        _aaveTokenScaledBalanceFor[vaultId][to] += scaledToTransfer;
 
         // Log the event.
         emit TransferStakedTokens(vaultId, from, to, scaledToTransfer);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            PRIVATE READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Converts a scaled Aave Token amount to the corresponding underlying token amount using the token's current
+    /// Aave liquidity index.
+    function _calculateUnderlyingAmount(address vaultToken, uint256 scaledAmount) private view returns (uint128) {
+        uint256 currentIndex = AAVE_POOL.getReserveNormalizedIncome(vaultToken);
+        return (scaledAmount * currentIndex / RAY).toUint128();
     }
 }

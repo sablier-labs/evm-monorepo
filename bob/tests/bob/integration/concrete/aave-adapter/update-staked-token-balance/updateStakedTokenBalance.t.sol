@@ -64,13 +64,13 @@ contract UpdateStakedTokenBalance_AaveAdapter_Integration_Concrete_Test is Integ
 
         // It should decrease sender scaled balance.
         uint256 actualSenderScaled =
-            aaveAdapter.getATokenUserScaledBalance(vaultIds.vaultWithAaveAdapter, users.depositor);
+            aaveAdapter.getAaveTokenBalanceScaledFor(vaultIds.vaultWithAaveAdapter, users.depositor);
         uint256 expectedSenderScaled = WBTC_DEPOSIT_AMOUNT - expectedScaledTransfer;
         assertEq(actualSenderScaled, expectedSenderScaled, "sender.scaledBalance");
 
         // It should increase recipient scaled balance.
         uint256 actualRecipientScaled =
-            aaveAdapter.getATokenUserScaledBalance(vaultIds.vaultWithAaveAdapter, users.newDepositor);
+            aaveAdapter.getAaveTokenBalanceScaledFor(vaultIds.vaultWithAaveAdapter, users.newDepositor);
         uint256 expectedRecipientScaled = expectedScaledTransfer;
         assertEq(actualRecipientScaled, expectedRecipientScaled, "recipient.scaledBalance");
     }

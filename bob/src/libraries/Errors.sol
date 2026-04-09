@@ -153,7 +153,7 @@ library Errors {
     /// @notice Thrown when the calculated scaled balance transfer amount rounds down to zero due to floor division.
     error SablierAaveAdapter_ScaledTransferAmountZero(uint256 vaultId, address from, address to);
 
-    /// @notice Thrown when the token is not supported by Aave (aToken address resolved to zero).
+    /// @notice Thrown when the token is not supported by Aave.
     error SablierAaveAdapter_TokenNotSupportedByAave(address token);
 
     /// @notice Thrown when trying to update staked token balance but the user's balance is zero.

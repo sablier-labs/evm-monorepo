@@ -20,23 +20,23 @@ interface ISablierAaveAdapter is ISablierBobAdapter {
     /// @dev This is an immutable state variable.
     function AAVE_POOL_DATA_PROVIDER() external view returns (address);
 
+    /// @notice Returns the total Aave Token scaled balance for a vault.
+    /// @dev The Aave Token scaled balance is the sum of all users' Aave Token scaled balances. It is used as the
+    /// denominator in proportional redemption calculations.
+    /// @param vaultId The ID of the vault.
+    /// @return The total Aave Token scaled balance for the vault.
+    function getAaveTokenBalanceScaled(uint256 vaultId) external view returns (uint256);
+
+    /// @notice Returns the Aave Token scaled balance for a specific user in a vault.
+    /// @dev The Aave Token scaled balance encodes both the deposit amount and deposit timing via the Aave liquidity
+    /// index. @param vaultId The ID of the vault.
+    /// @param user The address of the user.
+    /// @return The user's Aave Token scaled balance in the vault.
+    function getAaveTokenBalanceScaledFor(uint256 vaultId, address user) external view returns (uint256);
+
     /// @notice Returns the total underlying tokens received after unstaking for a vault.
     /// @dev This value is set during {unstakeFullAmount} and used for proportional redemption calculations.
     /// @param vaultId The ID of the vault.
     /// @return The total amount of underlying tokens received from withdrawing the vault's Aave position.
     function getTokensReceivedAfterUnstaking(uint256 vaultId) external view returns (uint256);
-
-    /// @notice Returns the total aToken scaled balance for a vault.
-    /// @dev The aToken scaled balance is the sum of all users' aToken scaled balances. It is used as the
-    /// denominator in proportional redemption calculations.
-    /// @param vaultId The ID of the vault.
-    /// @return The total aToken scaled balance for the vault.
-    function getATokenTotalScaledBalance(uint256 vaultId) external view returns (uint256);
-
-    /// @notice Returns the aToken scaled balance for a specific user in a vault.
-    /// @dev The aToken scaled balance encodes both the deposit amount and deposit timing via the Aave liquidity index.
-    /// @param vaultId The ID of the vault.
-    /// @param user The address of the user.
-    /// @return The user's aToken scaled balance in the vault.
-    function getATokenUserScaledBalance(uint256 vaultId, address user) external view returns (uint256);
 }

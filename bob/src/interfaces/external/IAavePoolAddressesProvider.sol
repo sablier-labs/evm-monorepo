@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.22;
 
-/// @notice Minimal interface for Aave V3 PoolAddressesProvider.
-/// @dev One per chain/market. Used to resolve Pool and DataProvider addresses.
+/// @notice Minimal interface for Aave V3 pool addresses provider.
 interface IAavePoolAddressesProvider {
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS

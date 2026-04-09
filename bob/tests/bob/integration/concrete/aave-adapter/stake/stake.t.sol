@@ -44,13 +44,13 @@ contract Stake_AaveAdapter_Integration_Concrete_Test is Integration_Test {
         aaveAdapter.stake(vaultIds.vaultWithAaveAdapter, users.newDepositor, WBTC_DEPOSIT_AMOUNT);
 
         // It should update vault total scaled balance.
-        uint256 actualVaultTotal = aaveAdapter.getATokenTotalScaledBalance(vaultIds.vaultWithAaveAdapter);
+        uint256 actualVaultTotal = aaveAdapter.getAaveTokenBalanceScaled(vaultIds.vaultWithAaveAdapter);
         uint256 expectedVaultTotal = 2 * WBTC_DEPOSIT_AMOUNT; // One from setUp, one from this stake.
         assertEq(actualVaultTotal, expectedVaultTotal, "vaultTotalScaledBalance");
 
         // It should update user scaled balance.
         uint256 actualUserScaled =
-            aaveAdapter.getATokenUserScaledBalance(vaultIds.vaultWithAaveAdapter, users.newDepositor);
+            aaveAdapter.getAaveTokenBalanceScaledFor(vaultIds.vaultWithAaveAdapter, users.newDepositor);
         uint256 expectedUserScaled = WBTC_DEPOSIT_AMOUNT;
         assertEq(actualUserScaled, expectedUserScaled, "userScaledBalance");
     }

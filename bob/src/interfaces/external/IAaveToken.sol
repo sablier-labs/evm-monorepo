@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.22;
 
-/// @notice Minimal interface for Aave V3 aTokens (interest-bearing tokens).
-/// @dev aTokens are rebasing: `balanceOf` returns an increasing value over time.
-///      Internally they store a scaled balance and multiply by the liquidity index on read.
-interface IAaveAToken {
+/// @notice Minimal interface for Aave V3 interest-bearing tokens.
+/// @dev Aave tokens are rebasing tokens: `balanceOf` returns an increasing value over time. Internally they store a
+/// scaled balance and multiply by the liquidity index on read.
+interface IAaveToken {
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -14,7 +14,7 @@ interface IAaveAToken {
     function balanceOf(address user) external view returns (uint256);
 
     /// @notice Returns the scaled balance (the raw internal balance before index multiplication).
-    /// @dev This value is fixed at deposit time and does not change. Use this for per-vault
-    ///      accounting when a single contract holds aTokens for multiple vaults.
+    /// @dev This value is fixed at deposit time and does not change. Use this for per-vault accounting when a single
+    /// contract holds aTokens for multiple vaults.
     function scaledBalanceOf(address user) external view returns (uint256);
 }

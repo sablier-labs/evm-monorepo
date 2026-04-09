@@ -34,19 +34,19 @@ contract Getters_AaveAdapter_Integration_Concrete_Test is Integration_Test {
         );
     }
 
-    function test_GetATokenTotalScaledBalance() external view {
+    function test_getAaveTokenBalanceScaled() external view {
         // It should return the total scaled balance.
         assertEq(
-            aaveAdapter.getATokenTotalScaledBalance(vaultIds.vaultWithAaveAdapter),
+            aaveAdapter.getAaveTokenBalanceScaled(vaultIds.vaultWithAaveAdapter),
             WBTC_DEPOSIT_AMOUNT,
             "aTokenTotalScaledBalance"
         );
     }
 
-    function test_GetATokenUserScaledBalance() external view {
+    function test_getAaveTokenBalanceScaledFor() external view {
         // It should return the user's scaled balance.
         assertEq(
-            aaveAdapter.getATokenUserScaledBalance(vaultIds.vaultWithAaveAdapter, users.depositor),
+            aaveAdapter.getAaveTokenBalanceScaledFor(vaultIds.vaultWithAaveAdapter, users.depositor),
             WBTC_DEPOSIT_AMOUNT,
             "aTokenUserScaledBalance"
         );
