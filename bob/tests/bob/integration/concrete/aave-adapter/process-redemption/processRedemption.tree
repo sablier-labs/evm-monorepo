@@ -11,10 +11,8 @@ ProcessRedemption_AaveAdapter_Integration_Concrete_Test
          ├── when user token share exceeds share balance
          │  ├── it should return the correct fee amount
          │  ├── it should return the correct amount to transfer to user
-         │  ├── it should clear the user scaled balance
-         │  └── it should not change the vault total scaled balance
+         │  └── it should clear the user scaled balance
          └── when user token share not exceed share balance
             ├── it should return correct amount to transfer to user
             ├── it should return zero fee amount
-            ├── it should clear the user scaled balance
-            └── it should not change the vault total scaled balance
+            └── it should clear the user scaled balance

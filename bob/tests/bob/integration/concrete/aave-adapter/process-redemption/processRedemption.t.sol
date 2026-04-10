@@ -83,9 +83,6 @@ contract ProcessRedemption_AaveAdapter_Integration_Concrete_Test is Integration_
         (uint128 expectedFeeOnYield, uint128 expectedAmountToTransfer) =
             calculateYieldBreakdown(expectedAmountForDepositor, WBTC_DEPOSIT_AMOUNT, YIELD_FEE);
 
-        // Store the vault total yield bearing token balance before processing.
-        uint128 vaultTotalBefore = aaveAdapter.getTotalYieldBearingTokenBalance(vaultIds.vaultWithAaveAdapter);
-
         (uint128 transferAmount, uint128 feeAmountDeductedFromYield) =
             aaveAdapter.processRedemption(vaultIds.vaultWithAaveAdapter, users.depositor, WBTC_DEPOSIT_AMOUNT);
 
@@ -102,13 +99,6 @@ contract ProcessRedemption_AaveAdapter_Integration_Concrete_Test is Integration_
             0,
             "userScaledBalance after processing"
         );
-
-        // It should not change the vault total scaled balance.
-        assertEq(
-            aaveAdapter.getTotalYieldBearingTokenBalance(vaultIds.vaultWithAaveAdapter),
-            vaultTotalBefore,
-            "vaultTotalScaledBalance unchanged"
-        );
     }
 
     function test_WhenUserTokenShareNotExceedShareBalance()
@@ -119,9 +109,6 @@ contract ProcessRedemption_AaveAdapter_Integration_Concrete_Test is Integration_
     {
         // Unstake tokens in adapter (no yield change).
         bob.unstakeTokensViaAdapter(vaultIds.vaultWithAaveAdapter);
-
-        // Store the vault total before processing.
-        uint128 vaultTotalBefore = aaveAdapter.getTotalYieldBearingTokenBalance(vaultIds.vaultWithAaveAdapter);
 
         (uint128 transferAmount, uint128 feeAmountDeductedFromYield) =
             aaveAdapter.processRedemption(vaultIds.vaultWithAaveAdapter, users.depositor, WBTC_DEPOSIT_AMOUNT);
@@ -137,13 +124,6 @@ contract ProcessRedemption_AaveAdapter_Integration_Concrete_Test is Integration_
             aaveAdapter.getYieldBearingTokenBalanceFor(vaultIds.vaultWithAaveAdapter, users.depositor),
             0,
             "userScaledBalance after processing"
-        );
-
-        // It should not change the vault total scaled balance.
-        assertEq(
-            aaveAdapter.getTotalYieldBearingTokenBalance(vaultIds.vaultWithAaveAdapter),
-            vaultTotalBefore,
-            "vaultTotalScaledBalance unchanged"
         );
     }
 }

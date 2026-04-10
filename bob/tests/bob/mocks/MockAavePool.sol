@@ -37,5 +37,6 @@ contract MockAavePool is IAavePool {
 
     function setNormalizedIncome(uint256 newIncome) external {
         _normalizedIncome = newIncome;
+        aToken.setNormalizedIncome(newIncome);
     }
 }

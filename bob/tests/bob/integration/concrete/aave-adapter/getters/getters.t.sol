@@ -34,7 +34,7 @@ contract Getters_AaveAdapter_Integration_Concrete_Test is Integration_Test {
         );
     }
 
-    function test_getAaveTokenBalanceScaled() external view {
+    function test_GetAaveTokenBalanceScaled() external view {
         // It should return the total scaled balance.
         assertEq(
             aaveAdapter.getAaveTokenBalanceScaled(vaultIds.vaultWithAaveAdapter),
@@ -43,7 +43,7 @@ contract Getters_AaveAdapter_Integration_Concrete_Test is Integration_Test {
         );
     }
 
-    function test_getAaveTokenBalanceScaledFor() external view {
+    function test_GetAaveTokenBalanceScaledFor() external view {
         // It should return the user's scaled balance.
         assertEq(
             aaveAdapter.getAaveTokenBalanceScaledFor(vaultIds.vaultWithAaveAdapter, users.depositor),
