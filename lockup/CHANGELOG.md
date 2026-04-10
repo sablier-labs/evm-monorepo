@@ -40,8 +40,6 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
-- **Breaking:** Rename `aggregateBalance` to `aggregateAmount`
-  ([#1228](https://github.com/sablier-labs/lockup/pull/1228))
 - Refactor `SablierLockup` contract into model-specific abstract contracts
   ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
 - Refactor `DataTypes` into separate type files ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
@@ -55,6 +53,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Added
 
+- Add `aggregateAmount` getter function ([#1228](https://github.com/sablier-labs/lockup/pull/1228))
 - ERC20 recovery functionality ([#1182](https://github.com/sablier-labs/lockup/pull/1182))
 - Function to calculate minimum fee in wei ([#1270](https://github.com/sablier-labs/lockup/pull/1270))
 - `CreateBatchLockup` event in `BatchLockup` ([#1274](https://github.com/sablier-labs/lockup/pull/1274))
