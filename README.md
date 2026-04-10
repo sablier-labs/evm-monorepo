@@ -3,6 +3,11 @@
 Monorepo for Sablier's EVM smart contracts. In-depth documentation is available at
 [docs.sablier.com](https://docs.sablier.com).
 
+> [!NOTE]
+> This repository previously contained only the [Lockup](./lockup) protocol. It has since been expanded into a monorepo
+> hosting all of Sablier's EVM smart contracts. Legacy version tags (`v1.0` through `v3.0.1`) refer to Lockup releases
+> and have been aliased as `lockup@v1.0` through `lockup@v3.0.1` for clarity.
+
 ## Packages
 
 | Package                  | Description                                           | Docs                                                        |
