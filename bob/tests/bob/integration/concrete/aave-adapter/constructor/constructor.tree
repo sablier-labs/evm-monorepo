@@ -1,0 +1,9 @@
+Constructor_AaveAdapter_Integration_Concrete_Test
+├── when yield fee exceeds max
+│  └── it should revert
+└── when yield fee not exceed max
+   ├── it should set the comptroller
+   ├── it should set the AAVE_POOL via addresses provider
+   ├── it should set the AAVE_POOL_DATA_PROVIDER via addresses provider
+   ├── it should set SABLIER_BOB
+   └── it should set the fee on yield

@@ -1,0 +1,8 @@
+Stake_AaveAdapter_Integration_Concrete_Test
+├── when caller not Bob
+│  └── it should revert
+└── when caller Bob
+   ├── it should supply tokens to Aave Pool
+   ├── it should update vault total scaled balance
+   ├── it should update user scaled balance
+   └── it should emit a {Stake} event

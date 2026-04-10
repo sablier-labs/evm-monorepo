@@ -7,7 +7,7 @@ import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
 
 import { Fork_Test } from "./Fork.t.sol";
 
-contract Bob_Fork_Test is Fork_Test {
+contract LidoAdapter_Fork_Test is Fork_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                        PARAMS
     //////////////////////////////////////////////////////////////////////////*/

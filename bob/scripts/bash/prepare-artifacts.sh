@@ -26,18 +26,24 @@ mkdir "$artifacts" \
 ################################################
 
 bob=./artifacts/
+cp out-optimized/BobVaultShare.sol/BobVaultShare.json "$bob"
+cp out-optimized/SablierAaveAdapter.sol/SablierAaveAdapter.json "$bob"
 cp out-optimized/SablierBob.sol/SablierBob.json "$bob"
 cp out-optimized/SablierEscrow.sol/SablierEscrow.json "$bob"
 cp out-optimized/SablierLidoAdapter.sol/SablierLidoAdapter.json "$bob"
-cp out-optimized/BobVaultShare.sol/BobVaultShare.json "$bob"
 
 bob_interfaces=./artifacts/interfaces
 cp out-optimized/IBobVaultShare.sol/IBobVaultShare.json "$bob_interfaces"
+cp out-optimized/ISablierAaveAdapter.sol/ISablierAaveAdapter.json "$bob_interfaces"
 cp out-optimized/ISablierBob.sol/ISablierBob.json "$bob_interfaces"
 cp out-optimized/ISablierEscrow.sol/ISablierEscrow.json "$bob_interfaces"
 cp out-optimized/ISablierLidoAdapter.sol/ISablierLidoAdapter.json "$bob_interfaces"
 
 bob_external=./artifacts/interfaces/external
+cp out-optimized/IAavePool.sol/IAavePool.json "$bob_external"
+cp out-optimized/IAavePoolAddressesProvider.sol/IAavePoolAddressesProvider.json "$bob_external"
+cp out-optimized/IAavePoolDataProvider.sol/IAavePoolDataProvider.json "$bob_external"
+cp out-optimized/IAaveToken.sol/IAaveToken.json "$bob_external"
 cp out-optimized/ICurveStETHPool.sol/ICurveStETHPool.json "$bob_external"
 cp out-optimized/ILidoWithdrawalQueue.sol/ILidoWithdrawalQueue.json "$bob_external"
 cp out-optimized/IStETH.sol/IStETH.json "$bob_external"

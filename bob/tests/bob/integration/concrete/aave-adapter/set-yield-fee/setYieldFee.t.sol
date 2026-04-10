@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity >=0.8.22 <0.9.0;
+
+import { ud, UD60x18, UNIT } from "@prb/math/src/UD60x18.sol";
+import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
+
+import { ISablierBobAdapter } from "src/interfaces/ISablierBobAdapter.sol";
+import { Errors } from "src/libraries/Errors.sol";
+
+import { Integration_Test } from "../../../Integration.t.sol";
+
+contract SetYieldFee_AaveAdapter_Integration_Concrete_Test is Integration_Test {
+    UD60x18 internal newYieldFee = ud(0.15e18);
+
+    function test_RevertWhen_CallerNotComptroller() external {
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.depositor
+            )
+        );
+        aaveAdapter.setYieldFee(newYieldFee);
+    }
+
+    function test_RevertWhen_YieldFeeExceedsMax() external whenCallerComptroller {
+        newYieldFee = MAX_YIELD_FEE.add(UNIT);
+
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierAaveAdapter_YieldFeeTooHigh.selector, newYieldFee, MAX_YIELD_FEE)
+        );
+        aaveAdapter.setYieldFee(newYieldFee);
+    }
+
+    function test_WhenYieldFeeNotExceedMax() external whenCallerComptroller {
+        // It should emit a {SetYieldFee} event.
+        vm.expectEmit({ emitter: address(aaveAdapter) });
+        emit ISablierBobAdapter.SetYieldFee({ previousFee: YIELD_FEE, newFee: newYieldFee });
+
+        aaveAdapter.setYieldFee(newYieldFee);
+
+        // It should set the new yield fee.
+        assertEq(aaveAdapter.feeOnYield(), newYieldFee, "yieldFee");
+    }
+}

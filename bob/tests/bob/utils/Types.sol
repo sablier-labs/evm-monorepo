@@ -9,6 +9,8 @@ struct VaultIds {
     uint256 nullVault;
     // A settled vault.
     uint256 settledVault;
+    // A vault with Aave adapter enabled.
+    uint256 vaultWithAaveAdapter;
     // A vault with Lido adapter enabled.
     uint256 vaultWithAdapter;
 }
