@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { Base_Test } from "./../Base.t.sol";
+import { Base_Test } from "../Base.t.sol";
 
 /// @notice Base logic needed by the fork tests.
 abstract contract Fork_Test is Base_Test {

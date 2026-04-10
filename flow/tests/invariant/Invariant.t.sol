@@ -6,7 +6,7 @@ import { StdInvariant } from "forge-std/src/StdInvariant.sol";
 
 import { Flow } from "src/types/DataTypes.sol";
 
-import { Base_Test } from "./../Base.t.sol";
+import { Base_Test } from "../Base.t.sol";
 import { FlowComptrollerHandler } from "./handlers/FlowComptrollerHandler.sol";
 import { FlowCreateHandler } from "./handlers/FlowCreateHandler.sol";
 import { FlowHandler } from "./handlers/FlowHandler.sol";

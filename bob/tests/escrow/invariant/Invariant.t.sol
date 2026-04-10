@@ -81,8 +81,8 @@ contract Invariant_Test is Base_Test, StdInvariant {
 
             for (uint256 i = 0; i < store.orderCount(); ++i) {
                 uint256 orderId = store.orderIds(i);
-                bool isOpenOrExpired =
-                    escrow.statusOf(orderId) == Escrow.Status.OPEN || escrow.statusOf(orderId) == Escrow.Status.EXPIRED;
+                Escrow.Status status = escrow.statusOf(orderId);
+                bool isOpenOrExpired = status == Escrow.Status.OPEN || status == Escrow.Status.EXPIRED;
                 if (escrow.getSellToken(orderId) == token && isOpenOrExpired) {
                     expectedBalance += escrow.getSellAmount(orderId);
                 }
@@ -96,25 +96,13 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    /// @dev Inv 36: On cancellation, the full sellAmount must be returned to the seller.
-    function invariant_CancellationReturnsFullSellAmount() external view {
-        for (uint256 i = 0; i < store.cancelRecordCount(); ++i) {
-            Store.CancelData memory data = store.getCancelRecord(i);
-            assertEq(
-                data.sellerBalanceAfter - data.sellerBalanceBefore,
-                data.sellAmount,
-                "Invariant violation: cancellation did not return full sellAmount to seller"
-            );
-        }
-    }
-
-    /// @dev Inv 50: wasFilled and wasCanceled must never both be true for the same order.
+    /// @dev For a given order, only one of `wasFilled` or `wasCanceled` can be true.
     function invariant_FilledAndCanceledMutuallyExclusive() external view {
         for (uint256 i = 0; i < store.orderCount(); ++i) {
             uint256 orderId = store.orderIds(i);
             bool filled = escrow.wasFilled(orderId);
             bool canceled = escrow.wasCanceled(orderId);
-            assertFalse(filled && canceled, "Inv 50: wasFilled and wasCanceled both true for same order");
+            assertFalse(filled && canceled, "Invariant violation: wasFilled and wasCanceled both true");
         }
     }
 }

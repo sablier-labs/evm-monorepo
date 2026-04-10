@@ -5,7 +5,7 @@ import { ISablierEscrow } from "src/interfaces/ISablierEscrow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Escrow } from "src/types/Escrow.sol";
 
-import { Integration_Test } from "./../Integration.t.sol";
+import { Integration_Test } from "../Integration.t.sol";
 
 contract CancelOrder_Integration_Fuzz_Test is Integration_Test {
     /// @dev It should revert when the caller is not the seller.
