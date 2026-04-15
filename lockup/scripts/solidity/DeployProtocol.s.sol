@@ -19,10 +19,7 @@ contract DeployProtocol is BaseScript, LockupNFTDescriptorAddresses {
     {
         // If the contract is not already deployed, deploy it.
         if (nftDescriptorAddress() == address(0)) {
-            // Use just the version as salt as we want to deploy at the same address across all chains.
-            bytes32 nftDescriptorSalt = bytes32(abi.encodePacked(getVersion()));
-
-            nftDescriptor = new LockupNFTDescriptor{ salt: nftDescriptorSalt }();
+            nftDescriptor = new LockupNFTDescriptor();
         }
         // Otherwise, use the address of the existing contract.
         else {
