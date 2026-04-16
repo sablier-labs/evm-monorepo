@@ -67,7 +67,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     /// - The stream balances sum should equal the aggregate amount.
     /// - The stream balances sum should equal the total deposits minus the total refunds and total withdrawals.
     function invariant_Balances() external view {
-        // Check the invariant for each token.
+        // It should hold the invariant for each token.
         for (uint256 i = 0; i < tokens.length; ++i) {
             IERC20 token = IERC20(tokens[i]);
             uint256 erc20Balance = token.balanceOf(address(flow));

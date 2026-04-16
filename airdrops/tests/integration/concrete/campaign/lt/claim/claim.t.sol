@@ -89,7 +89,7 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         // Claim the airstream.
         claim();
 
-        // Assert that the stream has been created successfully.
+        // It should create the stream successfully.
         assertEq(lockup.getDepositedAmount(expectedStreamId), CLAIM_AMOUNT, "depositedAmount");
         assertEq(lockup.getEndTime(expectedStreamId), streamStartTime + VESTING_TOTAL_DURATION, "stream end time");
         assertEq(lockup.getRecipient(expectedStreamId), users.recipient, "recipient");

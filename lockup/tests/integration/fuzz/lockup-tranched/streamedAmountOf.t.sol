@@ -103,7 +103,7 @@ contract StreamedAmountOf_Lockup_Tranched_Integration_Fuzz_Test is Lockup_Tranch
         // Warp to the future for the second time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeWarp1 });
 
-        // Assert that this streamed amount is greater than or equal to the previous streamed amount.
+        // It should return a streamed amount greater than or equal to the previous streamed amount.
         uint128 streamedAmount1 = lockup.streamedAmountOf(streamId);
         assertGe(streamedAmount1, streamedAmount0, "streamedAmount");
     }

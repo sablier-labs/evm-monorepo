@@ -142,13 +142,13 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         // Claim and execute.
         claim();
 
-        // Assert the index is marked as claimed.
+        // It should mark the index as claimed.
         assertTrue(merkleExecute.hasClaimed(index), "not claimed");
 
-        // Assert the fee was collected.
+        // It should collect the fee.
         assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee not collected");
 
-        // Assert the tokens were transferred to the target.
+        // It should transfer the tokens to the target.
         assertEq(dai.balanceOf(address(merkleExecute)), initialCampaignBalance - CLAIM_AMOUNT, "tokens not transferred");
         assertEq(dai.balanceOf(address(mockStaking)), CLAIM_AMOUNT, "tokens not received by target");
     }

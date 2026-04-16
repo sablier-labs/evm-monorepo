@@ -141,7 +141,7 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
             merkleProof: vars.merkleProof
         });
 
-        // Assertions when vesting end time does not exceed the block time.
+        // It should transfer the tokens when vesting end time does not exceed the block time.
         if (expectedVestingStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             assertEq(
                 FORK_TOKEN.balanceOf(vars.leafToClaim.recipient),
@@ -149,7 +149,7 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
                 "recipient token balance"
             );
         }
-        // Assertions when vesting end time exceeds the block time.
+        // It should create a stream when vesting end time exceeds the block time.
         else {
             LockupLinear.UnlockAmounts memory expectedUnlockAmounts = LockupLinear.UnlockAmounts({
                 start: ud60x18(vars.leafToClaim.amount).mul(VESTING_START_UNLOCK_PERCENTAGE).intoUint128(),
@@ -170,7 +170,7 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
                 shape: STREAM_SHAPE
             });
 
-            // Assert that the stream has been created successfully.
+            // It should create the stream successfully.
             assertEq(lockup, expectedStreamId, expectedLockup);
             assertEq(
                 lockup.getCliffTime(expectedStreamId), expectedVestingStartTime + VESTING_CLIFF_DURATION, "cliff time"
@@ -183,7 +183,7 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
             assertEq(merkleLL.claimedStreams(vars.leafToClaim.recipient), expectedClaimedStreamIds, "claimed streams");
         }
 
-        // Assert that the claim has been made.
+        // It should make the claim.
         assertTrue(merkleLL.hasClaimed(vars.leafToClaim.index));
 
         /*//////////////////////////////////////////////////////////////////////////

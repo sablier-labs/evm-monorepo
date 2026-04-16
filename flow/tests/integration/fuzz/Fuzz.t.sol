@@ -46,7 +46,7 @@ abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
     /// @return uint8 The fuzzed decimals.
     /// @return uint128 The fuzzed deposit amount.
     function useFuzzedStreamOrCreate(uint256 streamId, uint8 decimals) internal returns (uint256, uint8, uint128) {
-        // Check if stream id is picked from the fixtures.
+        // It should use a stream from the fixtures if available.
         if (!flow.isStream(streamId)) {
             // If not, create a new stream.
             decimals = boundUint8(decimals, 0, 18);

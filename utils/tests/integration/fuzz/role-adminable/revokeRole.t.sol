@@ -39,7 +39,7 @@ contract RevokeRole_RoleAdminable_Fuzz_Test is Base_Test {
         // Revoke the role from account.
         roleAdminableMock.revokeRole(role, account);
 
-        // Assert that the role has been revoked from the account.
+        // It should revoke the role from the account.
         assertFalse(roleAdminableMock.hasRoleOrIsAdmin(role, account), "hasRole");
     }
 }

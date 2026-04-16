@@ -88,7 +88,7 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
         givenCampaignStartTimeNotInFuture
         whenTotalPercentage100
     {
-        // Ensure that tranches are not empty and not too large.
+        // It should have non-empty tranches that are not too large.
         vm.assume(tranches.length <= 1000 && tranches.length > 0);
 
         // Bound the vesting start time.

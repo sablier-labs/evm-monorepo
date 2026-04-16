@@ -198,8 +198,8 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         // Fuzz the tranche amounts and calculate the deposit amount.
         Vars memory vars;
 
-        // Check if the stream is settled. It is possible for a stream to settle at the time of creation because some
-        // tranche amounts can be zero.
+        // It should determine if the stream is settled. It is possible for a stream to settle at the time of creation
+        // because some tranche amounts can be zero.
         vars.isSettled = (lockup.getDepositedAmount(streamId) - lockup.streamedAmountOf(streamId)) == 0;
         vars.isCancelable = vars.isSettled ? false : params.cancelable;
 
@@ -218,7 +218,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
-        // Assert that the stream's status is correct.
+        // It should return the correct stream status.
         vars.actualStatus = lockup.statusOf(streamId);
         if (params.timestamps.start > getBlockTimestamp()) {
             vars.expectedStatus = Lockup.Status.PENDING;
@@ -229,17 +229,17 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         }
         assertEq(vars.actualStatus, vars.expectedStatus);
 
-        // Assert that the next stream ID has been bumped.
+        // It should bump the next stream ID.
         vars.actualNextStreamId = lockup.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
-        // Assert that the NFT has been minted.
+        // It should mint the NFT.
         vars.actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
-        // Assert that the aggregate amount has been updated.
+        // It should update the aggregate amount.
         assertEq(lockup.aggregateAmount(dai), previousAggregateAmount + params.depositAmount);
     }
 }

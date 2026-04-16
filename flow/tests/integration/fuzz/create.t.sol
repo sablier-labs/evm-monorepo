@@ -33,7 +33,7 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         external
         whenNoDelegateCall
     {
-        // Check the sender and recipient are not zero.
+        // It should have non-zero sender and recipient.
         vm.assume(sender != address(0) && recipient != address(0));
 
         // Bound the variables.
@@ -79,7 +79,8 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             transferable: transferable
         });
 
-        // Assert stream's initial states. This is the only place testing for state's getter functions.
+        // It should set the stream's initial states correctly. This is the only place testing for state's getter
+        // functions.
         assertEq(flow.getBalance(actualStreamId), 0);
         assertEq(flow.getSnapshotTime(actualStreamId), expectedStartTime);
         assertEq(flow.getRatePerSecond(actualStreamId), ratePerSecond);
@@ -91,17 +92,17 @@ contract Create_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         assertEq(flow.isStream(actualStreamId), true);
         assertEq(flow.isTransferable(actualStreamId), transferable);
 
-        // Assert that the next stream ID has been bumped.
+        // It should bump the next stream ID.
         uint256 actualNextStreamId = flow.nextStreamId();
         uint256 expectedNextStreamId = expectedStreamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
-        // Assert that the minted NFT has the correct owner.
+        // It should mint the NFT with the correct owner.
         address actualNFTOwner = flow.ownerOf({ tokenId: expectedStreamId });
         address expectedNFTOwner = recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
 
-        // Assert the total debt of the stream.
+        // It should return the correct total debt of the stream.
         uint256 actualTotalDebt = flow.totalDebtOf(actualStreamId);
         uint256 expectedTotalDebt;
         if (startTime > 0 && startTime < getBlockTimestamp()) {

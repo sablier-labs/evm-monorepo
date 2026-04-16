@@ -26,7 +26,7 @@ contract DepletionTimeOf_Integration_Concrete_Test is Shared_Integration_Concret
         uint256 depletionTimestamp = WARP_SOLVENCY_PERIOD + 1;
         vm.warp({ newTimestamp: depletionTimestamp });
 
-        // Check that uncovered debt is greater than 0.
+        // It should have uncovered debt greater than zero.
         assertGt(flow.uncoveredDebtOf(defaultStreamId), 0);
 
         // It should return 0.

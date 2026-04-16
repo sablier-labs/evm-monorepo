@@ -109,7 +109,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Pause the stream.
         flow.pause(streamId);
 
-        // Assert that the status is paused.
+        // It should set the status to paused.
         assertTrue(
             flow.statusOf(streamId) == Flow.Status.PAUSED_SOLVENT
                 || flow.statusOf(streamId) == Flow.Status.PAUSED_INSOLVENT,
@@ -118,7 +118,7 @@ contract Pause_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         assertEq(flow.ongoingDebtScaledOf(streamId), 0, "ongoing debt");
 
-        // Assert that the rate per second is 0.
+        // It should set the rate per second to 0.
         assertEq(flow.getRatePerSecond(streamId), 0, "rate per second");
     }
 }

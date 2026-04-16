@@ -33,7 +33,7 @@ contract CoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: boundUint40(warpTimestamp, getBlockTimestamp() + 1, MAX_UINT40) });
 
-        // Assert that the covered debt did not change.
+        // It should not change the covered debt.
         uint256 actualCoveredDebt = flow.coveredDebtOf(streamId);
         assertEq(actualCoveredDebt, expectedCoveredDebt);
     }
@@ -62,7 +62,7 @@ contract CoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
 
-        // Assert that the covered debt equals the ongoing debt.
+        // It should match the covered debt with the ongoing debt.
         uint256 actualCoveredDebt = flow.coveredDebtOf(streamId);
         uint256 expectedCoveredDebt =
             getDescaledAmount(ratePerSecond * (warpTimestamp - flow.getSnapshotTime(streamId)), decimals);
@@ -84,11 +84,11 @@ contract CoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: warpTimestamp });
 
-        // Assert that the covered debt equals the stream balance.
+        // It should match the covered debt with the stream balance.
         uint256 actualCoveredDebt = flow.coveredDebtOf(streamId);
         assertEq(actualCoveredDebt, flow.getBalance(streamId), "covered debt vs stream balance");
 
-        // Assert that the covered debt is same as the deposited amount.
+        // It should match the covered debt with the deposited amount.
         assertEq(actualCoveredDebt, depositedAmount, "covered debt vs deposited amount");
     }
 }

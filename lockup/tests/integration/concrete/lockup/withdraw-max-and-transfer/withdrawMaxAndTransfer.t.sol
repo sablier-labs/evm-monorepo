@@ -135,10 +135,10 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
             newRecipient: users.alice
         });
 
-        // Assert that the withdrawn amount has been updated.
+        // It should update the withdrawn amount.
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the operator is the new stream recipient (and NFT owner).
+        // It should set the operator as the new stream recipient (and NFT owner).
         address actualRecipient = lockup.getRecipient(ids.defaultStream);
         address expectedRecipient = users.alice;
         assertEq(actualRecipient, expectedRecipient, "recipient");
@@ -182,7 +182,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
             newRecipient: users.alice
         });
 
-        // it should update the withdrawn amount.abi
+        // It should update the withdrawn amount.
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // It should transfer the NFT.

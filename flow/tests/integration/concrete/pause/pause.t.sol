@@ -71,7 +71,7 @@ contract Pause_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         whenCallerSender
         givenStarted
     {
-        // Check that uncovered debt is greater than zero.
+        // It should have uncovered debt greater than zero.
         assertGt(flow.uncoveredDebtOf(defaultStreamId), 0, "uncovered debt");
 
         // It should pause the stream.
@@ -89,7 +89,7 @@ contract Pause_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         // Make deposit to repay uncovered debt.
         depositToDefaultStream();
 
-        // Check that uncovered debt is zero.
+        // It should have zero uncovered debt.
         assertEq(flow.uncoveredDebtOf(defaultStreamId), 0, "uncovered debt");
 
         // It should pause the stream.

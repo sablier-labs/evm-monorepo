@@ -23,7 +23,7 @@ contract Constructor_Comptrollerable_Concrete_Test is Base_Test {
     }
 
     function test_Constructor() external view whenComptrollerWithMinimalInterfaceId {
-        // Assert the state variables.
+        // It should set the state variables.
         assertEq(address(comptrollerableMock.comptroller()), address(comptroller), "comptroller");
     }
 }

@@ -209,23 +209,23 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         assertEq(lockup.getUnlockAmounts(vars.actualStreamId), unlockAmounts);
         assertFalse(lockup.wasCanceled(vars.actualStreamId), "wasCanceled");
 
-        // Assert that the stream's status is correct.
+        // It should return the correct stream status.
         vars.actualStatus = lockup.statusOf(vars.actualStreamId);
         vars.expectedStatus =
             params.timestamps.start > getBlockTimestamp() ? Lockup.Status.PENDING : Lockup.Status.STREAMING;
         assertEq(vars.actualStatus, vars.expectedStatus);
 
-        // Assert that the next stream ID has been bumped.
+        // It should bump the next stream ID.
         vars.actualNextStreamId = lockup.nextStreamId();
         vars.expectedNextStreamId = vars.actualStreamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
-        // Assert that the NFT has been minted.
+        // It should mint the NFT.
         vars.actualNFTOwner = lockup.ownerOf({ tokenId: vars.actualStreamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
-        // Assert that the aggregate amount has been updated.
+        // It should update the aggregate amount.
         assertEq(lockup.aggregateAmount(dai), previousAggregateAmount + params.depositAmount);
     }
 }

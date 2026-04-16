@@ -148,7 +148,7 @@ contract Void_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Void the stream.
         flow.void(streamId);
 
-        // Assert the checklist.
+        // It should update the checklist.
         assertTrue(flow.isVoided(streamId), "voided");
         assertEq(flow.statusOf(streamId), Flow.Status.VOIDED, "status");
         assertEq(flow.getRatePerSecond(streamId), 0, "rate per second");

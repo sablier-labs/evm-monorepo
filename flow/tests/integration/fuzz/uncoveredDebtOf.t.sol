@@ -26,7 +26,7 @@ contract UncoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Skip forward by `timeJump`.
         skip(timeJump);
 
-        // Assert that uncovered debt equals expected value.
+        // It should match the uncovered debt with the expected value.
         uint256 actualUncoveredDebt = flow.uncoveredDebtOf(streamId);
         assertEq(actualUncoveredDebt, expectedUncoveredDebt, "uncovered debt");
     }
@@ -61,7 +61,7 @@ contract UncoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: warpTimestamp });
 
-        // Assert that the uncovered debt equals expected value.
+        // It should match the uncovered debt with the expected value.
         uint256 actualUncoveredDebt = flow.uncoveredDebtOf(streamId);
         uint256 expectedUncoveredDebt;
         if (warpTimestamp > depletionTime) {
@@ -70,7 +70,7 @@ contract UncoveredDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
             expectedUncoveredDebt = 0;
         }
 
-        // Assert that the uncovered debt is the same as the expected value.
+        // It should match the uncovered debt with the expected value.
         assertEq(actualUncoveredDebt, expectedUncoveredDebt);
     }
 }

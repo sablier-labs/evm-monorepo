@@ -152,7 +152,7 @@ contract Withdraw_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vars.expectedTokenBalance = vars.previousTokenBalance - withdrawAmount;
         assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "token balance");
 
-        // Assert that aggregate amount has been updated.
+        // It should update the aggregate amount.
         vars.actualAggregateAmount = flow.aggregateAmount(token);
         vars.expectedAggregateAmount = vars.previousAggregateAmount - withdrawAmount;
         assertEq(vars.actualAggregateAmount, vars.expectedAggregateAmount, "aggregate amount");

@@ -117,7 +117,7 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
             unlockParams: LockupPriceGated.UnlockParams(ORACLE, params.targetPrice)
         });
 
-        // Assert that the stream is created with the correct parameters.
+        // It should create the stream with the correct parameters.
         assertEq(lockup.getDepositedAmount(varsLPG.streamId), params.create.depositAmount, "depositedAmount");
         assertEq(lockup.getEndTime(varsLPG.streamId), params.create.timestamps.end, "endTime");
         assertEq(lockup.getRecipient(varsLPG.streamId), params.create.recipient, "recipient");
@@ -144,7 +144,7 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         // The stream should be cancelable right after creation.
         assertTrue(lockup.isCancelable(varsLPG.streamId), "post-create isCancelable");
 
-        // Assert that the aggregate amount has been updated.
+        // It should update the aggregate amount.
         varsLPG.expectedAggregateAmount = varsLPG.initialAggregateAmount + params.create.depositAmount;
         assertEq(lockup.aggregateAmount(FORK_TOKEN), varsLPG.expectedAggregateAmount, "aggregateAmount");
 
@@ -154,11 +154,11 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         varsLPG.actualLockupBalance = balances[0];
         varsLPG.actualHolderBalance = balances[1];
 
-        // Assert that the Lockup contract's balance has been updated.
+        // It should update the Lockup contract's balance.
         uint256 expectedLockupBalance = varsLPG.initialLockupBalance + params.create.depositAmount;
         assertEq(varsLPG.actualLockupBalance, expectedLockupBalance, "post-create Lockup balance");
 
-        // Assert that the holder's balance has been updated.
+        // It should update the holder's balance.
         uint128 expectedHolderBalance = initialHolderBalance - params.create.depositAmount;
         assertEq(varsLPG.actualHolderBalance, expectedHolderBalance, "post-create Holder balance");
 
@@ -218,7 +218,7 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
             amount: params.withdrawAmount
         });
 
-        // Assert that the stream's status is correct.
+        // It should return the correct stream status.
         if (varsLPG.isDepleted) {
             varsLPG.expectedStatus = Lockup.Status.DEPLETED;
         } else {
@@ -226,10 +226,10 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         }
         assertEq(lockup.statusOf(varsLPG.streamId), varsLPG.expectedStatus, "post-withdraw stream status");
 
-        // Assert that the withdrawn amount has been updated.
+        // It should update the withdrawn amount.
         assertEq(lockup.getWithdrawnAmount(varsLPG.streamId), params.withdrawAmount, "post-withdraw withdrawnAmount");
 
-        // Assert that the aggregate amount has been updated.
+        // It should update the aggregate amount.
         varsLPG.expectedAggregateAmount -= params.withdrawAmount;
         assertEq(lockup.aggregateAmount(FORK_TOKEN), varsLPG.expectedAggregateAmount, "aggregateAmount");
 
@@ -238,22 +238,22 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         varsLPG.actualLockupBalance = balances[0];
         varsLPG.actualRecipientBalance = balances[1];
 
-        // Assert that the contract's balance has been updated.
+        // It should update the contract's balance.
         expectedLockupBalance = varsLPG.initialLockupBalance - params.withdrawAmount;
         assertEq(varsLPG.actualLockupBalance, expectedLockupBalance, "post-withdraw Lockup balance");
 
-        // Assert that the contract's ETH balance has been updated.
+        // It should update the contract's ETH balance.
         assertEq(
             address(lockup).balance,
             varsLPG.initialComptrollerBalanceETH + actualMinFeeWei,
             "post-withdraw Lockup balance ETH"
         );
 
-        // Assert that the Recipient's balance has been updated.
+        // It should update the Recipient's balance.
         uint256 expectedRecipientBalance = varsLPG.initialRecipientBalance + params.withdrawAmount;
         assertEq(varsLPG.actualRecipientBalance, expectedRecipientBalance, "post-withdraw Recipient balance");
 
-        // Assert that the NFT is still owned by the recipient.
+        // It should keep the NFT owned by the recipient.
         assertEq(lockup.ownerOf(varsLPG.streamId), params.create.recipient, "post-withdraw NFT owner");
     }
 
@@ -329,16 +329,16 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         setMsgSender(params.create.sender);
         uint128 refundedAmount = lockup.cancel(varsLPG.streamId);
 
-        // Assert that the refunded amount is correct (full deposit for unsettled LPG streams).
+        // It should return the correct refunded amount (full deposit for unsettled LPG streams).
         assertEq(refundedAmount, varsLPG.senderAmount, "refundedAmount");
         assertEq(refundedAmount, params.create.depositAmount, "refundedAmount equals deposit");
 
-        // Assert that the stream's status is correct.
+        // It should return the correct stream status.
         // Since recipientAmount is 0 for unsettled LPG streams, status should be DEPLETED.
         varsLPG.expectedStatus = varsLPG.recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
         assertEq(lockup.statusOf(varsLPG.streamId), varsLPG.expectedStatus, "post-cancel stream status");
 
-        // Assert that the aggregate amount returns to its pre-create value.
+        // It should return the aggregate amount to its pre-create value.
         varsLPG.expectedAggregateAmount = varsLPG.initialAggregateAmount;
         assertEq(lockup.aggregateAmount(FORK_TOKEN), varsLPG.expectedAggregateAmount, "aggregateAmount");
 
@@ -350,18 +350,18 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         varsLPG.actualSenderBalance = balances[1];
         varsLPG.actualRecipientBalance = balances[2];
 
-        // Assert that the contract's balance has been updated.
+        // It should update the contract's balance.
         uint256 expectedLockupBalance = varsLPG.initialLockupBalance - varsLPG.senderAmount;
         assertEq(varsLPG.actualLockupBalance, expectedLockupBalance, "post-cancel Lockup balance");
 
-        // Assert that the Sender's balance has been updated.
+        // It should update the Sender's balance.
         uint256 expectedSenderBalance = varsLPG.initialSenderBalance + varsLPG.senderAmount;
         assertEq(varsLPG.actualSenderBalance, expectedSenderBalance, "post-cancel Sender balance");
 
-        // Assert that the Recipient's balance has not changed.
+        // It should not change the Recipient's balance.
         assertEq(varsLPG.actualRecipientBalance, varsLPG.initialRecipientBalance, "post-cancel Recipient balance");
 
-        // Assert that the NFT is still owned by the recipient.
+        // It should keep the NFT owned by the recipient.
         assertEq(lockup.ownerOf(varsLPG.streamId), params.create.recipient, "post-cancel NFT owner");
     }
 

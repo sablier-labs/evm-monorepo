@@ -116,12 +116,12 @@ contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
             amount: vars.withdrawAmount
         });
 
-        // Check if the stream is depleted or settled. It is possible for the stream to be just settled
+        // It should determine if the stream is depleted or settled. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.
         vars.isDepleted = vars.withdrawAmount == vars.depositAmount;
         vars.isSettled = lockup.refundableAmountOf(vars.streamId) == 0;
 
-        // Assert that the stream's status is correct.
+        // It should return the correct stream status.
         vars.actualStatus = lockup.statusOf(vars.streamId);
         if (vars.isDepleted) {
             vars.expectedStatus = Lockup.Status.DEPLETED;
@@ -132,12 +132,12 @@ contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
         }
         assertEq(vars.actualStatus, vars.expectedStatus);
 
-        // Assert that the withdrawn amount has been updated.
+        // It should update the withdrawn amount.
         vars.actualWithdrawnAmount = lockup.getWithdrawnAmount(vars.streamId);
         vars.expectedWithdrawnAmount = vars.withdrawAmount;
         assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the aggregate amount has been updated.
+        // It should update the aggregate amount.
         assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - vars.actualWithdrawnAmount, "aggregateAmount");
     }
 }

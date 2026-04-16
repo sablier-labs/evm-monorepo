@@ -18,7 +18,7 @@ abstract contract FactoryMerkleExecute_Integration_Shared_Test is Integration_Te
         // Cast the {FactoryMerkleExecute} contract as {ISablierFactoryMerkleBase}
         factoryMerkleBase = ISablierFactoryMerkleBase(factoryMerkleExecute);
 
-        // Assert that the comptroller is set correctly.
+        // It should set the comptroller correctly.
         assertEq(address(factoryMerkleBase.comptroller()), address(comptroller), "Comptroller mismatch");
 
         // Set the `merkleBase` to the merkleExecute contract to use it in the tests.

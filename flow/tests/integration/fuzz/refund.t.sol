@@ -72,8 +72,8 @@ contract Refund_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Simulate the passage of time.
         vm.warp({ newTimestamp: timeJump });
 
-        // Ensure refundable amount is not zero. It could be zero for a small time range upto the depletion time due to
-        // precision error.
+        // It should have a non-zero refundable amount. It could be zero for a small time range upto the depletion time
+        // due to precision error.
         vm.assume(flow.refundableAmountOf(streamId) != 0);
 
         // Bound the refund amount to avoid error.
@@ -97,17 +97,17 @@ contract Refund_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Request the refund.
         flow.refund({ streamId: streamId, amount: refundAmount });
 
-        // Assert that the token balance of stream has been updated.
+        // It should update the token balance of the stream.
         uint256 actualTokenBalance = token.balanceOf(address(flow));
         uint256 expectedTokenBalance = initialTokenBalance - refundAmount;
         assertEq(actualTokenBalance, expectedTokenBalance, "token balanceOf");
 
-        // Assert that stored balance in stream has been updated.
+        // It should update the stored balance in the stream.
         uint256 actualStreamBalance = flow.getBalance(streamId);
         uint256 expectedStreamBalance = initialStreamBalance - refundAmount;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
-        // Assert that the aggregate amount has been updated.
+        // It should update the aggregate amount.
         uint256 actualAggregateAmount = flow.aggregateAmount(token);
         uint256 expectedAggregateAmount = initialAggregateAmount - refundAmount;
         assertEq(actualAggregateAmount, expectedAggregateAmount, "aggregate amount");

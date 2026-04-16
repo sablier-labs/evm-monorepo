@@ -37,7 +37,7 @@ contract SetDefaultAdapter_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenNewAdapterSupportsInterface() external whenCallerComptroller whenNewAdapterNotZeroAddress {
-        // Check that no adapter is set.
+        // It should not have an adapter set.
         assertEq(address(bob.getDefaultAdapterFor(dai)), address(0), "adapter");
 
         // It should emit a {SetDefaultAdapter} event.
@@ -51,7 +51,7 @@ contract SetDefaultAdapter_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenNewAdapterZeroAddress() external whenCallerComptroller {
-        // Check that the adapter is set.
+        // It should set the adapter for the token.
         bob.setDefaultAdapter(weth, adapter);
 
         // It should emit a {SetDefaultAdapter} event.

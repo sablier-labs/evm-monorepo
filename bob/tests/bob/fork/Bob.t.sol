@@ -55,7 +55,7 @@ contract Bob_Fork_Test is Fork_Test {
         // Step 2: Deposit WETH into the vault.
         _enterVault(params, vaultId);
 
-        // Verify wstETH was staked.
+        // It should stake the wstETH.
         uint128 userWstETH = forkAdapter.getYieldBearingTokenBalanceFor(vaultId, params.depositor);
         assertGt(userWstETH, 0, "userWstETH after enter");
 
@@ -69,7 +69,7 @@ contract Bob_Fork_Test is Fork_Test {
         uint128 amountReceived = forkBob.unstakeTokensViaAdapter(vaultId);
         assertGt(amountReceived, 0, "amountReceived from Curve unstaking");
 
-        // Verify WETH was received by Bob.
+        // It should transfer WETH to Bob.
         assertGe(FORK_WETH.balanceOf(address(forkBob)), amountReceived, "bob WETH balance after unstake");
 
         // Step 5: Redeem as the depositor.
@@ -77,10 +77,10 @@ contract Bob_Fork_Test is Fork_Test {
         (uint128 transferAmount, uint128 feeDeducted) = forkBob.redeem(vaultId);
         assertGt(transferAmount, 0, "transferAmount after redeem");
 
-        // Verify depositor received WETH.
+        // It should transfer WETH to the depositor.
         assertGe(FORK_WETH.balanceOf(params.depositor), transferAmount, "depositor WETH balance after redeem");
 
-        // Verify the fee was sent to the comptroller (if yield was positive).
+        // It should send the fee to the comptroller (if yield was positive).
         if (feeDeducted > 0) {
             assertGe(FORK_WETH.balanceOf(address(comptroller)), feeDeducted, "comptroller WETH balance after redeem");
         }
@@ -114,7 +114,7 @@ contract Bob_Fork_Test is Fork_Test {
         uint128 amountReceived = forkBob.unstakeTokensViaAdapter(vaultId);
         assertGt(amountReceived, 0, "amountReceived from Lido claim");
 
-        // Verify WETH was received by Bob.
+        // It should transfer WETH to Bob.
         assertGe(FORK_WETH.balanceOf(address(forkBob)), amountReceived, "bob WETH balance after unstake");
 
         // Step 7: Redeem as the depositor.
@@ -122,10 +122,10 @@ contract Bob_Fork_Test is Fork_Test {
         (uint128 transferAmount, uint128 feeDeducted) = forkBob.redeem(vaultId);
         assertGt(transferAmount, 0, "transferAmount after redeem");
 
-        // Verify depositor received WETH.
+        // It should transfer WETH to the depositor.
         assertGe(FORK_WETH.balanceOf(params.depositor), transferAmount, "depositor WETH balance after redeem");
 
-        // Verify the fee was sent to the comptroller (if yield was positive).
+        // It should send the fee to the comptroller (if yield was positive).
         if (feeDeducted > 0) {
             assertGe(FORK_WETH.balanceOf(address(comptroller)), feeDeducted, "comptroller WETH balance after redeem");
         }
@@ -155,20 +155,20 @@ contract Bob_Fork_Test is Fork_Test {
         setMsgSender(address(comptroller));
         forkAdapter.requestLidoWithdrawal(vaultId);
 
-        // Verify request IDs were stored.
+        // It should store the request IDs.
         uint256[] memory requestIds = forkAdapter.getLidoWithdrawalRequestIds(vaultId);
         assertGt(requestIds.length, 0, "requestIds length");
 
-        // Verify each request ID is valid (non-zero).
+        // It should set each request ID to a valid (non-zero) value.
         for (uint256 i; i < requestIds.length; ++i) {
             assertGt(requestIds[i], 0, "requestId non-zero");
         }
 
-        // Verify the vault's wstETH was consumed (unwrapped and submitted to Lido).
+        // It should consume the vault's wstETH (unwrapped and submitted to Lido).
         uint256 wstETHAfter = IERC20(FORK_WSTETH).balanceOf(address(forkAdapter));
         assertEq(wstETHBefore - wstETHAfter, vaultTotalWstETH, "adapter wstETH consumed for vault");
 
-        // Verify a duplicate request reverts.
+        // It should revert on a duplicate request.
         vm.expectRevert();
         forkAdapter.requestLidoWithdrawal(vaultId);
     }
@@ -202,16 +202,16 @@ contract Bob_Fork_Test is Fork_Test {
         setMsgSender(address(comptroller));
         forkAdapter.requestLidoWithdrawal(vaultId);
 
-        // Verify request IDs were stored (should be 2 requests due to splitting).
+        // It should store the request IDs (should be 2 requests due to splitting).
         uint256[] memory requestIds = forkAdapter.getLidoWithdrawalRequestIds(vaultId);
         assertEq(requestIds.length, 2, "requestIds length should be 2");
 
-        // Verify each request ID is valid.
+        // It should set each request ID to a valid value.
         for (uint256 i; i < requestIds.length; ++i) {
             assertGt(requestIds[i], 0, "requestId non-zero");
         }
 
-        // Verify the vault's wstETH was fully consumed.
+        // It should fully consume the vault's wstETH.
         uint256 wstETHAfter = IERC20(FORK_WSTETH).balanceOf(address(forkAdapter));
         assertEq(wstETHBefore - wstETHAfter, vaultTotalWstETH, "adapter wstETH consumed for vault");
     }

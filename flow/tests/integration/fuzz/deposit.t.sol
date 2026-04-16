@@ -70,17 +70,17 @@ contract Deposit_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Make the deposit.
         flow.deposit(streamId, depositAmount, users.sender, users.recipient);
 
-        // Assert that the token balance of stream has been updated.
+        // It should update the token balance of the stream.
         uint256 actualTokenBalance = token.balanceOf(address(flow));
         uint256 expectedTokenBalance = initialTokenBalance + depositAmount;
         assertEq(actualTokenBalance, expectedTokenBalance, "token balanceOf");
 
-        // Assert that stored balance in stream has been updated.
+        // It should update the stored balance in the stream.
         uint256 actualStreamBalance = flow.getBalance(streamId);
         uint256 expectedStreamBalance = initialStreamBalance + depositAmount;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
-        // Assert that aggregate amount has been updated.
+        // It should update the aggregate amount.
         uint256 actualAggregateAmount = flow.aggregateAmount(token);
         uint256 expectedAggregateAmount = initialAggregateAmount + depositAmount;
         assertEq(actualAggregateAmount, expectedAggregateAmount, "aggregate amount");

@@ -28,16 +28,16 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         // Cancel the stream.
         uint128 refundedAmount = lockup.cancel(ids.defaultStream);
 
-        // Assert that the stream's status is "DEPLETED".
+        // It should mark the stream as depleted.
         Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the stream is not cancelable anymore.
+        // It should make the stream not cancelable.
         bool isCancelable = lockup.isCancelable(ids.defaultStream);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the aggregate amount has been updated.
+        // It should update the aggregate amount.
         assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - refundedAmount, "aggregateAmount");
     }
 
@@ -111,22 +111,22 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         // Cancel the stream.
         uint128 refundedAmount = lockup.cancel(ids.recipientGoodStream);
 
-        // Assert that the amount refunded matches the expected value.
+        // It should match the amount refunded with the expected value.
         assertEq(refundedAmount, senderAmount, "refundedAmount");
 
-        // Assert that the stream's status is "DEPLETED" if recipient amount is zero, otherwise it should be "CANCELED".
+        // It should mark the stream as "DEPLETED" if recipient amount is zero, otherwise "CANCELED".
         Lockup.Status actualStatus = lockup.statusOf(ids.recipientGoodStream);
         Lockup.Status expectedStatus = recipientAmount == 0 ? Lockup.Status.DEPLETED : Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the stream is not cancelable anymore.
+        // It should make the stream not cancelable.
         bool isCancelable = lockup.isCancelable(ids.recipientGoodStream);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the aggregate amount has been updated.
+        // It should update the aggregate amount.
         assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - refundedAmount, "aggregateAmount");
 
-        // Assert that the not burned NFT.
+        // It should not burn the NFT.
         address actualNFTOwner = lockup.ownerOf({ tokenId: ids.recipientGoodStream });
         address expectedNFTOwner = address(recipientGood);
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");

@@ -12,7 +12,7 @@ abstract contract HasExpired_Integration_Test is Integration_Test {
     ISablierMerkleBase internal campaignWithZeroExpiration;
 
     function test_GivenCampaignIsNotVca() external view whenExpirationZero {
-        // Assert only for non-VCA campaigns.
+        // It should return false for non-VCA campaigns.
         if (!Strings.equal(campaignType, "vca")) {
             assertFalse(campaignWithZeroExpiration.hasExpired(), "campaign expired");
         }
