@@ -45,7 +45,7 @@ jobs:
   check:
     uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
     with:
-      foundry-version: "v1.5.0"
+      foundry-version: "v1.6.1"
       name: "Full check"
       working-directory: ${{ inputs.module }}
 
@@ -57,7 +57,7 @@ jobs:
         ${{ inputs.module }}/node_modules
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
-      foundry-version: "v1.5.0"
+      foundry-version: "v1.6.1"
       name: "Build"
       working-directory: ${{ inputs.module }}
 
@@ -85,7 +85,7 @@ jobs:
         ${{ inputs.module }}/out-optimized
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
-      foundry-version: "v1.5.0"
+      foundry-version: "v1.6.1"
       match-path: ${{ inputs.match-path-fork }}
       name: "Fork tests"
       working-directory: ${{ inputs.module }}
@@ -101,7 +101,7 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      foundry-version: "v1.5.0"
+      foundry-version: "v1.6.1"
       match-path: ${{ inputs.match-path-integration }}
       name: "Integration tests"
       working-directory: ${{ inputs.module }}
@@ -117,7 +117,7 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      foundry-version: "v1.5.0"
+      foundry-version: "v1.6.1"
       match-path: ${{ inputs.match-path-invariant }}
       name: "Invariant tests"
       working-directory: ${{ inputs.module }}
@@ -133,7 +133,7 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      foundry-version: "v1.5.0"
+      foundry-version: "v1.6.1"
       match-path: ${{ inputs.match-path-unit }}
       name: "Unit tests"
       working-directory: ${{ inputs.module }}
@@ -150,7 +150,7 @@ jobs:
         ${{ inputs.module }}/node_modules
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
-      foundry-version: "v1.5.0"
+      foundry-version: "v1.6.1"
       match-path: ${{ inputs.match-path-coverage }}
       name: "Coverage"
       via-ir-minimum: false
