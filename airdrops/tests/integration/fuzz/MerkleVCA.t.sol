@@ -63,22 +63,22 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
             vm.warp({ newTimestamp: claimTime });
         }
 
-        // Assert the claim and forgone amounts if vesting start time is in the future.
+        // It should return zero for the claim and forgone amounts if vesting start time is in the future.
         if (getBlockTimestamp() < VCA_START_TIME) {
             assertEq(actualClaimAmount, 0, "claim amount before vesting start time");
             assertEq(actualForgoneAmount, 0, "forgone amount before vesting start time");
         }
 
-        // Assert the claim and forgone amounts if vesting start time is in the present.
+        // It should return the correct claim and forgone amounts if vesting start time is in the present.
         if (getBlockTimestamp() == VCA_START_TIME) {
             uint128 unlockAmount = VCA_UNLOCK_PERCENTAGE.mul(ud(fullAmount)).intoUint128();
 
             assertEq(actualClaimAmount, unlockAmount, "claim amount at vesting start time");
             assertEq(actualForgoneAmount, fullAmount - unlockAmount, "forgone amount at vesting start time");
         }
-        // Assert the claim and forgone amounts if vesting start time is in the past.
+        // It should return the correct claim and forgone amounts if vesting start time is in the past.
         else {
-            // Assert the claim and forgone amounts if vesting end time is in the future.
+            // It should return the correct claim and forgone amounts if vesting end time is in the future.
             if (getBlockTimestamp() < VCA_END_TIME) {
                 (uint128 expectedClaimAmount, uint128 expectedForgoneAmount) = calculateMerkleVCAAmounts({
                     fullAmount: fullAmount,
@@ -90,7 +90,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
                 assertEq(actualClaimAmount, expectedClaimAmount, "claim amount before vesting end time");
                 assertEq(actualForgoneAmount, expectedForgoneAmount, "forgone amount before end time");
             }
-            // Assert the claim and forgone amounts if vesting end time is not in the future.
+            // It should return the correct claim and forgone amounts if vesting end time is not in the future.
             else {
                 assertEq(actualClaimAmount, fullAmount, "claim amount after vesting end time");
                 assertEq(actualForgoneAmount, 0, "forgone amount after vesting end time");
@@ -214,7 +214,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         // Create the campaign.
         merkleVCA = factoryMerkleVCA.createMerkleVCA(params, leavesData.length);
 
-        // Verify that the contract is deployed at the correct address.
+        // It should deploy the contract at the correct address.
         assertGt(address(merkleVCA).code.length, 0, "MerkleVCA contract not created");
         assertEq(address(merkleVCA), expectedMerkleVCA, "MerkleVCA contract does not match computed address");
 

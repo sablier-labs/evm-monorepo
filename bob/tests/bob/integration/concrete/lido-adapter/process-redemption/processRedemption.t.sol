@@ -27,7 +27,7 @@ contract ProcessRedemption_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_GivenTotalWstETHZero() external whenCallerBob {
-        // Assert that total wstETH is zero.
+        // It should return zero for total wstETH.
         assertEq(adapter.getTotalYieldBearingTokenBalance(vaultIds.defaultVault), 0, "totalYieldBearingTokenBalance");
 
         // It should return zero.
@@ -42,7 +42,7 @@ contract ProcessRedemption_Integration_Concrete_Test is Integration_Test {
         // Calculate the expected wstETH balance of the adapter as there are two users in the vault.
         uint256 expectedWstETHBalanceOfAdapter = 2 * WSTETH_RECEIVED_FOR_DEPOSIT_AMOUNT;
 
-        // Assert that total WETH is zero but total wstETH is not zero.
+        // It should return zero for total WETH but not for total wstETH.
         assertEq(adapter.getWethReceivedAfterUnstaking(vaultIds.vaultWithAdapter), 0, "wethReceivedAfterUnstaking");
         assertEq(
             adapter.getTotalYieldBearingTokenBalance(vaultIds.vaultWithAdapter),

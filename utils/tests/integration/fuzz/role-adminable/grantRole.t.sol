@@ -39,7 +39,7 @@ contract GrantRole_RoleAdminable_Fuzz_Test is Base_Test {
         // Grant the role to account.
         roleAdminableMock.grantRole(role, account);
 
-        // Assert that the role has been granted to the account.
+        // It should grant the role to the account.
         assertTrue(roleAdminableMock.hasRoleOrIsAdmin(role, account), "hasRole");
     }
 }

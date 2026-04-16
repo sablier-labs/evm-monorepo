@@ -70,7 +70,7 @@ abstract contract Lockup_Dynamic_Fork_Test is Lockup_Fork_Test {
         // Create the stream.
         lockup.createWithTimestampsLD(params.create, params.segments);
 
-        // Assert that the stream is created with the correct parameters.
+        // It should create the stream with the correct parameters.
         assertEq({ lockup: lockup, streamId: vars.streamId, expectedLockup: params.create });
         assertEq(lockup.getSegments(vars.streamId), params.segments);
 

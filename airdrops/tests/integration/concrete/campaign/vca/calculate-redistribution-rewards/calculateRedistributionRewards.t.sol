@@ -21,7 +21,7 @@ contract CalculateRedistributionRewards_MerkleVCA_Integration_Test is MerkleVCA_
     }
 
     function test_GivenTotalForgoneAmountZero() external givenRedistributionEnabled(merkleVCA) {
-        // Check that the total forgone amount is zero.
+        // It should have zero total forgone amount.
         assertEq(merkleVCA.totalForgoneAmount(), 0, "total forgone amount");
 
         // It should return zero.
@@ -52,7 +52,7 @@ contract CalculateRedistributionRewards_MerkleVCA_Integration_Test is MerkleVCA_
             merkleProof: getMerkleProof()
         });
 
-        // Check that the total forgone amount is not zero.
+        // It should have non-zero total forgone amount.
         assertGt(merkleVCA.totalForgoneAmount(), 0, "total forgone amount");
 
         // It should return zero.

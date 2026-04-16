@@ -81,11 +81,11 @@ contract ChainlinkOracle_Fork_Test is Base_Test {
         (, int256 price,, uint256 updatedAt,) = AggregatorV3Interface(oracle).latestRoundData();
         uint8 oracleDecimals = AggregatorV3Interface(oracle).decimals();
 
-        // Assert that the Chainlink price feed returns non-zero values.
+        // It should return non-zero values from the Chainlink price feed.
         vm.assertGt(uint256(price), 0, "price");
         vm.assertGt(updatedAt, 0, "updated at");
 
-        // Assert that the oracle returns 8 decimals.
+        // It should return 8 decimals from the oracle.
         vm.assertEq(oracleDecimals, 8, "oracle decimals");
     }
 }

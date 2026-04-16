@@ -41,7 +41,7 @@ contract DisableCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
 
     /// @dev Shared logic to test disabling the custom fee.
     function _disableCustomFeeUSDFor(ISablierComptroller.Protocol protocol, address caller) private {
-        // Check that custom fee is set.
+        // It should have custom fee set.
         assertEq(comptroller.calculateMinFeeWeiFor(protocol, users.sender), 0, "custom fee set");
 
         // It should emit an {UpdateCustomFeeUSD} event.

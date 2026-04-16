@@ -29,14 +29,14 @@ contract DepletionTimeOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         uint40 snapshotTime = flow.getSnapshotTime(streamId);
 
-        // Assert that depletion time equals expected value.
+        // It should match the depletion time with the expected value.
         uint256 actualDepletionTime = flow.depletionTimeOf(streamId);
         uint256 expectedDepletionTime = carry > 0 ? snapshotTime + solvencyPeriod + 1 : snapshotTime + solvencyPeriod;
         assertEq(actualDepletionTime, expectedDepletionTime, "depletion time");
 
         // Warp time to 1 second before the depletion timestamp.
         vm.warp({ newTimestamp: actualDepletionTime - 1 });
-        // Assert that total debt does not exceed the stream balance before depletion time.
+        // It should not have total debt exceeding the stream balance before depletion time.
         assertLe(
             flow.totalDebtOf(streamId), flow.getBalance(streamId), "pre-depletion period: total debt exceeds balance"
         );
@@ -44,7 +44,7 @@ contract DepletionTimeOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Warp time to the depletion timestamp.
         vm.warp({ newTimestamp: actualDepletionTime });
-        // Assert that total debt exceeds the stream balance at depletion time.
+        // It should have total debt exceeding the stream balance at depletion time.
         assertGt(
             flow.totalDebtOf(streamId),
             flow.getBalance(streamId),
@@ -54,7 +54,7 @@ contract DepletionTimeOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         // Warp time to 1 second after the depletion timestamp.
         vm.warp({ newTimestamp: actualDepletionTime + 1 });
-        // Assert that total debt exceeds the stream balance after depletion time.
+        // It should have total debt exceeding the stream balance after depletion time.
         assertGt(
             flow.totalDebtOf(streamId),
             flow.getBalance(streamId),

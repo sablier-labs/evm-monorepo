@@ -156,7 +156,7 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
 
         uint128 expectedUnlockCliffAmount = cliffTime > 0 ? CLIFF_AMOUNT : 0;
 
-        // Assert that the stream has been created successfully.
+        // It should create the stream successfully.
         assertEq(lockup.getCliffTime(expectedStreamId), cliffTime, "vesting cliff time");
         assertEq(lockup.getDepositedAmount(expectedStreamId), CLAIM_AMOUNT, "depositedAmount");
         assertEq(lockup.getEndTime(expectedStreamId), streamStartTime + VESTING_TOTAL_DURATION, "stream end time");

@@ -45,7 +45,7 @@ contract CreateWithDurationsLD_Integration_Test is Integration_Test {
             streamIds: expectedStreamIds
         });
 
-        // Assert that the batch of streams has been created successfully.
+        // It should create the batch of streams successfully.
         uint256[] memory actualStreamIds =
             batchLockup.createWithDurationsLD(lockup, dai, defaults.batchCreateWithDurationsLD());
         assertEq(actualStreamIds, expectedStreamIds, "stream ids mismatch");

@@ -69,7 +69,7 @@ contract CreateWithTimestampsLPG_Integration_Fuzz_Test is Lockup_PriceGated_Inte
         assertEq(address(unlockParams.oracle), address(oracle), "oracle");
         assertEq(unlockParams.targetPrice, targetPrice, "targetPrice");
 
-        // Assert that the next stream ID has been bumped.
+        // It should bump the next stream ID.
         uint256 actualNextStreamId = lockup.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");

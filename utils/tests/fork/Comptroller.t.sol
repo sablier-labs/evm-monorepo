@@ -74,16 +74,16 @@ contract Comptroller_Fork_Test is Base_Test {
 
     /// @dev It tests the state variables that will rarely be changed.
     function testFork_Constructor() external view {
-        // Assert the comptroller admin.
+        // It should set the comptroller admin.
         assertEq(comptroller.admin(), defaultMultisigAdmin, "admin");
 
-        // Assert the max fee in usd.
+        // It should set the max fee in USD.
         assertEq(comptroller.MAX_FEE_USD(), MAX_FEE_USD, "max fee USD");
 
-        // Assert the comptroller version.
+        // It should set the comptroller version.
         assertEq(comptroller.VERSION(), "v1.1", "version");
 
-        // Assert the oracle address.
+        // It should set the oracle address.
         assertEq(comptroller.oracle(), baseScript.getChainlinkOracle(), "oracle");
     }
 
@@ -150,7 +150,7 @@ contract Comptroller_Fork_Test is Base_Test {
         // Transfer fees to the fee recipient.
         comptroller.transferFees(protocolAddresses, feeRecipient);
 
-        // Assert that the fee is transferred to the fee recipient.
+        // It should transfer the fee to the fee recipient.
         assertEq(feeRecipient.balance, initialFeeRecipientBalance + expectedFeeAmount, "Fee Recipient balance");
     }
 

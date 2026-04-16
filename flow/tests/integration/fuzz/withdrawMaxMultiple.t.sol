@@ -117,7 +117,7 @@ contract WithdrawMaxMultiple_Fuzz_Test is Shared_Integration_Fuzz_Test {
         uint256 expectedTotalWithdrawnAmount =
             expectedStreamedAmount > MAX_UINT128 ? MAX_UINT128 : expectedStreamedAmount;
 
-        // Assert that actual sum of withdrawn amounts equal the expected amount.
+        // It should match the actual sum of withdrawn amounts with the expected amount.
         assertEq(actualTotalWithdrawnAmount, expectedTotalWithdrawnAmount);
     }
 }

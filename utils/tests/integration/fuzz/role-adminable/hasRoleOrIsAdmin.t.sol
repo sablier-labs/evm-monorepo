@@ -15,7 +15,7 @@ contract HasRoleOrIsAdmin_RoleAdminable_Fuzz_Test is Base_Test {
         vm.assume(newAccountant != admin && newAccountant != users.accountant);
         vm.assume(newAdmin != newAccountant);
 
-        // Assert that it returns true with existing admin.
+        // It should return true with the existing admin.
         bool actualHasRole = roleAdminableMock.hasRoleOrIsAdmin({ role: role, account: admin });
         assertTrue(actualHasRole, "hasRoleOrIsAdmin admin");
 
@@ -25,29 +25,29 @@ contract HasRoleOrIsAdmin_RoleAdminable_Fuzz_Test is Base_Test {
         // Change caller to `newAdmin`.
         setMsgSender(newAdmin);
 
-        // Assert that it returns false with old admin.
+        // It should return false with the old admin.
         actualHasRole = roleAdminableMock.hasRoleOrIsAdmin({ role: role, account: admin });
         assertFalse(actualHasRole, "hasRoleOrIsAdmin oldAdmin");
 
-        // Assert that it returns true with new admin.
+        // It should return true with the new admin.
         actualHasRole = roleAdminableMock.hasRoleOrIsAdmin({ role: role, account: newAdmin });
         assertTrue(actualHasRole, "hasRoleOrIsAdmin newAdmin");
 
-        // Assert that `newAccountant` has no role.
+        // It should show `newAccountant` has no role.
         actualHasRole = roleAdminableMock.hasRoleOrIsAdmin({ role: role, account: newAccountant });
         assertFalse(actualHasRole, "hasRoleOrIsAdmin newAccountant");
 
         // Grant role to the `newAccountant`.
         roleAdminableMock.grantRole({ role: role, account: newAccountant });
 
-        // Assert that `newAccountant` has the role.
+        // It should show `newAccountant` has the role.
         actualHasRole = roleAdminableMock.hasRoleOrIsAdmin({ role: role, account: newAccountant });
         assertTrue(actualHasRole, "hasRoleOrIsAdmin newAccountant");
 
         // Revoke role from the `newAccountant`.
         roleAdminableMock.revokeRole({ role: role, account: newAccountant });
 
-        // Assert that `newAccountant` has no role.
+        // It should show `newAccountant` has no role.
         actualHasRole = roleAdminableMock.hasRoleOrIsAdmin({ role: role, account: newAccountant });
         assertFalse(actualHasRole, "hasRoleOrIsAdmin newAccountant");
     }

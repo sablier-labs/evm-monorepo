@@ -288,7 +288,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         bool isCancelable = lockup.isCancelable(ids.defaultStream);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the not burned NFT.
+        // It should not burn the NFT.
         address actualNFTowner = lockup.ownerOf({ tokenId: ids.defaultStream });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
@@ -341,7 +341,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the not burned NFT.
+        // It should not burn the NFT.
         address actualNFTowner = lockup.ownerOf({ tokenId: ids.defaultStream });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
@@ -480,7 +480,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
             amount: withdrawAmount
         });
 
-        // Assert that the stream's status is still "STREAMING".
+        // It should keep the stream status as "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(ids.recipientReentrantStream);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
@@ -548,7 +548,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
             amount: withdrawAmount
         });
 
-        // Assert that the stream's status is still "STREAMING".
+        // It should keep the stream status as "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(ids.recipientGoodStream);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);

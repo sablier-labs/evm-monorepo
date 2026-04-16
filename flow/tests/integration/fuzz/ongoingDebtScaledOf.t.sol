@@ -26,7 +26,7 @@ contract OngoingDebtScaledOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
         // Skip forward by `timeJump`.
         skip(timeJump);
 
-        // Assert that the ongoing debt did not change.
+        // It should not change the ongoing debt.
         uint256 actualOngoingDebtScaled = flow.ongoingDebtScaledOf(streamId);
         assertEq(actualOngoingDebtScaled, expectedOngoingDebtScaled, "ongoing debt");
     }
@@ -55,7 +55,7 @@ contract OngoingDebtScaledOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
         // Take snapshot.
         updateSnapshot(streamId);
 
-        // Assert that ongoing debt is zero.
+        // It should return zero for the ongoing debt.
         uint256 actualOngoingDebtScaled = flow.ongoingDebtScaledOf(streamId);
         assertEq(actualOngoingDebtScaled, 0, "ongoing debt");
     }
@@ -87,7 +87,7 @@ contract OngoingDebtScaledOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Te
 
         uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
 
-        // Assert that the ongoing debt equals the expected value.
+        // It should match the ongoing debt with the expected value.
         uint256 actualOngoingDebtScaled = flow.ongoingDebtScaledOf(streamId);
         uint256 expectedOngoingDebtScaled = ratePerSecond * timeJump;
         assertEq(actualOngoingDebtScaled, expectedOngoingDebtScaled, "ongoing debt");

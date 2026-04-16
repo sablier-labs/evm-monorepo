@@ -117,7 +117,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Withdraw the tokens.
         vars.actualWithdrawnAmount = flow.withdrawMax{ value: FLOW_MIN_FEE_WEI }(streamId, withdrawTo);
 
-        // Check the return values.
+        // It should return the correct values.
         assertEq(vars.actualWithdrawnAmount, withdrawAmount, "withdrawn amount");
 
         assertEq(flow.ongoingDebtScaledOf(streamId), 0, "ongoing debt");
@@ -135,7 +135,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vars.expectedStreamBalance = vars.previousStreamBalance - withdrawAmount;
         assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "stream balance");
 
-        // Assert that total debt equals snapshot debt and ongoing debt
+        // It should match the total debt with the snapshot debt and ongoing debt.
         assertEq(
             flow.totalDebtOf(streamId),
             getDescaledAmount(
@@ -150,7 +150,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         vars.expectedTokenBalance = vars.previousTokenBalance - withdrawAmount;
         assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "token balance");
 
-        // Assert that aggregate amount has been updated.
+        // It should update the aggregate amount.
         vars.actualAggregateAmount = flow.aggregateAmount(token);
         vars.expectedAggregateAmount = vars.previousAggregateAmount - withdrawAmount;
         assertEq(vars.actualAggregateAmount, vars.expectedAggregateAmount, "aggregate amount");

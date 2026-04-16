@@ -26,7 +26,7 @@ contract TotalDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Skip forward by `timeJump`.
         skip(timeJump);
 
-        // Assert that total debt is zero.
+        // It should return zero for the total debt.
         uint256 actualTotalDebt = flow.totalDebtOf(streamId);
         assertEq(actualTotalDebt, expectedTotalDebt, "total debt");
     }
@@ -55,7 +55,7 @@ contract TotalDebtOf_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         uint128 ratePerSecond = flow.getRatePerSecond(streamId).unwrap();
 
-        // Assert that total debt is the ongoing debt.
+        // It should match the total debt with the ongoing debt.
         uint256 actualTotalDebt = flow.totalDebtOf(streamId);
         uint256 expectedTotalDebt =
             getDescaledAmount(ratePerSecond * (warpTimestamp - flow.getSnapshotTime(streamId)), decimals);

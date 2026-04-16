@@ -28,7 +28,7 @@ contract TransferAdmin_Adminable_Fuzz_Test is Base_Test {
         // Transfer the admin.
         adminableMock.transferAdmin(newAdmin);
 
-        // Assert that the admin has been transferred.
+        // It should transfer the admin.
         address actualAdmin = adminableMock.admin();
         address expectedAdmin = newAdmin;
         assertEq(actualAdmin, expectedAdmin, "admin");

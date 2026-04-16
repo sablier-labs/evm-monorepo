@@ -134,7 +134,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
             merkleProof: vars.merkleProof
         });
 
-        // Assertions when vesting end time does not exceed the block time.
+        // It should transfer the tokens when vesting end time does not exceed the block time.
         if (expectedVestingStartTime + VESTING_TOTAL_DURATION <= getBlockTimestamp()) {
             assertEq(
                 FORK_TOKEN.balanceOf(vars.leafToClaim.recipient),
@@ -142,7 +142,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
                 "recipient balance"
             );
         }
-        // Assertions when vesting end time exceeds the block time.
+        // It should create a stream when vesting end time exceeds the block time.
         else {
             Lockup.CreateWithTimestamps memory expectedLockup = Lockup.CreateWithTimestamps({
                 sender: params.campaignCreator,
@@ -158,7 +158,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
                 shape: STREAM_SHAPE
             });
 
-            // Assert that the stream has been created successfully.
+            // It should create the stream successfully.
             assertEq(lockup, expectedStreamId, expectedLockup);
             assertEq(lockup.getLockupModel(expectedStreamId), Lockup.Model.LOCKUP_TRANCHED);
             assertEq(
@@ -171,7 +171,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
             assertEq(merkleLT.claimedStreams(vars.leafToClaim.recipient), expectedClaimedStreamIds, "claimed streams");
         }
 
-        // Assert that the claim has been made.
+        // It should make the claim.
         assertTrue(merkleLT.hasClaimed(vars.leafToClaim.index));
 
         /*//////////////////////////////////////////////////////////////////////////

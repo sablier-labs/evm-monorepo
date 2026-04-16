@@ -36,8 +36,8 @@ contract RefundMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
 
         uint128 expectedRefundableAmount = flow.refundableAmountOf(streamId);
 
-        // Ensure refundable amount is not zero. It could be zero for a small time range upto the depletion time due to
-        // precision error.
+        // It should have a non-zero refundable amount. It could be zero for a small time range upto the depletion time
+        // due to precision error.
         vm.assume(expectedRefundableAmount != 0);
 
         // Following variables are used during assertions.
@@ -62,22 +62,22 @@ contract RefundMax_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Request the maximum refund.
         uint128 actualRefundedAmount = flow.refundMax(streamId);
 
-        // Assert that the token balance of stream has been updated.
+        // It should update the token balance of the stream.
         uint256 actualTokenBalance = token.balanceOf(address(flow));
         uint256 expectedTokenBalance = initialTokenBalance - expectedRefundableAmount;
         assertEq(actualTokenBalance, expectedTokenBalance, "token balanceOf");
 
-        // Assert that stored balance in stream has been updated.
+        // It should update the stored balance in the stream.
         uint256 actualStreamBalance = flow.getBalance(streamId);
         uint256 expectedStreamBalance = initialStreamBalance - expectedRefundableAmount;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
-        // Assert that the aggregate amount has been updated.
+        // It should update the aggregate amount.
         uint256 actualAggregateAmount = flow.aggregateAmount(token);
         uint256 expectedAggregateAmount = initialAggregateAmount - expectedRefundableAmount;
         assertEq(actualAggregateAmount, expectedAggregateAmount, "aggregate amount");
 
-        // Assert that the maximum refundable amount has been refunded.
+        // It should refund the maximum refundable amount.
         assertEq(actualRefundedAmount, expectedRefundableAmount, "refunded amount");
     }
 }

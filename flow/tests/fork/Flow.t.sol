@@ -58,7 +58,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
     /// @param flowFuncU8 Using calldata here as required by array slicing in Solidity, and using `uint8` to be
     /// able to bound it.
     function testForkFuzz_Flow(Params memory params, uint8[] calldata flowFuncU8) public {
-        // Ensure a large number of function calls.
+        // It should have a large number of function calls.
         vm.assume(flowFuncU8.length > 1);
 
         // Limit the number of functions to call if it exceeds 15.
@@ -108,7 +108,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
             _test_Create(params.recipient, params.sender, params.ratePerSecond, params.transferable);
         }
 
-        // Assert that the stream IDs have been bumped.
+        // It should bump the stream IDs.
         uint256 finalStreamId = flow.nextStreamId();
         assertEq(initialStreamId + TOTAL_STREAMS, finalStreamId);
 
@@ -173,7 +173,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
             _test_Withdraw(streamId, withdrawAmount);
         }
 
-        // Assert that the flow balance has changed.
+        // It should update the flow balance.
         uint256 expectedFlowBalance = initialFlowBalance + FLOW_MIN_FEE_WEI;
         assertEq(address(flow).balance, expectedFlowBalance, "Flow balance");
     }
@@ -181,7 +181,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
     /// @notice Find the first non-voided stream ID with the same token.
     /// @dev If no non-voided stream is found, it will create a new stream.
     function _findNonVoidedStreamId(uint256 streamId) private returns (uint256) {
-        // Check if the current stream ID is voided.
+        // It should find a non-voided stream ID.
         if (flow.isVoided(streamId)) {
             bool found = false;
             for (uint256 i = 1; i < flow.nextStreamId(); ++i) {
@@ -379,17 +379,17 @@ abstract contract Flow_Fork_Test is Fork_Test {
         // Make the deposit.
         flow.deposit{ value: FLOW_MIN_FEE_WEI }(streamId, depositAmount, sender, flow.getRecipient(streamId));
 
-        // Assert that the token balance of stream has been updated.
+        // It should update the token balance of the stream.
         vars.actualTokenBalance = FORK_TOKEN.balanceOf(address(flow));
         vars.expectedTokenBalance = initialTokenBalance + depositAmount;
         assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "Deposit: token balance");
 
-        // Assert that stored balance in stream has been updated.
+        // It should update the stored balance in the stream.
         vars.actualStreamBalance = flow.getBalance(streamId);
         vars.expectedStreamBalance = initialStreamBalance + depositAmount;
         assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "Deposit: stream balance");
 
-        // Assert that aggregate amount has been updated.
+        // It should update the aggregate amount.
         vars.actualAggregateAmount = flow.aggregateAmount(FORK_TOKEN);
         vars.expectedAggregateAmount = initialAggregateAmount + depositAmount;
         assertEq(vars.actualAggregateAmount, vars.expectedAggregateAmount, "Deposit: aggregate amount");
@@ -429,7 +429,7 @@ abstract contract Flow_Fork_Test is Fork_Test {
             "Pause: status"
         );
 
-        // Assert that the rate per second is 0.
+        // It should set the rate per second to 0.
         assertEq(flow.getRatePerSecond(streamId), 0, "Pause: rate per second");
     }
 
@@ -469,17 +469,17 @@ abstract contract Flow_Fork_Test is Fork_Test {
         // Request the refund.
         flow.refund{ value: FLOW_MIN_FEE_WEI }(streamId, refundAmount);
 
-        // Assert that the token balance of stream has been updated.
+        // It should update the token balance of the stream.
         vars.actualTokenBalance = FORK_TOKEN.balanceOf(address(flow));
         vars.expectedTokenBalance = initialTokenBalance - refundAmount;
         assertEq(vars.actualTokenBalance, vars.expectedTokenBalance, "Refund: token balance");
 
-        // Assert that stored balance in stream has been updated.
+        // It should update the stored balance in the stream.
         vars.actualStreamBalance = flow.getBalance(streamId);
         vars.expectedStreamBalance = initialStreamBalance - refundAmount;
         assertEq(vars.actualStreamBalance, vars.expectedStreamBalance, "Refund: stream balance");
 
-        // Assert that aggregate amount has been updated.
+        // It should update the aggregate amount.
         vars.actualAggregateAmount = flow.aggregateAmount(FORK_TOKEN);
         vars.expectedAggregateAmount = initialAggregateAmount - refundAmount;
         assertEq(vars.actualAggregateAmount, vars.expectedAggregateAmount, "Refund: aggregate amount");

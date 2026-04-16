@@ -53,7 +53,7 @@ contract Restart_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
         // Restart the stream.
         flow.restart(streamId, ratePerSecond);
 
-        // Assert that the status is streaming.
+        // It should set the status to streaming.
         assertTrue(
             flow.statusOf(streamId) == Flow.Status.STREAMING_SOLVENT
                 || flow.statusOf(streamId) == Flow.Status.STREAMING_INSOLVENT,

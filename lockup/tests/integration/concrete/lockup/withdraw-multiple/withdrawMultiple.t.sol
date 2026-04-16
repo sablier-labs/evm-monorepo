@@ -187,7 +187,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         assertEq(lockup.getWithdrawnAmount(withdrawMultipleIds[1]), withdrawAmounts[1], "withdrawnAmount1");
         assertEq(lockup.getWithdrawnAmount(withdrawMultipleIds[2]), withdrawAmounts[2], "withdrawnAmount2");
 
-        // Assert that the stream NFTs have not been burned.
+        // It should not burn the stream NFTs.
         assertEq(lockup.getRecipient(withdrawMultipleIds[0]), users.recipient, "NFT owner0");
         assertEq(lockup.getRecipient(withdrawMultipleIds[1]), users.recipient, "NFT owner1");
         assertEq(lockup.getRecipient(withdrawMultipleIds[2]), users.recipient, "NFT owner2");

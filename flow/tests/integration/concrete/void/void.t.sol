@@ -152,13 +152,13 @@ contract Void_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         // It should void the stream.
         assertTrue(flow.isVoided(defaultStreamId), "voided");
 
-        // Check the status of the stream.
+        // It should update the stream status.
         assertEq(flow.statusOf(defaultStreamId), Flow.Status.VOIDED, "status");
 
-        // Check the new total debt.
+        // It should update the total debt.
         assertEq(flow.totalDebtOf(defaultStreamId), expectedTotalDebt, "total debt");
 
-        // Check the new snapshot time.
+        // It should update the snapshot time.
         assertEq(flow.getSnapshotTime(defaultStreamId), getBlockTimestamp(), "snapshot time");
     }
 }

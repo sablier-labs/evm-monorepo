@@ -336,7 +336,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 return;
             }
 
-            // Check the status transition invariants.
+            // It should hold the status transition invariants.
             Lockup.Status previousStatus = store.previousStatusOf(streamId);
             if (previousStatus == Lockup.Status.PENDING) {
                 assertNotEq(

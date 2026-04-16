@@ -163,14 +163,14 @@ abstract contract Lockup_Fork_Test is Fork_Test {
 
     /// @dev A post-create helper function to compare values and set up the parameters for withdraw and cancel tests.
     function postCreateStream(Params memory params) internal {
-        // Check if the stream is settled. It is possible for a Lockup stream to settle at the time of creation in the
-        // following cases:
+        // It should determine if the stream is settled. It is possible for a Lockup stream to settle at the time of
+        // creation in the following cases:
         // 1. The streamed amount equals the deposited amount.
         // 2. The end time is in the past.
         vars.isSettled = vars.streamedAmount >= params.create.depositAmount
             || lockup.getEndTime(vars.streamId) <= getBlockTimestamp();
 
-        // Check that the stream status is correct.
+        // It should return the correct stream status.
         if (lockup.getStartTime(vars.streamId) > getBlockTimestamp()) {
             vars.expectedStatus = Lockup.Status.PENDING;
         } else if (vars.isSettled) {
@@ -188,7 +188,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             assertEq(lockup.isCancelable(vars.streamId), params.create.cancelable, "isCancelable");
         }
 
-        // Assert that the aggregate amount has been updated.
+        // It should update the aggregate amount.
         vars.expectedAggregateAmount = vars.initialAggregateAmount + params.create.depositAmount;
         assertEq(lockup.aggregateAmount(FORK_TOKEN), vars.expectedAggregateAmount, "aggregateAmount");
 
@@ -198,11 +198,11 @@ abstract contract Lockup_Fork_Test is Fork_Test {
         vars.actualLockupBalance = balances[0];
         vars.actualHolderBalance = balances[1];
 
-        // Assert that the Lockup contract's balance has been updated.
+        // It should update the Lockup contract's balance.
         uint256 expectedLockupBalance = vars.initialLockupBalance + params.create.depositAmount;
         assertEq(vars.actualLockupBalance, expectedLockupBalance, "post-create Lockup balance");
 
-        // Assert that the holder's balance has been updated.
+        // It should update the holder's balance.
         uint128 expectedHolderBalance = initialHolderBalance - params.create.depositAmount;
         assertEq(vars.actualHolderBalance, expectedHolderBalance, "post-create Holder balance");
     }
@@ -216,8 +216,8 @@ abstract contract Lockup_Fork_Test is Fork_Test {
         // Bound the withdraw amount.
         params.withdrawAmount = boundUint128(params.withdrawAmount, 0, lockup.withdrawableAmountOf(vars.streamId));
 
-        // Check if the stream has settled or will get depleted. It is possible for the stream to be just settled
-        // and not depleted because the withdraw amount is fuzzed.
+        // It should determine if the stream has settled or will get depleted. It is possible for the stream to be just
+        // settled and not depleted because the withdraw amount is fuzzed.
         vars.isSettled = vars.streamedAmount >= params.create.depositAmount
             || lockup.getEndTime(vars.streamId) <= getBlockTimestamp();
         vars.isDepleted = params.withdrawAmount == params.create.depositAmount;
@@ -252,7 +252,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
                 amount: params.withdrawAmount
             });
 
-            // Assert that the stream's status is correct.
+            // It should return the correct stream status.
             if (vars.isDepleted) {
                 vars.expectedStatus = Lockup.Status.DEPLETED;
             } else if (vars.isSettled) {
@@ -262,10 +262,10 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             }
             assertEq(lockup.statusOf(vars.streamId), vars.expectedStatus, "post-withdraw stream status");
 
-            // Assert that the withdrawn amount has been updated.
+            // It should update the withdrawn amount.
             assertEq(lockup.getWithdrawnAmount(vars.streamId), params.withdrawAmount, "post-withdraw withdrawnAmount");
 
-            // Assert that the aggregate amount has been updated.
+            // It should update the aggregate amount.
             vars.expectedAggregateAmount -= params.withdrawAmount;
             assertEq(lockup.aggregateAmount(FORK_TOKEN), vars.expectedAggregateAmount, "aggregateAmount");
 
@@ -275,18 +275,18 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             vars.actualLockupBalance = balances[0];
             vars.actualRecipientBalance = balances[1];
 
-            // Assert that the contract's balance has been updated.
+            // It should update the contract's balance.
             uint256 expectedLockupBalance = vars.initialLockupBalance - params.withdrawAmount;
             assertEq(vars.actualLockupBalance, expectedLockupBalance, "post-withdraw Lockup balance");
 
-            // Assert that the contract's ETH balance has been updated.
+            // It should update the contract's ETH balance.
             assertEq(
                 address(lockup).balance,
                 vars.initialComptrollerBalanceETH + actualMinFeeWei,
                 "post-withdraw Lockup balance ETH"
             );
 
-            // Assert that the Recipient's balance has been updated.
+            // It should update the Recipient's balance.
             uint256 expectedRecipientBalance = vars.initialRecipientBalance + params.withdrawAmount;
             assertEq(vars.actualRecipientBalance, expectedRecipientBalance, "post-withdraw Recipient balance");
         }
@@ -327,14 +327,14 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             setMsgSender(params.create.sender);
             uint128 refundedAmount = lockup.cancel(vars.streamId);
 
-            // Assert that the refunded amount is correct.
+            // It should return the correct refunded amount.
             assertEq(refundedAmount, vars.senderAmount, "refundedAmount");
 
-            // Assert that the stream's status is correct.
+            // It should return the correct stream status.
             vars.expectedStatus = vars.recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
             assertEq(lockup.statusOf(vars.streamId), vars.expectedStatus, "post-cancel stream status");
 
-            // Assert that the aggregate amount has been updated.
+            // It should update the aggregate amount.
             vars.expectedAggregateAmount -= refundedAmount;
             assertEq(lockup.aggregateAmount(FORK_TOKEN), vars.expectedAggregateAmount, "aggregateAmount");
 
@@ -346,19 +346,19 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             vars.actualSenderBalance = balances[1];
             vars.actualRecipientBalance = balances[2];
 
-            // Assert that the contract's balance has been updated.
+            // It should update the contract's balance.
             uint256 expectedLockupBalance = vars.initialLockupBalance - vars.senderAmount;
             assertEq(vars.actualLockupBalance, expectedLockupBalance, "post-cancel Lockup balance");
 
-            // Assert that the Sender's balance has been updated.
+            // It should update the Sender's balance.
             uint256 expectedSenderBalance = vars.initialSenderBalance + vars.senderAmount;
             assertEq(vars.actualSenderBalance, expectedSenderBalance, "post-cancel Sender balance");
 
-            // Assert that the Recipient's balance has not changed.
+            // It should not change the Recipient's balance.
             assertEq(vars.actualRecipientBalance, vars.initialRecipientBalance, "post-cancel Recipient balance");
         }
 
-        // Assert that the not burned NFT.
+        // It should not burn the NFT.
         assertEq(lockup.ownerOf(vars.streamId), params.create.recipient, "post-cancel NFT owner");
     }
 }

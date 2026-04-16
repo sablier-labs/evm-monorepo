@@ -63,8 +63,8 @@ contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Tranched_Integrat
         _defaultParams.createWithDurations.transferable = true;
         uint256 streamId = lockup.createWithDurationsLT(_defaultParams.createWithDurations, tranches);
 
-        // Check if the stream is settled. It is possible for a stream to settle at the time of creation because some
-        // tranche amounts can be zero.
+        // It should determine if the stream is settled. It is possible for a stream to settle at the time of creation
+        // because some tranche amounts can be zero.
         vars.isSettled = lockup.refundableAmountOf(streamId) == 0;
         vars.isCancelable = vars.isSettled ? false : true;
 
@@ -83,17 +83,17 @@ contract CreateWithDurationsLT_Integration_Fuzz_Test is Lockup_Tranched_Integrat
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
-        // Assert that the stream's status is correct.
+        // It should return the correct stream status.
         vars.actualStatus = lockup.statusOf(streamId);
         vars.expectedStatus = vars.isSettled ? Lockup.Status.SETTLED : Lockup.Status.STREAMING;
         assertEq(vars.actualStatus, vars.expectedStatus);
 
-        // Assert that the next stream ID has been bumped.
+        // It should bump the next stream ID.
         vars.actualNextStreamId = lockup.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
-        // Assert that the NFT has been minted.
+        // It should mint the NFT.
         vars.actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
         vars.expectedNFTOwner = users.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");

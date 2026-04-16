@@ -30,7 +30,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
         assertTrue(lockup.isCancelable(streamId), "isCancelable");
         assertTrue(lockup.isTransferable(streamId), "isTransferable");
 
-        // Assert that the stream's status is "PENDING".
+        // It should set the stream status to "PENDING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.PENDING;
         assertEq(actualStatus, expectedStatus);
