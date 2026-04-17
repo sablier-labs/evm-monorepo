@@ -1,4 +1,4 @@
-SetMinFeeUSD_Comptroller_Concrete_Test
+SetMinFeeUSD_Integration_Concrete_Test
 ├── when caller not admin
 │  ├── when caller without fee management role
 │  │  └── it should revert

@@ -1,4 +1,4 @@
-ClaimAndExecute_MerkleExecute_Integration_Test
+ClaimAndExecute_MerkleExecute_Integration_Concrete_Test
 └── when merkle proof valid
    ├── when target transfer amount overdraws
    │  └── it should revert

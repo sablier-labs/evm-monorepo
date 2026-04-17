@@ -1,4 +1,4 @@
-Claim_MerkleLL_Integration_Test
+Claim_MerkleLL_Integration_Concrete_Test
 └── when merkle proof valid
    ├── when vesting end time not exceed claim time
    │  ├── it should transfer the tokens to the recipient

@@ -1,4 +1,4 @@
-HasRoleOrIsAdmin_RoleAdminable_Concrete_Test
+HasRoleOrIsAdmin_Integration_Concrete_Test
 ├── when account admin
 │  └── it should return true
 └── when account not admin

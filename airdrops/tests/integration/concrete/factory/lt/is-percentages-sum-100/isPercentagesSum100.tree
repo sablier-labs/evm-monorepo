@@ -1,4 +1,4 @@
-IsPercentagesSum100_Integration_Test
+IsPercentagesSum100_Integration_Concrete_Test
 ├── when percentages sum not 100 pct
 │  ├── when percentages sum less than 100 pct
 │  │  └── it should return false

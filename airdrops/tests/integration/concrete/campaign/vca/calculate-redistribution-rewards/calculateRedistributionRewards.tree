@@ -1,4 +1,4 @@
-CalculateRedistributionRewards_MerkleVCA_Integration_Test
+CalculateRedistributionRewards_MerkleVCA_Integration_Concrete_Test
 ├── given redistribution not enabled
 │  └── it should revert
 └── given redistribution enabled

@@ -1,4 +1,4 @@
-HasExpired_Integration_Test
+HasExpired_Integration_Concrete_Test
 ├── when expiration zero
 │  └── given campaign is not vca
 │     └── it should return false

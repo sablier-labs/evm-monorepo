@@ -1,4 +1,4 @@
-CreateWithDurationsLD_Integration_Test
+CreateWithDurationsLD_Integration_Concrete_Test
 ├── when batch size zero
 │  └── it should revert
 └── when batch size not zero

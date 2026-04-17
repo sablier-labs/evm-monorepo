@@ -1,4 +1,4 @@
-ClaimTo_MerkleVCA_Integration_Test
+ClaimTo_MerkleVCA_Integration_Concrete_Test
 └── when merkle proof valid
    ├── when vesting start time in future
    │  └── it should revert

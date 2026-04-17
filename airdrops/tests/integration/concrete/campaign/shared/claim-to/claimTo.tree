@@ -1,4 +1,4 @@
-ClaimTo_Integration_Test
+ClaimTo_Integration_Concrete_Test
 ├── given not default claim type
 │  └── it should revert
 └── given default claim type

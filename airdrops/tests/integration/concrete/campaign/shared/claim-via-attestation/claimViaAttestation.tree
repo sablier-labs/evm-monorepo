@@ -1,4 +1,4 @@
-ClaimViaAttestation_Integration_Test
+ClaimViaAttestation_Integration_Concrete_Test
 ├── given not attest claim type
 │  └── it should revert
 └── given attest claim type

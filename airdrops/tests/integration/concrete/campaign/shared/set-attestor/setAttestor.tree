@@ -1,4 +1,4 @@
-SetAttestor_Integration_Test
+SetAttestor_Integration_Concrete_Test
 ├── when caller not campaign creator
 │  ├── when caller not comptroller
 │  │  └── it should revert
