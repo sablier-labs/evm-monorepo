@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { IWETH9 } from "src/interfaces/external/IWETH9.sol";
@@ -68,15 +69,15 @@ abstract contract Fork_Test is Base_Test {
         users.depositor = createUser("Depositor", spenders);
 
         // Label the mainnet addresses.
-        vm.label(address(FORK_WETH), "WETH");
+        labelForkedToken(IERC20(address(FORK_WETH)));
         vm.label(FORK_STETH, "stETH");
         vm.label(FORK_WSTETH, "wstETH");
         vm.label(FORK_CURVE_POOL, "CurvePool");
         vm.label(FORK_LIDO_WITHDRAWAL_QUEUE, "LidoWithdrawalQueue");
         vm.label(address(FORK_ETH_USD_ORACLE), "ETH/USD Oracle");
         vm.label(FORK_STETH_ETH_ORACLE, "stETH/ETH Oracle");
-        vm.label(address(forkBob), "ForkSablierBob");
-        vm.label(address(forkAdapter), "ForkSablierLidoAdapter");
+        vm.label(address(forkBob), "SablierBob");
+        vm.label(address(forkAdapter), "SablierLidoAdapter");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
