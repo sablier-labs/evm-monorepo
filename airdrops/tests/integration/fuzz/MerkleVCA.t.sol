@@ -9,9 +9,9 @@ import { Errors } from "src/libraries/Errors.sol";
 import { MerkleVCA } from "src/types/MerkleVCA.sol";
 import { LeafData } from "./../../utils/MerkleBuilder.sol";
 import { Params } from "./../../utils/Types.sol";
-import { Shared_Fuzz_Test, Integration_Test } from "./Fuzz.t.sol";
+import { Shared_Integration_Fuzz_Test, Integration_Test } from "./Fuzz.t.sol";
 
-contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
+contract MerkleVCA_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                  STATE-VARIABLES
     //////////////////////////////////////////////////////////////////////////*/

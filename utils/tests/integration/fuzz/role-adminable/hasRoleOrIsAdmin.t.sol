@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { Base_Test } from "../../../Base.t.sol";
 
-contract HasRoleOrIsAdmin_RoleAdminable_Fuzz_Test is Base_Test {
+contract HasRoleOrIsAdmin_Integration_Fuzz_Test is Base_Test {
     /// @dev It would test the following scenarios:
     /// - `admin` bypasses any arbitrary role check.
     /// - When ownership is transferred, the `newAdmin` bypasses any arbitrary role check.

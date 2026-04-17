@@ -7,7 +7,7 @@ import { ChainlinkOracleMock } from "src/mocks/ChainlinkMocks.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract SetOracle_Comptroller_Concrete_Test is Base_Test {
+contract SetOracle_Integration_Concrete_Test is Base_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         setMsgSender(users.accountant);
 

@@ -8,7 +8,7 @@ import { MerkleVCA } from "src/types/MerkleVCA.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-contract ComputeMerkleVCA_Integration_Test is Integration_Test {
+contract ComputeMerkleVCA_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_NativeTokenFound() external {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
 

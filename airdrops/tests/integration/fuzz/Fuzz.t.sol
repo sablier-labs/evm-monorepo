@@ -9,7 +9,7 @@ import { LeafData } from "../../utils/MerkleBuilder.sol";
 import { Integration_Test } from "../Integration.t.sol";
 
 /// @notice Common logic needed by all fuzz tests.
-abstract contract Shared_Fuzz_Test is Integration_Test {
+abstract contract Shared_Integration_Fuzz_Test is Integration_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                  STATE-VARIABLES
     //////////////////////////////////////////////////////////////////////////*/

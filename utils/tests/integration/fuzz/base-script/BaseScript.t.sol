@@ -7,7 +7,7 @@ import { StdConstants, Vm } from "forge-std/src/StdConstants.sol";
 import { ChainId } from "src/tests/ChainId.sol";
 import { BaseScriptMock } from "tests/mocks/BaseScriptMock.sol";
 
-contract BaseScript_Fuzz_Test is StdAssertions {
+contract BaseScript_Integration_Fuzz_Test is StdAssertions {
     BaseScriptMock internal baseScript;
 
     string public constant PACKAGE_VERSION = "2.0.1";

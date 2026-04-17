@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract HasRoleOrIsAdmin_RoleAdminable_Concrete_Test is Base_Test {
+contract HasRoleOrIsAdmin_Integration_Concrete_Test is Base_Test {
     function test_WhenAccountAdmin() external view {
         // It should return true.
         bool actualHasRole = roleAdminableMock.hasRoleOrIsAdmin(FEE_COLLECTOR_ROLE, admin);

@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-abstract contract HasClaimed_Integration_Test is Integration_Test {
+abstract contract HasClaimed_Integration_Concrete_Test is Integration_Test {
     function test_WhenIndexNotInMerkleTree() external view {
         uint256 indexNotInTree = 1337e18;
         assertFalse(merkleBase.hasClaimed(indexNotInTree), "claimed");

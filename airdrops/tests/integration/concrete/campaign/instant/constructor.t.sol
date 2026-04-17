@@ -6,7 +6,7 @@ import { ClaimType } from "src/types/MerkleBase.sol";
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 
-contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
+contract Constructor_MerkleInstant_Integration_Concrete_Test is Integration_Test {
     function test_Constructor() external {
         // Make Factory the caller for the constructor test.
         setMsgSender(address(factoryMerkleInstant));

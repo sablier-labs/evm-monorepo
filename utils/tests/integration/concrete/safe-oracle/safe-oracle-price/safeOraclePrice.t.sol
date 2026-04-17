@@ -20,7 +20,7 @@ import {
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract SafeOraclePrice_SafeOracle_Concrete_Test is Base_Test {
+contract SafeOraclePrice_Integration_Concrete_Test is Base_Test {
     function test_WhenOracleAddressZero() external view {
         // It should return zero for both price and updatedAt.
         (uint128 price,, uint256 updatedAt) = safeOracleMock.safeOraclePrice(AggregatorV3Interface(address(0)), true);

@@ -6,7 +6,7 @@ import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-abstract contract HasExpired_Integration_Test is Integration_Test {
+abstract contract HasExpired_Integration_Concrete_Test is Integration_Test {
     /// @notice A campaign, without expiration, should be set in the child contract inheriting it.
     /// @dev Since VCA campaign does not allow a zero expiration, this applies to non-VCA campaigns only.
     ISablierMerkleBase internal campaignWithZeroExpiration;

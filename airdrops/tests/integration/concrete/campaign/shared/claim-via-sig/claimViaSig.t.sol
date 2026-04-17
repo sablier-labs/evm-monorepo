@@ -6,7 +6,7 @@ import { ClaimType } from "src/types/MerkleBase.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-abstract contract ClaimViaSig_Integration_Test is Integration_Test {
+abstract contract ClaimViaSig_Integration_Concrete_Test is Integration_Test {
     function setUp() public virtual override {
         // Make `users.campaignCreator` the caller for this test.
         setMsgSender(users.campaignCreator);

@@ -7,10 +7,10 @@ import { Lockup } from "@sablier/lockup/src/types/Lockup.sol";
 
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { MerkleLL } from "src/types/MerkleLL.sol";
-import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
+import { Claim_Integration_Concrete_Test } from "./../../shared/claim/claim.t.sol";
 import { MerkleLL_Integration_Shared_Test, Integration_Test } from "./../MerkleLL.t.sol";
 
-contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Integration_Shared_Test {
+contract Claim_MerkleLL_Integration_Concrete_Test is Claim_Integration_Concrete_Test, MerkleLL_Integration_Shared_Test {
     function setUp() public virtual override(MerkleLL_Integration_Shared_Test, Integration_Test) {
         MerkleLL_Integration_Shared_Test.setUp();
     }

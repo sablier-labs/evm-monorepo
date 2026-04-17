@@ -5,7 +5,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { MerkleVCA_Integration_Shared_Test } from "../MerkleVCA.t.sol";
 
-contract CalculateForgoneAmount_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_Test {
+contract CalculateForgoneAmount_MerkleVCA_Integration_Concrete_Test is MerkleVCA_Integration_Shared_Test {
     function test_WhenClaimTimeZero() external view {
         uint40 claimTime = 0;
         uint128 expectedForgoneAmount = VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT;

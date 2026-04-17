@@ -7,7 +7,7 @@ import { MerkleLT } from "src/types/MerkleLT.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-contract IsPercentagesSum100_Integration_Test is Integration_Test {
+contract IsPercentagesSum100_Integration_Concrete_Test is Integration_Test {
     function test_WhenPercentagesSumLessThan100Pct() external view whenPercentagesSumNot100Pct {
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages = new MerkleLT.TrancheWithPercentage[](2);
         tranchesWithPercentages[0].unlockPercentage = ud2x18(0.05e18);

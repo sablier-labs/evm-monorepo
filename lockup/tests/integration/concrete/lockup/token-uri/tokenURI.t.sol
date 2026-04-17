@@ -16,7 +16,7 @@ import { Integration_Test } from "../../../Integration.t.sol";
 /// - The contract deployer, i.e. the `sender` config option in `foundry.toml`, must have the default value
 /// 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38 so that the deployed contracts have the same addresses as
 /// the values hard coded in the tests below
-contract TokenURI_Lockup_Integration_Concrete_Test is Integration_Test {
+contract TokenURI_Integration_Concrete_Test is Integration_Test {
     // NOTE: Update this address at the end of a new release.
     address internal constant LOCKUP = 0x3D7Ebc40AF7092E3F1C81F2e996cbA5Cae2090d7;
 

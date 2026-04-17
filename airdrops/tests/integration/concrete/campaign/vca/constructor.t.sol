@@ -7,7 +7,7 @@ import { MerkleVCA } from "src/types/MerkleVCA.sol";
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 
-contract Constructor_MerkleVCA_Integration_Test is Integration_Test {
+contract Constructor_MerkleVCA_Integration_Concrete_Test is Integration_Test {
     function test_Constructor_RedistributionDisabled() external {
         _testConstructor({ enableRedistribution: false });
     }

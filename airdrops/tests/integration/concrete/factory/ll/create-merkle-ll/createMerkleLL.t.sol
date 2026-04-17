@@ -9,7 +9,7 @@ import { MerkleLL } from "src/types/MerkleLL.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-contract CreateMerkleLL_Integration_Test is Integration_Test {
+contract CreateMerkleLL_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_NativeTokenFound() external {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
 

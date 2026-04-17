@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { Errors } from "src/libraries/Errors.sol";
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract OnlyRole_RoleAdminable_Concrete_Test is Base_Test {
+contract OnlyRole_Integration_Concrete_Test is Base_Test {
     function test_WhenCallerAdmin() external {
         // It should execute the function.
         roleAdminableMock.restrictedToRole();

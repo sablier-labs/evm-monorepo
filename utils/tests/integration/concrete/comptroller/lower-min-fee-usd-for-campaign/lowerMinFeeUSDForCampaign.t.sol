@@ -6,7 +6,7 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Base_Test } from "../../../../Base.t.sol";
 import { MerkleMockReverting } from "../../../../mocks/MerkleMock.sol";
 
-contract LowerMinFeeUSDForCampaign_Comptroller_Concrete_Test is Base_Test {
+contract LowerMinFeeUSDForCampaign_Integration_Concrete_Test is Base_Test {
     uint256 internal newMinFeeUSD = AIRDROP_MIN_FEE_USD - 1;
 
     function test_RevertWhen_CallerWithoutFeeManagementRole() external whenCallerNotAdmin {

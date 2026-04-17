@@ -7,7 +7,7 @@ import { ComptrollerWithoutMinimalInterfaceId } from "src/mocks/ComptrollerMock.
 import { Base_Test } from "../../../Base.t.sol";
 import { ComptrollerableMock } from "../../../mocks/ComptrollerableMock.sol";
 
-contract Constructor_Comptrollerable_Concrete_Test is Base_Test {
+contract Constructor_Integration_Concrete_Test is Base_Test {
     function test_RevertWhen_ComptrollerWithoutMinimalInterfaceId() external {
         address newComptrollerWithoutMinimalInterfaceId = address(new ComptrollerWithoutMinimalInterfaceId());
 

@@ -2,10 +2,10 @@
 pragma solidity >=0.8.22;
 
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
-import { ConvertUSDFeeToWei_Comptroller_Concrete_Test } from "../convert-usd-fee-to-wei/convertUSDFeeToWei.t.sol";
+import { ConvertUSDFeeToWei_Integration_Concrete_Test } from "../convert-usd-fee-to-wei/convertUSDFeeToWei.t.sol";
 
-/// @dev It inherits from {ConvertUSDFeeToWei_Comptroller_Concrete_Test} to avoid duplicating the common tests.
-contract CalculateMinFeeWei_Comptroller_Concrete_Test is ConvertUSDFeeToWei_Comptroller_Concrete_Test {
+/// @dev It inherits from {ConvertUSDFeeToWei_Integration_Concrete_Test} to avoid duplicating the common tests.
+contract CalculateMinFeeWei_Integration_Concrete_Test is ConvertUSDFeeToWei_Integration_Concrete_Test {
     function test_GivenMinFeeNotSet(uint8 protocolIndex) external {
         ISablierComptroller.Protocol protocol = boundProtocolEnum(protocolIndex);
 

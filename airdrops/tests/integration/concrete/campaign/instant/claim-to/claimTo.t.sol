@@ -2,13 +2,16 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
-import { ClaimTo_Integration_Test } from "./../../shared/claim-to/claimTo.t.sol";
+import { ClaimTo_Integration_Concrete_Test } from "./../../shared/claim-to/claimTo.t.sol";
 import { MerkleInstant_Integration_Shared_Test } from "./../MerkleInstant.t.sol";
 
-contract ClaimTo_MerkleInstant_Integration_Test is ClaimTo_Integration_Test, MerkleInstant_Integration_Shared_Test {
-    function setUp() public virtual override(MerkleInstant_Integration_Shared_Test, ClaimTo_Integration_Test) {
+contract ClaimTo_MerkleInstant_Integration_Concrete_Test is
+    ClaimTo_Integration_Concrete_Test,
+    MerkleInstant_Integration_Shared_Test
+{
+    function setUp() public virtual override(MerkleInstant_Integration_Shared_Test, ClaimTo_Integration_Concrete_Test) {
         MerkleInstant_Integration_Shared_Test.setUp();
-        ClaimTo_Integration_Test.setUp();
+        ClaimTo_Integration_Concrete_Test.setUp();
     }
 
     function test_WhenMerkleProofValid()

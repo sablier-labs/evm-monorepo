@@ -3,14 +3,16 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 
-import { CalculateMinFeeWei_Integration_Test } from "./../shared/calculate-min-fee-wei/calculateMinFeeWei.t.sol";
-import { Clawback_Integration_Test } from "./../shared/clawback/clawback.t.sol";
-import { DomainSeparator_Integration_Test } from "./../shared/domain-separator/domainSeparator.t.sol";
-import { HasClaimed_Integration_Test } from "./../shared/has-claimed/hasClaimed.t.sol";
-import { HasExpired_Integration_Test } from "./../shared/has-expired/hasExpired.t.sol";
-import { LowerMinFeeUSD_Integration_Test } from "./../shared/lower-min-fee-usd/lowerMinFeeUSD.t.sol";
-import { SetAttestor_Integration_Test } from "./../shared/set-attestor/setAttestor.t.sol";
-import { Sponsor_Integration_Test } from "./../shared/sponsor/sponsor.t.sol";
+import {
+    CalculateMinFeeWei_Integration_Concrete_Test
+} from "./../shared/calculate-min-fee-wei/calculateMinFeeWei.t.sol";
+import { Clawback_Integration_Concrete_Test } from "./../shared/clawback/clawback.t.sol";
+import { DomainSeparator_Integration_Concrete_Test } from "./../shared/domain-separator/domainSeparator.t.sol";
+import { HasClaimed_Integration_Concrete_Test } from "./../shared/has-claimed/hasClaimed.t.sol";
+import { HasExpired_Integration_Concrete_Test } from "./../shared/has-expired/hasExpired.t.sol";
+import { LowerMinFeeUSD_Integration_Concrete_Test } from "./../shared/lower-min-fee-usd/lowerMinFeeUSD.t.sol";
+import { SetAttestor_Integration_Concrete_Test } from "./../shared/set-attestor/setAttestor.t.sol";
+import { Sponsor_Integration_Concrete_Test } from "./../shared/sponsor/sponsor.t.sol";
 /*//////////////////////////////////////////////////////////////////////////
                              NON-SHARED TESTS
 //////////////////////////////////////////////////////////////////////////*/
@@ -37,37 +39,46 @@ abstract contract MerkleLT_Integration_Shared_Test is Integration_Test {
                                 SHARED TESTS
 //////////////////////////////////////////////////////////////////////////*/
 
-contract CalculateMinFeeWei_MerkleLT_Integration_Test is
+contract CalculateMinFeeWei_MerkleLT_Integration_Concrete_Test is
     MerkleLT_Integration_Shared_Test,
-    CalculateMinFeeWei_Integration_Test
+    CalculateMinFeeWei_Integration_Concrete_Test
 {
     function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {
         MerkleLT_Integration_Shared_Test.setUp();
     }
 }
 
-contract Clawback_MerkleLT_Integration_Test is MerkleLT_Integration_Shared_Test, Clawback_Integration_Test {
-    function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {
-        MerkleLT_Integration_Shared_Test.setUp();
-    }
-}
-
-contract DomainSeparator_MerkleLT_Integration_Test is
+contract Clawback_MerkleLT_Integration_Concrete_Test is
     MerkleLT_Integration_Shared_Test,
-    DomainSeparator_Integration_Test
+    Clawback_Integration_Concrete_Test
 {
     function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {
         MerkleLT_Integration_Shared_Test.setUp();
     }
 }
 
-contract HasClaimed_MerkleLT_Integration_Test is MerkleLT_Integration_Shared_Test, HasClaimed_Integration_Test {
+contract DomainSeparator_MerkleLT_Integration_Concrete_Test is
+    MerkleLT_Integration_Shared_Test,
+    DomainSeparator_Integration_Concrete_Test
+{
     function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {
         MerkleLT_Integration_Shared_Test.setUp();
     }
 }
 
-contract HasExpired_MerkleLT_Integration_Test is MerkleLT_Integration_Shared_Test, HasExpired_Integration_Test {
+contract HasClaimed_MerkleLT_Integration_Concrete_Test is
+    MerkleLT_Integration_Shared_Test,
+    HasClaimed_Integration_Concrete_Test
+{
+    function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {
+        MerkleLT_Integration_Shared_Test.setUp();
+    }
+}
+
+contract HasExpired_MerkleLT_Integration_Concrete_Test is
+    MerkleLT_Integration_Shared_Test,
+    HasExpired_Integration_Concrete_Test
+{
     function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {
         MerkleLT_Integration_Shared_Test.setUp();
 
@@ -76,19 +87,28 @@ contract HasExpired_MerkleLT_Integration_Test is MerkleLT_Integration_Shared_Tes
     }
 }
 
-contract LowerMinFeeUSD_MerkleLT_Integration_Test is MerkleLT_Integration_Shared_Test, LowerMinFeeUSD_Integration_Test {
+contract LowerMinFeeUSD_MerkleLT_Integration_Concrete_Test is
+    MerkleLT_Integration_Shared_Test,
+    LowerMinFeeUSD_Integration_Concrete_Test
+{
     function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {
         MerkleLT_Integration_Shared_Test.setUp();
     }
 }
 
-contract SetAttestor_MerkleLT_Integration_Test is MerkleLT_Integration_Shared_Test, SetAttestor_Integration_Test {
+contract SetAttestor_MerkleLT_Integration_Concrete_Test is
+    MerkleLT_Integration_Shared_Test,
+    SetAttestor_Integration_Concrete_Test
+{
     function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {
         MerkleLT_Integration_Shared_Test.setUp();
     }
 }
 
-contract Sponsor_MerkleLT_Integration_Test is MerkleLT_Integration_Shared_Test, Sponsor_Integration_Test {
+contract Sponsor_MerkleLT_Integration_Concrete_Test is
+    MerkleLT_Integration_Shared_Test,
+    Sponsor_Integration_Concrete_Test
+{
     function setUp() public override(MerkleLT_Integration_Shared_Test, Integration_Test) {
         MerkleLT_Integration_Shared_Test.setUp();
     }

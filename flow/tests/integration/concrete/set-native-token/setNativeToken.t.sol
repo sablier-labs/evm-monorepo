@@ -7,7 +7,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Shared_Integration_Concrete_Test } from "./../Concrete.t.sol";
 
-contract SetNativeToken_Integration_Test is Shared_Integration_Concrete_Test {
+contract SetNativeToken_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
     function test_RevertWhen_CallerNotComptroller() external {
         setMsgSender(users.eve);
         vm.expectRevert(

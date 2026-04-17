@@ -11,11 +11,11 @@ import {
     MockStakingRevert,
     MockStakingPartialTransfer
 } from "./../../../../../mocks/MockStaking.sol";
-import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
+import { Claim_Integration_Concrete_Test } from "./../../shared/claim/claim.t.sol";
 import { Integration_Test, MerkleExecute_Integration_Shared_Test } from "./../MerkleExecute.t.sol";
 
-contract ClaimAndExecute_MerkleExecute_Integration_Test is
-    Claim_Integration_Test,
+contract ClaimAndExecute_MerkleExecute_Integration_Concrete_Test is
+    Claim_Integration_Concrete_Test,
     MerkleExecute_Integration_Shared_Test
 {
     function setUp() public virtual override(MerkleExecute_Integration_Shared_Test, Integration_Test) {

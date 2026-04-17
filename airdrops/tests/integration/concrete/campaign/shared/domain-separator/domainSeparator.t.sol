@@ -5,7 +5,7 @@ import { ISablierMerkleSignature } from "src/interfaces/ISablierMerkleSignature.
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-abstract contract DomainSeparator_Integration_Test is Integration_Test {
+abstract contract DomainSeparator_Integration_Concrete_Test is Integration_Test {
     function test_WhenChainIDMatchesCachedChainID() external view {
         // It should return the cached domain separator.
         bytes32 actualDomainSeparator = ISablierMerkleSignature(address(merkleBase)).domainSeparator();

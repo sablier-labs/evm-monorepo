@@ -7,7 +7,7 @@ import { MerkleLT } from "src/types/MerkleLT.sol";
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 
-contract Constructor_MerkleLT_Integration_Test is Integration_Test {
+contract Constructor_MerkleLT_Integration_Concrete_Test is Integration_Test {
     function test_Constructor() external {
         // Make Factory the caller for the constructor test.
         setMsgSender(address(factoryMerkleLT));

@@ -11,9 +11,9 @@ import { MerkleLL } from "src/types/MerkleLL.sol";
 
 import { LeafData } from "../../utils/MerkleBuilder.sol";
 import { Params } from "../../utils/Types.sol";
-import { Shared_Fuzz_Test, Integration_Test } from "./Fuzz.t.sol";
+import { Shared_Integration_Fuzz_Test, Integration_Test } from "./Fuzz.t.sol";
 
-contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
+contract MerkleLL_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/

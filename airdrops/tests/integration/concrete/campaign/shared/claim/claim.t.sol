@@ -6,7 +6,7 @@ import { ClaimType } from "src/types/MerkleBase.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-abstract contract Claim_Integration_Test is Integration_Test {
+abstract contract Claim_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_NotDefaultClaimType() external virtual {
         merkleBase = merkleBaseAttest;
         vm.expectRevert(

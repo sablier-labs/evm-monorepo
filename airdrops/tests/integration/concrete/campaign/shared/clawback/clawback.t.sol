@@ -7,7 +7,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-abstract contract Clawback_Integration_Test is Integration_Test {
+abstract contract Clawback_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CallerNotCampaignCreator() external {
         setMsgSender(users.eve);
         vm.expectRevert(

@@ -3,10 +3,13 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 
-import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
+import { Claim_Integration_Concrete_Test } from "./../../shared/claim/claim.t.sol";
 import { MerkleInstant_Integration_Shared_Test, Integration_Test } from "./../MerkleInstant.t.sol";
 
-contract Claim_MerkleInstant_Integration_Test is Claim_Integration_Test, MerkleInstant_Integration_Shared_Test {
+contract Claim_MerkleInstant_Integration_Concrete_Test is
+    Claim_Integration_Concrete_Test,
+    MerkleInstant_Integration_Shared_Test
+{
     function setUp() public virtual override(MerkleInstant_Integration_Shared_Test, Integration_Test) {
         MerkleInstant_Integration_Shared_Test.setUp();
     }
