@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierEscrow } from "src/interfaces/ISablierEscrow.sol";
@@ -9,10 +10,18 @@ import { Escrow } from "src/types/Escrow.sol";
 
 import { Fork_Test } from "./Fork.t.sol";
 
-contract Escrow_Fork_Test is Fork_Test {
-    function setUp() public virtual override {
-        Fork_Test.setUp();
-    }
+abstract contract Escrow_Fork_Test is Fork_Test {
+    using SafeERC20 for IERC20;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    constructor(IERC20 forkSellToken, IERC20 forkBuyToken) Fork_Test(forkSellToken, forkBuyToken) { }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                       PARAMS
+    //////////////////////////////////////////////////////////////////////////*/
 
     struct Params {
         address seller;
@@ -23,14 +32,12 @@ contract Escrow_Fork_Test is Fork_Test {
         uint40 timeJump;
     }
 
-    function testForkFuzz_Escrow(Params memory params) external {
-        vm.assume(params.seller != address(0) && params.buyer != address(0));
-        vm.assume(params.seller != params.buyer);
-        vm.assume(params.seller != address(escrow) && params.buyer != address(escrow));
-        vm.assume(params.seller != address(comptroller) && params.buyer != address(comptroller));
+    /*//////////////////////////////////////////////////////////////////////////
+                                     FORK TESTS
+    //////////////////////////////////////////////////////////////////////////*/
 
-        assumeNoBlacklisted(address(USDC), params.seller);
-        assumeNoBlacklisted(address(USDC), params.buyer);
+    function testForkFuzz_Escrow(Params memory params) external {
+        checkUsers(params.seller, params.buyer);
 
         params.sellAmount = boundUint128(params.sellAmount, 1, MAX_UINT128 - 1);
         params.buyAmount = boundUint128(params.buyAmount, 1, MAX_UINT128 - 1);
@@ -45,15 +52,15 @@ contract Escrow_Fork_Test is Fork_Test {
                                     SETUP: DEAL AND APPROVE
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Seller needs USDC for 2 orders.
-        deal(address(USDC), params.seller, uint256(params.sellAmount) * 2);
+        // Deal and approve for the seller (2 orders).
+        deal(address(FORK_SELL_TOKEN), params.seller, uint256(params.sellAmount) * 2);
         setMsgSender(params.seller);
-        USDC.approve(address(escrow), uint256(params.sellAmount) * 2);
+        FORK_SELL_TOKEN.forceApprove(address(escrow), uint256(params.sellAmount) * 2);
 
-        // Buyer needs WETH to fill 1 order.
-        deal(address(WETH), params.buyer, uint256(params.buyAmount));
+        // Deal and approve for the buyer (1 order).
+        deal(address(FORK_BUY_TOKEN), params.buyer, uint256(params.buyAmount));
         setMsgSender(params.buyer);
-        WETH.approve(address(escrow), uint256(params.buyAmount));
+        FORK_BUY_TOKEN.forceApprove(address(escrow), uint256(params.buyAmount));
 
         /*//////////////////////////////////////////////////////////////////////////
                                 CREATE ORDER 1 (TO CANCEL)
@@ -63,10 +70,15 @@ contract Escrow_Fork_Test is Fork_Test {
         uint256 expectedOrderId1 = escrow.nextOrderId();
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransferFrom({ token: USDC, from: params.seller, to: address(escrow), value: params.sellAmount });
+        expectCallToTransferFrom({
+            token: FORK_SELL_TOKEN,
+            from: params.seller,
+            to: address(escrow),
+            value: params.sellAmount
+        });
 
         // It should emit a {Transfer} event.
-        vm.expectEmit({ emitter: address(USDC) });
+        vm.expectEmit({ emitter: address(FORK_SELL_TOKEN) });
         emit IERC20.Transfer(params.seller, address(escrow), params.sellAmount);
 
         // It should emit a {CreateOrder} event.
@@ -75,17 +87,17 @@ contract Escrow_Fork_Test is Fork_Test {
             orderId: expectedOrderId1,
             seller: params.seller,
             buyer: params.buyer,
-            sellToken: USDC,
-            buyToken: WETH,
+            sellToken: FORK_SELL_TOKEN,
+            buyToken: FORK_BUY_TOKEN,
             sellAmount: params.sellAmount,
             minBuyAmount: params.buyAmount,
             expiryTime: params.expiryTime
         });
 
         uint256 orderToCancel = escrow.createOrder({
-            sellToken: USDC,
+            sellToken: FORK_SELL_TOKEN,
             sellAmount: params.sellAmount,
-            buyToken: WETH,
+            buyToken: FORK_BUY_TOKEN,
             minBuyAmount: params.buyAmount,
             buyer: params.buyer,
             expiryTime: params.expiryTime
@@ -95,8 +107,8 @@ contract Escrow_Fork_Test is Fork_Test {
         assertEq(orderToCancel, expectedOrderId1, "orderToCancel id");
         assertEq(escrow.getSeller(orderToCancel), params.seller, "orderToCancel.seller");
         assertEq(escrow.getBuyer(orderToCancel), params.buyer, "orderToCancel.buyer");
-        assertEq(escrow.getSellToken(orderToCancel), USDC, "orderToCancel.sellToken");
-        assertEq(escrow.getBuyToken(orderToCancel), WETH, "orderToCancel.buyToken");
+        assertEq(escrow.getSellToken(orderToCancel), FORK_SELL_TOKEN, "orderToCancel.sellToken");
+        assertEq(escrow.getBuyToken(orderToCancel), FORK_BUY_TOKEN, "orderToCancel.buyToken");
         assertEq(escrow.getSellAmount(orderToCancel), params.sellAmount, "orderToCancel.sellAmount");
         assertEq(escrow.getMinBuyAmount(orderToCancel), params.buyAmount, "orderToCancel.minBuyAmount");
         assertEq(escrow.getExpiryTime(orderToCancel), params.expiryTime, "orderToCancel.expiryTime");
@@ -111,10 +123,15 @@ contract Escrow_Fork_Test is Fork_Test {
         uint256 expectedOrderId2 = escrow.nextOrderId();
 
         // It should perform the ERC-20 transfer.
-        expectCallToTransferFrom({ token: USDC, from: params.seller, to: address(escrow), value: params.sellAmount });
+        expectCallToTransferFrom({
+            token: FORK_SELL_TOKEN,
+            from: params.seller,
+            to: address(escrow),
+            value: params.sellAmount
+        });
 
         // It should emit a {Transfer} event.
-        vm.expectEmit({ emitter: address(USDC) });
+        vm.expectEmit({ emitter: address(FORK_SELL_TOKEN) });
         emit IERC20.Transfer(params.seller, address(escrow), params.sellAmount);
 
         // It should emit a {CreateOrder} event.
@@ -123,17 +140,17 @@ contract Escrow_Fork_Test is Fork_Test {
             orderId: expectedOrderId2,
             seller: params.seller,
             buyer: params.buyer,
-            sellToken: USDC,
-            buyToken: WETH,
+            sellToken: FORK_SELL_TOKEN,
+            buyToken: FORK_BUY_TOKEN,
             sellAmount: params.sellAmount,
             minBuyAmount: params.buyAmount,
             expiryTime: params.expiryTime
         });
 
         uint256 orderToFill = escrow.createOrder({
-            sellToken: USDC,
+            sellToken: FORK_SELL_TOKEN,
             sellAmount: params.sellAmount,
-            buyToken: WETH,
+            buyToken: FORK_BUY_TOKEN,
             minBuyAmount: params.buyAmount,
             buyer: params.buyer,
             expiryTime: params.expiryTime
@@ -155,7 +172,7 @@ contract Escrow_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // It should emit a {Transfer} event.
-        vm.expectEmit({ emitter: address(USDC) });
+        vm.expectEmit({ emitter: address(FORK_SELL_TOKEN) });
         emit IERC20.Transfer(address(escrow), params.seller, params.sellAmount);
 
         // It should emit a {CancelOrder} event.
@@ -188,30 +205,35 @@ contract Escrow_Fork_Test is Fork_Test {
         // It should perform the ERC-20 transfers.
         if (feeFromBuyAmount > 0) {
             expectCallToTransferFrom({
-                token: WETH,
+                token: FORK_BUY_TOKEN,
                 from: params.buyer,
                 to: address(comptroller),
                 value: feeFromBuyAmount
             });
         }
         if (feeFromSellAmount > 0) {
-            expectCallToTransfer({ token: USDC, to: address(comptroller), value: feeFromSellAmount });
+            expectCallToTransfer({ token: FORK_SELL_TOKEN, to: address(comptroller), value: feeFromSellAmount });
         }
-        expectCallToTransferFrom({ token: WETH, from: params.buyer, to: params.seller, value: buyAmountAfterFee });
-        expectCallToTransfer({ token: USDC, to: params.buyer, value: sellAmountAfterFee });
+        expectCallToTransferFrom({
+            token: FORK_BUY_TOKEN,
+            from: params.buyer,
+            to: params.seller,
+            value: buyAmountAfterFee
+        });
+        expectCallToTransfer({ token: FORK_SELL_TOKEN, to: params.buyer, value: sellAmountAfterFee });
 
         // It should emit {Transfer} events (in emission order).
         if (feeFromBuyAmount > 0) {
-            vm.expectEmit({ emitter: address(WETH) });
+            vm.expectEmit({ emitter: address(FORK_BUY_TOKEN) });
             emit IERC20.Transfer(params.buyer, address(comptroller), feeFromBuyAmount);
         }
         if (feeFromSellAmount > 0) {
-            vm.expectEmit({ emitter: address(USDC) });
+            vm.expectEmit({ emitter: address(FORK_SELL_TOKEN) });
             emit IERC20.Transfer(address(escrow), address(comptroller), feeFromSellAmount);
         }
-        vm.expectEmit({ emitter: address(WETH) });
+        vm.expectEmit({ emitter: address(FORK_BUY_TOKEN) });
         emit IERC20.Transfer(params.buyer, params.seller, buyAmountAfterFee);
-        vm.expectEmit({ emitter: address(USDC) });
+        vm.expectEmit({ emitter: address(FORK_SELL_TOKEN) });
         emit IERC20.Transfer(address(escrow), params.buyer, sellAmountAfterFee);
 
         // It should emit a {FillOrder} event.
