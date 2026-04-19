@@ -9,7 +9,7 @@ import { ClaimType } from "src/types/MerkleBase.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
+abstract contract ClaimViaAttestation_Integration_Concrete_Test is Integration_Test {
     function setUp() public virtual override {
         // Make `users.recipient` the caller for this test since `claimViaAttestation` uses `msg.sender` as the
         // recipient.

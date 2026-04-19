@@ -6,7 +6,7 @@ import { MerkleExecute } from "src/types/MerkleExecute.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-contract ComputeMerkleExecute_Integration_Test is Integration_Test {
+contract ComputeMerkleExecute_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_NativeTokenFound() external {
         MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams();
 

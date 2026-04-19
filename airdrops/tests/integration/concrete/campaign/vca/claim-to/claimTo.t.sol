@@ -7,21 +7,25 @@ import { ClaimType } from "src/types/MerkleBase.sol";
 import { MerkleVCA } from "src/types/MerkleVCA.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
-import { ClaimTo_Integration_Test } from "../../shared/claim-to/claimTo.t.sol";
-import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
+import { ClaimTo_Integration_Concrete_Test } from "../../shared/claim-to/claimTo.t.sol";
+import { Claim_Integration_Concrete_Test } from "../../shared/claim/claim.t.sol";
 import { MerkleVCA_Integration_Shared_Test } from "../MerkleVCA.t.sol";
 
-/// @dev The following contract inherits from both {Claim_Integration_Test} and {ClaimTo_Integration_Test} because there
-/// is no {claim} function in {MerkleVCA}. So, the tests specified in {Claim_Integration_Test} are also required to be
+/// @dev The following contract inherits from both {Claim_Integration_Concrete_Test} and
+/// {ClaimTo_Integration_Concrete_Test} because there is no {claim} function in {MerkleVCA}. So, the tests specified in
+/// {Claim_Integration_Concrete_Test} are also required to be
 /// run by this contract.
-contract ClaimTo_MerkleVCA_Integration_Test is
-    Claim_Integration_Test,
-    ClaimTo_Integration_Test,
+contract ClaimTo_MerkleVCA_Integration_Concrete_Test is
+    Claim_Integration_Concrete_Test,
+    ClaimTo_Integration_Concrete_Test,
     MerkleVCA_Integration_Shared_Test
 {
-    function setUp() public override(MerkleVCA_Integration_Shared_Test, ClaimTo_Integration_Test, Integration_Test) {
+    function setUp()
+        public
+        override(MerkleVCA_Integration_Shared_Test, ClaimTo_Integration_Concrete_Test, Integration_Test)
+    {
         MerkleVCA_Integration_Shared_Test.setUp();
-        ClaimTo_Integration_Test.setUp();
+        ClaimTo_Integration_Concrete_Test.setUp();
 
         // Warp to campaign start time.
         vm.warp({ newTimestamp: CAMPAIGN_START_TIME });
@@ -260,11 +264,11 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         ISablierMerkleVCA(campaignAddr).claimTo{ value: msgValue }(index, recipient, amount, merkleProof);
     }
 
-    /// @dev Overrides the {test_RevertGiven_NotDefaultClaimType} function defined in both {ClaimTo_Integration_Test}
-    /// and {Claim_Integration_Test}.
+    /// @dev Overrides the {test_RevertGiven_NotDefaultClaimType} function defined in both
+    /// {ClaimTo_Integration_Concrete_Test} and {Claim_Integration_Concrete_Test}.
     function test_RevertGiven_NotDefaultClaimType()
         external
-        override(ClaimTo_Integration_Test, Claim_Integration_Test)
+        override(ClaimTo_Integration_Concrete_Test, Claim_Integration_Concrete_Test)
     {
         merkleBase = merkleBaseAttest;
         vm.expectRevert(
@@ -275,7 +279,10 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         claimTo();
     }
 
-    /// @dev Overrides the {test_WhenMerkleProofValid} function defined in both {ClaimTo_Integration_Test} and
-    /// {Claim_Integration_Test}.
-    function test_WhenMerkleProofValid() external override(ClaimTo_Integration_Test, Claim_Integration_Test) { }
+    /// @dev Overrides the {test_WhenMerkleProofValid} function defined in both {ClaimTo_Integration_Concrete_Test} and
+    /// {Claim_Integration_Concrete_Test}.
+    function test_WhenMerkleProofValid()
+        external
+        override(ClaimTo_Integration_Concrete_Test, Claim_Integration_Concrete_Test)
+    { }
 }

@@ -7,7 +7,7 @@ import { SablierComptroller } from "src/SablierComptroller.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract UpgradeToAndCall_Comptroller_Concrete_Test is Base_Test {
+contract UpgradeToAndCall_Integration_Concrete_Test is Base_Test {
     UUPSUpgradeable internal comptrollerCastedToUUPS;
 
     address internal newImplementation;

@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { MerkleVCA_Integration_Shared_Test } from "../MerkleVCA.t.sol";
 
-contract CalculateClaimAmount_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_Test {
+contract CalculateClaimAmount_MerkleVCA_Integration_Concrete_Test is MerkleVCA_Integration_Shared_Test {
     function test_WhenClaimTimeZero() external {
         vm.warp({ newTimestamp: VCA_START_TIME - 1 seconds });
         uint40 claimTime = 0;

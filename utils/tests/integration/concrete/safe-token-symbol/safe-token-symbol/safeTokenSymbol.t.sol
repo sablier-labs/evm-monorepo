@@ -6,7 +6,7 @@ import { ERC20Mock } from "src/mocks/erc20/ERC20Mock.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract SafeTokenSymbol_SafeTokenSymbol_Concrete_Test is Base_Test {
+contract SafeTokenSymbol_Integration_Concrete_Test is Base_Test {
     function test_WhenTokenNotContract() external view {
         // It should return ERC20.
         address eoa = vm.addr({ privateKey: 1 });

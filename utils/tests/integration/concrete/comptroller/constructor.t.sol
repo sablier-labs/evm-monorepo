@@ -5,7 +5,7 @@ import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 
 import { Base_Test } from "../../../Base.t.sol";
 
-contract Constructor_Comptroller_Concrete_Test is Base_Test {
+contract Constructor_Integration_Concrete_Test is Base_Test {
     function test_Constructor() public view {
         assertEq(comptroller.admin(), admin, "admin");
         assertEq(comptroller.attestor(), attestor, "attestor");

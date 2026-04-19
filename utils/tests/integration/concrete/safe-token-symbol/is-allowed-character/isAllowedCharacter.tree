@@ -1,4 +1,4 @@
-IsAllowedCharacter_SafeTokenSymbol_Concrete_Test
+IsAllowedCharacter_Integration_Concrete_Test
 ├── when empty string
 │  └── it should return true
 └── when not empty string

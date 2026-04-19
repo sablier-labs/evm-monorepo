@@ -7,7 +7,7 @@ import { BatchLockup } from "src/types/BatchLockup.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
-contract CreateWithTimestampsLT_Integration_Test is Integration_Test {
+contract CreateWithTimestampsLT_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_BatchSizeZero() external {
         BatchLockup.CreateWithTimestampsLT[] memory batchParams = new BatchLockup.CreateWithTimestampsLT[](0);
         vm.expectRevert(Errors.SablierBatchLockup_BatchSizeZero.selector);

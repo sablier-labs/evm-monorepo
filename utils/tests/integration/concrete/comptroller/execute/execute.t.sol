@@ -12,7 +12,7 @@ import { ComptrollerableMock } from "../../../../mocks/ComptrollerableMock.sol";
 import { PanicContractMock } from "../../../../mocks/PanicContractMock.sol";
 import { RevertingContractMock } from "../../../../mocks/RevertingContractMock.sol";
 
-contract Execute_Concrete_Test is Base_Test {
+contract Execute_Integration_Concrete_Test is Base_Test {
     struct Targets {
         ComptrollerableMock comptrollerableMock;
         PanicContractMock panic;

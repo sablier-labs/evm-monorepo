@@ -6,7 +6,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract WithdrawERC20Token_Comptroller_Concrete_Test is Base_Test {
+contract WithdrawERC20Token_Integration_Concrete_Test is Base_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         setMsgSender(users.eve);
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, admin, users.eve));

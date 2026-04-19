@@ -1,4 +1,4 @@
-ConvertUSDFeeToWei_Comptroller_Concrete_Test
+ConvertUSDFeeToWei_Integration_Concrete_Test
 ├── given oracle zero
 │  └── it should return zero
 └── given oracle not zero

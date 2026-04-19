@@ -1,4 +1,4 @@
-ComputeMerkleLT_Integration_Test
+ComputeMerkleLT_Integration_Concrete_Test
 ├── when native token found
 │  └── it should revert
 └── when native token not found

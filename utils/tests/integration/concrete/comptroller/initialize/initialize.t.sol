@@ -10,7 +10,7 @@ import { SablierComptroller } from "src/SablierComptroller.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract Initialize_Comptroller_Concrete_Test is Base_Test {
+contract Initialize_Integration_Concrete_Test is Base_Test {
     SablierComptroller internal uninitializedProxy;
 
     function setUp() public override {

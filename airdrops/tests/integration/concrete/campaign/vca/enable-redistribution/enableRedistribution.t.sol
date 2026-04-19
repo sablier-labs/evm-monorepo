@@ -8,7 +8,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { MerkleVCA_Integration_Shared_Test } from "../MerkleVCA.t.sol";
 
-contract EnableRedistribution_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_Test {
+contract EnableRedistribution_MerkleVCA_Integration_Concrete_Test is MerkleVCA_Integration_Shared_Test {
     function test_RevertWhen_CallerNotCampaignCreator() external {
         // Set Eve as the caller.
         setMsgSender(users.eve);

@@ -5,7 +5,7 @@ import { SignatureHash } from "src/libraries/SignatureHash.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
-contract SignatureHash_Integration_Test is Base_Test {
+contract SignatureHash_Integration_Unit_Test is Base_Test {
     function test_Constants() external pure {
         assertEq(SignatureHash.PROTOCOL_NAME, keccak256("Sablier Airdrops Protocol"));
         assertEq(SignatureHash.CLAIM_TYPEHASH, vm.eip712HashType(SCHEMA_CLAIM));

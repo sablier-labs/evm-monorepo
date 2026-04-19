@@ -1,4 +1,4 @@
-CalculateMinFeeWei_Integration_Test
+CalculateMinFeeWei_Integration_Concrete_Test
 ├── given fee is lowered
 │  └── it should return the new fee in wei
 └── given fee is not lowered

@@ -6,7 +6,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Base_Test } from "../../../Base.t.sol";
 
-contract GrantRole_RoleAdminable_Fuzz_Test is Base_Test {
+contract GrantRole_Integration_Fuzz_Test is Base_Test {
     function testFuzz_RevertWhen_CallerNotAdmin(address eve) external {
         vm.assume(eve != address(0) && eve != admin);
 

@@ -7,13 +7,16 @@ import { Lockup } from "@sablier/lockup/src/types/Lockup.sol";
 
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { MerkleLL } from "src/types/MerkleLL.sol";
-import { ClaimTo_Integration_Test } from "./../../shared/claim-to/claimTo.t.sol";
+import { ClaimTo_Integration_Concrete_Test } from "./../../shared/claim-to/claimTo.t.sol";
 import { MerkleLL_Integration_Shared_Test } from "./../MerkleLL.t.sol";
 
-contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL_Integration_Shared_Test {
-    function setUp() public virtual override(MerkleLL_Integration_Shared_Test, ClaimTo_Integration_Test) {
+contract ClaimTo_MerkleLL_Integration_Concrete_Test is
+    ClaimTo_Integration_Concrete_Test,
+    MerkleLL_Integration_Shared_Test
+{
+    function setUp() public virtual override(MerkleLL_Integration_Shared_Test, ClaimTo_Integration_Concrete_Test) {
         MerkleLL_Integration_Shared_Test.setUp();
-        ClaimTo_Integration_Test.setUp();
+        ClaimTo_Integration_Concrete_Test.setUp();
     }
 
     function test_WhenVestingEndTimeNotExceedClaimTime() external givenDefaultClaimType whenMerkleProofValid {

@@ -6,7 +6,7 @@ import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract SupportsInterface_Comptroller_Concrete_Test is Base_Test {
+contract SupportsInterface_Integration_Concrete_Test is Base_Test {
     bytes4 internal minimalInterfaceId;
     bytes4 internal erc165InterfaceId;
 

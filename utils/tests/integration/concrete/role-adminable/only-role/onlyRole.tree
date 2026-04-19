@@ -1,4 +1,4 @@
-OnlyRole_RoleAdminable_Concrete_Test
+OnlyRole_Integration_Concrete_Test
 ├── when caller admin
 │  └── it should execute the function
 └── when caller not admin

@@ -6,7 +6,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-abstract contract Sponsor_Integration_Test is Integration_Test {
+abstract contract Sponsor_Integration_Concrete_Test is Integration_Test {
     uint128 internal constant SPONSOR_AMOUNT = 200e6;
 
     function test_RevertWhen_BillerZeroAddress() external {

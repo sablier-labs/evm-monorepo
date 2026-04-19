@@ -11,7 +11,7 @@ import { MerkleLT } from "src/types/MerkleLT.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-contract CreateMerkleLT_Integration_Test is Integration_Test {
+contract CreateMerkleLT_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_NativeTokenFound() external {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
 

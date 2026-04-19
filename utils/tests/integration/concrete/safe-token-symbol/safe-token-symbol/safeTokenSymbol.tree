@@ -1,4 +1,4 @@
-SafeTokenSymbol_SafeTokenSymbol_Concrete_Test
+SafeTokenSymbol_Integration_Concrete_Test
 ├── when token not contract
 │  └── it should return ERC20
 └── when token contract

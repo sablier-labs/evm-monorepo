@@ -1,4 +1,4 @@
-CalculateClaimAmount_MerkleVCA_Integration_Test
+CalculateClaimAmount_MerkleVCA_Integration_Concrete_Test
 ├── when claim time zero
 │  └── it should use block time and return zero
 └── when claim time not zero

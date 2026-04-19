@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
-abstract contract CalculateMinFeeWei_Integration_Test is Integration_Test {
+abstract contract CalculateMinFeeWei_Integration_Concrete_Test is Integration_Test {
     function test_GivenFeeIsLowered() external {
         setMsgSender(address(comptroller));
         merkleBase.lowerMinFeeUSD(0);

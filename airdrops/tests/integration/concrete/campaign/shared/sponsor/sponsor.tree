@@ -1,4 +1,4 @@
-Sponsor_Integration_Test
+Sponsor_Integration_Concrete_Test
 ├── when biller zero address
 │  └── it should revert
 └── when biller not zero address

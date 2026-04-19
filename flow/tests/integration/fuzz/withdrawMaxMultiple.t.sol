@@ -6,7 +6,7 @@ import { ud21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { Shared_Integration_Fuzz_Test } from "./Fuzz.t.sol";
 
-contract WithdrawMaxMultiple_Fuzz_Test is Shared_Integration_Fuzz_Test {
+contract WithdrawMaxMultiple_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     /// @dev Checklist:
     /// - It should test multiple withdrawals from the stream using `withdrawMax`.
     /// - It should assert that the actual withdrawn amount is equal to the desired amount.

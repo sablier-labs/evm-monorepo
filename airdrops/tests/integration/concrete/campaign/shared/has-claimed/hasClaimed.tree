@@ -1,4 +1,4 @@
-HasClaimed_Integration_Test
+HasClaimed_Integration_Concrete_Test
 ├── when index not in Merkle tree
 │  └── it should return false
 └── when index in Merkle tree

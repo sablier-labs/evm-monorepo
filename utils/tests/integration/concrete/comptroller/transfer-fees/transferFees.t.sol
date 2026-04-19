@@ -8,7 +8,7 @@ import { ContractWithoutReceive, ContractWithReceive } from "src/mocks/Receive.s
 import { Base_Test } from "../../../../Base.t.sol";
 import { ComptrollerableMock } from "../../../../mocks/ComptrollerableMock.sol";
 
-contract TransferFees_Comptroller_Concrete_Test is Base_Test {
+contract TransferFees_Integration_Concrete_Test is Base_Test {
     uint256 internal expectedFeeAmount;
     address[] internal protocolAddresses;
 

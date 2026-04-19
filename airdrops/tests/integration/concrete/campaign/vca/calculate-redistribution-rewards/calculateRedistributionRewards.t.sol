@@ -6,7 +6,7 @@ import { MerkleVCA } from "src/types/MerkleVCA.sol";
 
 import { MerkleVCA_Integration_Shared_Test } from "../MerkleVCA.t.sol";
 
-contract CalculateRedistributionRewards_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_Test {
+contract CalculateRedistributionRewards_MerkleVCA_Integration_Concrete_Test is MerkleVCA_Integration_Shared_Test {
     function setUp() public override {
         MerkleVCA_Integration_Shared_Test.setUp();
 

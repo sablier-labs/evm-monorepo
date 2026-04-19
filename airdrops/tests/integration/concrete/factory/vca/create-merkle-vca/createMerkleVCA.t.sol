@@ -12,7 +12,7 @@ import { Integration_Test } from "../../../../Integration.t.sol";
 
 /// @dev Some of the tests use `users.sender` as the campaign creator to avoid collision with the default MerkleVCA
 /// contract deployed in {Integration_Test.setUp}.
-contract CreateMerkleVCA_Integration_Test is Integration_Test {
+contract CreateMerkleVCA_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_NativeTokenFound() external {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
 

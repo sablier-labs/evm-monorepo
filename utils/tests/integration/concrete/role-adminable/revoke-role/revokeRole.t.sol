@@ -5,7 +5,7 @@ import { IRoleAdminable } from "src/interfaces/IRoleAdminable.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract RevokeRole_RoleAdminable_Concrete_Test is Base_Test {
+contract RevokeRole_Integration_Concrete_Test is Base_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Accountant the caller in this test.
         setMsgSender(users.accountant);

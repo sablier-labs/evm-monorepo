@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Base_Test } from "../../../Base.t.sol";
 
-contract IsAllowedCharacter_SafeTokenSymbol_Fuzz_Test is Base_Test {
+contract IsAllowedCharacter_Integration_Fuzz_Test is Base_Test {
     bytes1 internal constant SPACE = 0x20; // ASCII 32
     bytes1 internal constant DASH = 0x2D; // ASCII 45
     bytes1 internal constant ZERO = 0x30; // ASCII 48

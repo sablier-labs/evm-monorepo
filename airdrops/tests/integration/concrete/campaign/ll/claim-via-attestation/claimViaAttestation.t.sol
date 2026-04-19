@@ -4,16 +4,22 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ERC1271WalletMock } from "@sablier/evm-utils/src/mocks/ERC1271WalletMock.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleSignature } from "src/interfaces/ISablierMerkleSignature.sol";
-import { ClaimViaAttestation_Integration_Test } from "./../../shared/claim-via-attestation/claimViaAttestation.t.sol";
+import {
+    ClaimViaAttestation_Integration_Concrete_Test
+} from "./../../shared/claim-via-attestation/claimViaAttestation.t.sol";
 import { MerkleLL_Integration_Shared_Test } from "./../MerkleLL.t.sol";
 
-contract ClaimViaAttestation_MerkleLL_Integration_Test is
-    ClaimViaAttestation_Integration_Test,
+contract ClaimViaAttestation_MerkleLL_Integration_Concrete_Test is
+    ClaimViaAttestation_Integration_Concrete_Test,
     MerkleLL_Integration_Shared_Test
 {
-    function setUp() public virtual override(MerkleLL_Integration_Shared_Test, ClaimViaAttestation_Integration_Test) {
+    function setUp()
+        public
+        virtual
+        override(MerkleLL_Integration_Shared_Test, ClaimViaAttestation_Integration_Concrete_Test)
+    {
         MerkleLL_Integration_Shared_Test.setUp();
-        ClaimViaAttestation_Integration_Test.setUp();
+        ClaimViaAttestation_Integration_Concrete_Test.setUp();
     }
 
     function test_WhenAttestationValid()

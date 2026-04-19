@@ -2,16 +2,20 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
-import { ClaimViaSig_Integration_Test } from "./../../shared/claim-via-sig/claimViaSig.t.sol";
+import { ClaimViaSig_Integration_Concrete_Test } from "./../../shared/claim-via-sig/claimViaSig.t.sol";
 import { MerkleInstant_Integration_Shared_Test } from "./../MerkleInstant.t.sol";
 
-contract ClaimViaSig_MerkleInstant_Integration_Test is
-    ClaimViaSig_Integration_Test,
+contract ClaimViaSig_MerkleInstant_Integration_Concrete_Test is
+    ClaimViaSig_Integration_Concrete_Test,
     MerkleInstant_Integration_Shared_Test
 {
-    function setUp() public virtual override(MerkleInstant_Integration_Shared_Test, ClaimViaSig_Integration_Test) {
+    function setUp()
+        public
+        virtual
+        override(MerkleInstant_Integration_Shared_Test, ClaimViaSig_Integration_Concrete_Test)
+    {
         MerkleInstant_Integration_Shared_Test.setUp();
-        ClaimViaSig_Integration_Test.setUp();
+        ClaimViaSig_Integration_Concrete_Test.setUp();
     }
 
     function test_WhenSignatureValidityTimestampNotInFuture()

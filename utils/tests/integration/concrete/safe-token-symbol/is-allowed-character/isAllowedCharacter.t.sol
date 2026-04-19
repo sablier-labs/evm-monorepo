@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract IsAllowedCharacter_SafeTokenSymbol_Concrete_Test is Base_Test {
+contract IsAllowedCharacter_Integration_Concrete_Test is Base_Test {
     function test_WhenEmptyString() external view {
         // It should return true.
         string memory symbol = "";

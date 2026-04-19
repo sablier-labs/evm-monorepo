@@ -6,20 +6,22 @@ import { ERC1271WalletMock } from "@sablier/evm-utils/src/mocks/ERC1271WalletMoc
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleSignature } from "src/interfaces/ISablierMerkleSignature.sol";
 
-import { ClaimViaAttestation_Integration_Test } from "./../../shared/claim-via-attestation/claimViaAttestation.t.sol";
+import {
+    ClaimViaAttestation_Integration_Concrete_Test
+} from "./../../shared/claim-via-attestation/claimViaAttestation.t.sol";
 import { MerkleInstant_Integration_Shared_Test } from "./../MerkleInstant.t.sol";
 
-contract ClaimViaAttestation_MerkleInstant_Integration_Test is
-    ClaimViaAttestation_Integration_Test,
+contract ClaimViaAttestation_MerkleInstant_Integration_Concrete_Test is
+    ClaimViaAttestation_Integration_Concrete_Test,
     MerkleInstant_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(MerkleInstant_Integration_Shared_Test, ClaimViaAttestation_Integration_Test)
+        override(MerkleInstant_Integration_Shared_Test, ClaimViaAttestation_Integration_Concrete_Test)
     {
         MerkleInstant_Integration_Shared_Test.setUp();
-        ClaimViaAttestation_Integration_Test.setUp();
+        ClaimViaAttestation_Integration_Concrete_Test.setUp();
     }
 
     function test_WhenAttestationValid()

@@ -9,7 +9,7 @@ import { SablierComptroller } from "src/SablierComptroller.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
 
-contract SetComptroller_Comptrollerable_Concrete_Test is Base_Test {
+contract SetComptroller_Integration_Concrete_Test is Base_Test {
     ISablierComptroller internal newComptroller;
 
     function setUp() public override {

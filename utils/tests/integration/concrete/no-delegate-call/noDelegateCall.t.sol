@@ -5,7 +5,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Base_Test } from "../../../Base.t.sol";
 
-contract NoDelegateCall_Concrete_Test is Base_Test {
+contract NoDelegateCall_Integration_Concrete_Test is Base_Test {
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(noDelegateCallMock.foo, ());
         (bool success, bytes memory returnData) = address(noDelegateCallMock).delegatecall(callData);
