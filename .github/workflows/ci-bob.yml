@@ -7,23 +7,15 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
+  push: &path_filters
+    branches: [main, staging]
     paths:
       - ".github/workflows/ci-bob.yml"
       - ".github/workflows/ci-module.yml"
       - "bob/**"
       - "foundry.base.toml"
       - "package.json"
-  push:
-    branches:
-      - "main"
-      - "staging"
-    paths:
-      - ".github/workflows/ci-bob.yml"
-      - ".github/workflows/ci-module.yml"
-      - "bob/**"
-      - "foundry.base.toml"
-      - "package.json"
+  pull_request: *path_filters
 
 jobs:
   ci:

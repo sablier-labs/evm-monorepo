@@ -45,19 +45,19 @@ jobs:
   check:
     uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
     with:
-      foundry-version: "v1.5.1"
+      foundry-version: &foundry-version "v1.5.1"
       name: "Full check"
       working-directory: ${{ inputs.module }}
 
   build:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
     with:
-      cache-path: |
+      cache-path: &cache-path |
         ${{ inputs.module }}/cache
         ${{ inputs.module }}/node_modules
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
-      foundry-version: "v1.5.1"
+      foundry-version: *foundry-version
       name: "Build"
       working-directory: ${{ inputs.module }}
 
@@ -78,14 +78,10 @@ jobs:
       ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
-      cache-path: |
-        ${{ inputs.module }}/cache
-        ${{ inputs.module }}/node_modules
-        ${{ inputs.module }}/out
-        ${{ inputs.module }}/out-optimized
+      cache-path: *cache-path
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
-      foundry-version: "v1.5.1"
+      foundry-version: *foundry-version
       match-path: ${{ inputs.match-path-fork }}
       name: "Fork tests"
       working-directory: ${{ inputs.module }}
@@ -95,13 +91,9 @@ jobs:
     if: needs.build.outputs.cache-status != 'primary'
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
-      cache-path: |
-        ${{ inputs.module }}/cache
-        ${{ inputs.module }}/node_modules
-        ${{ inputs.module }}/out
-        ${{ inputs.module }}/out-optimized
+      cache-path: *cache-path
       foundry-profile: "test-optimized"
-      foundry-version: "v1.5.1"
+      foundry-version: *foundry-version
       match-path: ${{ inputs.match-path-integration }}
       name: "Integration tests"
       working-directory: ${{ inputs.module }}
@@ -111,13 +103,9 @@ jobs:
     if: needs.build.outputs.cache-status != 'primary' && !inputs.exclude-invariant-tests
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
-      cache-path: |
-        ${{ inputs.module }}/cache
-        ${{ inputs.module }}/node_modules
-        ${{ inputs.module }}/out
-        ${{ inputs.module }}/out-optimized
+      cache-path: *cache-path
       foundry-profile: "test-optimized"
-      foundry-version: "v1.5.1"
+      foundry-version: *foundry-version
       match-path: ${{ inputs.match-path-invariant }}
       name: "Invariant tests"
       working-directory: ${{ inputs.module }}
@@ -127,13 +115,9 @@ jobs:
     if: needs.build.outputs.cache-status != 'primary' && !inputs.exclude-unit-tests
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
-      cache-path: |
-        ${{ inputs.module }}/cache
-        ${{ inputs.module }}/node_modules
-        ${{ inputs.module }}/out
-        ${{ inputs.module }}/out-optimized
+      cache-path: *cache-path
       foundry-profile: "test-optimized"
-      foundry-version: "v1.5.1"
+      foundry-version: *foundry-version
       match-path: ${{ inputs.match-path-unit }}
       name: "Unit tests"
       working-directory: ${{ inputs.module }}
@@ -145,12 +129,8 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
     with:
-      cache-path: |
-        ${{ inputs.module }}/cache
-        ${{ inputs.module }}/node_modules
-        ${{ inputs.module }}/out
-        ${{ inputs.module }}/out-optimized
-      foundry-version: "v1.5.1"
+      cache-path: *cache-path
+      foundry-version: *foundry-version
       match-path: ${{ inputs.match-path-coverage }}
       name: "Coverage"
       via-ir-minimum: false
