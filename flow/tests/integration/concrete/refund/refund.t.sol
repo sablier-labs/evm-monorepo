@@ -129,7 +129,7 @@ contract Refund_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         givenNotPaused
         whenTokenNotMissERC20Return
     {
-        uint256 streamId = createDefaultStream(IERC20(address(dai)));
+        uint256 streamId = createDefaultStream(dai);
         depositDefaultAmount(streamId);
 
         // It should make the refund.

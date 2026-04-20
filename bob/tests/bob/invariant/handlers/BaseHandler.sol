@@ -190,7 +190,7 @@ abstract contract BaseHandler is Constants, StdCheats, BaseUtils {
         uint128 amount = boundUint128(amountSeed, minAmount, uint128(shareBalance));
 
         setMsgSender(from);
-        IERC20(address(shareToken)).transfer(to, amount);
+        shareToken.transfer(to, amount);
         store.addUser(vaultId, to);
     }
 

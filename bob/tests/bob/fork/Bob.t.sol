@@ -3,6 +3,8 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import { ISablierBob } from "src/interfaces/ISablierBob.sol";
+
 import { Fork_Test } from "./Fork.t.sol";
 
 contract Bob_Fork_Test is Fork_Test {
@@ -33,6 +35,16 @@ contract Bob_Fork_Test is Fork_Test {
         vm.deal(depositor, 1 ether);
         FORK_WETH.deposit{ value: dustAmount }();
         FORK_WETH.approve(address(forkBob), dustAmount);
+
+        // It should emit an {Enter} event.
+        vm.expectEmit({ emitter: address(forkBob) });
+        emit ISablierBob.Enter({
+            vaultId: vaultId,
+            user: depositor,
+            amountReceived: dustAmount,
+            sharesMinted: dustAmount
+        });
+
         forkBob.enter(vaultId, dustAmount);
 
         // Warp past expiry.
@@ -189,6 +201,16 @@ contract Bob_Fork_Test is Fork_Test {
         vm.deal(depositor, uint256(depositAmount) + 1 ether);
         FORK_WETH.deposit{ value: depositAmount }();
         FORK_WETH.approve(address(forkBob), depositAmount);
+
+        // It should emit an {Enter} event.
+        vm.expectEmit({ emitter: address(forkBob) });
+        emit ISablierBob.Enter({
+            vaultId: vaultId,
+            user: depositor,
+            amountReceived: depositAmount,
+            sharesMinted: depositAmount
+        });
+
         forkBob.enter(vaultId, depositAmount);
 
         // Snapshot the adapter's wstETH balance before requesting.
@@ -280,6 +302,15 @@ contract Bob_Fork_Test is Fork_Test {
 
         // Approve Bob to spend WETH.
         FORK_WETH.approve(address(forkBob), params.depositAmount);
+
+        // It should emit an {Enter} event.
+        vm.expectEmit({ emitter: address(forkBob) });
+        emit ISablierBob.Enter({
+            vaultId: vaultId,
+            user: params.depositor,
+            amountReceived: params.depositAmount,
+            sharesMinted: params.depositAmount
+        });
 
         // Enter the vault.
         forkBob.enter(vaultId, params.depositAmount);

@@ -51,7 +51,7 @@ contract WithdrawMax_Integration_Concrete_Test is Shared_Integration_Concrete_Te
         emit ISablierFlow.WithdrawFromFlowStream({
             streamId: defaultStreamId,
             to: users.recipient,
-            token: IERC20(address(usdc)),
+            token: usdc,
             caller: users.sender,
             withdrawAmount: vars.expectedWithdrawAmount
         });

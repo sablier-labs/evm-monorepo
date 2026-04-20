@@ -84,7 +84,7 @@ contract Deposit_Integration_Concrete_Test is Shared_Integration_Concrete_Test {
         whenTokenNotMissERC20Return
     {
         // It should make the deposit.
-        uint256 streamId = createDefaultStream(IERC20(address(dai)));
+        uint256 streamId = createDefaultStream(dai);
         _test_Deposit({ streamId: streamId, token: dai, depositAmount: DEPOSIT_AMOUNT_18D });
     }
 

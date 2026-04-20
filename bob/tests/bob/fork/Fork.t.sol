@@ -68,15 +68,15 @@ abstract contract Fork_Test is Base_Test {
         users.depositor = createUser("Depositor", spenders);
 
         // Label the mainnet addresses.
-        vm.label(address(FORK_WETH), "WETH");
+        labelForkedToken(FORK_WETH);
         vm.label(FORK_STETH, "stETH");
         vm.label(FORK_WSTETH, "wstETH");
         vm.label(FORK_CURVE_POOL, "CurvePool");
         vm.label(FORK_LIDO_WITHDRAWAL_QUEUE, "LidoWithdrawalQueue");
         vm.label(address(FORK_ETH_USD_ORACLE), "ETH/USD Oracle");
         vm.label(FORK_STETH_ETH_ORACLE, "stETH/ETH Oracle");
-        vm.label(address(forkBob), "ForkSablierBob");
-        vm.label(address(forkAdapter), "ForkSablierLidoAdapter");
+        vm.label(address(forkBob), "SablierBob");
+        vm.label(address(forkAdapter), "SablierLidoAdapter");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
