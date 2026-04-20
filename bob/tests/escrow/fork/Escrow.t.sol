@@ -10,14 +10,8 @@ import { Escrow } from "src/types/Escrow.sol";
 
 import { Fork_Test } from "./Fork.t.sol";
 
-abstract contract Escrow_Fork_Test is Fork_Test {
+contract Escrow_Fork_Test is Fork_Test {
     using SafeERC20 for IERC20;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CONSTRUCTOR
-    //////////////////////////////////////////////////////////////////////////*/
-
-    constructor(IERC20 forkSellToken, IERC20 forkBuyToken) Fork_Test(forkSellToken, forkBuyToken) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                        PARAMS

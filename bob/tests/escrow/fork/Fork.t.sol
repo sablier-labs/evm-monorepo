@@ -14,17 +14,8 @@ abstract contract Fork_Test is Base_Test {
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 internal immutable FORK_SELL_TOKEN;
-    IERC20 internal immutable FORK_BUY_TOKEN;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CONSTRUCTOR
-    //////////////////////////////////////////////////////////////////////////*/
-
-    constructor(IERC20 forkSellToken, IERC20 forkBuyToken) {
-        FORK_SELL_TOKEN = forkSellToken;
-        FORK_BUY_TOKEN = forkBuyToken;
-    }
+    IERC20 internal constant FORK_SELL_TOKEN = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2); // WETH
+    IERC20 internal constant FORK_BUY_TOKEN = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48); // USDC
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -40,8 +31,8 @@ abstract contract Fork_Test is Base_Test {
 
         // Label the contracts and tokens.
         vm.label(address(escrow), "SablierEscrow");
-        labelForkedToken(FORK_SELL_TOKEN);
-        labelForkedToken(FORK_BUY_TOKEN);
+        vm.label(address(FORK_SELL_TOKEN), "sellToken: weth");
+        vm.label(address(FORK_BUY_TOKEN), "buyToken: usdc");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
