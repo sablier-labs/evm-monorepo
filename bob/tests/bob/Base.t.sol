@@ -91,9 +91,6 @@ abstract contract Base_Test is Assertions, Modifiers, Utils {
         setMsgSender(users.depositor);
         vm.deal(users.depositor, 10_000 ether);
         weth.deposit{ value: 10_000 ether }();
-
-        // Approve the Bob contract to spend the depositor's WETH.
-        weth.approve(address(bob), MAX_UINT128);
     }
 
     /// @dev Deploys mocks for external protocols.
