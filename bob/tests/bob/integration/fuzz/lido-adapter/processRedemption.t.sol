@@ -11,9 +11,6 @@ contract ProcessRedemption_Integration_Fuzz_Test is Integration_Test {
 
         // Add a second depositor into the adapter vault.
         setMsgSender(users.newDepositor);
-        vm.deal(users.newDepositor, 10_000 ether);
-        weth.deposit{ value: 10_000 ether }();
-        weth.approve(address(bob), MAX_UINT128);
         bob.enter(vaultIds.vaultWithAdapter, DEPOSIT_AMOUNT);
 
         // Restore the default caller.
