@@ -1,29 +1,30 @@
 ---
 name: etherscan-verification
-description: Verify smart contracts on Etherscan-compatible block explorers. This skill should be used when the user asks to "verify contract", "verify on etherscan", "verify on chain scan". Handles standard verification, Etherscan V2 API for unsupported chains on foundry, proxy patterns, and factory-created contracts.
+description: Verify smart contracts on Etherscan and Blockscout block explorers. This skill should be used when the user asks to "verify contract", "verify on etherscan", "verify on blockscout", "verify on chain scan". Handles standard verification, Etherscan V2 API, Blockscout verification, proxy patterns, and factory-created contracts.
 ---
 
 ## Overview
 
-Contract verification on Etherscan-compatible explorers using Foundry's `forge verify-contract`. Covers standard
-verification, unsupported chains via Etherscan V2 API, proxy patterns, and factory-created contracts.
+Contract verification on Etherscan and Blockscout explorers using Foundry's `forge verify-contract`. Covers standard
+Etherscan verification, unsupported chains via Etherscan V2 API, Blockscout verification, proxy patterns, and
+factory-created contracts.
 
 ## When to Use
 
-- Verify deployed smart contracts on Etherscan-compatible explorers
+- Verify deployed smart contracts on Etherscan or Blockscout explorers
 - Verify proxy contracts (ERC1967, UUPS)
 - Verify factory-created contracts (CREATE2)
 - Extract constructor arguments from deployment data
 
 ## Prerequisites
 
-| Requirement      | How to Get                                        |
-| ---------------- | ------------------------------------------------- |
-| Foundry ≥1.3.6   | Run `forge -V` to check version                   |
-| Contract address | From deployment broadcast or user                 |
-| Chain ID         | From explorer or network configuration            |
-| Explorer API key | From Etherscan account (works for V2 multi-chain) |
-| Source code      | Must match deployed bytecode exactly              |
+| Requirement      | How to Get                                     |
+| ---------------- | ---------------------------------------------- |
+| Foundry ≥1.3.6   | Run `forge -V` to check version                |
+| Contract address | From deployment broadcast or user              |
+| Chain ID         | From explorer or network configuration         |
+| Explorer API key | From Etherscan account (Etherscan chains only) |
+| Source code      | Must match deployed bytecode exactly           |
 
 ### Version Check
 
@@ -35,9 +36,46 @@ forge -V
 
 **Stop if version is below 1.3.6.**
 
+## Chain Reference
+
+Determine the correct verification method by looking up the target chain below.
+
+### Etherscan Chains
+
+| Chain            | Chain ID | Method       |
+| ---------------- | -------- | ------------ |
+| abstract         | 2741     | Etherscan V2 |
+| arbitrum         | 42161    | Native or V2 |
+| base             | 8453     | Native or V2 |
+| berachain        | 80094    | Etherscan V2 |
+| bsc              | 56       | Native or V2 |
+| ethereum         | 1        | Native or V2 |
+| gnosis           | 100      | Native or V2 |
+| linea            | 59144    | Etherscan V2 |
+| optimism         | 10       | Native or V2 |
+| polygon          | 137      | Native or V2 |
+| scroll           | 534352   | Etherscan V2 |
+| sonic            | 146      | Etherscan V2 |
+| unichain         | 130      | Etherscan V2 |
+| arbitrum_sepolia | 421614   | Native or V2 |
+| base_sepolia     | 84532    | Native or V2 |
+| optimism_sepolia | 11155420 | Native or V2 |
+| sepolia          | 11155111 | Native or V2 |
+
+### Blockscout Chains
+
+| Chain     | Chain ID | Verifier URL                                             |
+| --------- | -------- | -------------------------------------------------------- |
+| avalanche | 43114    | `https://api.snowtrace.io/`                              |
+| chiliz    | 88888    | `https://api.routescan.io/v2/network/mainnet/evm/88888/` |
+| lightlink | 1890     | `https://phoenix.lightlink.io/api/`                      |
+| mode      | 34443    | `https://explorer.mode.network/api/`                     |
+| morph     | 2818     | `https://explorer-api.morphl2.io/api/`                   |
+| superseed | 5330     | `https://explorer.superseed.xyz/api/`                    |
+
 ## Verification Methods
 
-### Method 1: Standard (Native Support)
+### Method 1: Etherscan — Native Support
 
 For chains Foundry supports natively:
 
@@ -51,9 +89,9 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
   --watch
 ```
 
-### Method 2: Etherscan V2 API (Unsupported Chains on Foundry)
+### Method 2: Etherscan V2 API
 
-When Foundry shows "No known Etherscan API URL for chain X":
+When Foundry shows "No known Etherscan API URL for chain X", or for any Etherscan chain:
 
 ```bash
 FOUNDRY_PROFILE=optimized forge verify-contract \
@@ -67,19 +105,27 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
 
 Supported chains: https://docs.etherscan.io/supported-chains
 
-### Method 3: With Constructor Arguments
+### Method 3: Blockscout
 
-For contracts with constructor parameters:
+For chains using Blockscout explorers. Look up the verifier URL from the Blockscout Chains table above.
 
 ```bash
 FOUNDRY_PROFILE=optimized forge verify-contract \
   <CONTRACT_ADDRESS> \
   src/<Contract>.sol:<Contract> \
-  --verifier etherscan \
-  --verifier-url "https://api.etherscan.io/v2/api?chainid=<CHAIN_ID>" \
-  --etherscan-api-key $ETHERSCAN_API_KEY \
-  --constructor-args <ABI_ENCODED_ARGS> \
+  --verifier blockscout \
+  --verifier-url "<BLOCKSCOUT_VERIFIER_URL>" \
   --watch
+```
+
+> **Note:** Blockscout verification does **not** require an API key.
+
+### Constructor Arguments
+
+Append `--constructor-args` to any method above when the contract has constructor parameters:
+
+```bash
+--constructor-args <ABI_ENCODED_ARGS>
 ```
 
 Generate constructor args with `cast abi-encode`:

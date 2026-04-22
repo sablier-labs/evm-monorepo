@@ -65,13 +65,18 @@ If bytecodes match, retry the verification command.
 
 **Cause:** Chain not in Foundry's built-in chain registry.
 
-**Solution:** Use Etherscan V2 API with explicit `--verifier-url`:
+**Solution:** First check if the chain uses Blockscout (see Chain Reference in SKILL.md). If so, use
+`--verifier blockscout` with the chain's Blockscout verifier URL. Otherwise, use Etherscan V2 API:
 
 ```bash
+# Etherscan V2
 --verifier-url "https://api.etherscan.io/v2/api?chainid=<CHAIN_ID>"
+
+# Blockscout
+--verifier blockscout --verifier-url "<BLOCKSCOUT_VERIFIER_URL>"
 ```
 
-Check if chain is supported: https://docs.etherscan.io/supported-chains
+Check Etherscan support: https://docs.etherscan.io/supported-chains
 
 ## Constructor Arguments Mismatch
 
