@@ -56,20 +56,14 @@ contract Comptroller_Fork_Test is Base_Test {
         assertEq(comptroller.admin(), defaultMultisigAdmin, "admin");
     }
 
-    /// @dev Checklist:
-    /// - It should return zero value for Staking protocol.
-    /// - It should return non-zero value for Airdrops, Bob, Flow and Lockup.
+    /// @dev It should return the correct min fee in wei for a given protocol.
     function testForkFuzz_CalculateMinFeeWei(uint8 protocolIndex) external view {
         // Bound the protocol enum to a valid enum value.
         ISablierComptroller.Protocol protocol = boundProtocolEnum(protocolIndex);
 
-        // It should return the min fee in wei.
+        // It should return the min fee in wei. Currently set to zero.
         uint256 minFeeInWei = comptroller.calculateMinFeeWei(protocol);
-        if (protocol == ISablierComptroller.Protocol.Staking) {
-            assertEq(minFeeInWei, 0, "Staking: minFeeInWei > 0");
-        } else {
-            assertGt(minFeeInWei, 0, "Airdrops, Bob, Flow, Lockup: minFeeInWei == 0");
-        }
+        assertEq(minFeeInWei, 0, "Staking: minFeeInWei > 0");
     }
 
     /// @dev It tests the state variables that will rarely be changed.
