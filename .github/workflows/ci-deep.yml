@@ -34,22 +34,22 @@ jobs:
       name: "Build"
       working-directory: ${{ matrix.module }}
 
-  test-integration:
+  test-fuzz:
     needs: ["build"]
     strategy:
       fail-fast: false
       matrix:
         include:
           - module: airdrops
-            match-path: "tests/{integration,utils}/**/*.sol"
+            match-path: "tests/integration/fuzz/**/*.sol"
           - module: bob
-            match-path: "tests/*/integration/**/*.sol"
+            match-path: "tests/*/integration/fuzz/**/*.sol"
           - module: flow
-            match-path: "tests/{integration,utils}/**/*.sol"
+            match-path: "tests/integration/fuzz/**/*.sol"
           - module: lockup
-            match-path: "tests/{integration,utils}/**/*.sol"
+            match-path: "tests/integration/fuzz/**/*.sol"
           - module: utils
-            match-path: "tests/{integration,utils}/**/*.sol"
+            match-path: "tests/integration/fuzz/**/*.sol"
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       cache-path: *cache-path
@@ -57,7 +57,7 @@ jobs:
       foundry-profile: "test-optimized"
       foundry-version: *foundry-version
       match-path: ${{ matrix.match-path }}
-      name: "Integration tests (${{ matrix.module }})"
+      name: "Fuzz tests (${{ matrix.module }})"
       working-directory: ${{ matrix.module }}
 
   test-invariant:
