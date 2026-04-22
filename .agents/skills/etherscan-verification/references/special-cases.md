@@ -1,5 +1,8 @@
 # Special Cases
 
+> **Routescan chains:** All Etherscan examples below also apply to Routescan chains (avalanche, chiliz). Replace
+> `--verifier-url` with the Routescan URL and use `--etherscan-api-key "verifyContract"`. See SKILL.md for URLs.
+
 ## Proxy Contracts (ERC1967)
 
 Proxy pattern requires verifying **both** implementation and proxy contracts.
@@ -40,6 +43,7 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
   src/<Implementation>.sol:<Implementation> \
   --verifier blockscout \
   --verifier-url "<BLOCKSCOUT_VERIFIER_URL>" \
+  --etherscan-api-key "verifyContract" \
   --watch
 ```
 
@@ -85,6 +89,7 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
   node_modules/@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy \
   --verifier blockscout \
   --verifier-url "<BLOCKSCOUT_VERIFIER_URL>" \
+  --etherscan-api-key "verifyContract" \
   --constructor-args $CONSTRUCTOR_ARGS \
   --watch
 ```
@@ -139,6 +144,7 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
   src/<Contract>.sol:<Contract> \
   --verifier blockscout \
   --verifier-url "<BLOCKSCOUT_VERIFIER_URL>" \
+  --etherscan-api-key "verifyContract" \
   --constructor-args <EXTRACTED_ARGS> \
   --watch
 ```
@@ -173,6 +179,7 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
   src/libraries/<Library>.sol:<Library> \
   --verifier blockscout \
   --verifier-url "<BLOCKSCOUT_VERIFIER_URL>" \
+  --etherscan-api-key "verifyContract" \
   --watch
 ```
 

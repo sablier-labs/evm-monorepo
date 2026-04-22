@@ -1,17 +1,17 @@
 ---
 name: etherscan-verification
-description: Verify smart contracts on Etherscan and Blockscout block explorers. This skill should be used when the user asks to "verify contract", "verify on etherscan", "verify on blockscout", "verify on chain scan". Handles standard verification, Etherscan V2 API, Blockscout verification, proxy patterns, and factory-created contracts.
+description: Verify smart contracts on Etherscan, Routescan, and Blockscout block explorers. This skill should be used when the user asks to "verify contract", "verify on etherscan", "verify on blockscout", "verify on routescan", "verify on chain scan". Handles standard verification, Etherscan V2 API, Routescan, Blockscout verification, proxy patterns, and factory-created contracts.
 ---
 
 ## Overview
 
-Contract verification on Etherscan and Blockscout explorers using Foundry's `forge verify-contract`. Covers standard
-Etherscan verification, unsupported chains via Etherscan V2 API, Blockscout verification, proxy patterns, and
-factory-created contracts.
+Contract verification on Etherscan, Routescan, and Blockscout explorers using Foundry's `forge verify-contract`. Covers
+standard Etherscan verification, unsupported chains via Etherscan V2 API, Routescan, Blockscout verification, proxy
+patterns, and factory-created contracts.
 
 ## When to Use
 
-- Verify deployed smart contracts on Etherscan or Blockscout explorers
+- Verify deployed smart contracts on Etherscan, Routescan, or Blockscout explorers
 - Verify proxy contracts (ERC1967, UUPS)
 - Verify factory-created contracts (CREATE2)
 - Extract constructor arguments from deployment data
@@ -62,16 +62,21 @@ Determine the correct verification method by looking up the target chain below.
 | optimism_sepolia | 11155420 | Native or V2 |
 | sepolia          | 11155111 | Native or V2 |
 
+### Routescan Chains
+
+| Chain     | Chain ID | Verifier URL                                                          |
+| --------- | -------- | --------------------------------------------------------------------- |
+| avalanche | 43114    | `https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan/api` |
+| chiliz    | 88888    | `https://api.routescan.io/v2/network/mainnet/evm/88888/etherscan/api` |
+
 ### Blockscout Chains
 
-| Chain     | Chain ID | Verifier URL                                             |
-| --------- | -------- | -------------------------------------------------------- |
-| avalanche | 43114    | `https://api.snowtrace.io/`                              |
-| chiliz    | 88888    | `https://api.routescan.io/v2/network/mainnet/evm/88888/` |
-| lightlink | 1890     | `https://phoenix.lightlink.io/api/`                      |
-| mode      | 34443    | `https://explorer.mode.network/api/`                     |
-| morph     | 2818     | `https://explorer-api.morphl2.io/api/`                   |
-| superseed | 5330     | `https://explorer.superseed.xyz/api/`                    |
+| Chain     | Chain ID | Verifier URL                           |
+| --------- | -------- | -------------------------------------- |
+| lightlink | 1890     | `https://phoenix.lightlink.io/api/`    |
+| mode      | 34443    | `https://explorer.mode.network/api/`   |
+| morph     | 2818     | `https://explorer-api.morphl2.io/api/` |
+| superseed | 5330     | `https://explorer.superseed.xyz/api/`  |
 
 ## Verification Methods
 
@@ -105,7 +110,24 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
 
 Supported chains: https://docs.etherscan.io/supported-chains
 
-### Method 3: Blockscout
+### Method 3: Routescan
+
+For chains using Routescan explorers (avalanche, chiliz). Look up the verifier URL from the Routescan Chains table
+above. Uses `--verifier etherscan` with a Routescan URL.
+
+```bash
+FOUNDRY_PROFILE=optimized forge verify-contract \
+  <CONTRACT_ADDRESS> \
+  src/<Contract>.sol:<Contract> \
+  --verifier etherscan \
+  --verifier-url "<ROUTESCAN_VERIFIER_URL>" \
+  --etherscan-api-key "verifyContract" \
+  --watch
+```
+
+> **Note:** Routescan does not require a real API key — pass `"verifyContract"` as the value.
+
+### Method 4: Blockscout
 
 For chains using Blockscout explorers. Look up the verifier URL from the Blockscout Chains table above.
 
@@ -115,10 +137,11 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
   src/<Contract>.sol:<Contract> \
   --verifier blockscout \
   --verifier-url "<BLOCKSCOUT_VERIFIER_URL>" \
+  --etherscan-api-key "verifyContract" \
   --watch
 ```
 
-> **Note:** Blockscout verification does **not** require an API key.
+> **Note:** Blockscout does not require a real API key — pass `"verifyContract"` as the value.
 
 ### Constructor Arguments
 
