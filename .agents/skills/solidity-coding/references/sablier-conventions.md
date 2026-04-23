@@ -85,6 +85,19 @@ ______________________________________________________________________
 | lockup       | `@sablier/lockup/src/interfaces/ISablierLockup.sol` |
 | types        | `@sablier/lockup/src/types/DataTypes.sol`           |
 
+### Monorepo Import Resolution
+
+**This is a monorepo.** When a Solidity file imports from `@sablier/evm-utils/`, do **NOT** look in `node_modules/`.
+Instead, resolve the source from the **`utils/`** directory at the repo root.
+
+For example, `import { Batch } from "@sablier/evm-utils/src/Batch.sol"` maps to `utils/src/Batch.sol`.
+
+This applies to all consumer packages: `airdrops/`, `bob/`, `flow/`, and `lockup/`.
+
+**Version check:** Before modifying or referencing utils code, verify that the version in `utils/package.json` matches
+the `@sablier/evm-utils` dependency version declared in the working package's `package.json`. A mismatch means the
+package may be using a published release rather than the local source.
+
 ______________________________________________________________________
 
 ## Shared Utils Package
