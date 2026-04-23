@@ -1,5 +1,9 @@
 name: "CI: Deep Fork"
 
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
 on:
   workflow_dispatch:
   schedule:
@@ -45,6 +49,8 @@ jobs:
       foundry-fuzz-runs: 100
       foundry-profile: "test-optimized"
       foundry-version: *foundry-version
+      fuzz-seed: true
       match-path: ${{ matrix.match-path }}
       name: "Fork tests (${{ matrix.module }})"
+      retry-attempts: 2
       working-directory: ${{ matrix.module }}
