@@ -1,4 +1,4 @@
-name: "CI: Deep Fork"
+name: "CI: Fork"
 
 concurrency:
   cancel-in-progress: true
