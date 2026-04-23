@@ -1,5 +1,5 @@
 ---
-name: etherscan-verification
+name: explorer-contract-verification
 description: Verify smart contracts on Etherscan, Routescan, and Blockscout block explorers. This skill should be used when the user asks to "verify contract", "verify on etherscan", "verify on blockscout", "verify on routescan", "verify on chain scan". Handles standard verification, Etherscan V2 API, Routescan, Blockscout verification, proxy patterns, and factory-created contracts.
 ---
 
