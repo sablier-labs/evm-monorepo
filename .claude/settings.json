@@ -6,7 +6,8 @@
       "Skill(btt-testing)",
       "Skill(foundry-testing)",
       "Skill(handbook)",
-      "Skill(solidity-coding)"
+      "Skill(solidity-coding)",
+      "Skill(explorer-contract-verification)"
     ]
   }
 }
