@@ -1,5 +1,8 @@
 # Special Cases
 
+> **Routescan chains:** All Etherscan examples below also apply to Routescan chains (avalanche, chiliz). Replace
+> `--verifier-url` with the Routescan URL and use `--etherscan-api-key "verifyContract"`. See SKILL.md for URLs.
+
 ## Proxy Contracts (ERC1967)
 
 Proxy pattern requires verifying **both** implementation and proxy contracts.
@@ -20,6 +23,8 @@ In Foundry broadcast JSON, proxy deployments typically show 3 transactions:
 
 ### Step 1: Verify Implementation
 
+**Etherscan:**
+
 ```bash
 FOUNDRY_PROFILE=optimized forge verify-contract \
   <IMPLEMENTATION_ADDRESS> \
@@ -27,6 +32,18 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
   --verifier etherscan \
   --verifier-url "https://api.etherscan.io/v2/api?chainid=<CHAIN_ID>" \
   --etherscan-api-key $ETHERSCAN_API_KEY \
+  --watch
+```
+
+**Blockscout:**
+
+```bash
+FOUNDRY_PROFILE=optimized forge verify-contract \
+  <IMPLEMENTATION_ADDRESS> \
+  src/<Implementation>.sol:<Implementation> \
+  --verifier blockscout \
+  --verifier-url "<BLOCKSCOUT_VERIFIER_URL>" \
+  --etherscan-api-key "verifyContract" \
   --watch
 ```
 
@@ -51,6 +68,8 @@ CONSTRUCTOR_ARGS=$(cast abi-encode \
 
 Use `node_modules` path for OpenZeppelin contracts:
 
+**Etherscan:**
+
 ```bash
 FOUNDRY_PROFILE=optimized forge verify-contract \
   <PROXY_ADDRESS> \
@@ -58,6 +77,19 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
   --verifier etherscan \
   --verifier-url "https://api.etherscan.io/v2/api?chainid=<CHAIN_ID>" \
   --etherscan-api-key $ETHERSCAN_API_KEY \
+  --constructor-args $CONSTRUCTOR_ARGS \
+  --watch
+```
+
+**Blockscout:**
+
+```bash
+FOUNDRY_PROFILE=optimized forge verify-contract \
+  <PROXY_ADDRESS> \
+  node_modules/@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy \
+  --verifier blockscout \
+  --verifier-url "<BLOCKSCOUT_VERIFIER_URL>" \
+  --etherscan-api-key "verifyContract" \
   --constructor-args $CONSTRUCTOR_ARGS \
   --watch
 ```
@@ -91,6 +123,8 @@ The script finds the Solidity metadata hash (`64736f6c6343` + version + `0033`) 
 
 ### Verification Command
 
+**Etherscan:**
+
 ```bash
 FOUNDRY_PROFILE=optimized forge verify-contract \
   <CONTRACT_ADDRESS> \
@@ -98,6 +132,19 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
   --verifier etherscan \
   --verifier-url "https://api.etherscan.io/v2/api?chainid=<CHAIN_ID>" \
   --etherscan-api-key $ETHERSCAN_API_KEY \
+  --constructor-args <EXTRACTED_ARGS> \
+  --watch
+```
+
+**Blockscout:**
+
+```bash
+FOUNDRY_PROFILE=optimized forge verify-contract \
+  <CONTRACT_ADDRESS> \
+  src/<Contract>.sol:<Contract> \
+  --verifier blockscout \
+  --verifier-url "<BLOCKSCOUT_VERIFIER_URL>" \
+  --etherscan-api-key "verifyContract" \
   --constructor-args <EXTRACTED_ARGS> \
   --watch
 ```
@@ -112,6 +159,8 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
 
 Libraries require full source path including directory:
 
+**Etherscan:**
+
 ```bash
 FOUNDRY_PROFILE=optimized forge verify-contract \
   <LIBRARY_ADDRESS> \
@@ -119,6 +168,18 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
   --verifier etherscan \
   --verifier-url "https://api.etherscan.io/v2/api?chainid=<CHAIN_ID>" \
   --etherscan-api-key $ETHERSCAN_API_KEY \
+  --watch
+```
+
+**Blockscout:**
+
+```bash
+FOUNDRY_PROFILE=optimized forge verify-contract \
+  <LIBRARY_ADDRESS> \
+  src/libraries/<Library>.sol:<Library> \
+  --verifier blockscout \
+  --verifier-url "<BLOCKSCOUT_VERIFIER_URL>" \
+  --etherscan-api-key "verifyContract" \
   --watch
 ```
 
