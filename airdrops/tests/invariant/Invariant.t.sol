@@ -74,8 +74,10 @@ contract Invariant_Test is Base_Test, StdInvariant {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Balances invariants:
-    /// - The ERC-20 balance of each campaign should be equal to the total deposit minus the sum of claimed,
-    /// clawbacked, and redistribution rewards (only apply to VCA campaigns).
+    /// - For non-VCA campaigns, the ERC-20 balance should be equal to the total deposit minus the sum of claimed and
+    /// clawbacked amounts.
+    /// - For VCA campaigns, the ERC-20 balance should be greater than or equal to the total deposit minus the sum of
+    /// claimed, clawbacked, and redistribution rewards, due to rounding in the vesting calculation.
     function invariant_Balances() external view {
         address[] memory campaigns = store.getCampaigns();
 
@@ -95,17 +97,23 @@ contract Invariant_Test is Base_Test, StdInvariant {
             // Get the total clawbacked amount from the campaign.
             uint256 totalClawbackAmount = store.totalClawbackAmount(campaign);
 
-            // For VCA campaigns with redistribution, rewards are also transferred out of the campaign balance.
-            uint256 totalRewardsDistributed;
             if (store.isVcaCampaign(campaign)) {
-                totalRewardsDistributed = store.vcaTotalRewardsDistributed(campaign);
-            }
+                // For VCA campaigns, rewards are also transferred out of the campaign balance.
+                uint256 totalRewardsDistributed = store.vcaTotalRewardsDistributed(campaign);
 
-            assertEq(
-                tokenBalance,
-                totalDepositAmount - totalClaimAmount - totalClawbackAmount - totalRewardsDistributed,
-                unicode"Invariant violation: token balance != total deposit - total claimed - total clawbacked - total rewards distributed"
-            );
+                // Use >= due to rounding in the vesting calculation.
+                assertGe(
+                    tokenBalance,
+                    totalDepositAmount - totalClaimAmount - totalClawbackAmount - totalRewardsDistributed,
+                    unicode"Invariant violation: token balance < total deposit - total claimed - total clawbacked - total rewards distributed"
+                );
+            } else {
+                assertEq(
+                    tokenBalance,
+                    totalDepositAmount - totalClaimAmount - totalClawbackAmount,
+                    unicode"Invariant violation: token balance != total deposit - total claimed - total clawbacked"
+                );
+            }
         }
     }
 

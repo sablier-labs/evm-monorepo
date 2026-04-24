@@ -2,10 +2,11 @@
 
 #### For all campaigns:
 
-1. token.balanceOf(campaign) = total deposit - $\\sum$ claimed - $\\sum$ clawbacked - $\\sum$ redistribution rewards (only
-   apply to VCA campaigns)
-2. `hasClaimed` should never change its value from `true` to `false`
-3. `minFeeUSD` should never increase
+1. For non-VCA campaigns: token.balanceOf(campaign) = total deposit - $\\sum$ claimed - $\\sum$ clawbacked
+2. For VCA campaigns: token.balanceOf(campaign) >= total deposit - $\\sum$ claimed - $\\sum$ clawbacked - $\\sum$
+   redistribution rewards (due to rounding in the vesting calculation)
+3. `hasClaimed` should never change its value from `true` to `false`
+4. `minFeeUSD` should never increase
 
 #### For VCA campaign:
 
