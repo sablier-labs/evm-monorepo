@@ -156,7 +156,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Invariants: For a VCA campaign,
-    /// - Total forgone amount should be equal to total full amount requested by users minus the total claimed amount.
+    /// - Total forgone amount should be equal to the total full amount requested by users minus the total claimed amount.
     /// - If vesting has ended, total forgone amount should never change.
     function invariant_VcaTotalForgoneAmount() external view {
         address[] memory campaigns = store.getCampaigns();

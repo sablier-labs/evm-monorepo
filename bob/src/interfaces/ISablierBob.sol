@@ -12,7 +12,7 @@ import { ISablierBobState } from "./ISablierBobState.sol";
 /// @title ISablierBob
 /// @notice Price-gated vaults that unlock deposited tokens when the price returned by the oracle is greater than or
 /// equal to the target price set by the vault creator. The tokens are also unlocked if the vault expires. When a vault
-/// is configured with a adapter, the protocol automatically stakes the tokens via adapter and earns yield on the
+/// is configured with an adapter, the protocol automatically stakes the tokens via adapter and earns yield on the
 /// deposit amount.
 interface ISablierBob is IComptrollerable, ISablierBobState {
     /*//////////////////////////////////////////////////////////////////////////
