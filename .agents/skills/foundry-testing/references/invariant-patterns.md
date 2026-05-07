@@ -15,7 +15,7 @@ tests/invariant/
 └── Invariant.t.sol     # Main test contract
 ```
 
-______________________________________________________________________
+---
 
 ## Handler Pattern
 
@@ -65,7 +65,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats {
 | Bound ALL fuzzed inputs               | Prevent invalid states  |
 | Record gas usage                      | Enable gas invariants   |
 
-______________________________________________________________________
+---
 
 ## Store Pattern
 
@@ -106,7 +106,7 @@ contract Store {
 | Track owners/senders  | Verify access control        |
 | Track previous status | Verify state transitions     |
 
-______________________________________________________________________
+---
 
 ## Main Test Contract
 
@@ -140,7 +140,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Common Invariant Categories
 
@@ -152,7 +152,7 @@ ______________________________________________________________________
 | **Bounds**    | `deposited >= streamed >= withdrawable`               |
 | **Non-zero**  | Required fields are never zero                        |
 
-______________________________________________________________________
+---
 
 ## Status Transition Invariants
 
@@ -183,7 +183,7 @@ function invariant_StatusTransitions() external {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Handler Action Pattern
 
@@ -217,7 +217,7 @@ function action(
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Foundry Configuration
 

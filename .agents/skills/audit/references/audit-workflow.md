@@ -2,7 +2,7 @@
 
 Step-by-step process for smart contract security audits. Find examples in the codebase.
 
-______________________________________________________________________
+---
 
 ## Pre-Audit Preparation
 
@@ -20,7 +20,7 @@ ______________________________________________________________________
 - [ ] Check for previous audit reports
 - [ ] Understand the protocol's economic model
 
-______________________________________________________________________
+---
 
 ## Phase 1: Reconnaissance
 
@@ -45,7 +45,7 @@ Document for each contract:
 - [ ] Oracle trust assumptions
 - [ ] User-to-user trust (if any)
 
-______________________________________________________________________
+---
 
 ## Phase 2: Automated Analysis
 
@@ -68,7 +68,7 @@ slither src/ --exclude-dependencies
 forge coverage --report summary
 ```
 
-______________________________________________________________________
+---
 
 ## Phase 3: Manual Review
 
@@ -97,7 +97,7 @@ For EACH external/public function:
 - [ ] Are oracle prices manipulation-resistant?
 - [ ] Do flash loans break any assumptions?
 
-______________________________________________________________________
+---
 
 ## Phase 4: Attack Scenarios
 
@@ -117,7 +117,7 @@ ______________________________________________________________________
 4. [Result: funds drained/state corrupted]
 ```
 
-______________________________________________________________________
+---
 
 ## Phase 5: Finding Documentation
 
@@ -167,7 +167,7 @@ ______________________________________________________________________
 - [ ] Mitigation specific and correct?
 - [ ] Similar issues in other locations identified?
 
-______________________________________________________________________
+---
 
 ## Phase 6: Report Assembly
 
@@ -178,7 +178,7 @@ ______________________________________________________________________
 3. **Detailed Findings**: Full description, location, POC, fix
 4. **Gas Optimizations**: (if in scope)
 
-______________________________________________________________________
+---
 
 ## Post-Audit
 

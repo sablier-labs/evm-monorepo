@@ -2,7 +2,6 @@
  * @type {import("lint-staged").Configuration}
  */
 module.exports = {
-  "*.{json,svg,yml}": "bun prettier --cache --write",
-  "*.md": "mdformat",
+  "*.{json,md,svg,yml}": "bun prettier --cache --write",
   "*.sol": () => "just full-write-all",
 };

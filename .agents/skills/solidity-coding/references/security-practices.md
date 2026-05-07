@@ -13,7 +13,7 @@ Security rules for Solidity contracts. Find examples in the actual codebase.
 2. Include both expected and actual values in error parameters
 3. Use two-step ownership transfer for critical roles
 
-______________________________________________________________________
+---
 
 ## Prevent Delegate Calls
 
@@ -21,7 +21,7 @@ ______________________________________________________________________
 
 **Why**: Prevents malicious contracts from executing your logic in their context.
 
-______________________________________________________________________
+---
 
 ## Error Handling
 
@@ -31,7 +31,7 @@ ______________________________________________________________________
 2. **Separate validation checks** - Don't combine conditions needing different errors
 3. Include debugging parameters in error signature
 
-______________________________________________________________________
+---
 
 ## Safe Arithmetic
 
@@ -49,7 +49,7 @@ Safe cases:
 
 **Rule**: Use `>=` instead of `==` for depletion/completion checks (guards against unforeseen state).
 
-______________________________________________________________________
+---
 
 ## Input Validation
 
@@ -59,7 +59,7 @@ ______________________________________________________________________
 2. Validate addresses are not zero when relevant
 3. Validate amounts are within acceptable bounds
 
-______________________________________________________________________
+---
 
 ## Hook Security
 
@@ -69,14 +69,14 @@ ______________________________________________________________________
 2. Always validate hook return value matches expected selector
 3. Hooks are called AFTER state changes (CEI pattern)
 
-______________________________________________________________________
+---
 
 ## Interface Validation
 
 **Rule**: When accepting external contract addresses, validate they implement required interfaces via
 `supportsInterface`.
 
-______________________________________________________________________
+---
 
 ## State Transitions
 
@@ -86,7 +86,7 @@ ______________________________________________________________________
 2. Update related state variables atomically
 3. Document invariants that must hold across transitions
 
-______________________________________________________________________
+---
 
 ## Account Abstraction Considerations (EIP-7702)
 
@@ -120,7 +120,7 @@ If supporting smart contract wallets:
 | Gas estimation        | Account for validation gas overhead    |
 | Bundler compatibility | Don't rely on `tx.origin` for anything |
 
-______________________________________________________________________
+---
 
 ## Upgradeable Contract Security
 

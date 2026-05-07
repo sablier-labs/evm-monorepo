@@ -30,3 +30,15 @@ deploy-escrow *args:
     FOUNDRY_PROFILE=optimized \
         forge script scripts/solidity/DeployEscrow.s.sol \
         -vvv --broadcast {{ args }}
+
+# Run all code checks
+full-check:
+    just solhint-check
+    just fmt-check
+    just prettier-check
+
+# Run all code fixes
+full-write:
+    just solhint-write
+    just fmt-write
+    just prettier-write

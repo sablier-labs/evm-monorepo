@@ -17,7 +17,7 @@ tests/
     └── stores/               # LockupStore, FlowStore
 ```
 
-______________________________________________________________________
+---
 
 ## StreamIds Struct
 
@@ -33,7 +33,7 @@ ______________________________________________________________________
 | `recipientReentrantStream`       | Reentrant recipient        |
 | `recipientRevertStream`          | Reverting recipient        |
 
-______________________________________________________________________
+---
 
 ## Revert Helper Patterns
 
@@ -43,7 +43,7 @@ ______________________________________________________________________
 | `expectRevert_DEPLETEDStatus()` | Test depleted stream handling |
 | `expectRevert_DelegateCall()`   | Test delegate call protection |
 
-______________________________________________________________________
+---
 
 ## Sablier BTT Modifiers
 
@@ -54,7 +54,7 @@ ______________________________________________________________________
 | `whenStreamCancelable()`   | Document cancelable path (empty)   |
 | `whenStreamTransferable()` | Document transferable path (empty) |
 
-______________________________________________________________________
+---
 
 ## Hook Mock Types
 
@@ -65,7 +65,7 @@ ______________________________________________________________________
 | `RecipientInvalidSelector` | Returns `0xDEADBEEF`        |
 | `RecipientReentrant`       | Attempts withdrawal reentry |
 
-______________________________________________________________________
+---
 
 ## Merkle Campaign Mocks
 
@@ -75,7 +75,7 @@ ______________________________________________________________________
 | `MerkleMockReverting`                | Reverts on lowerMinFeeUSD      |
 | `MerkleMockWithFalseIsSablierMerkle` | Returns `false` for IS_SABLIER |
 
-______________________________________________________________________
+---
 
 ## Defaults Contract Patterns
 
@@ -86,7 +86,7 @@ ______________________________________________________________________
 | `lockupTimestamps()`    | Lockup.Timestamps struct      |
 | `createWithDurations()` | Full create params struct     |
 
-______________________________________________________________________
+---
 
 ## Assertion Helpers
 
@@ -96,7 +96,7 @@ ______________________________________________________________________
 | `assertEq(Lockup.Timestamps, ...)`       | start, end                              |
 | `assertEq(LockupDynamic.Segment[], ...)` | amount, exponent, timestamp per segment |
 
-______________________________________________________________________
+---
 
 ## Fuzzer Helpers
 
@@ -105,7 +105,7 @@ ______________________________________________________________________
 | `fuzzDynamicStreamAmounts()` | Bound segment amounts, return deposit |
 | `fuzzSegmentTimestamps()`    | Fuzz timestamps preserving order      |
 
-______________________________________________________________________
+---
 
 ## Invariant Examples
 
@@ -114,7 +114,7 @@ ______________________________________________________________________
 | `invariant_DepositedGteStreamed` | deposited ≥ streamed always |
 | `invariant_WithdrawnLteStreamed` | withdrawn ≤ streamed always |
 
-______________________________________________________________________
+---
 
 ## Monorepo Import Resolution
 
@@ -130,7 +130,7 @@ This applies to all consumer packages: `airdrops/`, `bob/`, `flow/`, and `lockup
 the `@sablier/evm-utils` dependency version declared in the working package's `package.json`. A mismatch means the
 package may be using a published release rather than the local source.
 
-______________________________________________________________________
+---
 
 ## Commands
 

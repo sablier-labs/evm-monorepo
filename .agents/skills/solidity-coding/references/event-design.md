@@ -63,7 +63,7 @@ function cancel(uint256 streamId) external {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Event Naming Conventions
 
@@ -86,7 +86,7 @@ ______________________________________________________________________
 | `CancelLockupStream`       | streamId, sender, recipient, senderAmount, recipientAmount |
 | `TransferAdmin`            | oldAdmin, newAdmin                                         |
 
-______________________________________________________________________
+---
 
 ## Event Parameter Guidelines
 
@@ -137,7 +137,7 @@ event StreamCreated(
 );
 ```
 
-______________________________________________________________________
+---
 
 ## The Graph Considerations
 
@@ -188,7 +188,7 @@ event CreateLockupStream(
 );
 ```
 
-______________________________________________________________________
+---
 
 ## Gas Optimization
 
@@ -223,7 +223,7 @@ event StreamCreatedDetails(
 );
 ```
 
-______________________________________________________________________
+---
 
 ## Common Patterns
 
@@ -264,7 +264,7 @@ event MetadataUpdate(uint256 indexed tokenId);
 event BatchMetadataUpdate(uint256 fromTokenId, uint256 toTokenId);
 ```
 
-______________________________________________________________________
+---
 
 ## Testing Events
 
@@ -297,7 +297,7 @@ Ensure every event is:
 - [ ] Parameters verified in tests
 - [ ] Indexed parameters tested for filtering
 
-______________________________________________________________________
+---
 
 ## Anti-Patterns
 

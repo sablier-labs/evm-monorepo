@@ -1,7 +1,9 @@
 ---
 name: solidity-coding
 user-invocable: true
-description: Write production-quality Solidity contracts. Trigger phrases - write contract, implement function, add feature, add error, gas optimization, event design, contract architecture, or when working in src/ directories.
+description:
+  Write production-quality Solidity contracts. Trigger phrases - write contract, implement function, add feature, add
+  error, gas optimization, event design, contract architecture, or when working in src/ directories.
 ---
 
 # Solidity Contract Development Skill
@@ -228,7 +230,7 @@ token.safeTransferFrom(from, to, amount);
 3. Add NatSpec for struct and each field
 4. Use `@param` for each field in struct NatSpec
 
-______________________________________________________________________
+---
 
 ## Example Invocations
 

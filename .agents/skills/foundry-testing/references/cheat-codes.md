@@ -10,7 +10,7 @@ https://github.com/foundry-rs/forge-std/blob/<version>/src/Vm.sol
 
 Check `package.json` for forge-std version, then read that version's `Vm.sol`.
 
-______________________________________________________________________
+---
 
 ## Quick Reference
 
@@ -70,7 +70,7 @@ ______________________________________________________________________
 | `vm.snapshot()`        | Create state snapshot |
 | `vm.revertTo(id)`      | Revert to snapshot    |
 
-______________________________________________________________________
+---
 
 ## Common Patterns
 
@@ -98,7 +98,7 @@ vm.expectRevert(abi.encodeWithSelector(Errors.Name.selector, arg));
 vault.action();  // Call AFTER expectRevert
 ```
 
-______________________________________________________________________
+---
 
 ## External References
 

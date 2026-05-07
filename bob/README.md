@@ -4,9 +4,12 @@
 
 This package contains the following protocols:
 
-- [Sablier Bob](./src/SablierBob.sol): Price-gated vaults that unlock deposited tokens based on a target price set. If a vault is configured with an adapter, the protocol will automatically stake the tokens and earn yield on behalf of the users.
+- [Sablier Bob](./src/SablierBob.sol): Price-gated vaults that unlock deposited tokens based on a target price set. If a
+  vault is configured with an adapter, the protocol will automatically stake the tokens and earn yield on behalf of the
+  users.
 
-- [Sablier Escrow](./src/SablierEscrow.sol): A peer-to-peer token swap protocol that allows users to swap ERC-20 tokens with each other.
+- [Sablier Escrow](./src/SablierEscrow.sol): A peer-to-peer token swap protocol that allows users to swap ERC-20 tokens
+  with each other.
 
 ## Install
 
@@ -27,7 +30,7 @@ This installation method is not recommended, but it is available for those who p
 Install the monorepo and its dependencies using Forge:
 
 ```shell
-forge install sablier-labs/evm-monorepo@bob@v1.0.1 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0 smartcontractkit/chainlink-evm@contracts-v1.4.0 
+forge install sablier-labs/evm-monorepo@bob@v1.0.1 OpenZeppelin/openzeppelin-contracts@v5.3.0 PaulRBerg/prb-math@v4.1.0 smartcontractkit/chainlink-evm@contracts-v1.4.0
 ```
 
 Then, add the following remappings in `remappings.txt`:
@@ -54,8 +57,8 @@ For any security-related concerns, please refer to the [SECURITY](../SECURITY.md
 ## Contributing
 
 Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
-[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any informal concerns
-or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any
+informal concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
 For development setup and PR guidelines, see [AGENTS.md](../AGENTS.md).
 

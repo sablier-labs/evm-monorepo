@@ -1,7 +1,10 @@
 ---
 name: handbook
 user-invocable: false
-description: Protocol domain knowledge - Lockup (vesting), Flow (streaming), Airdrops (merkle distribution). This skill provides context when implementing business logic, understanding protocol formulas, state transitions, or answering questions about how Sablier protocols work.
+description:
+  Protocol domain knowledge - Lockup (vesting), Flow (streaming), Airdrops (merkle distribution). This skill provides
+  context when implementing business logic, understanding protocol formulas, state transitions, or answering questions
+  about how Sablier protocols work.
 ---
 
 # Protocol Handbook
@@ -52,16 +55,17 @@ Each protocol has defined status transitions. See individual references for diag
 - Transfer changes recipient
 - Transferability set at creation (Lockup) or always transferable (Flow)
 
-______________________________________________________________________
+---
 
 ## References
 
-- [Lockup Protocol](.claude/skills/handbook/references/lockup.md) - Vesting streams, shapes (Linear, Dynamic, Tranched), hooks
+- [Lockup Protocol](.claude/skills/handbook/references/lockup.md) - Vesting streams, shapes (Linear, Dynamic, Tranched),
+  hooks
 - [Flow Protocol](.claude/skills/handbook/references/flow.md) - Debt model, rate adjustments, solvency
 - [Airdrops Protocol](.claude/skills/handbook/references/airdrops.md) - Merkle campaigns, claiming, clawback
 - [Comptroller](.claude/skills/handbook/references/comptroller.md) - Admin contract, governance, Comptrollerable base
 
-______________________________________________________________________
+---
 
 ## Adding a New Protocol
 
@@ -125,7 +129,7 @@ Refer to https://docs.sablier.com/llms-{protocol}.txt for up-to-date documentati
 - [ ] Add protocol-specific BTT conventions to `.claude/skills/btt-testing/references/sablier-conventions.md`
 - [ ] Add test conventions to `.claude/skills/foundry-testing/references/sablier-conventions.md`
 
-______________________________________________________________________
+---
 
 ## Example Invocations
 

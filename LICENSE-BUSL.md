@@ -3,7 +3,7 @@ Business Source License 1.1
 License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved. "Business Source License" is a trademark of
 MariaDB Corporation Ab.
 
-______________________________________________________________________
+---
 
 Parameters
 
@@ -19,7 +19,7 @@ Change Date: The earlier of 2029-07-01 or a date specified at
 
 Change License: GNU General Public License v3.0 or later
 
-______________________________________________________________________
+---
 
 Terms
 
@@ -55,7 +55,7 @@ FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND TITLE.
 MariaDB hereby grants you permission to use this License's text to license your works, and to refer to it using the
 trademark "Business Source License", as long as you comply with the Covenants of Licensor below.
 
-______________________________________________________________________
+---
 
 Covenants of Licensor
 
@@ -74,7 +74,7 @@ covenants to MariaDB, and to all other recipients of the licensed work to be pro
 
 4. Not to modify this License in any other way.
 
-______________________________________________________________________
+---
 
 Notice
 

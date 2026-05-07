@@ -46,15 +46,16 @@ just test-examples-lockup        # tests for lockup examples
 ```shell
 just benchmark-all               # benchmark Flow and Lockup
 just benchmark <protocol>        # benchmark one protocol; protocol ∈ {flow, lockup}
-just format-numbers              # post-process numbers + mdformat the results dir
+just format-numbers              # post-process numbers + prettier-format the results dir
 ```
 
-The `benchmark` recipe runs the matching `benchmarks-<protocol>` Foundry profile and writes Markdown tables to `benchmarks/results/`.
+The `benchmark` recipe runs the matching `benchmarks-<protocol>` Foundry profile and writes Markdown tables to
+`benchmarks/results/`.
 
 ### Format and Lint
 
 ```shell
-just full-check                  # solhint + forge fmt --check + mdformat --check
+just full-check                  # solhint + forge fmt --check + prettier --check
 just full-write                  # auto-fix all of the above
 just fmt-check                   # forge fmt --check on benchmarks/ and examples/
 just fmt-write                   # forge fmt on benchmarks/ and examples/

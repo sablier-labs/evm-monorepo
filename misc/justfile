@@ -70,7 +70,7 @@ benchmark protocol:
 [group("benchmarks")]
 format-numbers:
   na ./benchmarks/scripts/format-numbers.js
-  mdformat benchmarks/results/
+  just prettier-write "benchmarks/results/**/*.md"
 
 # ---------------------------------------------------------------------------- #
 #                                   FORMATS                                    #
@@ -78,11 +78,11 @@ format-numbers:
 
 # Run all code checks
 [group("format")]
-full-check: (solhint-check GLOBS_SOLIDITY) fmt-check (mdformat-check ".")
+full-check: (solhint-check GLOBS_SOLIDITY) fmt-check prettier-check
 
 # Run all code fixes
 [group("format")]
-full-write: (solhint-write GLOBS_SOLIDITY) fmt-write (mdformat-write ".")
+full-write: (solhint-write GLOBS_SOLIDITY) fmt-write prettier-write
 
 # Check code with Forge formatter
 [group("format")]

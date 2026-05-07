@@ -48,7 +48,7 @@ contract SablierLockupV2 is ISablierLockupV2 {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Migration Patterns
 
@@ -139,7 +139,7 @@ contract LockupV2Adapter is ISablierLockupV2 {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Storage Migration (Upgradeable Contracts)
 
@@ -206,7 +206,7 @@ contract MigrateV1ToV2 is Script {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Deprecation Strategy
 
@@ -248,7 +248,7 @@ async function getStreamContract(streamId: bigint): Promise<Contract> {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Error Catalog Management
 
@@ -282,7 +282,7 @@ Maintain a cross-version error reference:
 | 0x12345678 | ✗   | ✓   | New in V2        |
 ```
 
-______________________________________________________________________
+---
 
 ## Testing Migrations
 

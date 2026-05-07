@@ -108,7 +108,7 @@ via_ir = true
 optimizer_runs = 200
 ```
 
-______________________________________________________________________
+---
 
 ## L2-Specific Optimizations
 
@@ -144,7 +144,7 @@ IArbGasInfo(0x000000000000000000000000000000000000006C).getCurrentTxL1GasFees();
 IL1Block(0x4200000000000000000000000000000000000015).l1BaseFee();
 ```
 
-______________________________________________________________________
+---
 
 ## Alternative Libraries
 
@@ -169,7 +169,7 @@ Consider [Solady](https://github.com/Vectorized/solady) for gas-critical paths:
 - Standard flows where gas isn't critical
 - Maximum auditability and familiarity
 
-______________________________________________________________________
+---
 
 ## Storage
 
@@ -181,7 +181,7 @@ ______________________________________________________________________
 | Mappings over arrays | Mappings skip bounds checks (~2,100 gas savings per read)                  |
 | Constants/Immutables | Use for values known at compile/deploy time (no storage read)              |
 
-______________________________________________________________________
+---
 
 ## Type Sizes
 
@@ -194,13 +194,13 @@ ______________________________________________________________________
 
 **Warning**: Smaller types for standalone variables waste gas on casting. Use `uint256` unless packing.
 
-______________________________________________________________________
+---
 
 ## Bitmaps
 
 **Rule**: Use bitmaps for tracking many booleans (256 per storage slot vs 1 per slot).
 
-______________________________________________________________________
+---
 
 ## Functions
 
@@ -211,7 +211,7 @@ ______________________________________________________________________
 | Payable          | Add to admin functions to skip msg.value check (~20 gas) |
 | Modifier helpers | Call private functions from modifiers (reduces bytecode) |
 
-______________________________________________________________________
+---
 
 ## Loops
 
@@ -232,20 +232,20 @@ for (uint256 i; i < count; ) {
 - Use unchecked for iterator
 - Initialize `i` without `= 0`
 
-______________________________________________________________________
+---
 
 ## Short-Circuit Evaluation
 
 - **AND (&&)**: Put cheap/likely-false conditions first
 - **OR (||)**: Put cheap/likely-true conditions first
 
-______________________________________________________________________
+---
 
 ## External Calls
 
 **Rule**: Cache results of repeated external calls.
 
-______________________________________________________________________
+---
 
 ## Compiler Settings
 
@@ -254,7 +254,7 @@ ______________________________________________________________________
 | Low (200)      | Deployment cost                            |
 | High (10,000+) | Runtime cost (frequently-called contracts) |
 
-______________________________________________________________________
+---
 
 ## Anti-Patterns
 

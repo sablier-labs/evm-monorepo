@@ -26,7 +26,7 @@ Prepare code for external security audit. Complete this checklist before sending
 - [ ] Invariants categorized by severity
 - [ ] Each invariant has corresponding test
 
-______________________________________________________________________
+---
 
 ## Code Quality
 
@@ -52,7 +52,7 @@ ______________________________________________________________________
 - [ ] No obvious gas inefficiencies (unbounded loops, redundant storage reads)
 - [ ] Storage packing reviewed
 
-______________________________________________________________________
+---
 
 ## Security Hardening
 
@@ -91,7 +91,7 @@ ______________________________________________________________________
 | Rebasing tokens handled (or explicitly excluded)        | [ ]    |
 | Token decimals handled correctly                        | [ ]    |
 
-______________________________________________________________________
+---
 
 ## Testing
 
@@ -119,7 +119,7 @@ ______________________________________________________________________
 - [ ] Boundary conditions tested
 - [ ] Time-based edge cases (block.timestamp)
 
-______________________________________________________________________
+---
 
 ## Static Analysis
 
@@ -147,7 +147,7 @@ aderyn src/
 - [ ] Protocol-specific detectors run
 - [ ] Findings addressed
 
-______________________________________________________________________
+---
 
 ## Dependency Review
 
@@ -165,7 +165,7 @@ ______________________________________________________________________
 - [ ] No known vulnerabilities in dependencies
 - [ ] Upgrade paths documented if using upgradeable deps
 
-______________________________________________________________________
+---
 
 ## Deployment Readiness
 
@@ -183,7 +183,7 @@ ______________________________________________________________________
 - [ ] Initializers use `reinitializer(version)`
 - [ ] Implementation has `_disableInitializers()`
 
-______________________________________________________________________
+---
 
 ## Scope Definition
 
@@ -218,7 +218,7 @@ src/
 cloc --include-lang=Solidity --exclude-dir=test,mocks,interfaces,types src/
 ```
 
-______________________________________________________________________
+---
 
 ## Audit Package
 

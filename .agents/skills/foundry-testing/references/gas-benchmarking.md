@@ -38,7 +38,7 @@ test_Withdraw_WhenCallerRecipient() (gas: 42156)
 | `~`    | Median gas                 |
 | `gas`  | Exact gas (concrete tests) |
 
-______________________________________________________________________
+---
 
 ## Gas Reports
 
@@ -66,7 +66,7 @@ forge test --gas-report --match-contract "SablierLockup"
 | create                              | 156789          | 178901 | 175000 | 234567 | 50      |
 ```
 
-______________________________________________________________________
+---
 
 ## Benchmarking Workflow
 
@@ -104,7 +104,7 @@ Add to PR description:
 | create   | 178,901 | 180,000 | +0.6% |
 ```
 
-______________________________________________________________________
+---
 
 ## Dedicated Gas Tests
 
@@ -141,7 +141,7 @@ contract Gas_Test is Integration_Test {
 forge test --match-path "tests/gas/**" --gas-report -vv
 ```
 
-______________________________________________________________________
+---
 
 ## CI Integration
 
@@ -172,7 +172,7 @@ if ! forge snapshot --check .gas-snapshot 2>/dev/null; then
 fi
 ```
 
-______________________________________________________________________
+---
 
 ## Optimization Targets
 
@@ -198,7 +198,7 @@ ______________________________________________________________________
 | ERC20 transfer             | ~30,000-60,000   |
 | NFT mint                   | ~50,000          |
 
-______________________________________________________________________
+---
 
 ## Profiling Tools
 
@@ -224,7 +224,7 @@ forge test --match-test test_Withdraw -vvvvv
 | Tenderly                            | Production transaction profiling |
 | Blocksec Phalcon                    | Visual transaction analysis      |
 
-______________________________________________________________________
+---
 
 ## Gas Snapshot Best Practices
 
@@ -234,7 +234,7 @@ ______________________________________________________________________
 4. **Separate gas tests** from functional tests
 5. **Document thresholds** in comments or constants
 
-______________________________________________________________________
+---
 
 ## Commands Reference
 

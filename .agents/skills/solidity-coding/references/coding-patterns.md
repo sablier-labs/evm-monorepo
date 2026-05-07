@@ -19,7 +19,7 @@ Rules and conventions for writing Solidity contracts. Find examples in the actua
 5. `@param` - Each parameter
 6. `@return` - Return value(s)
 
-______________________________________________________________________
+---
 
 ## Error Handling
 
@@ -35,7 +35,7 @@ ______________________________________________________________________
 4. Include debugging parameters in error signature
 5. Add NatSpec: `/// @notice Thrown when...`
 
-______________________________________________________________________
+---
 
 ## Modifiers
 
@@ -46,7 +46,7 @@ ______________________________________________________________________
 3. Override (`override`)
 4. Custom modifiers (guard conditions first: `noDelegateCall`, `notNull`)
 
-______________________________________________________________________
+---
 
 ## Section Comments
 
@@ -66,7 +66,7 @@ headers "USER-FACING READ-ONLY FUNCTIONS"
 6. PRIVATE READ-ONLY FUNCTIONS
 7. PRIVATE STATE-CHANGING FUNCTIONS
 
-______________________________________________________________________
+---
 
 ## Imports
 
@@ -76,7 +76,7 @@ ______________________________________________________________________
 2. **Alphabetical order** within each group
 3. **Order**: External packages → Internal shared → Local
 
-______________________________________________________________________
+---
 
 ## Storage Packing
 
@@ -87,7 +87,7 @@ ______________________________________________________________________
 3. Use `uint40` for timestamps (5 bytes), `uint128` for amounts (16 bytes)
 4. Addresses are 20 bytes, bools are 1 byte
 
-______________________________________________________________________
+---
 
 ## CEI Pattern (Checks-Effects-Interactions)
 
@@ -103,14 +103,14 @@ ______________________________________________________________________
 Use step 4 (CEI-PI / FREI-PI) only when a protocol-level invariant can be cheaply verified. Default to plain CEI
 otherwise. See `SablierFlow._withdraw` for a production example.
 
-______________________________________________________________________
+---
 
 ## Memory vs Storage
 
 - **`memory`** - Read-only access, copies data (cheaper for multiple reads)
 - **`storage`** - Direct reference, writes persist (needed for modifications)
 
-______________________________________________________________________
+---
 
 ## Safe Token Transfers
 
@@ -122,7 +122,7 @@ token.safeTransfer(to, amount);
 token.safeTransferFrom(from, to, amount);
 ```
 
-______________________________________________________________________
+---
 
 ## Low-Level Calls
 

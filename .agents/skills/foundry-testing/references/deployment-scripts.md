@@ -12,7 +12,7 @@ scripts/
     └── Batch*.s.sol         # Multi-step operations
 ```
 
-______________________________________________________________________
+---
 
 ## Base Script Pattern
 
@@ -29,7 +29,7 @@ contract DeployFoo is BaseScript {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## BaseScript Inheritance
 
@@ -39,7 +39,7 @@ ______________________________________________________________________
 | `broadcaster`        | Address derived from env vars           |
 | Environment vars     | `ETH_FROM`, `MNEMONIC`, `PRIVATE_KEY`   |
 
-______________________________________________________________________
+---
 
 ## Environment Variables
 
@@ -49,7 +49,7 @@ ______________________________________________________________________
 | `MNEMONIC`    | Derive from HD wallet | 2nd      |
 | `PRIVATE_KEY` | Direct private key    | 3rd      |
 
-______________________________________________________________________
+---
 
 ## Script Patterns
 
@@ -94,7 +94,7 @@ function run(address admin, address token) public broadcast returns (address) {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Running Scripts
 
@@ -124,7 +124,7 @@ ETH_FROM=0x... forge script scripts/solidity/Deploy.s.sol \
     --broadcast
 ```
 
-______________________________________________________________________
+---
 
 ## Verification
 
@@ -134,7 +134,7 @@ ______________________________________________________________________
 | `--etherscan-api-key` | API key (or set `ETHERSCAN_API_KEY`) |
 | `--verifier-url`      | Custom verifier URL                  |
 
-______________________________________________________________________
+---
 
 ## Best Practices
 
@@ -146,7 +146,7 @@ ______________________________________________________________________
 | Log constructor args         | Simplify verification                |
 | Use deterministic deployment | Reproducible addresses across chains |
 
-______________________________________________________________________
+---
 
 ## Deterministic Deployment
 
@@ -159,7 +159,7 @@ function run() public broadcast returns (address) {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Post-Deployment Setup
 
@@ -172,7 +172,7 @@ contract InitializeFoo is BaseScript {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Commands
 

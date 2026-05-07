@@ -13,7 +13,7 @@ Sablier-specific naming and patterns. Find code examples in the actual codebase.
 | Library   | `{Domain}Math`, `Helpers`  | `LockupMath`, `Helpers`      |
 | Types     | Namespace library          | `Lockup.Stream`, `Flow.Rate` |
 
-______________________________________________________________________
+---
 
 ## Error Library Pattern
 
@@ -25,7 +25,7 @@ Errors defined in dedicated `Errors.sol` per package with section comments by co
 - Include diagnostic parameters
 - Separate validation checks for distinct error conditions
 
-______________________________________________________________________
+---
 
 ## Abstract Contract Types
 
@@ -35,7 +35,7 @@ ______________________________________________________________________
 | Feature contracts | Model-specific implementations | `SablierLockupDynamic` |
 | Base contracts    | Shared functionality           | `SablierMerkleBase`    |
 
-______________________________________________________________________
+---
 
 ## Interface Organization
 
@@ -45,7 +45,7 @@ ______________________________________________________________________
 | `I{Contract}.sol`          | State-changing functions |
 | `I{Contract}Recipient.sol` | Hook interface           |
 
-______________________________________________________________________
+---
 
 ## Inheritance Pattern
 
@@ -55,7 +55,7 @@ Inherit in alphabetical order:
 Batch, Comptrollerable, ERC721, ISablierLockup, SablierLockupDynamic, SablierLockupLinear, SablierLockupTranched
 ```
 
-______________________________________________________________________
+---
 
 ## Library Patterns
 
@@ -65,7 +65,7 @@ ______________________________________________________________________
 | Namespace libraries | Group related types (`Lockup.Stream`)      |
 | Helper libraries    | Validation and calculation (`Helpers.sol`) |
 
-______________________________________________________________________
+---
 
 ## Access Control Bases
 
@@ -75,7 +75,7 @@ ______________________________________________________________________
 | `RoleAdminable`   | `onlyRole(role)`  | Role-based access control    |
 | `Comptrollerable` | `onlyComptroller` | Protocol-level admin actions |
 
-______________________________________________________________________
+---
 
 ## Cross-Package Imports
 
@@ -98,7 +98,7 @@ This applies to all consumer packages: `airdrops/`, `bob/`, `flow/`, and `lockup
 the `@sablier/evm-utils` dependency version declared in the working package's `package.json`. A mismatch means the
 package may be using a published release rather than the local source.
 
-______________________________________________________________________
+---
 
 ## Shared Utils Package
 
@@ -131,7 +131,7 @@ Move code to utils only when ALL conditions are met:
 
 **Anti-pattern**: Moving code to utils "just in case" it might be reused later.
 
-______________________________________________________________________
+---
 
 ## Hook Security Rules
 
@@ -140,13 +140,13 @@ ______________________________________________________________________
 3. Validate hook returns correct selector
 4. Revert with specific error on invalid selector
 
-______________________________________________________________________
+---
 
 ## Stack Too Deep Pattern
 
 Use `{FunctionName}Vars` struct for functions with many local variables.
 
-______________________________________________________________________
+---
 
 ## Modifier Pattern
 
@@ -155,7 +155,7 @@ ______________________________________________________________________
 | `notNull(id)`      | Revert if stream doesn't exist          |
 | `noDelegateCall()` | Call private helper `_noDelegateCall()` |
 
-______________________________________________________________________
+---
 
 ## Commands
 

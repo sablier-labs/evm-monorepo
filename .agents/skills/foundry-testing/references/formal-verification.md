@@ -10,7 +10,7 @@ Symbolic execution and formal verification tools for proving contract correctnes
 | **Certora** | Formal verification | Complex invariants, production | Separate prover |
 | **HEVM**    | Symbolic execution  | Dapptools heritage             | Foundry compat  |
 
-______________________________________________________________________
+---
 
 ## Halmos (Recommended)
 
@@ -130,7 +130,7 @@ function check_ValidStateTransition(uint8 action) public {
 }
 ```
 
-______________________________________________________________________
+---
 
 ## Certora (Production-Grade)
 
@@ -217,7 +217,7 @@ certoraRun certora/conf/Vault.conf --rule withdrawDecreasesBalance
 }
 ```
 
-______________________________________________________________________
+---
 
 ## When to Use Each
 
@@ -229,7 +229,7 @@ ______________________________________________________________________
 | Complex multi-contract       | Certora | Better abstraction support  |
 | CI integration               | Halmos  | Faster, simpler             |
 
-______________________________________________________________________
+---
 
 ## Integration with Sablier Workflow
 
@@ -253,7 +253,7 @@ certoraRun certora/conf/Protocol.conf
 | Flow     | `ongoingDebt == 0` when paused                      |
 | Airdrops | `claimed + unclaimed + clawedBack == campaignTotal` |
 
-______________________________________________________________________
+---
 
 ## Resources
 

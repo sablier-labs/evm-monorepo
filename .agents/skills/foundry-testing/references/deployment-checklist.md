@@ -29,7 +29,7 @@ Pre-mainnet deployment checklist for Sablier contracts.
   - [ ] `ETHERSCAN_API_KEY` for verification
 - [ ] Deployer address has sufficient ETH for gas
 
-______________________________________________________________________
+---
 
 ## Deployment Execution
 
@@ -76,7 +76,7 @@ Contracts:
   - <ContractName2>: <address>
 ```
 
-______________________________________________________________________
+---
 
 ## Post-Deployment Verification
 
@@ -109,7 +109,7 @@ forge script scripts/solidity/Verify.s.sol \
 - [ ] Subgraph indexing (if applicable)
 - [ ] Frontend integration working
 
-______________________________________________________________________
+---
 
 ## Deterministic Deployment
 
@@ -134,7 +134,7 @@ function run() public broadcast returns (address) {
 | Base     | 0x...            | [ ]      |
 | Polygon  | 0x...            | [ ]      |
 
-______________________________________________________________________
+---
 
 ## Multisig Deployment
 
@@ -173,7 +173,7 @@ forge script scripts/solidity/Deploy.s.sol \
 - [ ] Transaction confirmed
 - [ ] Deployment address recorded
 
-______________________________________________________________________
+---
 
 ## Rollback Plan
 
@@ -200,7 +200,7 @@ If deployment fails or issues discovered:
 3. Update frontend to new address
 4. Communicate migration path
 
-______________________________________________________________________
+---
 
 ## Post-Launch Monitoring
 
@@ -218,7 +218,7 @@ ______________________________________________________________________
 - [ ] Gather user feedback
 - [ ] Update documentation
 
-______________________________________________________________________
+---
 
 ## Commands Reference
 

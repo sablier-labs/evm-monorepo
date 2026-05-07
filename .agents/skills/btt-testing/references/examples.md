@@ -34,7 +34,7 @@ function test_WhenBIsZero() external {
 
 The comment format is: `// It should {branch text}.` (capitalized "It", period at end)
 
-______________________________________________________________________
+---
 
 ## Nested Branches (Generates Modifiers)
 
@@ -55,7 +55,7 @@ FunctionName_Integration_Concrete_Test
 - `test_WhenANotExceed10() whenAIsNotZero` - has modifier
 - `test_WhenAExceeds10() whenAIsNotZero` - has modifier
 
-______________________________________________________________________
+---
 
 ## Multiple Functions (Same Contract)
 
@@ -77,7 +77,7 @@ ContractName::FunctionB_Integration_Concrete_Test
 
 **Generated**: Single contract with prefixed function names.
 
-______________________________________________________________________
+---
 
 ## Duplicate Branch Names
 

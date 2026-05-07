@@ -22,17 +22,24 @@ Uses singleton architecture - all vaults managed in `SablierBob` contract.
 ### Key Concepts
 
 - **Vault ID**: Unique identifier for each vault
-- **Vault Status**: Three states — `ACTIVE` (accepting deposits), `SETTLED` (synced price >= target), `EXPIRED` (expiry time passed). Both SETTLED and EXPIRED allow redemption.
-- **Share Token**: `BobVaultShare` ERC-20 minted per vault on `enter()` (1:1 with deposited tokens). Transfers trigger `onShareTransfer()` to sync adapter attribution.
-- **Manual Settlement**: Vaults do NOT auto-settle. Someone must call `syncPriceFromOracle()`, `enter()`, or `redeem()` to update `lastSyncedPrice`. Once synced at/above target, the vault stays SETTLED permanently even if the live price drops.
-- **Adapter**: Optional yield strategy (currently Lido). Yield fee is snapshotted at vault creation and immune to later changes.
+- **Vault Status**: Three states — `ACTIVE` (accepting deposits), `SETTLED` (synced price >= target), `EXPIRED` (expiry
+  time passed). Both SETTLED and EXPIRED allow redemption.
+- **Share Token**: `BobVaultShare` ERC-20 minted per vault on `enter()` (1:1 with deposited tokens). Transfers trigger
+  `onShareTransfer()` to sync adapter attribution.
+- **Manual Settlement**: Vaults do NOT auto-settle. Someone must call `syncPriceFromOracle()`, `enter()`, or `redeem()`
+  to update `lastSyncedPrice`. Once synced at/above target, the vault stays SETTLED permanently even if the live price
+  drops.
+- **Adapter**: Optional yield strategy (currently Lido). Yield fee is snapshotted at vault creation and immune to later
+  changes.
 
 ### Key Functions
 
 - **`enter()`**: Deposit tokens into a vault, receive share tokens
 - **`syncPriceFromOracle()`**: Anyone can call to update vault price from oracle
-- **`redeem()`**: Burn shares for tokens after settlement/expiry. Non-adapter vaults require ETH fee via `msg.value` (minimum threshold). Adapter vaults deduct yield fee from staking rewards.
-- **`unstakeTokensViaAdapter()`**: Anyone can call on a non-active adapter vault to unstake all tokens before individual redemptions
+- **`redeem()`**: Burn shares for tokens after settlement/expiry. Non-adapter vaults require ETH fee via `msg.value`
+  (minimum threshold). Adapter vaults deduct yield fee from staking rewards.
+- **`unstakeTokensViaAdapter()`**: Anyone can call on a non-active adapter vault to unstake all tokens before individual
+  redemptions
 
 ## Sablier Escrow
 
@@ -43,11 +50,13 @@ Over-the-counter (OTC) token swap protocol that allows users to swap ERC-20 toke
 - **Order ID**: Unique identifier for each order
 - **Order Status**: Four states — `OPEN`, `FILLED`, `CANCELLED`, `EXPIRED`
 - **Seller**: The address that created the order and deposited the sell token
-- **Buyer**: The address that filled the order. `address(0)` means open order (anyone can fill); specific address means private order.
+- **Buyer**: The address that filled the order. `address(0)` means open order (anyone can fill); specific address means
+  private order.
 - **Sell Token**: The ERC-20 token being sold, deposited by the seller when the order is created
 - **Buy Token**: The ERC-20 token the seller wants to receive
 - **Sell Amount**: The amount of sell token that the seller is willing to exchange
-- **Min Buy Amount**: The minimum amount of buy token required to fill the order. Buyer can pay more for price improvement.
+- **Min Buy Amount**: The minimum amount of buy token required to fill the order. Buyer can pay more for price
+  improvement.
 - **Expiry Time** (`expiryTime`): The Unix timestamp when the order expires. `0` means the order never expires.
 - **Trade Fee**: Percentage fee (max 2%) deducted from both sell and buy amounts on fill. Sent to comptroller contract.
 

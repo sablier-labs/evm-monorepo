@@ -1,7 +1,10 @@
 ---
 name: btt-testing
 user-invocable: true
-description: Write bulloak tree specifications (.tree files) for smart contract integration tests. Trigger phrases - write a tree, create test tree, BTT spec, bulloak tree, Branching Tree Technique, or when writing integration tests for contract functions.
+description:
+  Write bulloak tree specifications (.tree files) for smart contract integration tests. Trigger phrases - write a tree,
+  create test tree, BTT spec, bulloak tree, Branching Tree Technique, or when writing integration tests for contract
+  functions.
 ---
 
 # Branching Tree Technique (BTT) Skill
@@ -192,8 +195,8 @@ Put events in parenthesis: {EventName}.
 
 ### 5. Don't Add a Modifier with the Same Name as the Function
 
-A test function should NEVER have a modifier that matches its own name. The function name already encodes the condition —
-adding a same-name modifier is redundant.
+A test function should NEVER have a modifier that matches its own name. The function name already encodes the condition
+— adding a same-name modifier is redundant.
 
 ```solidity
 // WRONG: modifier matches the function name
@@ -231,7 +234,7 @@ bulloak check --skip-modifiers tests/**/*.tree
 
 https://github.com/alexfertel/bulloak/blob/main/README.md
 
-______________________________________________________________________
+---
 
 ## Example Invocations
 

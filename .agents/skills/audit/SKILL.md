@@ -2,12 +2,15 @@
 name: audit
 agent: Plan
 user-invocable: true
-description: Security audit and code review for Solidity smart contracts. Trigger phrases - audit, check PR, security review, pre-audit preparation, vulnerability check, or when preparing code for external audit.
+description:
+  Security audit and code review for Solidity smart contracts. Trigger phrases - audit, check PR, security review,
+  pre-audit preparation, vulnerability check, or when preparing code for external audit.
 ---
 
 # Audit Skill
 
-Audit and code review guidance for Solidity smart contracts. For detailed vulnerability patterns, see bundled references.
+Audit and code review guidance for Solidity smart contracts. For detailed vulnerability patterns, see bundled
+references.
 
 ## Bundled References
 
@@ -29,7 +32,7 @@ process.
 | **Deep Review** | Thorough security analysis   | Deep     | Before mainnet deployment        |
 | **Audit**       | Comprehensive security audit | Thorough | Pre-launch or after major change |
 
-______________________________________________________________________
+---
 
 ## Self-Review Checklist
 
@@ -67,7 +70,7 @@ ______________________________________________________________________
 - [ ] Edge cases tested
 - [ ] BTT tree updated (if applicable)
 
-______________________________________________________________________
+---
 
 ## PR Review Issues
 
@@ -82,7 +85,7 @@ ______________________________________________________________________
 | Breaking changes        | Interface modifications without deprecation    |
 | Gas regression          | New loops, storage operations in hot paths     |
 
-______________________________________________________________________
+---
 
 ## Severity Classification
 
@@ -94,7 +97,7 @@ ______________________________________________________________________
 | **Low (L)**       | Minor issues, deviations from best practices |
 | **Informational** | Suggestions and observations                 |
 
-______________________________________________________________________
+---
 
 ## Quick Vulnerability Reference
 
@@ -106,7 +109,7 @@ ______________________________________________________________________
 | **High**     | Flash loan assumptions, Oracle manipulation, Front-running, Integer overflow, Price inflation |
 | **Medium**   | Fee-on-transfer tokens, Rebasing tokens, Unbounded loops, Timestamp dependence                |
 
-______________________________________________________________________
+---
 
 ## Comment Prefixes
 
@@ -118,7 +121,7 @@ ______________________________________________________________________
 | `NIT:`        | Minor style preference           |
 | `QUESTION:`   | Clarification needed             |
 
-______________________________________________________________________
+---
 
 ## Protocol Invariants
 
@@ -149,7 +152,7 @@ When reviewing code, read the package's invariant README and verify:
 | **Access control**     | Only authorized roles modify state        |
 | **State machine**      | Only valid transitions occur (see README) |
 
-______________________________________________________________________
+---
 
 ## Final Checklists
 
@@ -180,7 +183,7 @@ ______________________________________________________________________
 - [ ] Flash loan attack vectors considered
 - [ ] Slither run with no unreviewed findings
 
-______________________________________________________________________
+---
 
 ## Example Invocations
 

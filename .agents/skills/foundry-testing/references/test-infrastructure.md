@@ -15,7 +15,7 @@ Rules for test utilities and setup. Find examples in the actual codebase.
 | `WARP_*`      | Time warp targets           | `WARP_26_PERCENT`        |
 | `*_COUNT`     | Counts/sizes                | `SEGMENT_COUNT`          |
 
-______________________________________________________________________
+---
 
 ## Defaults Contract
 
@@ -28,7 +28,7 @@ ______________________________________________________________________
 | Token-dependent | Reference `token` set during setUp  |
 | Arrays          | Build using helper contracts        |
 
-______________________________________________________________________
+---
 
 ## User Roles
 
@@ -40,7 +40,7 @@ ______________________________________________________________________
 | `recipient` | Default entry recipient                   |
 | `sender`    | Default entry sender/funder               |
 
-______________________________________________________________________
+---
 
 ## Modifiers
 
@@ -58,7 +58,7 @@ ______________________________________________________________________
 2. Inherit from `Fuzzers` for bounding helpers
 3. Use `setMsgSender()` instead of raw `vm.prank()`
 
-______________________________________________________________________
+---
 
 ## Fuzzer Helpers
 
@@ -69,7 +69,7 @@ ______________________________________________________________________
 3. For arrays, fuzz timestamps preserving order
 4. For amounts, ensure first element non-zero
 
-______________________________________________________________________
+---
 
 ## Base Test Setup Order
 
@@ -83,7 +83,7 @@ ______________________________________________________________________
 8. Set default caller
 9. Warp to realistic time
 
-______________________________________________________________________
+---
 
 ## Mock Naming Convention
 
@@ -102,7 +102,7 @@ ______________________________________________________________________
 2. One mock per scenario (not mega-mocks)
 3. Name clearly describes behavior
 
-______________________________________________________________________
+---
 
 ## Integration Test Base
 

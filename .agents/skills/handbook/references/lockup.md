@@ -10,7 +10,7 @@ Fixed-term streaming where tokens are deposited upfront and released over time.
 | **Dynamic**  | Custom curves via segments        | Complex vesting schedules |
 | **Tranched** | Discrete unlocks at timestamps    | Milestone-based releases  |
 
-______________________________________________________________________
+---
 
 ## Mathematical Formulas
 
@@ -81,7 +81,7 @@ for each tranche:
 
 **Constraint:** Sum of all tranche amounts must equal deposited amount.
 
-______________________________________________________________________
+---
 
 ## Key Calculations
 
@@ -91,7 +91,7 @@ ______________________________________________________________________
 | **Withdrawable** | `streamedAmount - withdrawnAmount`                 |
 | **Refundable**   | `depositedAmount - streamedAmount` (if cancelable) |
 
-______________________________________________________________________
+---
 
 ## Statuses
 
@@ -116,7 +116,7 @@ PENDING ──(time)──> STREAMING ──(time)──> SETTLED ──(withdra
 - **Warm** (PENDING, STREAMING): Time passage alone can change status
 - **Cold** (SETTLED, CANCELED, DEPLETED): Requires explicit action to change
 
-______________________________________________________________________
+---
 
 ## State Flags
 
@@ -127,7 +127,7 @@ ______________________________________________________________________
 | isDepleted     | All tokens withdrawn?                                  |
 | isTransferable | Can NFT be transferred? Immutable after creation       |
 
-______________________________________________________________________
+---
 
 ## Amounts Struct
 
@@ -137,7 +137,7 @@ ______________________________________________________________________
 | withdrawn | Cumulative withdrawn by recipient          |
 | refunded  | Refunded to sender on cancel (0 otherwise) |
 
-______________________________________________________________________
+---
 
 ## NFT Mechanics
 
@@ -146,7 +146,7 @@ ______________________________________________________________________
 - Transfers change the stream recipient
 - Transferability is set at creation and immutable
 
-______________________________________________________________________
+---
 
 ## Recipient Hooks
 
@@ -198,7 +198,7 @@ interface ISablierLockupRecipient is IERC165 {
 | Reentrancy via hooks           | Hooks called AFTER state changes (CEI) |
 | Gas griefing                   | Limited gas forwarded to hooks         |
 
-______________________________________________________________________
+---
 
 ## References
 

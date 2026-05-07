@@ -9,7 +9,7 @@ Smart contracts for Sablier onchain token distribution protocol.
 - **Package Manager**: Bun
 - **Task Runner**: Just
 - **Testing**: Foundry with Bulloak (BTT)
-- **Linting**: Solhint, Prettier, mdformat
+- **Linting**: Solhint, Prettier
 
 ## Monorepo Structure
 
@@ -33,8 +33,6 @@ Each package has its own `AGENTS.md` with protocol-specific context.
 - [Foundry](https://github.com/foundry-rs/foundry) — EVM development framework
 - [Rust](https://rust-lang.org/tools/install) — required by Bulloak
 - [Bulloak](https://bulloak.dev) — BTT test scaffolder
-- [uv](https://github.com/astral-sh/uv) — installs MDFormat
-- [MDFormat](https://mdformat.readthedocs.io) — Markdown formatter (Python 3.13+); installed via `just setup`
 
 ## Setup
 
@@ -102,9 +100,11 @@ Before opening a PR, ensure:
 
 ## Environment Variables
 
-Local: copy `.env.example` to `.env` and populate the mnemonic + API keys. The `just setup` recipe symlinks the root `.env` into each package.
+Local: copy `.env.example` to `.env` and populate the mnemonic + API keys. The `just setup` recipe symlinks the root
+`.env` into each package.
 
-CI on forks: add `ROUTEMESH_API_KEY` ([Routemesh](https://routeme.sh/)) to the fork's GitHub Secrets so workflows can run.
+CI on forks: add `ROUTEMESH_API_KEY` ([Routemesh](https://routeme.sh/)) to the fork's GitHub Secrets so workflows can
+run.
 
 ## VSCode
 
@@ -121,5 +121,5 @@ All protocols are audited. See [SECURITY.md](./SECURITY.md) for the disclosure p
 
 ## References
 
-@justfile
-@package.json
+- @justfile
+- @package.json

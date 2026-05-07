@@ -27,13 +27,7 @@ default:
   @just --list
 
 # Setup script
-setup: create-symlinks install-all install-mdformat
-
-# Install mdformat with plugins
-@install-mdformat:
-    uv tool install mdformat \
-        --with mdformat-frontmatter \
-        --with mdformat-gfm
+setup: create-symlinks install-all
 
 # Clean .DS_Store files
 clean:

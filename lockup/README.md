@@ -86,8 +86,8 @@ For any security-related concerns, please refer to the [SECURITY](../SECURITY.md
 ## Contributing
 
 Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
-[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any informal concerns
-or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
+[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any
+informal concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
 For development setup and PR guidelines, see [AGENTS.md](../AGENTS.md).
 

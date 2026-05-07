@@ -12,7 +12,7 @@ where:
     totalDebt = snapshotDebt + amountOwed
 ```
 
-______________________________________________________________________
+---
 
 ## Debt Model
 
@@ -31,7 +31,7 @@ Snapshots are taken on:
 - Adjust rate (snapshotDebt = current debt, snapshotTime = now)
 - Pause/Restart (snapshotDebt = current debt, snapshotTime = now)
 
-______________________________________________________________________
+---
 
 ## Statuses
 
@@ -44,7 +44,7 @@ ______________________________________________________________________
 | **PAUSED_INSOLVENT**    | paused AND totalDebt > balance  |
 | **VOIDED**              | Permanently terminated          |
 
-______________________________________________________________________
+---
 
 ## Key Operations
 
@@ -58,7 +58,7 @@ ______________________________________________________________________
 | **Refund**   | Sender reclaims `balance - coveredDebt`         |
 | **Void**     | Permanently terminates, forfeits uncovered debt |
 
-______________________________________________________________________
+---
 
 ## Withdrawal Formula
 
@@ -71,7 +71,7 @@ After withdrawal:
     newSnapshotTime = currentTime
 ```
 
-______________________________________________________________________
+---
 
 ## Refund Formula
 
@@ -81,7 +81,7 @@ refundableAmount = balance - coveredDebt
                  = max(0, balance - totalDebt)
 ```
 
-______________________________________________________________________
+---
 
 ## Rate Adjustment
 
@@ -94,7 +94,7 @@ snapshotTime = currentTime
 ratePerSecond = newRps
 ```
 
-______________________________________________________________________
+---
 
 ## NFT Mechanics
 
@@ -102,7 +102,7 @@ ______________________________________________________________________
 - Owner = Recipient
 - Transfers change the stream recipient
 
-______________________________________________________________________
+---
 
 ## References
 

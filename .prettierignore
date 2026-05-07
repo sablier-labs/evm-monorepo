@@ -10,7 +10,6 @@ out/
 out-*/
 
 # files
-*.md
 *.sol
 .pnp.*
 package-lock.json
