@@ -33,7 +33,7 @@ Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues
 [start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any informal
 concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
-For full guidance, see the [CONTRIBUTING](./CONTRIBUTING.md) guide.
+For development setup, commands, and PR guidelines, see [AGENTS.md](./AGENTS.md).
 
 ## License
 

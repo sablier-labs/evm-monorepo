@@ -60,11 +60,6 @@ Then, add the following remappings in `remappings.txt`:
 @sablier/flow/=lib/evm-monorepo/flow/
 ```
 
-### Branching Tree Technique
-
-You may notice that some test files are accompanied by `.tree` files. This is because we are using Branching Tree
-Technique and [Bulloak](https://bulloak.dev/).
-
 ## Usage
 
 This is just a glimpse of Sablier Flow. For more guides and examples, see the [documentation](https://docs.sablier.com).
@@ -100,7 +95,7 @@ Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues
 [a PR](https://github.com/sablier-labs/evm-monorepo/compare). For any concerns or feedback, please join our
 [Discord server](https://discord.gg/bSwRCwWRsT).
 
-Refer to [CONTRIBUTING](../CONTRIBUTING.md) guidelines if you wish to create a PR.
+For development setup and PR guidelines, see [AGENTS.md](../AGENTS.md).
 
 ## License
 

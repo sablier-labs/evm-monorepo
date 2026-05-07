@@ -60,11 +60,6 @@ Then, add the following remappings in `remappings.txt`:
 @sablier/lockup/=lib/evm-monorepo/lockup/
 ```
 
-### Branching Tree Technique
-
-You may notice that some test files are accompanied by `.tree` files. This is because we are using Branching Tree
-Technique and [Bulloak](https://bulloak.dev/).
-
 ### Deployments
 
 The list of all deployment addresses can be found [here](https://docs.sablier.com/guides/airdrops/deployments).
@@ -82,7 +77,7 @@ Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues
 [start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any informal concerns
 or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
-For guidance on how to create PRs, see the [CONTRIBUTING](../CONTRIBUTING.md) guide.
+For development setup and PR guidelines, see [AGENTS.md](../AGENTS.md).
 
 ## License
 

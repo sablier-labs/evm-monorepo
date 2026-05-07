@@ -8,20 +8,6 @@ This package contains the following miscellaneous contracts:
   located in the [benchmarks/results](benchmarks/results) folder, but they can also be viewed on
   [docs.sablier.com](https://docs.sablier.com).
 
-## Commands
-
-To generate the benchmark table for [Sablier Lockup](https://github.com/sablier-labs/lockup), run the following command:
-
-```bash
-just benchmark lockup
-```
-
-To generate the benchmark table for [Sablier Flow](https://github.com/sablier-labs/flow), run the following command:
-
-```bash
-just benchmark flow
-```
-
 ## Disclaimer
 
 The examples provided in this repo have NOT BEEN AUDITED and are provided "AS IS" with no warranties of any kind, either
@@ -30,9 +16,7 @@ production environment. They make specific assumptions that may not apply to you
 
 ## Contributing
 
-Make sure you have [Foundry](https://github.com/foundry-rs/foundry) installed, and that you have it configured correctly
-in [VSCode](https://book.getfoundry.sh/config/vscode). For a full list of prerequisites, see the
-[Contributing Guide](../CONTRIBUTING.md).
+For development setup, prerequisites, and PR guidelines, see [AGENTS.md](../AGENTS.md).
 
 ## License
 
