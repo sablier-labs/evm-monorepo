@@ -38,7 +38,7 @@ Each package has its own `CLAUDE.md` with protocol-specific context.
 
 ## Security
 
-All protocols are audited. See [SECURITY.md](./SECURITY.md) for bug bounty details.
+All protocols are audited. See [SECURITY.md](./SECURITY.md) for the disclosure policy and protocol assumptions.
 
 ## References
 

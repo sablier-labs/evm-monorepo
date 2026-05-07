@@ -2,8 +2,10 @@
 
 Ensuring the security of the Sablier Protocol is our utmost priority. We have dedicated significant efforts towards the
 design and testing of the protocol to guarantee its safety and reliability. However, we are aware that security is a
-continuous process. If you believe you have found a security vulnerability, please read the
-[Bug Bounty Program](https://sablier.notion.site/bug-bounty) and share a report privately with us.
+continuous process. If you believe you have found a security vulnerability, please report it privately by emailing
+[contact@sablier.com](mailto:contact@sablier.com).
+
+For the list of past audits, see the [sablier-labs/audits](https://github.com/sablier-labs/audits) repository.
 
 ## Common Protocol Assumptions
 
