@@ -43,7 +43,7 @@ abstract contract Integration_Test is Base_Test {
         });
     }
 
-    /// @dev Helper function to create an token with the `decimals` and then a stream using the newly created token.
+    /// @dev Helper function to create a token with the `decimals` and then a stream using the newly created token.
     function createTokenAndStream(uint40 startTime, uint8 decimals) internal returns (IERC20 token, uint256 streamId) {
         token = createToken(decimals);
 

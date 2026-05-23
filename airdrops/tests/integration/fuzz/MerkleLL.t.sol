@@ -36,7 +36,7 @@ contract MerkleLL_Integration_Fuzz_Test is Shared_Integration_Fuzz_Test {
     ///
     /// - Fuzzed custom fee.
     /// - MerkleLL campaign with fuzzed leaves data, expiration, vesting start time, start unlock, cliff duration, cliff
-    /// unlock percentage,  percentage and total duration.
+    /// unlock percentage, and total duration.
     /// - Both finite (only in future) and infinite expiration.
     /// - Claiming multiple airdrops with fuzzed claim fee at different point in time.
     /// - Claiming airdrops using both {claim} and {claimTo} functions with fuzzed `to` address.

@@ -506,7 +506,7 @@ interface ISablierFlow is
     /// - `streamId` must not reference a null stream.
     /// - `to` must not be the zero address.
     /// - `to` must be the recipient if `msg.sender` is not the stream's recipient or an approved third party.
-    /// - `amount` must  be greater than zero and must not exceed the withdrawable amount.
+    /// - `amount` must be greater than zero and must not exceed the withdrawable amount.
     /// - `msg.value` must be greater than or equal to the minimum fee in wei for the stream's sender.
     ///
     /// @param streamId The ID of the stream to withdraw from.
