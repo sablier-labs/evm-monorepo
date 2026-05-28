@@ -1,4 +1,11 @@
-# Sablier EVM Monorepo [![GitHub Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
+# Sablier EVM Monorepo [![GitHub Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Twitter][twitter-badge]][twitter]
+
+> [!IMPORTANT]
+>
+> **This repository is no longer maintained and is not accepting pull requests** — including changes to code comments.
+> Even comment-only edits can alter the compiled bytecode, and the source on `main` must remain byte-for-byte verifiable
+> against the [deployed addresses](https://docs.sablier.com/guides/lockup/deployments). PRs of any kind will be closed
+> without review.
 
 Monorepo for Sablier's EVM smart contracts. In-depth documentation is available at
 [docs.sablier.com](https://docs.sablier.com).
@@ -28,11 +35,12 @@ For any security-related concerns, please refer to the [SECURITY](./SECURITY.md)
 
 ## Contributing
 
-Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
-[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any
-informal concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
+This repository is **not accepting pull requests of any kind**, including changes to code comments. Comment-only edits
+can change the compiled bytecode, and the source on `main` must remain byte-for-byte verifiable against the
+[deployed addresses](https://docs.sablier.com/guides/lockup/deployments). PRs will be closed without review.
 
-For development setup, commands, and PR guidelines, see [AGENTS.md](./AGENTS.md).
+For questions or informal feedback, [open an issue](https://github.com/sablier-labs/evm-monorepo/issues/new) or
+[start a discussion](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose).
 
 ## License
 
@@ -40,8 +48,6 @@ See [LICENSE.md](./LICENSE.md).
 
 [codecov]: https://codecov.io/gh/sablier-labs/evm-monorepo
 [codecov-badge]: https://codecov.io/gh/sablier-labs/evm-monorepo/branch/main/graph/badge.svg
-[discord]: https://discord.gg/bSwRCwWRsT
-[discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 [gha]: https://github.com/sablier-labs/evm-monorepo/actions

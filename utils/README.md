@@ -1,4 +1,4 @@
-# Sablier EVM Utils [![GitHub Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
+# Sablier EVM Utils [![GitHub Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry]
 
 This package contains the following two sets of contracts:
 
@@ -81,11 +81,12 @@ contract MyContract is Adminable, Batch, NoDelegateCall {
 
 ## Contributing
 
-Feel free to dive in! [Open](https://github.com/sablier-labs/evm-monorepo/issues/new) an issue,
-[start](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose) a discussion or submit a PR. For any
-informal concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
+This repository is **not accepting pull requests of any kind**, including changes to code comments. Comment-only edits
+can change the compiled bytecode, and the source on `main` must remain byte-for-byte verifiable against the
+[deployed addresses](https://docs.sablier.com/guides/lockup/deployments). PRs will be closed without review.
 
-For development setup and PR guidelines, see [AGENTS.md](../AGENTS.md).
+For questions or informal feedback, [open an issue](https://github.com/sablier-labs/evm-monorepo/issues/new) or
+[start a discussion](https://github.com/sablier-labs/evm-monorepo/discussions/new/choose).
 
 ## License
 
@@ -93,8 +94,6 @@ See [LICENSE.md](../LICENSE.md).
 
 [codecov]: https://codecov.io/gh/sablier-labs/evm-monorepo
 [codecov-badge]: https://codecov.io/gh/sablier-labs/evm-monorepo/graph/badge.svg
-[discord]: https://discord.gg/bSwRCwWRsT
-[discord-badge]: https://img.shields.io/discord/659709894315868191
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 [gha]: https://github.com/sablier-labs/evm-monorepo/actions

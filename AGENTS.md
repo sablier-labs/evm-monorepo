@@ -86,17 +86,9 @@ bulloak scaffold -wf path/to/file.tree
 
 ## Pull Requests
 
-Before opening a PR, ensure:
-
-- Base branch is `staging`.
-- All tests pass.
-- Concrete tests are scaffolded from `.tree` files via Bulloak (BTT).
-- Code coverage is unchanged or improved.
-- Lint passes; new code has NatSpec where relevant.
-- Contract changes ship with gas snapshots demonstrating an improvement (or an acceptable deficit explained in the PR).
-- Reference contracts are updated in lockstep when relevant.
-- New code paths and features have new tests.
-- PR description summarises the change.
+Not accepted. This repository is no longer maintained, and `main` must remain byte-for-byte verifiable against the
+[deployed addresses](https://docs.sablier.com/guides/lockup/deployments). Do not open PRs — including comment-only or
+docs-only changes — as even trivial edits to source files can alter the compiled bytecode.
 
 ## Environment Variables
 
