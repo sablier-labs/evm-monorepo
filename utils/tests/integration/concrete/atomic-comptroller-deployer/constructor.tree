@@ -1,0 +1,9 @@
+Constructor_Integration_Concrete_Test
+├── given no prior deployment
+│  └── it should atomically deploy and initialize the comptroller
+├── given proxy predeployed by unknown caller
+│  └── it should preserve the specified admin and configuration
+├── given legacy vanity deployment
+│  └── it should deploy initialize and upgrade the exact vanity proxy atomically
+└── given non-deterministic deployment
+   └── it should atomically deploy and initialize the comptroller

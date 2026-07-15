@@ -1,0 +1,16 @@
+Run_Integration_Concrete_Test
+├── given proxy not deployed
+│  └── it should revert
+└── given proxy deployed
+   ├── given implementation not deployed
+   │  └── it should revert
+   ├── given unexpected admin
+   │  └── it should revert
+   ├── given unexpected oracle
+   │  └── it should revert
+   ├── given unexpected minimal interface
+   │  └── it should revert
+   ├── given minimal interface unsupported
+   │  └── it should revert
+   └── given valid configuration
+      └── it should return the configured proxy and implementation

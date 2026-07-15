@@ -80,13 +80,13 @@ Run the bundled read-only helper from the repository root:
 bash '.agents/skills/protocol-deployment/scripts/preflight.sh' '<RPC_URL>' '<CHAIN_ID>'
 ```
 
-It verifies `eth_chainId`, requires code at Foundry's canonical CREATE2 deployer
-`0x4e59b44847b379578588920cA78FbF26c0B4956C`, and reports whether the expected Sablier Comptroller proxy
-`0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399` already has code. Pass a fourth argument only when repository evidence
+It verifies `eth_chainId` and reports whether Foundry's canonical CREATE2 deployer
+`0x4e59b44847b379578588920cA78FbF26c0B4956C` and the expected Sablier Comptroller proxy
+`0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399` already have code. Pass a third argument only when repository evidence
 selects a chain-specific Comptroller address.
 
-Completion criterion: the RPC returns the expected chain ID, the deterministic deployer has code, and current
-Comptroller state is known.
+Completion criterion: the RPC returns the expected chain ID and the CREATE2 deployer and current Comptroller states are
+known. An absent CREATE2 deployer makes vanity deployment unavailable but does not block the bespoke CREATE fallback.
 
 ### 3. Prepare New-Chain Support
 
@@ -149,26 +149,56 @@ Forge and funded.
 
 ### 5. Deploy the Comptroller Prerequisite
 
-Every selected protocol constructor obtains and validates a Comptroller. When its expected proxy has no code, deploy the
-proxy before any protocol.
+Every selected protocol constructor obtains and validates a Comptroller. Read `getComptroller()` and probe its runtime
+code before explicitly choosing one of three workflows:
 
-Inspect `utils/justfile` before choosing a recipe. In this repository, `utils::deploy` may target only
-`DeployDeterministicComptrollerImpl.s.sol`, which is for chains where the proxy already exists. A fresh chain requires
-`utils/scripts/solidity/DeployDeterministicComptrollerProxy.s.sol` unless current repository evidence says otherwise.
+- **Vanity deployment**: freshly deploy the exact legacy vanity proxy at `0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399`.
+  Run `utils::deploy-vanity`, which targets `DeployVanityComptrollerProxy.s.sol`. It must reject a chain whose
+  configured Comptroller differs from the vanity address or whose vanity address already has code. The script bootstraps
+  the canonical v1.0 implementation and proxy, initializes the proxy with a transient atomic coordinator, deploys and
+  upgrades to the current implementation, transfers administration to `getAdmin()`, and verifies state in one top-level
+  broadcaster transaction.
+- **Bespoke deployment**: freshly deploy the current implementation and a configured chain-specific proxy. Run
+  `utils::deploy-bespoke`, which targets `DeployBespokeComptrollerProxy.s.sol`. It must reject a chain configured for
+  the vanity address, reject an already-deployed configured proxy, and require its predicted proxy to equal
+  `getComptroller()`. It uses the canonical CREATE2 factory when available and falls back to the atomic CREATE
+  coordinator when the factory is unavailable; either path produces one top-level coordinator CREATE transaction. The
+  transaction type alone therefore does not identify the selected branch: inspect its internal deployments. The proxy
+  constructor initialization must bind the final admin and configuration.
+- **Use existing**: validate and reuse the configured already-deployed proxy, whether vanity or bespoke. Run
+  `utils::use-existing`, which targets `ValidateExistingComptroller.s.sol`. It must validate the implementation, admin,
+  oracle, and minimal interface without broadcasting a Comptroller transaction.
 
-Before using the fresh-proxy script from a newer Utils release, inspect the SDK Comptroller history. The vanity proxy
-salt commits to both the proxy creation bytecode and its initial implementation address. If the proxy was originally
-created by an older release, replay that canonical proxy deployment first, then deploy and upgrade to each required
-newer implementation. Do not reuse the old vanity salt with a newer implementation and accept a different proxy address;
-the script's expected-address assertion must pass in simulation.
+At the root, use the matching explicit stack recipe: `deploy-protocol-stack-vanity`, `deploy-protocol-stack-bespoke`, or
+`deploy-protocol-stack-existing`. Do not restore an ambiguous recipe or infer "existing" merely from whether the
+configured address is vanity.
 
-Simulate with the optimized profile and exact broadcast arguments, omitting only `--broadcast` and verification flags.
-Inspect the trace, predicted addresses, transactions, admin, initializer values, and gas. After explicit broadcast
-authorization, rerun with `--broadcast --slow`.
+The exact legacy vanity address commits to proxy creation code with empty initialization calldata. Combining deployment,
+initialization, upgrade, admin transfer, and verification in one transaction removes the initialization gap inside that
+transaction, but does not make the public payload safe from predeployment: an observer can deploy the same empty proxy
+first and initialize it with different authority. Before a vanity broadcast, confirm immediately that the address has no
+code, disclose this residual risk, and obtain explicit authorization for the vanity workflow. If the vanity proxy has
+already been deployed incorrectly, use a constructor-initialized bespoke deployment instead. Do not treat private
+submission or `--slow` as eliminating the risk.
 
-Confirm successful receipts and runtime code at the expected proxy before continuing. If submission stops after any
-transaction, preserve the broadcast artifact and use `--resume`; do not restart a deterministic multi-transaction script
-from scratch.
+For a bespoke deployment, require the proxy constructor data to call `initialize` with the final intended admin and
+configuration. The implementation deployment, proxy deployment, constructor delegate call, and state checks must execute
+in one top-level broadcaster transaction. A copied deployment is harmless because changing the admin changes the
+initcode and address. For CREATE2, pin and record a release- and chain-bound proxy salt. For the CREATE fallback, record
+the broadcaster nonce and resulting coordinator, implementation, and proxy addresses. Add the resulting proxy address to
+`getComptroller()`. The implementation may retain its canonical release salt when its bytecode and constructor arguments
+match. On the CREATE2 branch, the coordinator address may vary with the broadcaster nonce, but the implementation and
+proxy addresses derive from the canonical factory, salts, and initcode and are not nonce-dependent.
+
+Simulate the selected explicit workflow with the optimized profile and exact arguments. For either fresh deployment,
+omit only `--broadcast` and verification flags; inspect the trace, predicted addresses, exactly one transaction, admin,
+initializer values, and gas. For use-existing, confirm that validation produces no transaction. After explicit broadcast
+authorization, rerun the selected root stack recipe.
+
+For either fresh deployment, confirm the single successful Comptroller receipt and runtime code at the expected proxy
+before continuing. If the transaction reverts, all state changes revert and it can be investigated before retrying. For
+use-existing, record the validated proxy and implementation but no Comptroller transaction hash. Use `--resume` only for
+an applicable multi-transaction upgrade script whose earlier transactions succeeded.
 
 Completion criterion: the expected Comptroller proxy has code, its implementation and initialized admin are correct, and
 the deployment transaction hashes are recorded.

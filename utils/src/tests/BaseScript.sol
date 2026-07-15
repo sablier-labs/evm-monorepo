@@ -20,6 +20,9 @@ abstract contract BaseScript is Script {
     /// @dev The address of the common safe multisig.
     address public constant DEFAULT_SABLIER_MULTISIG_ADMIN = 0x58290bbdb51A4c6B022A81e9cDeD24BE19Ca57fd;
 
+    /// @dev The canonical Sablier Comptroller proxy address.
+    address public constant CANONICAL_COMPTROLLER = 0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399;
+
     /// @dev The salt used for deterministic deployments.
     bytes32 public immutable SALT;
 
@@ -138,8 +141,12 @@ abstract contract BaseScript is Script {
             // For Linea, return the different address.
             if (chainId == ChainId.LINEA) return 0xF21b304A08993f98A79C7Eb841f812CCeab49B8b;
 
+            // Robinhood's vanity proxy was initialized by an unauthorized account. Return the replacement proxy that
+            // binds the intended admin in its constructor initialization calldata.
+            if (chainId == ChainId.ROBINHOOD) return 0x12d70713796A9460314C282c613DE307FdED1a36;
+
             // For all other chains, return the vanity address.
-            return 0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399;
+            return CANONICAL_COMPTROLLER;
         }
 
         // Otherwise, revert.

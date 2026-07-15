@@ -28,16 +28,17 @@ if [ "$actual_chain_id" != "$expected_chain_id" ]; then
 fi
 
 create2_code=$(cast code "$create2_deployer" --rpc-url "$rpc_url")
-if [ -z "$create2_code" ] || [ "$create2_code" = "0x" ]; then
-  echo "Error: canonical CREATE2 deployer has no code on chain $actual_chain_id." >&2
-  exit 1
-fi
-
 comptroller_code=$(cast code "$comptroller_address" --rpc-url "$rpc_url")
 
 echo "chain_id=$actual_chain_id"
 echo "create2_deployer=$create2_deployer"
-echo "create2_code_bytes=$(((${#create2_code} - 2) / 2))"
+if [ -z "$create2_code" ] || [ "$create2_code" = "0x" ]; then
+  echo "create2_has_code=false"
+  echo "create2_code_bytes=0"
+else
+  echo "create2_has_code=true"
+  echo "create2_code_bytes=$(((${#create2_code} - 2) / 2))"
+fi
 echo "comptroller_address=$comptroller_address"
 if [ -z "$comptroller_code" ] || [ "$comptroller_code" = "0x" ]; then
   echo "comptroller_has_code=false"

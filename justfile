@@ -73,10 +73,25 @@ alias ba := build-all
 @deploy-all *args:
     just for-each deploy {{ args }}
 
-# Deploy the Comptroller prerequisite followed by Lockup, Flow, and Airdrops
+# Deploy the exact legacy vanity Comptroller, then deploy Lockup, Flow, and Airdrops
 [group("all")]
-@deploy-protocol-stack *args:
-    just utils::deploy-fresh --sender {{ SABLIER_DEPLOYER }} {{ args }}
+@deploy-protocol-stack-vanity *args:
+    just utils::deploy-vanity --sender {{ SABLIER_DEPLOYER }} {{ args }}
+    just _deploy-protocols {{ args }}
+
+# Deploy a bespoke Comptroller followed by Lockup, Flow, and Airdrops
+[group("all")]
+@deploy-protocol-stack-bespoke *args:
+    just utils::deploy-bespoke --sender {{ SABLIER_DEPLOYER }} {{ args }}
+    just _deploy-protocols {{ args }}
+
+# Validate an existing Comptroller, then deploy Lockup, Flow, and Airdrops
+[group("all")]
+@deploy-protocol-stack-existing *args:
+    just utils::use-existing --sender {{ SABLIER_DEPLOYER }} {{ args }}
+    just _deploy-protocols {{ args }}
+
+@_deploy-protocols *args:
     just lockup::deploy --sender {{ SABLIER_DEPLOYER }} --slow {{ args }}
     just flow::deploy --sender {{ SABLIER_DEPLOYER }} --slow {{ args }}
     just airdrops::deploy --sender {{ SABLIER_DEPLOYER }} --slow {{ args }}

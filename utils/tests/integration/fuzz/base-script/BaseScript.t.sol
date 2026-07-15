@@ -31,6 +31,9 @@ contract BaseScript_Integration_Fuzz_Test is StdAssertions {
         bytes32 expectedSalt = bytes32(abi.encodePacked(salt));
 
         assertEq(baseScript.DEFAULT_SABLIER_ADMIN(), 0xcB88fBf459000853F22a7296b23d163901BB385E, "default admin");
+        assertEq(
+            baseScript.CANONICAL_COMPTROLLER(), 0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399, "canonical comptroller"
+        );
         assertEq(baseScript.chainId(), chainId, "chainId");
         assertEq(baseScript.SALT(), expectedSalt, "salt");
     }
@@ -102,6 +105,8 @@ contract BaseScript_Integration_Fuzz_Test is StdAssertions {
                 assertEq(baseScript.getComptroller(), 0x946654AB30Dd6eD10236C89f2C8B2719df653691, "comptroller");
             } else if (chainId == ChainId.LINEA) {
                 assertEq(baseScript.getComptroller(), 0xF21b304A08993f98A79C7Eb841f812CCeab49B8b, "comptroller");
+            } else if (chainId == ChainId.ROBINHOOD) {
+                assertEq(baseScript.getComptroller(), 0x12d70713796A9460314C282c613DE307FdED1a36, "comptroller");
             } else {
                 assertEq(baseScript.getComptroller(), 0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399, "comptroller");
             }
