@@ -26,6 +26,17 @@ Prepare and execute evidence-backed deployments of Sablier Airdrops, Flow, and L
   to populate secrets; inspect only variable names, example files, permissions, and signer addresses.
 - Preserve deterministic deployment inputs: repository revision, package version, optimizer profile, constructor
   arguments, salt logic, CREATE2 deployer, and admin selection.
+- Unless the user specifies another address, propose `0xcB88fBf459000853F22a7296b23d163901BB385E` as the initial admin
+  for new deployments. Do not assume the broadcaster is also the admin. Confirm the proposed admin before broadcast. If
+  a legacy bootstrap requires a transient upgrader, disclose it and transfer control to the proposed admin before
+  deploying dependent protocols.
+- For an existing protocol release, resolve the canonical deployment commit, package version, compiler settings,
+  creation bytecode, runtime bytecode, and salt version from `~/sablier/sdk/deployments` when that checkout is
+  available. Treat checked-in artifacts, broadcasts, and on-chain code as authoritative when their README prose
+  conflicts.
+- A newer branch is acceptable only after its creation and runtime bytecode match the canonical SDK artifacts exactly.
+  Matching bytecode does not permit a different package version to silently change `BaseScript`'s CREATE2 salt; pin the
+  documented release version separately and record how it was pinned.
 - Stop before broadcast when the chain ID, administrator, broadcaster, CREATE2 factory, Comptroller address, package
   selection, or funding is unresolved.
 - Finish only after recording transaction hashes, deployed addresses, receipt status, runtime code, constructor
@@ -43,12 +54,16 @@ Read the root and applicable package `AGENTS.md` files. Do not read `TODO.md`. I
 - The selected packages' deterministic and non-deterministic deployment scripts.
 - Flow and Lockup NFT descriptor address maps.
 - Current package versions, salts, constructor arguments, and broadcast artifact paths.
+- The matching SDK deployment README, broadcast commit, artifacts, and transaction inputs for an already-deployed
+  release. Inspect the deployment commit's pinned Foundry version and use it when current tooling does not reproduce the
+  canonical artifacts.
 
 Snapshot `git status --short` before generators, builds, simulations, or broadcasts. Ignore unrelated changes from other
 agents and do not modify or report them.
 
-Completion criterion: identify the exact scripts, prerequisite graph, signer-selection path, admin-selection path, and
-expected deployment artifacts for every selected package.
+Completion criterion: identify the exact scripts, prerequisite graph, signer-selection path, admin-selection path,
+canonical release commit and salt version, and expected deployment artifacts for every selected package. Either use the
+canonical deployment checkout or prove byte-for-byte creation and runtime parity for every deployed contract.
 
 ### 2. Resolve and Probe the Chain
 
@@ -140,6 +155,12 @@ proxy before any protocol.
 Inspect `utils/justfile` before choosing a recipe. In this repository, `utils::deploy` may target only
 `DeployDeterministicComptrollerImpl.s.sol`, which is for chains where the proxy already exists. A fresh chain requires
 `utils/scripts/solidity/DeployDeterministicComptrollerProxy.s.sol` unless current repository evidence says otherwise.
+
+Before using the fresh-proxy script from a newer Utils release, inspect the SDK Comptroller history. The vanity proxy
+salt commits to both the proxy creation bytecode and its initial implementation address. If the proxy was originally
+created by an older release, replay that canonical proxy deployment first, then deploy and upgrade to each required
+newer implementation. Do not reuse the old vanity salt with a newer implementation and accept a different proxy address;
+the script's expected-address assertion must pass in simulation.
 
 Simulate with the optimized profile and exact broadcast arguments, omitting only `--broadcast` and verification flags.
 Inspect the trace, predicted addresses, transactions, admin, initializer values, and gas. After explicit broadcast

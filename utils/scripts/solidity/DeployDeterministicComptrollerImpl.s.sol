@@ -7,11 +7,17 @@ import { BaseScript } from "src/tests/BaseScript.sol";
 /// @notice Deploys the Sablier Comptroller implementation using CREATE2.
 /// @dev Use this when the proxy already exists and the upgrade will be proposed through a multisig.
 contract DeployDeterministicComptrollerImpl is BaseScript {
+    string internal constant DEPLOYMENT_VERSION = "2.0.0";
+
     function run() public broadcast returns (address implementation) {
         // Generate CREATE2 salt independent of chain id.
         bytes32 implSalt = bytes32(abi.encodePacked(string.concat("Version ", getVersion())));
 
         // Deploy implementation contract with the chain-specific admin.
         implementation = address(new SablierComptroller{ salt: implSalt }({ initialAdmin: getAdmin() }));
+    }
+
+    function getVersion() public pure override returns (string memory) {
+        return DEPLOYMENT_VERSION;
     }
 }

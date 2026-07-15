@@ -10,6 +10,7 @@
   fs_permissions = [
     { access = "read", path = "./out" },
     { access = "read", path = "./out-optimized" },
+    { access = "read", path = "./scripts/bytecode" },
     { access = "read", path = "package.json" },
   ]
   gas_limit = 9223372036854775807
@@ -91,6 +92,7 @@
   morph = "https://direct.routeme.sh/rpc/2818/${ROUTEMESH_API_KEY}"
   optimism = "https://direct.routeme.sh/rpc/10/${ROUTEMESH_API_KEY}"
   polygon = "https://direct.routeme.sh/rpc/137/${ROUTEMESH_API_KEY}"
+  robinhood = "https://rpc.mainnet.chain.robinhood.com"
   scroll = "https://direct.routeme.sh/rpc/534352/${ROUTEMESH_API_KEY}"
   sonic = "https://direct.routeme.sh/rpc/146/${ROUTEMESH_API_KEY}"
   superseed = "https://direct.routeme.sh/rpc/5330/${ROUTEMESH_API_KEY}"

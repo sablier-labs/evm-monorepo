@@ -11,6 +11,8 @@ import { LockupNFTDescriptorAddresses } from "./LockupNFTDescriptorAddresses.sol
 
 /// @notice Deploys the Lockup Protocol at deterministic addresses across chains.
 contract DeployDeterministicProtocol is BaseScript, LockupNFTDescriptorAddresses {
+    string internal constant DEPLOYMENT_VERSION = "4.0.0";
+
     /// @dev Deploys the protocol.
     function run()
         public
@@ -31,5 +33,9 @@ contract DeployDeterministicProtocol is BaseScript, LockupNFTDescriptorAddresses
 
         batchLockup = new SablierBatchLockup{ salt: SALT }();
         lockup = new SablierLockup{ salt: SALT }(getComptroller(), address(nftDescriptor));
+    }
+
+    function getVersion() public pure override returns (string memory) {
+        return DEPLOYMENT_VERSION;
     }
 }

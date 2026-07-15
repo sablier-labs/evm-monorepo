@@ -12,6 +12,8 @@ import { SablierFactoryMerkleVCA } from "../../src/SablierFactoryMerkleVCA.sol";
 /// @notice Deploys the FactoryMerkle contracts at deterministic addresses.
 /// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicFactories is EvmUtilsBaseScript {
+    string internal constant DEPLOYMENT_VERSION = "3.0.0";
+
     /// @dev Deploy via Forge.
     function run()
         public
@@ -29,5 +31,9 @@ contract DeployDeterministicFactories is EvmUtilsBaseScript {
         factoryMerkleLL = new SablierFactoryMerkleLL{ salt: SALT }(getComptroller());
         factoryMerkleLT = new SablierFactoryMerkleLT{ salt: SALT }(getComptroller());
         factoryMerkleVCA = new SablierFactoryMerkleVCA{ salt: SALT }(getComptroller());
+    }
+
+    function getVersion() public pure override returns (string memory) {
+        return DEPLOYMENT_VERSION;
     }
 }

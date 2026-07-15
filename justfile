@@ -19,6 +19,9 @@ export FOUNDRY_FUZZ_SEED := `echo $(($EPOCHSECONDS / 604800))`
 # All monorepo packages
 PACKAGES := "airdrops bob flow lockup utils"
 
+# Canonical Sablier deployment EOA; required for scripts that predeploy linked libraries
+SABLIER_DEPLOYER := "0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F"
+
 # ---------------------------------------------------------------------------- #
 #                                    SCRIPTS                                   #
 # ---------------------------------------------------------------------------- #
@@ -69,6 +72,14 @@ alias ba := build-all
 [group("all")]
 @deploy-all *args:
     just for-each deploy {{ args }}
+
+# Deploy the Comptroller prerequisite followed by Lockup, Flow, and Airdrops
+[group("all")]
+@deploy-protocol-stack *args:
+    just utils::deploy-fresh --sender {{ SABLIER_DEPLOYER }} {{ args }}
+    just lockup::deploy --sender {{ SABLIER_DEPLOYER }} --slow {{ args }}
+    just flow::deploy --sender {{ SABLIER_DEPLOYER }} --slow {{ args }}
+    just airdrops::deploy --sender {{ SABLIER_DEPLOYER }} --slow {{ args }}
 
 # Deploy all contracts for all packages without deterministic addresses
 [group("all")]

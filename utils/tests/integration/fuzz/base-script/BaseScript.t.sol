@@ -30,7 +30,7 @@ contract BaseScript_Integration_Fuzz_Test is StdAssertions {
         string memory salt = string.concat("ChainID ", vm.toString(chainId), ", Version ", PACKAGE_VERSION);
         bytes32 expectedSalt = bytes32(abi.encodePacked(salt));
 
-        assertEq(baseScript.DEFAULT_SABLIER_ADMIN(), 0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F, "default admin");
+        assertEq(baseScript.DEFAULT_SABLIER_ADMIN(), 0xcB88fBf459000853F22a7296b23d163901BB385E, "default admin");
         assertEq(baseScript.chainId(), chainId, "chainId");
         assertEq(baseScript.SALT(), expectedSalt, "salt");
     }

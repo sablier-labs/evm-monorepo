@@ -7,7 +7,7 @@ library ChainId {
                                       MAINNETS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 public constant MAINNETS_COUNT = 24;
+    uint256 public constant MAINNETS_COUNT = 25;
 
     uint256 public constant ABSTRACT = 2741;
     uint256 public constant ARBITRUM = 42_161;
@@ -27,6 +27,7 @@ library ChainId {
     uint256 public constant MORPH = 2818;
     uint256 public constant OPTIMISM = 10;
     uint256 public constant POLYGON = 137;
+    uint256 public constant ROBINHOOD = 4663;
     uint256 public constant SCROLL = 534_352;
     uint256 public constant SONIC = 146;
     uint256 public constant SUPERSEED = 5330;
@@ -71,12 +72,13 @@ library ChainId {
         supportedIds[15] = MORPH;
         supportedIds[16] = OPTIMISM;
         supportedIds[17] = POLYGON;
-        supportedIds[18] = SCROLL;
-        supportedIds[19] = SONIC;
-        supportedIds[20] = SUPERSEED;
-        supportedIds[21] = UNICHAIN;
-        supportedIds[22] = XDC;
-        supportedIds[23] = ZKSYNC;
+        supportedIds[18] = ROBINHOOD;
+        supportedIds[19] = SCROLL;
+        supportedIds[20] = SONIC;
+        supportedIds[21] = SUPERSEED;
+        supportedIds[22] = UNICHAIN;
+        supportedIds[23] = XDC;
+        supportedIds[24] = ZKSYNC;
     }
 
     /// @notice Returns the full list of supported testnet chain IDs.
@@ -110,6 +112,7 @@ library ChainId {
         if (chainId == ChainId.MORPH) return "morph";
         if (chainId == ChainId.OPTIMISM) return "optimism";
         if (chainId == ChainId.POLYGON) return "polygon";
+        if (chainId == ChainId.ROBINHOOD) return "robinhood";
         if (chainId == ChainId.SCROLL) return "scroll";
         if (chainId == ChainId.SONIC) return "sonic";
         if (chainId == ChainId.SUPERSEED) return "superseed";

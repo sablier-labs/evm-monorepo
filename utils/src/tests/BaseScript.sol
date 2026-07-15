@@ -15,7 +15,7 @@ abstract contract BaseScript is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev The address of the default Sablier admin.
-    address public constant DEFAULT_SABLIER_ADMIN = 0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F;
+    address public constant DEFAULT_SABLIER_ADMIN = 0xcB88fBf459000853F22a7296b23d163901BB385E;
 
     /// @dev The address of the common safe multisig.
     address public constant DEFAULT_SABLIER_MULTISIG_ADMIN = 0x58290bbdb51A4c6B022A81e9cDeD24BE19Ca57fd;

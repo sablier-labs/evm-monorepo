@@ -10,6 +10,15 @@ deploy *args:
         forge script scripts/solidity/DeployDeterministicComptrollerImpl.s.sol \
         -vvv --broadcast {{ args }}
 
+# Bootstrap the canonical vanity proxy and upgrade it to the current Comptroller implementation
+deploy-fresh *args:
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/DeployDeterministicComptrollerProxy.s.sol \
+        -vvv --broadcast --slow {{ args }}
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/UpgradeDeterministicComptrollerProxy.s.sol \
+        -vvv --broadcast --slow {{ args }}
+
 deploy-non-deterministic *args:
     FOUNDRY_PROFILE=optimized \
         forge script scripts/solidity/DeployComptrollerImpl.s.sol \
