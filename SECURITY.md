@@ -5,6 +5,8 @@ design and testing of the protocol to guarantee its safety and reliability. Howe
 continuous process. If you believe you have found a security vulnerability, please report it privately by emailing
 [contact@sablier.com](mailto:contact@sablier.com).
 
+Sablier does not operate a bug bounty program, and vulnerability reports are not eligible for rewards.
+
 For the list of past audits, see the [sablier-labs/audits](https://github.com/sablier-labs/audits) repository.
 
 ## Common Protocol Assumptions
