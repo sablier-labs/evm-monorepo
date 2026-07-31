@@ -1,5 +1,10 @@
 # Sablier EVM Utils [![GitHub Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry]
 
+> [!IMPORTANT]
+>
+> The license changed from BUSL-1.1 to GPL on 2026-07-13. Read the
+> [announcement on X](https://x.com/PaulRBerg/status/2076695661303443667) for details.
+
 This package contains the following two sets of contracts:
 
 ## Sablier Comptroller

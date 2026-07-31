@@ -2,6 +2,11 @@
 
 > [!IMPORTANT]
 >
+> The license changed from BUSL-1.1 to GPL on 2026-07-13. Read the
+> [announcement on X](https://x.com/PaulRBerg/status/2076695661303443667) for details.
+
+> [!IMPORTANT]
+>
 > **This repository is no longer maintained and is not accepting pull requests** — including changes to code comments.
 > Even comment-only edits can alter the compiled bytecode, and the source on `main` must remain byte-for-byte verifiable
 > against the [deployed addresses](https://docs.sablier.com/guides/lockup/deployments). PRs of any kind will be closed
