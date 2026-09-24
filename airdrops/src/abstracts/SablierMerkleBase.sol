@@ -99,10 +99,8 @@ abstract contract SablierMerkleBase is
 
         campaignName = baseParams.campaignName;
         ipfsCID = baseParams.ipfsCID;
-        minFeeUSD = ISablierComptroller(baseParams.comptroller).getMinFeeUSDFor({
-            protocol: ISablierComptroller.Protocol.Airdrops,
-            user: baseParams.campaignCreator
-        });
+        minFeeUSD = ISablierComptroller(baseParams.comptroller)
+            .getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: baseParams.campaignCreator });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
