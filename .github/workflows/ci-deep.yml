@@ -35,7 +35,7 @@ jobs:
         ${{ matrix.module }}/node_modules
         ${{ matrix.module }}/out
         ${{ matrix.module }}/out-optimized
-      foundry-version: &foundry-version "v1.5.1"
+      foundry-version: &foundry-version "v1.8.3"
       name: "Build"
       working-directory: ${{ matrix.module }}
 

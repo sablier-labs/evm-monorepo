@@ -45,7 +45,7 @@ jobs:
   check:
     uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
     with:
-      foundry-version: &foundry-version "v1.5.1"
+      foundry-version: &foundry-version "v1.8.3"
       name: "Full check"
       working-directory: ${{ inputs.module }}
 
