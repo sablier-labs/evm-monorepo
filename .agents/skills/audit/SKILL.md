@@ -14,11 +14,11 @@ references.
 
 ## Bundled References
 
-| Reference                                                    | Content                     | When to Read                  |
-| ------------------------------------------------------------ | --------------------------- | ----------------------------- |
-| `.claude/skills/audit/references/vulnerability-checklist.md` | 17 vulnerability categories | During security reviews       |
-| `.claude/skills/audit/references/audit-workflow.md`          | Step-by-step audit process  | When conducting formal audits |
-| `.claude/skills/audit/references/pre-audit-checklist.md`     | Code quality + testing prep | Before external audit         |
+| Reference                               | Content                     | When to Read                  |
+| --------------------------------------- | --------------------------- | ----------------------------- |
+| `references/vulnerability-checklist.md` | 17 vulnerability categories | During security reviews       |
+| `references/audit-workflow.md`          | Step-by-step audit process  | When conducting formal audits |
+| `references/pre-audit-checklist.md`     | Code quality + testing prep | Before external audit         |
 
 **Workflow**: Use `pre-audit-checklist` to prepare → `vulnerability-checklist` to review → `audit-workflow` for formal
 process.
@@ -101,7 +101,7 @@ process.
 
 ## Quick Vulnerability Reference
 
-> **Full checklist**: See `.claude/skills/audit/references/vulnerability-checklist.md` for comprehensive patterns.
+> **Full checklist**: See `references/vulnerability-checklist.md` for comprehensive patterns.
 
 | Severity     | Key Checks                                                                                    |
 | ------------ | --------------------------------------------------------------------------------------------- |

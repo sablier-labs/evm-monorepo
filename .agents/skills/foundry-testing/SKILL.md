@@ -12,16 +12,16 @@ Rules and patterns for Foundry tests. Find examples in the actual codebase.
 
 ## Bundled References
 
-| Reference                                                           | Content                        | When to Read                   |
-| ------------------------------------------------------------------- | ------------------------------ | ------------------------------ |
-| `.claude/skills/foundry-testing/references/test-infrastructure.md`  | Constants, defaults, mocks     | When setting up tests          |
-| `.claude/skills/foundry-testing/references/cheat-codes.md`          | Common cheatcode patterns      | When using vm cheatcodes       |
-| `.claude/skills/foundry-testing/references/invariant-patterns.md`   | Handlers, stores, invariants   | When writing invariant tests   |
-| `.claude/skills/foundry-testing/references/formal-verification.md`  | Halmos, Certora, symbolic exec | When proving correctness       |
-| `.claude/skills/foundry-testing/references/deployment-scripts.md`   | Script patterns, verification  | When writing deploy scripts    |
-| `.claude/skills/foundry-testing/references/deployment-checklist.md` | Pre-mainnet deployment steps   | Before deploying to production |
-| `.claude/skills/foundry-testing/references/gas-benchmarking.md`     | Snapshot, profiling, CI        | When measuring gas performance |
-| `.claude/skills/foundry-testing/references/sablier-conventions.md`  | Sablier-specific patterns      | When working in Sablier repos  |
+| Reference                            | Content                        | When to Read                   |
+| ------------------------------------ | ------------------------------ | ------------------------------ |
+| `references/test-infrastructure.md`  | Constants, defaults, mocks     | When setting up tests          |
+| `references/cheat-codes.md`          | Common cheatcode patterns      | When using vm cheatcodes       |
+| `references/invariant-patterns.md`   | Handlers, stores, invariants   | When writing invariant tests   |
+| `references/formal-verification.md`  | Halmos, Certora, symbolic exec | When proving correctness       |
+| `references/deployment-scripts.md`   | Script patterns, verification  | When writing deploy scripts    |
+| `references/deployment-checklist.md` | Pre-mainnet deployment steps   | Before deploying to production |
+| `references/gas-benchmarking.md`     | Snapshot, profiling, CI        | When measuring gas performance |
+| `references/sablier-conventions.md`  | Sablier-specific patterns      | When working in Sablier repos  |
 
 ---
 
