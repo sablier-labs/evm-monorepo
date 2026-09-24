@@ -239,10 +239,23 @@ contract EscrowHandler is Constants, StdCheats, BaseUtils, PRBMathUtils {
             // Use next token index as the ID.
             string memory id = vm.toString(store.tokensCount());
 
-            // Set the caller to the handler address so the token deployment can always use the handler's address and
-            // nonce. This would avoid collisions when deploying the token.
+            // Forge bumps the nonces of fuzzed callers and pranked addresses, and the fuzzer reuses token addresses
+            // from previous runs, so skip any CREATE2 address that already has a nonce or code to avoid collisions.
+            bytes memory initCode = abi.encodePacked(
+                type(ERC20Mock).creationCode, abi.encode(string.concat("Token", id), string.concat("TKN", id), decimals)
+            );
+            uint256 salt = store.tokensCount();
+            address tokenAddress;
+            while (true) {
+                tokenAddress = vm.computeCreate2Address(bytes32(salt), keccak256(initCode), address(this));
+                if (vm.getNonce(tokenAddress) == 0 && tokenAddress.code.length == 0) break;
+                salt++;
+            }
+
+            // Set the caller to the handler address so the token deployment always uses the handler's address.
             setMsgSender(address(this));
-            ERC20Mock token = new ERC20Mock(string.concat("Token", id), string.concat("TKN", id), decimals);
+            ERC20Mock token =
+                new ERC20Mock{ salt: bytes32(salt) }(string.concat("Token", id), string.concat("TKN", id), decimals);
 
             store.pushToken(token);
             return token;
