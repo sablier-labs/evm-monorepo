@@ -76,6 +76,9 @@ If bytecodes match, retry the verification command.
 
 # Blockscout
 --verifier blockscout --verifier-url "<BLOCKSCOUT_VERIFIER_URL>"
+
+# Sourcify (superseed)
+--verifier sourcify --verifier-url "<SOURCIFY_VERIFIER_URL>"
 ```
 
 Check Etherscan support: https://docs.etherscan.io/supported-chains
@@ -144,7 +147,7 @@ done
 echo $ETHERSCAN_API_KEY
 
 # Test key validity
-curl "https://api.etherscan.io/api?module=account&action=balance&address=0x0&apikey=$ETHERSCAN_API_KEY"
+curl "https://api.etherscan.io/v2/api?chainid=1&module=account&action=balance&address=0x0000000000000000000000000000000000000000&apikey=$ETHERSCAN_API_KEY"
 ```
 
 **Solution:** Get API key from https://etherscan.io/myapikey

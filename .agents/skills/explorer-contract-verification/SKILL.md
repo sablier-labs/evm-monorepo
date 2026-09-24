@@ -85,7 +85,12 @@ Determine the correct verification method by looking up the target chain below.
 | lightlink | 1890     | `https://phoenix.lightlink.io/api/`    |
 | mode      | 34443    | `https://explorer.mode.network/api/`   |
 | morph     | 2818     | `https://explorer-api.morphl2.io/api/` |
-| superseed | 5330     | `https://explorer.superseed.xyz/api/`  |
+
+### Sourcify Chains
+
+| Chain     | Chain ID | Verifier URL                    |
+| --------- | -------- | ------------------------------- |
+| superseed | 5330     | `https://contracts.conduit.xyz` |
 
 ## Verification Methods
 
@@ -151,6 +156,21 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
 ```
 
 > **Note:** Blockscout does not require a real API key — pass `"verifyContract"` as the value.
+
+### Method 5: Sourcify
+
+For chains whose explorers read from a Sourcify instance (Conduit-hosted chains such as superseed). Look up the verifier
+URL from the Sourcify Chains table above; no API key is needed.
+
+```bash
+FOUNDRY_PROFILE=optimized forge verify-contract \
+  <CONTRACT_ADDRESS> \
+  src/<Contract>.sol:<Contract> \
+  --rpc-url <chain_name> \
+  --verifier sourcify \
+  --verifier-url "<SOURCIFY_VERIFIER_URL>" \
+  --watch
+```
 
 ### Constructor Arguments
 

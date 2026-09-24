@@ -103,4 +103,4 @@ vault.action();  // Call AFTER expectRevert
 ## External References
 
 - [Vm.sol Source](https://github.com/foundry-rs/forge-std/blob/master/src/Vm.sol)
-- [Foundry Cheatcodes Docs](https://getfoundry.sh/reference/cheatcodes)
+- [Foundry Cheatcodes Docs](https://getfoundry.sh/reference/cheatcodes/overview)
