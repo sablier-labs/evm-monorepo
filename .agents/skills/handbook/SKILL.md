@@ -23,6 +23,9 @@ Protocol concepts essential for writing contracts and understanding business log
 | **Airdrops**    | Merkle-based distribution | Recipients claim via proofs, optional vesting   | `references/airdrops.md`    |
 | **Comptroller** | Cross-protocol admin      | Governance, fees, hook allowlisting             | `references/comptroller.md` |
 
+Bob and Escrow (both in `bob/`) intentionally have no handbook reference; do not flag this as a gap or create one. For
+their concepts, read `bob/AGENTS.md` and the package source.
+
 > **Adding a new protocol?** See [Protocol Template](#adding-a-new-protocol) below.
 
 ## Protocol Comparison
