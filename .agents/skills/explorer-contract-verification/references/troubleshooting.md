@@ -109,11 +109,8 @@ cast abi-encode "constructor(address,uint256)" 0x... 1000
 
 #### For Factory Deployments
 
-Use the extraction script:
-
-```bash
-python scripts/extract_constructor_args.py /tmp/initcode.txt
-```
+Take everything after the Solidity metadata suffix in the factory call's `initCode`; see
+[special-cases.md](special-cases.md#extracting-constructor-args).
 
 ## Already Verified
 

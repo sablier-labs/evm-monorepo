@@ -1,4 +1,5 @@
 ---
+coordination: exempt
 name: handbook
 user-invocable: false
 description:
@@ -8,6 +9,8 @@ description:
 ---
 
 # Protocol Handbook
+
+This skill is coordination-exempt: skip the ai-coord gate for its declared work.
 
 Protocol concepts essential for writing contracts and understanding business logic.
 
@@ -63,6 +66,13 @@ Each protocol has defined status transitions. See individual references for diag
 - [Flow Protocol](references/flow.md) - Debt model, rate adjustments, solvency
 - [Airdrops Protocol](references/airdrops.md) - Merkle campaigns, claiming, clawback
 - [Comptroller](references/comptroller.md) - Admin contract, governance, Comptrollerable base
+
+---
+
+## Output
+
+Answer from the relevant reference and name the file used. When a reference conflicts with the package source, trust the
+source and say so.
 
 ---
 
@@ -124,17 +134,6 @@ Refer to https://docs.sablier.com/llms-{protocol}.txt for up-to-date documentati
 - [ ] Create `references/{protocol}.md` following template
 - [ ] Add to Protocol Registry table above
 - [ ] Add to Protocol Comparison table
-- [ ] Update agent's package structure in `solidity-engineer.md`
+- [ ] Add the package to the monorepo structure in the root `AGENTS.md`
 - [ ] Add protocol-specific BTT conventions to `.agents/skills/btt-testing/references/sablier-conventions.md`
 - [ ] Add test conventions to `.agents/skills/foundry-testing/references/sablier-conventions.md`
-
----
-
-## Example Invocations
-
-Test this skill with these prompts:
-
-1. **Concept question**: "Explain the difference between Lockup Linear and Lockup Dynamic streams"
-2. **Formula question**: "How is the withdrawable amount calculated in Flow when a stream is insolvent?"
-3. **State machine**: "What are the valid status transitions for a Lockup stream?"
-4. **Business logic**: "How does the clawback mechanism work in Airdrops campaigns?"

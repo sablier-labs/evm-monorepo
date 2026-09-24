@@ -1,8 +1,9 @@
 ---
 argument-hint: <chain-name-or-id> [airdrops|flow|lockup|all]
-disable-model-invocation: false
 name: protocol-deployment
-user-invocable: true
+skill-dependencies:
+  - PaulRBerg/agent-skills#evm-atlas
+  - explorer-contract-verification
 description:
   Deploy Sablier protocols to a new EVM chain. Use for deployment preparation, dry runs, broadcasts, resumes,
   post-deployment checks, or runbooks involving airdrops/, flow/, lockup/, and their Comptroller prerequisite.

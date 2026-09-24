@@ -1,6 +1,5 @@
 ---
 name: btt-testing
-user-invocable: true
 description:
   Write bulloak tree specifications (.tree files) for smart contract integration tests. Trigger phrases - write a tree,
   create test tree, BTT spec, bulloak tree, Branching Tree Technique, or when writing integration tests for contract
@@ -104,7 +103,7 @@ For examples, see [examples](references/examples.md).
 ## Rules
 
 1. The test file must be placed in the `tests/integration/concrete/{function}` directory.
-2. The directory name must use `-` format. For example, if the function name is `createFlowStream`, the corrresponding
+2. The directory name must use `-` format. For example, if the function name is `createFlowStream`, the corresponding
    test tree and test file must be placed in the `tests/integration/concrete/create-flow-stream` directory.
 3. The tree file name must be `{function}.tree`.
 4. The test file name must be `{function}.t.sol`.
@@ -115,8 +114,6 @@ For examples, see [examples](references/examples.md).
 ### 1. Create the Tree File
 
 Location for tree file: `tests/integration/concrete/{function-name}/{functionName}.tree`
-
-> **Note**: Your repo's agent will provide the exact directory structure.
 
 ### 2. Generate Test Scaffold
 
@@ -132,7 +129,7 @@ This generates a `.t.sol` file.
 bulloak check --skip-modifiers <path/to/file.tree>
 ```
 
-If it returns false, your repo agent will look into it and fix the issues.
+If it fails, fix the tree or the test until they align.
 
 ## Best Practices
 
@@ -234,13 +231,6 @@ bulloak check --skip-modifiers tests/**/*.tree
 
 https://github.com/alexfertel/bulloak/blob/main/README.md
 
----
+## Completion
 
-## Example Invocations
-
-Test this skill with these prompts:
-
-1. **Basic tree**: "Write a BTT tree for a `deposit` function that reverts when amount is zero and succeeds otherwise"
-2. **Complex tree**: "Create a tree spec for `withdraw` that checks null stream, caller authorization, and amount
-   validation"
-3. **Sablier-specific**: "Write a BTT tree for `cancel` in the Lockup protocol with proper stream state checks"
+Finish only after `just <pkg>::test-bulloak` passes for every touched package. Report the exact command and result.

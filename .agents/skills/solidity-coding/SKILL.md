@@ -1,6 +1,5 @@
 ---
 name: solidity-coding
-user-invocable: true
 description:
   Write production-quality Solidity contracts. Trigger phrases - write contract, implement function, add feature, add
   error, gas optimization, event design, contract architecture, or when working in src/ directories.
@@ -23,8 +22,6 @@ For detailed patterns and code examples, read these reference files:
 | `references/versioning-migration.md` | Interface versioning, storage migration, deprecation | When releasing new contract versions |
 | `references/sablier-conventions.md`  | Sablier-specific naming, patterns, and examples      | When working in Sablier repos        |
 | `references/nft-descriptor.md`       | Onchain NFT metadata and SVG generation              | When implementing tokenURI           |
-
-> **Note**: Your repo's agent will provide repo-specific structure (package locations, inheritance hierarchies, etc.)
 
 ## Quick Conventions Reference
 
@@ -230,14 +227,7 @@ token.safeTransferFrom(from, to, amount);
 3. Add NatSpec for struct and each field
 4. Use `@param` for each field in struct NatSpec
 
----
+## Completion
 
-## Example Invocations
-
-Test this skill with these prompts:
-
-1. **New function**: "Add a `getStreamBalance` view function to the ISablierFlow interface"
-2. **Error handling**: "Add a `Flow_InsufficientBalance` error with debugging parameters"
-3. **Gas optimization**: "Optimize the `_withdraw` function using storage caching"
-4. **Contract structure**: "Create the interface for a new `TokenVesting` contract with deposit, withdraw, and claim
-   functions"
+Finish only after `just <pkg>::build` succeeds for every touched package and the new code satisfies the contract
+checklist above. Report the build result and any checklist item left open.

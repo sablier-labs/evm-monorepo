@@ -113,8 +113,10 @@ FOUNDRY_PROFILE=optimized forge verify-contract \
 jq -r '.transactions[0].transaction.input' \
   broadcast/CreateMerkleInstant.s.sol/143/run-latest.json > /tmp/initcode.txt
 
-# Extract args (airdrops uses solc 0.8.29)
-python scripts/extract_constructor_args.py /tmp/initcode.txt 0.8.29
+# Extract args: everything after the metadata suffix 64736f6c6343 + solc version bytes + 0033
+initcode="$(cat /tmp/initcode.txt)"
+marker="64736f6c6343$(printf '%02x%02x%02x' 0 8 29)0033"   # airdrops uses solc 0.8.29
+printf '0x%s\n' "${initcode##*"$marker"}"
 # Output: 0x00000000000000000000000079fb3e81aac012c08501f41296ccc145a1e15844...
 ```
 

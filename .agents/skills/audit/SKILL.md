@@ -1,13 +1,14 @@
 ---
+coordination: exempt
 name: audit
-agent: Plan
-user-invocable: true
 description:
   Security audit and code review for Solidity smart contracts. Trigger phrases - audit, check PR, security review,
   pre-audit preparation, vulnerability check, or when preparing code for external audit.
 ---
 
 # Audit Skill
+
+This skill is coordination-exempt: skip the ai-coord gate for its declared work.
 
 Audit and code review guidance for Solidity smart contracts. For detailed vulnerability patterns, see bundled
 references.
@@ -129,10 +130,13 @@ Security properties that MUST always hold. **Read the authoritative invariants f
 
 ### Invariant README Locations
 
-| Package | Location                           |
-| ------- | ---------------------------------- |
-| Lockup  | `lockup/tests/invariant/README.md` |
-| Flow    | `flow/tests/invariant/README.md`   |
+| Package  | Location                               |
+| -------- | -------------------------------------- |
+| Airdrops | `airdrops/tests/invariant/README.md`   |
+| Bob      | `bob/tests/bob/invariant/README.md`    |
+| Escrow   | `bob/tests/escrow/invariant/README.md` |
+| Flow     | `flow/tests/invariant/README.md`       |
+| Lockup   | `lockup/tests/invariant/README.md`     |
 
 ### What to Verify
 
@@ -183,13 +187,7 @@ When reviewing code, read the package's invariant README and verify:
 - [ ] Flash loan attack vectors considered
 - [ ] Slither run with no unreviewed findings
 
----
+## Output
 
-## Example Invocations
-
-Test this skill with these prompts:
-
-1. **PR review**: "Review this PR for security issues: [diff content]"
-2. **Self-review**: "Run through the self-review checklist for my new `withdraw` function"
-3. **Deep review**: "Perform a security audit of the `SablierFlow.sol` contract"
-4. **Invariant check**: "Verify this code doesn't violate the value conservation invariant"
+Report findings ordered by severity, each with its location, impact, and a concrete fix, using the comment prefixes
+above for PR reviews. State which checklist sections were covered and which were skipped.

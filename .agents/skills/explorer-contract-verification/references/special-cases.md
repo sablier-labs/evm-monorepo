@@ -115,11 +115,13 @@ grep solc foundry.toml
 jq -r '.transactions[0].transaction.input' \
   broadcast/<Script>/<CHAIN_ID>/run-latest.json > /tmp/initcode.txt
 
-# Extract args (pass solc version)
-python scripts/extract_constructor_args.py /tmp/initcode.txt 0.8.29
+# Extract args: everything after the metadata suffix 64736f6c6343 + solc version bytes + 0033
+initcode="$(cat /tmp/initcode.txt)"
+marker="64736f6c6343$(printf '%02x%02x%02x' 0 8 29)0033"   # solc 0.8.29
+printf '0x%s\n' "${initcode##*"$marker"}"
 ```
 
-The script finds the Solidity metadata hash (`64736f6c6343` + version + `0033`) and returns everything after it.
+This finds the Solidity metadata hash (`64736f6c6343` + version + `0033`) and returns everything after it.
 
 ### Verification Command
 

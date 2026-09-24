@@ -1,6 +1,5 @@
 ---
 name: foundry-testing
-user-invocable: true
 description:
   Write Foundry-based tests and scripts. Trigger phrases - foundry testing, write test, fuzz test, fork test, invariant
   test, deploy script, gas benchmark, coverage, or when working in tests/ or scripts/ directories.
@@ -224,19 +223,11 @@ forge inspect MyContract storage-layout
 5. Events before actions - `vm.expectEmit()` then call
 6. Bound before assume - more efficient
 
+## Completion
+
+Finish only after the new or changed tests pass with a narrow `just <pkg>::test --match-path <path>` (or `--match-test`)
+run. Report the exact command and result; for BTT tests also run `just <pkg>::test-bulloak`.
+
 ## External References
 
 - [Foundry Book](https://getfoundry.sh)
-
----
-
-## Example Invocations
-
-Test this skill with these prompts:
-
-1. **Integration test**: "Write a concrete test for `withdraw` that expects `Errors.Flow_Overdraw` when amount exceeds
-   balance"
-2. **Fuzz test**: "Create a fuzz test for `deposit` that bounds amount between 1 and type(uint128).max"
-3. **Fork test**: "Write a fork test for USDC deposits on mainnet with blacklist handling"
-4. **Invariant test**: "Create an invariant handler for the `deposit` and `withdraw` functions"
-5. **Deploy script**: "Write a deployment script for SablierFlow with verification"
