@@ -23,13 +23,13 @@ Monorepo for Sablier's EVM smart contracts. In-depth documentation is available 
 
 ## Packages
 
-| Package                  | Description                                           | Docs                                                        |
-| ------------------------ | ----------------------------------------------------- | ----------------------------------------------------------- |
-| [`airdrops`](./airdrops) | Merkle-based token distribution with optional vesting | [Airdrops Docs](https://docs.sablier.com/concepts/airdrops) |
-| [`bob`](./bob)           | Price-gated vaults with optional yield adapters       | [Bob Docs](https://docs.sablier.com/concepts/bob/overview)  |
-| [`flow`](./flow)         | Open-ended token streaming with no fixed end time     | [Flow Docs](https://docs.sablier.com/concepts/flow)         |
-| [`lockup`](./lockup)     | Fixed-term vesting and token distribution             | [Lockup Docs](https://docs.sablier.com/concepts/lockup)     |
-| [`utils`](./utils)       | Shared utilities, base contracts, and comptroller     | [Utils README](./utils/README.md)                           |
+| Package                  | Description                                           | Docs                                                             |
+| ------------------------ | ----------------------------------------------------- | ---------------------------------------------------------------- |
+| [`airdrops`](./airdrops) | Merkle-based token distribution with optional vesting | [Airdrops Docs](https://docs.sablier.com/concepts/airdrops)      |
+| [`bob`](./bob)           | Price-gated vaults with optional yield adapters       | [Bob Docs](https://docs.sablier.com/concepts/bob/overview)       |
+| [`flow`](./flow)         | Open-ended token streaming with no fixed end time     | [Flow Docs](https://docs.sablier.com/concepts/flow/overview)     |
+| [`lockup`](./lockup)     | Fixed-term vesting and token distribution             | [Lockup Docs](https://docs.sablier.com/concepts/lockup/overview) |
+| [`utils`](./utils)       | Shared utilities, base contracts, and comptroller     | [Utils README](./utils/README.md)                                |
 
 Each package has its own README with protocol-specific details, installation instructions, and usage examples.
 
@@ -53,7 +53,7 @@ For questions or informal feedback, [open an issue](https://github.com/sablier-l
 
 See [LICENSE.md](./LICENSE.md).
 
-[codecov]: https://codecov.io/gh/sablier-labs/evm-monorepo
+[codecov]: https://app.codecov.io/gh/sablier-labs/evm-monorepo
 [codecov-badge]: https://codecov.io/gh/sablier-labs/evm-monorepo/branch/main/graph/badge.svg
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg

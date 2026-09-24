@@ -101,7 +101,7 @@ For questions or informal feedback, [open an issue](https://github.com/sablier-l
 
 See [LICENSE.md](../LICENSE.md).
 
-[codecov]: https://codecov.io/gh/sablier-labs/evm-monorepo
+[codecov]: https://app.codecov.io/gh/sablier-labs/evm-monorepo
 [codecov-badge]: https://codecov.io/gh/sablier-labs/evm-monorepo/branch/main/graph/badge.svg
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg

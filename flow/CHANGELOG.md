@@ -14,17 +14,17 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
-- Rename `Helpers` library to `FlowHelpers` ([#1370](https://github.com/sablier-labs/lockup/pull/1370))
+- Rename `Helpers` library to `FlowHelpers` ([#1370](https://github.com/sablier-labs/evm-monorepo/pull/1370))
 
 ### Added
 
-- Add `transferFromPayable` function ([#1384](https://github.com/sablier-labs/lockup/pull/1384))
+- Add `transferFromPayable` function ([#1384](https://github.com/sablier-labs/evm-monorepo/pull/1384))
 
 ### Removed
 
 - **Breaking**: Remove `Recover` event from `recover` function
-  ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
-- Remove zero surplus check from `recover` function ([#1439](https://github.com/sablier-labs/lockup/pull/1439))
+  ([#1439](https://github.com/sablier-labs/evm-monorepo/pull/1439))
+- Remove zero surplus check from `recover` function ([#1439](https://github.com/sablier-labs/evm-monorepo/pull/1439))
 
 ## [2.0.1] - 2025-10-22
 

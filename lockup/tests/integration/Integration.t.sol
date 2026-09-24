@@ -76,7 +76,7 @@ abstract contract Integration_Test is Base_Test {
         // LPG model
         _defaultParams.unlockParams = defaults.unlockParams();
 
-        // See https://github.com/ethereum/solidity/issues/12783
+        // See https://github.com/argotorg/solidity/issues/12783
         LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations = defaults.segmentsWithDurations();
         LockupDynamic.Segment[] memory segments = defaults.segments();
         for (uint256 i; i < defaults.SEGMENT_COUNT(); ++i) {

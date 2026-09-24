@@ -16,4 +16,4 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 - Initial release
 
-[1.0.0]: https://github.com/sablier-labs/bob/releases/tag/v1.0.0
+[1.0.0]: https://github.com/sablier-labs/evm-monorepo/releases/tag/bob@v1.0.0
