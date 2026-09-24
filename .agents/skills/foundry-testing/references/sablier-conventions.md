@@ -221,17 +221,8 @@ StreamedAmountOf_Integration_Concrete_Test
 
 ## Monorepo Import Resolution
 
-**This is a monorepo.** When test files or contracts import from `@sablier/evm-utils/`, do **NOT** look in
-`node_modules/`. Instead, resolve the source from the **`utils/`** directory at the repo root.
-
-For example, `import { BaseTest } from "@sablier/evm-utils/src/tests/BaseTest.sol"` maps to
-`utils/src/tests/BaseTest.sol`.
-
-This applies to all consumer packages: `airdrops/`, `bob/`, `flow/`, and `lockup/`.
-
-**Version check:** Before modifying or referencing utils code, verify that the version in `utils/package.json` matches
-the `@sablier/evm-utils` dependency version declared in the working package's `package.json`. A mismatch means the
-package may be using a published release rather than the local source.
+Resolve `@sablier/evm-utils/` imports from `utils/`, not `node_modules/`. See "Monorepo Import Resolution" in the
+`solidity-coding` skill's `references/sablier-conventions.md`.
 
 ---
 

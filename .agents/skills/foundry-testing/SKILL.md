@@ -12,16 +12,14 @@ Rules and patterns for Foundry tests, bulloak `.tree` specs, and scripts. Find e
 
 ## Bundled References
 
-| Reference                            | Content                                   | When to Read                   |
-| ------------------------------------ | ----------------------------------------- | ------------------------------ |
-| `references/btt-examples.md`         | Complete tree and generated test examples | When learning BTT syntax       |
-| `references/test-infrastructure.md`  | Constants, defaults, mocks                | When setting up tests          |
-| `references/cheat-codes.md`          | Common cheatcode patterns                 | When using vm cheatcodes       |
-| `references/invariant-patterns.md`   | Handlers, stores, invariants              | When writing invariant tests   |
-| `references/deployment-scripts.md`   | Script patterns, verification             | When writing deploy scripts    |
-| `references/deployment-checklist.md` | Pre-mainnet deployment steps              | Before deploying to production |
-| `references/gas-benchmarking.md`     | Snapshot, profiling, CI                   | When measuring gas performance |
-| `references/sablier-conventions.md`  | Sablier BTT terminology and test patterns | When working in Sablier repos  |
+| Reference                           | Content                                   | When to Read                   |
+| ----------------------------------- | ----------------------------------------- | ------------------------------ |
+| `references/btt-examples.md`        | Complete tree and generated test examples | When learning BTT syntax       |
+| `references/test-infrastructure.md` | Constants, defaults, mocks                | When setting up tests          |
+| `references/cheat-codes.md`         | Common cheatcode patterns                 | When using vm cheatcodes       |
+| `references/invariant-patterns.md`  | Handlers, stores, invariants              | When writing invariant tests   |
+| `references/gas-benchmarking.md`    | Snapshot, profiling, CI                   | When measuring gas performance |
+| `references/sablier-conventions.md` | Sablier BTT terminology and test patterns | When working in Sablier repos  |
 
 ---
 
@@ -116,7 +114,8 @@ FunctionName_Integration_Concrete_Test
 2. **Stack modifiers** to document the BTT path (modifiers are often empty - they only document the path).
 3. **No self-named modifier** - never add a modifier matching the test's own name
    (`test_WhenAmountNotZero() whenAmountNotZero` is redundant).
-4. **Expect events BEFORE action** - `vm.expectEmit()` then call the function.
+4. **Expect events BEFORE action** - `vm.expectEmit()` then call the function. Every event must be expected, with all
+   parameters, in at least one test.
 5. **Assert state AFTER action** - check state changes after the function executes.
 6. **Use revert helpers** for common patterns (`expectRevert_DelegateCall`, `expectRevert_Null`).
 7. **Describe assertions** - `assertEq(actual, expected, "description")`.
@@ -197,19 +196,15 @@ tests/invariant/
 
 ### Rules
 
-1. Inherit from `BaseScript` with `broadcast` modifier
-2. Use env vars: `ETH_FROM`, `MNEMONIC`
-3. Simulation first, then broadcast
+1. Inherit `BaseScript` from `@sablier/evm-utils/src/tests/BaseScript.sol` and apply its `broadcast` modifier to `run`.
+2. The broadcaster is `ETH_FROM` when set, otherwise index 0 of `MNEMONIC`; scripts never read `PRIVATE_KEY`.
+3. Deterministic scripts deploy with `new Foo{ salt: SALT }(...)`. `SALT` encodes the chain ID and `getVersion()` (the
+   package version), so override `getVersion()` only to pin a release.
+4. Read chain-dependent inputs from `BaseScript` helpers such as `getAdmin()` and `getComptroller()`; never hardcode
+   them.
+5. Return the deployed contracts from `run`.
 
-### Commands
-
-```bash
-# Simulation
-forge script scripts/Deploy.s.sol --sig "run(...)" ARGS --rpc-url $RPC
-
-# Broadcast
-forge script scripts/Deploy.s.sol --sig "run(...)" ARGS --rpc-url $RPC --broadcast --verify
-```
+Running deployments (simulation, broadcast, verification, resume) is covered by the `protocol-deployment` skill.
 
 ---
 

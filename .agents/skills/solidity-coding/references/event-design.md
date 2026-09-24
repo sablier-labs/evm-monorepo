@@ -266,39 +266,6 @@ event BatchMetadataUpdate(uint256 fromTokenId, uint256 toTokenId);
 
 ---
 
-## Testing Events
-
-### In Foundry Tests
-
-```solidity
-function test_EventEmitted() external {
-    vm.expectEmit({ emitter: address(lockup) });
-    emit CreateLockupStream(
-        expectedStreamId,
-        users.sender,
-        users.recipient,
-        address(token),
-        defaults.DEPOSIT_AMOUNT,
-        defaults.START_TIME,
-        defaults.END_TIME,
-        true,  // cancelable
-        true   // transferable
-    );
-
-    lockup.createWithTimestampsLL(params);
-}
-```
-
-### Event Coverage
-
-Ensure every event is:
-
-- [ ] Emitted in at least one test
-- [ ] Parameters verified in tests
-- [ ] Indexed parameters tested for filtering
-
----
-
 ## Anti-Patterns
 
 | Anti-Pattern        | Problem                    | Solution                          |
