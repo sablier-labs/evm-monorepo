@@ -219,13 +219,6 @@ StreamedAmountOf_Integration_Concrete_Test
 
 ---
 
-## Monorepo Import Resolution
-
-Resolve `@sablier/evm-utils/` imports from `utils/`, not `node_modules/`. See "Monorepo Import Resolution" in the
-`solidity-coding` skill's `references/sablier-conventions.md`.
-
----
-
 ## Commands
 
 ```bash

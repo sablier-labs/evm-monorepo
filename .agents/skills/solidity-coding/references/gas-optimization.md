@@ -194,6 +194,9 @@ Consider [Solady](https://github.com/Vectorized/solady) for gas-critical paths:
 
 **Warning**: Smaller types for standalone variables waste gas on casting. Use `uint256` unless packing.
 
+**Packing**: Group smaller types so they share 32-byte slots (addresses are 20 bytes, bools 1 byte), and add slot
+comments showing byte usage.
+
 ---
 
 ## Bitmaps

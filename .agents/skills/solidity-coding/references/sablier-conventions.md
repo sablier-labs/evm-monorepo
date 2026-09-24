@@ -1,31 +1,6 @@
 # Sablier-Specific Conventions
 
-Sablier-specific naming and patterns. Find code examples in the actual codebase.
-
-## Naming Examples
-
-| Element   | Convention                 | Sablier Example              |
-| --------- | -------------------------- | ---------------------------- |
-| Contract  | PascalCase                 | `SablierLockup`              |
-| Interface | I + PascalCase             | `ISablierLockup`             |
-| Error     | `{Contract}_{Description}` | `SablierLockup_Overdraw`     |
-| Abstract  | `Sablier{Feature}`         | `SablierLockupDynamic`       |
-| Library   | `{Domain}Math`, `Helpers`  | `LockupMath`, `Helpers`      |
-| Types     | Namespace library          | `Lockup.Stream`, `Flow.Rate` |
-
----
-
-## Error Library Pattern
-
-Errors defined in dedicated `Errors.sol` per package with section comments by contract.
-
-**Rules:**
-
-- One specific error per failure mode (not generic catch-alls)
-- Include diagnostic parameters
-- Separate validation checks for distinct error conditions
-
----
+Sablier-specific architecture and patterns. Find code examples in the actual codebase.
 
 ## Abstract Contract Types
 
@@ -47,26 +22,6 @@ Errors defined in dedicated `Errors.sol` per package with section comments by co
 
 ---
 
-## Inheritance Pattern
-
-Inherit in alphabetical order:
-
-```
-Batch, Comptrollerable, ERC721, ISablierLockup, SablierLockupDynamic, SablierLockupLinear, SablierLockupTranched
-```
-
----
-
-## Library Patterns
-
-| Pattern             | Purpose                                    |
-| ------------------- | ------------------------------------------ |
-| `public` functions  | Reduce contract size (not inlined)         |
-| Namespace libraries | Group related types (`Lockup.Stream`)      |
-| Helper libraries    | Validation and calculation (`Helpers.sol`) |
-
----
-
 ## Access Control Bases
 
 | Contract          | Modifier          | Use Case                     |
@@ -84,19 +39,6 @@ Batch, Comptrollerable, ERC721, ISablierLockup, SablierLockupDynamic, SablierLoc
 | evm-utils    | `@sablier/evm-utils/src/{Contract}.sol`             |
 | lockup       | `@sablier/lockup/src/interfaces/ISablierLockup.sol` |
 | types        | `@sablier/lockup/src/types/DataTypes.sol`           |
-
-### Monorepo Import Resolution
-
-**This is a monorepo.** When a Solidity file imports from `@sablier/evm-utils/`, do **NOT** look in `node_modules/`.
-Instead, resolve the source from the **`utils/`** directory at the repo root.
-
-For example, `import { Batch } from "@sablier/evm-utils/src/Batch.sol"` maps to `utils/src/Batch.sol`.
-
-This applies to all consumer packages: `airdrops/`, `bob/`, `flow/`, and `lockup/`.
-
-**Version check:** Before modifying or referencing utils code, verify that the version in `utils/package.json` matches
-the `@sablier/evm-utils` dependency version declared in the working package's `package.json`. A mismatch means the
-package may be using a published release rather than the local source.
 
 ---
 
@@ -130,35 +72,3 @@ Move code to utils only when ALL conditions are met:
 3. **Cross-cutting concern** - Admin patterns, batching, security, testing infrastructure
 
 **Anti-pattern**: Moving code to utils "just in case" it might be reused later.
-
----
-
-## Hook Security Rules
-
-1. External hooks must be explicitly allowlisted by admin
-2. Store allowlist in mapping: `mapping(address => bool) _allowedToHook`
-3. Validate hook returns correct selector
-4. Revert with specific error on invalid selector
-
----
-
-## Stack Too Deep Pattern
-
-Use `{FunctionName}Vars` struct for functions with many local variables.
-
----
-
-## Modifier Pattern
-
-| Modifier           | Implementation                          |
-| ------------------ | --------------------------------------- |
-| `notNull(id)`      | Revert if stream doesn't exist          |
-| `noDelegateCall()` | Call private helper `_noDelegateCall()` |
-
----
-
-## Commands
-
-```bash
-just build-optimized <package> --sizes  # Check contract size under 24kb
-```

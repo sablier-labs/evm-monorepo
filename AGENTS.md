@@ -24,6 +24,13 @@ Smart contracts for Sablier onchain token distribution protocol.
 
 Each package has its own `AGENTS.md` with protocol-specific context.
 
+### Resolving `@sablier/evm-utils` Imports
+
+- `airdrops/`, `flow/`, `lockup/`: the dependency is `file:../utils` and its `node_modules` files symlink into `utils/`.
+  Read and edit the source in `utils/`, e.g. `@sablier/evm-utils/src/Batch.sol` → `utils/src/Batch.sol`.
+- `bob/`: pins a published release. Read `bob/node_modules/@sablier/evm-utils/`; it can differ from `utils/` even when
+  the version numbers match.
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org) v20+

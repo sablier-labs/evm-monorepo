@@ -149,6 +149,7 @@ contract LockupV2Adapter is ISablierLockupV2 {
 2. **Never reorder variables** - New variables go at end
 3. **Never change types** - Even if "compatible" (uint256 → uint128)
 4. **Always use storage gaps** in base contracts
+5. **Bump the initializer version** when an upgrade needs re-initialization
 
 ### Storage Gap Pattern
 

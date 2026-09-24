@@ -4,11 +4,8 @@ Rules and conventions for writing Solidity contracts. Find examples in the actua
 
 ## NatSpec Documentation
 
-### Rules
-
-1. Full NatSpec lives in **interfaces only**
-2. Implementations use `@inheritdoc InterfaceName`
-3. Contract-level: `/// @notice See the documentation in {IContractName}.`
+Full NatSpec lives in interfaces; implementations use `@inheritdoc InterfaceName`. At contract level, write
+`/// @notice See the documentation in {IContractName}.`
 
 ### Interface Function NatSpec Order
 
@@ -18,74 +15,6 @@ Rules and conventions for writing Solidity contracts. Find examples in the actua
 4. `Requirements:` - Preconditions (bullet list)
 5. `@param` - Each parameter
 6. `@return` - Return value(s)
-
----
-
-## Error Handling
-
-### Naming Convention
-
-`{ContractName}_{ErrorDescription}` - e.g., `TokenVault_Overdraw`
-
-### Rules
-
-1. **One specific error per failure mode** - Never use generic catch-all errors
-2. **Separate validation checks** - Don't combine conditions that warrant different errors
-3. Define errors in `libraries/Errors.sol` with section comments
-4. Include debugging parameters in error signature
-5. Add NatSpec: `/// @notice Thrown when...`
-
----
-
-## Modifiers
-
-### Order in Function Signature
-
-1. Visibility (`external`, `public`, `internal`, `private`)
-2. Mutability (`payable`, `view`, `pure`)
-3. Override (`override`)
-4. Custom modifiers (guard conditions first: `noDelegateCall`, `notNull`)
-
----
-
-## Section Comments
-
-Use the `headers` CLI tool to generate properly aligned section headers:
-
-```bash
-headers "USER-FACING READ-ONLY FUNCTIONS"
-```
-
-### Standard Sections (in order)
-
-1. CONSTRUCTOR
-2. USER-FACING READ-ONLY FUNCTIONS
-3. USER-FACING STATE-CHANGING FUNCTIONS
-4. INTERNAL READ-ONLY FUNCTIONS
-5. INTERNAL STATE-CHANGING FUNCTIONS
-6. PRIVATE READ-ONLY FUNCTIONS
-7. PRIVATE STATE-CHANGING FUNCTIONS
-
----
-
-## Imports
-
-### Rules
-
-1. **Named imports only** - Use curly braces: `import { IERC20 } from "..."`
-2. **Alphabetical order** within each group
-3. **Order**: External packages → Internal shared → Local
-
----
-
-## Storage Packing
-
-### Rules
-
-1. Group smaller types together to fit in 32-byte slots
-2. Add slot comments showing byte usage
-3. Use `uint40` for timestamps (5 bytes), `uint128` for amounts (16 bytes)
-4. Addresses are 20 bytes, bools are 1 byte
 
 ---
 

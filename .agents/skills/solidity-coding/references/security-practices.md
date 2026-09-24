@@ -7,11 +7,7 @@ Security rules for Solidity contracts. Find examples in the actual codebase.
 
 ## Access Control
 
-### Rules
-
-1. Use modifiers with private helper functions (reduces bytecode)
-2. Include both expected and actual values in error parameters
-3. Use two-step ownership transfer for critical roles
+Use two-step ownership transfer for critical roles. See `sablier-conventions.md` for the shared access-control bases.
 
 ---
 
@@ -20,16 +16,6 @@ Security rules for Solidity contracts. Find examples in the actual codebase.
 **Rule**: Inherit `NoDelegateCall` and apply `noDelegateCall` modifier to sensitive functions.
 
 **Why**: Prevents malicious contracts from executing your logic in their context.
-
----
-
-## Error Handling
-
-### Rules
-
-1. **One specific error per failure mode** - Never generic catch-alls
-2. **Separate validation checks** - Don't combine conditions needing different errors
-3. Include debugging parameters in error signature
 
 ---
 
@@ -65,8 +51,8 @@ Safe cases:
 
 ### Rules
 
-1. External hooks must be explicitly allowlisted by admin
-2. Always validate hook return value matches expected selector
+1. External hooks must be explicitly allowlisted by the admin, e.g. `mapping(address => bool) _allowedToHook`
+2. Validate that the hook returns the expected selector, reverting with a specific error otherwise
 3. Hooks are called AFTER state changes (CEI pattern)
 
 ---
@@ -126,12 +112,11 @@ If supporting smart contract wallets:
 
 ### ERC-1967 Proxy Patterns
 
-| Check                      | Verification                                           |
-| -------------------------- | ------------------------------------------------------ |
-| Storage slot collision     | Use ERC-1967 standard slots                            |
-| Implementation initialized | `_disableInitializers()` in constructor                |
-| Storage gaps               | Add `uint256[50] private __gap;` in all base contracts |
-| No `selfdestruct`          | Never in implementation contracts                      |
+| Check                      | Verification                            |
+| -------------------------- | --------------------------------------- |
+| Storage slot collision     | Use ERC-1967 standard slots             |
+| Implementation initialized | `_disableInitializers()` in constructor |
+| No `selfdestruct`          | Never in implementation contracts       |
 
 ### UUPS vs Transparent
 
@@ -140,9 +125,4 @@ If supporting smart contract wallets:
 | UUPS        | Gas-efficient, upgrade logic in implementation       |
 | Transparent | Clearer separation, admin cannot call implementation |
 
-### Upgrade Checklist
-
-- [ ] Storage layout unchanged (or properly migrated)
-- [ ] New variables added at end only
-- [ ] Storage gaps reduced by new variable count
-- [ ] Initializer version bumped if re-initialization needed
+For storage layout rules and gaps, see `versioning-migration.md`.
