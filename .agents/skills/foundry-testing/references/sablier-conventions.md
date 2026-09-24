@@ -120,6 +120,20 @@ StreamedAmountOf_Integration_Concrete_Test
    └── ...
 ```
 
+### Price-Gated (LPG) Model
+
+LPG streams unlock based on a Chainlink target price. Their tests live in `lockup-price-gated/` directories and use the
+`{Function}_Lockup_PriceGated_Integration_Concrete_Test` root.
+
+| Concept                | BTT Branch                           |
+| ---------------------- | ------------------------------------ |
+| Price below target     | `when latest price below target`     |
+| Price not below target | `when latest price not below target` |
+| End time in future     | `given end time in future`           |
+| End time not in future | `given end time not in future`       |
+
+See `lockup/tests/integration/concrete/lockup-price-gated/withdraw/withdraw.tree` for a complete tree.
+
 ---
 
 ## StreamIds Struct
