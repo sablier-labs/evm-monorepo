@@ -44,7 +44,9 @@ Technique, then scaffolded into `.t.sol` files. Install bulloak with `cargo inst
 
 1. Write the tree at `tests/integration/concrete/{function-name}/{functionName}.tree`. Packages with several contracts
    nest one more level, e.g. `lockup/tests/integration/concrete/lockup/cancel/cancel.tree`.
-2. Scaffold the test: `bulloak scaffold -wf --skip-modifiers --format-descriptions <path/to/file.tree>`
+2. Scaffold the test: `bulloak scaffold -w --skip-modifiers --format-descriptions <path/to/file.tree>`
+   - `-w`: writes the `.t.sol` only if it does not exist. Add `-f` (`-wf`) only to deliberately overwrite an existing
+     test, which discards implemented bodies; to add tests for new branches, use `bulloak check --fix` instead.
    - `--skip-modifiers`: modifiers live in the shared `Modifiers.sol`, not in each test.
    - `--format-descriptions`: capitalizes each branch and appends a period in the generated comments.
 3. Implement the test bodies (rules below).
@@ -260,10 +262,10 @@ forge test --match-test test_MyTest -vvvv
 forge test --match-test test_MyTest --gas-report
 
 # Debug in interactive debugger
-forge debug --debug tests/MyTest.t.sol --sig "test_MyTest()"
+forge test --match-test test_MyTest --debug
 
 # Inspect storage layout
-forge inspect MyContract storage-layout
+forge inspect MyContract storageLayout
 ```
 
 ### Debugging Tips
@@ -272,7 +274,7 @@ forge inspect MyContract storage-layout
 2. **Check state with logs** - Add `console2.log` before reverts
 3. **Isolate failures** - Run single test with `--match-test`
 4. **Compare gas** - Use `--gas-report` to spot unexpected costs
-5. **Snapshot comparisons** - Use `vm.snapshot()` / `vm.revertTo()` to isolate state changes
+5. **Snapshot comparisons** - Use `vm.snapshotState()` / `vm.revertToState()` to isolate state changes
 
 ---
 

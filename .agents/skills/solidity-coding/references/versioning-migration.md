@@ -175,11 +175,11 @@ abstract contract SablierLockupStateV2 is SablierLockupStateV1 {
 
 ```bash
 # Generate storage layout
-forge inspect SablierLockupV1 storage-layout --pretty > v1-layout.txt
-forge inspect SablierLockupV2 storage-layout --pretty > v2-layout.txt
+forge inspect SablierLockupV1 storageLayout --json > v1-layout.json
+forge inspect SablierLockupV2 storageLayout --json > v2-layout.json
 
 # Compare layouts
-diff v1-layout.txt v2-layout.txt
+diff v1-layout.json v2-layout.json
 ```
 
 ### Safe Migration Script
@@ -194,15 +194,17 @@ contract MigrateV1ToV2 is Script {
         // 2. Verify storage compatibility (off-chain check)
         // Compare storage layouts before proceeding
 
+        vm.startBroadcast();
+
         // 3. Deploy new implementation
         SablierLockupV2 newImpl = new SablierLockupV2();
 
-        // 4. Upgrade
-        vm.broadcast();
-        UUPSUpgradeable(proxy).upgradeTo(address(newImpl));
+        // 4. Upgrade and run the migration initializer atomically (OpenZeppelin 5 UUPS has no `upgradeTo`)
+        UUPSUpgradeable(proxy).upgradeToAndCall(
+            address(newImpl), abi.encodeCall(SablierLockupV2.initializeV2, (migrationParams))
+        );
 
-        // 5. Run migration initializer if needed
-        SablierLockupV2(proxy).initializeV2(migrationParams);
+        vm.stopBroadcast();
     }
 }
 ```

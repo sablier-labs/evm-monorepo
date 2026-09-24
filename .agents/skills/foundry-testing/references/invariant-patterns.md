@@ -202,7 +202,7 @@ function action(
     if (store.lastEntryId() == 0) return;
 
     // 2. Select random entry
-    uint256 index = _bound(entryIndexSeed, 0, store.entryIds.length - 1);
+    uint256 index = _bound(entryIndexSeed, 0, store.lastEntryId() - 1); // IDs start at 1, so lastEntryId is the count
     uint256 entryId = store.entryIds(index);
 
     // 3. Bound amount to valid range

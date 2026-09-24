@@ -67,8 +67,10 @@ Check `package.json` for forge-std version, then read that version's `Vm.sol`.
 | Cheatcode              | Usage                 |
 | ---------------------- | --------------------- |
 | `vm.label(addr, name)` | Label for traces      |
-| `vm.snapshot()`        | Create state snapshot |
-| `vm.revertTo(id)`      | Revert to snapshot    |
+| `vm.snapshotState()`   | Create state snapshot |
+| `vm.revertToState(id)` | Revert to snapshot    |
+
+`vm.snapshot()` and `vm.revertTo()` are deprecated aliases.
 
 ---
 

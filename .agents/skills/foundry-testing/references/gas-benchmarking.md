@@ -206,7 +206,7 @@ fi
 
 ```bash
 # Step through execution
-forge test --match-test test_Withdraw -vvvv --debug
+forge test --match-test test_Withdraw --debug
 ```
 
 ### Forge Trace
@@ -250,5 +250,5 @@ forge test --gas-report --json        # JSON output for CI
 
 # Profiling
 forge test --match-test <name> -vvvv  # Detailed trace
-forge debug --debug <test>            # Interactive debugger
+forge test --match-test <name> --debug # Interactive debugger
 ```

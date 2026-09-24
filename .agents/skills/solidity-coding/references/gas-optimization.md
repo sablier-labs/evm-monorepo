@@ -6,76 +6,21 @@ Gas optimization rules. Find examples in the actual codebase.
 
 ### Transient Storage (EIP-1153)
 
-Use `tstore`/`tload` for data needed only within a transaction (cheaper than storage):
+Use transient storage for data needed only within a transaction (`TSTORE`/`TLOAD` cost 100 gas each). It requires
+`evm_version = "cancun"` or later. Prefer, in order:
 
-```solidity
-// Reentrancy lock with transient storage (Cancun+)
-bytes32 constant LOCK_SLOT = keccak256("REENTRANCY_LOCK");
+1. OpenZeppelin `ReentrancyGuardTransient` for reentrancy locks.
+2. `transient` state variables of value types (solc 0.8.28+):
 
-modifier nonReentrantTransient() {
-    assembly {
-        if tload(LOCK_SLOT) { revert(0, 0) }
-        tstore(LOCK_SLOT, 1)
-    }
-    _;
-    assembly {
-        tstore(LOCK_SLOT, 0)
-    }
-}
-```
+   ```solidity
+   bool private transient _locked;
+   ```
 
-**Callback Data Pattern** - Pass data to hooks without storage:
+3. OpenZeppelin `TransientSlot` or inline assembly for custom layouts (callback context, flash-loan accounting). Inline
+   assembly accepts only literal number constants, so a `keccak256(...)` constant cannot appear in `tstore`/`tload`;
+   hardcode the precomputed slot or use `TransientSlot`.
 
-```solidity
-// Store callback context before external call
-bytes32 constant CALLBACK_CONTEXT_SLOT = keccak256("CALLBACK_CONTEXT");
-
-function executeWithCallback(uint256 streamId, bytes calldata data) external {
-    assembly {
-        // Pack streamId and caller into one slot
-        let packed := or(shl(96, caller()), streamId)
-        tstore(CALLBACK_CONTEXT_SLOT, packed)
-    }
-
-    // External call that triggers callback
-    IRecipient(recipient).onStreamAction(streamId, data);
-
-    assembly {
-        tstore(CALLBACK_CONTEXT_SLOT, 0) // Clear after use
-    }
-}
-
-function _getCallbackContext() internal view returns (address caller_, uint256 streamId) {
-    assembly {
-        let packed := tload(CALLBACK_CONTEXT_SLOT)
-        caller_ := shr(96, packed)
-        streamId := and(packed, 0xFFFFFFFFFFFFFFFFFFFFFFFF)
-    }
-}
-```
-
-**Flash Loan State Pattern**:
-
-```solidity
-bytes32 constant FLASH_LOAN_SLOT = keccak256("FLASH_LOAN_ACTIVE");
-
-function flashLoan(uint256 amount) external {
-    assembly { tstore(FLASH_LOAN_SLOT, amount) }
-
-    token.transfer(msg.sender, amount);
-    IFlashBorrower(msg.sender).onFlashLoan(amount);
-
-    // Verify repayment
-    assembly {
-        if tload(FLASH_LOAN_SLOT) { revert(0, 0) } // Not repaid
-    }
-}
-
-function repayFlashLoan(uint256 amount) external {
-    token.transferFrom(msg.sender, address(this), amount);
-    assembly { tstore(FLASH_LOAN_SLOT, 0) } // Mark as repaid
-}
-```
+Clear transient values explicitly when a contract may be called several times in one transaction (multicall, batch).
 
 | Use Case              | Gas Savings                      |
 | --------------------- | -------------------------------- |
@@ -178,7 +123,7 @@ Consider [Solady](https://github.com/Vectorized/solady) for gas-critical paths:
 | Cache reads          | Read storage into memory once, not multiple times                          |
 | Storage pointers     | Use direct `_entries[id].field = value` for single-field writes            |
 | Avoid zero→non-zero  | Design state to minimize zero-to-nonzero transitions (22,100 vs 5,000 gas) |
-| Mappings over arrays | Mappings skip bounds checks (~2,100 gas savings per read)                  |
+| Mappings over arrays | Mappings skip the array length `SLOAD` used for bounds checks              |
 | Constants/Immutables | Use for values known at compile/deploy time (no storage read)              |
 
 ---
@@ -222,17 +167,17 @@ comments showing byte usage.
 
 ```solidity
 uint256 count = array.length;
-for (uint256 i; i < count; ) {
+for (uint256 i; i < count; ++i) {
     // ...
-    unchecked { ++i; }
 }
 ```
 
 **Rules**:
 
-- Cache array length outside loop
+- Cache a storage array's length outside the loop
 - Use pre-increment (`++i`)
-- Use unchecked for iterator
+- Skip manual `unchecked { ++i; }`: since solc 0.8.22 the compiler makes this increment unchecked when the body does not
+  modify `i`
 - Initialize `i` without `= 0`
 
 ---
