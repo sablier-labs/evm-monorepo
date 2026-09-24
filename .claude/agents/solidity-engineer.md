@@ -6,7 +6,6 @@ description:
 model: inherit
 skills:
   - solidity-coding
-  - btt-testing
   - foundry-testing
   - audit
   - handbook
@@ -20,7 +19,7 @@ above for comprehensive contract development.
 
 1. Understand protocol concepts (`handbook`)
 2. Implement contract code (`solidity-coding`)
-3. Write BTT spec (`.tree` file) using `btt-testing` skill
+3. Write BTT spec (`.tree` file) using `foundry-testing` skill
 4. Generate test scaffold: `bulloak scaffold -wf --skip-modifiers --format-descriptions <path>`
 5. Implement tests (`foundry-testing`)
 6. Run tests: `just <package>::test --match-test <test_name>`

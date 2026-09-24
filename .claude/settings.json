@@ -3,7 +3,6 @@
   "permissions": {
     "allow": [
       "Skill(audit)",
-      "Skill(btt-testing)",
       "Skill(foundry-testing)",
       "Skill(handbook)",
       "Skill(solidity-coding)",

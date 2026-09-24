@@ -138,5 +138,4 @@ Refer to https://docs.sablier.com/llms-{protocol}.txt for up-to-date documentati
 - [ ] Add to Protocol Registry table above
 - [ ] Add to Protocol Comparison table
 - [ ] Add the package to the monorepo structure in the root `AGENTS.md`
-- [ ] Add protocol-specific BTT conventions to `.agents/skills/btt-testing/references/sablier-conventions.md`
-- [ ] Add test conventions to `.agents/skills/foundry-testing/references/sablier-conventions.md`
+- [ ] Add BTT and test conventions to `.agents/skills/foundry-testing/references/sablier-conventions.md`

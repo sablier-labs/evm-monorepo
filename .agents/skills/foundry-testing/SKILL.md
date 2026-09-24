@@ -1,26 +1,28 @@
 ---
 name: foundry-testing
 description:
-  Write Foundry-based tests and scripts. Trigger phrases - foundry testing, write test, fuzz test, fork test, invariant
-  test, deploy script, gas benchmark, coverage, or when working in tests/ or scripts/ directories.
+  Write Foundry tests, bulloak BTT tree specs, and Solidity scripts. Trigger phrases - foundry testing, write test,
+  write a tree, BTT spec, bulloak tree, Branching Tree Technique, fuzz test, fork test, invariant test, deploy script,
+  gas benchmark, coverage, or when working in tests/ or scripts/ directories.
 ---
 
 # Foundry Testing & Script Skill
 
-Rules and patterns for Foundry tests. Find examples in the actual codebase.
+Rules and patterns for Foundry tests, bulloak `.tree` specs, and scripts. Find examples in the actual codebase.
 
 ## Bundled References
 
-| Reference                            | Content                        | When to Read                   |
-| ------------------------------------ | ------------------------------ | ------------------------------ |
-| `references/test-infrastructure.md`  | Constants, defaults, mocks     | When setting up tests          |
-| `references/cheat-codes.md`          | Common cheatcode patterns      | When using vm cheatcodes       |
-| `references/invariant-patterns.md`   | Handlers, stores, invariants   | When writing invariant tests   |
-| `references/formal-verification.md`  | Halmos, Certora, symbolic exec | When proving correctness       |
-| `references/deployment-scripts.md`   | Script patterns, verification  | When writing deploy scripts    |
-| `references/deployment-checklist.md` | Pre-mainnet deployment steps   | Before deploying to production |
-| `references/gas-benchmarking.md`     | Snapshot, profiling, CI        | When measuring gas performance |
-| `references/sablier-conventions.md`  | Sablier-specific patterns      | When working in Sablier repos  |
+| Reference                            | Content                                   | When to Read                   |
+| ------------------------------------ | ----------------------------------------- | ------------------------------ |
+| `references/btt-examples.md`         | Complete tree and generated test examples | When learning BTT syntax       |
+| `references/test-infrastructure.md`  | Constants, defaults, mocks                | When setting up tests          |
+| `references/cheat-codes.md`          | Common cheatcode patterns                 | When using vm cheatcodes       |
+| `references/invariant-patterns.md`   | Handlers, stores, invariants              | When writing invariant tests   |
+| `references/formal-verification.md`  | Halmos, Certora, symbolic exec            | When proving correctness       |
+| `references/deployment-scripts.md`   | Script patterns, verification             | When writing deploy scripts    |
+| `references/deployment-checklist.md` | Pre-mainnet deployment steps              | Before deploying to production |
+| `references/gas-benchmarking.md`     | Snapshot, profiling, CI                   | When measuring gas performance |
+| `references/sablier-conventions.md`  | Sablier BTT terminology and test patterns | When working in Sablier repos  |
 
 ---
 
@@ -36,23 +38,89 @@ Rules and patterns for Foundry tests. Find examples in the actual codebase.
 
 ---
 
-## 1. Integration Tests (Concrete)
+## 1. Integration Tests (Concrete, BTT)
 
-### Naming Convention
+Concrete tests are specified as [bulloak](https://github.com/alexfertel/bulloak) `.tree` files using the Branching Tree
+Technique, then scaffolded into `.t.sol` files. Install bulloak with `cargo install bulloak` if missing.
+
+### Workflow
+
+1. Write the tree at `tests/integration/concrete/{function-name}/{functionName}.tree`. Packages with several contracts
+   nest one more level, e.g. `lockup/tests/integration/concrete/lockup/cancel/cancel.tree`.
+2. Scaffold the test: `bulloak scaffold -wf --skip-modifiers --format-descriptions <path/to/file.tree>`
+   - `--skip-modifiers`: modifiers live in the shared `Modifiers.sol`, not in each test.
+   - `--format-descriptions`: capitalizes each branch and appends a period in the generated comments.
+3. Implement the test bodies (rules below).
+4. Check alignment: `bulloak check --skip-modifiers <path/to/file.tree>`, or `just <pkg>::test-bulloak` for a whole
+   package. Fix the tree or the test until they match.
+
+### File Rules
+
+1. Directory name is kebab-case: `createFlowStream` → `create-flow-stream/`.
+2. Tree file is `{functionName}.tree`; test file is `{functionName}.t.sol`.
+3. Single-tree root and contract name: `{FunctionName}_Integration_Concrete_Test`.
+4. Multiple trees in one file: each root is `Contract::function`, all sharing the same contract name (e.g.
+   `Foo::hashPair`, `Foo::min`).
+
+### Tree Syntax
+
+```
+FunctionName_Integration_Concrete_Test
+├── when delegate call
+│  └── it should revert
+└── when no delegate call
+   ├── given null
+   │  └── it should revert
+   └── given not null
+      └── it should ...
+```
+
+| Keyword | Purpose                                      |
+| ------- | -------------------------------------------- |
+| `when`  | Conditional branch (user input or timestamp) |
+| `given` | Pre-condition contract state branch          |
+| `it`    | Action/assertion (leaf node)                 |
+
+- `when` and `given` are interchangeable to bulloak; a condition with nested branches becomes a modifier.
+- Children of an `it` action are action descriptions.
+- Use `├` and `└` for branches. Child symbols align with the tail of the parent's `├──`/`└──`: **3 spaces**, not 4.
+- **No trailing periods** on branches; `--format-descriptions` adds them.
+- Put event names in braces: `it should emit {Transfer} and {MetadataUpdate} events`.
+
+### Tree Best Practices
+
+1. **Order guards first**: delegate call → existence (`given null`) → state → caller → input validation → business
+   logic.
+2. **Use concise, consistent terms**: `given null` / `given not null`, `when caller {role}`, `when amount {condition}`.
+3. **Group related conditions** under a shared parent (e.g. all non-owner caller cases together).
+4. **Enumerate every side effect** in the happy-path leaf:
+
+   ```
+   └── it should make the withdrawal
+      ├── it should reduce the entry balance by the withdrawn amount
+      ├── it should update the entry state
+      └── it should emit {Transfer}, {Withdraw} and {MetadataUpdate} events
+   ```
+
+### Test Naming
 
 | Pattern                       | Usage           |
 | ----------------------------- | --------------- |
 | `test_RevertWhen_{Condition}` | Revert on input |
 | `test_RevertGiven_{State}`    | Revert on state |
-| `test_When_{Condition}`       | Success path    |
+| `test_When{Condition}`        | Success path    |
+| `test_Given{State}`           | Success path    |
 
-### Rules
+### Test Rules
 
-1. **Stack modifiers** to document BTT path (modifiers are often empty - just document the path)
-2. **Expect events BEFORE action** - `vm.expectEmit()` then call function
-3. **Assert state AFTER action** - Check state changes after function executes
-4. **Use revert helpers** for common patterns (`expectRevert_DelegateCall`, `expectRevert_Null`)
-5. **Named parameters in assertions** - `assertEq(actual, expected, "description")`
+1. **Leaf comments** - each test starts with the leaf text as a comment: `// It should revert.`
+2. **Stack modifiers** to document the BTT path (modifiers are often empty - they only document the path).
+3. **No self-named modifier** - never add a modifier matching the test's own name
+   (`test_WhenAmountNotZero() whenAmountNotZero` is redundant).
+4. **Expect events BEFORE action** - `vm.expectEmit()` then call the function.
+5. **Assert state AFTER action** - check state changes after the function executes.
+6. **Use revert helpers** for common patterns (`expectRevert_DelegateCall`, `expectRevert_Null`).
+7. **Describe assertions** - `assertEq(actual, expected, "description")`.
 
 ### Mock Rules
 
@@ -226,8 +294,10 @@ forge inspect MyContract storage-layout
 ## Completion
 
 Finish only after the new or changed tests pass with a narrow `just <pkg>::test --match-path <path>` (or `--match-test`)
-run. Report the exact command and result; for BTT tests also run `just <pkg>::test-bulloak`.
+run, and, when a `.tree` file or BTT test changed, `just <pkg>::test-bulloak` passes for every touched package. Report
+the exact commands and results.
 
 ## External References
 
 - [Foundry Book](https://getfoundry.sh)
+- [Bulloak README](https://github.com/alexfertel/bulloak/blob/main/README.md)
