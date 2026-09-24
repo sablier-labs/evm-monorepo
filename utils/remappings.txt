@@ -1,0 +1,8 @@
+@arbitrum/=node_modules/@arbitrum/
+@chainlink/=node_modules/@chainlink/
+@eth-optimism/=node_modules/@eth-optimism/
+@offchainlabs/=node_modules/@offchainlabs/
+@openzeppelin/=node_modules/@openzeppelin/
+@scroll-tech/=node_modules/@scroll-tech/
+@zksync/=node_modules/@zksync/
+forge-std/=node_modules/forge-std/
