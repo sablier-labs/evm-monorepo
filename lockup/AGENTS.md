@@ -2,8 +2,6 @@
 
 Token distribution protocol for onchain vesting and airdrops with fixed-term streams.
 
-@../AGENTS.md
-
 ## Protocol Overview
 
 Lockup enables depositing ERC-20 tokens that are progressively allocated to recipients over time. Key models:
@@ -13,36 +11,6 @@ Lockup enables depositing ERC-20 tokens that are progressively allocated to reci
 - **Tranched**: Discrete unlocks at specified timestamps
 
 Uses singleton architecture - all streams managed in `SablierLockup` contract.
-
-## Package Structure
-
-```
-src/
-├── SablierLockup.sol           # Main contract
-├── SablierBatchLockup.sol      # Batch stream creation
-├── LockupNFTDescriptor.sol     # NFT metadata and SVG generation
-├── abstracts/                  # Shared base contracts
-├── interfaces/                 # ISablierLockup, etc.
-├── libraries/                  # Helpers, SVG generation
-└── types/                      # Structs, enums
-tests/
-├── integration/                # BTT-based and fuzz tests
-├── invariant/                  # Invariant tests
-├── unit/                       # Unit tests
-└── fork/                       # Fork tests
-scripts/
-└── solidity/                   # Deployment scripts
-```
-
-## Commands
-
-```bash
-just lockup::build           # Build
-just lockup::test            # Run tests
-just lockup::test-lite       # Fast tests (no optimizer)
-just lockup::coverage        # Coverage report
-just lockup::full-check      # All checks
-```
 
 ## Key Concepts
 

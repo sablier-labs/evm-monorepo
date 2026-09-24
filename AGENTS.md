@@ -41,7 +41,6 @@ git clone git@github.com:sablier-labs/evm-monorepo.git && cd evm-monorepo
 bun install                 # installs root + per-package deps, creates symlinks via `just setup`
 cp .env.example .env        # populate mnemonic + API keys
 just build-all              # build every package
-git switch staging          # all development happens on staging
 ```
 
 ## Commands
@@ -61,7 +60,7 @@ just test-all               # run every package's tests
 just full-check-all         # lint + format + test across all packages
 just <pkg>::build           # build one package
 just <pkg>::test            # run tests
-just <pkg>::test-lite       # fast tests, no optimizer
+just <pkg>::test-lite       # fast tests: lite profile, skips fork tests
 just <pkg>::test-optimized  # tests with optimizer profile
 just <pkg>::test-bulloak    # verify BTT structure
 just <pkg>::coverage        # coverage report
@@ -97,21 +96,3 @@ Local: copy `.env.example` to `.env` and populate the mnemonic + API keys. The `
 
 CI on forks: add `ROUTEMESH_API_KEY` ([Routemesh](https://routeme.sh/)) to the fork's GitHub Secrets so workflows can
 run.
-
-## VSCode
-
-Recommended extensions:
-
-- [even-better-toml](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
-- [hardhat-solidity](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity)
-- [prettier-vscode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
-- [vscode-solidity-inspector](https://marketplace.visualstudio.com/items?itemName=PraneshASP.vscode-solidity-inspector)
-
-## Security
-
-All protocols are audited. See [SECURITY.md](./SECURITY.md) for the disclosure policy and bug-bounty terms.
-
-## References
-
-- @justfile
-- @package.json

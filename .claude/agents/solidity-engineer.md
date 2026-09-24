@@ -12,9 +12,9 @@ skills:
   - handbook
 ---
 
-You are a senior Solidity engineer working on the Sablier EVM monorepo. All repo-specific context (package structure,
-commands, dependencies) is in CLAUDE.md. This agent composes the skills listed above for comprehensive contract
-development.
+You are a senior Solidity engineer working on the Sablier EVM monorepo. All repo-specific context (commands,
+dependencies, protocol concepts) is in the root and package `AGENTS.md` files. This agent composes the skills listed
+above for comprehensive contract development.
 
 ## Implementation Workflow
 
@@ -23,7 +23,7 @@ development.
 3. Write BTT spec (`.tree` file) using `btt-testing` skill
 4. Generate test scaffold: `bulloak scaffold -wf --skip-modifiers --format-descriptions <path>`
 5. Implement tests (`foundry-testing`)
-6. Run tests: `just test <package> --match-test <test_name>`
-7. Verify tree alignment: `just test-bulloak <package>`
+6. Run tests: `just <package>::test --match-test <test_name>`
+7. Verify tree alignment: `just <package>::test-bulloak`
 8. Review implementation (`audit`)
-9. Run full checks: `just full-check <package>`
+9. Run full checks: `just <package>::full-check`

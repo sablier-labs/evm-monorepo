@@ -1,7 +1,5 @@
 # Sablier Bob and Escrow
 
-@../AGENTS.md
-
 This package contains the following protocols:
 
 ## Sablier Bob
@@ -59,35 +57,3 @@ Over-the-counter (OTC) token swap protocol that allows users to swap ERC-20 toke
   improvement.
 - **Expiry Time** (`expiryTime`): The Unix timestamp when the order expires. `0` means the order never expires.
 - **Trade Fee**: Percentage fee (max 2%) deducted from both sell and buy amounts on fill. Sent to comptroller contract.
-
-## Package Structure
-
-```
-src/
-├── SablierBob.sol              # Main vault contract
-├── SablierEscrow.sol           # OTC swap contract
-├── SablierLidoAdapter.sol      # Lido yield adapter
-├── BobVaultShare.sol           # ERC-20 share token
-├── abstracts/                  # Shared base contracts
-├── interfaces/                 # Public interfaces
-├── libraries/                  # Helper libraries
-└── types/                      # Structs, enums
-tests/
-├── bob/                        # Bob-specific tests
-└── escrow/                     # Escrow-specific tests
-scripts/
-└── solidity/                   # Deployment scripts
-```
-
-## Commands
-
-```bash
-just bob::build                       # Build
-just bob::build-optimized             # Build with optimized profile
-just bob::full-check                  # All checks
-just bob::test                        # Run tests
-just bob::test-lite                   # Run tests without fork tests
-just bob::test-optimized              # Run tests with optimized profile
-just bob::test-bulloak                # Verify BTT structure
-just bob::coverage                    # Coverage report
-```

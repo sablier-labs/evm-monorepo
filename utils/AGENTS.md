@@ -2,8 +2,6 @@
 
 Shared utilities and comptroller contract used across all Sablier protocols.
 
-@../AGENTS.md
-
 ## Package Overview
 
 Two main components:
@@ -25,40 +23,6 @@ Reusable base contracts:
 - `Comptrollerable`: Base for contracts governed by a comptroller
 - `NoDelegateCall`: Prevent delegate calls
 - `RoleAdminable`: Role-based admin management
-
-## Package Structure
-
-```
-src/
-├── SablierComptroller.sol      # Fee and admin management
-├── Adminable.sol               # Admin base contract
-├── Batch.sol                   # Batch operations
-├── Comptrollerable.sol         # Comptroller integration base
-├── NoDelegateCall.sol          # Security modifier
-├── RoleAdminable.sol           # Role-based admin
-├── interfaces/                 # Public interfaces
-├── libraries/                  # Helper libraries
-├── mocks/                      # Test mocks
-└── tests/                      # Test helpers
-tests/
-├── integration/                # BTT-based and fuzz tests
-├── invariant/                  # Invariant tests
-├── fork/                       # Fork tests
-├── mocks/                      # Mock contracts
-└── utils/                      # Test utilities
-scripts/
-└── solidity/                   # Deployment scripts
-```
-
-## Commands
-
-```bash
-just utils::build            # Build
-just utils::test             # Run tests
-just utils::test-lite        # Fast tests (no optimizer)
-just utils::coverage         # Coverage report
-just utils::full-check       # All checks
-```
 
 ## Import Paths
 

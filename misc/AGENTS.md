@@ -1,7 +1,5 @@
 # Sablier Examples and Benchmarks
 
-@../AGENTS.md
-
 Unpublished package containing example integrations and gas benchmarks.
 
 > **Disclaimer**: Examples are NOT audited and are for demonstration only. Do not use in production.
