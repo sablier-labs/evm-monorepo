@@ -18,7 +18,6 @@ Rules and patterns for Foundry tests, bulloak `.tree` specs, and scripts. Find e
 | `references/test-infrastructure.md`  | Constants, defaults, mocks                | When setting up tests          |
 | `references/cheat-codes.md`          | Common cheatcode patterns                 | When using vm cheatcodes       |
 | `references/invariant-patterns.md`   | Handlers, stores, invariants              | When writing invariant tests   |
-| `references/formal-verification.md`  | Halmos, Certora, symbolic exec            | When proving correctness       |
 | `references/deployment-scripts.md`   | Script patterns, verification             | When writing deploy scripts    |
 | `references/deployment-checklist.md` | Pre-mainnet deployment steps              | Before deploying to production |
 | `references/gas-benchmarking.md`     | Snapshot, profiling, CI                   | When measuring gas performance |
