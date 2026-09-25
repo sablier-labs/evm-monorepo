@@ -22,6 +22,11 @@
       "isIgnored": true
     },
     {
+      "label": "Ignore local monorepo packages",
+      "dependencies": ["@sablier/evm-utils"],
+      "isIgnored": true
+    },
+    {
       "label": "Verify npm dependencies versions are the same everywhere",
       "dependencies": ["**"],
       "policy": "sameRange"
