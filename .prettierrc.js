@@ -2,14 +2,14 @@
  * @notice Lint CIs run from within the protocol directories. So, prettier needs to resolve devkit from the protocol's
  * node_modules folder.
  */
+const fs = require("node:fs");
+const path = require("node:path");
+
 function resolveDevkit() {
-  try {
-    return require("@prb/devkit/prettier").default;
-  } catch {
-    for (const pkg of ["airdrops", "bob", "flow", "lockup", "utils"]) {
-      try {
-        return require(`./${pkg}/node_modules/@prb/devkit/prettier`).default;
-      } catch {}
+  for (const dir of [".", "airdrops", "bob", "flow", "lockup", "utils"]) {
+    const file = path.join(__dirname, dir, "node_modules/@prb/devkit/.prettierrc.json");
+    if (fs.existsSync(file)) {
+      return JSON.parse(fs.readFileSync(file, "utf8"));
     }
   }
 }
