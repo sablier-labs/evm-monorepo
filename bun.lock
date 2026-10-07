@@ -5,7 +5,7 @@
     "": {
       "name": "@sablier/monorepo",
       "devDependencies": {
-        "@sablier/devkit": "1",
+        "@prb/devkit": "^1.1.1",
         "husky": "9.1.7",
         "lint-staged": "16.2.6",
         "prettier": "3.6.2",
@@ -26,7 +26,7 @@
 
     "@pnpm/npm-conf": ["@pnpm/npm-conf@3.0.2", "", { "dependencies": { "@pnpm/config.env-replace": "^1.1.0", "@pnpm/network.ca-file": "^1.0.1", "config-chain": "^1.1.11" } }, "sha512-h104Kh26rR8tm+a3Qkc5S4VLYint3FE48as7+/5oCEcKR2idC/pF1G6AhIXKI+eHPJa/3J9i5z0Al47IeGHPkA=="],
 
-    "@sablier/devkit": ["@sablier/devkit@1.12.1", "", { "peerDependencies": { "vitest": ">=2.0.0" }, "optionalPeers": ["vitest"] }, "sha512-f6FCJ2m3glP2TLDoqJPJW+mnp955v4gmYPJjG1hks5+yLhEjFPJbHkxtIITZOzuTnhPmZ6x6A7+zJgJW4Rw/5w=="],
+    "@prb/devkit": ["@prb/devkit@1.1.1", "", { "peerDependencies": { "@biomejs/biome": ">=2.5.0", "vitest": ">=2.0.0" }, "optionalPeers": ["@biomejs/biome", "vitest"] }, "sha512-LzdWdg0saUnCx1hflQDiTqEg1QWbjUam42arj3QvBQJGvf3xw6CYk6gbg00X/SOxi2o2q6HXfReB2ObQ6hrzxA=="],
 
     "@sindresorhus/is": ["@sindresorhus/is@5.6.0", "", {}, "sha512-TV7t8GKYaJWsn00tFDqBw8+Uqmr8A0fRU1tvTQhyZzGv0sJCGRQL3JGMI3ucuKo3XIZdUP+Lx7/gh2t3lewy7g=="],
 

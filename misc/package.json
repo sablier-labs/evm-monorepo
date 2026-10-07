@@ -19,7 +19,7 @@
     "@sablier/lockup": "4.0.1"
   },
   "devDependencies": {
-    "@sablier/devkit": "github:sablier-labs/devkit",
+    "@prb/devkit": "^1.1.1",
     "forge-std": "github:foundry-rs/forge-std#v1.14.0",
     "lint-staged": "16.2.6",
     "prettier": "3.6.2",

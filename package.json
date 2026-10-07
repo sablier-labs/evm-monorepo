@@ -9,7 +9,7 @@
     "url": "https://sablier.com"
   },
   "devDependencies": {
-    "@sablier/devkit": "1",
+    "@prb/devkit": "^1.1.1",
     "husky": "9.1.7",
     "lint-staged": "16.2.6",
     "prettier": "3.6.2",

@@ -20,7 +20,7 @@
     "@openzeppelin/contracts-upgradeable": "5.3.0"
   },
   "devDependencies": {
-    "@sablier/devkit": "1",
+    "@prb/devkit": "^1.1.1",
     "forge-std": "github:foundry-rs/forge-std#v1.10.0",
     "lint-staged": "16.2.6",
     "prettier": "3.6.2",

@@ -1,5 +1,5 @@
 # Run just --list to see all available commands
-import "./node_modules/@sablier/devkit/just/settings.just"
+import "./node_modules/@prb/devkit/just/settings.just"
 
 # Modules, use like this: just lockup::<recipe>
 mod airdrops "airdrops"

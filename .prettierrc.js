@@ -4,11 +4,11 @@
  */
 function resolveDevkit() {
   try {
-    return require("@sablier/devkit/.prettierrc.json");
+    return require("@prb/devkit/prettier").default;
   } catch {
     for (const pkg of ["airdrops", "bob", "flow", "lockup", "utils"]) {
       try {
-        return require(`./${pkg}/node_modules/@sablier/devkit/.prettierrc.json`);
+        return require(`./${pkg}/node_modules/@prb/devkit/prettier`).default;
       } catch {}
     }
   }

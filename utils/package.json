@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@openzeppelin/foundry-upgrades": "0.4.0",
-    "@sablier/devkit": "1",
+    "@prb/devkit": "^1.1.1",
     "lint-staged": "16.2.6",
     "prettier": "3.6.2",
     "solhint": "6.0.1"
